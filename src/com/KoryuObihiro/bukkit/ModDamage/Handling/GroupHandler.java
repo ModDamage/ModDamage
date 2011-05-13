@@ -289,7 +289,7 @@ private boolean loadRoutines()
 			}
 			return false;
 	}
-	
+	//asdf//asdddddffff
 	private int runRoutines(DamageType damageType, boolean isOffensive, int eventDamage)
 	{
 		int result = 0;
