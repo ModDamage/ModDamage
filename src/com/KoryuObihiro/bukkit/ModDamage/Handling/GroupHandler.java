@@ -56,28 +56,24 @@ private boolean loadRoutines()
 		//clear everything first
 		offensiveRoutines.clear();
 		defensiveRoutines.clear();
-		mobHealthSettings.clear();
-		offensiveItemRoutines.clear();
-		defensiveItemRoutines.clear();
+		pvpOffensiveRoutines.clear();
+		pvpDefensiveRoutines.clear();
+		itemOffensiveRoutines.clear();
+		itemDefensiveRoutines.clear();
 
-//load global settings (generic types define in DamageType enum)
+//load group settings
 		String damageCategories[] = {"animal", "item", "mob", "world"};
 		for(int i = 0; i < damageCategories.length; i++)
 		{
 			if(offensiveNode != null && !loadDamageTypeGroup(damageCategories[i], true) 
 					&& ModDamage.consoleDebugging_verbose)
-				log.warning("Couldn't find world \"" + world.getName() + "\" Offensive category node \"" + damageCategories[i] + "\"");
+				worldHandler.log.warning("Couldn't find group " + groupName + " (in world \"" + worldHandler.getWorld().getName() + "\") Offensive category node \"" + damageCategories[i] + "\"");
 			if(defensiveNode != null && !loadDamageTypeGroup(damageCategories[i], false) 
 					&& ModDamage.consoleDebugging_verbose)
-				log.warning("Couldn't find world \"" + world.getName() + "\" Defensive category node \"" + damageCategories[i] + "\"");
+				worldHandler.log.warning("Couldn't find " + groupName + " (in world \"" + worldHandler.getWorld().getName() + "\") Defensive category node \"" + damageCategories[i] + "\"");
 		}
 		
-//load mob health
-		if(mobHealthNode != null)
-			loadMobHealth();
-		else if(ModDamage.consoleDebugging) log.warning("Couldn't find world \"" + world.getName() + "\" MobHealth node");
 //load item settings - item-specifics are not handled by "item" damage category
-
 		if(offensiveNode != null)
 			loadItemRoutines(true);
 		if(defensiveNode != null)
@@ -86,39 +82,12 @@ private boolean loadRoutines()
 	catch(Exception e)
 	{
 		e.printStackTrace();
-		log.severe("[" + plugin.getDescription().getName() 
-				+ "] Invalid configuration for world \"" + world.getName()
-				+ "\"; using default settings");
+		worldHandler.log.severe("[" + worldHandler.plugin.getDescription().getName() 
+				+ "] Invalid configuration for group " + groupName + " world \"" 
+				+ worldHandler.getWorld().getName() + "\"; using default settings");
 		useDefaults();
 		return false;
 	}
-	return true;
-	try
-	{
-		offensiveRoutines.clear();
-		defensiveRoutines.clear();
-		
-//load group attack settings
-		loadDamageType("animal", true);
-		loadDamageType("mob", true);
-		loadDamageType("item", true);
-		loadDamageType("world", true);
-		
-//load group defense settings
-		loadDamageType("animal", true);
-		loadDamageType("mob", false);
-		loadDamageType("item", false);
-		loadDamageType("world", false);
-	}
-	catch(Exception e)
-	{
-		ModDamage.log.severe("[" + worldHandler.plugin.getDescription().getName() 
-				+ "] Invalid configuration for group \"" + groupName + "\" for world \"" + worldHandler.world.getName()
-				+ "\"; using default settings");
-		useDefaults();
-		return false;
-	}
-	
 	return true;
 }
 
@@ -191,7 +160,7 @@ private boolean loadRoutines()
 					for(String calcString : calcStrings)
 						if(!damageCalc.checkCommandString(calcString))
 						{
-							ModDamage.log.severe("[" + worldHandler.plugin.getDescription().getName() + "] Invalid command string \"" 
+							worldHandler.log.severe("[" + worldHandler.plugin.getDescription().getName() + "] Invalid command string \"" 
 								+ calcString + "\" for group " + groupName + " in " + (isOffensive?"Offensive ":"Defensive ") + damageType.getConfigReference() 
 								+ " definition - refer to config for proper calculation node");
 							calcStrings.clear();
@@ -201,21 +170,124 @@ private boolean loadRoutines()
 					if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageType))
 						(isOffensive?offensiveRoutines:defensiveRoutines).put(damageType, calcStrings);
 					else if(ModDamage.consoleDebugging) 
-						ModDamage.log.warning("[" + worldHandler.plugin.getDescription().getName() + "] Repetitive " 
+						worldHandler.log.warning("[" + worldHandler.plugin.getDescription().getName() + "] Repetitive " 
 							+ damageType.getConfigReference() + " definition in " + (isOffensive?"Offensive":"Defensive") + " settings for group " + groupName + " - ignoring");
 				}
 				else if(ModDamage.consoleDebugging_verbose)
 				{		
-					ModDamage.log.warning("[" + worldHandler.plugin.getDescription().getName() + "] No instructions found for group " 
+					worldHandler.log.warning("[" + worldHandler.plugin.getDescription().getName() + "] No instructions found for group " 
 						+ groupName + " " + damageType.getConfigReference() + " node in " + (isOffensive?"Offensive":"Defensive") + " for world " 
 						+ worldHandler.world.getName() +  " - is this on purpose?");
 				}
 				if(ModDamage.consoleDebugging)
-					ModDamage.log.info("[" + worldHandler.plugin.getDescription().getName() + "] " + worldHandler.world.getName() 
+					worldHandler.log.info("[" + worldHandler.plugin.getDescription().getName() + "] " + worldHandler.world.getName() 
 						+ ":" + groupName + ":" + (isOffensive?"Offensive":"Defensive") + ":" 
 						+ damageType.getDescriptor() + ":" + damageType.getConfigReference() + " " 
 						+ (ModDamage.consoleDebugging_verbose?("\n" + calcStrings.toString()):""));//debugging
 			}
+	}
+	
+	public boolean loadItemRoutines(boolean isOffensive){ return loadItemRoutines(isOffensive, false);}
+	public boolean loadItemRoutines(boolean isOffensive, boolean force)
+	{
+		ConfigurationNode itemNode = (isOffensive
+											?offensiveNode.getNode("item")
+											:defensiveNode.getNode("item"));
+		if(itemNode != null)	
+		{
+			List<String> itemList = (isOffensive?offensiveNode:defensiveNode).getKeys("item");
+			for(Material material : Material.values())
+				if(itemList.contains(material.name()) || itemList.contains(material.getId()))
+				{
+					List<String> calcStrings = itemNode.getStringList(material.name(), null);
+					worldHandler.log.warning(material.name() + " " + itemNode.getStringList(Integer.toString(material.getId()).toUpperCase(), null).toString());
+					if(calcStrings == null) calcStrings = itemNode.getStringList(Integer.toString(material.getId()), null);
+					if(!calcStrings.equals(null))
+					{
+						for(String calcString : calcStrings)
+							if(!damageCalc.checkCommandString(calcString))
+							{
+								worldHandler.log.severe("Invalid command string \"" + calcString + "\" in " 
+										+ (isOffensive?"Offensive":"Defensive") + " " + material.name() + "(" + material.getId()
+										+ ") definition - refer to config for proper calculation node");
+								calcStrings.clear();
+							}
+						if(calcStrings.size() > 0)
+						{
+							if(ModDamage.consoleDebugging) worldHandler.log.info("Loaded " + worldHandler.getWorld().getName() 
+									+ ":" + groupName + ":" + (isOffensive?"Offensive":"Defensive") 
+									+ ":" + material.name() + "(" + material.getId() + ")"
+									+ (ModDamage.consoleDebugging_verbose?(" " + calcStrings.toString()):""));//debugging
+							if(!(isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).containsKey(material))
+								(isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).put(material, calcStrings);
+							else if(ModDamage.consoleDebugging) worldHandler.log.warning("[" + worldHandler.plugin.getDescription().getName() + "] Repetitive " 
+									+ material.name() + "(" + material.getId() + ") definition in " + (isOffensive?"Offensive":"Defensive") 
+									+ " item group settings - ignoring");
+						}
+						else if(ModDamage.consoleDebugging_verbose)
+						{
+							worldHandler.log.warning("No instructions found for group " + material.name() + "(" + material.getId()
+								+ ") item node in " + (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
+						}
+						if(ModDamage.consoleDebugging)
+							worldHandler.log.info(worldHandler.getWorld().getName() + ":" 
+									+ ":" + groupName + (isOffensive?"Offensive":"Defensive") + ":" 
+									+ material.name() + "(" + material.getId() + ") "
+									+ calcStrings.toString());//debugging
+						return true;
+					}
+				}
+		}
+		return false;
+	}
+	
+	public boolean loadDamageTypeGroup(String damageDescriptor, boolean isOffensive)
+	{
+		ConfigurationNode relevantNode = (isOffensive
+											?offensiveNode.getNode(damageDescriptor)
+											:defensiveNode.getNode(damageDescriptor));
+			if(relevantNode != null)
+			{
+				if(ModDamage.consoleDebugging) worldHandler.log.info("Found group " + (isOffensive?"Offensive":"Defensive") + " " + damageDescriptor + " node");
+				for(DamageType damageType : DamageType.values())
+					if(damageType.getDescriptor().equals(damageDescriptor))
+					{
+						//check for leaf-node buff strings
+						List<String> calcStrings = relevantNode.getStringList(damageType.getConfigReference(), null);
+						if(!calcStrings.equals(null)) //!calcStrings.equals(null)
+						{
+							for(String calcString : calcStrings)
+								if(!damageCalc.checkCommandString(calcString))
+								{
+									worldHandler.log.severe("[" + worldHandler.plugin.getDescription().getName() + "] Invalid command string \"" 
+											+ calcString + "\" in " + (isOffensive?"Offensive":"Defensive") + " " + damageType.getConfigReference() 
+											+ " definition - refer to config for proper calculation node");
+									calcStrings.clear();
+								}
+							if(calcStrings.size() > 0)
+							{
+								if(ModDamage.consoleDebugging) worldHandler.log.info(worldHandler.world.getName() 
+										+ ":" + groupName + ":" + (isOffensive?"Offensive":"Defensive") 
+										+ ":" + damageType.getConfigReference() 
+										+ (ModDamage.consoleDebugging_verbose?(" " + calcStrings.toString()):""));//debugging
+								if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageType))
+									(isOffensive?offensiveRoutines:defensiveRoutines).put(damageType, calcStrings);
+								else if(ModDamage.consoleDebugging) worldHandler.log.warning("Repetitive "  + damageType.getConfigReference() 
+										+ " definition in " + (isOffensive?"Offensive":"Defensive") + " " 
+										+ damageDescriptor + " group settings - ignoring");
+							}
+							else if(ModDamage.consoleDebugging_verbose)
+							{
+								worldHandler.log.warning("No instructions found for group setting " + damageType.getConfigReference() 
+									+ " node in " + (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
+							}
+						}
+						else if(ModDamage.consoleDebugging_verbose) worldHandler.log.info("Group " + damageType.getConfigReference() 
+								+ " node for" + (isOffensive?"Offensive":"Defensive") + " not found.");
+					}
+				return true;
+			}
+			return false;
 	}
 	
 	private int runRoutines(DamageType damageType, boolean isOffensive, int eventDamage)

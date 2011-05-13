@@ -19,7 +19,7 @@ public class WorldHandler
 {
 //// MEMBERS ////
 	public ModDamage plugin;
-	private Logger log;
+	public Logger log;
 	public World world;
 	
 	public boolean isLoaded = false;
@@ -160,7 +160,7 @@ public class WorldHandler
 				if(itemList.contains(material.name()) || itemList.contains(material.getId()))
 				{
 					List<String> calcStrings = itemNode.getStringList(material.name(), null);
-					log.warning(material.name() + " " + itemNode.getStringList(Integer.toString(material.getId()), null).toString());
+					log.warning(material.name() + " " + itemNode.getStringList(Integer.toString(material.getId()).toUpperCase(), null).toString());
 					if(calcStrings == null) calcStrings = itemNode.getStringList(Integer.toString(material.getId()), null);
 					if(!calcStrings.equals(null))
 					{
