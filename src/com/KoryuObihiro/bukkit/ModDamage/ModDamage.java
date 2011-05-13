@@ -100,7 +100,7 @@ public class ModDamage extends JavaPlugin
 													pluginMobHealthNode.getNode(world.getName())};
 				for(int i = 0; i < worldNodes.length; i++)
 					if(worldNodes[i] == null && (consoleDebugging))
-						log.warning("Couldn't find " + nodeNames[i] +  " node for world \"" + world.getName() + "\"");
+						log.warning("{Couldn't find " + nodeNames[i] +  " node for world \"" + world.getName() + "\"}");
 				worldHandlers.put(world, new WorldHandler(this, world, worldNodes[0], worldNodes[1], worldNodes[2], damageCalc, healthCalc));
 			}
 		else log.severe("Couldn't find configuration nodes - does the config file exist?");

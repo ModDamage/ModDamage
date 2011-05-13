@@ -160,8 +160,8 @@ private boolean loadRoutines()
 					for(String calcString : calcStrings)
 						if(!damageCalc.checkCommandString(calcString))
 						{
-							worldHandler.log.severe("[" + worldHandler.plugin.getDescription().getName() + "] Invalid command string \"" 
-								+ calcString + "\" for group " + groupName + " in " + (isOffensive?"Offensive ":"Defensive ") + damageType.getConfigReference() 
+							worldHandler.log.severe("Invalid command string \"" + calcString + "\" for group " + groupName 
+								+ " in " + (isOffensive?"Offensive ":"Defensive ") + damageType.getConfigReference() 
 								+ " definition - refer to config for proper calculation node");
 							calcStrings.clear();
 						}
@@ -170,13 +170,13 @@ private boolean loadRoutines()
 					if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageType))
 						(isOffensive?offensiveRoutines:defensiveRoutines).put(damageType, calcStrings);
 					else if(ModDamage.consoleDebugging) 
-						worldHandler.log.warning("[" + worldHandler.plugin.getDescription().getName() + "] Repetitive " 
-							+ damageType.getConfigReference() + " definition in " + (isOffensive?"Offensive":"Defensive") + " settings for group " + groupName + " - ignoring");
+						worldHandler.log.warning("Repetitive " + damageType.getConfigReference() + " definition in " 
+								+ (isOffensive?"Offensive":"Defensive") + " settings for group " + groupName + " - ignoring");
 				}
 				else if(ModDamage.consoleDebugging_verbose)
 				{		
-					worldHandler.log.warning("[" + worldHandler.plugin.getDescription().getName() + "] No instructions found for group " 
-						+ groupName + " " + damageType.getConfigReference() + " node in " + (isOffensive?"Offensive":"Defensive") + " for world " 
+					worldHandler.log.warning("No instructions found for group " + groupName + " " + damageType.getConfigReference() 
+						+ " node in " + (isOffensive?"Offensive":"Defensive") + " for world " 
 						+ worldHandler.world.getName() +  " - is this on purpose?");
 				}
 				if(ModDamage.consoleDebugging)
@@ -214,7 +214,7 @@ private boolean loadRoutines()
 							}
 						if(calcStrings.size() > 0)
 						{
-							if(ModDamage.consoleDebugging) worldHandler.log.info("Loaded " + worldHandler.getWorld().getName() 
+							if(ModDamage.consoleDebugging) worldHandler.log.info("-" + worldHandler.getWorld().getName() 
 									+ ":" + groupName + ":" + (isOffensive?"Offensive":"Defensive") 
 									+ ":" + material.name() + "(" + material.getId() + ")"
 									+ (ModDamage.consoleDebugging_verbose?(" " + calcStrings.toString()):""));//debugging
@@ -230,7 +230,7 @@ private boolean loadRoutines()
 								+ ") item node in " + (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
 						}
 						if(ModDamage.consoleDebugging)
-							worldHandler.log.info(worldHandler.getWorld().getName() + ":" 
+							worldHandler.log.info("-" + worldHandler.getWorld().getName() + ":" 
 									+ ":" + groupName + (isOffensive?"Offensive":"Defensive") + ":" 
 									+ material.name() + "(" + material.getId() + ") "
 									+ calcStrings.toString());//debugging
@@ -248,7 +248,7 @@ private boolean loadRoutines()
 											:defensiveNode.getNode(damageDescriptor));
 			if(relevantNode != null)
 			{
-				if(ModDamage.consoleDebugging) worldHandler.log.info("Found group " + (isOffensive?"Offensive":"Defensive") + " " + damageDescriptor + " node");
+				if(ModDamage.consoleDebugging) worldHandler.log.info("{Found group " + (isOffensive?"Offensive":"Defensive") + " " + damageDescriptor + " node}");
 				for(DamageType damageType : DamageType.values())
 					if(damageType.getDescriptor().equals(damageDescriptor))
 					{
@@ -266,7 +266,7 @@ private boolean loadRoutines()
 								}
 							if(calcStrings.size() > 0)
 							{
-								if(ModDamage.consoleDebugging) worldHandler.log.info(worldHandler.world.getName() 
+								if(ModDamage.consoleDebugging) worldHandler.log.info("-" + worldHandler.world.getName() 
 										+ ":" + groupName + ":" + (isOffensive?"Offensive":"Defensive") 
 										+ ":" + damageType.getConfigReference() 
 										+ (ModDamage.consoleDebugging_verbose?(" " + calcStrings.toString()):""));//debugging
@@ -289,7 +289,7 @@ private boolean loadRoutines()
 			}
 			return false;
 	}
-	//LOLWUTNOWAI
+	
 	private int runRoutines(DamageType damageType, boolean isOffensive, int eventDamage)
 	{
 		int result = 0;

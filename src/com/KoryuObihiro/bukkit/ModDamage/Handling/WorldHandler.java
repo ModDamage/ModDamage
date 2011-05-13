@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Handling;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -56,7 +57,7 @@ public class WorldHandler
 		this.healthCalc = healthCalc;
 		
 		isLoaded = loadGlobalRoutines();
-		groupsLoaded = loadGroupHandlers(true);
+		groupsLoaded = ((isLoaded)?loadGroupHandlers(true):false);
 		
 		if(isLoaded) log.info("[" + plugin.getDescription().getName() + "] Global configuration for world \"" 
 				+ world.getName() + "\" initialized!");
@@ -92,16 +93,15 @@ public class WorldHandler
 			{
 				if(offensiveNode != null && !loadDamageTypeGroup(damageCategories[i], true) 
 						&& ModDamage.consoleDebugging_verbose)
-					log.warning("Couldn't find world \"" + world.getName() + "\" Offensive category node \"" + damageCategories[i] + "\"");
+					log.warning("{Couldn't find world \"" + world.getName() + "\" Offensive category node \"" + damageCategories[i] + "\"}");
 				if(defensiveNode != null && !loadDamageTypeGroup(damageCategories[i], false) 
 						&& ModDamage.consoleDebugging_verbose)
-					log.warning("Couldn't find world \"" + world.getName() + "\" Defensive category node \"" + damageCategories[i] + "\"");
+					log.warning("{Couldn't find world \"" + world.getName() + "\" Defensive category node \"" + damageCategories[i] + "\"}");
 			}
 			
 	//load mob health
 			if(mobHealthNode != null)
 				loadMobHealth();
-			else if(ModDamage.consoleDebugging) log.warning("Couldn't find world \"" + world.getName() + "\" MobHealth node");
 	//load item settings - item-specifics are not handled by "item" damage category
 
 			if(offensiveNode != null)
@@ -123,13 +123,9 @@ public class WorldHandler
 	
 	public boolean loadGroupHandlers(boolean force)
 	{
-		//get group offensive/defensive nodes
-		ConfigurationNode groupOffensiveNode = offensiveNode.getNode("groups");
-		ConfigurationNode groupDefensiveNode = defensiveNode.getNode("groups");
-		
-		//TODO finish this stuff
-		List<String> groups = offensiveNode.getKeys("groups");
-		groups.addAll(defensiveNode.getKeys("groups"));
+		//get all of the groups in configuration
+		List<String> groups = ((offensiveNode != null)?offensiveNode.getKeys("groups"):new ArrayList<String>());
+		if(defensiveNode != null) groups.addAll(defensiveNode.getKeys("groups"));
 		
 		//load groups with offensive and defensive settings first
 		for(String group : groups)
@@ -138,12 +134,14 @@ public class WorldHandler
 			{
 				groupHandlers.remove(group);
 				if(ModDamage.consoleDebugging)
-					ModDamage.log.info("Forcing reload of group " + group + "...");
+					ModDamage.log.info("{Forcing reload of group " + group + "...}");
 			}
 			if(!groupHandlers.containsKey(group))
-				groupHandlers.put(group, new GroupHandler(this, group, groupOffensiveNode.getNode(group), groupDefensiveNode.getNode(group), damageCalc));
+				groupHandlers.put(group, new GroupHandler(this, group, 
+								((offensiveNode != null)?offensiveNode.getNode("groups"):null),
+								((defensiveNode != null)?defensiveNode.getNode("groups").getNode(group):null), 
+								damageCalc));
 		}
-		
 		return true;
 	}
 	
@@ -172,9 +170,10 @@ public class WorldHandler
 										+ ") definition - refer to config for proper calculation node");
 								calcStrings.clear();
 							}
+						//TODO Fix individual item typing
 						if(calcStrings.size() > 0)
 						{
-							if(ModDamage.consoleDebugging) log.info("Loaded " + world.getName() 
+							if(ModDamage.consoleDebugging) log.info(world.getName() 
 									+ ":" + (isOffensive?"Offensive":"Defensive") + ":" + material.name() + "(" + material.getId() + ")"
 									+ (ModDamage.consoleDebugging_verbose?(" " + calcStrings.toString()):""));//debugging
 							if(!(isOffensive?offensiveItemRoutines:defensiveItemRoutines).containsKey(material))
@@ -188,7 +187,7 @@ public class WorldHandler
 								+ ") item node in " + (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
 						}
 						if(ModDamage.consoleDebugging)
-							ModDamage.log.info(world.getName() + ":" + (isOffensive?"Offensive":"Defensive") + ":" 
+							ModDamage.log.info("-" + world.getName() + ":" + (isOffensive?"Offensive":"Defensive") + ":" 
 									+ material.name() + "(" + material.getId() + ") "
 									+ calcStrings.toString());//debugging
 						return true;
@@ -199,6 +198,103 @@ public class WorldHandler
 	}
 	public void useDefaults(){ isLoaded = false;}
 	
+	
+
+	public boolean loadDamageTypeGroup(String damageDescriptor, boolean isOffensive)
+	{
+		ConfigurationNode relevantNode = (isOffensive
+											?offensiveNode.getNode("global").getNode(damageDescriptor)
+											:defensiveNode.getNode("global").getNode(damageDescriptor));
+			if(relevantNode != null)
+			{
+				if(ModDamage.consoleDebugging) log.info("{Found global " + (isOffensive?"Offensive":"Defensive") + " " + damageDescriptor + " node}");
+				for(DamageType damageType : DamageType.values())
+					if(damageType.getDescriptor().equals(damageDescriptor))
+					{
+						//check for leaf-node buff strings
+						List<String> calcStrings = relevantNode.getStringList(damageType.getConfigReference(), null);
+						if(!calcStrings.equals(null)) //!calcStrings.equals(null)
+						{
+							for(String calcString : calcStrings)
+								if(!damageCalc.checkCommandString(calcString))
+								{
+									log.severe("Invalid command string \"" 
+											+ calcString + "\" in " + (isOffensive?"Offensive":"Defensive") + " " + damageType.getConfigReference() 
+											+ " definition - refer to config for proper calculation node");
+									calcStrings.clear();
+								}
+							if(calcStrings.size() > 0)
+							{
+								if(ModDamage.consoleDebugging) log.info("-" + world.getName() + ":" + (isOffensive?"Offensive":"Defensive") 
+										+ ":" + damageType.getConfigReference() 
+										+ (ModDamage.consoleDebugging_verbose?(" " + calcStrings.toString()):"") );//debugging
+								if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageType))
+									(isOffensive?offensiveRoutines:defensiveRoutines).put(damageType, calcStrings);
+								else if(ModDamage.consoleDebugging) log.warning("Repetitive "+ damageType.getConfigReference() 
+										+ " definition in " + (isOffensive?"Offensive":"Defensive") + " " + damageDescriptor + " globals - ignoring");
+							}
+							else if(ModDamage.consoleDebugging_verbose)
+							{
+								log.warning("No instructions found for global " + damageType.getConfigReference() 
+									+ " node in " + (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
+							}
+						}
+						else if(ModDamage.consoleDebugging_verbose) log.info("Global " + damageType.getConfigReference() 
+								+ " node for" + (isOffensive?"Offensive":"Defensive") + " not found.");
+					}
+				return true;
+			}
+			return false;
+	}
+	
+
+///////////////////// MOB SPAWNING ///////////////////////
+	public void loadMobHealth()
+	{
+		
+		log.info("Found MobHealth node");
+		//load Mob health settings
+		for(DamageType mobType : DamageType.values())
+			if(mobType.getDescriptor().equals("mob") || mobType.getDescriptor().equals("animal"))
+			{
+			//check for leaf-node health strings
+				String calcString = (String) mobHealthNode.getProperty(mobType.getConfigReference());
+				if(calcString != null)
+				{
+					//calcString = calcString.substring(1, calcString.length() - 1); //use this when checking for leaf nodes, not properties
+					if(!healthCalc.checkCommandString(calcString))
+					{
+						log.severe("Invalid command string \"" + calcString + "\" in MobHealth " + mobType.getConfigReference() 
+								+ " definition - refer to config for proper calculation node");
+					}
+				//display debug message to acknowledge that the settings have been validated
+					if(ModDamage.consoleDebugging) log.info("-" + world.getName() + ":MobHealth:" + mobType.getConfigReference() 
+							+ (ModDamage.consoleDebugging_verbose?(" " + calcString.toString()):""));
+				//check that this type of mob hasn't already been loaded
+					if(!mobHealthSettings.containsKey(mobType))
+						mobHealthSettings.put(mobType, calcString);
+					else if(ModDamage.consoleDebugging) log.warning("Repetitive " + mobType.getConfigReference() 
+							+ " definition for MobHealth " + mobType.getConfigReference() + " - ignoring");
+				}
+				else if(ModDamage.consoleDebugging_verbose)
+				{
+					log.warning("No instructions found for MobHealth " + mobType.getConfigReference() 
+						+ " node - is this on purpose?");
+				}
+			}
+	}
+	
+	public void setHealth(Entity entity)
+	{
+		//determine creature type
+		DamageType creatureType = DamageType.matchEntityType(entity);
+		if(creatureType != null && mobHealthSettings.containsKey(creatureType))
+		{
+			Creature creature = (Creature)entity;
+			creature.setHealth(healthCalc.parseCommand(mobHealthSettings.get(creatureType)));
+		}
+		
+	}	
 
 ///////////////////// DAMAGE HANDLING ///////////////////////
 //Player-targeted damage
@@ -345,102 +441,6 @@ public class WorldHandler
 	}
 //----
 	
-	public boolean loadDamageTypeGroup(String damageDescriptor, boolean isOffensive)
-	{
-		ConfigurationNode relevantNode = (isOffensive
-											?offensiveNode.getNode("global").getNode(damageDescriptor)
-											:defensiveNode.getNode("global").getNode(damageDescriptor));
-			if(relevantNode != null)
-			{
-				if(ModDamage.consoleDebugging) log.info("Found global " + (isOffensive?"Offensive":"Defensive") + " " + damageDescriptor + " node");
-				for(DamageType damageType : DamageType.values())
-					if(damageType.getDescriptor().equals(damageDescriptor))
-					{
-						//check for leaf-node buff strings
-						List<String> calcStrings = relevantNode.getStringList(damageType.getConfigReference(), null);
-						if(!calcStrings.equals(null)) //!calcStrings.equals(null)
-						{
-							for(String calcString : calcStrings)
-								if(!damageCalc.checkCommandString(calcString))
-								{
-									log.severe("[" + plugin.getDescription().getName() + "] Invalid command string \"" 
-											+ calcString + "\" in " + (isOffensive?"Offensive":"Defensive") + " " + damageType.getConfigReference() 
-											+ " definition - refer to config for proper calculation node");
-									calcStrings.clear();
-								}
-							if(calcStrings.size() > 0)
-							{
-								if(ModDamage.consoleDebugging) log.info(world.getName() + ":" + (isOffensive?"Offensive":"Defensive") 
-										+ ":" + damageType.getConfigReference() 
-										+ (ModDamage.consoleDebugging_verbose?(" " + calcStrings.toString()):""));//debugging
-								if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageType))
-									(isOffensive?offensiveRoutines:defensiveRoutines).put(damageType, calcStrings);
-								else if(ModDamage.consoleDebugging) log.warning("[" + plugin.getDescription().getName() + "] Repetitive " 
-										+ damageType.getConfigReference() + " definition in " + (isOffensive?"Offensive":"Defensive") + " " + damageDescriptor + " globals - ignoring");
-							}
-							else if(ModDamage.consoleDebugging_verbose)
-							{
-								log.warning("No instructions found for global " + damageType.getConfigReference() 
-									+ " node in " + (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
-							}
-						}
-						else if(ModDamage.consoleDebugging_verbose) log.info("Global " + damageType.getConfigReference() 
-								+ " node for" + (isOffensive?"Offensive":"Defensive") + " not found.");
-					}
-				return true;
-			}
-			return false;
-	}
-	
-
-///////////////////// MOB SPAWNING ///////////////////////
-	public void loadMobHealth()
-	{
-		
-		log.info("Found MobHealth node");
-		//load Mob health settings
-		for(DamageType mobType : DamageType.values())
-			if(mobType.getDescriptor().equals("mob") || mobType.getDescriptor().equals("animal"))
-			{
-			//check for leaf-node health strings
-				String calcString = (String) mobHealthNode.getProperty(mobType.getConfigReference());
-				if(calcString != null)
-				{
-					//calcString = calcString.substring(1, calcString.length() - 1); //use this when checking for leaf nodes, not properties
-					if(!healthCalc.checkCommandString(calcString))
-					{
-						log.severe("Invalid command string \"" + calcString + "\" in MobHealth " + mobType.getConfigReference() 
-								+ " definition - refer to config for proper calculation node");
-					}
-				//display debug message to acknowledge that the settings have been validated
-					if(ModDamage.consoleDebugging) log.info(world.getName() + ":MobHealth:" + mobType.getConfigReference() 
-							+ (ModDamage.consoleDebugging_verbose?(" " + calcString.toString()):""));
-				//check that this type of mob hasn't already been loaded
-					if(!mobHealthSettings.containsKey(mobType))
-						mobHealthSettings.put(mobType, calcString);
-					else if(ModDamage.consoleDebugging) log.warning("Repetitive " + mobType.getConfigReference() 
-							+ " definition for MobHealth " + mobType.getConfigReference() + " - ignoring");
-				}
-				else if(ModDamage.consoleDebugging_verbose)
-				{
-					log.warning("No instructions found for MobHealth " + mobType.getConfigReference() 
-						+ " node - is this on purpose?");
-				}
-			}
-	}
-	
-	public void setHealth(Entity entity)
-	{
-		//determine creature type
-		DamageType creatureType = DamageType.matchEntityType(entity);
-		if(creatureType != null && mobHealthSettings.containsKey(creatureType))
-		{
-			Creature creature = (Creature)entity;
-			creature.setHealth(healthCalc.parseCommand(mobHealthSettings.get(creatureType)));
-		}
-		
-	}
-
 ///////////////////// HELPER FUNCTIONS ///////////////////////
 	
 	public boolean group_isLoaded(String groupName){ return groupHandlers.containsKey(groupName);}
