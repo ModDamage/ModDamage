@@ -289,7 +289,7 @@ private boolean loadRoutines()
 			}
 			return false;
 	}
-	
+	//LOLWUTNOWAI
 	private int runRoutines(DamageType damageType, boolean isOffensive, int eventDamage)
 	{
 		int result = 0;
