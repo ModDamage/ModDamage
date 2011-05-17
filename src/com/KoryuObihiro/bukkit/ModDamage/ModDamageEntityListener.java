@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
+import org.bukkit.entity.Creature;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityListener;
@@ -17,8 +18,16 @@ public class ModDamageEntityListener extends EntityListener
 	
 //Functions
 	@Override
-	public void onEntityDamage(EntityDamageEvent event){ plugin.passDamageEvent(event);}
+	public void onEntityDamage(EntityDamageEvent event)
+	{
+		
+		plugin.passDamageEvent(event);
+	}
 	
 	@Override
-	public void onCreatureSpawn(CreatureSpawnEvent event){ plugin.passSpawnEvent(event);}
+	public void onCreatureSpawn(CreatureSpawnEvent event)
+	{ 
+		if(plugin.disable_DefaultHealth) ((Creature)event.getEntity()).setHealth(0);
+		plugin.passSpawnEvent(event);
+	}
 }

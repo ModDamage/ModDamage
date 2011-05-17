@@ -40,16 +40,24 @@ public class ModDamage extends JavaPlugin
 	private final ModDamagePlayerListener playerListener = new ModDamagePlayerListener(this);
 	public static Logger log = Logger.getLogger("Minecraft");
 	public static PermissionHandler Permissions = null;
+	private Configuration config;
 	
 	//config
 	private ConfigurationNode pluginOffensiveNode, pluginDefensiveNode, pluginMobHealthNode;
-	private final DamageCalculator damageCalc = new DamageCalculator();
-	private final HealthCalculator healthCalc = new HealthCalculator();
-	public static boolean consoleDebugging;
-	public static boolean consoleDebugging_verbose;
+	public static boolean consoleDebugging_quiet = false;
+	public static boolean consoleDebugging_normal = true;
+	public static boolean consoleDebugging_verbose = false;
+	public static boolean disable_DefaultDamage;
+	public static boolean disable_DefaultHealth;
+	public static boolean negative_Heal;
 
 	//plugin-specific
 	public final HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>();
+	private final DamageCalculator damageCalc = new DamageCalculator();
+	private final HealthCalculator healthCalc = new HealthCalculator();
+	
+	
+
 	
 ////////////////////////// INITIALIZATION ///////////////////////////////
 	@Override
@@ -70,43 +78,13 @@ public class ModDamage extends JavaPlugin
 		//register plugin-related stuff with the server's plugin manager
 		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.High, this);
 		getServer().getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.High, this);
-		//getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Normal, this);
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Event.Priority.Normal, this);
+		//getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Normal, this);
 		
-	//CONFIGURATION
-		//get plugin config.yml
-		Configuration config = this.getConfiguration();
-		config.load();
-		pluginOffensiveNode = config.getNode("Offensive");
-		pluginDefensiveNode = config.getNode("Defensive");
-		pluginMobHealthNode = config.getNode("MobHealth");
-
-		//load debug settings
-		consoleDebugging = config.getBoolean("debugging", true);
-		if(consoleDebugging)
-		{ 
-			consoleDebugging_verbose = config.getBoolean("debugging_verbose", true);
-			if(consoleDebugging_verbose) log.info("[" + getDescription().getName()+ "] Verbose debugging active.");
-			else log.info("[" + getDescription().getName()+ "] Debugging active.");	
-		}
-		
-		//try to initialize WorldHandlers
-		String nodeNames[] = {"Offensive", "Defensive", "MobHealth"};
-		if(pluginOffensiveNode != null && pluginDefensiveNode != null && pluginMobHealthNode != null )
-			for(World world : getServer().getWorlds())
-			{
-				ConfigurationNode worldNodes[] = {pluginOffensiveNode.getNode(world.getName()), 
-													pluginDefensiveNode.getNode(world.getName()), 
-													pluginMobHealthNode.getNode(world.getName())};
-				for(int i = 0; i < worldNodes.length; i++)
-					if(worldNodes[i] == null && (consoleDebugging))
-						log.warning("{Couldn't find " + nodeNames[i] +  " node for world \"" + world.getName() + "\"}");
-				worldHandlers.put(world, new WorldHandler(this, world, worldNodes[0], worldNodes[1], worldNodes[2], damageCalc, healthCalc));
-			}
-		else log.severe("Couldn't find configuration nodes - does the config file exist?");
+		loadConfig();
 		
 	}
-	
+
 	@Override
 	public void onDisable() 
 	{
@@ -147,21 +125,21 @@ public class ModDamage extends JavaPlugin
 					{
 						if(args[1].equalsIgnoreCase("on"))
 						{
-							if(consoleDebugging)
+							if(consoleDebugging_normal)
 								log.info("[" + getDescription().getName() + "] Console debugging already on!");
 							else
 							{
-								consoleDebugging = true;
+								consoleDebugging_normal = true;
 								log.info("[" + getDescription().getName() + "] Console debugging enabled.");
 							}
 						}
 						else if(args[1].equalsIgnoreCase("off"))
 						{
-							if(!consoleDebugging)
+							if(!consoleDebugging_normal)
 								log.info("[" + getDescription().getName() + "] Console debugging already off!");
 							else
 							{
-								consoleDebugging = false;
+								consoleDebugging_normal = false;
 								log.info("[" + getDescription().getName() + "] Console debugging disabled.");
 							}
 						}
@@ -453,8 +431,8 @@ public class ModDamage extends JavaPlugin
 	
 	private void toggleConsoleDebug() 
 	{
-		log.info("[" + getDescription().getName() + "] Console debugging " + (consoleDebugging?"disabled":"enabled") + ".");
-		consoleDebugging = (consoleDebugging?false:true);
+		log.info("[" + getDescription().getName() + "] Console debugging " + (consoleDebugging_normal?"disabled":"enabled") + ".");
+		consoleDebugging_normal = (consoleDebugging_normal?false:true);
 	}
 
 	private boolean sendUsage(Player player) 
@@ -503,16 +481,12 @@ public class ModDamage extends JavaPlugin
 				//PvP
 					if(ent_damager instanceof Player)
 					{
-
 						String group_damager = Permissions.getGroup(world.getName(), ((Player)ent_damager).getName());//debug
+						log.info("PEE VEE PEE: " + group_damager + " vs. " + group_damaged);
 						if(group_damager != null && group_damaged != null)
 						{
-							log.info("Damage for PvP event (" + group_damager + " vs. " + group_damaged 
-								+ "\nInitial: " + damage); //debugging
 							damage -= worldHandlers.get(world).calcDefenseBuff(((Player)ent_damaged), ((Player)ent_damager), event.getDamage());
-							log.info("\nDefBuff: " + damage); //debugging
 							damage += worldHandlers.get(world).calcAttackBuff(((Player)ent_damaged), ((Player)ent_damager), event.getDamage());
-							log.info("\nAttBuff: " + damage); //debugging
 						}
 					}
 				//NPvP
@@ -521,12 +495,8 @@ public class ModDamage extends JavaPlugin
 						DamageType mobType_damager = DamageType.matchEntityType(ent_damager);
 						if(mobType_damager != null && group_damaged != null);
 						{
-							log.info("Damage for NPvP event (" + mobType_damager.getConfigReference() + " vs. " + group_damaged 
-								+ "\nInitial: " + damage);
 							damage -= worldHandlers.get(world).calcDefenseBuff(((Player)ent_damaged), mobType_damager, event.getDamage());
-							log.info("\nDefBuff: " + damage); //debugging
 							damage += worldHandlers.get(world).calcAttackBuff(((Player)ent_damaged), mobType_damager, event.getDamage());
-							log.info("\nAttBuff: " + damage); //debugging
 						}
 					}
 				}
@@ -538,15 +508,16 @@ public class ModDamage extends JavaPlugin
 				//PvNP
 					if(ent_damager instanceof Player)
 					{
+						
 						String group_damager = Permissions.getGroup(world.getName(), ((Player)ent_damager).getName());
 						if(group_damager != null && mobType_damaged != null)
 						{
-							log.info("Damage for PvNP event (" + group_damager + " vs. " + mobType_damaged.getConfigReference() 
-								+ "\nInitial: " + damage);
+
+							log.info("PvNP: " + ((Player)ent_damager).getName() + " vs. " + mobType_damaged.getConfigReference());
+							log.info("Event: " + event.getDamage());
 							damage -= worldHandlers.get(world).calcDefenseBuff(mobType_damaged, ((Player)ent_damager), event.getDamage());
-							log.info("\nDefBuff: " + damage); //debugging
 							damage += worldHandlers.get(world).calcAttackBuff(mobType_damaged,((Player)ent_damager), event.getDamage());
-							log.info("\nAttBuff: " + damage); //debugging
+							log.info("Result: " + damage);
 							
 							((Player)ent_damager).sendMessage(ChatColor.DARK_PURPLE + "Mob target " + mobType_damaged.getConfigReference() + " has " + ((Creature)ent_damaged).getHealth()); 
 							//TODO Idea: "scan"-type ability for players with Permissions?
@@ -559,12 +530,8 @@ public class ModDamage extends JavaPlugin
 						DamageType mobType_damager = DamageType.matchEntityType(ent_damager);
 						if(mobType_damager != null && mobType_damaged != null);
 						{
-							//log.info("Damage for NPvNP event (" + mobType_damager.getConfigReference() + " vs. " + mobType_damaged.getConfigReference() 
-							//	+ "\nInitial: " + damage);
 							damage -= worldHandlers.get(world).calcDefenseBuff(mobType_damaged, mobType_damager, event.getDamage());
-							//log.info("\nDefBuff: " + damage); //debugging
 							damage += worldHandlers.get(world).calcAttackBuff(mobType_damaged, mobType_damager, event.getDamage());
-							//log.info("\nAttBuff: " + damage); //debugging
 						}
 					}
 				}
@@ -580,12 +547,8 @@ public class ModDamage extends JavaPlugin
 						DamageType damageType = DamageType.matchDamageCause(event.getCause());
 						if(damageType != null && group_damaged != null)
 						{
-							//log.info("Damage for WorldvP event (" + damageType.getConfigReference() + " vs. " + group_damaged
-							//	+ "\nInitial: " + damage);
 							damage -= worldHandlers.get(world).calcDefenseBuff(((Player)ent_damaged), damageType, event.getDamage());
-							//log.info("\nDefBuff: " + damage); //debugging
 							damage += worldHandlers.get(world).calcAttackBuff(((Player)ent_damaged), damageType, event.getDamage());
-							//log.info("\nAttBuff: " + damage); //debugging
 						}
 					}
 				}
@@ -597,19 +560,18 @@ public class ModDamage extends JavaPlugin
 						DamageType damageType = DamageType.matchDamageCause(event.getCause());
 						if(damageType != null && mobType_damaged != null)
 						{
-							//log.info("Damage for WorldvNP event (" + damageType.getConfigReference() + " vs. " + mobType_damaged.getConfigReference() 
-							//		+ "\nInitial: " + damage);
 							damage -= worldHandlers.get(world).calcDefenseBuff(mobType_damaged, damageType, event.getDamage());
-							//log.info("\nDefBuff: " + damage); //debugging
 							damage += worldHandlers.get(world).calcAttackBuff(mobType_damaged, damageType, event.getDamage());
-							//log.info("\nAttBuff: " + damage); //debugging
 						}
 					}
 				}
 				//world-type damage to a player
 			}
-			if(damage < 0) damage = 0;
-			event.setDamage(damage);
+			if(damage < 0)
+			{
+				if(negative_Heal) ((Creature)event.getEntity()).setHealth(((Creature)event.getEntity()).getHealth() - damage);
+				event.setDamage(0);
+			}
 		}
 	}
 
@@ -617,8 +579,12 @@ public class ModDamage extends JavaPlugin
 	{
 		World world = event.getEntity().getWorld();
 		if(worldHandlers.containsKey(world))
-			worldHandlers.get(event.getEntity().getWorld()).setHealth(event.getEntity());
+		{
+			if(disable_DefaultHealth) ((Creature)event.getEntity()).setHealth(0);
+			event.setCancelled(!worldHandlers.get(world).setHealth(event.getEntity()));
+		}
 	}
+	
 /////////////////// HELPER FUNCTIONS ////////////////////////////
 	//check for Permissions
 	public static boolean hasPermission(Player player, String permission)
@@ -652,5 +618,63 @@ public class ModDamage extends JavaPlugin
 			}
 		}
 		return false;
+	}
+	
+	private void loadConfig()
+	{
+		//CONFIGURATION
+		//get plugin config.yml
+		config = this.getConfiguration();
+		config.load();
+		pluginOffensiveNode = config.getNode("Offensive");
+		pluginDefensiveNode = config.getNode("Defensive");
+		pluginMobHealthNode = config.getNode("MobHealth");
+
+		//load debug settings
+		loadPluginSettings();
+		
+		//try to initialize WorldHandlers
+		String nodeNames[] = {"Offensive", "Defensive", "MobHealth"};
+		if(pluginOffensiveNode != null && pluginDefensiveNode != null && pluginMobHealthNode != null )
+			for(World world : getServer().getWorlds())
+			{
+				ConfigurationNode worldNodes[] = {pluginOffensiveNode.getNode(world.getName()), 
+													pluginDefensiveNode.getNode(world.getName()), 
+													pluginMobHealthNode.getNode(world.getName())};
+				for(int i = 0; i < worldNodes.length; i++)
+					if(worldNodes[i] == null && (consoleDebugging_normal))
+						log.warning("{Couldn't find " + nodeNames[i] +  " node for world \"" + world.getName() + "\"}");
+				worldHandlers.put(world, new WorldHandler(this, world, worldNodes[0], worldNodes[1], worldNodes[2], damageCalc, healthCalc));
+			}
+		else log.severe("Couldn't find configuration nodes - does the config file exist?");
+	}
+
+	private void loadPluginSettings() 
+	{
+		//debugging
+		String debugString = (String)config.getProperty("debugging");
+		if(debugString != null)
+		{
+			if(debugString.equals("quiet"))
+			{
+				consoleDebugging_quiet = true;
+				consoleDebugging_normal = false;
+			}
+			else if(debugString.equals("normal"))
+			{
+				log.info("[" + getDescription().getName()+ "] Debugging active.");
+			}
+			else if(debugString.equals("verbose"))
+			{
+				consoleDebugging_verbose = true;
+				log.info("[" + getDescription().getName()+ "] Verbose debugging active.");
+			}
+			else log.info("[" + getDescription().getName()+ "] Debug string not recognized - defaulting to normal settings.");
+		}
+		
+		//"disable"-type configs
+		disable_DefaultDamage = config.getBoolean("disableDefaultDamage", false);
+		disable_DefaultHealth = config.getBoolean("disableDefaultHealth", false);
+		negative_Heal = config.getBoolean("negativeHeal", false);
 	}
 }
