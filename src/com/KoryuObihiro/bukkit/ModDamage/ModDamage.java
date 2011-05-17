@@ -8,7 +8,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -431,8 +433,9 @@ public class ModDamage extends JavaPlugin
 	
 	private void toggleConsoleDebug() 
 	{
-		log.info("[" + getDescription().getName() + "] Console debugging " + (consoleDebugging_normal?"disabled":"enabled") + ".");
-		consoleDebugging_normal = (consoleDebugging_normal?false:true);
+		//log.info("[" + getDescription().getName() + "] Console debugging " + (consoleDebugging_normal?"disabled":"enabled") + ".");
+		//consoleDebugging_normal = (consoleDebugging_normal?false:true); TODO Fix this for alternating between quiet, normal, and verbose.
+		
 	}
 
 	private boolean sendUsage(Player player) 
@@ -468,21 +471,21 @@ public class ModDamage extends JavaPlugin
 
 			int damage = event.getDamage();		
 			Entity ent_damaged = event.getEntity();
+			DamageType.matchEntityType(ent_damaged);
 			
 			if(event instanceof EntityDamageByEntityEvent)
 			{
 				EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
 				Entity ent_damager = event_EE.getDamager();
-				
 				//Player-targeted damage
 				if(ent_damaged instanceof Player)
 				{
-					String group_damaged = Permissions.getGroup(world.getName(), ((Player)ent_damaged).getName());//debug
+					String group_damaged = Permissions.getGroup(world.getName(), ((Player)ent_damaged).getName());
 				//PvP
 					if(ent_damager instanceof Player)
 					{
-						String group_damager = Permissions.getGroup(world.getName(), ((Player)ent_damager).getName());//debug
-						log.info("PEE VEE PEE: " + group_damager + " vs. " + group_damaged);
+						String group_damager = Permissions.getGroup(world.getName(), ((Player)ent_damager).getName());
+						log.info("PEE VEE PEE: " + group_damager + " vs. " + group_damaged); //TODO REMOVE ME EVENTUALLY
 						if(group_damager != null && group_damaged != null)
 						{
 							damage -= worldHandlers.get(world).calcDefenseBuff(((Player)ent_damaged), ((Player)ent_damager), event.getDamage());
@@ -490,48 +493,67 @@ public class ModDamage extends JavaPlugin
 						}
 					}
 				//NPvP
-					else if(ent_damager instanceof Creature)
+					else if(DamageType.matchEntityType(ent_damager) != null)
 					{
 						DamageType mobType_damager = DamageType.matchEntityType(ent_damager);
-						if(mobType_damager != null && group_damaged != null);
+						if(group_damaged != null);
 						{
 							damage -= worldHandlers.get(world).calcDefenseBuff(((Player)ent_damaged), mobType_damager, event.getDamage());
 							damage += worldHandlers.get(world).calcAttackBuff(((Player)ent_damaged), mobType_damager, event.getDamage());
 						}
 					}
+				//nature-ent vs P
+					else
+					{
+						//Lightning and explosion damage is technically an entity harming an entity
+						DamageType damageType = DamageType.matchDamageCause(event.getCause());
+						//log.info("Member of " + group_damaged + " got damaged by \"" + damageType.getConfigReference() + "\"");//debug
+						if(damageType != null && group_damaged != null);
+						{
+							damage -= worldHandlers.get(world).calcDefenseBuff(((Player)ent_damaged), damageType, event.getDamage());
+							damage += worldHandlers.get(world).calcAttackBuff(((Player)ent_damaged), damageType, event.getDamage());
+						}
+					}
 				}
 				//Monster-targeted damage
-				else if(ent_damaged instanceof Creature)
+				else if(DamageType.matchEntityType(ent_damaged) != null)
 				{
-
 					DamageType mobType_damaged = DamageType.matchEntityType(ent_damaged);
 				//PvNP
 					if(ent_damager instanceof Player)
 					{
-						
 						String group_damager = Permissions.getGroup(world.getName(), ((Player)ent_damager).getName());
 						if(group_damager != null && mobType_damaged != null)
 						{
 
-							log.info("PvNP: " + ((Player)ent_damager).getName() + " vs. " + mobType_damaged.getConfigReference());
-							log.info("Event: " + event.getDamage());
+							//log.info("PvNP: " + ((Player)ent_damager).getName() + " vs. " + mobType_damaged.getConfigReference()); //debug TODO
 							damage -= worldHandlers.get(world).calcDefenseBuff(mobType_damaged, ((Player)ent_damager), event.getDamage());
 							damage += worldHandlers.get(world).calcAttackBuff(mobType_damaged,((Player)ent_damager), event.getDamage());
-							log.info("Result: " + damage);
 							
-							((Player)ent_damager).sendMessage(ChatColor.DARK_PURPLE + "Mob target " + mobType_damaged.getConfigReference() + " has " + ((Creature)ent_damaged).getHealth()); 
+							((Player)ent_damager).sendMessage(ChatColor.DARK_PURPLE + "Mob target " + mobType_damaged.getConfigReference() + " has " + ((LivingEntity)ent_damaged).getHealth()); 
 							//TODO Idea: "scan"-type ability for players with Permissions?
 						}
 					}
 				//NPvNP damage
-					else if(ent_damager instanceof Creature)
+					else if(DamageType.matchEntityType(ent_damager) != null)
 					{
-
 						DamageType mobType_damager = DamageType.matchEntityType(ent_damager);
 						if(mobType_damager != null && mobType_damaged != null);
 						{
 							damage -= worldHandlers.get(world).calcDefenseBuff(mobType_damaged, mobType_damager, event.getDamage());
 							damage += worldHandlers.get(world).calcAttackBuff(mobType_damaged, mobType_damager, event.getDamage());
+						}
+					}
+				//nature-ent vs NP
+					else
+					{
+						//Lightning and explosion damage is technically an entity harming an entity
+						DamageType damageType = DamageType.matchDamageCause(event.getCause());
+						//log.info("Member of " + group_damaged + " got damaged by \"" + damageType.getConfigReference() + "\"");//debug
+						if(damageType != null && mobType_damaged != null);
+						{
+							damage -= worldHandlers.get(world).calcDefenseBuff(mobType_damaged, damageType, event.getDamage());
+							damage += worldHandlers.get(world).calcAttackBuff(mobType_damaged, damageType, event.getDamage());
 						}
 					}
 				}
@@ -542,36 +564,30 @@ public class ModDamage extends JavaPlugin
 				{
 					//TODO Consider whether the group strings are necessary here
 					String group_damaged = Permissions.getGroup(world.getName(), ((Player)ent_damaged).getName());
-					if(DamageType.matchDamageCause(event.getCause()) != null)
+					DamageType damageType = DamageType.matchDamageCause(event.getCause());
+					if(damageType != null && group_damaged != null)
 					{
-						DamageType damageType = DamageType.matchDamageCause(event.getCause());
-						if(damageType != null && group_damaged != null)
-						{
-							damage -= worldHandlers.get(world).calcDefenseBuff(((Player)ent_damaged), damageType, event.getDamage());
-							damage += worldHandlers.get(world).calcAttackBuff(((Player)ent_damaged), damageType, event.getDamage());
-						}
+						damage -= worldHandlers.get(world).calcDefenseBuff(((Player)ent_damaged), damageType, event.getDamage());
+						damage += worldHandlers.get(world).calcAttackBuff(((Player)ent_damaged), damageType, event.getDamage());
 					}
 				}
-				else if(ent_damaged instanceof Creature)
+				else if(DamageType.matchEntityType(ent_damaged) != null)
 				{
 					DamageType mobType_damaged = DamageType.matchEntityType(ent_damaged);
-					if(DamageType.matchDamageCause(event.getCause()) != null)
+					DamageType damageType = DamageType.matchDamageCause(event.getCause());
+					if(DamageType.matchDamageCause(event.getCause()) != null && mobType_damaged != null)
 					{
-						DamageType damageType = DamageType.matchDamageCause(event.getCause());
-						if(damageType != null && mobType_damaged != null)
-						{
-							damage -= worldHandlers.get(world).calcDefenseBuff(mobType_damaged, damageType, event.getDamage());
-							damage += worldHandlers.get(world).calcAttackBuff(mobType_damaged, damageType, event.getDamage());
-						}
+						damage -= worldHandlers.get(world).calcDefenseBuff(mobType_damaged, damageType, event.getDamage());
+						damage += worldHandlers.get(world).calcAttackBuff(mobType_damaged, damageType, event.getDamage());
 					}
 				}
-				//world-type damage to a player
 			}
 			if(damage < 0)
 			{
 				if(negative_Heal) ((Creature)event.getEntity()).setHealth(((Creature)event.getEntity()).getHealth() - damage);
 				event.setDamage(0);
 			}
+			else event.setDamage(damage);
 		}
 	}
 

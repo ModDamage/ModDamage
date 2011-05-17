@@ -20,14 +20,13 @@ public class ModDamageEntityListener extends EntityListener
 	@Override
 	public void onEntityDamage(EntityDamageEvent event)
 	{
-		
 		plugin.passDamageEvent(event);
 	}
 	
 	@Override
 	public void onCreatureSpawn(CreatureSpawnEvent event)
 	{ 
-		if(plugin.disable_DefaultHealth) ((Creature)event.getEntity()).setHealth(0);
+		if(ModDamage.disable_DefaultHealth) ((Creature)event.getEntity()).setHealth(0);
 		plugin.passSpawnEvent(event);
 	}
 }

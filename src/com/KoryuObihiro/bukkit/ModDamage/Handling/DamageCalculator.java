@@ -273,6 +273,9 @@ public class DamageCalculator
 		return 0;
 	}
 	
-	public int set(int eventDamage, int input, boolean isOffensive){ return (isOffensive?(1):(-1)) * (input - eventDamage);}
+	public int set(int eventDamage, int input, boolean isOffensive)
+	{ 
+		return (isOffensive?(1):(-1)) * (input - eventDamage);
+	}
 	//TODO IDEA: damage based on entity resting on block of type BLAH? This would involve icky refactoring. :P
 };

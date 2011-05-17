@@ -299,8 +299,8 @@ public class WorldHandler
 			Creature creature = (Creature)entity;
 			creature.setHealth(healthCalc.parseCommand(mobHealthSettings.get(creatureType)));
 		}
-		if(((Creature)entity).getHealth() <= 0)
-			return false;
+		//if(DamageType.matchEntityType(entity) <= 0) TODO fix this for Slimes etc.
+		//	return false;
 		return true;
 	}	
 
