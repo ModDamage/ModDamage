@@ -9,8 +9,10 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
+import org.json.simple.ItemList;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
@@ -20,10 +22,10 @@ public class WorldHandler
 {
 //// MEMBERS ////
 	public ModDamage plugin;
-	public Logger log;
+	public Logger log; 
 	public World world;
 	
-	public boolean isLoaded = false;
+  public boolean isLoaded = false;
 	public boolean groupsLoaded = false;
 	
 	final public DamageCalculator damageCalc;
@@ -31,6 +33,7 @@ public class WorldHandler
 	final public ConfigurationNode offensiveNode;
 	final public ConfigurationNode defensiveNode;
 	final public ConfigurationNode mobHealthNode;
+	final public ConfigurationNode scanNode;
 	
 	//world-type and mob-type buffs
 	final public HashMap<DamageType, List<String>> offensiveRoutines = new HashMap<DamageType, List<String>>();
@@ -44,8 +47,10 @@ public class WorldHandler
 	//GroupHandler HashMap
 	final public HashMap<String, GroupHandler> groupHandlers = new HashMap<String, GroupHandler>();
 	
+	final public List<Material> scanItems = new ArrayList<Material>();
+	
 //// CONSTRUCTOR ////
-	public WorldHandler(ModDamage plugin, World world, ConfigurationNode offensiveNode, ConfigurationNode defensiveNode, ConfigurationNode mobHealthNode, DamageCalculator damageCalc, HealthCalculator healthCalc) 
+	public WorldHandler(ModDamage plugin, World world, ConfigurationNode offensiveNode, ConfigurationNode defensiveNode, ConfigurationNode mobHealthNode, ConfigurationNode scanNode, DamageCalculator damageCalc, HealthCalculator healthCalc) 
 	{
 		this.world = world;
 		this.plugin = plugin;
@@ -53,24 +58,11 @@ public class WorldHandler
 		this.offensiveNode = offensiveNode;
 		this.defensiveNode = defensiveNode;
 		this.mobHealthNode = mobHealthNode;
+		this.scanNode = scanNode;
 		this.damageCalc = damageCalc;
 		this.healthCalc = healthCalc;
 		
-		//load the settings for this world
-		isLoaded = loadGlobalRoutines();
-		groupsLoaded = ((isLoaded)?loadGroupHandlers(true):false);
-		
-		
-		//some output messages for each load boolean
-		if(isLoaded) log.info("[" + plugin.getDescription().getName() + "] Global configuration for world \"" 
-				+ world.getName() + "\" initialized!");
-		else log.warning("[" + plugin.getDescription().getName() + "] Global configuration for world \"" 
-				+ world.getName() + "\" could not load.");
-		
-		if(groupsLoaded) log.info("[" + plugin.getDescription().getName() + "] Group configuration for world \""
-				+ world.getName() + "\" initialized!");
-		else log.warning("[" + plugin.getDescription().getName() + "] Group configuration for world \""
-				+ world.getName() + "\" could not load.");
+		reload();
 	}
 	
 	
@@ -82,6 +74,7 @@ public class WorldHandler
 	{
 		try
 		{
+			//TODO Add scanning stuff
 			//TODO Looks a bit messy - refactor for fewer != null checks?
 			//clear everything first
 			clearRoutines();
@@ -101,12 +94,15 @@ public class WorldHandler
 	//load mob health
 			if(mobHealthNode != null)
 				loadMobHealth();
-	//load item settings - item-specifics are not handled by "item" damage category loading
-
+	//load item offensive/defensive settings - item-specifics are not handled by "item" damage category loading, but by a separate loading process
 			if(offensiveNode != null)
 				loadItemRoutines(true);
 			if(defensiveNode != null)
 				loadItemRoutines(false);
+	//load scan item settings
+			if(scanNode != null)
+				loadScanItems();
+			
 		}
 		catch(Exception e)
 		{
@@ -119,7 +115,7 @@ public class WorldHandler
 		}
 		return true;
 	}
-	
+
 	public boolean loadGroupHandlers(boolean force)
 	{
 		//get all of the groups in configuration
@@ -147,7 +143,7 @@ public class WorldHandler
 	}
 	
 	public boolean loadItemRoutines(boolean isOffensive){ return loadItemRoutines(isOffensive, false);}
-	public boolean loadItemRoutines(boolean isOffensive, boolean force)
+	public boolean loadItemRoutines(boolean isOffensive, boolean force) //TODO This doesn't work. :<
 	{
 		ConfigurationNode itemNode = (isOffensive
 											?offensiveNode.getNode("global").getNode("item")
@@ -158,14 +154,13 @@ public class WorldHandler
 			List<String> calcStrings = null;
 			for(Material material : Material.values())	
 			{
-				if(itemList.contains(material.name()))
+				if(itemList.contains(material.name())) //TODO Mess with casing here?
 					calcStrings = itemNode.getStringList(material.name(), null);
-				else if(itemList.contains(material.getId()))
-					calcStrings = itemNode.getStringList(Integer.toString(material.getId()), null);
-				
+				//else if(itemList.contains(material.getId())) //getStringList does NOT like integers, for some reason. :(
+					//calcStrings = itemNode.getStringList(material.getId(), null);
 				if(calcStrings != null)
 				{
-					//TODO Fix individual item typing
+					log.info("calcStrings not null for " + material.name() + ", size is " + calcStrings.size());
 					if(calcStrings.size() > 0)
 					{
 						for(String calcString : calcStrings)
@@ -215,7 +210,7 @@ public class WorldHandler
 			{
 				if(ModDamage.consoleDebugging_normal) log.info("{Found global " + (isOffensive?"Offensive":"Defensive") + " " + damageDescriptor + " node}");
 				for(DamageType damageType : DamageType.values())
-					if(damageType.getDescriptor().equals(damageDescriptor))
+					if(damageType.getDescriptor().equalsIgnoreCase(damageDescriptor))
 					{
 						//check for leaf-node buff strings
 						List<String> calcStrings = relevantNode.getStringList(damageType.getConfigReference(), null);
@@ -258,7 +253,7 @@ public class WorldHandler
 	public void loadMobHealth()
 	{
 		
-		log.info("Found MobHealth node");
+		log.info("{Found MobHealth node}");
 		//load Mob health settings
 		for(DamageType mobType : DamageType.values())
 			if(mobType.getDescriptor().equals("mob") || mobType.getDescriptor().equals("animal"))
@@ -294,16 +289,47 @@ public class WorldHandler
 	{
 		//determine creature type
 		DamageType creatureType = DamageType.matchEntityType(entity);
-		if(creatureType != null && mobHealthSettings.containsKey(creatureType))
+		if(creatureType != null)
 		{
-			Creature creature = (Creature)entity;
-			creature.setHealth(healthCalc.parseCommand(mobHealthSettings.get(creatureType)));
+			if(mobHealthSettings.containsKey(creatureType))
+			{
+				LivingEntity creature = (LivingEntity)entity;
+				creature.setHealth(healthCalc.parseCommand(mobHealthSettings.get(creatureType)));
+			}
+			return true;
 		}
-		//if(DamageType.matchEntityType(entity) <= 0) TODO fix this for Slimes etc.
-		//	return false;
-		return true;
+		else return false;
 	}	
 
+///////////////////// SCAN CHECKING ///////////////////////
+	private boolean loadScanItems() 
+	{
+		ConfigurationNode itemNode = scanNode.getNode("global");
+		if(itemNode != null)	
+		{
+			List<String> itemList = scanNode.getStringList("global", null);
+			for(Material material : Material.values())	
+			{
+				if(itemList.contains(material.name()) || itemList.contains(Integer.toString(material.getId()))) //TODO Mess with casing here?
+				{
+					if(ModDamage.consoleDebugging_normal) log.info(world.getName() 
+							+ ":Scan:" + material.name() + "(" + material.getId() + ")");
+						
+						if(!scanItems.contains(material)) scanItems.add(material);
+						if(ModDamage.consoleDebugging_normal)
+							ModDamage.log.info("-" + world.getName() + ":Scan:" 
+								+ material.name() + "(" + material.getId() + ") ");
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isGlobalScanItem(Material itemType){return scanItems.contains(itemType);}
+	
+	
+	
 ///////////////////// DAMAGE HANDLING ///////////////////////
 //Player-targeted damage
 //PvP
@@ -454,7 +480,6 @@ public class WorldHandler
 	public boolean group_isLoaded(String groupName){ return groupHandlers.containsKey(groupName);}
 	public boolean attackType_isLoaded(DamageType damageType){ return offensiveRoutines.containsKey(damageType);}
 	public boolean defenseType_isLoaded(DamageType damageType){ return defensiveRoutines.containsKey(damageType);}
-	//TODO More verbose debugging in general?
 	
 	public boolean sendWorldConfig(Player player, String configReference)
 	{
@@ -474,8 +499,24 @@ public class WorldHandler
 
 	public boolean reload()
 	{ 
+		//load the settings for this world
 		isLoaded = loadGlobalRoutines();
-		groupsLoaded = loadGroupHandlers(true);
+		groupsLoaded = ((isLoaded)?loadGroupHandlers(true):false);
+		
+		//some output messages for each load boolean
+		if(isLoaded && ModDamage.consoleDebugging_normal) 
+			log.info("[" + plugin.getDescription().getName() + "] Global configuration for world \"" 
+				+ world.getName() + "\" initialized!");
+		else if(ModDamage.consoleDebugging_normal)
+			log.warning("[" + plugin.getDescription().getName() + "] Global configuration for world \"" 
+				+ world.getName() + "\" could not load.");
+		
+		if(groupsLoaded && ModDamage.consoleDebugging_normal) log.info("[" + plugin.getDescription().getName() + "] Group configuration for world \""
+				+ world.getName() + "\" initialized!");
+		else if(ModDamage.consoleDebugging_normal) 
+			log.warning("[" + plugin.getDescription().getName() + "] Group configuration for world \""
+				+ world.getName() + "\" could not load.");
+		
 		return (isLoaded && groupsLoaded);
 	}
 
@@ -491,6 +532,7 @@ public class WorldHandler
 		offensiveRoutines.clear();
 		defensiveRoutines.clear();
 		mobHealthSettings.clear();
+		scanItems.clear();
 		offensiveItemRoutines.clear();
 		defensiveItemRoutines.clear();
 	}

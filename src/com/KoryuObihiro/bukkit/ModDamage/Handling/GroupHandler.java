@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Handling;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,6 +30,9 @@ public class GroupHandler
 	//item damage
 	final public HashMap<Material, List<String>> itemOffensiveRoutines = new HashMap<Material, List<String>>();
 	final public HashMap<Material, List<String>> itemDefensiveRoutines = new HashMap<Material, List<String>>();
+	
+	//scan
+	final public List<Material> scanItems = new ArrayList<Material>();
 	
 	final private ConfigurationNode offensiveNode;
 	final private ConfigurationNode defensiveNode;
@@ -196,9 +200,7 @@ public class GroupHandler
 	public boolean loadItemRoutines(boolean isOffensive){ return loadItemRoutines(isOffensive, false);}
 	public boolean loadItemRoutines(boolean isOffensive, boolean force)
 	{
-		ConfigurationNode itemNode = (isOffensive
-											?offensiveNode.getNode("item")
-											:defensiveNode.getNode("item"));
+		ConfigurationNode itemNode = isOffensive?offensiveNode.getNode("item"):defensiveNode.getNode("item");
 		if(itemNode != null)	
 		{
 			List<String> itemList = (isOffensive?offensiveNode:defensiveNode).getKeys("item");
