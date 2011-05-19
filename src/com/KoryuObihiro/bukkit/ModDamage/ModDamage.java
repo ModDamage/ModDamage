@@ -21,7 +21,7 @@ import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.Handling.DamageCalculator;
-import com.KoryuObihiro.bukkit.ModDamage.Handling.DamageType;
+import com.KoryuObihiro.bukkit.ModDamage.Handling.DamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Handling.HealthCalculator;
 import com.KoryuObihiro.bukkit.ModDamage.Handling.WorldHandler;
 import com.nijiko.permissions.PermissionHandler;
@@ -419,16 +419,15 @@ public class ModDamage extends JavaPlugin
 	
 	
 /////////////////// EVENT FUNCTIONS ////////////////////////////
-	
 	public void passDamageEvent(EntityDamageEvent event) 
 	{
 		World world = event.getEntity().getWorld();
-		if(worldHandlers.containsKey(world) && worldHandlers.get(world).isLoaded)
+		if(worldHandlers.containsKey(world) && worldHandlers.get(world).globalsLoaded)
 		{
 
 			int damage = event.getDamage();		
 			Entity ent_damaged = event.getEntity();
-			DamageType.matchEntityType(ent_damaged);
+			DamageElement.matchEntityType(ent_damaged);
 			
 			if(event instanceof EntityDamageByEntityEvent)
 			{
@@ -453,14 +452,14 @@ public class ModDamage extends JavaPlugin
 						}
 						
 						if(hasPermission(player_damager, "moddamage.scan.pvp") 
-								&& worldHandlers.get(player_damager.getWorld()).isGlobalScanItem(player_damager.getItemInHand().getType()));
+								&& worldHandlers.get(player_damager.getWorld()).canScan(player_damager))
 							((Player)ent_damager).sendMessage(ChatColor.DARK_PURPLE + player_damaged.getName()
 									+ ": " + Integer.toString(player_damaged.getHealth() - damage));
 					}
 				//NPvP
-					else if(DamageType.matchEntityType(ent_damager) != null)
+					else if(DamageElement.matchEntityType(ent_damager) != null)
 					{
-						DamageType mobType_damager = DamageType.matchEntityType(ent_damager);
+						DamageElement mobType_damager = DamageElement.matchEntityType(ent_damager);
 						if(group_damaged != null);
 						{
 							damage -= worldHandlers.get(world).calcDefenseBuff(((Player)ent_damaged), mobType_damager, event.getDamage());
@@ -471,7 +470,7 @@ public class ModDamage extends JavaPlugin
 					else
 					{
 						//Lightning and explosion damage is technically an entity harming an entity
-						DamageType damageType = DamageType.matchDamageCause(event.getCause());
+						DamageElement damageType = DamageElement.matchDamageCause(event.getCause());
 						//log.info("Member of " + group_damaged + " got damaged by \"" + damageType.getConfigReference() + "\"");//debug
 						if(damageType != null && group_damaged != null);
 						{
@@ -481,9 +480,9 @@ public class ModDamage extends JavaPlugin
 					}
 				}
 				//Monster-targeted damage
-				else if(DamageType.matchEntityType(ent_damaged) != null)
+				else if(DamageElement.matchEntityType(ent_damaged) != null)
 				{
-					DamageType mobType_damaged = DamageType.matchEntityType(ent_damaged);
+					DamageElement mobType_damaged = DamageElement.matchEntityType(ent_damaged);
 				//PvNP
 					if(ent_damager instanceof Player)
 					{
@@ -497,16 +496,16 @@ public class ModDamage extends JavaPlugin
 							damage += worldHandlers.get(world).calcAttackBuff(mobType_damaged,player_damager, event.getDamage());
 
 							if(hasPermission(player_damager, "moddamage.scan." + mobType_damaged.getConfigReference()) 
-									&& worldHandlers.get(player_damager.getWorld()).isGlobalScanItem(player_damager.getItemInHand().getType()));
-								((Player)ent_damager).sendMessage(ChatColor.DARK_PURPLE + mobType_damaged.getConfigReference() 
+									&& worldHandlers.get(world).canScan(player_damager))
+								player_damager.sendMessage(ChatColor.DARK_PURPLE + mobType_damaged.getConfigReference() 
 										+ "(id " + ent_damaged.getEntityId() + ")"
 										+ ": " + Integer.toString(((LivingEntity)ent_damaged).getHealth() - damage));
 						}
 					}
 				//NPvNP damage
-					else if(DamageType.matchEntityType(ent_damager) != null)
+					else if(DamageElement.matchEntityType(ent_damager) != null)
 					{
-						DamageType mobType_damager = DamageType.matchEntityType(ent_damager);
+						DamageElement mobType_damager = DamageElement.matchEntityType(ent_damager);
 						if(mobType_damager != null && mobType_damaged != null);
 						{
 							damage -= worldHandlers.get(world).calcDefenseBuff(mobType_damaged, mobType_damager, event.getDamage());
@@ -517,7 +516,7 @@ public class ModDamage extends JavaPlugin
 					else
 					{
 						//Lightning and explosion damage is technically an entity harming an entity
-						DamageType damageType = DamageType.matchDamageCause(event.getCause());
+						DamageElement damageType = DamageElement.matchDamageCause(event.getCause());
 						//log.info("Member of " + group_damaged + " got damaged by \"" + damageType.getConfigReference() + "\"");//debug
 						if(damageType != null && mobType_damaged != null);
 						{
@@ -532,18 +531,18 @@ public class ModDamage extends JavaPlugin
 				if(ent_damaged instanceof Player)
 				{
 					Player player_damaged = (Player)ent_damaged;
-					DamageType damageType = DamageType.matchDamageCause(event.getCause());
+					DamageElement damageType = DamageElement.matchDamageCause(event.getCause());
 					if(damageType != null && player_damaged != null)
 					{
 						damage -= worldHandlers.get(world).calcDefenseBuff(player_damaged, damageType, event.getDamage());
 						damage += worldHandlers.get(world).calcAttackBuff(player_damaged, damageType, event.getDamage());
 					}
 				}
-				else if(DamageType.matchEntityType(ent_damaged) != null)
+				else if(DamageElement.matchEntityType(ent_damaged) != null)
 				{
-					DamageType mobType_damaged = DamageType.matchEntityType(ent_damaged);
-					DamageType damageType = DamageType.matchDamageCause(event.getCause());
-					if(DamageType.matchDamageCause(event.getCause()) != null && mobType_damaged != null)
+					DamageElement mobType_damaged = DamageElement.matchEntityType(ent_damaged);
+					DamageElement damageType = DamageElement.matchDamageCause(event.getCause());
+					if(DamageElement.matchDamageCause(event.getCause()) != null && mobType_damaged != null)
 					{
 						damage -= worldHandlers.get(world).calcDefenseBuff(mobType_damaged, damageType, event.getDamage());
 						damage += worldHandlers.get(world).calcAttackBuff(mobType_damaged, damageType, event.getDamage());
@@ -629,7 +628,7 @@ public class ModDamage extends JavaPlugin
 													pluginMobHealthNode.getNode(world.getName()),
 													pluginScanNode.getNode(world.getName())};
 				for(int i = 0; i < worldNodes.length; i++)
-					if(worldNodes[i] == null && (consoleDebugging_normal))
+					if(worldNodes[i] == null && (consoleDebugging_verbose))
 						log.warning("{Couldn't find " + nodeNames[i] +  " node for world \"" + world.getName() + "\"}");
 				worldHandlers.put(world, new WorldHandler(this, world, worldNodes[0], worldNodes[1], worldNodes[2], worldNodes[3], damageCalc, healthCalc));
 			}
@@ -643,10 +642,10 @@ public class ModDamage extends JavaPlugin
 		{
 			if(worldHandler.reload() && consoleDebugging_normal)
 				log.info("[" + getDescription().getName() + "] World " 
-					+ worldHandler.world.getName() + " config reloaded.");
+					+ worldHandler.getWorld().getName() + " config reloaded.");
 			else if(consoleDebugging_normal)
 				log.warning("[" + getDescription().getName() + "] World " 
-						+ worldHandler.world.getName() + " failed to reload.");
+						+ worldHandler.getWorld().getName() + " failed to reload.");
 		}
 	}
 	private void loadPluginSettings() 

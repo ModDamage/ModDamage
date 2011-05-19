@@ -1,4 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.Handling;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -14,6 +15,17 @@ public class DamageCalculator
 	final Random random = new Random();
 	
 	//for file parsing
+	public void checkCommandStrings(List<String> calcStrings, String elementReference, boolean isOffensive) 
+	{
+		for(String calcString : calcStrings)
+			if(!checkCommandString(calcString))
+			{
+				log.severe("Invalid command string \"" 
+						+ calcString + "\" in " + (isOffensive?"Offensive":"Defensive") + " " + elementReference 
+						+ " definition - refer to config for proper calculation node");
+				calcStrings.clear();
+			}
+	}
 	public boolean checkCommandString(String commandString) 
 	{
 		if(commandString != null)
@@ -278,4 +290,6 @@ public class DamageCalculator
 		return (isOffensive?(1):(-1)) * (input - eventDamage);
 	}
 	//TODO IDEA: damage based on entity resting on block of type BLAH? This would involve icky refactoring. :P
+
+	
 };
