@@ -1,6 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
-import org.bukkit.entity.Creature;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityListener;
@@ -26,7 +26,11 @@ public class ModDamageEntityListener extends EntityListener
 	@Override
 	public void onCreatureSpawn(CreatureSpawnEvent event)
 	{ 
-		if(ModDamage.disable_DefaultHealth) ((Creature)event.getEntity()).setHealth(0);
+		if(ModDamage.disable_DefaultHealth)
+			{
+				ModDamage.log.info("OHEMGEE YOU KILLED IT");
+				((LivingEntity)event.getEntity()).setHealth(-1);
+			}
 		plugin.passSpawnEvent(event);
 	}
 }

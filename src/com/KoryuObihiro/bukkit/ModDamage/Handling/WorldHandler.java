@@ -7,13 +7,10 @@ import java.util.logging.Logger;
 
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
-import org.json.simple.ItemList;
-
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 
@@ -23,7 +20,7 @@ public class WorldHandler
 //// MEMBERS ////
 	public ModDamage plugin;
 	public Logger log; 
-	protected World world;
+	private World world;
 	
 	public boolean globalsLoaded = false;
 	public boolean groupsLoaded = false;
@@ -43,12 +40,13 @@ public class WorldHandler
 	final private HashMap<DamageElement, String> mobHealthSettings = new HashMap<DamageElement, String>();
 	
 	//specific-item HashMap
-	final private HashMap<Material, List<String>> offensiveItemRoutines = new HashMap<Material, List<String>>();
-	final private HashMap<Material, List<String>> defensiveItemRoutines = new HashMap<Material, List<String>>();
+	final private HashMap<Material, List<String>> itemOffensiveRoutines = new HashMap<Material, List<String>>();
+	final private HashMap<Material, List<String>> itemDefensiveRoutines = new HashMap<Material, List<String>>();
 	
 	//GroupHandler HashMap
 	final private HashMap<String, GroupHandler> groupHandlers = new HashMap<String, GroupHandler>();
 	
+	//Scan items
 	final private List<Material> globalScanItems = new ArrayList<Material>();
 	
 //// CONSTRUCTOR ////
@@ -79,15 +77,17 @@ public class WorldHandler
 				+ world.getName() + "\" could not load.");
 		
 		//load Defensive configuration
-		groupsLoaded = ((globalsLoaded)?loadGroupHandlers(true):false);
-		if(groupsLoaded && ModDamage.consoleDebugging_normal) log.info("[" + plugin.getDescription().getName() + "] Group configuration for world \""
+		groupsLoaded = loadGroupHandlers(true);
+		//load Scan item configuration
+		scanLoaded = loadScanItems();
+		if(groupsLoaded && ModDamage.consoleDebugging_normal) 
+			if(!groupHandlers.isEmpty()) 
+				log.info("[" + plugin.getDescription().getName() + "] Group configuration(s) for world \""
 				+ world.getName() + "\" initialized!");
 		else if(ModDamage.consoleDebugging_verbose) 
 			log.warning("[" + plugin.getDescription().getName() + "] Group configuration for world \""
 				+ world.getName() + "\" could not load.");
 
-		//load Scan item configuration
-		scanLoaded = loadScanItems();
 		//load MobHealth configuration
 		mobHealthLoaded = loadMobHealth();
 		
@@ -109,84 +109,128 @@ public class WorldHandler
 		{
 			//clear everything first
 			clearRoutines();
-	
+			
+			boolean loadedSomething = false;
+			ConfigurationNode offensiveGlobalNode = (offensiveNode != null)?offensiveNode.getNode("global"):null;
+			ConfigurationNode defensiveGlobalNode = (defensiveNode != null)?defensiveNode.getNode("global"):null;
 	//load "global" node routines
-			if(offensiveNode != null)
+			if(offensiveGlobalNode != null)
 			{
-				progressString = " generic damage types in Offensive";
-				if(!(loadGenericRoutines(true)))
-					return false;
-
-				progressString = " Offensive item routines";
-				if(!(loadItemRoutines(true)))
-					return false;
+				progressString = "generic damage types in Offensive";
+				if(loadGenericRoutines(true))
+					loadedSomething = true;
+				else if(ModDamage.consoleDebugging_verbose)
+					log.warning("Could not load " + progressString);
+				
+				progressString = "Offensive item routines";
+				if(loadItemRoutines(true))
+					loadedSomething = true;
+				else if(ModDamage.consoleDebugging_verbose)
+					log.warning("Could not load " + progressString);
 			}
-			if(defensiveNode != null)
+			if(defensiveGlobalNode != null)
 			{
-				progressString = " generic damage types in Defensive";
-				if(!(loadGenericRoutines(false)))
-					return false;
+				progressString = "generic damage types in Defensive";
+				if(loadGenericRoutines(false))
+					loadedSomething = true;
+				else if(ModDamage.consoleDebugging_verbose)
+					log.warning("Could not load " + progressString);
 
-				progressString = " Defensive item routines";
-				if(!(loadItemRoutines(false)))
-					return false;
-			}			
+				progressString = "Defensive item routines";
+				if(loadItemRoutines(false))
+					loadedSomething = true;
+				else if(ModDamage.consoleDebugging_verbose)
+					log.warning("Could not load " + progressString);
+			}
+			
+			return loadedSomething;
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			log.severe("[" + plugin.getDescription().getName() 
 					+ "] Invalid global configuration for world \"" + world.getName()
-					+ "\" - failed to load" + progressString + ".");
+					+ "\" - failed while loading " + progressString + ".");
 			return false;
 		}
-		return true;
 	}
 
 	public boolean loadGenericRoutines(boolean isOffensive)
 	{
-		List<String>damageCategories = DamageElement.getTypeStrings();
+		List<String>damageCategories = DamageElement.getGenericTypeStrings();
+		ConfigurationNode genericNode = (isOffensive?offensiveNode:defensiveNode).getNode("global").getNode("generic");
 		for(String damageCategory : damageCategories)
 		{
-			ConfigurationNode relevantNode = (isOffensive
-												?offensiveNode.getNode("global").getNode(damageCategory)
-												:defensiveNode.getNode("global").getNode(damageCategory));
-				if(relevantNode != null)
+			if(genericNode != null)
+			{
+				List<String> calcStrings = genericNode.getStringList(damageCategory, null);
+				DamageElement element = DamageElement.matchDamageElement(damageCategory);
+				if(calcStrings != null)
 				{
-					if(ModDamage.consoleDebugging_verbose) log.info("{Found global " + (isOffensive?"Offensive":"Defensive") + " " 
+					if(ModDamage.consoleDebugging_verbose) log.info("{Found global generic " + (isOffensive?"Offensive":"Defensive") + " " 
 							+ damageCategory + " node for world \"" + world.getName() + "\"}");
-					for(DamageElement damageElement : DamageElement.getTypeElements(damageCategory))
+					if(!calcStrings.equals(null)) //!calcStrings.equals(null)
 					{
-						String elementReference = damageElement.getConfigReference();
-						//check for leaf-node buff strings
-						List<String> calcStrings = relevantNode.getStringList(elementReference, null);
-						if(!calcStrings.equals(null)) //!calcStrings.equals(null)
+						damageCalc.checkCommandStrings(calcStrings, damageCategory, isOffensive);
+						if(calcStrings.size() > 0)
 						{
-							damageCalc.checkCommandStrings(calcStrings, elementReference, isOffensive);
-							if(calcStrings.size() > 0)
+							if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(element))
 							{
-								if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement))
-								{
-									(isOffensive?offensiveRoutines:defensiveRoutines).put(damageElement, calcStrings);
-									if(ModDamage.consoleDebugging_normal) log.info("-" + world.getName() + ":" 
-											+ (isOffensive?"Offensive":"Defensive") + ":" + elementReference 
-											+ (ModDamage.consoleDebugging_verbose?(" " + calcStrings.toString()):"") );//debugging
-								}
-								else if(ModDamage.consoleDebugging_normal)
-								{
-									log.warning("Repetitive "  + elementReference + " in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
-									continue;
-								}
+								(isOffensive?offensiveRoutines:defensiveRoutines).put(element, calcStrings);
+								if(ModDamage.consoleDebugging_normal) log.info("-" + world.getName() + ":" 
+										+ (isOffensive?"Offensive":"Defensive") + ":Generic:" + damageCategory 
+										+ calcStrings.toString());//debugging
 							}
-							else if(ModDamage.consoleDebugging_verbose)
-								log.warning("No instructions found for " + elementReference + " node - is this on purpose?");
+							else if(ModDamage.consoleDebugging_normal)
+							{
+								log.warning("Repetitive generic "  + damageCategory + " in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
+								continue;
+							}
 						}
-						else if(ModDamage.consoleDebugging_verbose) log.info("Global " + damageElement.getConfigReference() 
-								+ " node for" + (isOffensive?"Offensive":"Defensive") + " not found.");
+						else if(ModDamage.consoleDebugging_verbose)
+							log.warning("No instructions found for generic " + damageCategory + " node - is this on purpose?");
 					}
-					return true;
+				}
+				else if(ModDamage.consoleDebugging_verbose) log.info("Global generic " + element.getReference() 
+						+ " node for" + (isOffensive?"Offensive":"Defensive") + " not found.");
+			}
+			ConfigurationNode relevantNode = ((isOffensive?offensiveNode:defensiveNode).getNode("global").getNode(damageCategory));
+			if(relevantNode != null)
+			{
+				if(ModDamage.consoleDebugging_verbose) log.info("{Found global specific " + (isOffensive?"Offensive":"Defensive") + " " 
+						+ damageCategory + " node for world \"" + world.getName() + "\"}");
+				for(DamageElement damageElement : DamageElement.getElementsOf(damageCategory))
+				{
+					String elementReference = damageElement.getReference();
+					//check for leaf-node buff strings
+					List<String> calcStrings = relevantNode.getStringList(elementReference, null);
+					if(!calcStrings.equals(null)) //!calcStrings.equals(null)
+					{
+						damageCalc.checkCommandStrings(calcStrings, elementReference, isOffensive);
+						if(calcStrings.size() > 0)
+						{
+							if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement))
+							{
+								(isOffensive?offensiveRoutines:defensiveRoutines).put(damageElement, calcStrings);
+								if(ModDamage.consoleDebugging_normal) log.info("-" + world.getName() + ":" 
+										+ (isOffensive?"Offensive":"Defensive") + ":" + elementReference 
+										+ calcStrings.toString());//debugging
+							}
+							else if(ModDamage.consoleDebugging_normal)
+							{
+								log.warning("Repetitive "  + elementReference + " in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
+								continue;
+							}
+						}
+						else if(ModDamage.consoleDebugging_verbose)
+							log.warning("No instructions found for " + elementReference + " node - is this on purpose?");
+					}
+					else if(ModDamage.consoleDebugging_verbose) log.info("Global " + damageElement.getReference() 
+							+ " node for" + (isOffensive?"Offensive":"Defensive") + " not found.");
 				}
 			}
-			return false;
+		}
+		return true;
 	}
 
 	public boolean loadItemRoutines(boolean isOffensive){ return loadItemRoutines(isOffensive, false);}
@@ -224,8 +268,8 @@ public class WorldHandler
 						if(ModDamage.consoleDebugging_normal) log.info(world.getName() 
 								+ ":" + (isOffensive?"Offensive":"Defensive") + ":" + material.name() + "(" + material.getId() + ")"
 								+ (ModDamage.consoleDebugging_verbose?(" " + calcStrings.toString()):""));//debugging
-						if(!(isOffensive?offensiveItemRoutines:defensiveItemRoutines).containsKey(material))
-							(isOffensive?offensiveItemRoutines:defensiveItemRoutines).put(material, calcStrings);
+						if(!(isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).containsKey(material))
+							(isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).put(material, calcStrings);
 						else if(ModDamage.consoleDebugging_normal) log.warning("[" + plugin.getDescription().getName() + "] Repetitive " 
 								+ material.name() + "(" + material.getId() + ") definition in " + (isOffensive?"Offensive":"Defensive") + " item globals - ignoring");
 					}
@@ -252,6 +296,7 @@ public class WorldHandler
 		{
 			groups.addAll((offensiveNode != null && offensiveNode.getKeys("groups") != null)?offensiveNode.getKeys("groups"):new ArrayList<String>());
 			groups.addAll((defensiveNode != null && defensiveNode.getKeys("groups") != null)?defensiveNode.getKeys("groups"):new ArrayList<String>());
+			groups.addAll((scanNode != null && scanNode.getKeys("groups") != null)?scanNode.getKeys("groups"):new ArrayList<String>());
 		}
 		//load groups with offensive and defensive settings first
 		if(!groups.isEmpty())
@@ -267,7 +312,7 @@ public class WorldHandler
 					groupHandlers.put(group, new GroupHandler(this, group, 
 									((offensiveNode != null && offensiveNode.getNode("groups") != null)?offensiveNode.getNode("groups").getNode(group):null),
 									((defensiveNode != null && defensiveNode.getNode("groups") != null)?defensiveNode.getNode("groups").getNode(group):null), 
-									((scanNode != null && scanNode.getNode("groups") != null)?scanNode.getNode("groups").getNode(group):null), 
+									((scanNode != null && scanNode.getNode("groups") != null)?scanNode.getNode("groups"):null), 
 									damageCalc));
 			}
 		return true;
@@ -279,32 +324,34 @@ public class WorldHandler
 		if(mobHealthNode != null) 
 		{
 			if(ModDamage.consoleDebugging_verbose) log.info("{Found MobHealth node for world \"" + world.getName() + "\"}");
+			List<DamageElement> creatureTypes = new ArrayList<DamageElement>();
+			creatureTypes.addAll(DamageElement.getElementsOf("animal"));
+			creatureTypes.addAll(DamageElement.getElementsOf("mob"));
 			//load Mob health settings
-			for(DamageElement mobType : DamageElement.values())
-				if(mobType.getType().equals("mob") || mobType.getType().equals("animal"))
+			for(DamageElement creatureType : creatureTypes)
+			{
+			//check for leaf-node health strings
+				String calcString = (String) mobHealthNode.getProperty(creatureType.getReference());
+				if(calcString != null)
 				{
-				//check for leaf-node health strings
-					String calcString = (String) mobHealthNode.getProperty(mobType.getConfigReference());
-					if(calcString != null)
+					//calcString = calcString.substring(1, calcString.length() - 1); //use this when checking for leaf nodes, not properties
+					if(!healthCalc.checkCommandString(calcString))
 					{
-						//calcString = calcString.substring(1, calcString.length() - 1); //use this when checking for leaf nodes, not properties
-						if(!healthCalc.checkCommandString(calcString))
-						{
-							log.severe("Invalid command string \"" + calcString + "\" in MobHealth " + mobType.getConfigReference() 
-									+ " definition - refer to config for proper calculation node");
-						}
-					//display debug message to acknowledge that the settings have been validated
-						if(ModDamage.consoleDebugging_normal) log.info("-" + world.getName() + ":MobHealth:" + mobType.getConfigReference() 
-								+ (ModDamage.consoleDebugging_verbose?(" " + calcString.toString()):""));
-					//check that this type of mob hasn't already been loaded
-						if(!mobHealthSettings.containsKey(mobType))
-							mobHealthSettings.put(mobType, calcString);
-						else if(ModDamage.consoleDebugging_normal) log.warning("Repetitive " + mobType.getConfigReference() 
-								+ " definition - ignoring");
+						log.severe("Invalid command string \"" + calcString + "\" in MobHealth " + creatureType.getReference() 
+								+ " definition - refer to config for proper calculation node");
 					}
-					else if(ModDamage.consoleDebugging_verbose)
-						log.warning("No instructions found for " + mobType.getConfigReference() + " - is this on purpose?");
+				//display debug message to acknowledge that the settings have been validated
+					if(ModDamage.consoleDebugging_normal) log.info("-" + world.getName() + ":MobHealth:" + creatureType.getReference() 
+							+ (ModDamage.consoleDebugging_verbose?(" " + calcString.toString()):""));
+				//check that this type of mob hasn't already been loaded
+					if(!mobHealthSettings.containsKey(creatureType))
+						mobHealthSettings.put(creatureType, calcString);
+					else if(ModDamage.consoleDebugging_normal) log.warning("Repetitive " + creatureType.getReference() 
+							+ " definition - ignoring");
 				}
+				else if(ModDamage.consoleDebugging_verbose)
+					log.warning("No instructions found for " + creatureType.getReference() + " - is this on purpose?");
+			}
 			return true;
 		}
 		return false;
@@ -372,14 +419,13 @@ public class WorldHandler
 			String group_target = ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName());
 			String group_attacking = ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName());
 			//apply global buff settings
-			return runGlobalRoutines(DamageElement.GENERIC_PLAYER, true, eventDamage)
+			return runGlobalRoutines(DamageElement.GENERIC_HUMAN, true, eventDamage)
 				+ runGlobalRoutines(DamageElement.matchItemType(player_attacking.getItemInHand().getType()), true, eventDamage)
 				+ runItemRoutines(player_attacking.getItemInHand().getType(), true, eventDamage)
 			//apply group settings
 				+ (groupHandlers.containsKey(group_attacking)
-						?groupHandlers.get(group_attacking).calcAttackBuff(group_target, eventDamage)
-								+ groupHandlers.get(group_attacking).calcAttackBuff(player_attacking.getItemInHand().getType(), eventDamage)
-							:0);
+						?groupHandlers.get(group_attacking).calcAttackBuff(group_target, player_attacking.getItemInHand().getType(), eventDamage)
+						:0);
 		}
 		return 0;
 	}
@@ -391,13 +437,12 @@ public class WorldHandler
 			String group_target = ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName());
 			String group_attacking = ModDamage.Permissions.getGroup(player_attacking.getWorld().getName(), player_attacking.getName());
 			//apply global buff settings
-			return runGlobalRoutines(DamageElement.GENERIC_PLAYER, false, eventDamage)
+			return runGlobalRoutines(DamageElement.GENERIC_HUMAN, false, eventDamage)
 				+ runGlobalRoutines(DamageElement.matchItemType(player_attacking.getItemInHand().getType()), false, eventDamage)
 				+ runItemRoutines(player_attacking.getItemInHand().getType(), false, eventDamage)
 			//apply group buff settings
 				+ (groupHandlers.containsKey(group_target)
-						?groupHandlers.get(group_target).calcDefenseBuff(group_attacking, eventDamage)
-							+groupHandlers.get(group_target).calcDefenseBuff(player_attacking.getItemInHand().getType(), eventDamage)
+						?groupHandlers.get(group_target).calcDefenseBuff(group_attacking, player_attacking.getItemInHand().getType(), eventDamage)
 						:0);
 		}
 		return 0;
@@ -410,7 +455,8 @@ public class WorldHandler
 		//String group_target = plugin.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName());
 		if(globalsLoaded)
 		{
-			return runGlobalRoutines(damageType, true, eventDamage);
+			return runGlobalRoutines(damageType.getType(), true, eventDamage)
+					+ runGlobalRoutines(damageType, true, eventDamage);
 		}
 		return 0;
 	}
@@ -419,10 +465,14 @@ public class WorldHandler
 		if(globalsLoaded)
 		{
 			String group_target = ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName());
-			return runGlobalRoutines(damageType, false, eventDamage) 
-				+ runGlobalRoutines(DamageElement.matchItemType(player_target.getItemInHand().getType()), false, eventDamage)
-				+ runItemRoutines(player_target.getItemInHand().getType(), false, eventDamage)
-				+ (groupHandlers.containsKey(group_target)?groupHandlers.get(group_target).calcDefenseBuff(damageType, eventDamage):0);
+			return runGlobalRoutines(damageType.getType(), false, eventDamage) //generic
+					+ runGlobalRoutines(damageType, false, eventDamage) //specific
+					+ runGlobalRoutines(DamageElement.matchItemType(player_target.getItemInHand().getType()), false, eventDamage) //item type
+					+ runItemRoutines(player_target.getItemInHand().getType(), false, eventDamage) //item specific
+					+ (groupHandlers.containsKey(group_target) //group specific
+							?groupHandlers.get(group_target).calcDefenseBuff(damageType, 
+									player_target.getItemInHand().getType(), eventDamage)
+							:0);
 		}
 		return 0;
 	}
@@ -435,7 +485,8 @@ public class WorldHandler
 		if(globalsLoaded)
 		{
 			//apply global buff settings
-			return runGlobalRoutines(damageType, true, eventDamage);
+			return runGlobalRoutines(damageType.getType(), true, eventDamage)
+					+ runGlobalRoutines(damageType, true, eventDamage);
 		}
 		return 0;
 	}
@@ -443,7 +494,8 @@ public class WorldHandler
 	{
 		if(globalsLoaded)
 		{
-			return runGlobalRoutines(damageType, false, eventDamage);
+			return runGlobalRoutines(damageType.getType(), false, eventDamage)
+					+ runGlobalRoutines(damageType, false, eventDamage);
 		}
 		return 0;
 	}
@@ -454,11 +506,11 @@ public class WorldHandler
 		if(globalsLoaded)
 		{
 			String group_attacking = ModDamage.Permissions.getGroup(player_attacking.getWorld().getName(), player_attacking.getName());
-			return runGlobalRoutines(DamageElement.GENERIC_PLAYER, true, eventDamage) 
+			return runGlobalRoutines(DamageElement.GENERIC_HUMAN, true, eventDamage) 
 					+ runGlobalRoutines(DamageElement.matchItemType(player_attacking.getItemInHand().getType()), true, eventDamage)
 					+ (groupHandlers.containsKey(group_attacking)
-							?groupHandlers.get(group_attacking).calcAttackBuff(mobType_target, eventDamage)
-							+ groupHandlers.get(group_attacking).calcAttackBuff(player_attacking.getItemInHand().getType(),eventDamage)
+							?groupHandlers.get(group_attacking).calcAttackBuff(mobType_target, 
+									player_attacking.getItemInHand().getType(), eventDamage)
 							:0)
 					+ runItemRoutines(player_attacking.getItemInHand().getType(), true, eventDamage);
 		}
@@ -469,7 +521,8 @@ public class WorldHandler
 		if(globalsLoaded)
 		{
 			//String group_attacking = ModDamage.Permissions.getGroup(player_attacking.getWorld().getName(), player_attacking.getName());
-			return runGlobalRoutines(mobType_target, false, eventDamage);
+			return runGlobalRoutines(mobType_target.getType(), false, eventDamage) 
+					+ runGlobalRoutines(mobType_target, false, eventDamage);
 		}
 		return 0;
 	}
@@ -496,9 +549,9 @@ public class WorldHandler
 	private int runItemRoutines(Material materialType, boolean isOffensive, int eventDamage, boolean printDebugging) 
 	{
 		int result = 0;
-		if(materialType != null && (isOffensive?offensiveItemRoutines:defensiveItemRoutines).containsKey(materialType))
+		if(materialType != null && (isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).containsKey(materialType))
 		{
-			for(String calcString : (isOffensive?offensiveItemRoutines:defensiveItemRoutines).get(materialType))
+			for(String calcString : (isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).get(materialType))
 				result += damageCalc.parseCommand(calcString, eventDamage, isOffensive);
 			if(printDebugging)
 				log.info((isOffensive?"AttBuff: ":"DefBuff: ") + result);
@@ -514,8 +567,8 @@ public class WorldHandler
 	{
 		offensiveRoutines.clear();
 		defensiveRoutines.clear();
-		offensiveItemRoutines.clear();
-		defensiveItemRoutines.clear();
+		itemOffensiveRoutines.clear();
+		itemDefensiveRoutines.clear();
 		globalScanItems.clear();
 		mobHealthSettings.clear();
 	}
@@ -548,6 +601,27 @@ public class WorldHandler
 	public boolean group_isLoaded(String groupName){ return groupHandlers.containsKey(groupName);}
 	public boolean attackType_isLoaded(DamageElement damageType){ return offensiveRoutines.containsKey(damageType);}
 	public boolean defenseType_isLoaded(DamageElement damageType){ return defensiveRoutines.containsKey(damageType);}
+	
+	public boolean loadedSomething()
+	{
+		boolean groupsLoadedSomething = false;
+		for(GroupHandler groupHandler : groupHandlers.values())
+		{
+			if(groupHandler.loadedSomething())
+				groupsLoadedSomething = true;
+			else groupHandlers.remove(groupHandler.getGroupName());
+		}
+		return (!offensiveRoutines.isEmpty() || !defensiveRoutines.isEmpty()
+				|| !itemOffensiveRoutines.isEmpty() || !itemDefensiveRoutines.isEmpty()
+				|| !globalScanItems.isEmpty() || !mobHealthSettings.isEmpty()
+				|| groupsLoadedSomething);
+	}
+	
+	public void clear()
+	{
+		clearRoutines();
+		groupHandlers.clear();
+	}
 }
 
 	

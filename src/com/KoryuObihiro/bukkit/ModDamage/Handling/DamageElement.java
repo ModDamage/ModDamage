@@ -2,8 +2,6 @@ package com.KoryuObihiro.bukkit.ModDamage.Handling;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
-
 import org.bukkit.Material;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Chicken;
@@ -31,63 +29,71 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 public enum DamageElement 
 {
 //TODO Add equipment types
-	GENERIC_ALL ("all", "generic"),
-	GENERIC_PLAYER ("humans", "generic"),
-	GENERIC_ANIMAL ("animal", "generic"),
-	GENERIC_MOB ("mob", "generic"),
-	GENERIC_NATURE ("nature", "generic"),
+	GENERIC ("generic", null),
+	GENERIC_HUMAN ("humans", GENERIC),
+	GENERIC_ANIMAL ("animal", GENERIC),
+	GENERIC_ITEM ("item", GENERIC),
+	GENERIC_MOB ("mob", GENERIC),
+	GENERIC_NATURE ("nature", GENERIC),
 //tools
-	TOOL_AXE ("axe", "item"),
-	TOOL_BOW ("bow", "item"),
-	TOOL_HOE ("hoe", "item"),
-	TOOL_PICKAXE ("pickaxe", "item"),
-	TOOL_SPADE ("spade", "item"),
-	TOOL_SWORD ("sword", "item"),
+	TOOL_AXE ("axe", GENERIC_ITEM),
+	TOOL_BOW ("bow", GENERIC_ITEM),
+	TOOL_HOE ("hoe", GENERIC_ITEM),
+	TOOL_PICKAXE ("pickaxe", GENERIC_ITEM),
+	TOOL_SPADE ("spade", GENERIC_ITEM),
+	TOOL_SWORD ("sword", GENERIC_ITEM),
 //armor
-	ARMOR_HELMET ("head", "armor"),
-	ARMOR_CHESTPLATE ("chest", "armor"),
-	ARMOR_LEGGINGS ("legs", "armor"),
-	ARMOR_BOOTS ("boots", "armor"),
+	ARMOR_HELMET ("head", GENERIC_ITEM),
+	ARMOR_CHESTPLATE ("chest", GENERIC_ITEM),
+	ARMOR_LEGGINGS ("legs", GENERIC_ITEM),
+	ARMOR_BOOTS ("boots", GENERIC_ITEM),
 //animals
-	ANIMAL_CHICKEN ("Chicken", "animal"),
-	ANIMAL_COW ("Cow", "animal"),
-	ANIMAL_PIG ("Pig", "animal"),
-	ANIMAL_SHEEP ("Sheep", "animal"),
-	ANIMAL_SQUID ("Squid", "animal"),
-	ANIMAL_WOLF ("Wolf", "animal"),
+	ANIMAL_CHICKEN ("Chicken", GENERIC_ANIMAL),
+	ANIMAL_COW ("Cow", GENERIC_ANIMAL),
+	ANIMAL_PIG ("Pig", GENERIC_ANIMAL),
+	ANIMAL_SHEEP ("Sheep", GENERIC_ANIMAL),
+	ANIMAL_SQUID ("Squid", GENERIC_ANIMAL),
+	ANIMAL_WOLF ("Wolf", GENERIC_ANIMAL),
 //mobs
-	MOB_CREEPER ("Creeper", "mob"),
-	MOB_GHAST ("Ghast", "mob"),
-	MOB_GIANT ("Giant", "mob"),
-	MOB_PIGZOMBIE ("ZombiePigman", "mob"),
-	MOB_SKELETON ("Skeleton", "mob"),
-	MOB_SLIME ("Slime", "mob"),
-	MOB_SPIDER ("Spider", "mob"),
-	MOB_ZOMBIE ("Zombie", "mob"),
+	MOB_CREEPER ("Creeper", GENERIC_MOB),
+	MOB_GHAST ("Ghast", GENERIC_MOB),
+	MOB_GIANT ("Giant", GENERIC_MOB),
+	MOB_PIGZOMBIE ("ZombiePigman", GENERIC_MOB),
+	MOB_SKELETON ("Skeleton", GENERIC_MOB),
+	MOB_SLIME ("Slime", GENERIC_MOB),
+	MOB_SPIDER ("Spider", GENERIC_MOB),
+	MOB_ZOMBIE ("Zombie", GENERIC_MOB),
 //nature
-	NATURE_BLOCK_EXPLOSION ("blockexplosion", "nature"),
-	NATURE_CONTACT("cactus", "nature"),
-	NATURE_DROWNING ("drowning", "nature"),
-	NATURE_EXPLOSION ("explosion", "nature"),
-	NATURE_FALL ("fall", "nature"),
-	NATURE_FIRE ("fire", "nature"),
-	NATURE_FIRE_TICK ("burn", "nature"),
-	NATURE_LAVA ("lava", "nature"),
-	NATURE_LIGHTNING ("lightning", "nature"),
-	NATURE_SUFFOCATION ("suffocation", "nature");
+	NATURE_BLOCK_EXPLOSION ("blockexplosion", GENERIC_NATURE),
+	NATURE_CONTACT("cactus", GENERIC_NATURE),
+	NATURE_DROWNING ("drowning", GENERIC_NATURE),
+	NATURE_EXPLOSION ("explosion", GENERIC_NATURE),
+	NATURE_FALL ("fall", GENERIC_NATURE),
+	NATURE_FIRE ("fire", GENERIC_NATURE),
+	NATURE_FIRE_TICK ("burn", GENERIC_NATURE),
+	NATURE_LAVA ("lava", GENERIC_NATURE),
+	NATURE_LIGHTNING ("lightning", GENERIC_NATURE),
+	NATURE_SUFFOCATION ("suffocation", GENERIC_NATURE);
 	
 	
-	private final String nodeName;
-	private final String damageType;
-	DamageElement(String nodeName, String damage_description) 
+	private final String stringReference;
+	private final DamageElement genericElement;
+	DamageElement(String stringReference, DamageElement genericElement) 
 	{
-		this.damageType = damage_description;
-		this.nodeName = nodeName;
+		this.stringReference = stringReference;
+		this.genericElement = genericElement;
 	}
 	
-	public String getConfigReference(){ return this.nodeName;}
-	public String getType(){ return damageType;}
+	public String getReference(){ return this.stringReference;}
+	public DamageElement getType(){ return genericElement;}
 
+	public boolean isElementReference(String string)
+	{
+		for(DamageElement element : DamageElement.values())
+			if(element.getReference().equals(string))
+				return true;
+		return false;
+	}
 	public static DamageElement matchDamageCause(DamageCause cause)
 	{
 		switch(cause) 
@@ -212,36 +218,39 @@ public enum DamageElement
 		}
 		return null;
 	}
-	
-	public static List<String> getTypeStrings(){ return getTypeStrings("generic");}
-	public static List<String> getTypeStrings(String elementType)
+
+	public static List<String> getStringsOf(DamageElement element){ return getStringsOf(element.getReference());}
+	public static List<String> getGenericTypeStrings(){ return getStringsOf("generic");}
+	public static List<String> getStringsOf(String elementType)
 	{
 		List<String> typeStrings = new ArrayList<String>();
 		for(DamageElement element : DamageElement.values())
-			if(element.getType().equals(elementType))
-				typeStrings.add(element.getConfigReference());
+			if(element.getType() != null
+					&& element.getType().getReference().equals(elementType))
+				typeStrings.add(element.getReference());
 		
-		if(typeStrings.isEmpty()) typeStrings = null;
+		//if(typeStrings.isEmpty()) typeStrings = null;
 		return typeStrings;
 	}
 
-	public static List<DamageElement> getTypeElements(){ return getTypeElements("generic");}
-	public static List<DamageElement> getTypeElements(DamageElement element){ return getTypeElements(element.getConfigReference());}
-	public static List<DamageElement> getTypeElements(String elementType)
+	public static List<DamageElement> getElementsOf(DamageElement element){ return getElementsOf(element.getReference());}
+	public static List<DamageElement> getGenericElements(){ return getElementsOf("generic");}
+	public static List<DamageElement> getElementsOf(String elementType)
 	{
 		List<DamageElement> typeStrings = new ArrayList<DamageElement>();
 		for(DamageElement element : DamageElement.values())
-			if(element.getType().equals(elementType))
+			if(element.getType() != null
+					&& element.getType().getReference().equals(elementType))
 				typeStrings.add(element);
 		
-		if(typeStrings.isEmpty()) typeStrings = null;
+		//if(typeStrings.isEmpty()) typeStrings = null;
 		return typeStrings;
 	}
 	
 	public static DamageElement matchDamageElement(String nodeName)
 	{
 		for(DamageElement element : DamageElement.values())
-			if(element.getConfigReference().equals(nodeName))
+			if(element.getReference().equals(nodeName))
 				return element;
 		return null;
 	}

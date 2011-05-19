@@ -10,7 +10,6 @@ import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -43,7 +42,6 @@ public class ModDamage extends JavaPlugin
 	//TODO Client-sided mod for displaying health?
 	//plugin-related
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
-	private final ModDamagePlayerListener playerListener = new ModDamagePlayerListener(this);
 	public static Logger log = Logger.getLogger("Minecraft");
 	public static PermissionHandler Permissions = null;
 	private Configuration config;
@@ -81,10 +79,8 @@ public class ModDamage extends JavaPlugin
 		//register plugin-related stuff with the server's plugin manager
 		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.High, this);
 		getServer().getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.High, this);
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Event.Priority.Normal, this);
-		//getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Normal, this);
 		
-		loadConfig();
+		loadConfig(false);
 		
 	}
 
@@ -316,11 +312,11 @@ public class ModDamage extends JavaPlugin
 					if(args.length == 1)
 					{
 						if(fromConsole)
-							reload();
+							loadConfig(true);
 						else if(hasPermission(player, "moddamage.reload")) 
 						{
 							log.info("Reload initiated by user " + player.getName());
-							reload();
+							loadConfig(true);
 						}
 						else player.sendMessage(ChatColor.RED + "[" + getDescription().getName() + "] You don't have access to that command.");
 					}
@@ -495,9 +491,9 @@ public class ModDamage extends JavaPlugin
 							damage -= worldHandlers.get(world).calcDefenseBuff(mobType_damaged, player_damager, event.getDamage());
 							damage += worldHandlers.get(world).calcAttackBuff(mobType_damaged,player_damager, event.getDamage());
 
-							if(hasPermission(player_damager, "moddamage.scan." + mobType_damaged.getConfigReference()) 
+							if(hasPermission(player_damager, "moddamage.scan." + mobType_damaged.getReference()) 
 									&& worldHandlers.get(world).canScan(player_damager))
-								player_damager.sendMessage(ChatColor.DARK_PURPLE + mobType_damaged.getConfigReference() 
+								player_damager.sendMessage(ChatColor.DARK_PURPLE + mobType_damaged.getReference() 
 										+ "(id " + ent_damaged.getEntityId() + ")"
 										+ ": " + Integer.toString(((LivingEntity)ent_damaged).getHealth() - damage));
 						}
@@ -590,21 +586,17 @@ public class ModDamage extends JavaPlugin
 			ConfigurationNode worldMobHealthNode = pluginMobHealthNode.getNode(world.getName());
 			ConfigurationNode worldScanNode = pluginScanNode.getNode(world.getName());
 			
-			if(worldOffensiveNode != null && worldDefensiveNode != null && worldMobHealthNode != null && worldScanNode != null) //TODO Change to OR-type eval
+			if(worldOffensiveNode != null || worldDefensiveNode != null || worldMobHealthNode != null || worldScanNode != null)
 			{
 				worldHandlers.put(world, new WorldHandler(this, world, worldOffensiveNode, worldDefensiveNode, worldMobHealthNode, worldScanNode, damageCalc, healthCalc));
 				return true;
 			}
-			else 
-			{
-				if(consoleDebugging_normal) log.warning("Couldn't find nodes for world " + world.getName());
-				return false;
-			}
+			else if(consoleDebugging_normal) log.warning("Couldn't find nodes for world " + world.getName());
 		}
 		return false;
 	}
 	
-	private void loadConfig()
+	private void loadConfig(boolean reloading)
 	{
 		//CONFIGURATION
 		//get plugin config.yml
@@ -616,41 +608,6 @@ public class ModDamage extends JavaPlugin
 		pluginScanNode = config.getNode("Scan");
 
 		//load debug settings
-		loadPluginSettings();
-		
-		//try to initialize WorldHandlers
-		String nodeNames[] = {"Offensive", "Defensive", "MobHealth", "Scan"};
-		if(pluginOffensiveNode != null && pluginDefensiveNode != null && pluginMobHealthNode != null && pluginScanNode != null)
-			for(World world : getServer().getWorlds())
-			{
-				ConfigurationNode worldNodes[] = {pluginOffensiveNode.getNode(world.getName()), 
-													pluginDefensiveNode.getNode(world.getName()), 
-													pluginMobHealthNode.getNode(world.getName()),
-													pluginScanNode.getNode(world.getName())};
-				for(int i = 0; i < worldNodes.length; i++)
-					if(worldNodes[i] == null && (consoleDebugging_verbose))
-						log.warning("{Couldn't find " + nodeNames[i] +  " node for world \"" + world.getName() + "\"}");
-				worldHandlers.put(world, new WorldHandler(this, world, worldNodes[0], worldNodes[1], worldNodes[2], worldNodes[3], damageCalc, healthCalc));
-			}
-		else log.severe("Couldn't find configuration nodes - does the config file exist?");
-	}
-
-	private void reload()
-	{
-		loadPluginSettings();
-		for(WorldHandler worldHandler : worldHandlers.values())
-		{
-			if(worldHandler.reload() && consoleDebugging_normal)
-				log.info("[" + getDescription().getName() + "] World " 
-					+ worldHandler.getWorld().getName() + " config reloaded.");
-			else if(consoleDebugging_normal)
-				log.warning("[" + getDescription().getName() + "] World " 
-						+ worldHandler.getWorld().getName() + " failed to reload.");
-		}
-	}
-	private void loadPluginSettings() 
-	{
-		//debugging
 		String debugString = (String)config.getProperty("debugging");
 		if(debugString != null)
 		{
@@ -671,7 +628,36 @@ public class ModDamage extends JavaPlugin
 		
 		//"disable"-type configs
 		disable_DefaultDamage = config.getBoolean("disableDefaultDamage", false);
-		disable_DefaultHealth = config.getBoolean("disableDefaultHealth", false);
+		if(consoleDebugging_normal) log.info("[" + getDescription().getName()+ "] Default damage " + ((disable_DefaultDamage)?"dis":"en") + "abled.");
+		disable_DefaultHealth = config.getBoolean("[" + getDescription().getName()+ "] disableDefaultHealth", false);
+		if(consoleDebugging_normal) log.info("[" + getDescription().getName()+ "] Default health " + ((disable_DefaultDamage)?"dis":"en") + "abled.");
 		negative_Heal = config.getBoolean("negativeHeal", false);
+		if(consoleDebugging_normal) log.info("[" + getDescription().getName()+ "] Negative-damage healing " + ((disable_DefaultDamage)?"enabled.":"is not enabled."));
+		
+		//try to initialize WorldHandlers
+		String nodeNames[] = {"Offensive", "Defensive", "MobHealth", "Scan"};
+		if(pluginOffensiveNode != null || pluginDefensiveNode != null || pluginMobHealthNode != null || pluginScanNode != null)
+			for(World world : getServer().getWorlds())
+			{
+				ConfigurationNode worldNodes[] = {pluginOffensiveNode.getNode(world.getName()), 
+													pluginDefensiveNode.getNode(world.getName()), 
+													pluginMobHealthNode.getNode(world.getName()),
+													pluginScanNode.getNode(world.getName())};
+				for(int i = 0; i < worldNodes.length; i++)
+					if(worldNodes[i] == null && (consoleDebugging_verbose))
+						log.warning("{Couldn't find " + nodeNames[i] +  " node for world \"" + world.getName() + "\"}");
+				WorldHandler worldHandler = new WorldHandler(this, world, worldNodes[0], worldNodes[1], worldNodes[2], worldNodes[3], damageCalc, healthCalc);
+				if(!worldHandler.equals(null)) worldHandlers.put(world, worldHandler);
+			}
+		else log.severe("Couldn't find configuration nodes - does the config file exist?");
+		//cleanup(); TODO Doesn't  work yet. :(
+	}
+
+	
+	private void cleanup()
+	{
+		for(WorldHandler worldHandler : worldHandlers.values())
+			if(!worldHandler.loadedSomething()) 
+				worldHandlers.remove(worldHandler.getWorld());
 	}
 }
