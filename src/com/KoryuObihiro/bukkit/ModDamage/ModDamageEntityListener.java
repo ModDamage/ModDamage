@@ -29,7 +29,7 @@ public class ModDamageEntityListener extends EntityListener
 		if(ModDamage.disable_DefaultHealth)
 			{
 				ModDamage.log.info("OHEMGEE YOU KILLED IT");
-				((LivingEntity)event.getEntity()).setHealth(-1);
+				((LivingEntity)event.getEntity()).setHealth(0);
 			}
 		plugin.passSpawnEvent(event);
 	}

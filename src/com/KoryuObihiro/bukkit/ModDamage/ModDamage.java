@@ -1,8 +1,10 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
+import java.util.Arrays;
 import java.util.HashMap;
-
+import java.util.List;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -32,8 +34,8 @@ import java.util.logging.Logger;
  * "ModDamage" for Bukkit
  * 
  * @author Erich Gubler
- *
- */
+	 *
+	 */
 public class ModDamage extends JavaPlugin
 {
 	//TODO Deregister when Bukkit supports!
@@ -53,6 +55,7 @@ public class ModDamage extends JavaPlugin
 	public static boolean disable_DefaultDamage;
 	public static boolean disable_DefaultHealth;
 	public static boolean negative_Heal;
+	public final HashMap<String, List<Material>> scanKeywords = new HashMap<String, List<Material>>();
 	public final HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
 	private final DamageCalculator damageCalc = new DamageCalculator();
 	private final HealthCalculator healthCalc = new HealthCalculator();
@@ -75,6 +78,13 @@ public class ModDamage extends JavaPlugin
 		else
 			log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() 
 					+ " enabled [Permissions not found]");
+		
+		//If enough keywords come up, then this may be worth investing a class object into
+		scanKeywords.put("axe", Arrays.asList(Material.WOOD_AXE, Material.STONE_AXE, Material.IRON_AXE, Material.GOLD_AXE, Material.DIAMOND_AXE));
+		scanKeywords.put("hoe", Arrays.asList(Material.WOOD_HOE, Material.STONE_HOE, Material.IRON_HOE, Material.GOLD_HOE, Material.DIAMOND_HOE));
+		scanKeywords.put("pickaxe", Arrays.asList(Material.WOOD_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.GOLD_PICKAXE, Material.DIAMOND_PICKAXE));
+		scanKeywords.put("spade", Arrays.asList(Material.WOOD_SPADE, Material.STONE_SPADE, Material.IRON_SPADE, Material.GOLD_SPADE, Material.DIAMOND_SPADE));
+		scanKeywords.put("sword", Arrays.asList(Material.WOOD_SWORD, Material.STONE_SWORD, Material.IRON_SWORD, Material.GOLD_SWORD, Material.DIAMOND_SWORD));
 		
 		//register plugin-related stuff with the server's plugin manager
 		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.High, this);
@@ -420,7 +430,6 @@ public class ModDamage extends JavaPlugin
 		World world = event.getEntity().getWorld();
 		if(worldHandlers.containsKey(world) && worldHandlers.get(world).globalsLoaded)
 		{
-
 			int damage = event.getDamage();		
 			Entity ent_damaged = event.getEntity();
 			DamageElement.matchEntityType(ent_damaged);
@@ -432,19 +441,20 @@ public class ModDamage extends JavaPlugin
 				//Player-targeted damage
 				if(ent_damaged instanceof Player)
 				{
+					Player player_damaged = (Player)ent_damaged;
 					String group_damaged = Permissions.getGroup(world.getName(), ((Player)ent_damaged).getName());
 				//PvP
 					if(ent_damager instanceof Player)
 					{
-						String group_damager = Permissions.getGroup(world.getName(), ((Player)ent_damager).getName());
-						Player player_damager = (Player)ent_damager, player_damaged = (Player)ent_damaged;
+						Player player_damager = (Player)ent_damager;
+						String group_damager = Permissions.getGroup(world.getName(), player_damager.getName());
 						
 						log.info("PEE VEE PEE: " + group_damager + " vs. " + group_damaged); //TODO REMOVE ME EVENTUALLY
 						
 						if(group_damager != null && group_damaged != null)
 						{
-							damage -= worldHandlers.get(world).calcDefenseBuff(((Player)ent_damaged), ((Player)ent_damager), event.getDamage());
-							damage += worldHandlers.get(world).calcAttackBuff(((Player)ent_damaged), ((Player)ent_damager), event.getDamage());
+							damage -= worldHandlers.get(world).calcDefenseBuff(player_damaged, player_damager, event.getDamage());
+							damage += worldHandlers.get(world).calcAttackBuff(player_damaged, player_damager, event.getDamage());
 						}
 						
 						if(hasPermission(player_damager, "moddamage.scan.pvp") 
@@ -458,8 +468,8 @@ public class ModDamage extends JavaPlugin
 						DamageElement mobType_damager = DamageElement.matchEntityType(ent_damager);
 						if(group_damaged != null);
 						{
-							damage -= worldHandlers.get(world).calcDefenseBuff(((Player)ent_damaged), mobType_damager, event.getDamage());
-							damage += worldHandlers.get(world).calcAttackBuff(((Player)ent_damaged), mobType_damager, event.getDamage());
+							damage -= worldHandlers.get(world).calcDefenseBuff(player_damaged, mobType_damager, event.getDamage());
+							damage += worldHandlers.get(world).calcAttackBuff(player_damaged, mobType_damager, event.getDamage());
 						}
 					}
 				//nature-ent vs P
@@ -491,7 +501,7 @@ public class ModDamage extends JavaPlugin
 							damage -= worldHandlers.get(world).calcDefenseBuff(mobType_damaged, player_damager, event.getDamage());
 							damage += worldHandlers.get(world).calcAttackBuff(mobType_damaged,player_damager, event.getDamage());
 
-							if(hasPermission(player_damager, "moddamage.scan." + mobType_damaged.getReference()) 
+							if(hasPermission(player_damager, "moddamage.scan." + mobType_damaged.getReference().toLowerCase()) 
 									&& worldHandlers.get(world).canScan(player_damager))
 								player_damager.sendMessage(ChatColor.DARK_PURPLE + mobType_damaged.getReference() 
 										+ "(id " + ent_damaged.getEntityId() + ")"
@@ -526,6 +536,7 @@ public class ModDamage extends JavaPlugin
 			{
 				if(ent_damaged instanceof Player)
 				{
+
 					Player player_damaged = (Player)ent_damaged;
 					DamageElement damageType = DamageElement.matchDamageCause(event.getCause());
 					if(damageType != null && player_damaged != null)
@@ -557,11 +568,12 @@ public class ModDamage extends JavaPlugin
 	public void passSpawnEvent(CreatureSpawnEvent event)
 	{
 		World world = event.getEntity().getWorld();
+
+		LivingEntity livingEnt = ((LivingEntity)event.getEntity());
+		if(disable_DefaultHealth) livingEnt.setHealth(0);
 		if(worldHandlers.containsKey(world))
-		{
-			if(disable_DefaultHealth) ((Creature)event.getEntity()).setHealth(0);
-			event.setCancelled(!worldHandlers.get(world).setHealth(event.getEntity()));
-		}
+			worldHandlers.get(world).setHealth(livingEnt);
+		if(livingEnt.getHealth() <= 0) event.setCancelled(!worldHandlers.get(world).setHealth(event.getEntity()));
 	}
 	
 /////////////////// HELPER FUNCTIONS ////////////////////////////
@@ -654,7 +666,7 @@ public class ModDamage extends JavaPlugin
 	}
 
 	
-	private void cleanup()
+	public void cleanup()
 	{
 		for(WorldHandler worldHandler : worldHandlers.values())
 			if(!worldHandler.loadedSomething()) 

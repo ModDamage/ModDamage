@@ -29,63 +29,67 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 public enum DamageElement 
 {
 //TODO Add equipment types
-	GENERIC ("generic", null),
-	GENERIC_HUMAN ("humans", GENERIC),
-	GENERIC_ANIMAL ("animal", GENERIC),
-	GENERIC_ITEM ("item", GENERIC),
-	GENERIC_MOB ("mob", GENERIC),
-	GENERIC_NATURE ("nature", GENERIC),
+	GENERIC ("generic", null, true),
+	GENERIC_HUMAN ("humans", GENERIC, false),
+	GENERIC_ANIMAL ("animal", GENERIC, true),
+	GENERIC_ITEM ("item", GENERIC, true),
+	GENERIC_ARMOR("armor", GENERIC, false),
+	GENERIC_MOB ("mob", GENERIC, true),
+	GENERIC_NATURE ("nature", GENERIC, true),
 //tools
-	TOOL_AXE ("axe", GENERIC_ITEM),
-	TOOL_BOW ("bow", GENERIC_ITEM),
-	TOOL_HOE ("hoe", GENERIC_ITEM),
-	TOOL_PICKAXE ("pickaxe", GENERIC_ITEM),
-	TOOL_SPADE ("spade", GENERIC_ITEM),
-	TOOL_SWORD ("sword", GENERIC_ITEM),
+	TOOL_AXE ("axe", GENERIC_ITEM, false),
+	TOOL_BOW ("bow", GENERIC_ITEM, false),
+	TOOL_HOE ("hoe", GENERIC_ITEM, false),
+	TOOL_PICKAXE ("pickaxe", GENERIC_ITEM, false),
+	TOOL_SPADE ("spade", GENERIC_ITEM, false),
+	TOOL_SWORD ("sword", GENERIC_ITEM, false),
 //armor
-	ARMOR_HELMET ("head", GENERIC_ITEM),
-	ARMOR_CHESTPLATE ("chest", GENERIC_ITEM),
-	ARMOR_LEGGINGS ("legs", GENERIC_ITEM),
-	ARMOR_BOOTS ("boots", GENERIC_ITEM),
+	ARMOR_HELMET ("head", GENERIC_ARMOR, false),
+	ARMOR_CHESTPLATE ("chest", GENERIC_ARMOR, false),
+	ARMOR_LEGGINGS ("legs", GENERIC_ARMOR, false),
+	ARMOR_BOOTS ("boots", GENERIC_ARMOR, false),
 //animals
-	ANIMAL_CHICKEN ("Chicken", GENERIC_ANIMAL),
-	ANIMAL_COW ("Cow", GENERIC_ANIMAL),
-	ANIMAL_PIG ("Pig", GENERIC_ANIMAL),
-	ANIMAL_SHEEP ("Sheep", GENERIC_ANIMAL),
-	ANIMAL_SQUID ("Squid", GENERIC_ANIMAL),
-	ANIMAL_WOLF ("Wolf", GENERIC_ANIMAL),
+	ANIMAL_CHICKEN ("Chicken", GENERIC_ANIMAL, false),
+	ANIMAL_COW ("Cow", GENERIC_ANIMAL, false),
+	ANIMAL_PIG ("Pig", GENERIC_ANIMAL, false),
+	ANIMAL_SHEEP ("Sheep", GENERIC_ANIMAL, false),
+	ANIMAL_SQUID ("Squid", GENERIC_ANIMAL, false),
+	ANIMAL_WOLF ("Wolf", GENERIC_ANIMAL, false),
 //mobs
-	MOB_CREEPER ("Creeper", GENERIC_MOB),
-	MOB_GHAST ("Ghast", GENERIC_MOB),
-	MOB_GIANT ("Giant", GENERIC_MOB),
-	MOB_PIGZOMBIE ("ZombiePigman", GENERIC_MOB),
-	MOB_SKELETON ("Skeleton", GENERIC_MOB),
-	MOB_SLIME ("Slime", GENERIC_MOB),
-	MOB_SPIDER ("Spider", GENERIC_MOB),
-	MOB_ZOMBIE ("Zombie", GENERIC_MOB),
+	MOB_CREEPER ("Creeper", GENERIC_MOB, false),
+	MOB_GHAST ("Ghast", GENERIC_MOB, false),
+	MOB_GIANT ("Giant", GENERIC_MOB, false),
+	MOB_PIGZOMBIE ("ZombiePigman", GENERIC_MOB, false),
+	MOB_SKELETON ("Skeleton", GENERIC_MOB, false),
+	MOB_SLIME ("Slime", GENERIC_MOB, false),
+	MOB_SPIDER ("Spider", GENERIC_MOB, false),
+	MOB_ZOMBIE ("Zombie", GENERIC_MOB, false),
 //nature
-	NATURE_BLOCK_EXPLOSION ("blockexplosion", GENERIC_NATURE),
-	NATURE_CONTACT("cactus", GENERIC_NATURE),
-	NATURE_DROWNING ("drowning", GENERIC_NATURE),
-	NATURE_EXPLOSION ("explosion", GENERIC_NATURE),
-	NATURE_FALL ("fall", GENERIC_NATURE),
-	NATURE_FIRE ("fire", GENERIC_NATURE),
-	NATURE_FIRE_TICK ("burn", GENERIC_NATURE),
-	NATURE_LAVA ("lava", GENERIC_NATURE),
-	NATURE_LIGHTNING ("lightning", GENERIC_NATURE),
-	NATURE_SUFFOCATION ("suffocation", GENERIC_NATURE);
+	NATURE_BLOCK_EXPLOSION ("blockexplosion", GENERIC_NATURE, false),
+	NATURE_CONTACT("cactus", GENERIC_NATURE, false),
+	NATURE_DROWNING ("drowning", GENERIC_NATURE, false),
+	NATURE_EXPLOSION ("explosion", GENERIC_NATURE, false),
+	NATURE_FALL ("fall", GENERIC_NATURE, false),
+	NATURE_FIRE ("fire", GENERIC_NATURE, false),
+	NATURE_FIRE_TICK ("burn", GENERIC_NATURE, false),
+	NATURE_LAVA ("lava", GENERIC_NATURE, false),
+	NATURE_LIGHTNING ("lightning", GENERIC_NATURE, false),
+	NATURE_SUFFOCATION ("suffocation", GENERIC_NATURE, false);
 	
 	
 	private final String stringReference;
 	private final DamageElement genericElement;
-	DamageElement(String stringReference, DamageElement genericElement) 
+	private final boolean hasSubConfig;
+	DamageElement(String stringReference, DamageElement genericElement, boolean hasSubConfig) 
 	{
 		this.stringReference = stringReference;
 		this.genericElement = genericElement;
+		this.hasSubConfig = hasSubConfig;
 	}
 	
 	public String getReference(){ return this.stringReference;}
 	public DamageElement getType(){ return genericElement;}
+	public boolean hasSubConfiguration(){ return hasSubConfig;}
 
 	public boolean isElementReference(String string)
 	{
@@ -190,7 +194,7 @@ public enum DamageElement
 			default: 			return null;
 		}
 	}
-	
+
 	public static DamageElement matchArmorType(Material material)
 	{
 		switch(material)

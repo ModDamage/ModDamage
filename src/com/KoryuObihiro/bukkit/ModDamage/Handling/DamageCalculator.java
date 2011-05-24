@@ -20,13 +20,23 @@ public class DamageCalculator
 		for(String calcString : calcStrings)
 			if(!checkCommandString(calcString))
 			{
-				log.severe("Invalid command string \"" 
-						+ calcString + "\" in " + (isOffensive?"Offensive":"Defensive") + " " + elementReference 
+				log.severe("Invalid command string \"" + calcString + "\" in " + (isOffensive?"Offensive":"Defensive") 
+						+ " " + elementReference + " definition - refer to config for proper calculation node");
+				calcStrings.clear();
+			}
+	}
+	public void checkCommandStrings(List<String> calcStrings, String elementReference, boolean isOffensive, String groupName) 
+	{
+		for(String calcString : calcStrings)
+			if(!checkCommandString(calcString))
+			{
+				log.severe("Invalid command string \"" + calcString + "\" in group \"" + groupName 
+						+ "\" " + (isOffensive?"Offensive":"Defensive") + " " + elementReference 
 						+ " definition - refer to config for proper calculation node");
 				calcStrings.clear();
 			}
 	}
-	public boolean checkCommandString(String commandString) 
+	private boolean checkCommandString(String commandString) 
 	{
 		if(commandString != null)
 		{
@@ -73,7 +83,7 @@ public class DamageCalculator
 					}
 					catch(Exception e){}
 				}
-				else if(args[0].equals("mult") || args[0].equals("mult_add"))
+				else if(args[0].equals("mult"))
 				{
 					try
 					{
@@ -117,7 +127,15 @@ public class DamageCalculator
 	}
 	
 	//Parse commands for different command strings the handlers pass
-	public int parseCommand(String commandString, int eventDamage, boolean isOffensive)
+	public int parseCommands(List<String> calcStrings, int eventDamage, boolean isOffensive) 
+	{
+		int result = eventDamage;
+		int defenseModifier = (isOffensive?1:-1);
+		for(String calcString : calcStrings)
+			result = parseCommand(calcString, result, isOffensive);
+		return (result - eventDamage) * defenseModifier;
+	}
+	private int parseCommand(String commandString, int eventDamage, boolean isOffensive)
 	{
 		log.info("Passed " + commandString);
 		try
@@ -182,17 +200,6 @@ public class DamageCalculator
 						return 0;
 					}
 				}
-				else if(args[0].equals("mult_add"))
-				{
-					try
-					{
-						return multiply_add(eventDamage, Integer.parseInt(args[1]));
-					}
-					catch(Exception e)
-					{
-						log.severe("Improper input in configuration (multiply_add) - this shouldn't have happened.");
-					}
-				}
 				else if(args[0].equals("div"))
 				{
 					try
@@ -246,13 +253,11 @@ public class DamageCalculator
 	}
 	
 	//rather self-explanatory
-	public int roll_binomial(int chance, int eventDamage, boolean isOffensive)
+	public int roll_binomial(int chance, int input, boolean isOffensive)
 	{
-		if(chance < 0 || chance > 100)
-			return 0;
-		if(Math.abs(random.nextInt()%101) <= chance)
-			return 0;
-		return ((isOffensive?-1:1) * eventDamage);
+		if(chance < 0 || chance > 100) return 0;
+		if(Math.abs(random.nextInt()%101) <= chance) return 0;
+		return input;
 	}
 	
 	public int roll_binomial(int chance, String input, int eventDamage, boolean isOffensive)
@@ -266,28 +271,26 @@ public class DamageCalculator
 	//gives an equal chance for all integers whose absolute value is less than the input
 	public int roll_simple(int input)
 	{
-		return Math.abs(random.nextInt()%(input + 1));
+		return input + Math.abs(random.nextInt()%(input + 1));
 	}
 	
-	public int multiply(int input, int factor){	return (input*(factor - 1));}
-	public int multiply_add(int input, int factor){	return input*factor;}
-	
+	public int multiply(int input, int factor){	return (input*(factor));}
 	public int divide(int input, int factor)
 	{
-		if(factor != 0) return (input/factor - input); 
+		if(factor != 0) return (input/factor); 
 		else log.severe("[ModDamage] Divide by zero...really?");
 		return 0;
 	}
 	public int divide_add(int input, int factor)
 	{ 
-		if(factor != 0)return input/factor; 
+		if(factor != 0) return (input + input/factor); 
 		else log.severe("[ModDamage] Divide by zero...really?");
 		return 0;
 	}
 	
 	public int set(int eventDamage, int input, boolean isOffensive)
 	{ 
-		return (isOffensive?(1):(-1)) * (input - eventDamage);
+		return input;
 	}
 	//TODO IDEA: damage based on entity resting on block of type BLAH? This would involve icky refactoring. :P
 

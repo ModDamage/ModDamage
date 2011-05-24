@@ -31,6 +31,9 @@ public class GroupHandler
 	final private HashMap<Material, List<String>> itemOffensiveRoutines = new HashMap<Material, List<String>>();
 	final private HashMap<Material, List<String>> itemDefensiveRoutines = new HashMap<Material, List<String>>();
 	
+	final private HashMap<ArmorSet, List<String>> armorOffensiveRoutines = new HashMap<ArmorSet, List<String>>();
+	final private HashMap<ArmorSet, List<String>> armorDefensiveRoutines = new HashMap<ArmorSet, List<String>>();
+	
 	//scan
 	final private List<Material> groupScanItems = new ArrayList<Material>();
 	
@@ -90,6 +93,12 @@ public class GroupHandler
 					loadedSomething = true;
 				else if(ModDamage.consoleDebugging_verbose)
 					worldHandler.log.warning("Could not load " + progressString);
+
+				progressString = "Offensive armor routines";
+				if(loadArmorRoutines(true))
+					loadedSomething = true;
+				else if(ModDamage.consoleDebugging_verbose)
+					worldHandler.log.warning("Could not load " + progressString);
 				
 				progressString = "Offensive item routines";
 				if(loadItemRoutines(true))
@@ -107,6 +116,12 @@ public class GroupHandler
 			{
 				progressString = "generic damage types in Defensive";
 				if(loadGenericRoutines(false))
+					loadedSomething = true;
+				else if(ModDamage.consoleDebugging_verbose)
+					worldHandler.log.warning("Could not load " + progressString);
+				
+				progressString = "Defensive armor routines";
+				if(loadArmorRoutines(false))
 					loadedSomething = true;
 				else if(ModDamage.consoleDebugging_verbose)
 					worldHandler.log.warning("Could not load " + progressString);
@@ -217,26 +232,18 @@ public class GroupHandler
 	public boolean loadItemRoutines(boolean isOffensive){ return loadItemRoutines(isOffensive, false);}
 	public boolean loadItemRoutines(boolean isOffensive, boolean force)
 	{
-		ConfigurationNode itemNode = isOffensive?offensiveNode.getNode("item"):defensiveNode.getNode("item");
+		ConfigurationNode itemNode = (isOffensive?offensiveNode:defensiveNode).getNode(DamageElement.GENERIC_ITEM.getReference());
 		if(itemNode != null)	
 		{
-			List<String> itemList = (isOffensive?offensiveNode:defensiveNode).getKeys("item");
+			List<String> itemList = (isOffensive?offensiveNode:defensiveNode).getKeys(DamageElement.GENERIC_ITEM.getReference());
 			for(Material material : Material.values())
 				if(itemList.contains(material.name()) || itemList.contains(material.getId()))
 				{
 					List<String> calcStrings = itemNode.getStringList(material.name(), null);
-					worldHandler.log.warning(material.name() + " " + itemNode.getStringList(Integer.toString(material.getId()).toUpperCase(), null).toString());
 					if(calcStrings == null) calcStrings = itemNode.getStringList(Integer.toString(material.getId()), null);
-					if(!calcStrings.equals(null))
+					if(calcStrings != null)
 					{
-						for(String calcString : calcStrings)
-							if(!damageCalc.checkCommandString(calcString))
-							{
-								worldHandler.log.severe("Invalid command string \"" + calcString + "\" in " 
-										+ (isOffensive?"Offensive":"Defensive") + " " + material.name() + "(" + material.getId()
-										+ ") definition - refer to config for proper calculation node");
-								calcStrings.clear();
-							}
+						damageCalc.checkCommandStrings(calcStrings, material.name(), isOffensive, groupName);
 						if(calcStrings.size() > 0)
 						{
 							if(ModDamage.consoleDebugging_normal) worldHandler.log.info("-" + worldHandler.getWorld().getName() 
@@ -254,14 +261,52 @@ public class GroupHandler
 							worldHandler.log.warning("No instructions found for group " + material.name() + "(" + material.getId()
 								+ ") item node in " + (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
 						}
-						if(ModDamage.consoleDebugging_normal)
-							worldHandler.log.info("-" + worldHandler.getWorld().getName() + ":" 
-									+ ":" + groupName + (isOffensive?"Offensive":"Defensive") + ":" 
-									+ material.name() + "(" + material.getId() + ") "
-									+ calcStrings.toString());//debugging
 						return true;
 					}
 				}
+		}
+		return false;
+	}
+	
+	public boolean loadArmorRoutines(boolean isOffensive)
+	{
+		worldHandler.log.severe("Loading " + (isOffensive?"Offensive":"Defensive") + " armor routines");//TODO remove this
+		ConfigurationNode armorNode = (isOffensive?offensiveNode:defensiveNode).getNode(DamageElement.GENERIC_ARMOR.getReference());
+		if(armorNode != null)
+		{
+			List<String> armorSetList = (isOffensive?offensiveNode:defensiveNode).getKeys(DamageElement.GENERIC_ARMOR.getReference());
+			for(String armorSetString : armorSetList)
+			{
+				ArmorSet armorSet = new ArmorSet(armorSetString);
+				if(!armorSet.isEmpty())
+				{
+					List<String> calcStrings = armorNode.getStringList(armorSetString, null);
+					worldHandler.log.severe("Made an ArmorSet:\n" + armorSetString + "\nLeaves: " + calcStrings.toString()); //TODO Remove meeee
+					if(!calcStrings.equals(null))
+					{
+						damageCalc.checkCommandStrings(calcStrings, armorSet.toString(), isOffensive, groupName);
+						if(calcStrings.size() > 0)
+						{
+							if(ModDamage.consoleDebugging_normal) worldHandler.log.info("-" + worldHandler.getWorld().getName() 
+									+ ":" + groupName + ":" + (isOffensive?"Offensive":"Defensive")
+									+ ":armor\n\t:" + armorSet.toString()
+									+ (ModDamage.consoleDebugging_verbose?("\n" + calcStrings.toString()):""));//debugging
+							if(!(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).containsKey(armorSet))
+								(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).put(armorSet, calcStrings);
+							else if(ModDamage.consoleDebugging_normal) worldHandler.log.warning("[" + worldHandler.plugin.getDescription().getName() + "] Repetitive\n\t:" 
+									+ armorSet.toString() + "\ndefinition in " + (isOffensive?"Offensive":"Defensive") 
+									+ " armor set for group \"" + groupName + "\"'s settings - ignoring");
+						}
+						else if(ModDamage.consoleDebugging_verbose)
+						{
+							worldHandler.log.warning("No instructions found for group" + groupName + "\n\t:" 
+									+ armorSet.toString() + "\narmor node in " + (isOffensive?"Offensive":"Defensive") 
+									+ " - is this on purpose?");
+						}
+						return true;
+					}
+				}
+			}
 		}
 		return false;
 	}
@@ -276,14 +321,7 @@ public class GroupHandler
 			{
 				List<String> calcStrings = (isOffensive?offensiveNode:defensiveNode).getNode("groups").getStringList(group, null);
 				if(!calcStrings.equals(null))
-					for(String calcString : calcStrings)
-						if(!damageCalc.checkCommandString(calcString))
-						{
-							worldHandler.log.severe("Invalid command string \"" + calcString + "\" for group " + groupName 
-								+ " in " + (isOffensive?"Offensive":"Defensive") + " \"" + group
-								+ "\" PvP definition - refer to config for proper calculation node");
-							calcStrings.clear();
-						}
+					damageCalc.checkCommandStrings(calcStrings, "PVP", isOffensive, groupName);
 				if(calcStrings.size() > 0)
 				{
 					if(!(isOffensive?pvpOffensiveRoutines:pvpDefensiveRoutines).containsKey(group))
@@ -317,6 +355,18 @@ public class GroupHandler
 			List<String> itemList = scanNode.getStringList(groupName, null);
 			if(!itemList.equals(null))
 			{
+				//search for keyword-defined sets of materials
+				for(String keyword : worldHandler.plugin.scanKeywords.keySet())
+					if(itemList.contains(keyword)) //TODO Mess with casing here?
+						if(!groupScanItems.contains(keyword)) 
+							for(Material material : worldHandler.plugin.scanKeywords.get(keyword))
+							{
+								groupScanItems.add(material);
+								if(ModDamage.consoleDebugging_normal)
+									ModDamage.log.info("-" + worldHandler.getWorld().getName() + ":Scan:" 
+										+ material.name() + "(" + material.getId() + ") ");
+							}	
+				//searching for normally-defined materials
 				for(Material material : Material.values())	
 					if(itemList.contains(material.name()) || itemList.contains(Integer.toString(material.getId()))) //TODO Mess with casing here?
 						if(!groupScanItems.contains(material)) 
@@ -337,65 +387,70 @@ public class GroupHandler
 
 ///////////////////// DAMAGE HANDLING ///////////////////////	
 	
-	public int calcAttackBuff(DamageElement mobType_target, Material inHand, int eventDamage)
+	public int calcAttackBuff(DamageElement mobType_target, Material inHand, ArmorSet armorSet_attacking, int eventDamage)
 	{
 		return runRoutines(mobType_target.getType(), true, eventDamage)
 		 		+ runRoutines(mobType_target, true, eventDamage)
 				+ runRoutines(DamageElement.matchItemType(inHand), true, eventDamage)
+				+ runArmorRoutines(armorSet_attacking, true, eventDamage)
 				+ runItemRoutines(inHand, true, eventDamage);
 	}
-	public int calcDefenseBuff(DamageElement damageType, Material inHand, int eventDamage)
+	public int calcDefenseBuff(DamageElement damageType, Material inHand, ArmorSet armorSet_attacked, int eventDamage)
 	{	
 		return runRoutines(damageType.getType(), false, eventDamage)
  				+ runRoutines(damageType, false, eventDamage)
 				+ runRoutines(DamageElement.matchItemType(inHand), false, eventDamage)
+				+ runArmorRoutines(armorSet_attacked, false, eventDamage)
 				+ runItemRoutines(inHand, false, eventDamage);
 	}
 	
-	public int calcAttackBuff(String group_target, Material inHand, int eventDamage)
+	public int calcAttackBuff(String group_target, Material inHand, ArmorSet armorSet_attacking, int eventDamage)
 	{
 		//TODO BOW weapon type
-		worldHandler.log.info("Grouphandler: " + groupName + " says to " + group_target + ": LOLWUT");
+		worldHandler.log.info("Grouphandler: " + groupName + " says to " + group_target + ": LOLWUT");//TODO Remove me
 		return runRoutines(DamageElement.GENERIC_HUMAN, true, eventDamage) 
 				+ runRoutines(DamageElement.matchItemType(inHand), true, eventDamage)
 				+ runItemRoutines(inHand, true, eventDamage)
+				+ runArmorRoutines(armorSet_attacking, true, eventDamage)
 				+ runPVPRoutines(group_target, true, eventDamage);
 	}
-	public int calcDefenseBuff(String group_attacking, Material inHand, int eventDamage)
+	public int calcDefenseBuff(String group_attacking, Material inHand, ArmorSet armorSet_attacked, int eventDamage)
 	{	
-		worldHandler.log.info("Grouphandler: " + groupName + " says to " + group_attacking + ": BITE ME");
+		worldHandler.log.info("Grouphandler: " + groupName + " says to " + group_attacking + ": BITE ME");//TODO Remove me
 		return runRoutines(DamageElement.GENERIC_HUMAN, false, eventDamage) 
 				+ runRoutines(DamageElement.matchItemType(inHand), false, eventDamage)
 				+ runItemRoutines(inHand, false, eventDamage)
+				+ runArmorRoutines(armorSet_attacked, false, eventDamage)
 				+ runPVPRoutines(group_attacking, false, eventDamage);
 	}
 	
 	private int runRoutines(DamageElement damageType, boolean isOffensive, int eventDamage)
 	{
-		int result = 0;
 		if(damageType != null && (isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageType))
-				for(String calcString : (isOffensive?offensiveRoutines:defensiveRoutines).get(damageType))
-					result += damageCalc.parseCommand(calcString, eventDamage, isOffensive);
-		return result;
+			return damageCalc.parseCommands((isOffensive?offensiveRoutines:defensiveRoutines).get(damageType), eventDamage, isOffensive);
+		return 0;
 	}
 	
 	private int runPVPRoutines(String groupName, boolean isOffensive, int eventDamage)
 	{
-		int result = 0;
 		if(groupName != null && (isOffensive?pvpOffensiveRoutines:pvpDefensiveRoutines).containsKey(groupName))
-				for(String calcString : (isOffensive?pvpOffensiveRoutines:pvpDefensiveRoutines).get(groupName))
-					result += damageCalc.parseCommand(calcString, eventDamage, isOffensive);
-		return result;
+			return damageCalc.parseCommands((isOffensive?pvpOffensiveRoutines:pvpDefensiveRoutines).get(groupName), eventDamage, isOffensive);
+		return 0;
 	}
 	
 	private int runItemRoutines(Material material, boolean isOffensive, int eventDamage) 
 	{
-		int result = 0;
 		if(material != null && (isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).containsKey(material))
-			for(String calcString : (isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).get(material))
-				result += damageCalc.parseCommand(calcString, eventDamage, isOffensive);
-		return result;
+			return damageCalc.parseCommands((isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).get(material), eventDamage, isOffensive);
+		return 0;
 	}	
+	
+	private int runArmorRoutines(ArmorSet armorSet, boolean isOffensive, int eventDamage)
+	{
+		if(!armorSet.isEmpty() && (isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).containsKey(armorSet))
+			return damageCalc.parseCommands((isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).get(armorSet), eventDamage, isOffensive);
+		return 0;
+	}
 
 ///////////////////// HELPER FUNCTIONS ///////////////////////	
 	public String getGroupName(){ return groupName;}
