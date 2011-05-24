@@ -414,7 +414,7 @@ public class WorldHandler
 		if(globalsLoaded)
 		{
 			String group_target = ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName());
-			String group_attacking = ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName());
+			String group_attacking = ModDamage.Permissions.getGroup(player_attacking.getWorld().getName(), player_attacking.getName());
 			ArmorSet armorSet_attacking = new ArmorSet(player_attacking);
 			//apply global buff settings
 			return runGlobalRoutines(DamageElement.GENERIC_HUMAN, true, eventDamage)

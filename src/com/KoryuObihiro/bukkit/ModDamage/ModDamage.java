@@ -442,7 +442,7 @@ public class ModDamage extends JavaPlugin
 				if(ent_damaged instanceof Player)
 				{
 					Player player_damaged = (Player)ent_damaged;
-					String group_damaged = Permissions.getGroup(world.getName(), ((Player)ent_damaged).getName());
+					String group_damaged = Permissions.getGroup(world.getName(), player_damaged.getName());
 				//PvP
 					if(ent_damager instanceof Player)
 					{
