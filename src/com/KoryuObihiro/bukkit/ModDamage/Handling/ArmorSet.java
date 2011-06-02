@@ -113,5 +113,7 @@ public class ArmorSet
 		return "";
 	}
 	
+	public Material[] toMaterialArray(){ if(hasSomething) return armorSet; else return null;}
+	
 	
 }

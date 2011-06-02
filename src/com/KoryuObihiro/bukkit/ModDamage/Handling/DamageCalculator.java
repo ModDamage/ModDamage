@@ -137,7 +137,7 @@ public class DamageCalculator
 	}
 	private int parseCommand(String commandString, int eventDamage, boolean isOffensive)
 	{
-		log.info("Passed " + commandString);
+		log.info("Passed " + commandString);//TODO Integrate some sort of console debug setting here.
 		try
 		{
 			int tryThis = Integer.parseInt(commandString);

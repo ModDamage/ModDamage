@@ -3,6 +3,9 @@ package com.KoryuObihiro.bukkit.ModDamage.Handling;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.entity.CraftArrow;
+import org.bukkit.craftbukkit.entity.CraftEgg;
+import org.bukkit.craftbukkit.entity.CraftSnowball;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Cow;
@@ -30,19 +33,26 @@ public enum DamageElement
 {
 //TODO Add equipment types
 	GENERIC ("generic", null, true),
-	GENERIC_HUMAN ("humans", GENERIC, false),
-	GENERIC_ANIMAL ("animal", GENERIC, true),
-	GENERIC_ITEM ("item", GENERIC, true),
-	GENERIC_ARMOR("armor", GENERIC, false),
-	GENERIC_MOB ("mob", GENERIC, true),
-	GENERIC_NATURE ("nature", GENERIC, true),
+	GENERIC_HUMAN 	("humans", GENERIC, false),
+	GENERIC_ANIMAL 	("animal", GENERIC, true),
+	GENERIC_MELEE 	("melee", GENERIC, true),
+	GENERIC_RANGED	("ranged", GENERIC, false),
+	GENERIC_ARMOR	("armor", GENERIC, false),
+	GENERIC_MOB 	("mob", GENERIC, true),
+	GENERIC_NATURE 	("nature", GENERIC, true),
 //tools
-	TOOL_AXE ("axe", GENERIC_ITEM, false),
-	TOOL_BOW ("bow", GENERIC_ITEM, false),
-	TOOL_HOE ("hoe", GENERIC_ITEM, false),
-	TOOL_PICKAXE ("pickaxe", GENERIC_ITEM, false),
-	TOOL_SPADE ("spade", GENERIC_ITEM, false),
-	TOOL_SWORD ("sword", GENERIC_ITEM, false),
+	MELEE_AXE ("axe", GENERIC_MELEE, false),
+	MELEE_BOW ("bow", GENERIC_MELEE, false),
+	MELEE_HOE ("hoe", GENERIC_MELEE, false),
+	MELEE_PICKAXE ("pickaxe", GENERIC_MELEE, false),
+	MELEE_SPADE ("spade", GENERIC_MELEE, false),
+	MELEE_SWORD ("sword", GENERIC_MELEE, false),
+	
+//ranged items
+	RANGED_BOW("bow", GENERIC_RANGED, false),
+	RANGED_SNOWBALL("snowball", GENERIC_RANGED, false),
+	RANGED_EGG("egg", GENERIC_RANGED, false),
+	
 //armor
 	ARMOR_HELMET ("head", GENERIC_ARMOR, false),
 	ARMOR_CHESTPLATE ("chest", GENERIC_ARMOR, false),
@@ -159,37 +169,37 @@ public enum DamageElement
 		switch(material)
 		{
 		//Axes
-			case WOOD_AXE: 		return DamageElement.TOOL_AXE;
-			case STONE_AXE: 	return DamageElement.TOOL_AXE;
-			case IRON_AXE:		return DamageElement.TOOL_AXE;
-			case GOLD_AXE: 		return DamageElement.TOOL_AXE;
-			case DIAMOND_AXE: 	return DamageElement.TOOL_AXE;
+			case WOOD_AXE: 		return DamageElement.MELEE_AXE;
+			case STONE_AXE: 	return DamageElement.MELEE_AXE;
+			case IRON_AXE:		return DamageElement.MELEE_AXE;
+			case GOLD_AXE: 		return DamageElement.MELEE_AXE;
+			case DIAMOND_AXE: 	return DamageElement.MELEE_AXE;
 		//Bow
-			case BOW:			return DamageElement.TOOL_BOW; //TODO Not sure if this is necessary yet
+			case BOW:			return DamageElement.MELEE_BOW; //TODO Not sure if this is necessary yet
 		//Hoes
-			case WOOD_HOE: 		return DamageElement.TOOL_HOE;
-			case STONE_HOE: 	return DamageElement.TOOL_HOE;
-			case IRON_HOE:		return DamageElement.TOOL_HOE;
-			case GOLD_HOE:		return DamageElement.TOOL_HOE;
-			case DIAMOND_HOE: 	return DamageElement.TOOL_HOE;
+			case WOOD_HOE: 		return DamageElement.MELEE_HOE;
+			case STONE_HOE: 	return DamageElement.MELEE_HOE;
+			case IRON_HOE:		return DamageElement.MELEE_HOE;
+			case GOLD_HOE:		return DamageElement.MELEE_HOE;
+			case DIAMOND_HOE: 	return DamageElement.MELEE_HOE;
 		//Picks
-			case WOOD_PICKAXE: 	return DamageElement.TOOL_PICKAXE;
-			case STONE_PICKAXE: return DamageElement.TOOL_PICKAXE;
-			case IRON_PICKAXE:	return DamageElement.TOOL_PICKAXE;
-			case GOLD_PICKAXE:	return DamageElement.TOOL_PICKAXE;
-			case DIAMOND_PICKAXE:return DamageElement.TOOL_PICKAXE;
+			case WOOD_PICKAXE: 	return DamageElement.MELEE_PICKAXE;
+			case STONE_PICKAXE: return DamageElement.MELEE_PICKAXE;
+			case IRON_PICKAXE:	return DamageElement.MELEE_PICKAXE;
+			case GOLD_PICKAXE:	return DamageElement.MELEE_PICKAXE;
+			case DIAMOND_PICKAXE:return DamageElement.MELEE_PICKAXE;
 		//Shovels	
-			case WOOD_SPADE: 	return DamageElement.TOOL_SPADE;
-			case STONE_SPADE: 	return DamageElement.TOOL_SPADE;
-			case IRON_SPADE:	return DamageElement.TOOL_SPADE;
-			case GOLD_SPADE:	return DamageElement.TOOL_SPADE;
-			case DIAMOND_SPADE: return DamageElement.TOOL_SPADE;
+			case WOOD_SPADE: 	return DamageElement.MELEE_SPADE;
+			case STONE_SPADE: 	return DamageElement.MELEE_SPADE;
+			case IRON_SPADE:	return DamageElement.MELEE_SPADE;
+			case GOLD_SPADE:	return DamageElement.MELEE_SPADE;
+			case DIAMOND_SPADE: return DamageElement.MELEE_SPADE;
 		//Swords	
-			case WOOD_SWORD: 	return DamageElement.TOOL_SWORD;
-			case STONE_SWORD: 	return DamageElement.TOOL_SWORD;
-			case IRON_SWORD:	return DamageElement.TOOL_SWORD;
-			case GOLD_SWORD:	return DamageElement.TOOL_SWORD;
-			case DIAMOND_SWORD: return DamageElement.TOOL_SWORD;
+			case WOOD_SWORD: 	return DamageElement.MELEE_SWORD;
+			case STONE_SWORD: 	return DamageElement.MELEE_SWORD;
+			case IRON_SWORD:	return DamageElement.MELEE_SWORD;
+			case GOLD_SWORD:	return DamageElement.MELEE_SWORD;
+			case DIAMOND_SWORD: return DamageElement.MELEE_SWORD;
 			
 			default: 			return null;
 		}
@@ -220,6 +230,14 @@ public enum DamageElement
 			case GOLD_BOOTS:			return DamageElement.ARMOR_BOOTS;
 			case DIAMOND_BOOTS:			return DamageElement.ARMOR_BOOTS;
 		}
+		return null;
+	}
+	
+	public static DamageElement matchRangedElement(Entity entity)
+	{
+		if(entity instanceof CraftArrow) return DamageElement.RANGED_BOW;
+		if(entity instanceof CraftEgg) return DamageElement.RANGED_EGG;
+		if(entity instanceof CraftSnowball) return DamageElement.RANGED_SNOWBALL;
 		return null;
 	}
 
