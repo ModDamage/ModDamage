@@ -36,13 +36,12 @@ public enum DamageElement
 	GENERIC_HUMAN 	("humans", GENERIC, false),
 	GENERIC_ANIMAL 	("animal", GENERIC, true),
 	GENERIC_MELEE 	("melee", GENERIC, true),
-	GENERIC_RANGED	("ranged", GENERIC, false),
+	GENERIC_RANGED	("ranged", GENERIC, true),
 	GENERIC_ARMOR	("armor", GENERIC, false),
 	GENERIC_MOB 	("mob", GENERIC, true),
 	GENERIC_NATURE 	("nature", GENERIC, true),
 //tools
 	MELEE_AXE ("axe", GENERIC_MELEE, false),
-	MELEE_BOW ("bow", GENERIC_MELEE, false),
 	MELEE_HOE ("hoe", GENERIC_MELEE, false),
 	MELEE_PICKAXE ("pickaxe", GENERIC_MELEE, false),
 	MELEE_SPADE ("spade", GENERIC_MELEE, false),
@@ -84,7 +83,8 @@ public enum DamageElement
 	NATURE_FIRE_TICK ("burn", GENERIC_NATURE, false),
 	NATURE_LAVA ("lava", GENERIC_NATURE, false),
 	NATURE_LIGHTNING ("lightning", GENERIC_NATURE, false),
-	NATURE_SUFFOCATION ("suffocation", GENERIC_NATURE, false);
+	NATURE_SUFFOCATION ("suffocation", GENERIC_NATURE, false),
+	NATURE_VOID ("void", GENERIC_NATURE, false);
 	
 	
 	private final String stringReference;
@@ -108,12 +108,13 @@ public enum DamageElement
 				return true;
 		return false;
 	}
-	public static DamageElement matchDamageCause(DamageCause cause)
+	public static DamageElement matchNatureElement(DamageCause cause)
 	{
 		switch(cause) 
 		{
-			case BLOCK_EXPLOSION:   return DamageElement.NATURE_BLOCK_EXPLOSION; //unused
-			case CONTACT: 			return DamageElement.NATURE_CONTACT; //unused
+			case BLOCK_EXPLOSION:   return DamageElement.NATURE_BLOCK_EXPLOSION;
+			case CONTACT: 			return DamageElement.NATURE_CONTACT;
+			case DROWNING: 			return DamageElement.NATURE_DROWNING;
 			case ENTITY_EXPLOSION: 	return DamageElement.NATURE_EXPLOSION;
 			case FALL: 				return DamageElement.NATURE_FALL;
 			case FIRE: 				return DamageElement.NATURE_FIRE;
@@ -121,14 +122,13 @@ public enum DamageElement
 			case LAVA: 				return DamageElement.NATURE_LAVA;
 			case LIGHTNING: 		return DamageElement.NATURE_LIGHTNING;
 			case SUFFOCATION: 		return DamageElement.NATURE_SUFFOCATION;
-			case DROWNING: 			return DamageElement.NATURE_DROWNING;
+			case VOID: 				return DamageElement.NATURE_VOID;
 			default: 				return null;//shouldn't happen
 		}
 	}
 	
-
 	//WinSock's nice algorithm for determining mob type, adapted for this plugin
-	public static DamageElement matchEntityType(Entity entity)
+	public static DamageElement matchEntityElement(Entity entity)
 	{
 		if (entity instanceof LivingEntity) 
 		{
@@ -164,7 +164,7 @@ public enum DamageElement
 		return null;
 	}
 	
-	public static DamageElement matchItemType(Material material)
+	public static DamageElement matchMeleeElement(Material material)
 	{
 		switch(material)
 		{
@@ -174,8 +174,6 @@ public enum DamageElement
 			case IRON_AXE:		return DamageElement.MELEE_AXE;
 			case GOLD_AXE: 		return DamageElement.MELEE_AXE;
 			case DIAMOND_AXE: 	return DamageElement.MELEE_AXE;
-		//Bow
-			case BOW:			return DamageElement.MELEE_BOW; //TODO Not sure if this is necessary yet
 		//Hoes
 			case WOOD_HOE: 		return DamageElement.MELEE_HOE;
 			case STONE_HOE: 	return DamageElement.MELEE_HOE;
@@ -205,7 +203,7 @@ public enum DamageElement
 		}
 	}
 
-	public static DamageElement matchArmorType(Material material)
+	public static DamageElement matchArmorElement(Material material)
 	{
 		switch(material)
 		{

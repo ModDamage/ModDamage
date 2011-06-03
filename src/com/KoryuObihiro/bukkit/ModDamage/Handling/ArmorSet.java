@@ -1,7 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.Handling;
 
-import java.util.logging.Logger;
-
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,10 +12,8 @@ public class ArmorSet
 	
 	public ArmorSet(Player player)
 	{
-		Logger.getLogger("Minecraft").severe("Allocated an armor set (Player)");
 		for(ItemStack stack : player.getInventory().getArmorContents())
 			this.put(stack.getType());
-		Logger.getLogger("Minecraft").severe(this.toString());
 	}
 	
 	public ArmorSet(String armorConfigString)
@@ -34,7 +30,7 @@ public class ArmorSet
 	
 	public boolean put(Material material)
 	{
-		DamageElement armorType = DamageElement.matchArmorType(material);
+		DamageElement armorType = DamageElement.matchArmorElement(material);
 		if(armorType != null)
 			switch(armorType)
 			{
