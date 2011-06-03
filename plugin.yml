@@ -1,6 +1,6 @@
 name: ModDamage
 main: com.KoryuObihiro.bukkit.ModDamage.ModDamage
-version: 0.1
+version: 0.9.1
 authors: [KoryuObihiro]
 description: |
     Completely configure damage in your worlds with ModDamage
