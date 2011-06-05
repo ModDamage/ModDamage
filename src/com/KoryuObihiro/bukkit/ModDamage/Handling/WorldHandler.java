@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
@@ -26,7 +25,10 @@ public class WorldHandler
 	public boolean groupsLoaded = false;
 	public boolean scanLoaded = false;
 	public boolean mobHealthLoaded = false;
+	private List<String> configStrings = new ArrayList<String>();//TODO Implement this.
+	private int configPages = 5;
 	
+	//nodes for config loading
 	final private DamageCalculator damageCalc;
 	final private HealthCalculator healthCalc;
 	final private ConfigurationNode offensiveNode;
@@ -34,23 +36,20 @@ public class WorldHandler
 	final private ConfigurationNode mobHealthNode;
 	final private ConfigurationNode scanNode;
 	
-	//generic and 
+	//O/D routines
 	final private HashMap<DamageElement, List<String>> offensiveRoutines = new HashMap<DamageElement, List<String>>();
 	final private HashMap<DamageElement, List<String>> defensiveRoutines = new HashMap<DamageElement, List<String>>();
-	final private HashMap<DamageElement, String> mobHealthSettings = new HashMap<DamageElement, String>();
-	
-	//specific-item HashMap
 	final private HashMap<Material, List<String>> itemOffensiveRoutines = new HashMap<Material, List<String>>();
 	final private HashMap<Material, List<String>> itemDefensiveRoutines = new HashMap<Material, List<String>>();
-	
 	final private HashMap<String, List<String>> armorOffensiveRoutines = new HashMap<String, List<String>>();
 	final private HashMap<String, List<String>> armorDefensiveRoutines = new HashMap<String, List<String>>();
+	//other MD config
+	final private HashMap<DamageElement, String> mobHealthSettings = new HashMap<DamageElement, String>();
+	final private List<Material> globalScanItems = new ArrayList<Material>();
 	
 	//Handlers
-	final private HashMap<String, GroupHandler> groupHandlers = new HashMap<String, GroupHandler>();
+	public final HashMap<String, GroupHandler> groupHandlers = new HashMap<String, GroupHandler>();
 	
-	//Scan items
-	final private List<Material> globalScanItems = new ArrayList<Material>();
 	
 //// CONSTRUCTOR ////
 	public WorldHandler(ModDamage plugin, World world, ConfigurationNode offensiveNode, ConfigurationNode defensiveNode, ConfigurationNode mobHealthNode, ConfigurationNode scanNode, DamageCalculator damageCalc, HealthCalculator healthCalc) 
@@ -393,14 +392,14 @@ public class WorldHandler
 		return false;
 	}
 	
-	public boolean setHealth(Entity entity)
+	public boolean setHealth(LivingEntity entity)
 	{
 		//determine creature type
 		DamageElement creatureType = DamageElement.matchEntityElement(entity);
 		if(creatureType != null)
 		{
 			if(mobHealthSettings.containsKey(creatureType))
-				((LivingEntity)entity).setHealth(healthCalc.parseCommand(mobHealthSettings.get(creatureType)));
+				entity.setHealth(healthCalc.parseCommand(mobHealthSettings.get(creatureType)));
 			return true;
 		}
 		return false;
@@ -623,33 +622,15 @@ public class WorldHandler
 	}
 
 ///////////////////// INGAME COMMANDS ///////////////////////
-	public boolean sendWorldConfig(Player player, String configReference)
+	public boolean sendWorldConfig(Player player, int pageNumber)
 	{
-		if(globalsLoaded)
+		if(configPages >= pageNumber && pageNumber > 0)
 		{
-			if(player != null)
-			{
-				//send specified category stuff - perhaps format upon loading for performance? (TODO)
-			}
-			else //send to console
-			{
-				
-			}
+			player.sendMessage(world.getName().toUpperCase() + " SAYS HI");
+			return true;
 		}
 		return false;
 	}
-
-	public boolean sendGroupConfig(Player player, String groupName, String configReference) 
-	{
-		if(groupHandlers.containsKey(groupName))
-			return groupHandlers.get(groupName).sendGroupConfig(player, configReference);
-		else return false;
-	}
-	
-
-	public boolean group_isLoaded(String groupName){ return groupHandlers.containsKey(groupName);}
-	public boolean attackType_isLoaded(DamageElement damageType){ return offensiveRoutines.containsKey(damageType);}
-	public boolean defenseType_isLoaded(DamageElement damageType){ return defensiveRoutines.containsKey(damageType);}
 	
 	public boolean loadedSomething()
 	{
@@ -670,6 +651,12 @@ public class WorldHandler
 	{
 		clearRoutines();
 		groupHandlers.clear();
+	}
+
+	public void sendWorldConfig(Player player) 
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }
 

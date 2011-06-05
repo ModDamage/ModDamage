@@ -15,34 +15,32 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 public class GroupHandler
 {
 //// MEMBERS //// 
+	final private String groupName;	
 	
 	public boolean isLoaded = false;
 	public boolean scanLoaded = false;
-	
-	//world-type and mob-type damage
-	final private HashMap<DamageElement, List<String>> offensiveRoutines = new HashMap<DamageElement, List<String>>();
-	final private HashMap<DamageElement, List<String>> defensiveRoutines = new HashMap<DamageElement, List<String>>();
-	
-	//pvp damage
-	final private HashMap<String, List<String>> pvpOffensiveRoutines = new HashMap<String, List<String>>();
-	final private HashMap<String, List<String>> pvpDefensiveRoutines = new HashMap<String, List<String>>();
-	
-	//item damage
-	final private HashMap<Material, List<String>> itemOffensiveRoutines = new HashMap<Material, List<String>>();
-	final private HashMap<Material, List<String>> itemDefensiveRoutines = new HashMap<Material, List<String>>();
-	
-	final private HashMap<String, List<String>> armorOffensiveRoutines = new HashMap<String, List<String>>();
-	final private HashMap<String, List<String>> armorDefensiveRoutines = new HashMap<String, List<String>>();
-	
-	//scan
-	final private List<Material> groupScanItems = new ArrayList<Material>();
-	
+	private List<String> configStrings = new ArrayList<String>();//TODO Implement this.
+	private int configPages = 3;
+
+	//nodes for config loading
 	final private ConfigurationNode offensiveNode;
 	final private ConfigurationNode defensiveNode;
 	final private ConfigurationNode scanNode;
 	final public DamageCalculator damageCalc;
 	final public WorldHandler worldHandler;
-	final private String groupName;	
+	
+	//O/D config
+	final private HashMap<DamageElement, List<String>> offensiveRoutines = new HashMap<DamageElement, List<String>>();
+	final private HashMap<DamageElement, List<String>> defensiveRoutines = new HashMap<DamageElement, List<String>>();
+	final private HashMap<Material, List<String>> itemOffensiveRoutines = new HashMap<Material, List<String>>();
+	final private HashMap<Material, List<String>> itemDefensiveRoutines = new HashMap<Material, List<String>>();
+	final private HashMap<String, List<String>> armorOffensiveRoutines = new HashMap<String, List<String>>();
+	final private HashMap<String, List<String>> armorDefensiveRoutines = new HashMap<String, List<String>>();
+	final private HashMap<String, List<String>> pvpOffensiveRoutines = new HashMap<String, List<String>>();
+	final private HashMap<String, List<String>> pvpDefensiveRoutines = new HashMap<String, List<String>>();
+	//other MD config
+	final private List<Material> groupScanItems = new ArrayList<Material>();
+	
 	
 	
 //// CONSTRUCTOR ////
@@ -471,24 +469,15 @@ public class GroupHandler
 	}
 
 ///////////////////// INGAME COMMANDS ///////////////////////	
-	public boolean sendGroupConfig(Player player, String configReference)
-	{ //TODO see sendWorldConfig for template to use here
-		if(isLoaded)
+	public boolean sendGroupConfig(Player player, int pageNumber)
+	{
+		if(configPages >= pageNumber && pageNumber > 0)
 		{
-			if(player != null)
-			{
-				
-			}
-			else
-			{
-				
-			}
+			player.sendMessage(groupName.toUpperCase() + " SAYS HI");
 			return true;
 		}
 		return false;
 	}
-	
-	public boolean damageType_isLoaded(DamageElement damageType){ return offensiveRoutines.containsKey(damageType);}
 	
 	protected boolean loadedSomething()
 	{
