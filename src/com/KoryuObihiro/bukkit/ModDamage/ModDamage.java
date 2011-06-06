@@ -84,7 +84,7 @@ public class ModDamage extends JavaPlugin
 			log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() 
 					+ " enabled [Permissions not found]");
 		
-		//If enough keywords come up, then this may be worth investing a class object into
+		//TODO Use something less gimmicky. :P
 		scanKeywords.put("axe", Arrays.asList(Material.WOOD_AXE, Material.STONE_AXE, Material.IRON_AXE, Material.GOLD_AXE, Material.DIAMOND_AXE));
 		scanKeywords.put("hoe", Arrays.asList(Material.WOOD_HOE, Material.STONE_HOE, Material.IRON_HOE, Material.GOLD_HOE, Material.DIAMOND_HOE));
 		scanKeywords.put("pickaxe", Arrays.asList(Material.WOOD_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.GOLD_PICKAXE, Material.DIAMOND_PICKAXE));
@@ -183,6 +183,7 @@ public class ModDamage extends JavaPlugin
 					else player.sendMessage(errorString_Permissions);
 					return true;
 				}
+				//TODO md list
 				else if(args[0].equalsIgnoreCase("check") || args[0].equalsIgnoreCase("c"))
 				{
 					//md check
@@ -191,9 +192,10 @@ public class ModDamage extends JavaPlugin
 						//Send everything if from console
 						if(fromConsole)
 						{
+							log.info("Sending config info...");
 							for(WorldHandler worldHandler : worldHandlers.values())
 								if(worldHandler.loadedSomething())
-									worldHandler.sendWorldConfig(player);
+									worldHandler.sendWorldConfig(null, 9001);
 						}
 						//Send list of loaded worlds; TODO Page these?
 						else if(hasPermission(player, "moddamage.check"))
@@ -207,7 +209,7 @@ public class ModDamage extends JavaPlugin
 									sentSomething = true;
 								}
 							player.sendMessage(sentSomething
-												?""//ChatColor.BLUE + "Use /md check [worldname] for more information." FIXME
+												?ChatColor.BLUE + "Use /md check [worldname] for more information." //FIXME
 												:ChatColor.RED + "No worlds configured!");
 						}
 						else player.sendMessage(errorString_Permissions);
@@ -216,7 +218,7 @@ public class ModDamage extends JavaPlugin
 					//md check worldname || md check int
 
 					//Console doesn't need specifying commands, so just stop console stuff here.
-					/*else if(fromConsole) sendUsage(player, true);
+					else if(fromConsole) sendUsage(player, true);
 					else if(args.length == 2)
 					{
 						try
@@ -324,12 +326,12 @@ public class ModDamage extends JavaPlugin
 								if(player == null) log.info("Error: Couldn't find matching world substring.");
 								else player.sendMessage(errorString_findWorld);
 							}
-						}*/
+						}
 						return true;
 					}
 				}
 			}
-		//}
+		}
 		sendUsage(player, true);
 		return true;
 	}
@@ -397,7 +399,7 @@ public class ModDamage extends JavaPlugin
 		if(worldHandler != null && (worldHandler.globalsLoaded || worldHandler.groupsLoaded || worldHandler.scanLoaded))
 		{
 			int damage = event.getDamage();
-			Entity ent_damaged = event.getEntity();
+			LivingEntity ent_damaged = (LivingEntity)event.getEntity();
 			if(event instanceof EntityDamageByEntityEvent)
 			{
 				EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;

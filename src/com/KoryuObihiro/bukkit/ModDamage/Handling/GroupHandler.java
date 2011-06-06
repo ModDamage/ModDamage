@@ -60,17 +60,19 @@ public class GroupHandler
 	public boolean reload()
 	{ 
 		isLoaded = loadRoutines();
-		if(isLoaded && ModDamage.consoleDebugging_normal) 
-			worldHandler.log.info("[" + worldHandler.plugin.getDescription().getName() + "] Group \"" + groupName + "\" configuration for world \"" 
-				+ worldHandler.getWorld().getName() + "\" initialized!");
-		else if(ModDamage.consoleDebugging_verbose)
-			worldHandler.log.warning("[" + worldHandler.plugin.getDescription().getName() + "] Group \"" + groupName + "\" configuration for world \"" 
-				+ worldHandler.getWorld().getName() + "\" could not load.");
-
+		
 		//load Scan item configuration
 		scanLoaded = loadScanItems();
 		
-		if(isLoaded || scanLoaded) return true;
+		if(loadedSomething()) 
+		{
+			worldHandler.log.info("[" + worldHandler.plugin.getDescription().getName() + "] Group \"" + groupName + "\" configuration for world \"" 
+				+ worldHandler.getWorld().getName() + "\" initialized!");
+			return true;
+		}
+		else if(ModDamage.consoleDebugging_verbose)
+			worldHandler.log.warning("[" + worldHandler.plugin.getDescription().getName() + "] Group \"" + groupName + "\" configuration for world \"" 
+				+ worldHandler.getWorld().getName() + "\" could not load.");
 		return false;
 	}
 
@@ -170,9 +172,11 @@ public class GroupHandler
 							if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(element))
 							{
 								(isOffensive?offensiveRoutines:defensiveRoutines).put(element, calcStrings);
-								if(ModDamage.consoleDebugging_normal) worldHandler.log.info("-" + worldHandler.getWorld().getName() + ":" 
+								String configString = "-" + worldHandler.getWorld().getName() + ":" 
 										+ groupName + ":" + (isOffensive?"Offensive":"Defensive") + ":Generic:" + damageCategory 
-										+ calcStrings.toString());//debugging
+										+ calcStrings.toString();//debugging
+								configStrings.add(configString);
+								if(ModDamage.consoleDebugging_normal) worldHandler.log.info(configString);
 							}
 							else if(ModDamage.consoleDebugging_normal)
 							{
@@ -207,9 +211,11 @@ public class GroupHandler
 								if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement))
 								{
 									(isOffensive?offensiveRoutines:defensiveRoutines).put(damageElement, calcStrings);
-									if(ModDamage.consoleDebugging_normal) worldHandler.log.info("-" + worldHandler.getWorld().getName() + ":" 
+									String configString = "-" + worldHandler.getWorld().getName() + ":" 
 											+ groupName + ":" + (isOffensive?"Offensive":"Defensive") + ":" + elementReference 
-											+ calcStrings.toString());//debugging
+											+ calcStrings.toString();//debugging
+									configStrings.add(configString);
+									if(ModDamage.consoleDebugging_normal) worldHandler.log.info(configString);
 								}
 								else if(ModDamage.consoleDebugging_normal)
 								{
@@ -247,13 +253,15 @@ public class GroupHandler
 					damageCalc.checkCommandStrings(calcStrings, material.name(), isOffensive, groupName);
 					if(calcStrings.size() > 0)
 					{
-						if(ModDamage.consoleDebugging_normal) 
-							worldHandler.log.info("-" + worldHandler.getWorld().getName() 
-								+ ":" + groupName + ":" + (isOffensive?"Offensive":"Defensive") 
-								+ ":" + material.name() + "(" + material.getId() + ") " 
-								+ calcStrings.toString());//debugging
 						if(!(isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).containsKey(material))
+						{
 							(isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).put(material, calcStrings);
+							String configString = "-" + worldHandler.getWorld().getName() 
+								+ ":" + groupName + ":" + (isOffensive?"Offensive":"Defensive") 
+								+ ":" + material.name() + "(" + material.getId() + ")" + calcStrings.toString();
+							configStrings.add(configString);
+							if(ModDamage.consoleDebugging_normal) worldHandler.log.info(configString);
+						}
 						else if(ModDamage.consoleDebugging_normal) 
 							worldHandler.log.warning("[" + worldHandler.plugin.getDescription().getName() + "] Repetitive " 
 								+ material.name() + "(" + material.getId() + ") definition in group " + groupName 
@@ -289,13 +297,17 @@ public class GroupHandler
 						damageCalc.checkCommandStrings(calcStrings, armorSet.toString(), isOffensive, groupName);
 						if(calcStrings.size() > 0)
 						{
-							if(ModDamage.consoleDebugging_normal) worldHandler.log.info("-" + worldHandler.getWorld().getName() 
-									+ ":" + groupName + ":" + (isOffensive?"Offensive":"Defensive")
-									+ ":armor:" + armorSet.toString() + " " + calcStrings.toString());//debugging
 							if(!(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).containsKey(armorSet))
+							{
 								(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).put(armorSet.toString(), calcStrings);
-							else if(ModDamage.consoleDebugging_normal) worldHandler.log.warning("[" + worldHandler.plugin.getDescription().getName() + "] Repetitive\n\t:" 
-									+ armorSet.toString() + "\ndefinition in " + (isOffensive?"Offensive":"Defensive") 
+								String configString = "-" + worldHandler.getWorld().getName() 
+									+ ":" + groupName + ":" + (isOffensive?"Offensive":"Defensive")
+									+ ":armor:" + armorSet.toString() + " " + calcStrings.toString();
+								configStrings.add(configString);
+								if(ModDamage.consoleDebugging_normal) worldHandler.log.info(configString);
+							}
+							else if(ModDamage.consoleDebugging_normal) worldHandler.log.warning("[" + worldHandler.plugin.getDescription().getName() + "] Repetitive" 
+									+ armorSet.toString() + "definition in " + (isOffensive?"Offensive":"Defensive") 
 									+ " armor set for group \"" + groupName + "\"'s settings - ignoring");
 						}
 						else if(ModDamage.consoleDebugging_verbose)
@@ -325,7 +337,14 @@ public class GroupHandler
 				if(calcStrings.size() > 0)
 				{
 					if(!(isOffensive?pvpOffensiveRoutines:pvpDefensiveRoutines).containsKey(group))
+					{
 						(isOffensive?pvpOffensiveRoutines:pvpDefensiveRoutines).put(group, calcStrings);
+
+						String configString = "[" + worldHandler.plugin.getDescription().getName() + "] " + worldHandler.getWorld().getName() 
+								+ ":" + groupName + ":" + (isOffensive?"Offensive":"Defensive") + ":PvP:" + group + " " + calcStrings.toString();
+						configStrings.add(configString);
+						if(ModDamage.consoleDebugging_normal) worldHandler.log.info(configString);
+					}
 					else if(ModDamage.consoleDebugging_normal) 
 						worldHandler.log.warning("Repetitive " + group + " definition in " 
 								+ (isOffensive?"Offensive":"Defensive") + " settings for group " + groupName + " - ignoring");
@@ -336,9 +355,6 @@ public class GroupHandler
 						+ " PvP node in " + (isOffensive?"Offensive":"Defensive") + " for world " 
 						+ worldHandler.getWorld().getName() +  " - is this on purpose?");
 				}
-				if(ModDamage.consoleDebugging_normal)
-					worldHandler.log.info("[" + worldHandler.plugin.getDescription().getName() + "] " + worldHandler.getWorld().getName() 
-						+ ":" + groupName + ":" + (isOffensive?"Offensive":"Defensive") + ":PvP:" + group + " " + calcStrings.toString());//debugging
 			}
 		return true;
 	}
@@ -361,9 +377,10 @@ public class GroupHandler
 							for(Material material : worldHandler.plugin.scanKeywords.get(keyword))
 							{
 								groupScanItems.add(material);
-								if(ModDamage.consoleDebugging_normal)
-									ModDamage.log.info("-" + worldHandler.getWorld().getName() + ":Scan:" 
-										+ material.name() + "(" + material.getId() + ") ");
+								String configString = "-" + worldHandler.getWorld().getName() + ":" + groupName + ":Scan:" 
+										+ material.name() + "(" + material.getId() + ")";
+								configStrings.add(configString);
+								if(ModDamage.consoleDebugging_normal) worldHandler.log.info(configString);
 							}	
 				//searching for normally-defined materials
 				for(Material material : Material.values())	
@@ -371,9 +388,10 @@ public class GroupHandler
 						if(!groupScanItems.contains(material)) 
 						{
 							groupScanItems.add(material);
-							if(ModDamage.consoleDebugging_normal)
-								ModDamage.log.info("-" + worldHandler.getWorld().getName() + ":" + groupName + ":Scan:" 
-									+ material.name() + "(" + material.getId() + ") ");
+							String configString = "-" + worldHandler.getWorld().getName() + ":" + groupName + ":Scan:" 
+								+ material.name() + "(" + material.getId() + ")";
+							configStrings.add(configString);
+							if(ModDamage.consoleDebugging_normal) worldHandler.log.info(configString);
 						}
 				return true;
 			}
@@ -471,6 +489,21 @@ public class GroupHandler
 ///////////////////// INGAME COMMANDS ///////////////////////	
 	public boolean sendGroupConfig(Player player, int pageNumber)
 	{
+		worldHandler.log.info("asdf");
+		if(player == null)
+		{
+			worldHandler.log.info("BLAH");
+			if(configStrings.isEmpty())
+				{
+					worldHandler.log.severe("Well, frick...this shouldn't have happened. o_o"); //TODO REMOVE ME EVENTUALLY
+					return false;
+				}
+			String printString = "Config for group \"" + groupName + "\" in world \"" + worldHandler.getWorld().getName() + "\":";
+			for(String configString : configStrings)
+				printString += "\n" + configString;
+			worldHandler.log.info(printString);
+			return true;
+		}
 		if(configPages >= pageNumber && pageNumber > 0)
 		{
 			player.sendMessage(groupName.toUpperCase() + " SAYS HI");
