@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
@@ -20,7 +21,7 @@ public class GroupHandler
 	public boolean isLoaded = false;
 	public boolean scanLoaded = false;
 	private List<String> configStrings = new ArrayList<String>();//TODO Implement this.
-	private int configPages = 3;
+	private int configPages = 0;
 
 	//nodes for config loading
 	final private ConfigurationNode offensiveNode;
@@ -59,10 +60,12 @@ public class GroupHandler
 	
 	public boolean reload()
 	{ 
-		isLoaded = loadRoutines();
+		this.clear();
 		
-		//load Scan item configuration
+		isLoaded = loadRoutines();
 		scanLoaded = loadScanItems();
+
+		configPages = configStrings.size()/9 + ((configStrings.size()%9 > 0)?1:0);
 		
 		if(loadedSomething()) 
 		{
@@ -242,6 +245,8 @@ public class GroupHandler
 		ConfigurationNode itemNode = (isOffensive?offensiveNode:defensiveNode).getNode(DamageElement.GENERIC_MELEE.getReference());
 		if(itemNode != null)	
 		{
+			if(ModDamage.consoleDebugging_verbose) worldHandler.log.info("{Found group specific " + (isOffensive?"Offensive":"Defensive") + " " 
+					+ "melee node for group \"" + groupName + "\" in world \"" + worldHandler.getWorld().getName() + "\"}");
 			List<String> itemList = (isOffensive?offensiveNode:defensiveNode).getKeys(DamageElement.GENERIC_MELEE.getReference());
 			List<String> calcStrings = null;
 			for(Material material : Material.values())
@@ -284,6 +289,8 @@ public class GroupHandler
 		ConfigurationNode armorNode = (isOffensive?offensiveNode:defensiveNode).getNode(DamageElement.GENERIC_ARMOR.getReference());
 		if(armorNode != null)
 		{
+			if(ModDamage.consoleDebugging_verbose) worldHandler.log.info("{Found group specific " + (isOffensive?"Offensive":"Defensive") + " " 
+					+ "armor node for group \"" + groupName + "\" in world \"" + worldHandler.getWorld().getName() + "\"}");
 			List<String> armorSetList = (isOffensive?offensiveNode:defensiveNode).getKeys(DamageElement.GENERIC_ARMOR.getReference());
 			List<String> calcStrings = null;
 			for(String armorSetString : armorSetList)
@@ -489,24 +496,27 @@ public class GroupHandler
 ///////////////////// INGAME COMMANDS ///////////////////////	
 	public boolean sendGroupConfig(Player player, int pageNumber)
 	{
-		worldHandler.log.info("asdf");
 		if(player == null)
 		{
-			worldHandler.log.info("BLAH");
 			if(configStrings.isEmpty())
-				{
-					worldHandler.log.severe("Well, frick...this shouldn't have happened. o_o"); //TODO REMOVE ME EVENTUALLY
-					return false;
-				}
+			{
+				worldHandler.log.severe("Well, frick...this shouldn't have happened. o_o"); //TODO REMOVE ME EVENTUALLY
+				return false;
+			}
 			String printString = "Config for group \"" + groupName + "\" in world \"" + worldHandler.getWorld().getName() + "\":";
 			for(String configString : configStrings)
 				printString += "\n" + configString;
 			worldHandler.log.info(printString);
 			return true;
 		}
-		if(configPages >= pageNumber && pageNumber > 0)
+		if(configPages > 0 && configPages >= pageNumber && pageNumber > 0)
 		{
-			player.sendMessage(groupName.toUpperCase() + " SAYS HI");
+			player.sendMessage(worldHandler.plugin.ModDamageString(ChatColor.GOLD) +  " Group \"" + worldHandler.getWorld().getName().toUpperCase() 
+					+ "\":\"" + groupName + "\" (" + pageNumber + "/" + configPages + ")");
+			for(int i = (9 * (pageNumber - 1)); i < (configStrings.size() < (9 * pageNumber)
+														?configStrings.size()
+														:(9 * pageNumber)); i++)
+				player.sendMessage(ChatColor.DARK_AQUA + configStrings.get(i));
 			return true;
 		}
 		return false;

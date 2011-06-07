@@ -42,10 +42,9 @@ import java.util.logging.Logger;
 public class ModDamage extends JavaPlugin
 {
 	//TODO Deregister when Bukkit supports!
-	//TODO Create reference strings as worldHandlers/groupHandlers are loaded
-	//TODO Idea: categories for scan?
 	//TODO Client-sided mod for displaying health?
 	//plugin-related
+	public boolean isEnabled = false;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	public static Logger log = Logger.getLogger("Minecraft");
 	public static PermissionHandler Permissions = null;
@@ -67,7 +66,6 @@ public class ModDamage extends JavaPlugin
 	
 	
 
-	
 ////////////////////////// INITIALIZATION ///////////////////////////////
 	@Override
 	public void onEnable() 
@@ -97,6 +95,7 @@ public class ModDamage extends JavaPlugin
 		
 		loadConfig(false);
 		
+		isEnabled = true;
 	}
 
 	@Override
@@ -112,53 +111,165 @@ public class ModDamage extends JavaPlugin
 	{
 		Player player = ((sender instanceof Player)?((Player)sender):null);
 		boolean fromConsole = (player == null);
-		if (label.equalsIgnoreCase("ModDamage") || label.equalsIgnoreCase("md"))
-		{
-			if (args.length == 0)
+		
+			if (label.equalsIgnoreCase("ModDamage") || label.equalsIgnoreCase("md"))
 			{
-				sendUsage(player, false); //TODO Bool-returning necessary?
-				return true;
-			}
-			else if(args.length >= 0)
-			{
-				if(args[0].equalsIgnoreCase("debug"))
+				if (args.length == 0)
 				{
-					if(args.length == 1)
-						toggleConsoleDebug(player);
-					else if(args.length == 2)
+					sendUsage(player, false);
+					return true;
+				}
+				else if(args.length >= 0)
+				{
+					if(args[0].equalsIgnoreCase("debug") || args[0].equalsIgnoreCase("d"))
+						{
+							if(fromConsole || hasPermission(player, "moddamage.debug"))
+							{
+								if(args.length == 1)
+									toggleConsoleDebug(player);
+								else if(args.length == 2)
+								{
+									String sendThis;
+									if(args[1].equalsIgnoreCase("quiet") || args[0].equalsIgnoreCase("q"))
+									{
+										if(consoleDebugging_normal)
+											sendThis = "[" + getDescription().getName() + "] \"Quiet\" mode already active!";
+										else
+										{
+											consoleDebugging_normal = false;
+											consoleDebugging_verbose = false;
+											sendThis = "[" + getDescription().getName() + "] \"Quiet\" mode enabled - suppressing debug messages and warnings.";
+										}
+									}
+									else if(args[1].equalsIgnoreCase("normal") || args[0].equalsIgnoreCase("n"))
+									{
+										if(consoleDebugging_normal && !consoleDebugging_verbose)
+											sendThis = "[" + getDescription().getName() + "] Debugging already active!";
+										else
+										{
+											consoleDebugging_normal = true;
+											consoleDebugging_verbose = false;
+											sendThis = "[" + getDescription().getName() + "] Debugging enabled.";
+										}
+									}
+									else if(args[1].equalsIgnoreCase("verbose") || args[0].equalsIgnoreCase("v"))
+									{
+										if(!consoleDebugging_normal)
+											sendThis = "[" + getDescription().getName() + "] Verbose debugging already active!";
+										else
+										{
+											consoleDebugging_normal = true;
+											consoleDebugging_verbose = true;
+											sendThis = "[" + getDescription().getName() + "] Verbose debugging enabled.";
+										}
+									}
+									else
+									{
+										sendUsage(player, true);
+										return true;
+									}
+									log.info(sendThis);
+									if(!fromConsole) player.sendMessage(ChatColor.GREEN + sendThis);
+									return true;
+								}
+							}
+							else player.sendMessage(errorString_Permissions);
+							return true;
+						}
+						else if(args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("r"))
+						{
+							if(fromConsole) loadConfig(true);
+							else if(hasPermission(player, "moddamage.reload")) 
+							{
+								log.info("[" + getDescription().getName() + "] Reload initiated by user " + player.getName());
+								loadConfig(true);
+								player.sendMessage(ModDamageString(ChatColor.GREEN) + " Reloaded!");
+							}
+							else player.sendMessage(errorString_Permissions);
+							return true;
+						}
+						else if(args[0].equalsIgnoreCase("enable"))
+						{
+							if(fromConsole || hasPermission(player, "moddamage.enable"))
+								setPluginStatus(player, true);
+							else player.sendMessage(errorString_Permissions);
+							return true;
+						}
+						else if(args[0].equalsIgnoreCase("disable"))
+						{
+							if(fromConsole || hasPermission(player, "moddamage.disable"))
+									setPluginStatus(player, false);
+							else player.sendMessage(errorString_Permissions);
+							return true;
+						}
+					if(isEnabled)
 					{
-						String sendThis;
-						if(args[1].equalsIgnoreCase("quiet"))
+						if(args[0].equalsIgnoreCase("check") || args[0].equalsIgnoreCase("c"))
 						{
-							if(consoleDebugging_normal)
-								sendThis = "[" + getDescription().getName() + "] \"Quiet\" mode already active!";
-							else
+							//md check
+							if(args.length == 1)
 							{
-								consoleDebugging_normal = false;
-								consoleDebugging_verbose = false;
-								sendThis = "[" + getDescription().getName() + "] \"Quiet\" mode enabled - suppressing debug messages and warnings.";
+								//Send everything if from console
+								if(fromConsole)
+								{
+									log.info("[" + getDescription().getName() + "] Sending server config info...");
+									for(WorldHandler worldHandler : worldHandlers.values())
+										if(worldHandler.loadedSomething())
+											worldHandler.sendWorldConfig(null, 9001);
+								}
+								//Send list of loaded worlds
+								else if(hasPermission(player, "moddamage.check"))
+								{
+									player.sendMessage(ModDamageString(ChatColor.YELLOW) + " The following worlds have been configured:");
+									boolean sentSomething = false;
+									for(WorldHandler worldHandler : worldHandlers.values())
+										if(worldHandler.loadedSomething())
+										{
+											player.sendMessage(ChatColor.GREEN + worldHandler.getWorld().getName());
+											sentSomething = true;
+										}
+									player.sendMessage(sentSomething
+														?ChatColor.BLUE + "Use /md check [worldname] for more information."
+														:ChatColor.RED + "No worlds configured!");
+								}
+								else player.sendMessage(errorString_Permissions);
+								return true;
 							}
-						}
-						else if(args[1].equalsIgnoreCase("normal"))
-						{
-							if(consoleDebugging_normal && !consoleDebugging_verbose)
-								sendThis = "[" + getDescription().getName() + "] Debugging already active!";
-							else
+							//md check worldname || md check int
+							//Console doesn't need specifying commands, so just stop console stuff here.
+							else if(fromConsole) sendUsage(player, true);
+							else if(args.length == 2)
 							{
-								consoleDebugging_normal = true;
-								consoleDebugging_verbose = false;
-								sendThis = "[" + getDescription().getName() + "] Debugging enabled.";
+								try
+								{
+									sendConfig(player, args[1]); //TODO Page the world output...eventually. :P
+									//sendConfig(player, Integer.parseInt(args[1]));
+								} 
+								catch(NumberFormatException e){}
+								return true;
 							}
-						}
-						else if(args[1].equalsIgnoreCase("verbose"))
-						{
-							if(!consoleDebugging_normal)
-								sendThis = "[" + getDescription().getName() + "] Verbose debugging already active!";
-							else
+							//md check worldname groupname || md check worldname int
+							else if(args.length == 3)
 							{
-								consoleDebugging_normal = true;
-								consoleDebugging_verbose = true;
-								sendThis = "[" + getDescription().getName() + "] Verbose debugging enabled.";
+								try
+								{
+									sendConfig(player, args[1], Integer.parseInt(args[2]));
+								}
+								catch(NumberFormatException e)
+								{
+									sendConfig(player, args[1], args[2]);
+								}
+								return true;
+							}
+							//md check worldname groupname int
+							else if(args.length == 4)
+							{
+								try
+								{
+									sendConfig(player, args[1], args[2], Integer.parseInt(args[3]));
+								}
+								catch(NumberFormatException e){}
+								return true;
 							}
 						}
 						else
@@ -166,176 +277,94 @@ public class ModDamage extends JavaPlugin
 							sendUsage(player, true);
 							return true;
 						}
-						log.info(sendThis);
-						if(!fromConsole) player.sendMessage(ChatColor.GREEN + sendThis);
-						return true;
 					}
-				}
-				else if(args[0].equalsIgnoreCase("reload"))
-				{
-					if(fromConsole) loadConfig(true);
-					else if(hasPermission(player, "moddamage.reload")) 
-					{
-						log.info("[" + getDescription().getName() + "] Reload initiated by user " + player.getName());
-						loadConfig(true);
-						player.sendMessage(ModDamageString(ChatColor.GREEN) + " Reloaded!");
-					}
-					else player.sendMessage(errorString_Permissions);
+					else if(player == null)
+						log.info("[" + getDescription().getName() + "] ModDamage must be enabled to use that command.");
+					else player.sendMessage(ModDamageString(ChatColor.RED) + " ModDamage must be enabled to use that command.");
 					return true;
-				}
-				//TODO md list
-				else if(args[0].equalsIgnoreCase("check") || args[0].equalsIgnoreCase("c"))
-				{
-					//md check
-					if(args.length == 1)
-					{
-						//Send everything if from console
-						if(fromConsole)
-						{
-							log.info("Sending config info...");
-							for(WorldHandler worldHandler : worldHandlers.values())
-								if(worldHandler.loadedSomething())
-									worldHandler.sendWorldConfig(null, 9001);
-						}
-						//Send list of loaded worlds; TODO Page these?
-						else if(hasPermission(player, "moddamage.check"))
-						{
-							player.sendMessage(ModDamageString(ChatColor.YELLOW) + " The following worlds have been configured:");
-							boolean sentSomething = false;
-							for(WorldHandler worldHandler : worldHandlers.values())
-								if(worldHandler.loadedSomething())
-								{
-									player.sendMessage(ChatColor.GREEN + worldHandler.getWorld().getName());
-									sentSomething = true;
-								}
-							player.sendMessage(sentSomething
-												?ChatColor.BLUE + "Use /md check [worldname] for more information." //FIXME
-												:ChatColor.RED + "No worlds configured!");
-						}
-						else player.sendMessage(errorString_Permissions);
-						return true;
-					}
-					//md check worldname || md check int
-
-					//Console doesn't need specifying commands, so just stop console stuff here.
-					else if(fromConsole) sendUsage(player, true);
-					else if(args.length == 2)
-					{
-						try
-						{
-							Integer.parseInt(args[1]);
-							throw(new NumberFormatException());//TODO Replace with something here if and when "/md check" gets paged.
-						} 
-						catch(NumberFormatException e)
-						{
-							World worldMatch = null;
-							for(World temp : getServer().getWorlds())
-								for(int i = 0; i < (temp.getName().length() - args[1].length() - 1); i++)
-									if(args[1].equalsIgnoreCase(temp.getName().substring(i, i + args[1].length())))
-									{
-										worldMatch = temp;
-										break;
-									}
-							
-							if(worldMatch != null)
-							{
-								if(fromConsole) return worldHandlers.get(worldMatch).sendWorldConfig(player, 1);
-								else if(hasPermission(player, "moddamage.check." + worldMatch.getName()))
-									if(!worldHandlers.get(worldMatch).sendWorldConfig(player, 0))
-										player.sendMessage("Invalid page number for world \"" + worldMatch.getName() + "\".");
-								else player.sendMessage(ModDamageString(ChatColor.RED) 
-										+ " You don't have permission to check world \"" + worldMatch.getName() + "\"");
-							}
-							else
-							{
-								if(player == null) log.info("Error: Couldn't find matching world substring.");
-								else player.sendMessage(errorString_findWorld);
-							}
-						}
-						return true;
-					}
-					//md check worldname groupname || md check worldname int
-					else if(args.length == 3)
-					{
-						try
-						{
-							int pageNumber = Integer.parseInt(args[2]);
-							
-							//TODO Refactor for a single function?
-							World worldMatch = null;
-							for(World temp : getServer().getWorlds())
-								for(int i = 0; i < (temp.getName().length() - args[1].length() - 1); i++)
-									if(args[1].equalsIgnoreCase(temp.getName().substring(i, i + args[1].length())))
-									{
-										worldMatch = temp;
-										break;
-									}
-							
-							if(worldMatch != null)
-							{
-								if(fromConsole) return worldHandlers.get(worldMatch).sendWorldConfig(player, pageNumber);
-								else if(hasPermission(player, "moddamage.check." + worldMatch.getName()))
-									if(!worldHandlers.get(worldMatch).sendWorldConfig(player, pageNumber))
-										player.sendMessage("Invalid page number for world \"" + worldMatch.getName() + "\".");
-								else player.sendMessage(ModDamageString(ChatColor.RED) 
-										+ " You don't have permission to check world \"" + worldMatch.getName() + "\"");
-							}
-							else
-							{
-								if(player == null) log.info("Error: Couldn't find matching world substring.");
-								else player.sendMessage(errorString_findWorld);
-							}
-						}
-						catch(NumberFormatException e)
-						{
-							World worldMatch = null;
-							for(World temp : getServer().getWorlds())
-								for(int i = 0; i < (temp.getName().length() - args[1].length() - 1); i++)
-									if(args[1].equalsIgnoreCase(temp.getName().substring(i, i + args[1].length())))
-									{
-										worldMatch = temp;
-										break;
-									}
-							
-							if(worldMatch != null)
-							{
-								String groupMatch = null;
-								if(worldHandlers.containsKey(worldMatch))
-									for(GroupHandler groupHandler : worldHandlers.get(worldMatch).groupHandlers.values())
-										for(int i = 0; i < (groupHandler.getGroupName().length() - args[1].length() - 1); i++)
-											if(args[1].equalsIgnoreCase(groupHandler.getGroupName().substring(i, i + args[1].length())))
-											{
-												groupMatch = groupHandler.getGroupName();
-												break;
-											}
-								
-								if(groupMatch != null)
-								{
-									if(hasPermission(player, "moddamage.check." + worldMatch.getName() + "." + groupMatch))
-										return worldHandlers.get(worldMatch).groupHandlers.get(groupMatch).sendGroupConfig(player, 1);
-									else player.sendMessage(ModDamageString(ChatColor.RED) + " You don't have permission to check group \"" + groupMatch + "\".");
-								}
-								else
-								{
-									if(player == null) log.info("Error: Couldn't find matching group substring.");
-									else player.sendMessage(ModDamageString(ChatColor.RED) + " Couldn't find matching group name.");
-								}
-							}
-							else
-							{
-								if(player == null) log.info("Error: Couldn't find matching world substring.");
-								else player.sendMessage(errorString_findWorld);
-							}
-						}
-						return true;
-					}
-				}
 			}
 		}
 		sendUsage(player, true);
 		return true;
 	}
+	private void sendConfig(Player player, String worldSearchTerm){ sendConfig(player, worldSearchTerm, 1);}
+	private void sendConfig(Player player, String worldSearchTerm, int pageNumber)
+	{
+		//TODO Refactor for a single function?
+		World worldMatch = getWorldMatch(worldSearchTerm);
+		if(worldMatch != null)
+		{
+			if(hasPermission(player, "moddamage.check." + worldMatch.getName()))
+			{
+				if(!worldHandlers.get(worldMatch).sendWorldConfig(player, pageNumber))
+					player.sendMessage(ModDamageString(ChatColor.RED) + " Invalid page number for world \"" + worldMatch.getName() + "\".");
+			}
+			else player.sendMessage(ModDamageString(ChatColor.RED) 
+					+ " You don't have permission to check world \"" + worldMatch.getName() + "\"");
+		}
+		else player.sendMessage(errorString_findWorld);
+	}
+	private void sendConfig(Player player, String worldSearchTerm, String groupSearchTerm){ sendConfig(player, worldSearchTerm, groupSearchTerm, 1);}
+	private void sendConfig(Player player, String worldSearchTerm, String groupSearchTerm, int pageNumber) 
+	{
+		World worldMatch = getWorldMatch(worldSearchTerm);
+		if(worldMatch != null)
+		{
+			String groupMatch = getGroupMatch(worldMatch, groupSearchTerm);
+			if(groupMatch != null)
+			{
+				if(hasPermission(player, "moddamage.check." + worldMatch.getName() + "." + groupMatch))
+				{
+					if(!worldHandlers.get(worldMatch).groupHandlers.get(groupMatch).sendGroupConfig(player, pageNumber))
+						player.sendMessage(ModDamageString(ChatColor.RED) + " You don't have permission to check group \"" 
+								+ groupMatch + "\" for world \"" + worldMatch.getName() + "\".");
+				}
+				else player.sendMessage(ModDamageString(ChatColor.RED) + " You don't have permission to check group \"" + groupMatch + "\".");
+			}
+			else player.sendMessage(ModDamageString(ChatColor.RED) + " Couldn't find matching group name.");
+		}
+		else
+		{
+			if(player == null) log.info("Error: Couldn't find matching world substring.");
+			else player.sendMessage(errorString_findWorld);
+		}
+	}
 	
+	private void setPluginStatus(Player player, boolean state) 
+	{
+		if(state)
+		{
+			if(isEnabled)
+			{
+				if(player != null) player.sendMessage(ModDamageString(ChatColor.RED) + " Already enabled!");
+				else log.info("[" + getDescription().getName() + "] Already enabled!");
+			}
+			else
+			{
+				isEnabled = true;
+				loadConfig(true);
+				log.info("[" + getDescription().getName() + "] Plugin enabled.");
+				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Plugin enabled.");
+			}
+		}
+		else 
+		{
+			if(isEnabled)
+			{
+				isEnabled = false;
+				worldHandlers.clear();
+				log.info("[" + getDescription().getName() + "] Plugin disabled.");
+				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Plugin disabled.");
+			}
+			else
+			{
+				if(player != null) player.sendMessage(ModDamageString(ChatColor.RED) + " Already disabled!");
+				else log.info("[" + getDescription().getName() + "] Already disabled!");
+					
+			}
+		}
+	}
+
 	private void toggleConsoleDebug(Player player) 
 	{
 		boolean fromConsole = (player == null);
@@ -362,15 +391,16 @@ public class ModDamage extends JavaPlugin
 
 	private void sendUsage(Player player, boolean forError) 
 	{
-		//TODO finish these
 		if(player != null)
 		{
 			if(forError) player.sendMessage(ChatColor.RED + "Error: invalid command syntax.");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "ModDamage commands:");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/moddamage | /md - bring up this help message");
-			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (check|c) - check which worlds are configured");// ModDamage configuration"); FIXME
-			//player.sendMessage(ChatColor.LIGHT_PURPLE + "/md check [worldname] - check a specifed world configuration");
-			//player.sendMessage(ChatColor.LIGHT_PURPLE + "/md check [worldname] [groupname] - check a group configuration for a world");
+			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (check | c) - check configuration");
+			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (debug | d) [debugType] - change debug type");
+			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md disable - disable ModDamage");
+			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md enable - enable ModDamage");
+			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (reload | r) - reload configuration");
 		}
 		else
 		{
@@ -379,6 +409,8 @@ public class ModDamage extends JavaPlugin
 					"/moddamage | /md - bring up this help message\n" +
 					"/md check - check configuration\n" +
 					"/md debug [debugType] - change debugging type (quiet, normal, verbose)\n" +
+					"/md disable - disable ModDamage\n" +
+					"/md enable - enable ModDamage\n" +
 					"/md reload - reload configuration");
 		}
 	}
@@ -523,9 +555,9 @@ public class ModDamage extends JavaPlugin
 					}
 				}
 			}
-			if(damage < 0 && negative_Heal) 
-				((LivingEntity)event.getEntity()).setHealth(((LivingEntity)event.getEntity()).getHealth() - damage);
-			else event.setDamage(damage);
+			if(damage < 0 && !negative_Heal) 
+				damage = 0;
+			event.setDamage(damage);
 		}
 	}
 
@@ -607,12 +639,24 @@ public class ModDamage extends JavaPlugin
 		}
 		
 		//"disable"-type configs
+		//TODO Clean up this output stuff. Surely there's a more clever way to output? :P
 		disable_DefaultDamage = config.getBoolean("disableDefaultDamage", false);
-		if(consoleDebugging_normal) log.info("[" + getDescription().getName()+ "] Default damage " + ((disable_DefaultDamage)?"dis":"en") + "abled.");
+		if(consoleDebugging_normal && disable_DefaultDamage)
+			log.info("[" + getDescription().getName()+ "] Default damage disabled.");
+		else if(consoleDebugging_verbose && !disable_DefaultDamage)
+			log.info("[" + getDescription().getName()+ "] Default damage enabled.");
+		
 		disable_DefaultHealth = config.getBoolean("[" + getDescription().getName()+ "] disableDefaultHealth", false);
-		if(consoleDebugging_normal) log.info("[" + getDescription().getName()+ "] Default health " + ((disable_DefaultDamage)?"dis":"en") + "abled.");
+		if(consoleDebugging_normal && disable_DefaultHealth)
+			log.info("[" + getDescription().getName()+ "] Default health disabled.");
+		else if(consoleDebugging_verbose && !disable_DefaultHealth)
+			log.info("[" + getDescription().getName()+ "] Default health enabled.");
+		
 		negative_Heal = config.getBoolean("negativeHeal", false);
-		if(consoleDebugging_normal) log.info("[" + getDescription().getName()+ "] Negative-damage healing " + ((disable_DefaultDamage)?"enabled.":"is not enabled."));
+		if(consoleDebugging_normal && negative_Heal) 
+			log.info("[" + getDescription().getName()+ "] Negative-damage healing enabled.");
+		else if(consoleDebugging_verbose && !negative_Heal)
+			log.info("[" + getDescription().getName()+ "] Negative-damage healing disabled.");
 		
 		//try to initialize WorldHandlers
 		String nodeNames[] = {"Offensive", "Defensive", "MobHealth", "Scan"};
@@ -634,7 +678,35 @@ public class ModDamage extends JavaPlugin
 		//cleanup(); TODO Doesn't  work yet. :(
 	}
 
-	private String ModDamageString(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "]";}
+
+	private World getWorldMatch(String name)
+	{
+		World worldMatch = null;
+		for(World temp : getServer().getWorlds())
+			if(name.equalsIgnoreCase(temp.getName()))
+				return temp;
+		
+		if(worldMatch == null)
+			for(World temp : getServer().getWorlds())
+				for(int i = 0; i < (temp.getName().length() - name.length() - 1); i++)
+					if(name.equalsIgnoreCase(temp.getName().substring(i, i + name.length())))
+						return temp;
+		return null;
+	}
+	
+	private String getGroupMatch(World world, String name)
+	{
+		for(GroupHandler groupHandler : worldHandlers.get(world).groupHandlers.values())
+			if(name.equalsIgnoreCase(groupHandler.getGroupName()))
+				return groupHandler.getGroupName();
+		for(GroupHandler groupHandler : worldHandlers.get(world).groupHandlers.values())
+			for(int i = 0; i < (groupHandler.getGroupName().length() - name.length() - 1); i++)
+				if(name.equalsIgnoreCase(groupHandler.getGroupName().substring(i, i + name.length())))
+					return groupHandler.getGroupName();
+		return null;
+	}
+	
+	public String ModDamageString(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "]";}
 	
 	public void cleanup()
 	{

@@ -212,21 +212,25 @@ public enum DamageElement
 			case IRON_HELMET:			return DamageElement.ARMOR_HELMET;
 			case GOLD_HELMET:			return DamageElement.ARMOR_HELMET;
 			case DIAMOND_HELMET:		return DamageElement.ARMOR_HELMET;
+			case CHAINMAIL_HELMET:		return DamageElement.ARMOR_HELMET;
 		//Chest
 			case LEATHER_CHESTPLATE:	return DamageElement.ARMOR_CHESTPLATE;
 			case IRON_CHESTPLATE:		return DamageElement.ARMOR_CHESTPLATE;
 			case GOLD_CHESTPLATE:		return DamageElement.ARMOR_CHESTPLATE;
 			case DIAMOND_CHESTPLATE:	return DamageElement.ARMOR_CHESTPLATE;
+			case CHAINMAIL_CHESTPLATE:	return DamageElement.ARMOR_CHESTPLATE;
 		//Legs
 			case LEATHER_LEGGINGS:		return DamageElement.ARMOR_LEGGINGS;
 			case IRON_LEGGINGS:			return DamageElement.ARMOR_LEGGINGS;
 			case GOLD_LEGGINGS:			return DamageElement.ARMOR_LEGGINGS;
 			case DIAMOND_LEGGINGS:		return DamageElement.ARMOR_LEGGINGS;
+			case CHAINMAIL_LEGGINGS:	return DamageElement.ARMOR_LEGGINGS;
 		//Boots
 			case LEATHER_BOOTS:			return DamageElement.ARMOR_BOOTS;
 			case IRON_BOOTS:			return DamageElement.ARMOR_BOOTS;
 			case GOLD_BOOTS:			return DamageElement.ARMOR_BOOTS;
 			case DIAMOND_BOOTS:			return DamageElement.ARMOR_BOOTS;
+			case CHAINMAIL_BOOTS:		return DamageElement.ARMOR_BOOTS;
 		}
 		return null;
 	}

@@ -141,7 +141,7 @@ public class DamageCalculator
 		try
 		{
 			int tryThis = Integer.parseInt(commandString);
-			return tryThis;
+			return eventDamage + tryThis;
 		}
 		catch(Exception e){}
 		
@@ -165,6 +165,11 @@ public class DamageCalculator
 							return 0;
 						}
 					}
+				}
+				else
+				{
+					log.severe("Improper equation in configuration (addition) - this shouldn't have happened.");
+					return 0;
 				}
 			}
 			else if(args.length == 1)

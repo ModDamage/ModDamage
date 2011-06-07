@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
@@ -26,7 +27,7 @@ public class WorldHandler
 	public boolean scanLoaded = false;
 	public boolean mobHealthLoaded = false;
 	private List<String> configStrings = new ArrayList<String>();//TODO Implement this.
-	private int configPages = 5;
+	private int configPages = 0;
 	
 	//nodes for config loading
 	final private DamageCalculator damageCalc;
@@ -69,6 +70,9 @@ public class WorldHandler
 
 	public boolean reload()
 	{ 
+		//clear everything first
+		clear();
+		
 		//load Offensive configuration
 		globalsLoaded = loadGlobalRoutines();
 
@@ -78,15 +82,17 @@ public class WorldHandler
 		//load MobHealth configuration
 		mobHealthLoaded = loadMobHealth();
 
-		//load Defensive configuration
-		groupsLoaded = loadGroupHandlers();
-		
 		if(loadedSomething() && ModDamage.consoleDebugging_normal) 
 			log.info("[" + plugin.getDescription().getName() + "] Configuration for world \"" 
 				+ world.getName() + "\" initialized!");
 		else if(ModDamage.consoleDebugging_verbose)
 			log.warning("[" + plugin.getDescription().getName() + "] Configuration for world \"" 
 				+ world.getName() + "\" could not load.");
+		
+		//load Defensive configuration
+		groupsLoaded = loadGroupHandlers();
+
+		configPages = configStrings.size()/9 + ((configStrings.size()%9 > 0)?1:0);
 		
 		return loadedSomething();
 	}
@@ -97,15 +103,12 @@ public class WorldHandler
 ///////////////////// OFFENSIVE/DEFENSIVE ///////////////////////
 	
 // global
-	public boolean loadGlobalRoutines()
+	private boolean loadGlobalRoutines()
 	{
 		String progressString = "UNKNOWN";
 		boolean loadedSomething = false;
 		try
 		{
-			//clear everything first
-			clearRoutines();
-			
 			ConfigurationNode offensiveGlobalNode = (offensiveNode != null)?offensiveNode.getNode("global"):null;
 			ConfigurationNode defensiveGlobalNode = (defensiveNode != null)?defensiveNode.getNode("global"):null;
 	//load "global" node routines
@@ -161,7 +164,7 @@ public class WorldHandler
 		return loadedSomething;
 	}
 
-	public boolean loadGenericRoutines(boolean isOffensive)
+	private boolean loadGenericRoutines(boolean isOffensive)
 	{
 		String configString;
 		//get generics
@@ -251,12 +254,14 @@ public class WorldHandler
 		return true;
 	}
 
-	public boolean loadItemRoutines(boolean isOffensive){ return loadItemRoutines(isOffensive, false);}
-	public boolean loadItemRoutines(boolean isOffensive, boolean force)
+	private boolean loadItemRoutines(boolean isOffensive){ return loadItemRoutines(isOffensive, false);}
+	private boolean loadItemRoutines(boolean isOffensive, boolean force)
 	{
 		ConfigurationNode itemNode = (isOffensive?offensiveNode:defensiveNode).getNode("global").getNode(DamageElement.GENERIC_MELEE.getReference());
 		if(itemNode != null)	
 		{
+			if(ModDamage.consoleDebugging_verbose) log.info("{Found global specific " + (isOffensive?"Offensive":"Defensive") + " " 
+				+ "melee node for world \"" + world.getName() + "\"}");
 			List<String> itemList = (isOffensive?offensiveNode:defensiveNode).getNode("global").getKeys(DamageElement.GENERIC_MELEE.getReference());
 			List<String> calcStrings = null;
 			for(Material material : Material.values())	
@@ -291,12 +296,13 @@ public class WorldHandler
 		return false;
 	}
 
-	public boolean loadArmorRoutines(boolean isOffensive)
+	private boolean loadArmorRoutines(boolean isOffensive)
 	{
-		if(ModDamage.consoleDebugging_normal) log.info("Loading " + (isOffensive?"Offensive":"Defensive") + " armor routines");
 		ConfigurationNode armorNode = (isOffensive?offensiveNode:defensiveNode).getNode("global").getNode(DamageElement.GENERIC_ARMOR.getReference());
 		if(armorNode != null)
 		{
+			if(ModDamage.consoleDebugging_verbose) log.info("{Found global specific " + (isOffensive?"Offensive":"Defensive") + " " 
+				+ "armor node for world \"" + world.getName() + "\"}");
 			List<String> armorSetList = (isOffensive?offensiveNode:defensiveNode).getNode("global").getKeys(DamageElement.GENERIC_ARMOR.getReference());
 			List<String> calcStrings = null;
 			for(String armorSetString : armorSetList)
@@ -336,7 +342,7 @@ public class WorldHandler
 		return false;
 	}
 
-	public boolean loadGroupHandlers()
+	private boolean loadGroupHandlers()
 	{
 		//get all of the groups in configuration
 		List<String> groups = new ArrayList<String>();
@@ -347,6 +353,8 @@ public class WorldHandler
 		}
 		//load groups with offensive and defensive settings first
 		if(!groups.isEmpty())
+		{
+			configStrings.add(ChatColor.DARK_PURPLE + "Groups loaded:"); //TODO Try formatting?
 			for(String group : groups)
 			{	
 				if(groupHandlers.containsKey(group))
@@ -354,12 +362,17 @@ public class WorldHandler
 					if(ModDamage.consoleDebugging_normal)
 						log.warning("Repetitive group definition found for group \"" + group + "\" found - ignoring.");
 				}
-				else groupHandlers.put(group, new GroupHandler(this, group, 
+				else 
+				{
+					groupHandlers.put(group, new GroupHandler(this, group, 
 							((offensiveNode != null && offensiveNode.getNode("groups") != null)?offensiveNode.getNode("groups").getNode(group):null),
 							((defensiveNode != null && defensiveNode.getNode("groups") != null)?defensiveNode.getNode("groups").getNode(group):null), 
 							((scanNode != null && scanNode.getNode("groups") != null)?scanNode.getNode("groups"):null), 
 							damageCalc));
+					configStrings.add(ChatColor.DARK_PURPLE + group);
+				}
 			}
+		}
 		return true;
 	}
 	
@@ -484,16 +497,30 @@ public class WorldHandler
 		ArmorSet armorSet_attacking = new ArmorSet(player_attacking);
 		Material inHand_attacking = player_attacking.getItemInHand().getType();
 		//calculate group buff
-		String[] groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
-		String[] groups_attacking = ModDamage.Permissions.getGroups(player_attacking.getWorld().getName(), player_attacking.getName());
+		String[] groups_target = null;
+		String[] groups_attacking = null;
 		int groupBuff = 0;
-		for(String group_attacking : groups_attacking)
-			if(groupHandlers.containsKey(group_attacking))
-				for(String group_target : groups_target)
-				{
-					log.info("PvP (attackBuff): " + group_attacking + " vs. " + group_target);
-					groupBuff += groupHandlers.get(group_attacking).calcAttackBuff(group_target, inHand_attacking, armorSet_attacking, eventDamage, rangedElement);
-				}
+		try
+		{
+			groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
+			groups_attacking = ModDamage.Permissions.getGroups(player_attacking.getWorld().getName(), player_attacking.getName());
+			for(String group_attacking : groups_attacking)
+				if(groupHandlers.containsKey(group_attacking))
+					for(String group_target : groups_target)
+					{
+						log.info("PvP (attackBuff): " + group_attacking + " vs. " + group_target);
+						groupBuff += groupHandlers.get(group_attacking).calcAttackBuff(group_target, inHand_attacking, armorSet_attacking, eventDamage, rangedElement);
+					}
+		}
+		catch(Exception e)
+		{
+			if(groups_target == null)
+				log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
+						+ player_target.getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
+			else if(groups_attacking == null)
+				log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
+						+ player_attacking.getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
+		}
 	
 		//apply calculations
 		return runGlobalRoutines(DamageElement.GENERIC_HUMAN, true, eventDamage)
@@ -510,13 +537,27 @@ public class WorldHandler
 		ArmorSet armorSet_target = new ArmorSet(player_target);
 		Material inHand_attacking = player_attacking.getItemInHand().getType();
 		//calculate group buff
-		String[] groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
-		String[] groups_attacking = ModDamage.Permissions.getGroups(player_attacking.getWorld().getName(), player_attacking.getName());				
 		int groupBuff = 0;
-		for(String group_target : groups_target)
-			if(groupHandlers.containsKey(group_target))
-				for(String group_attacking : groups_attacking)
-					groupBuff += groupHandlers.get(group_target).calcDefenseBuff(group_attacking, inHand_attacking, armorSet_target, eventDamage, rangedElement);
+		String[] groups_target = null;
+		String[] groups_attacking = null;
+		try
+		{
+			groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
+			groups_attacking = ModDamage.Permissions.getGroups(player_attacking.getWorld().getName(), player_attacking.getName());
+			for(String group_target : groups_target)
+				if(groupHandlers.containsKey(group_target))
+					for(String group_attacking : groups_attacking)
+						groupBuff += groupHandlers.get(group_target).calcDefenseBuff(group_attacking, inHand_attacking, armorSet_target, eventDamage, rangedElement);
+		}
+		catch(Exception e)
+		{
+			if(groups_target == null)
+				log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
+						+ player_target.getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
+			else if(groups_attacking == null)
+				log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
+						+ player_attacking.getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
+		}
 		//apply calculations
 		return runGlobalRoutines(DamageElement.GENERIC_HUMAN, false, eventDamage)
 				+ ((rangedElement != null)
@@ -539,11 +580,21 @@ public class WorldHandler
 	{
 		ArmorSet armorSet_target = new ArmorSet(player_target);
 		//calculate group buff
-		String[] groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
+		
+
 		int groupBuff = 0;
-		for(String group_target : groups_target)
-			if(groupHandlers.containsKey(group_target))
-				groupBuff += groupHandlers.get(group_target).calcDefenseBuff(damageType, armorSet_target, eventDamage);
+		try
+		{
+			String[] groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
+			for(String group_target : groups_target)
+				if(groupHandlers.containsKey(group_target))
+					groupBuff += groupHandlers.get(group_target).calcDefenseBuff(damageType, armorSet_target, eventDamage);
+		}
+		catch(Exception e)
+		{
+			log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
+					+ player_target.getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
+		}
 		//apply calculations
 		return runGlobalRoutines(DamageElement.GENERIC_HUMAN, false, eventDamage)
 				+ runArmorRoutines(armorSet_target, false, eventDamage)
@@ -572,11 +623,19 @@ public class WorldHandler
 		ArmorSet armorSet_attacking = new ArmorSet(player_attacking);
 		Material inHand_attacking = player_attacking.getItemInHand().getType();
 		//calculate group buff
-		String[] groups_attacking = ModDamage.Permissions.getGroups(player_attacking.getWorld().getName(), player_attacking.getName());
 		int groupBuff = 0;
-		for(String group_attacking : groups_attacking)
-			if(groupHandlers.containsKey(group_attacking))
-				groupBuff += groupHandlers.get(group_attacking).calcAttackBuff(mobType_target, inHand_attacking, armorSet_attacking, eventDamage, rangedElement);
+		try
+		{
+			String[] groups_attacking = ModDamage.Permissions.getGroups(player_attacking.getWorld().getName(), player_attacking.getName());
+			for(String group_attacking : groups_attacking)
+				if(groupHandlers.containsKey(group_attacking))
+					groupBuff += groupHandlers.get(group_attacking).calcAttackBuff(mobType_target, inHand_attacking, armorSet_attacking, eventDamage, rangedElement);
+		}
+		catch(Exception e)
+		{
+			log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
+					+ player_attacking.getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
+		}
 		//apply calculations
 		return runGlobalRoutines(DamageElement.GENERIC_HUMAN, true, eventDamage) 
 				+ ((rangedElement != null)
@@ -625,20 +684,10 @@ public class WorldHandler
 	
 ///////////////////// HELPER FUNCTIONS ///////////////////////
 	public World getWorld(){ return world;}
-	
-	private void clearRoutines() 
-	{
-		offensiveRoutines.clear();
-		defensiveRoutines.clear();
-		itemOffensiveRoutines.clear();
-		itemDefensiveRoutines.clear();
-		globalScanItems.clear();
-		mobHealthSettings.clear();
-	}
-
 ///////////////////// INGAME COMMANDS ///////////////////////
 	public boolean sendWorldConfig(Player player, int pageNumber)
 	{
+		//10 lines per page (including header)
 		if(player == null)
 		{
 			if(configStrings.isEmpty())
@@ -652,13 +701,18 @@ public class WorldHandler
 			log.info(printString);
 			for(GroupHandler groupHandler : groupHandlers.values())
 			{
-				groupHandler.sendGroupConfig(player, 9001);
+				groupHandler.sendGroupConfig(player, pageNumber);
 			}
 			return true;
 		}
-		else if(configPages >= pageNumber && pageNumber > 0)
+		else if(configPages > 0 && configPages >= pageNumber && pageNumber > 0)
 		{
-			player.sendMessage(world.getName().toUpperCase() + " SAYS HI");
+			player.sendMessage(plugin.ModDamageString(ChatColor.GOLD) + " World \"" + world.getName().toUpperCase() 
+					+ "\" (" + pageNumber + "/" + configPages + ")");
+			for(int i = (9 * (pageNumber - 1)); i < (configStrings.size() < (9 * pageNumber)
+														?configStrings.size()
+														:(9 * pageNumber)); i++)
+				player.sendMessage(ChatColor.DARK_AQUA + configStrings.get(i));
 			return true;
 		}
 		return false;
@@ -682,8 +736,14 @@ public class WorldHandler
 	
 	public void clear()
 	{
-		clearRoutines();
+		offensiveRoutines.clear();
+		defensiveRoutines.clear();
+		itemOffensiveRoutines.clear();
+		itemDefensiveRoutines.clear();
+		globalScanItems.clear();
+		mobHealthSettings.clear();
 		groupHandlers.clear();
+		configStrings.clear();
 	}
 }
 

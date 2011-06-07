@@ -28,7 +28,7 @@ public class ArmorSet
 				}
 	}
 	
-	public boolean put(Material material)
+	private boolean put(Material material)
 	{
 		DamageElement armorType = DamageElement.matchArmorElement(material);
 		if(armorType != null)
