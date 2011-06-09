@@ -447,6 +447,7 @@ public class ModDamage extends JavaPlugin
 				//PvP
 					if(ent_damager instanceof Player)
 					{
+						log.info(event.getClass().toString());
 						Player player_damager = (Player)ent_damager;
 						damage -= worldHandler.calcDefenseBuff(player_damaged, player_damager, event.getDamage(), rangedElement);
 						damage += worldHandler.calcAttackBuff(player_damaged, player_damager, event.getDamage(), rangedElement);

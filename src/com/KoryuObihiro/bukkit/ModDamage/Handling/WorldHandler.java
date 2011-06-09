@@ -507,10 +507,7 @@ public class WorldHandler
 			for(String group_attacking : groups_attacking)
 				if(groupHandlers.containsKey(group_attacking))
 					for(String group_target : groups_target)
-					{
-						log.info("PvP (attackBuff): " + group_attacking + " vs. " + group_target);
 						groupBuff += groupHandlers.get(group_attacking).calcAttackBuff(group_target, inHand_attacking, armorSet_attacking, eventDamage, rangedElement);
-					}
 		}
 		catch(Exception e)
 		{
@@ -580,8 +577,7 @@ public class WorldHandler
 	{
 		ArmorSet armorSet_target = new ArmorSet(player_target);
 		//calculate group buff
-		
-
+	
 		int groupBuff = 0;
 		try
 		{
