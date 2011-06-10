@@ -18,8 +18,8 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 public class WorldHandler
 {
 //// MEMBERS ////
-	public ModDamage plugin;
-	public Logger log; 
+	private ModDamage plugin;
+	private Logger log; 
 	private World world;
 	
 	public boolean globalsLoaded = false;
@@ -126,8 +126,8 @@ public class WorldHandler
 				else if(ModDamage.consoleDebugging_verbose)
 					log.warning("Could not load " + progressString);
 				
-				progressString = "Offensive item routines";
-				if(loadItemRoutines(true))
+				progressString = "Offensive melee routines";
+				if(loadMeleeRoutines(true))
 					loadedSomething = true;
 				else if(ModDamage.consoleDebugging_verbose)
 					log.warning("Could not load " + progressString);
@@ -147,7 +147,7 @@ public class WorldHandler
 					log.warning("Could not load " + progressString);
 
 				progressString = "Defensive item routines";
-				if(loadItemRoutines(false))
+				if(loadMeleeRoutines(false))
 					loadedSomething = true;
 				else if(ModDamage.consoleDebugging_verbose)
 					log.warning("Could not load " + progressString);
@@ -160,7 +160,7 @@ public class WorldHandler
 					+ "] Invalid global configuration for world \"" + world.getName()
 					+ "\" - failed while loading " + progressString + ".");
 		}
-		loadedSomething = true;//TODO FIX ME
+		//loadedSomething = true;//TODO FIX ME
 		return loadedSomething;
 	}
 
@@ -189,15 +189,14 @@ public class WorldHandler
 							{
 								(isOffensive?offensiveRoutines:defensiveRoutines).put(element, calcStrings);
 								//add config string, print to console if debug is enabled
-								configString = "-" + world.getName() + ":" 
-									+ (isOffensive?"Offensive":"Defensive") + ":Generic:" + damageCategory 
-									+ calcStrings.toString();
+								configString = "-" + (isOffensive?"Offensive":"Defensive") + ":" + world.getName() + ":global:Generic:" 
+									+ damageCategory + calcStrings.toString();
 								configStrings.add(configString);
 								if(ModDamage.consoleDebugging_normal) log.info(configString);
 							}
 							else if(ModDamage.consoleDebugging_normal)
 							{
-								log.warning("Repetitive generic "  + damageCategory + " in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
+								log.warning("Repetitive generic "  + damageCategory + " node in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
 								continue;
 							}
 						}
@@ -212,6 +211,7 @@ public class WorldHandler
 			if(DamageElement.matchDamageElement(damageCategory).hasSubConfiguration())
 			{
 				ConfigurationNode relevantNode = ((isOffensive?offensiveNode:defensiveNode).getNode("global").getNode(damageCategory));
+				
 				if(relevantNode != null)
 				{
 					if(ModDamage.consoleDebugging_verbose) log.info("{Found global specific " + (isOffensive?"Offensive":"Defensive") + " " 
@@ -221,7 +221,7 @@ public class WorldHandler
 						String elementReference = damageElement.getReference();
 						//check for leaf-node buff strings
 						List<String> calcStrings = relevantNode.getStringList(elementReference, null);
-						if(!calcStrings.equals(null)) //!calcStrings.equals(null)
+						if(!calcStrings.equals(null))
 						{
 							damageCalc.checkCommandStrings(calcStrings, elementReference, isOffensive);
 							if(calcStrings.size() > 0)
@@ -230,15 +230,14 @@ public class WorldHandler
 								{
 									(isOffensive?offensiveRoutines:defensiveRoutines).put(damageElement, calcStrings);
 									//add config string, print to console if debug is enabled
-									configString = "-" + world.getName() + ":" 
-										+ (isOffensive?"Offensive":"Defensive") + ":" + elementReference 
-										+ calcStrings.toString();
+									configString = "-" + (isOffensive?"Offensive":"Defensive") + ":" +  world.getName() + ":global:" 
+										+ damageCategory + ":" + elementReference + calcStrings.toString();
 									configStrings.add(configString);
 									if(ModDamage.consoleDebugging_normal) log.info(configString);
 								}
 								else if(ModDamage.consoleDebugging_normal)
 								{
-									log.warning("Repetitive "  + elementReference + " in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
+									log.warning("Repetitive " + elementReference + " specific node in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
 									continue;
 								}
 							}
@@ -254,8 +253,7 @@ public class WorldHandler
 		return true;
 	}
 
-	private boolean loadItemRoutines(boolean isOffensive){ return loadItemRoutines(isOffensive, false);}
-	private boolean loadItemRoutines(boolean isOffensive, boolean force)
+	private boolean loadMeleeRoutines(boolean isOffensive)
 	{
 		ConfigurationNode itemNode = (isOffensive?offensiveNode:defensiveNode).getNode("global").getNode(DamageElement.GENERIC_MELEE.getReference());
 		if(itemNode != null)	
@@ -264,33 +262,38 @@ public class WorldHandler
 				+ "melee node for world \"" + world.getName() + "\"}");
 			List<String> itemList = (isOffensive?offensiveNode:defensiveNode).getNode("global").getKeys(DamageElement.GENERIC_MELEE.getReference());
 			List<String> calcStrings = null;
-			for(Material material : Material.values())	
-			{
-				if(itemList.contains(material.name())) //TODO Mess with casing here?
-					calcStrings = itemNode.getStringList(material.name(), null);
-				if(calcStrings != null)
+			if(!itemList.equals(null))
+				for(String itemString : itemList)
 				{
-					damageCalc.checkCommandStrings(calcStrings, material.name(), isOffensive);
-					if(calcStrings.size() > 0)
+					Material material = Material.matchMaterial(itemString);
+					if(material != null)
 					{
-						if(!(isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).containsKey(material))
+						calcStrings = itemNode.getStringList(itemString, null);
+						if(calcStrings != null)
 						{
-							//add config string, print to console if debug is enabled
-							(isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).put(material, calcStrings);
-							String configString = "-" + world.getName() + ":" + (isOffensive?"Offensive":"Defensive") + ":" 
-								+ material.name() + "(" + material.getId() + ") "+ calcStrings.toString();
-							configStrings.add(configString);
-							if(ModDamage.consoleDebugging_normal) log.info(configString);
+							damageCalc.checkCommandStrings(calcStrings, itemString, isOffensive);
+							if(calcStrings.size() > 0)
+							{
+								if(!(isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).containsKey(material))
+								{
+									(isOffensive?itemOffensiveRoutines:itemDefensiveRoutines).put(material, calcStrings);
+									String configString = "-" + (isOffensive?"Offensive":"Defensive") + ":" +  world.getName() + ":global:melee:"
+										+ material.name() + "(" + material.getId() + ") "+ calcStrings.toString();
+									configStrings.add(configString);
+									if(ModDamage.consoleDebugging_normal) log.info(configString);
+								}
+								else if(ModDamage.consoleDebugging_normal) log.warning("[" + plugin.getDescription().getName() + "] Repetitive " 
+										+ material.name() + "(" + material.getId() + ") definition in " + (isOffensive?"Offensive":"Defensive") + " item globals - ignoring");
+							}
+							else if(!plugin.itemKeywords.containsKey(itemString) && ModDamage.consoleDebugging_verbose)
+								log.warning("No instructions found for global " + material.name() + "(" + material.getId()
+									+ ") item node in " + (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
+							calcStrings = null;
 						}
-						else if(ModDamage.consoleDebugging_normal) log.warning("[" + plugin.getDescription().getName() + "] Repetitive " 
-								+ material.name() + "(" + material.getId() + ") definition in " + (isOffensive?"Offensive":"Defensive") + " item globals - ignoring");
 					}
-					else if(ModDamage.consoleDebugging_verbose)
-						log.warning("No instructions found for global " + material.name() + "(" + material.getId()
-							+ ") item node in " + (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
-					calcStrings = null;
+					else if(ModDamage.consoleDebugging_verbose) log.warning("Unrecognized item name \"" + itemString + "\" found in specific melee node for world \"" 
+							+ getWorld().getName() + "\" globals - ignoring");
 				}
-			}
 			return true;
 		}
 		return false;
@@ -354,7 +357,7 @@ public class WorldHandler
 		//load groups with offensive and defensive settings first
 		if(!groups.isEmpty())
 		{
-			configStrings.add(ChatColor.DARK_PURPLE + "Groups loaded:"); //TODO Try formatting?
+			configStrings.add(ChatColor.DARK_PURPLE + "Groups loaded:"); //TODO Customize colors later
 			for(String group : groups)
 			{	
 				if(groupHandlers.containsKey(group))
@@ -364,7 +367,7 @@ public class WorldHandler
 				}
 				else 
 				{
-					groupHandlers.put(group, new GroupHandler(this, group, 
+					groupHandlers.put(group, new GroupHandler(plugin, this, log, group,
 							((offensiveNode != null && offensiveNode.getNode("groups") != null)?offensiveNode.getNode("groups").getNode(group):null),
 							((defensiveNode != null && defensiveNode.getNode("groups") != null)?defensiveNode.getNode("groups").getNode(group):null), 
 							((scanNode != null && scanNode.getNode("groups") != null)?scanNode.getNode("groups"):null), 
@@ -390,7 +393,7 @@ public class WorldHandler
 			for(DamageElement creatureType : creatureTypes)
 			{
 			//check for leaf-node health strings
-				String calcString = (String) mobHealthNode.getProperty(creatureType.getReference());
+				String calcString = (String)mobHealthNode.getProperty(creatureType.getReference());
 				if(calcString != null)
 				{
 					if(!healthCalc.checkCommandString(calcString))
@@ -403,7 +406,7 @@ public class WorldHandler
 						if(!mobHealthSettings.containsKey(creatureType))
 						{
 							mobHealthSettings.put(creatureType, calcString);
-							String configString = "-" + world.getName() + ":MobHealth:" + creatureType.getReference() 
+							String configString = "-MobHealth:" + world.getName() + ":" + creatureType.getReference() 
 								+ " [" + calcString.toString() + "]";
 							configStrings.add(configString);
 							if(ModDamage.consoleDebugging_normal) log.info(configString);
@@ -442,29 +445,32 @@ public class WorldHandler
 			List<String> itemList = scanNode.getStringList("global", null);
 			if(!itemList.equals(null))
 			{
-				//search for keyword-defined sets of materials
-				for(String keyword : plugin.scanKeywords.keySet())
-					if(itemList.contains(keyword)) //TODO Mess with casing here?
-						if(!globalScanItems.contains(keyword)) 
-							for(Material material : plugin.scanKeywords.get(keyword))
-							{
-								globalScanItems.add(material);
-								String configString = "-" + world.getName() + ":Scan:" + material.name() + "(" + material.getId() + ")";
-								configStrings.add(configString);
-								if(ModDamage.consoleDebugging_normal) log.info(configString);
-							}
-				//searching for normally-defined materials
-				for(Material material : Material.values())	
-					if(itemList.contains(material.name()) || itemList.contains(Integer.toString(material.getId()))) //TODO Mess with casing here?
-						if(!globalScanItems.contains(material)) 
+				for(String itemString : itemList)
+				{
+					if(plugin.itemKeywords.containsKey(itemString.toLowerCase()))
+						for(Material material : plugin.itemKeywords.get(itemString.toLowerCase()))
 						{
 							globalScanItems.add(material);
-							String configString = "-" + world.getName() + ":Scan:" + material.name() + "(" + material.getId() + ") ";
+							String configString = "-Scan:" + world.getName() + ":" + material.name() + "(" + material.getId() + ")";
 							configStrings.add(configString);
 							if(ModDamage.consoleDebugging_normal) log.info(configString);
 						}
-				return true;
+					else
+					{
+						Material material = Material.matchMaterial(itemString);
+						if(material != null)
+						{
+							globalScanItems.add(material);
+							String configString = "-Scan:" + world.getName() + ":" + material.name() + "(" + material.getId() + ") ";
+							configStrings.add(configString);
+							if(ModDamage.consoleDebugging_normal) log.info(configString);
+						}
+						else if(ModDamage.consoleDebugging_verbose) log.warning("Invalid Scan item \"" + itemString + "\" found in world \"" 
+							+ world.getName() + "\" globals - ignoring");
+					}
+				}
 			}
+			return true;
 		}
 		return false;
 	}
@@ -691,10 +697,10 @@ public class WorldHandler
 		if(player == null)
 		{
 			if(configStrings.isEmpty())
-				{
-					log.severe("Well, frick...this shouldn't have happened. o_o"); //TODO REMOVE ME EVENTUALLY
-					return false;
-				}
+			{
+				log.severe("Well, frick...this shouldn't have happened. o_o"); //TODO REMOVE ME EVENTUALLY
+				return false;
+			}
 			String printString = "Config for world \"" + world.getName() + "\":";
 			for(String configString : configStrings)
 				printString += "\n" + configString;
@@ -732,6 +738,18 @@ public class WorldHandler
 				|| !itemOffensiveRoutines.isEmpty() || !itemDefensiveRoutines.isEmpty()
 				|| !globalScanItems.isEmpty() || !mobHealthSettings.isEmpty()
 				|| groupsLoadedSomething);
+	}
+	
+	public boolean add()
+	{
+		//TODO
+		return false;
+	}
+	
+	public boolean remove()
+	{
+		//TODO
+		return false;
 	}
 	
 	public void clear()
