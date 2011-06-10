@@ -166,72 +166,77 @@ public enum DamageElement
 	
 	public static DamageElement matchMeleeElement(Material material)
 	{
-		switch(material)
-		{
-		//Axes
-			case WOOD_AXE: 		return DamageElement.MELEE_AXE;
-			case STONE_AXE: 	return DamageElement.MELEE_AXE;
-			case IRON_AXE:		return DamageElement.MELEE_AXE;
-			case GOLD_AXE: 		return DamageElement.MELEE_AXE;
-			case DIAMOND_AXE: 	return DamageElement.MELEE_AXE;
-		//Hoes
-			case WOOD_HOE: 		return DamageElement.MELEE_HOE;
-			case STONE_HOE: 	return DamageElement.MELEE_HOE;
-			case IRON_HOE:		return DamageElement.MELEE_HOE;
-			case GOLD_HOE:		return DamageElement.MELEE_HOE;
-			case DIAMOND_HOE: 	return DamageElement.MELEE_HOE;
-		//Picks
-			case WOOD_PICKAXE: 	return DamageElement.MELEE_PICKAXE;
-			case STONE_PICKAXE: return DamageElement.MELEE_PICKAXE;
-			case IRON_PICKAXE:	return DamageElement.MELEE_PICKAXE;
-			case GOLD_PICKAXE:	return DamageElement.MELEE_PICKAXE;
-			case DIAMOND_PICKAXE:return DamageElement.MELEE_PICKAXE;
-		//Shovels	
-			case WOOD_SPADE: 	return DamageElement.MELEE_SPADE;
-			case STONE_SPADE: 	return DamageElement.MELEE_SPADE;
-			case IRON_SPADE:	return DamageElement.MELEE_SPADE;
-			case GOLD_SPADE:	return DamageElement.MELEE_SPADE;
-			case DIAMOND_SPADE: return DamageElement.MELEE_SPADE;
-		//Swords	
-			case WOOD_SWORD: 	return DamageElement.MELEE_SWORD;
-			case STONE_SWORD: 	return DamageElement.MELEE_SWORD;
-			case IRON_SWORD:	return DamageElement.MELEE_SWORD;
-			case GOLD_SWORD:	return DamageElement.MELEE_SWORD;
-			case DIAMOND_SWORD: return DamageElement.MELEE_SWORD;
-			
-			default: 			return null;
-		}
+		if(material != null)
+			switch(material)
+			{
+			//Axes
+				case WOOD_AXE: 		return DamageElement.MELEE_AXE;
+				case STONE_AXE: 	return DamageElement.MELEE_AXE;
+				case IRON_AXE:		return DamageElement.MELEE_AXE;
+				case GOLD_AXE: 		return DamageElement.MELEE_AXE;
+				case DIAMOND_AXE: 	return DamageElement.MELEE_AXE;
+			//Hoes
+				case WOOD_HOE: 		return DamageElement.MELEE_HOE;
+				case STONE_HOE: 	return DamageElement.MELEE_HOE;
+				case IRON_HOE:		return DamageElement.MELEE_HOE;
+				case GOLD_HOE:		return DamageElement.MELEE_HOE;
+				case DIAMOND_HOE: 	return DamageElement.MELEE_HOE;
+			//Picks
+				case WOOD_PICKAXE: 	return DamageElement.MELEE_PICKAXE;
+				case STONE_PICKAXE: return DamageElement.MELEE_PICKAXE;
+				case IRON_PICKAXE:	return DamageElement.MELEE_PICKAXE;
+				case GOLD_PICKAXE:	return DamageElement.MELEE_PICKAXE;
+				case DIAMOND_PICKAXE:return DamageElement.MELEE_PICKAXE;
+			//Shovels	
+				case WOOD_SPADE: 	return DamageElement.MELEE_SPADE;
+				case STONE_SPADE: 	return DamageElement.MELEE_SPADE;
+				case IRON_SPADE:	return DamageElement.MELEE_SPADE;
+				case GOLD_SPADE:	return DamageElement.MELEE_SPADE;
+				case DIAMOND_SPADE: return DamageElement.MELEE_SPADE;
+			//Swords	
+				case WOOD_SWORD: 	return DamageElement.MELEE_SWORD;
+				case STONE_SWORD: 	return DamageElement.MELEE_SWORD;
+				case IRON_SWORD:	return DamageElement.MELEE_SWORD;
+				case GOLD_SWORD:	return DamageElement.MELEE_SWORD;
+				case DIAMOND_SWORD: return DamageElement.MELEE_SWORD;
+				
+				default: 			return null;
+			}
+		return null;
 	}
 
 	public static DamageElement matchArmorElement(Material material)
 	{
-		switch(material)
-		{
-		//Headwear
-			case LEATHER_HELMET:		return DamageElement.ARMOR_HELMET;
-			case IRON_HELMET:			return DamageElement.ARMOR_HELMET;
-			case GOLD_HELMET:			return DamageElement.ARMOR_HELMET;
-			case DIAMOND_HELMET:		return DamageElement.ARMOR_HELMET;
-			case CHAINMAIL_HELMET:		return DamageElement.ARMOR_HELMET;
-		//Chest
-			case LEATHER_CHESTPLATE:	return DamageElement.ARMOR_CHESTPLATE;
-			case IRON_CHESTPLATE:		return DamageElement.ARMOR_CHESTPLATE;
-			case GOLD_CHESTPLATE:		return DamageElement.ARMOR_CHESTPLATE;
-			case DIAMOND_CHESTPLATE:	return DamageElement.ARMOR_CHESTPLATE;
-			case CHAINMAIL_CHESTPLATE:	return DamageElement.ARMOR_CHESTPLATE;
-		//Legs
-			case LEATHER_LEGGINGS:		return DamageElement.ARMOR_LEGGINGS;
-			case IRON_LEGGINGS:			return DamageElement.ARMOR_LEGGINGS;
-			case GOLD_LEGGINGS:			return DamageElement.ARMOR_LEGGINGS;
-			case DIAMOND_LEGGINGS:		return DamageElement.ARMOR_LEGGINGS;
-			case CHAINMAIL_LEGGINGS:	return DamageElement.ARMOR_LEGGINGS;
-		//Boots
-			case LEATHER_BOOTS:			return DamageElement.ARMOR_BOOTS;
-			case IRON_BOOTS:			return DamageElement.ARMOR_BOOTS;
-			case GOLD_BOOTS:			return DamageElement.ARMOR_BOOTS;
-			case DIAMOND_BOOTS:			return DamageElement.ARMOR_BOOTS;
-			case CHAINMAIL_BOOTS:		return DamageElement.ARMOR_BOOTS;
-		}
+		if(material != null)
+			switch(material)
+			{
+			//Headwear
+				case LEATHER_HELMET:		return DamageElement.ARMOR_HELMET;
+				case IRON_HELMET:			return DamageElement.ARMOR_HELMET;
+				case GOLD_HELMET:			return DamageElement.ARMOR_HELMET;
+				case DIAMOND_HELMET:		return DamageElement.ARMOR_HELMET;
+				case CHAINMAIL_HELMET:		return DamageElement.ARMOR_HELMET;
+			//Chest
+				case LEATHER_CHESTPLATE:	return DamageElement.ARMOR_CHESTPLATE;
+				case IRON_CHESTPLATE:		return DamageElement.ARMOR_CHESTPLATE;
+				case GOLD_CHESTPLATE:		return DamageElement.ARMOR_CHESTPLATE;
+				case DIAMOND_CHESTPLATE:	return DamageElement.ARMOR_CHESTPLATE;
+				case CHAINMAIL_CHESTPLATE:	return DamageElement.ARMOR_CHESTPLATE;
+			//Legs
+				case LEATHER_LEGGINGS:		return DamageElement.ARMOR_LEGGINGS;
+				case IRON_LEGGINGS:			return DamageElement.ARMOR_LEGGINGS;
+				case GOLD_LEGGINGS:			return DamageElement.ARMOR_LEGGINGS;
+				case DIAMOND_LEGGINGS:		return DamageElement.ARMOR_LEGGINGS;
+				case CHAINMAIL_LEGGINGS:	return DamageElement.ARMOR_LEGGINGS;
+			//Boots
+				case LEATHER_BOOTS:			return DamageElement.ARMOR_BOOTS;
+				case IRON_BOOTS:			return DamageElement.ARMOR_BOOTS;
+				case GOLD_BOOTS:			return DamageElement.ARMOR_BOOTS;
+				case DIAMOND_BOOTS:			return DamageElement.ARMOR_BOOTS;
+				case CHAINMAIL_BOOTS:		return DamageElement.ARMOR_BOOTS;
+				
+				default:					return null;
+			}
 		return null;
 	}
 	

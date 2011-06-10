@@ -20,12 +20,11 @@ public class ArmorSet
 	{
 		String parts[] = armorConfigString.split("\\*");
 		for(String part : parts)
-			if(Material.matchMaterial(part) != null)
-				if(!this.put(Material.matchMaterial(part)))
-				{
-					clear();
-					break;
-				}
+			if(!this.put(Material.matchMaterial(part)))
+			{
+				clear();
+				break;
+			}
 	}
 	
 	private boolean put(Material material)
@@ -63,15 +62,6 @@ public class ArmorSet
 	}
 	
 	public Material get(int i){ return armorSet[i];}
-	
-	/*public boolean matchesAgainst(ArmorSet someArmorSet)
-	{
-		boolean inclusion = someArmorSet.isInclusive();
-		for(int i = 0; i < 4; i++)
-			if(!armorSet[i].equals(someArmorSet.get(i))) && (inclusion?(someArmorSet.get(i) != null):true))
-				return false;
-		return true;
-	}*/
 	
 	public boolean equals(ArmorSet someArmorSet)
 	{
