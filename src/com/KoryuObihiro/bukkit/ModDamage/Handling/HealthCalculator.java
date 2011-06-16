@@ -49,9 +49,7 @@ public class HealthCalculator
 				{
 					try
 					{
-						Integer.parseInt(args[1]);
-						Integer.parseInt(args[2]);
-						return true;
+						return (Integer.parseInt(args[1]) < Integer.parseInt(args[2]));
 					}
 					catch(Exception e)
 					{
@@ -100,7 +98,6 @@ public class HealthCalculator
 			//else
 			{
 				log.severe("Unrecognized equation in configuration");
-				return 0;
 			}
 		}
 		else if(args.length == 3)
@@ -115,13 +112,11 @@ public class HealthCalculator
 				{
 					log.severe("Improper equation in configuration (binom)");
 					e.printStackTrace();
-					return 0;
 				}
 			}
 			else
 			{
 				log.severe("Unrecognized equation in configuration");
-				return 0;
 			}
 		}
 		else if(args.length == 4)
@@ -136,28 +131,27 @@ public class HealthCalculator
 				{
 					log.severe("Improper equation in configuration (binom)");
 					e.printStackTrace();
-					return 0;
 				}
 			}
 			else
 			{
 				log.severe("Unrecognized equation in configuration");
-				return 0;
 			}
 		}
 		return 0;
 	}
 	
 	//rather self-explanatory
-	public int range_simple(int base, int range)
+	public int range_simple(int bottomBound, int topBound)
 	{		
-		return base + (random.nextInt()%(range + 1));
+		int addMe = Math.abs(random.nextInt()%(topBound - bottomBound + 1));
+		return bottomBound + addMe;
 	}
 	
 	//gives an equal chance for all integers whose absolute value is less than the input
 	public int range_interval(int base, int interval, int interval_range)
 	{
-		return base * (interval * (random.nextInt()%(interval_range + 1)));
+		return base + (interval * (Math.abs(random.nextInt()%(interval_range + 1))));
 	}
 	
 	//TODO IDEA: health spawn based on entity resting on block of type BLAH?
