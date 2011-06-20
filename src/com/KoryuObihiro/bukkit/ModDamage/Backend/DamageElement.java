@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.Handling;
+package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,6 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public enum DamageElement 
 {
-//TODO Add equipment types
 	GENERIC ("generic", null, true),
 	GENERIC_HUMAN 	("humans", GENERIC, false),
 	GENERIC_ANIMAL 	("animal", GENERIC, true),
