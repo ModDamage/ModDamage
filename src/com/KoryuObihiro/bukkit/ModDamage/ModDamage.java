@@ -23,8 +23,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
-
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.GroupHandler;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.WorldHandler;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.HealthCalculationAllocator;
 import com.nijiko.permissions.PermissionHandler;
@@ -62,7 +63,7 @@ public class ModDamage extends JavaPlugin
 	public final HashMap<String, List<Material>> itemKeywords = new HashMap<String, List<Material>>();
 	public final HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
 	private final DamageCalculationAllocator damageCalc = new DamageCalculationAllocator();
-	private final HealthCalculationAllocator healthCalc = new HealthCalculationAllocator(log);
+	private final HealthCalculationAllocator healthCalc = new HealthCalculationAllocator();
 	
 ////////////////////////// INITIALIZATION ///////////////////////////////
 	@Override
