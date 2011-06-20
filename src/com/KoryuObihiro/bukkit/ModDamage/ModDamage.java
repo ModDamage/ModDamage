@@ -1,7 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -25,12 +24,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
-import com.KoryuObihiro.bukkit.ModDamage.Handling.DamageCalculator;
-import com.KoryuObihiro.bukkit.ModDamage.Handling.DamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.Handling.GroupHandler;
-import com.KoryuObihiro.bukkit.ModDamage.Handling.HealthCalculator;
-import com.KoryuObihiro.bukkit.ModDamage.Handling.WorldHandler;
-import com.nijiko.permissions.Group;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.HealthCalculationAllocator;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
@@ -65,11 +61,9 @@ public class ModDamage extends JavaPlugin
 	public static boolean negative_Heal;
 	public final HashMap<String, List<Material>> itemKeywords = new HashMap<String, List<Material>>();
 	public final HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
-	private final DamageCalculator damageCalc = new DamageCalculator();
-	private final HealthCalculator healthCalc = new HealthCalculator();
+	private final DamageCalculationAllocator damageCalc = new DamageCalculationAllocator();
+	private final HealthCalculationAllocator healthCalc = new HealthCalculationAllocator(log);
 	
-	
-
 ////////////////////////// INITIALIZATION ///////////////////////////////
 	@Override
 	public void onEnable() 
@@ -97,7 +91,7 @@ public class ModDamage extends JavaPlugin
 		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
 		getServer().getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
 		
-		reload();
+		reload(true);
 		
 		isEnabled = true;
 	}
@@ -109,7 +103,8 @@ public class ModDamage extends JavaPlugin
 		worldHandlers.clear();
 	}
 
-	
+
+////////////////////////// COMMAND PARSING ///////////////////////////////
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
@@ -126,26 +121,30 @@ public class ModDamage extends JavaPlugin
 				}
 				else if(args.length >= 0)
 				{
+					/*
 					if(args[0].equalsIgnoreCase("configuration") || args[0].equalsIgnoreCase("config"))
 					{
 						if(fromConsole || hasPermission(player, "moddamage.configuration"))
 						{
-							if(args.length >= 3)
+							if(args.length == 3)
+								if(args[1].equalsIgnoreCase("delete") || args[1].equalsIgnoreCase("del"))
+									delete(args[2]);
+							if(args.length >= 4)
 							{
 								if(args[1].equalsIgnoreCase("add"))
 								{
-									
-								}
-								else if(args[1].equalsIgnoreCase("delete") || args[1].equalsIgnoreCase("del"))
-								{
-									
+									List<String> calcStrings = new ArrayList<String>();
+									for(int i = 3; i < args.length; i++)
+										calcStrings.add(args[i]);
+									add(args[2], calcStrings);
 								}
 							}
 							else sendUsage(player, true);
 						}
 						else player.sendMessage(errorString_Permissions);
 					}
-					else if(args[0].equalsIgnoreCase("debug") || args[0].equalsIgnoreCase("d"))
+					else */
+					if(args[0].equalsIgnoreCase("debug") || args[0].equalsIgnoreCase("d"))
 						{
 							if(fromConsole || hasPermission(player, "moddamage.debug"))
 							{
@@ -156,36 +155,29 @@ public class ModDamage extends JavaPlugin
 									String sendThis;
 									if(args[1].equalsIgnoreCase("quiet") || args[0].equalsIgnoreCase("q"))
 									{
-										if(consoleDebugging_normal)
-											sendThis = "[" + getDescription().getName() + "] \"Quiet\" mode already active!";
-										else
-										{
-											consoleDebugging_normal = false;
-											consoleDebugging_verbose = false;
-											sendThis = "[" + getDescription().getName() + "] \"Quiet\" mode enabled - suppressing debug messages and warnings.";
-										}
+										consoleDebugging_normal = false;
+										consoleDebugging_verbose = false;
+										sendThis = "[" + getDescription().getName() + "] \"Quiet\" mode " + (consoleDebugging_normal?"enabled - suppressing debug messages and warnings.":"already active!");
+										config.setProperty("debugging", "quiet");
+										config.save();
 									}
 									else if(args[1].equalsIgnoreCase("normal") || args[0].equalsIgnoreCase("n"))
 									{
 										if(consoleDebugging_normal && !consoleDebugging_verbose)
 											sendThis = "[" + getDescription().getName() + "] Debugging already active!";
-										else
-										{
-											consoleDebugging_normal = true;
-											consoleDebugging_verbose = false;
-											sendThis = "[" + getDescription().getName() + "] Debugging enabled.";
-										}
+										else sendThis = "[" + getDescription().getName() + "] " + (consoleDebugging_verbose?"Debugging enabled.":"Verbose debugging disabled - normal debugging enabled.");
+										consoleDebugging_normal = true;
+										consoleDebugging_verbose = false;
+										config.setProperty("debugging", "normal");
+										config.save();
 									}
 									else if(args[1].equalsIgnoreCase("verbose") || args[0].equalsIgnoreCase("v"))
 									{
-										if(!consoleDebugging_normal)
-											sendThis = "[" + getDescription().getName() + "] Verbose debugging already active!";
-										else
-										{
-											consoleDebugging_normal = true;
-											consoleDebugging_verbose = true;
-											sendThis = "[" + getDescription().getName() + "] Verbose debugging enabled.";
-										}
+										sendThis = "[" + getDescription().getName() + "] " + (consoleDebugging_normal?"Verbose debugging enabled.":"Verbose debugging already active!");
+										consoleDebugging_normal = true;
+										consoleDebugging_verbose = true;
+										config.setProperty("debugging", "verbose");
+										config.save();
 									}
 									else
 									{
@@ -202,11 +194,11 @@ public class ModDamage extends JavaPlugin
 						}
 						else if(args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("r"))
 						{
-							if(fromConsole) reload();
+							if(fromConsole) reload(true);
 							else if(hasPermission(player, "moddamage.reload")) 
 							{
 								log.info("[" + getDescription().getName() + "] Reload initiated by user " + player.getName());
-								if(reload()) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Reloaded!");
+								if(reload(true)) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Reloaded!");
 								else player.sendMessage(ModDamageString(ChatColor.RED) + " No configurations loaded! Are any calculation strings defined?");
 							}
 							else player.sendMessage(errorString_Permissions);
@@ -306,54 +298,216 @@ public class ModDamage extends JavaPlugin
 						log.info("[" + getDescription().getName() + "] ModDamage must be enabled to use that command.");
 					else player.sendMessage(ModDamageString(ChatColor.RED) + " ModDamage must be enabled to use that command.");
 					return true;
+				}
 			}
-		}
 		sendUsage(player, true);
 		return true;
 	}
-	private void sendConfig(Player player, String worldSearchTerm){ sendConfig(player, worldSearchTerm, 1);}
-	private void sendConfig(Player player, String worldSearchTerm, int pageNumber)
+
+/////////////////// EVENT FUNCTIONS ////////////////////////////
+	public void passDamageEvent(EntityDamageEvent event) 
 	{
-		//TODO Refactor for a single function?
-		World worldMatch = getWorldMatch(worldSearchTerm);
-		if(worldMatch != null)
+		if(!isEnabled) return;
+		//simple check for noDamageTicks - 
+		if(((LivingEntity)event.getEntity()).getNoDamageTicks() > 50) //give this some leeway because this may be the time it takes to execute
 		{
-			if(hasPermission(player, "moddamage.check." + worldMatch.getName()))
-			{
-				if(!worldHandlers.get(worldMatch).sendWorldConfig(player, pageNumber))
-					player.sendMessage(ModDamageString(ChatColor.RED) + " Invalid page number for world \"" + worldMatch.getName() + "\".");
-			}
-			else player.sendMessage(ModDamageString(ChatColor.RED) 
-					+ " You don't have permission to check world \"" + worldMatch.getName() + "\"");
+			event.setCancelled(true);
+			return;
 		}
-		else player.sendMessage(errorString_findWorld);
-	}
-	private void sendConfig(Player player, String worldSearchTerm, String groupSearchTerm){ sendConfig(player, worldSearchTerm, groupSearchTerm, 1);}
-	private void sendConfig(Player player, String worldSearchTerm, String groupSearchTerm, int pageNumber) 
-	{
-		World worldMatch = getWorldMatch(worldSearchTerm);
-		if(worldMatch != null)
+		World world = event.getEntity().getWorld();
+		WorldHandler worldHandler = (worldHandlers.containsKey(world)?(worldHandlers.get(event.getEntity().getWorld())):null);
+		if(worldHandler != null && (worldHandler.globalsLoaded || worldHandler.groupsLoaded || worldHandler.scanLoaded))
 		{
-			String groupMatch = getGroupMatch(worldMatch, groupSearchTerm);
-			if(groupMatch != null)
+			int damage = event.getDamage();
+			LivingEntity ent_damaged = (LivingEntity)event.getEntity();
+			if(event instanceof EntityDamageByEntityEvent)
 			{
-				if(hasPermission(player, "moddamage.check." + worldMatch.getName() + "." + groupMatch))
+				EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
+				Entity ent_damager = event_EE.getDamager();
+				DamageElement rangedElement = ((event instanceof EntityDamageByProjectileEvent) 
+													&& !(ent_damager instanceof Skeleton || ent_damager instanceof Ghast))
+														?DamageElement.matchRangedElement(((EntityDamageByProjectileEvent)event).getProjectile())
+														:null;
+				//Player-targeted damage
+				if(ent_damaged instanceof Player)
 				{
-					if(!worldHandlers.get(worldMatch).groupHandlers.get(groupMatch).sendGroupConfig(player, pageNumber))
-						player.sendMessage(ModDamageString(ChatColor.RED) + " You don't have permission to check group \"" 
-								+ groupMatch + "\" for world \"" + worldMatch.getName() + "\".");
+					Player player_damaged = (Player)ent_damaged;
+				//PvP
+					if(ent_damager instanceof Player)
+					{
+						log.info(event.getClass().toString());
+						Player player_damager = (Player)ent_damager;
+						damage -= worldHandler.calcDefenseBuff(player_damaged, player_damager, event.getDamage(), rangedElement);
+						damage += worldHandler.calcAttackBuff(player_damaged, player_damager, event.getDamage(), rangedElement);
+						
+						//send Scan
+						if(hasPermission(player_damager, "moddamage.scan.pvp") 
+								&& worldHandlers.get(player_damager.getWorld()).canScan(player_damager))
+						{
+							//Icky. Refactor?
+							int displayHealth = ((LivingEntity)ent_damaged).getHealth() - ((!(damage < 0 && negative_Heal))?damage:0);
+							player_damager.sendMessage(ChatColor.DARK_PURPLE + player_damaged.getName()
+									+ ": " + Integer.toString((displayHealth < 0)?0:displayHealth));
+						}
+						
+							
+					}
+				//NPvP
+					else if(DamageElement.matchEntityElement(ent_damager) != null)
+					{
+						DamageElement mobType_damager = DamageElement.matchEntityElement(ent_damager);
+						if(mobType_damager != null)
+						{
+							damage -= worldHandler.calcDefenseBuff(player_damaged, mobType_damager, event.getDamage());
+							damage += worldHandler.calcAttackBuff(player_damaged, mobType_damager, event.getDamage());
+						}
+					}
+				//nature-ent vs P
+					else
+					{
+						//Lightning and explosion damage is technically an entity harming an entity
+						DamageElement damageType = DamageElement.matchNatureElement(event.getCause());
+						if(damageType != null)
+						{
+							damage -= worldHandler.calcDefenseBuff(player_damaged, damageType, event.getDamage());
+							damage += worldHandler.calcAttackBuff(player_damaged, damageType, event.getDamage());
+						}
+					}
 				}
-				else player.sendMessage(ModDamageString(ChatColor.RED) + " You don't have permission to check group \"" + groupMatch + "\".");
+			//Monster-targeted damage
+				else if(DamageElement.matchEntityElement(ent_damaged) != null)
+				{
+					DamageElement mobType_damaged = DamageElement.matchEntityElement(ent_damaged);
+				//PvNP
+					if(ent_damager instanceof Player)
+					{
+						Player player_damager = (Player)ent_damager;
+						if(mobType_damaged != null)
+						{
+							damage -= worldHandler.calcDefenseBuff(mobType_damaged, player_damager, event.getDamage(), rangedElement);
+							damage += worldHandler.calcAttackBuff(mobType_damaged, player_damager, event.getDamage(), rangedElement);
+						}
+						//send Scan
+
+						if(hasPermission(player_damager, "moddamage.scan." + mobType_damaged.getReference().toLowerCase()) 
+								&& worldHandler.canScan(player_damager))
+						{
+							//TODO Refactor this to just be used in the WorldHandler
+							int displayHealth = ((LivingEntity)ent_damaged).getHealth() - ((!(damage < 0 && negative_Heal))?damage:0);
+							player_damager.sendMessage(ChatColor.DARK_PURPLE + mobType_damaged.getReference() 
+									+ "(id " + ent_damaged.getEntityId() + ")"
+									+ ": " + Integer.toString((displayHealth < 0)?0:displayHealth));
+						}
+					}
+				//NPvNP damage
+					else if(DamageElement.matchEntityElement(ent_damager) != null)
+					{
+						DamageElement mobType_damager = DamageElement.matchEntityElement(ent_damager);
+						if(mobType_damager != null && mobType_damaged != null);
+						{
+							damage -= worldHandler.calcDefenseBuff(mobType_damaged, mobType_damager, event.getDamage());
+							damage += worldHandler.calcAttackBuff(mobType_damaged, mobType_damager, event.getDamage());
+						}
+					}
+				//nature-ent vs NP
+					else
+					{
+						//Lightning and explosion damage is technically an entity harming an entity
+						DamageElement damageType = DamageElement.matchNatureElement(event.getCause());
+						//log.info("Member of " + group_damaged + " got damaged by \"" + damageType.getConfigReference() + "\"");//debug
+						if(damageType != null && mobType_damaged != null);
+						{
+							damage -= worldHandler.calcDefenseBuff(mobType_damaged, damageType, event.getDamage());
+							damage += worldHandler.calcAttackBuff(mobType_damaged, damageType, event.getDamage());
+						}
+					}
+				}
 			}
-			else player.sendMessage(ModDamageString(ChatColor.RED) + " Couldn't find matching group name.");
+			else
+			{
+				DamageElement damageType = DamageElement.matchNatureElement(event.getCause());
+				if(ent_damaged instanceof Player)
+				{
+					Player player_damaged = (Player)ent_damaged;
+					if(damageType != null)
+					{
+						damage -= worldHandler.calcDefenseBuff(player_damaged, damageType, event.getDamage());
+						damage += worldHandler.calcAttackBuff(player_damaged, damageType, event.getDamage());
+					}
+				}
+				else if(DamageElement.matchEntityElement(ent_damaged) != null)
+				{
+					DamageElement mobType_damaged = DamageElement.matchEntityElement(ent_damaged);
+					if(damageType != null && mobType_damaged != null)
+					{
+						damage -= worldHandler.calcDefenseBuff(mobType_damaged, damageType, event.getDamage());
+						damage += worldHandler.calcAttackBuff(mobType_damaged, damageType, event.getDamage());
+					}
+				}
+			}
+			if(damage < 0 && !negative_Heal) 
+				damage = 0;
+			event.setDamage(damage);
 		}
-		else
+	}
+
+	public void handleSpawnEvent(CreatureSpawnEvent event)
+	{
+		if(event.getEntity() != null)
 		{
-			if(player == null) log.info("Error: Couldn't find matching world substring.");
-			else player.sendMessage(errorString_findWorld);
+			World world = event.getEntity().getWorld();
+			LivingEntity livingEntity = ((LivingEntity)event.getEntity());
+			if(disable_DefaultHealth) livingEntity.setHealth(0);
+			
+			if(worldHandlers.containsKey(world))
+				worldHandlers.get(world).setHealth(livingEntity);
+			event.setCancelled(livingEntity.getHealth() <= 0);
 		}
 	}
 	
+/////////////////// HELPER FUNCTIONS ////////////////////////////
+	//check for Permissions
+	private static boolean hasPermission(Player player, String permission)
+	{
+		if (ModDamage.Permissions != null)
+		{
+			if (ModDamage.Permissions.has(player, permission)) 
+				return true;
+			return false;
+		}
+		return player.isOp();
+	}
+
+	public World getWorldMatch(String name, boolean searchSubstrings)
+	{
+		for(World world : getServer().getWorlds())
+			if(name.equalsIgnoreCase(world.getName()))
+				return world;
+		
+		if(searchSubstrings)
+			for(World world : getServer().getWorlds())
+				for(int i = 0; i < (world.getName().length() - name.length() - 1); i++)
+					if(name.equalsIgnoreCase(world.getName().substring(i, i + name.length())))
+						return world;
+		return null;
+	}
+	
+	public String getGroupMatch(World world, String name, boolean searchSubstrings)
+	{
+		for(GroupHandler groupHandler : worldHandlers.get(world).groupHandlers.values())
+			if(name.equalsIgnoreCase(groupHandler.getGroupName()))
+				return groupHandler.getGroupName();
+		if(searchSubstrings)
+			for(GroupHandler groupHandler : worldHandlers.get(world).groupHandlers.values())
+				for(int i = 0; i < (groupHandler.getGroupName().length() - name.length() - 1); i++)
+					if(name.equalsIgnoreCase(groupHandler.getGroupName().substring(i, i + name.length())))
+						return groupHandler.getGroupName();
+		return null;
+	}
+	
+	public String ModDamageString(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "]";}
+	
+/////////////////// PLUGIN CONFIGURATION ////////////////////////////
 	private void setPluginStatus(Player player, boolean state) 
 	{
 		if(state)
@@ -366,7 +520,6 @@ public class ModDamage extends JavaPlugin
 			else
 			{
 				isEnabled = true;
-				reload();
 				log.info("[" + getDescription().getName() + "] Plugin enabled.");
 				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Plugin enabled.");
 			}
@@ -376,7 +529,6 @@ public class ModDamage extends JavaPlugin
 			if(isEnabled)
 			{
 				isEnabled = false;
-				worldHandlers.clear();
 				log.info("[" + getDescription().getName() + "] Plugin disabled.");
 				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Plugin disabled.");
 			}
@@ -438,204 +590,10 @@ public class ModDamage extends JavaPlugin
 					"/md reload - reload configuration");
 		}
 	}
-	
-	
-/////////////////// EVENT FUNCTIONS ////////////////////////////
-	public void passDamageEvent(EntityDamageEvent event) 
-	{
-		//simple check for noDamageTicks - 
-		if(((LivingEntity)event.getEntity()).getNoDamageTicks() > 50) //give this some leeway because this may be the time it takes to execute
-		{
-			event.setCancelled(true);
-			return;
-		}
-		//TODO Event double-fires for projectile PvP. Bug Bukkit staff? :/
-		World world = event.getEntity().getWorld();
-		WorldHandler worldHandler = (worldHandlers.containsKey(world)?(worldHandlers.get(event.getEntity().getWorld())):null);
-		if(worldHandler != null && (worldHandler.globalsLoaded || worldHandler.groupsLoaded || worldHandler.scanLoaded))
-		{
-			int damage = event.getDamage();
-			LivingEntity ent_damaged = (LivingEntity)event.getEntity();
-			if(event instanceof EntityDamageByEntityEvent)
-			{
-				EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
-				Entity ent_damager = event_EE.getDamager();
-				DamageElement rangedElement = ((event instanceof EntityDamageByProjectileEvent) 
-													&& !(ent_damager instanceof Skeleton || ent_damager instanceof Ghast))
-														?DamageElement.matchRangedElement(((EntityDamageByProjectileEvent)event).getProjectile())
-														:null;
-				//Player-targeted damage
-				if(ent_damaged instanceof Player)
-				{
-					Player player_damaged = (Player)ent_damaged;
-				//PvP
-					if(ent_damager instanceof Player)
-					{
-						log.info(event.getClass().toString());
-						Player player_damager = (Player)ent_damager;
-						damage -= worldHandler.calcDefenseBuff(player_damaged, player_damager, event.getDamage(), rangedElement);
-						damage += worldHandler.calcAttackBuff(player_damaged, player_damager, event.getDamage(), rangedElement);
-						
-						//send Scan
-						if(hasPermission(player_damager, "moddamage.scan.pvp") 
-								&& worldHandlers.get(player_damager.getWorld()).canScan(player_damager))
-						{
-							//Icky. Refactor?
-							int displayHealth = ((LivingEntity)ent_damaged).getHealth() - ((!(damage < 0 && negative_Heal))?damage:0);
-							player_damager.sendMessage(ChatColor.DARK_PURPLE + player_damaged.getName()
-									+ ": " + Integer.toString((displayHealth < 0)?0:displayHealth));
-						}
-						
-							
-					}
-				//NPvP
-					else if(DamageElement.matchEntityElement(ent_damager) != null)
-					{
-						DamageElement mobType_damager = DamageElement.matchEntityElement(ent_damager);
-						if(mobType_damager != null)
-						{
-							damage -= worldHandler.calcDefenseBuff(player_damaged, mobType_damager, event.getDamage());
-							damage += worldHandler.calcAttackBuff(player_damaged, mobType_damager, event.getDamage());
-						}
-					}
-				//nature-ent vs P
-					else
-					{
-						//Lightning and explosion damage is technically an entity harming an entity
-						DamageElement damageType = DamageElement.matchNatureElement(event.getCause());
-						if(damageType != null)
-						{
-							damage -= worldHandler.calcDefenseBuff(player_damaged, damageType, event.getDamage());
-							damage += worldHandler.calcAttackBuff(player_damaged, damageType, event.getDamage());
-						}
-					}
-				}
-				//Monster-targeted damage
-				else if(DamageElement.matchEntityElement(ent_damaged) != null)
-				{
-					DamageElement mobType_damaged = DamageElement.matchEntityElement(ent_damaged);
-				//PvNP
-					if(ent_damager instanceof Player)
-					{
-						Player player_damager = (Player)ent_damager;
-						if(mobType_damaged != null)
-						{
-							damage -= worldHandler.calcDefenseBuff(mobType_damaged, player_damager, event.getDamage(), rangedElement);
-							damage += worldHandler.calcAttackBuff(mobType_damaged, player_damager, event.getDamage(), rangedElement);
-						}
-						//send Scan
 
-						if(hasPermission(player_damager, "moddamage.scan." + mobType_damaged.getReference().toLowerCase()) 
-								&& worldHandler.canScan(player_damager))
-						{
-							int displayHealth = ((LivingEntity)ent_damaged).getHealth() - ((!(damage < 0 && negative_Heal))?damage:0);
-							player_damager.sendMessage(ChatColor.DARK_PURPLE + mobType_damaged.getReference() 
-									+ "(id " + ent_damaged.getEntityId() + ")"
-									+ ": " + Integer.toString((displayHealth < 0)?0:displayHealth));
-						}
-					}
-				//NPvNP damage
-					else if(DamageElement.matchEntityElement(ent_damager) != null)
-					{
-						DamageElement mobType_damager = DamageElement.matchEntityElement(ent_damager);
-						if(mobType_damager != null && mobType_damaged != null);
-						{
-							damage -= worldHandler.calcDefenseBuff(mobType_damaged, mobType_damager, event.getDamage());
-							damage += worldHandler.calcAttackBuff(mobType_damaged, mobType_damager, event.getDamage());
-						}
-					}
-				//nature-ent vs NP
-					else
-					{
-						//Lightning and explosion damage is technically an entity harming an entity
-						DamageElement damageType = DamageElement.matchNatureElement(event.getCause());
-						//log.info("Member of " + group_damaged + " got damaged by \"" + damageType.getConfigReference() + "\"");//debug
-						if(damageType != null && mobType_damaged != null);
-						{
-							damage -= worldHandler.calcDefenseBuff(mobType_damaged, damageType, event.getDamage());
-							damage += worldHandler.calcAttackBuff(mobType_damaged, damageType, event.getDamage());
-						}
-					}
-				}
-			}
-			else
-			{
-				DamageElement damageType = DamageElement.matchNatureElement(event.getCause());
-				if(ent_damaged instanceof Player)
-				{
-					Player player_damaged = (Player)ent_damaged;
-					if(damageType != null)
-					{
-						damage -= worldHandler.calcDefenseBuff(player_damaged, damageType, event.getDamage());
-						damage += worldHandler.calcAttackBuff(player_damaged, damageType, event.getDamage());
-					}
-				}
-				else if(DamageElement.matchEntityElement(ent_damaged) != null)
-				{
-					DamageElement mobType_damaged = DamageElement.matchEntityElement(ent_damaged);
-					if(damageType != null && mobType_damaged != null)
-					{
-						damage -= worldHandler.calcDefenseBuff(mobType_damaged, damageType, event.getDamage());
-						damage += worldHandler.calcAttackBuff(mobType_damaged, damageType, event.getDamage());
-					}
-				}
-			}
-			if(damage < 0 && !negative_Heal) 
-				damage = 0;
-			event.setDamage(damage);
-		}
-	}
-
-
-	public void passSpawnEvent(CreatureSpawnEvent event)
+/////////////////// MECHANICS CONFIGURATION ////////////////////////////
+	private boolean reload(boolean printToConsole)
 	{
-		if(event.getEntity() != null)
-		{
-			World world = event.getEntity().getWorld();
-			LivingEntity livingEntity = ((LivingEntity)event.getEntity());
-			if(disable_DefaultHealth) livingEntity.setHealth(0);
-			
-			if(worldHandlers.containsKey(world))
-				worldHandlers.get(world).setHealth(livingEntity);
-			event.setCancelled(livingEntity.getHealth() <= 0);
-		}
-	}
-	
-/////////////////// HELPER FUNCTIONS ////////////////////////////
-	//check for Permissions
-	public static boolean hasPermission(Player player, String permission)
-	{
-		if (ModDamage.Permissions != null)
-		{
-			if (ModDamage.Permissions.has(player, permission)) 
-				return true;
-			return false;
-		}
-		return player.isOp();
-	}
-
-	public boolean loadWorldHandler(World world) 
-	{
-		if(!worldHandlers.containsKey(world))
-		{
-			ConfigurationNode worldOffensiveNode = pluginOffensiveNode.getNode(world.getName());
-			ConfigurationNode worldDefensiveNode = pluginDefensiveNode.getNode(world.getName());
-			ConfigurationNode worldMobHealthNode = pluginMobHealthNode.getNode(world.getName());
-			ConfigurationNode worldScanNode = pluginScanNode.getNode(world.getName());
-			
-			if(worldOffensiveNode != null || worldDefensiveNode != null || worldMobHealthNode != null || worldScanNode != null)
-			{
-				worldHandlers.put(world, new WorldHandler(this, world, worldOffensiveNode, worldDefensiveNode, worldMobHealthNode, worldScanNode, damageCalc, healthCalc));
-				return true;
-			}
-			else if(consoleDebugging_normal) log.warning("Couldn't find nodes for world " + world.getName());
-		}
-		return false;
-	}
-	
-	private boolean reload()
-	{
-		//TODO Troll mode? :P
 	//CONFIGURATION
 		config = this.getConfiguration();
 		config.load();
@@ -648,7 +606,7 @@ public class ModDamage extends JavaPlugin
 		pluginScanNode = config.getNode("Scan");
 
 	//load debug settings
-		String debugString = (String)config.getProperty("debugging");
+		String debugString = config.getString("debugging");
 		if(debugString != null)
 		{
 			if(debugString.equals("quiet"))
@@ -674,7 +632,7 @@ public class ModDamage extends JavaPlugin
 		else if(consoleDebugging_verbose && !disable_DefaultDamage)
 			log.info("[" + getDescription().getName()+ "] Default damage enabled.");
 		
-		disable_DefaultHealth = config.getBoolean("[" + getDescription().getName()+ "] disableDefaultHealth", false);
+		disable_DefaultHealth = config.getBoolean("disableDefaultHealth", false);
 		if(consoleDebugging_normal && disable_DefaultHealth)
 			log.info("[" + getDescription().getName()+ "] Default health disabled.");
 		else if(consoleDebugging_verbose && !disable_DefaultHealth)
@@ -686,6 +644,8 @@ public class ModDamage extends JavaPlugin
 		else if(consoleDebugging_verbose && !negative_Heal)
 			log.info("[" + getDescription().getName()+ "] Negative-damage healing disabled.");
 		
+		config.load(); //Discard any changes made to the file by the above reads.
+		
 	//try to initialize WorldHandlers
 		boolean loadedSomething = false;
 		
@@ -693,8 +653,7 @@ public class ModDamage extends JavaPlugin
 		if(pluginOffensiveNode != null || pluginDefensiveNode != null || pluginMobHealthNode != null || pluginScanNode != null)
 			for(World world : getServer().getWorlds())
 			{
-				ConfigurationNode worldNodes[] = {
-													(pluginOffensiveNode != null?pluginOffensiveNode.getNode(world.getName()):null), 
+				ConfigurationNode worldNodes[] = {	(pluginOffensiveNode != null?pluginOffensiveNode.getNode(world.getName()):null), 
 													(pluginDefensiveNode != null?pluginDefensiveNode.getNode(world.getName()):null), 
 													(pluginMobHealthNode != null?pluginMobHealthNode.getNode(world.getName()):null),
 													(pluginScanNode != null?pluginScanNode.getNode(world.getName()):null)};
@@ -702,7 +661,7 @@ public class ModDamage extends JavaPlugin
 					if(worldNodes[i] == null && (consoleDebugging_verbose))
 						log.warning("{Couldn't find " + nodeNames[i] +  " node for world \"" + world.getName() + "\"}");
 				WorldHandler worldHandler = new WorldHandler(this, world, worldNodes[0], worldNodes[1], worldNodes[2], worldNodes[3], damageCalc, healthCalc);
-				if(!worldHandler.equals(null) && worldHandler.loadedSomething())
+				if(worldHandler.loadedSomething())
 				{
 					worldHandlers.put(world, worldHandler);
 					loadedSomething = true;
@@ -712,11 +671,13 @@ public class ModDamage extends JavaPlugin
 		return loadedSomething;
 	}
 
-
 	private void writeDefaults() 
 	{
 		log.severe("[" + getDescription().getName() + "] No configuration file found! Writing a blank config...");
 		config.setProperty("debugging", "normal");
+		config.setProperty("disableDefaultHealth", "false");
+		config.setProperty("disableDefaultDamage", "false");
+		config.setProperty("negativeHeal", "false");
 		for(World world : getServer().getWorlds())
 		{
 			String worldName = world.getName();
@@ -766,34 +727,82 @@ public class ModDamage extends JavaPlugin
 		config.load();//TODO Necessary?
 		log.severe("[" + getDescription().getName() + "] Done! Don't forget that you can define armor, melee, and group nodes further.");
 	}
+	
+	/*
+	private boolean add(String string, List<String> calcStrings) 
+	{
+		try
+		{
+			String[] args = string.split(":");
+			World literalWorldMatch = getWorldMatch(args[1], false);
+			if(literalWorldMatch != null && (args[0] == "Offensive" || args[0] == "Defensive" || args[0] == "Scan" || args[0] == "MobHealth"))
+			{
+				WorldHandler worldHandler = null;
+				if(!worldHandlers.containsKey(literalWorldMatch))
+					worldHandler = new WorldHandler(this, literalWorldMatch, null, null, null, null, damageCalc, healthCalc);
+				else worldHandler = worldHandlers.get(literalWorldMatch);
+				
+				return worldHandler.add(args, calcStrings);
+			}
+			return false;
+		}
+		catch(ArrayIndexOutOfBoundsException e)
+		{
+			
+			return false;
+		}
+	}
 
-	private World getWorldMatch(String name)
+	private boolean delete(String string)
 	{
-		World worldMatch = null;
-		for(World temp : getServer().getWorlds())
-			if(name.equalsIgnoreCase(temp.getName()))
-				return temp;
-		
-		if(worldMatch == null)
-			for(World temp : getServer().getWorlds())
-				for(int i = 0; i < (temp.getName().length() - name.length() - 1); i++)
-					if(name.equalsIgnoreCase(temp.getName().substring(i, i + name.length())))
-						return temp;
-		return null;
+		String[] args = string.split(":");
+		if(args.length == 1) string.split("\\.");
+		return false;
+	}
+	 */
+
+	private void sendConfig(Player player, String worldSearchTerm){ sendConfig(player, worldSearchTerm, 1);}
+	private void sendConfig(Player player, String worldSearchTerm, int pageNumber)
+	{
+		//TODO Refactor for a single function?
+		World worldMatch = getWorldMatch(worldSearchTerm, true);
+		if(worldMatch != null)
+		{
+			if(hasPermission(player, "moddamage.check." + worldMatch.getName()))
+			{
+				if(!worldHandlers.get(worldMatch).sendWorldConfig(player, pageNumber))
+					player.sendMessage(ModDamageString(ChatColor.RED) + " Invalid page number for world \"" + worldMatch.getName() + "\".");
+			}
+			else player.sendMessage(ModDamageString(ChatColor.RED) 
+					+ " You don't have permission to check world \"" + worldMatch.getName() + "\"");
+		}
+		else player.sendMessage(errorString_findWorld);
+	}
+	private void sendConfig(Player player, String worldSearchTerm, String groupSearchTerm){ sendConfig(player, worldSearchTerm, groupSearchTerm, 1);}
+	private void sendConfig(Player player, String worldSearchTerm, String groupSearchTerm, int pageNumber) 
+	{
+		World worldMatch = getWorldMatch(worldSearchTerm, true);
+		if(worldMatch != null)
+		{
+			String groupMatch = getGroupMatch(worldMatch, groupSearchTerm, true);
+			if(groupMatch != null)
+			{
+				if(hasPermission(player, "moddamage.check." + worldMatch.getName() + "." + groupMatch))
+				{
+					if(!worldHandlers.get(worldMatch).groupHandlers.get(groupMatch).sendGroupConfig(player, pageNumber))
+						player.sendMessage(ModDamageString(ChatColor.RED) + " You don't have permission to check group \"" 
+								+ groupMatch + "\" for world \"" + worldMatch.getName() + "\".");
+				}
+				else player.sendMessage(ModDamageString(ChatColor.RED) + " You don't have permission to check group \"" + groupMatch + "\".");
+			}
+			else player.sendMessage(ModDamageString(ChatColor.RED) + " Couldn't find matching group name.");
+		}
+		else
+		{
+			if(player == null) log.info("Error: Couldn't find matching world substring.");
+			else player.sendMessage(errorString_findWorld);
+		}
 	}
 	
-	private String getGroupMatch(World world, String name)
-	{
-		for(GroupHandler groupHandler : worldHandlers.get(world).groupHandlers.values())
-			if(name.equalsIgnoreCase(groupHandler.getGroupName()))
-				return groupHandler.getGroupName();
-		for(GroupHandler groupHandler : worldHandlers.get(world).groupHandlers.values())
-			for(int i = 0; i < (groupHandler.getGroupName().length() - name.length() - 1); i++)
-				if(name.equalsIgnoreCase(groupHandler.getGroupName().substring(i, i + name.length())))
-					return groupHandler.getGroupName();
-		return null;
-	}
-	
-	public String ModDamageString(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "]";}
 	
 }

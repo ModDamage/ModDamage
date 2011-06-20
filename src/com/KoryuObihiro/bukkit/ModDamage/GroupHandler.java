@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.Handling;
+package com.KoryuObihiro.bukkit.ModDamage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +10,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
 
 
 
@@ -23,14 +25,14 @@ public class GroupHandler
 	private Logger log;
 	public boolean isLoaded = false;
 	public boolean scanLoaded = false;
-	private List<String> configStrings = new ArrayList<String>();//TODO Implement this.
+	private List<String> configStrings = new ArrayList<String>();
 	private int configPages = 0;
 
 	//nodes for config loading
 	final private ConfigurationNode offensiveNode;
 	final private ConfigurationNode defensiveNode;
 	final private ConfigurationNode scanNode;
-	final public DamageCalculator damageCalc;
+	final public DamageCalculationAllocator damageCalc;
 	final public WorldHandler worldHandler;
 	
 	//O/D config
@@ -46,9 +48,8 @@ public class GroupHandler
 	final private List<Material> groupScanItems = new ArrayList<Material>();
 	
 	
-	
 //// CONSTRUCTOR ////
-	public GroupHandler(ModDamage plugin, WorldHandler worldHandler, Logger log,  String name, ConfigurationNode offensiveGroupNode, ConfigurationNode defensiveGroupNode, ConfigurationNode scanGroupNode, DamageCalculator damageCalc) 
+	public GroupHandler(ModDamage plugin, WorldHandler worldHandler, Logger log,  String name, ConfigurationNode offensiveGroupNode, ConfigurationNode defensiveGroupNode, ConfigurationNode scanGroupNode, DamageCalculationAllocator damageCalc) 
 	{
 		this.plugin = plugin;
 		this.log = log;
@@ -63,7 +64,7 @@ public class GroupHandler
 	}
 	
 	
-	public boolean reload()
+	public void reload()
 	{ 
 		this.clear();
 		
@@ -73,15 +74,11 @@ public class GroupHandler
 		configPages = configStrings.size()/9 + ((configStrings.size()%9 > 0)?1:0);
 		
 		if(loadedSomething()) 
-		{
 			log.info("[" + plugin.getDescription().getName() + "] Group \"" + groupName + "\" configuration for world \"" 
 				+ worldHandler.getWorld().getName() + "\" initialized!");
-			return true;
-		}
 		else if(ModDamage.consoleDebugging_verbose)
 			log.warning("[" + plugin.getDescription().getName() + "] Group \"" + groupName + "\" configuration for world \"" 
 				+ worldHandler.getWorld().getName() + "\" could not load.");
-		return false;
 	}
 
 ///////////////////// OFFENSIVE/DEFENSIVE ///////////////////////	
@@ -159,6 +156,7 @@ public class GroupHandler
 
 	public boolean loadGenericRoutines(boolean isOffensive)
 	{
+		boolean loadedSomething = false;
 		List<String>damageCategories = DamageElement.getGenericTypeStrings();
 		ConfigurationNode genericNode = (isOffensive?offensiveNode:defensiveNode).getNode("generic");
 		for(String damageCategory : damageCategories)
@@ -174,7 +172,7 @@ public class GroupHandler
 							+ worldHandler.getWorld().getName() + "\"}");
 					if(!calcStrings.equals(null)) //!calcStrings.equals(null)
 					{
-						damageCalc.checkCommandStrings(calcStrings, damageCategory, isOffensive);
+						damageCalc.parseStrings(calcStrings, damageCategory, isOffensive);
 						if(calcStrings.size() > 0)
 						{
 							if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(element))
@@ -184,6 +182,7 @@ public class GroupHandler
 									+ ":groups:" + groupName + ":Generic:" + damageCategory + calcStrings.toString();
 								configStrings.add(configString);
 								if(ModDamage.consoleDebugging_normal) log.info(configString);
+								loadedSomething = true;
 							}
 							else if(ModDamage.consoleDebugging_normal)
 							{
@@ -212,7 +211,7 @@ public class GroupHandler
 						List<String> calcStrings = relevantNode.getStringList(elementReference, null);
 						if(!calcStrings.equals(null)) //!calcStrings.equals(null)
 						{
-							damageCalc.checkCommandStrings(calcStrings, elementReference, isOffensive);
+							damageCalc.parseStrings(calcStrings, elementReference, isOffensive);
 							if(calcStrings.size() > 0)
 							{
 								if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement))
@@ -222,6 +221,7 @@ public class GroupHandler
 										+ ":groups:" + groupName + ":" + damageCategory + ":" + elementReference + calcStrings.toString();
 									configStrings.add(configString);
 									if(ModDamage.consoleDebugging_normal) log.info(configString);
+									loadedSomething = true;
 								}
 								else if(ModDamage.consoleDebugging_normal)
 								{
@@ -239,11 +239,12 @@ public class GroupHandler
 				}
 			}
 		}
-		return true;
+		return loadedSomething;
 	}
 	
 	public boolean loadMeleeRoutines(boolean isOffensive)
 	{
+		boolean loadedSomething = false;
 		ConfigurationNode meleeNode = (isOffensive?offensiveNode:defensiveNode).getNode(DamageElement.GENERIC_MELEE.getReference());
 		if(meleeNode != null)	
 		{
@@ -271,6 +272,7 @@ public class GroupHandler
 									+ material.name() + "(" + material.getId() + ")" + calcStrings.toString();
 									configStrings.add(configString);
 									if(ModDamage.consoleDebugging_normal) log.info(configString);
+									loadedSomething = true;
 								}
 								else if(ModDamage.consoleDebugging_normal) 
 									log.warning("[" + plugin.getDescription().getName() + "] Repetitive " 
@@ -288,13 +290,13 @@ public class GroupHandler
 							log.warning("Unrecognized item name \"" + itemString + "\" found in specific melee node for group \"" 
 								+ groupName + "\" in world \"" + worldHandler.getWorld().getName() + "\" - ignoring");
 				}
-			return true;
 		}
-		return false;
+		return loadedSomething;
 	}
 	
 	public boolean loadArmorRoutines(boolean isOffensive)
 	{
+		boolean loadedSomething = false;
 		ConfigurationNode armorNode = (isOffensive?offensiveNode:defensiveNode).getNode(DamageElement.GENERIC_ARMOR.getReference());
 		if(armorNode != null)
 		{
@@ -320,6 +322,7 @@ public class GroupHandler
 									+ ":groups:" + groupName + ":armor:" + armorSet.toString() + " " + calcStrings.toString();
 								configStrings.add(configString);
 								if(ModDamage.consoleDebugging_normal) log.info(configString);
+								loadedSomething = true;
 							}
 							else if(ModDamage.consoleDebugging_normal) log.warning("[" + plugin.getDescription().getName() + "] Repetitive" 
 									+ armorSet.toString() + "definition in " + (isOffensive?"Offensive":"Defensive") 
@@ -333,13 +336,13 @@ public class GroupHandler
 				}
 				calcStrings = null;
 			}
-			return true;
 		}
-		return false;
+		return loadedSomething;
 	}
 	
 	public boolean loadPVPRoutines(boolean isOffensive, boolean force)
 	{
+		boolean loadedSomething = false;
 		//get all of the groups in configuration
 		List<String> groups = (isOffensive?offensiveNode:defensiveNode).getKeys("groups");
 		//load groups with offensive and defensive settings first
@@ -359,6 +362,7 @@ public class GroupHandler
 								+ ":groups:" + groupName + ":" + ":groups:" + group + " " + calcStrings.toString();
 						configStrings.add(configString);
 						if(ModDamage.consoleDebugging_normal) log.info(configString);
+						loadedSomething = true;
 					}
 					else if(ModDamage.consoleDebugging_normal) 
 						log.warning("Repetitive " + group + " definition in " 
@@ -371,13 +375,14 @@ public class GroupHandler
 						+ worldHandler.getWorld().getName() +  " - is this on purpose?");
 				}
 			}
-		return true;
+		return loadedSomething;
 	}
 	
 	
 ///////////////////// SCAN ///////////////////////	
 	private boolean loadScanItems() 
 	{
+		boolean loadedSomething = false;
 		if(scanNode != null) 
 		{
 			if(ModDamage.consoleDebugging_verbose) log.info("{Found group \"" + groupName 
@@ -386,7 +391,6 @@ public class GroupHandler
 			if(!itemList.equals(null))
 			{
 				if(!itemList.equals(null))
-				{
 					for(String itemString : itemList)
 					{
 						if(plugin.itemKeywords.containsKey(itemString.toLowerCase()))
@@ -396,6 +400,7 @@ public class GroupHandler
 								String configString = "-Scan:" + worldHandler.getWorld().getName() + ":" + material.name() + "(" + material.getId() + ")";
 								configStrings.add(configString);
 								if(ModDamage.consoleDebugging_normal) log.info(configString);
+								loadedSomething = true;
 							}
 						else
 						{
@@ -406,16 +411,15 @@ public class GroupHandler
 								String configString = "-Scan:" + worldHandler.getWorld().getName() + ":" + material.name() + "(" + material.getId() + ") ";
 								configStrings.add(configString);
 								if(ModDamage.consoleDebugging_normal) log.info(configString);
+								loadedSomething = true;
 							}
 							else if(ModDamage.consoleDebugging_verbose) log.warning("Invalid Scan item \"" + itemString + "\" found for group \"" 
 								+ groupName + "\" in world \"" + worldHandler.getWorld().getName() + "\" - ignoring");
 						}
 					}
-				}
-				return true;
 			}
 		}
-		return false;
+		return loadedSomething;
 	}
 	
 	public boolean canScan(Material itemType){ return(groupScanItems.contains(itemType));}

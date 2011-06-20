@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.Handling;
+package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

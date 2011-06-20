@@ -1,39 +1,42 @@
-package com.KoryuObihiro.bukkit.ModDamage.Handling;
+package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.DamageCalculation;
 
 
-public class DamageCalculator
+
+public class DamageCalculationAllocator
 {
-	//TODO 
-	//TODO equipment handling, inclusive/exclusive sets
-	//TODO use event damage for some types of formulae to be added later
-	//TODO IF #function
 	Logger log = Logger.getLogger("Minecraft");
 	final Random random = new Random();
 	
 	//for file parsing
-	public void checkCommandStrings(List<String> calcStrings, String elementReference, boolean isOffensive) 
+	public List<DamageCalculation> parseStrings(List<String> calcStrings, String elementReference, boolean isOffensive) 
 	{
+		List<DamageCalculation> calculations = new ArrayList<DamageCalculation>();
 		for(String calcString : calcStrings)
-			if(!checkCommandString(calcString))
-			{
-				log.severe("Invalid command string \"" + calcString + "\" in " + (isOffensive?"Offensive":"Defensive") 
-						+ " " + elementReference + " definition - refer to config for proper calculation node");
-				calcStrings.clear();
-			}
+		{
+			DamageCalculation calculation = parseString(calcString, elementReference, isOffensive, (String)null);
+			if(calculation != null)
+				calculations.add(calculation);
+		}
+		return (calculations.isEmpty()?null:calculations);
 	}
-	public void checkCommandStrings(List<String> calcStrings, String elementReference, boolean isOffensive, String groupName) 
+	private DamageCalculation parseString(String calcString, String elementReference, boolean isOffensive, String groupName) 
 	{
-		for(String calcString : calcStrings)
-			if(!checkCommandString(calcString))
+			try
+			{
+				
+			}
+			catch(Exception e)
 			{
 				log.severe("Invalid command string \"" + calcString + "\" in group \"" + groupName 
 						+ "\" " + (isOffensive?"Offensive":"Defensive") + " " + elementReference 
 						+ " definition - refer to config for proper calculation node");
-				calcStrings.clear();
+				return null;
 			}
 	}
 	private boolean checkCommandString(String commandString) 
@@ -137,7 +140,7 @@ public class DamageCalculator
 	}
 	private int parseCommand(String commandString, int eventDamage, boolean isOffensive)
 	{
-		log.info("Passed " + commandString);//TODO Integrate some sort of console debug setting here. DEBUG_MECHANICS ?
+		//log.info("Passed " + commandString);//TODO Integrate some sort of console debug setting here. DEBUG_MECHANICS ?
 		try
 		{
 			int tryThis = Integer.parseInt(commandString);
@@ -264,13 +267,12 @@ public class DamageCalculator
 		if(Math.abs(random.nextInt()%101) <= chance) return 0;
 		return input;
 	}
-	
+
 	public int roll_binomial(int chance, String input, int eventDamage, boolean isOffensive)
 	{
-		if(chance < 0 || chance > 100) return 0;
-		if(Math.abs(random.nextInt()%101) <= chance)
-			return parseCommand(input, eventDamage, isOffensive);
-		return 0;
+		if(chance < 0 || chance > 100) return eventDamage;
+		if(Math.abs(random.nextInt()%101) <= chance) return parseCommand(input, eventDamage, isOffensive);
+		return eventDamage;
 	}
 	
 	//gives an equal chance for all integers whose absolute value is less than the input
@@ -298,6 +300,5 @@ public class DamageCalculator
 		return input;
 	}
 	//TODO IDEA: damage based on entity resting on block of type BLAH? This would involve icky refactoring. :P
-
-	
+	//TODO IF #function
 };

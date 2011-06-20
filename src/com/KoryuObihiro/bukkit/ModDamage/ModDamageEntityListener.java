@@ -21,5 +21,5 @@ public class ModDamageEntityListener extends EntityListener
 	public void onEntityDamage(EntityDamageEvent event){ if (plugin.isEnabled && !event.isCancelled() && (event.getEntity() instanceof LivingEntity)) plugin.passDamageEvent(event);}
 	
 	@Override
-	public void onCreatureSpawn(CreatureSpawnEvent event){ if (plugin.isEnabled && !event.isCancelled()) plugin.passSpawnEvent(event);}
+	public void onCreatureSpawn(CreatureSpawnEvent event){ if (plugin.isEnabled && !event.isCancelled()) plugin.handleSpawnEvent(event);}
 }
