@@ -53,29 +53,34 @@ public class ModDamage extends JavaPlugin
 	private String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
 	private String errorString_findWorld = ModDamageString(ChatColor.RED) + " Couldn't find matching world name.";
 	
-	//config
+	//Configuration
 	private ConfigurationNode pluginOffensiveNode, pluginDefensiveNode, pluginMobHealthNode, pluginScanNode;
+	public boolean multigroupPermissions = true;
+	private final DamageCalculationAllocator damageCalc = new DamageCalculationAllocator();
+	private final HealthCalculationAllocator healthCalc = new HealthCalculationAllocator();
+	public final HashMap<String, List<Material>> itemKeywords = new HashMap<String, List<Material>>();
+	
+	//User-customized config
 	public static boolean consoleDebugging_normal = true;
 	public static boolean consoleDebugging_verbose = false;
 	public static boolean disable_DefaultDamage;
 	public static boolean disable_DefaultHealth;
 	public static boolean negative_Heal;
-	public final HashMap<String, List<Material>> itemKeywords = new HashMap<String, List<Material>>();
 	public final HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
-	private final DamageCalculationAllocator damageCalc = new DamageCalculationAllocator();
-	private final HealthCalculationAllocator healthCalc = new HealthCalculationAllocator();
 	
 ////////////////////////// INITIALIZATION ///////////////////////////////
 	@Override
 	public void onEnable() 
 	{
 	//PERMISSIONS
-		Plugin test = getServer().getPluginManager().getPlugin("Permissions");
-		if (test != null)
+		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
+		if (permissionsPlugin != null)
 		{
-			ModDamage.Permissions = ((Permissions)test).getHandler();
+			ModDamage.Permissions = ((Permissions)permissionsPlugin).getHandler();
 			log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() 
-					+ " enabled [Permissions v" + test.getDescription().getVersion() + " active]");
+					+ " enabled [Permissions v" + permissionsPlugin.getDescription().getVersion() + " active]");
+			
+			multigroupPermissions = permissionsPlugin.getDescription().getVersion().startsWith("3.");
 		}
 		else
 			log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() 

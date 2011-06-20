@@ -29,5 +29,6 @@ public class HealthCalculationAllocator
 		catch(Exception e){ return null;}
 	//TODO IDEA: health spawn based on entity resting on block of type BLAH?
 	//TODO Add binomial health settings
+	//TODO REGEN?! :D Requires something else, though...
 	}
 }
