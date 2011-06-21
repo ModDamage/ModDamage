@@ -14,10 +14,10 @@ public class EntityDrowningConditional extends EntityConditionalCalculation
 		this.calculations = calculations;
 	}
 	@Override
-	public int calculate(LivingEntity entity, int eventDamage) 
+	public int calculate(LivingEntity target, LivingEntity attacker, int eventDamage) 
 	{
-		if(entity.getRemainingAir() == 0)
-			return calculate(eventDamage);
+		if((forAttacker?attacker:target).getRemainingAir() == 0)
+			return calculate(target, attacker, eventDamage);
 		return eventDamage;
 	}
 }

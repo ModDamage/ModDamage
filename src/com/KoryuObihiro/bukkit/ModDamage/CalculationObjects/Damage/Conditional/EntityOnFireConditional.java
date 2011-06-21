@@ -14,10 +14,10 @@ public class EntityOnFireConditional extends EntityConditionalCalculation
 		this.calculations = calculations;
 	}
 	@Override
-	public int calculate(LivingEntity entity, int eventDamage) 
+	public int calculate(LivingEntity target, LivingEntity attacker, int eventDamage) 
 	{
-		if(entity.getFireTicks() > 0)
-			return makeCalculations(calculations, eventDamage);
+		if((forAttacker?attacker:target).getFireTicks() > 0)
+			return makeCalculations(target, attacker, eventDamage);
 		return 0;
 	}
 }

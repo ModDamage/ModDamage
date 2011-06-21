@@ -16,10 +16,10 @@ public class EntityHealthLessThan extends EntityConditionalCalculation
 		this.calculations = calculations;
 	}
 	@Override
-	public int calculate(LivingEntity entity, int eventDamage) 
+	public int calculate(LivingEntity target, LivingEntity attacker, int eventDamage) 
 	{
-		if(entity.getHealth() < value)
-			return calculate(eventDamage);
+		if((forAttacker?attacker:target).getHealth() < value)
+			return calculate(target, attacker, eventDamage);
 		return eventDamage;
 	}
 }

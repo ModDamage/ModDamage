@@ -12,10 +12,8 @@ public abstract class ConditionalDamageCalculation extends DamageCalculation
 	public int makeCalculations(LivingEntity target, LivingEntity attacker, int eventDamage)
 	{
 		int result = eventDamage;
-		if(condition())
-			for(DamageCalculation calculation : calculations)
-				result = calculation.calculate(target, attacker, result);
+		for(DamageCalculation calculation : calculations)
+			result = calculation.calculate(target, attacker, result);
 		return result;
 	}
-	protected abstract boolean condition();
 }

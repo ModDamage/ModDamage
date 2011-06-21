@@ -1,5 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage;
 
+import org.bukkit.entity.LivingEntity;
+
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
 public class BinomialCalculation extends ChanceCalculation 
@@ -18,5 +20,6 @@ public class BinomialCalculation extends ChanceCalculation
 		damageCalculation = calculation;
 	}
 	@Override
-	public int calculate(int eventDamage){ return ((Math.abs(random.nextInt()%101) <= chance)?damageCalculation.calculate(eventDamage):eventDamage);}
+	public int calculate(LivingEntity target, LivingEntity attacker, int eventDamage)
+		{ return ((Math.abs(random.nextInt()%101) <= chance)?damageCalculation.calculate(target, attacker, eventDamage):eventDamage);}
 }
