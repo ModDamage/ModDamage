@@ -1,6 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage;
 
-public class AdditionCalculation extends DamageCalculation 
+public class AdditionCalculation extends MathDamageCalculation 
 {
 	private int addValue;
 	public AdditionCalculation(int value){ addValue = value;}

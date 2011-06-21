@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -23,15 +25,13 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
+
+
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.GroupHandler;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.WorldHandler;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.HealthCalculationAllocator;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
-
-import java.util.logging.Logger;
 
 /**
  * "ModDamage" for Bukkit
