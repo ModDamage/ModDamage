@@ -1,8 +1,8 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects;
 
-import org.bukkit.entity.LivingEntity;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EventInfo;
 
 public abstract class DamageCalculation
 {
-	public abstract int calculate(LivingEntity target, LivingEntity attacker, int eventDamage);
+	public abstract int calculate(EventInfo eventInfo, int eventDamage);
 }

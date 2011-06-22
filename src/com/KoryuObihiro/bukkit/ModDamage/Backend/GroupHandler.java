@@ -470,6 +470,51 @@ public class GroupHandler
 				+ runPVPRoutines(group_attacking, false, eventDamage);
 	}
 	
+	public void doAttackCalculations(EventInfo eventInfo) 
+	{
+		switch(eventInfo.eventType)
+		{
+///////////////////// Player vs. Player 
+			case PLAYER_PLAYER:
+				runRoutines(eventInfo, true);
+				
+				runRoutines(eventInfo, false);				
+			return;
+
+///////////////////// Player vs. Mob
+			case PLAYER_MOB:
+				runRoutines(eventInfo, true);//attack buff
+				runPlayerRoutines(eventInfo, true);
+				
+				runRoutines(eventInfo, false);//defense buff
+			return;
+				
+///////////////////// Mob vs. Player
+			case MOB_PLAYER:
+				runRoutines(eventInfo, true);//attack buff
+				
+				runRoutines(eventInfo, false);//defense buff
+				runPlayerRoutines(eventInfo, false);
+			return;
+			
+///////////////////// Nonliving vs. Player
+			case NONLIVING_PLAYER:
+				runRoutines(eventInfo, true);//attack buff
+				
+				runRoutines(eventInfo, false);//defense buff
+				runPlayerRoutines(eventInfo, false);
+			return;
+
+///////////////////// Nonliving vs. Mob
+			case NONLIVING_MOB:
+				runRoutines(eventInfo, true);//attack buff
+				runRoutines(eventInfo, false);//defense buff
+			return;
+			
+			default: return;
+		}
+	}
+	
 	private int runRoutines(LivingEntity target, LivingEntity attacker, DamageElement damageType, boolean isOffensive, int eventDamage)
 	{
 		if(damageType != null && (isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageType))
@@ -503,7 +548,7 @@ public class GroupHandler
 		int result = eventDamage;
 		int defenseModifier = (isOffensive?1:-1);
 		for(DamageCalculation damageCalculation : damageCalculations)
-			result = damageCalculation.calculate(target, attacker, result);
+			result = damageCalculation.calculate(attacker, result);
 		return (result - eventDamage) * defenseModifier;
 	}
 

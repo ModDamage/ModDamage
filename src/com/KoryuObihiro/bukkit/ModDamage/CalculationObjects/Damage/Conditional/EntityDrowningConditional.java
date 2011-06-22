@@ -2,8 +2,8 @@ package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional;
 
 import java.util.List;
 
-import org.bukkit.entity.LivingEntity;
 
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
 public class EntityDrowningConditional extends EntityConditionalCalculation 
@@ -14,10 +14,10 @@ public class EntityDrowningConditional extends EntityConditionalCalculation
 		this.calculations = calculations;
 	}
 	@Override
-	public int calculate(LivingEntity target, LivingEntity attacker, int eventDamage) 
+	public int calculate(EventInfo eventInfo, int eventDamage) 
 	{
-		if((forAttacker?attacker:target).getRemainingAir() == 0)
-			return calculate(target, attacker, eventDamage);
+		if((forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getRemainingAir() == 0)
+			return calculate(eventInfo, eventDamage);
 		return eventDamage;
 	}
 }

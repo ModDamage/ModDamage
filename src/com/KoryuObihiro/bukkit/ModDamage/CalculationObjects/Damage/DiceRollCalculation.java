@@ -1,10 +1,10 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage;
 
-import org.bukkit.entity.LivingEntity;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EventInfo;
 
 public class DiceRollCalculation extends ChanceCalculation 
 {
 	public DiceRollCalculation(){}
 	@Override
-	public int calculate(LivingEntity target, LivingEntity attacker, int eventDamage){ return Math.abs(random.nextInt()%(eventDamage + 1));}
+	public int calculate(EventInfo eventInfo, int eventDamage){ return Math.abs(random.nextInt()%(eventDamage + 1));}
 }

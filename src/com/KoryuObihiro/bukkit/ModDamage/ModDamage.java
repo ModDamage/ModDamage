@@ -327,15 +327,13 @@ public class ModDamage extends JavaPlugin
 			WorldHandler worldHandler = (worldHandlers.containsKey(event.getEntity().getWorld())?(worldHandlers.get(event.getEntity().getWorld())):null);
 			if(worldHandler.loadedSomething())
 			{
-				int damage = event.getDamage();
 				EventInfo eventInfo = null;
 				if(DamageElement.matchNonlivingElement(event.getCause()) != null)
 				{
-					DamageElement damageType_damager = DamageElement.matchNonlivingElement(event.getCause());
 					if(ent_damaged instanceof Player)
-						eventInfo = new EventInfo((Player)ent_damaged, damageType_damager);
+						eventInfo = new EventInfo((Player)ent_damaged, DamageElement.matchNonlivingElement(event.getCause()), event.getDamage());
 					else if(DamageElement.matchLivingElement(ent_damaged) != null)
-						eventInfo = new EventInfo(ent_damaged, damageType_damager);
+						eventInfo = new EventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), DamageElement.matchNonlivingElement(event.getCause()), event.getDamage());
 				}
 				else if(event instanceof EntityDamageByEntityEvent)
 				{
@@ -349,27 +347,26 @@ public class ModDamage extends JavaPlugin
 					if(ent_damaged instanceof Player)
 					{
 					//Player vs Player
-						if(ent_damager instanceof Player) eventInfo = new EventInfo((Player)ent_damaged, (Player)ent_damager, rangedElement);
+						if(ent_damager instanceof Player) eventInfo = new EventInfo((Player)ent_damaged, (Player)ent_damager, rangedElement, event.getDamage());
 					//Mob vs Player
-						else eventInfo = new EventInfo((Player)ent_damaged, ent_damager);
+						else eventInfo = new EventInfo((Player)ent_damaged, ent_damager, DamageElement.matchLivingElement(ent_damager), event.getDamage());
 					}
 				//Monster-targeted damage
 					else if(DamageElement.matchLivingElement(ent_damaged) != null)
 					{
 					//Player vs Mob
-						if(ent_damager instanceof Player) eventInfo = new EventInfo(ent_damaged, (Player)ent_damager, rangedElement);
+						if(ent_damager instanceof Player) eventInfo = new EventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), (Player)ent_damager, rangedElement, event.getDamage());
 					//Mob vs Mob 
-						else if(DamageElement.matchLivingElement(ent_damager) != null) eventInfo = new EventInfo(ent_damaged, (LivingEntity)ent_damager);
+						else if(DamageElement.matchLivingElement(ent_damager) != null) 
+							eventInfo = new EventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), ent_damager, DamageElement.matchLivingElement(ent_damager), event.getDamage());
 					//Nonliving vs Mob
 					}
 				}
-				else
-				{
-				}
+				else{ log.severe("Something horrible just happened. Bug KoryuObihiro about it.");}//TODO REMOVE....MEBBE
 				worldHandler.doCalculations(eventInfo);
-				if(damage < 0 && !negative_Heal) 
-					damage = 0;
-				event.setDamage(damage);
+				if(eventInfo.eventDamage < 0 && !negative_Heal) 
+					eventInfo.eventDamage = 0;
+				event.setDamage(eventInfo.eventDamage);
 			}
 		}
 	}

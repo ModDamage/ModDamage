@@ -2,9 +2,11 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.entity.CraftArrow;
 import org.bukkit.craftbukkit.entity.CraftEgg;
+import org.bukkit.craftbukkit.entity.CraftFireball;
 import org.bukkit.craftbukkit.entity.CraftSnowball;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Chicken;
@@ -45,11 +47,13 @@ public enum DamageElement
 	MELEE_PICKAXE ("pickaxe", GENERIC_MELEE, false),
 	MELEE_SPADE ("spade", GENERIC_MELEE, false),
 	MELEE_SWORD ("sword", GENERIC_MELEE, false),
+	MELEE_OTHER ("other", GENERIC_MELEE, false),
 	
 //ranged items
 	RANGED_BOW("bow", GENERIC_RANGED, false),
 	RANGED_SNOWBALL("snowball", GENERIC_RANGED, false),
-	RANGED_EGG("egg", GENERIC_RANGED, false),
+	RANGED_EGG("egg", GENERIC_RANGED, false), 
+	RANGED_FIREBALL ("fireball", GENERIC_RANGED, false),
 	
 //armor
 	ARMOR_HELMET ("head", GENERIC_ARMOR, false),
@@ -199,7 +203,7 @@ public enum DamageElement
 				case GOLD_SWORD:	return DamageElement.MELEE_SWORD;
 				case DIAMOND_SWORD: return DamageElement.MELEE_SWORD;
 				
-				default: 			return null;
+				default: 			return MELEE_OTHER;
 			}
 		return null;
 	}
@@ -244,6 +248,7 @@ public enum DamageElement
 		if(entity instanceof CraftArrow) return DamageElement.RANGED_BOW;
 		if(entity instanceof CraftEgg) return DamageElement.RANGED_EGG;
 		if(entity instanceof CraftSnowball) return DamageElement.RANGED_SNOWBALL;
+		if(entity instanceof CraftFireball) return DamageElement.RANGED_FIREBALL;
 		return null;
 	}
 
