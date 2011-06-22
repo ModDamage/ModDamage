@@ -107,7 +107,7 @@ public enum DamageElement
 				return true;
 		return false;
 	}
-	public static DamageElement matchNatureElement(DamageCause cause)
+	public static DamageElement matchNonlivingElement(DamageCause cause)
 	{
 		switch(cause) 
 		{
@@ -127,7 +127,7 @@ public enum DamageElement
 	}
 	
 	//WinSock's nice algorithm for determining mob type, adapted for this plugin
-	public static DamageElement matchEntityElement(Entity entity)
+	public static DamageElement matchLivingElement(Entity entity)
 	{
 		if (entity instanceof LivingEntity) 
 		{

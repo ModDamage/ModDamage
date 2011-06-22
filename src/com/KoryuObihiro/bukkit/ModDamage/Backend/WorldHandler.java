@@ -27,10 +27,11 @@ public class WorldHandler
 	private Logger log; 
 	private World world;
 	
-	public boolean globalsLoaded = false;
-	public boolean groupsLoaded = false;
-	public boolean scanLoaded = false;
-	public boolean mobHealthLoaded = false;
+	private boolean globalsLoaded = false;
+	private boolean groupsLoaded = false;
+	private boolean scanLoaded = false;
+	private boolean mobHealthLoaded = false;
+	private boolean isLoaded = false;
 	//private List<String> configStrings = new ArrayList<String>();
 	//private int configPages = 0;
 	
@@ -99,6 +100,8 @@ public class WorldHandler
 		
 		//load group configuration(s)
 		groupsLoaded = loadGroupHandlers();
+		
+		isLoaded = (globalsLoaded || mobHealthLoaded || scanLoaded || groupsLoaded);
 	}
 	
 ///////////////////// OFFENSIVE/DEFENSIVE ///////////////////////
@@ -439,7 +442,7 @@ public class WorldHandler
 	public boolean setHealth(LivingEntity entity)
 	{
 		//determine creature type
-		DamageElement creatureType = DamageElement.matchEntityElement(entity);
+		DamageElement creatureType = DamageElement.matchLivingElement(entity);
 		if(creatureType != null)
 		{
 			if(mobHealthSettings.containsKey(creatureType))
@@ -512,59 +515,51 @@ public class WorldHandler
 
 //// DAMAGE HANDLING ////
 ///////////////////// PVP ///////////////////////
-	public int calcAttackBuff(Player player_target, Player player_attacking, int eventDamage, DamageElement rangedElement)
+	public int doCalculations(Player player_target, Player player_attacking, int eventDamage, DamageElement rangedElement)
 	{
+		int result = eventDamage;
+
 		ArmorSet armorSet_attacking = new ArmorSet(player_attacking);
 		Material inHand_attacking = player_attacking.getItemInHand().getType();
-		//calculate group buff
-		String[] groups_target = null;
 		String[] groups_attacking = null;
-		int groupBuff = 0;
+
+		ArmorSet armorSet_target = new ArmorSet(player_target);
+		String[] groups_target = null;
+		
+	//global attack buff
+		//apply calculations
+		result += runGlobalRoutines(DamageElement.GENERIC_HUMAN, true, result);
+		result += ((rangedElement != null)
+					?(runGlobalRoutines(DamageElement.GENERIC_RANGED, true, result) 
+						+ runGlobalRoutines(rangedElement, true, result))
+					:(runGlobalRoutines(DamageElement.matchMeleeElement(inHand_attacking), true, result) 
+						+ runMeleeRoutines(inHand_attacking, true, result)));
+		result += runArmorRoutines(armorSet_attacking, true, result);
+
+	//global defense buff
+		result += runGlobalRoutines(DamageElement.GENERIC_HUMAN, false, result);
+		result += ((rangedElement != null)
+					?(runGlobalRoutines(DamageElement.GENERIC_RANGED, false, result) 
+						+ runGlobalRoutines(rangedElement, false, result))
+					:(runGlobalRoutines(DamageElement.matchMeleeElement(inHand_attacking), false, result) 
+						+ runMeleeRoutines(inHand_attacking, false, result)));
+		result += runArmorRoutines(armorSet_target, false, result);
+		
+	//calculate group buff
 		try
 		{
 			groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
 			groups_attacking = ModDamage.Permissions.getGroups(player_attacking.getWorld().getName(), player_attacking.getName());
+		//attack buff
 			for(String group_attacking : groups_attacking)
 				if(groupHandlers.containsKey(group_attacking))
 					for(String group_target : groups_target)
-						groupBuff += groupHandlers.get(group_attacking).calcAttackBuff(group_target, inHand_attacking, armorSet_attacking, eventDamage, rangedElement);
-		}
-		catch(Exception e)
-		{
-			if(groups_target == null)
-				log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
-						+ player_target.getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
-			else if(groups_attacking == null)
-				log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
-						+ player_attacking.getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
-		}
-	
-		//apply calculations
-		return runGlobalRoutines(DamageElement.GENERIC_HUMAN, true, eventDamage)
-				+ ((rangedElement != null)
-					?(runGlobalRoutines(DamageElement.GENERIC_RANGED, true, eventDamage) 
-						+ runGlobalRoutines(rangedElement, true, eventDamage))
-					:(runGlobalRoutines(DamageElement.matchMeleeElement(inHand_attacking), true, eventDamage) 
-						+ runMeleeRoutines(inHand_attacking, true, eventDamage)))
-				+ runArmorRoutines(armorSet_attacking, true, eventDamage)
-				+ groupBuff;
-	}
-	public int calcDefenseBuff(Player player_target, Player player_attacking, int eventDamage, DamageElement rangedElement)
-	{		
-		ArmorSet armorSet_target = new ArmorSet(player_target);
-		Material inHand_attacking = player_attacking.getItemInHand().getType();
-		//calculate group buff
-		int groupBuff = 0;
-		String[] groups_target = null;
-		String[] groups_attacking = null;
-		try
-		{
-			groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
-			groups_attacking = ModDamage.Permissions.getGroups(player_attacking.getWorld().getName(), player_attacking.getName());
+						result += groupHandlers.get(group_attacking).calcAttackBuff(group_target, inHand_attacking, armorSet_attacking, result, rangedElement);
+		//defense buff
 			for(String group_target : groups_target)
 				if(groupHandlers.containsKey(group_target))
 					for(String group_attacking : groups_attacking)
-						groupBuff += groupHandlers.get(group_target).calcDefenseBuff(group_attacking, inHand_attacking, armorSet_target, eventDamage, rangedElement);
+						result += groupHandlers.get(group_target).calcDefenseBuff(group_attacking, inHand_attacking, armorSet_target, result, rangedElement);
 		}
 		catch(Exception e)
 		{
@@ -575,103 +570,138 @@ public class WorldHandler
 				log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
 						+ player_attacking.getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
 		}
-		//apply calculations
-		return runGlobalRoutines(DamageElement.GENERIC_HUMAN, false, eventDamage)
-				+ ((rangedElement != null)
-					?(runGlobalRoutines(DamageElement.GENERIC_RANGED, false, eventDamage) 
-						+ runGlobalRoutines(rangedElement, false, eventDamage))
-					:(runGlobalRoutines(DamageElement.matchMeleeElement(inHand_attacking), false, eventDamage) 
-						+ runMeleeRoutines(inHand_attacking, false, eventDamage)))
-				+ runArmorRoutines(armorSet_target, false, eventDamage)
-				+ groupBuff;
+		
+		return result;		
 	}
 	
-///////////////////// Non-Player vs. Player ///////////////////////
-	public int calcAttackBuff(Player player_target, DamageElement damageType, int eventDamage)
+///////////////////// Player vs. Mob
+	public int doCalculations(LivingEntity entity_target, DamageElement mobType_target, Player player_attacking, int eventDamage, DamageElement rangedElement)
 	{
-		return runGlobalRoutines(damageType.getType(), true, eventDamage)
-				+ runGlobalRoutines(damageType, true, eventDamage);
-	}
-	public int calcDefenseBuff(Player player_target, DamageElement damageType, int eventDamage)
-	{
-		ArmorSet armorSet_target = new ArmorSet(player_target);
-		//calculate group buff
-	
-		int groupBuff = 0;
-		try
-		{
-			String[] groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
-			for(String group_target : groups_target)
-				if(groupHandlers.containsKey(group_target))
-					groupBuff += groupHandlers.get(group_target).calcDefenseBuff(damageType, armorSet_target, eventDamage);
-		}
-		catch(Exception e)
-		{
-			log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
-					+ player_target.getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
-		}
-		//apply calculations
-		return runGlobalRoutines(DamageElement.GENERIC_HUMAN, false, eventDamage)
-				+ runArmorRoutines(armorSet_target, false, eventDamage)
-				+ groupBuff;
-	}
-	
-///////////////////// Non-Player vs. Mob ///////////////////////
-	public int calcAttackBuff(DamageElement mobType_target, DamageElement damageType, int eventDamage)
-	{
-		//apply calculations
-		return runGlobalRoutines(damageType.getType(), true, eventDamage)
-				+ runGlobalRoutines(damageType, true, eventDamage);
-	}
-	public int calcDefenseBuff(DamageElement mobType_target, DamageElement damageType, int eventDamage)
-	{
-		//apply calculations
-		return runGlobalRoutines(mobType_target.getType(), false, eventDamage)
-				+ runGlobalRoutines(mobType_target, false, eventDamage);
-	}
-	
-///////////////////// Player vs. Mob ///////////////////////
-	public int calcAttackBuff(DamageElement mobType_target, Player player_attacking, int eventDamage, DamageElement rangedElement)
-	{
+		int result = eventDamage;
+		
 		ArmorSet armorSet_attacking = new ArmorSet(player_attacking);
 		Material inHand_attacking = player_attacking.getItemInHand().getType();
-		//calculate group buff
-		int groupBuff = 0;
+		
+	//attack buff
+		result = runGlobalRoutines(DamageElement.GENERIC_HUMAN, true, result);
+		result += ((rangedElement != null)
+					?(runGlobalRoutines(DamageElement.GENERIC_RANGED, true, result) 
+						+ runGlobalRoutines(rangedElement, true, result))
+					:(runGlobalRoutines(DamageElement.matchMeleeElement(inHand_attacking), true, result) 
+						+ runMeleeRoutines(inHand_attacking, true, result)));
+		result += runArmorRoutines(armorSet_attacking, true, result);
+		
+	//defense buff
+		result += runGlobalRoutines(mobType_target.getType(), false, result);
+		result += runGlobalRoutines(mobType_target, false, result);
+	
+	//group buff
 		try
 		{
 			String[] groups_attacking = ModDamage.Permissions.getGroups(player_attacking.getWorld().getName(), player_attacking.getName());
+		//attack buff
 			for(String group_attacking : groups_attacking)
 				if(groupHandlers.containsKey(group_attacking))
-					groupBuff += groupHandlers.get(group_attacking).calcAttackBuff(mobType_target, inHand_attacking, armorSet_attacking, eventDamage, rangedElement);
+					result += groupHandlers.get(group_attacking).calcAttackBuff(mobType_target, inHand_attacking, armorSet_attacking, result, rangedElement);
 		}
 		catch(Exception e)
 		{
 			log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
 					+ player_attacking.getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
 		}
-		//apply calculations
-		return runGlobalRoutines(DamageElement.GENERIC_HUMAN, true, eventDamage) 
-				+ ((rangedElement != null)
-					?(runGlobalRoutines(DamageElement.GENERIC_RANGED, true, eventDamage) 
-						+ runGlobalRoutines(rangedElement, true, eventDamage))
-					:(runGlobalRoutines(DamageElement.matchMeleeElement(inHand_attacking), true, eventDamage) 
-						+ runMeleeRoutines(inHand_attacking, true, eventDamage)))
-				+ runArmorRoutines(armorSet_attacking, true, eventDamage)
-				+ groupBuff;
-	}
-	public int calcDefenseBuff(DamageElement mobType_target, Player player_attacking, int eventDamage, DamageElement rangedElement)
-	{
-		if(globalsLoaded)
-			//apply calculations
-			return runGlobalRoutines(mobType_target.getType(), false, eventDamage) 
-					+ runGlobalRoutines(mobType_target, false, eventDamage);
-		return 0;
+		
+		return result;
 	}
 	
+///////////////////// Mob vs. Player
+	public int doCalculations(Player player_target, LivingEntity entity_attacker, DamageElement mobType_attacker, int eventDamage)
+	{
+		int result = eventDamage;
+
+		ArmorSet armorSet_target = new ArmorSet(player_target);
+		
+	//attack buff
+		result += runGlobalRoutines(mobType_attacker.getType(), true, result);
+		result += runGlobalRoutines(mobType_attacker, true, result);
+		
+	//defense buff
+		result += runGlobalRoutines(DamageElement.GENERIC_HUMAN, false, result);
+		result += runArmorRoutines(armorSet_target, false, result);
+		
+	//calculate group buff
+		try
+		{
+			String[] groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
+			for(String group_target : groups_target)
+				if(groupHandlers.containsKey(group_target))
+					result += groupHandlers.get(group_target).calcDefenseBuff(mobType_attacker, armorSet_target, result);
+		}
+		catch(Exception e)
+		{
+			log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
+					+ player_target.getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
+		}
+		
+		return result;
+	}	
+///////////////////// Nonliving vs. Player ///////////////////////
+
+///////////////////// Nonliving vs. Player
+	public int doCalculations(Player player_target, DamageElement damageType, int eventDamage)
+	{
+		int result = eventDamage;
+
+		ArmorSet armorSet_target = new ArmorSet(player_target);
+		
+	//attack buff
+		result += runGlobalRoutines(damageType.getType(), true, result);
+		result += runGlobalRoutines(damageType, true, result);
+		
+	//defense buff
+		result += runGlobalRoutines(DamageElement.GENERIC_HUMAN, false, result);
+		result += runArmorRoutines(armorSet_target, false, result);
+		
+	//calculate group buff
+		try
+		{
+			String[] groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
+			for(String group_target : groups_target)
+				if(groupHandlers.containsKey(group_target))
+					result += groupHandlers.get(group_target).calcDefenseBuff(damageType, armorSet_target, result);
+		}
+		catch(Exception e)
+		{
+			log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
+					+ player_target.getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
+		}
+		
+		return result;
+	}
+
+///////////////////// Nonliving vs. Mob
+	public int doCalculations(LivingEntity entity_target, DamageElement mobType_target, DamageElement damageType, int eventDamage)
+	{
+		int result = eventDamage;
+	//attack buff
+		result =  runGlobalRoutines(damageType.getType(), true, result);
+		result += runGlobalRoutines(damageType, true, result);
+
+	//defense buff
+		result += runGlobalRoutines(mobType_target.getType(), false, result);
+		result += runGlobalRoutines(mobType_target, false, result);
+
+		return result;
+	}
+	
+	public void doCalculations(EventInfo eventInfo) 
+	{
+		// TODO Auto-generated method stub
+		
+	}
 ///////////////////// ROUTINE-SPECIFIC CALLS ///////////////////////
 	private int runGlobalRoutines(DamageElement damageType, boolean isOffensive, int eventDamage)
 	{
-		if(damageType != null && (isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageType))
+		if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageType))
 			return this.calculateDamage((isOffensive?offensiveRoutines:defensiveRoutines).get(damageType), eventDamage, isOffensive);
 		return 0;
 	}
@@ -714,7 +744,7 @@ public class WorldHandler
 		configStrings.clear();
 	}
 
-	public boolean loadedSomething(){ return (globalsLoaded || mobHealthLoaded || scanLoaded || groupsLoaded);}
+	public boolean loadedSomething(){ return isLoaded;}
 	
 ///////////////////// COMMAND FUNCTIONS ///////////////////////
 	public boolean sendWorldConfig(Player player, int pageNumber)
@@ -746,6 +776,8 @@ public class WorldHandler
 		}
 		return false;
 	}
+
+	
 
 	/*
 	public boolean reloadConfig()

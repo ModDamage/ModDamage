@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
 
@@ -380,7 +381,6 @@ public class GroupHandler
 		return loadedSomething;
 	}
 	
-	
 ///////////////////// SCAN ///////////////////////	
 	private boolean loadScanItems() 
 	{
@@ -429,20 +429,22 @@ public class GroupHandler
 ///////////////////// DAMAGE HANDLING ///////////////////////	
 	public int calcAttackBuff(DamageElement mobType_target, Material inHand, ArmorSet armorSet_attacking, int eventDamage, DamageElement rangedMaterial)
 	{
-		return runRoutines(mobType_target.getType(), true, eventDamage)
-		 		+ runRoutines(mobType_target, true, eventDamage)
-				+ ((rangedMaterial != null)
-					?(runRoutines(DamageElement.GENERIC_RANGED, true, eventDamage) 
-						+ runRoutines(rangedMaterial, true, eventDamage))
-					:(runRoutines(DamageElement.matchMeleeElement(inHand), true, eventDamage) 
-						+ runMeleeRoutines(inHand, true, eventDamage)))
-				+ runArmorRoutines(armorSet_attacking, true, eventDamage);
-	}
-	public int calcDefenseBuff(DamageElement damageType, ArmorSet armorSet_attacked, int eventDamage)
-	{	
-		return runRoutines(damageType.getType(), false, eventDamage)
- 				+ runRoutines(damageType, false, eventDamage)
-				+ runArmorRoutines(armorSet_attacked, false, eventDamage);
+		int result = eventDamage;
+		result += runRoutines(mobType_target.getType(), true, eventDamage);
+		result += runRoutines(null, null, mobType_target, true, eventDamage);
+		result += ((rangedMaterial != null)
+						?(runRoutines(DamageElement.GENERIC_RANGED, true, eventDamage) 
+							+ runRoutines(rangedMaterial, true, eventDamage))
+						:(runRoutines(DamageElement.matchMeleeElement(inHand), true, eventDamage) 
+							+ runMeleeRoutines(inHand, true, eventDamage)));
+		result += runArmorRoutines(armorSet_attacking, true, eventDamage);
+		
+
+		result += runRoutines(damageType.getType(), false, eventDamage)
+ 		result += runRoutines(damageType, false, eventDamage)
+		result += runArmorRoutines(armorSet_attacked, false, eventDamage)
+		
+		return result;
 	}
 	
 	public int calcAttackBuff(String group_target, Material inHand, ArmorSet armorSet_attacking, int eventDamage, DamageElement rangedMaterial)
@@ -468,40 +470,40 @@ public class GroupHandler
 				+ runPVPRoutines(group_attacking, false, eventDamage);
 	}
 	
-	private int runRoutines(DamageElement damageType, boolean isOffensive, int eventDamage)
+	private int runRoutines(LivingEntity target, LivingEntity attacker, DamageElement damageType, boolean isOffensive, int eventDamage)
 	{
 		if(damageType != null && (isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageType))
-			return this.calculateDamage((isOffensive?offensiveRoutines:defensiveRoutines).get(damageType), eventDamage, isOffensive);
+			return this.calculateDamage(target, attacker, (isOffensive?offensiveRoutines:defensiveRoutines).get(damageType), eventDamage, isOffensive);
 		return 0;
 	}
 	
-	private int runPVPRoutines(String groupName, boolean isOffensive, int eventDamage)
+	private int runPVPRoutines(LivingEntity target, LivingEntity attacker, String groupName, boolean isOffensive, int eventDamage)
 	{
 		if(groupName != null && (isOffensive?pvpOffensiveRoutines:pvpDefensiveRoutines).containsKey(groupName))
-			return this.calculateDamage((isOffensive?pvpOffensiveRoutines:pvpDefensiveRoutines).get(groupName), eventDamage, isOffensive);
+			return this.calculateDamage(target, attacker, (isOffensive?pvpOffensiveRoutines:pvpDefensiveRoutines).get(groupName), eventDamage, isOffensive);
 		return 0;
 	}
 	
-	private int runMeleeRoutines(Material material, boolean isOffensive, int eventDamage) 
+	private int runMeleeRoutines(LivingEntity target, LivingEntity attacker, Material material, boolean isOffensive, int eventDamage) 
 	{
 		if(material != null && (isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).containsKey(material))
-			return this.calculateDamage((isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).get(material), eventDamage, isOffensive);
+			return this.calculateDamage(target, attacker, (isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).get(material), eventDamage, isOffensive);
 		return 0;
 	}
 	
-	private int runArmorRoutines(ArmorSet armorSet, boolean isOffensive, int eventDamage)
+	private int runArmorRoutines(LivingEntity target, LivingEntity attacker, ArmorSet armorSet, boolean isOffensive, int eventDamage)
 	{
 		if(!armorSet.isEmpty() && (isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).containsKey(armorSet.toString()))
-			return this.calculateDamage((isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).get(armorSet.toString()), eventDamage, isOffensive);
+			return this.calculateDamage(target, attacker, (isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).get(armorSet.toString()), eventDamage, isOffensive);
 		return 0;
 	}
 	
-	private int calculateDamage(List<DamageCalculation> damageCalculations, int eventDamage, boolean isOffensive) 
+	private int calculateDamage(LivingEntity target, LivingEntity attacker, List<DamageCalculation> damageCalculations, int eventDamage, boolean isOffensive) 
 	{
 		int result = eventDamage;
 		int defenseModifier = (isOffensive?1:-1);
 		for(DamageCalculation damageCalculation : damageCalculations)
-			result = damageCalculation.calculate(result);
+			result = damageCalculation.calculate(target, attacker, result);
 		return (result - eventDamage) * defenseModifier;
 	}
 
