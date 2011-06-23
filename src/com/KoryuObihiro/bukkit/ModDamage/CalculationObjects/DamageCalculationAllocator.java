@@ -2,8 +2,7 @@ package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.bukkit.util.config.ConfigurationNode;
+import java.util.logging.Logger;
 
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.AdditionCalculation;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.BinomialCalculation;
@@ -14,8 +13,14 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.DivisionCalcu
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.MultiplicationCalculation;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.SetCalculation;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityDrowningConditional;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityUnderwater;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityHealthEquals;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityHealthGreaterThan;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityHealthGreaterThanEquals;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityHealthLessThan;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityHealthLessThanEquals;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityHealthNotEquals;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityOnFireConditional;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityUnderwater;
 
 public class DamageCalculationAllocator
 {	
@@ -27,9 +32,13 @@ public class DamageCalculationAllocator
 		{
 			DamageCalculation calculation = parseString(calcString);
 			if(calculation != null)
+			{
 				calculations.add(calculation);
+				//Dooooon't test any conditionals with this stuff.
+				//Logger.getLogger("Minecraft").info("Sample input of 5 yields " + calculation.calculate(null, 5));//TODO REMOVE ME
+			}
 		}
-		return (calculations.isEmpty()?null:calculations);
+		return calculations;
 	}
 	
 	private DamageCalculation parseString(String calcString) 
@@ -101,18 +110,40 @@ public class DamageCalculationAllocator
 				{
 					if(args[2].equalsIgnoreCase("attackerHealth"))
 					{
-						
+
+						if(args[2].equalsIgnoreCase("lessThan"))
+							return new EntityHealthLessThan(true, Integer.parseInt(args[3]), parseStrings(calculationStrings));
+						else if(args[2].equalsIgnoreCase("lessThanEquals"))
+							return new EntityHealthLessThanEquals(true, Integer.parseInt(args[3]), parseStrings(calculationStrings));
+						else if(args[2].equalsIgnoreCase("greaterThan"))
+							return new EntityHealthGreaterThan(true, Integer.parseInt(args[3]), parseStrings(calculationStrings));
+						else if(args[2].equalsIgnoreCase("greaterThanEquals"))
+							return new EntityHealthGreaterThanEquals(true, Integer.parseInt(args[3]), parseStrings(calculationStrings));
+						else if(args[2].equalsIgnoreCase("equals"))
+							return new EntityHealthEquals(true, Integer.parseInt(args[3]), parseStrings(calculationStrings));
+						else if(args[2].equalsIgnoreCase("notEquals"))
+							return new EntityHealthNotEquals(true, Integer.parseInt(args[3]), parseStrings(calculationStrings));
 					}
 					else if(args[2].equalsIgnoreCase("targetHealth"))
 					{
-						
+						if(args[2].equalsIgnoreCase("lessThan"))
+							return new EntityHealthLessThan(false, Integer.parseInt(args[3]), parseStrings(calculationStrings));
+						else if(args[2].equalsIgnoreCase("lessThanEquals"))
+							return new EntityHealthLessThanEquals(false, Integer.parseInt(args[3]), parseStrings(calculationStrings));
+						else if(args[2].equalsIgnoreCase("greaterThan"))
+							return new EntityHealthGreaterThan(false, Integer.parseInt(args[3]), parseStrings(calculationStrings));
+						else if(args[2].equalsIgnoreCase("greaterThanEquals"))
+							return new EntityHealthGreaterThanEquals(false, Integer.parseInt(args[3]), parseStrings(calculationStrings));
+						else if(args[2].equalsIgnoreCase("equals"))
+							return new EntityHealthEquals(false, Integer.parseInt(args[3]), parseStrings(calculationStrings));
+						else if(args[2].equalsIgnoreCase("notEquals"))
+							return new EntityHealthNotEquals(false, Integer.parseInt(args[3]), parseStrings(calculationStrings));
 					}
 				}
 			}
+			throw new Exception();
 		}
 		catch(Exception e){ return null;}
-		return null; //TODO REMOVE ME
-		
 	}
 	//TODO IDEA: damage based on entity resting on block of type BLAH? This would involve icky refactoring. :P
 	//TODO IF #function

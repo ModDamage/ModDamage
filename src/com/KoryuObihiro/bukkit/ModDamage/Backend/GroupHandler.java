@@ -427,47 +427,18 @@ public class GroupHandler
 	public boolean canScan(Material itemType){ return(groupScanItems.contains(itemType));}
 	
 ///////////////////// DAMAGE HANDLING ///////////////////////	
-	public int calcAttackBuff(DamageElement mobType_target, Material inHand, ArmorSet armorSet_attacking, int eventDamage, DamageElement rangedMaterial)
+	/*public int calcAttackBuff(DamageElement mobType_target, Material inHand, ArmorSet armorSet_attacking, int eventDamage, DamageElement rangedMaterial)
 	{
-		int result = eventDamage;
-		result += runRoutines(mobType_target.getType(), true, eventDamage);
-		result += runRoutines(null, null, mobType_target, true, eventDamage);
-		result += ((rangedMaterial != null)
-						?(runRoutines(DamageElement.GENERIC_RANGED, true, eventDamage) 
-							+ runRoutines(rangedMaterial, true, eventDamage))
-						:(runRoutines(DamageElement.matchMeleeElement(inHand), true, eventDamage) 
-							+ runMeleeRoutines(inHand, true, eventDamage)));
-		result += runArmorRoutines(armorSet_attacking, true, eventDamage);
 		
-
-		result += runRoutines(damageType.getType(), false, eventDamage)
- 		result += runRoutines(damageType, false, eventDamage)
-		result += runArmorRoutines(armorSet_attacked, false, eventDamage)
-		
-		return result;
 	}
 	
 	public int calcAttackBuff(String group_target, Material inHand, ArmorSet armorSet_attacking, int eventDamage, DamageElement rangedMaterial)
 	{
-		return runRoutines(DamageElement.GENERIC_HUMAN, true, eventDamage) 
-				+ ((rangedMaterial != null)
-					?(runRoutines(DamageElement.GENERIC_RANGED, true, eventDamage) 
-						+ runRoutines(rangedMaterial, true, eventDamage))
-					:(runRoutines(DamageElement.matchMeleeElement(inHand), true, eventDamage) 
-						+ runMeleeRoutines(inHand, true, eventDamage)))
-				+ runArmorRoutines(armorSet_attacking, true, eventDamage)
-				+ runPVPRoutines(group_target, true, eventDamage);
+		
 	}
 	public int calcDefenseBuff(String group_attacking, Material inHand, ArmorSet armorSet_attacked, int eventDamage, DamageElement rangedMaterial)
 	{	
-		return runRoutines(DamageElement.GENERIC_HUMAN, false, eventDamage)
-				+ ((rangedMaterial != null)
-					?(runRoutines(DamageElement.GENERIC_RANGED, false, eventDamage) 
-						+ runRoutines(rangedMaterial, false, eventDamage))
-					:(runRoutines(DamageElement.matchMeleeElement(inHand), true, eventDamage) 
-						+ runMeleeRoutines(inHand, false, eventDamage)))
-				+ runArmorRoutines(armorSet_attacked, false, eventDamage)
-				+ runPVPRoutines(group_attacking, false, eventDamage);
+		
 	}
 	
 	public void doAttackCalculations(EventInfo eventInfo) 
@@ -551,7 +522,7 @@ public class GroupHandler
 			result = damageCalculation.calculate(attacker, result);
 		return (result - eventDamage) * defenseModifier;
 	}
-
+*/
 ///////////////////// HELPER FUNCTIONS ///////////////////////	
 	public String getGroupName(){ return groupName;}
 

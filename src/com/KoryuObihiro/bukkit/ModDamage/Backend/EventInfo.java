@@ -1,5 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
+import java.util.logging.Logger;
+
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -8,6 +10,9 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 public class EventInfo
 {
+	Logger log = Logger.getLogger("Minecraft");
+	
+	
 	public int eventDamage;
 	//Having everything public may not be a good idea, but I don't intend to change anything later.
 	public final EventType eventType;
@@ -33,6 +38,7 @@ public class EventInfo
 //CONSTRUCTORS
 	public EventInfo(Player player_target, Player player_attacker, DamageElement rangedElement, int eventDamage) 
 	{
+		//log.info("Event: PvP");//TODO REMOVE ME
 		this.eventDamage = eventDamage;
 		eventType = EventType.PLAYER_PLAYER;
 		this.rangedElement = rangedElement;
@@ -75,10 +81,17 @@ public class EventInfo
 		armorSetString_attacker = new ArmorSet(player_attacker).toString();
 		name_attacker = player_attacker.getName();
 		groups_attacker = ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName());
+	
+		//log.info("Event: PvM");//TODO REMOVE ME
+		//log.info("Player " + name_attacker + " attacking a " + damageElement_target.getReference());//TODO REMOVE ME
+		//log.info("Wielding " + materialInHand_attacker + ", wearing " + armorSetString_attacker);//TODO REMOVE ME
+		//log.info("Groups: " + groups_attacker[0]);//TODO REMOVE ME
+		
 	}
 	
 	public EventInfo(Player player_target, LivingEntity entity_attacker, DamageElement mobType_attacker, int eventDamage) 
 	{
+		log.info("Event: MvP");//TODO REMOVE ME
 		this.eventDamage = eventDamage;
 		eventType = EventType.MOB_PLAYER;
 		this.rangedElement = null;
@@ -103,6 +116,7 @@ public class EventInfo
 	
 	public EventInfo(LivingEntity entity_target, DamageElement mobType_target, LivingEntity entity_attacker, DamageElement mobType_attacker, int eventDamage) 
 	{
+		log.info("Event: MvM");//TODO REMOVE ME
 		this.eventDamage = eventDamage;
 		eventType = EventType.MOB_MOB;
 		rangedElement = null;
@@ -126,6 +140,7 @@ public class EventInfo
 	
 	public EventInfo(Player player_target, DamageElement damageType, int eventDamage) 
 	{
+		log.info("Event: NvP");//TODO REMOVE ME
 		this.eventDamage = eventDamage;
 		eventType = EventType.NONLIVING_PLAYER;
 		this.rangedElement = null;
@@ -149,6 +164,7 @@ public class EventInfo
 	
 	public EventInfo(LivingEntity entity_target, DamageElement mobType_target, DamageElement damageType, int eventDamage) 
 	{
+		//log.info("Event: NvM");//TODO REMOVE ME
 		this.eventDamage = eventDamage;
 		eventType = EventType.NONLIVING_MOB;
 		this.rangedElement = null;

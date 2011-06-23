@@ -325,13 +325,16 @@ public class ModDamage extends JavaPlugin
 			}
 			LivingEntity ent_damaged = (LivingEntity)event.getEntity();
 			WorldHandler worldHandler = (worldHandlers.containsKey(event.getEntity().getWorld())?(worldHandlers.get(event.getEntity().getWorld())):null);
-			if(worldHandler.loadedSomething())
+			if(worldHandler != null && worldHandler.loadedSomething())
 			{
 				EventInfo eventInfo = null;
+				
 				if(DamageElement.matchNonlivingElement(event.getCause()) != null)
 				{
+				//Nonliving vs Player
 					if(ent_damaged instanceof Player)
 						eventInfo = new EventInfo((Player)ent_damaged, DamageElement.matchNonlivingElement(event.getCause()), event.getDamage());
+				//Nonliving vs Mob
 					else if(DamageElement.matchLivingElement(ent_damaged) != null)
 						eventInfo = new EventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), DamageElement.matchNonlivingElement(event.getCause()), event.getDamage());
 				}
@@ -359,13 +362,14 @@ public class ModDamage extends JavaPlugin
 					//Mob vs Mob 
 						else if(DamageElement.matchLivingElement(ent_damager) != null) 
 							eventInfo = new EventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), ent_damager, DamageElement.matchLivingElement(ent_damager), event.getDamage());
-					//Nonliving vs Mob
+					
 					}
 				}
 				else{ log.severe("Something horrible just happened. Bug KoryuObihiro about it.");}//TODO REMOVE....MEBBE
 				worldHandler.doCalculations(eventInfo);
 				if(eventInfo.eventDamage < 0 && !negative_Heal) 
 					eventInfo.eventDamage = 0;
+				//log.info("DAMAGE: " + eventInfo.eventDamage);
 				event.setDamage(eventInfo.eventDamage);
 			}
 		}

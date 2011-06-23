@@ -534,8 +534,8 @@ public class WorldHandler
 						if(groupHandlers.containsKey(group_attacker))
 							for(String group_target : eventInfo.groups_target)
 							{
-								groupHandlers.get(group_attacker).doAttackBuff(eventInfo, group_target);
-								groupHandlers.get(group_target).doDefenseBuff(eventInfo, group_attacker);
+								//groupHandlers.get(group_attacker).doAttackBuff(eventInfo, group_target);
+								//groupHandlers.get(group_target).doDefenseBuff(eventInfo, group_attacker);
 							}
 				}
 				catch(Exception e)
@@ -562,13 +562,16 @@ public class WorldHandler
 				{
 					for(String group_attacking : eventInfo.groups_attacker)
 						if(groupHandlers.containsKey(group_attacking))
-							groupHandlers.get(group_attacking).doAttackBuff(eventInfo);
+							{
+							//groupHandlers.get(group_attacking).doAttackBuff(eventInfo);
+							}
 				}
 				catch(Exception e)
 				{
 					log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
 							+ eventInfo.name_attacker + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
 				}
+			return;
 				
 ///////////////////// Mob vs. Player
 			case MOB_PLAYER:
@@ -583,12 +586,14 @@ public class WorldHandler
 					String[] groups_target = ModDamage.Permissions.getGroups(world.getName(), ((Player)eventInfo.entity_target).getName());
 					for(String group_target : groups_target)
 						if(groupHandlers.containsKey(group_target))
-							groupHandlers.get(group_target).doDefenseBuff(eventInfo);
+							{
+							//groupHandlers.get(group_target).doDefenseBuff(eventInfo);
+							}
 				}
 				catch(Exception e)
 				{
 					log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
-							+ ((Player)eventInfo.entity_target).getName() + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
+							+ eventInfo.name_target + "\" in world \"" + world.getName() + "\" - add this player to a group in Permissions!");
 				}
 			return;
 			
@@ -604,7 +609,9 @@ public class WorldHandler
 				{
 					for(String group_target : eventInfo.groups_target)
 						if(groupHandlers.containsKey(group_target))
-							groupHandlers.get(group_target).doDefenseBuff(eventInfo);
+							{
+							//groupHandlers.get(group_target).doDefenseBuff(eventInfo);
+							}
 				}
 				catch(Exception e)
 				{
@@ -627,33 +634,53 @@ public class WorldHandler
 	private void runRoutines(EventInfo eventInfo, boolean isOffensive)
 	{ 
 		DamageElement damageElement = (isOffensive?eventInfo.damageElement_attacker:eventInfo.damageElement_target);
-		eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(damageElement.getType()), isOffensive);
-		eventInfo.eventDamage +=  this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(damageElement), isOffensive);
+		if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement.getType()))
+			eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(damageElement.getType()), isOffensive);
+		if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement))
+			eventInfo.eventDamage +=  this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(damageElement), isOffensive);
 	}
 	
 	private void runPlayerRoutines(EventInfo eventInfo, boolean isOffensive)
 	{
 		if(eventInfo.rangedElement != null)
 		{
-			eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(DamageElement.GENERIC_RANGED), isOffensive);
-			eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).get(eventInfo.rangedElement), isOffensive);
+			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(DamageElement.GENERIC_RANGED))
+				eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(DamageElement.GENERIC_RANGED), isOffensive);
+			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(eventInfo.rangedElement))
+				eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).get(eventInfo.rangedElement), isOffensive);
 		}
 		else 
 		{
-			eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(DamageElement.GENERIC_MELEE), isOffensive);
-			eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(eventInfo.elementInHand_attacker), isOffensive);
-			eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).get(eventInfo.materialInHand_attacker), isOffensive);
+			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(eventInfo.elementInHand_attacker))
+				eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(DamageElement.GENERIC_MELEE), isOffensive);
+
+			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(eventInfo.elementInHand_attacker))
+				eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(eventInfo.elementInHand_attacker), isOffensive);
+
+			if((isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).containsKey(eventInfo.materialInHand_attacker))
+				eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).get(eventInfo.materialInHand_attacker), isOffensive);
 		}
-		eventInfo.eventDamage +=  this.calculateDamage(eventInfo, (isOffensive?armorOffensiveRoutines.get(eventInfo.armorSetString_attacker):armorDefensiveRoutines.get(eventInfo.armorSetString_target)), isOffensive);
+		if((isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).containsKey(eventInfo.armorSetString_target))
+			eventInfo.eventDamage +=  this.calculateDamage(eventInfo, (isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).get(eventInfo.armorSetString_target), isOffensive);
 	}
 
 	private int calculateDamage(EventInfo eventInfo, List<DamageCalculation> damageCalculations, boolean isOffensive) 
 	{
+		try
+		{
+			for(DamageCalculation damageCalculation : damageCalculations)
+				log.info(damageCalculation.toString());
+		}
+		catch(Exception e){}
+		
 		int result = eventInfo.eventDamage;
 		int defenseModifier = (isOffensive?1:-1);
-		if(damageCalculations != null)
-			for(DamageCalculation damageCalculation : damageCalculations)
-				result = damageCalculation.calculate(eventInfo, result);
+		for(DamageCalculation damageCalculation : damageCalculations)
+		{
+			int blah = damageCalculation.calculate(eventInfo, result);
+			log.info("SHOULD BE " + blah);//TODO REMOVE ME
+			result = blah;
+		}
 		return (result - eventInfo.eventDamage) * defenseModifier;
 	}
 	
