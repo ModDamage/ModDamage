@@ -26,11 +26,12 @@ import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.EventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.GroupHandler;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.WorldHandler;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.HealthCalculationAllocator;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculationAllocator;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
@@ -42,9 +43,14 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 	 */
 public class ModDamage extends JavaPlugin
 {
-	//TODO Deregister when Bukkit supports!
-	//TODO Client-sided mod for displaying health?
-	//TODO Add worldLoad-triggered loading of MD
+	//TODO
+	//- Deregister when Bukkit supports!
+	//- Client-sided mod for displaying health?
+	//- Add worldLoad-triggered loading of MD
+	//- Add "add", "delete", etc.
+	//- aliasing
+	//- Use "advanced" boolean for mobs?
+	
 	//plugin-related
 	public boolean isEnabled = false;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
@@ -57,19 +63,23 @@ public class ModDamage extends JavaPlugin
 	//Configuration
 	private ConfigurationNode pluginOffensiveNode, pluginDefensiveNode, pluginMobHealthNode, pluginScanNode;
 	public boolean multigroupPermissions = true;
-	private final DamageCalculationAllocator damageCalc = new DamageCalculationAllocator();
-	private final HealthCalculationAllocator healthCalc = new HealthCalculationAllocator();
-	public final HashMap<String, List<Material>> itemKeywords = new HashMap<String, List<Material>>();
+	public static final DamageCalculationAllocator damageCalculationAllocator = new DamageCalculationAllocator();
+	public static final SpawnCalculationAllocator healthCalculationAllocator = new SpawnCalculationAllocator();
+	
+	//Alias hashmaps
 	
 	//User-customized config
+	public final static HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
+	public final static HashMap<String, List<Material>> itemAliases = new HashMap<String, List<Material>>();
+	public final static HashMap<String, List<String>> groupAliases = new HashMap<String, List<String>>();
+	public final static HashMap<String, List<String>> mobAliases = new HashMap<String, List<String>>();
 	public static boolean consoleDebugging_normal = true;
 	public static boolean consoleDebugging_verbose = false;
 	public static boolean disable_DefaultDamage;
 	public static boolean disable_DefaultHealth;
 	public static boolean negative_Heal;
-	public final static HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
 	
-////////////////////////// INITIALIZATION ///////////////////////////////
+////////////////////////// INITIALIZATION
 	@Override
 	public void onEnable() 
 	{
@@ -81,23 +91,25 @@ public class ModDamage extends JavaPlugin
 			log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() 
 					+ " enabled [Permissions v" + permissionsPlugin.getDescription().getVersion() + " active]");
 			
+			//This is necessary for backwards-compatibility.
 			multigroupPermissions = permissionsPlugin.getDescription().getVersion().startsWith("3.");
 		}
 		else
 			log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() 
 					+ " enabled [Permissions not found]");
 		
-		//TODO Use something less gimmicky. :P
-		itemKeywords.put("axe", Arrays.asList(Material.WOOD_AXE, Material.STONE_AXE, Material.IRON_AXE, Material.GOLD_AXE, Material.DIAMOND_AXE));
-		itemKeywords.put("hoe", Arrays.asList(Material.WOOD_HOE, Material.STONE_HOE, Material.IRON_HOE, Material.GOLD_HOE, Material.DIAMOND_HOE));
-		itemKeywords.put("pickaxe", Arrays.asList(Material.WOOD_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.GOLD_PICKAXE, Material.DIAMOND_PICKAXE));
-		itemKeywords.put("spade", Arrays.asList(Material.WOOD_SPADE, Material.STONE_SPADE, Material.IRON_SPADE, Material.GOLD_SPADE, Material.DIAMOND_SPADE));
-		itemKeywords.put("sword", Arrays.asList(Material.WOOD_SWORD, Material.STONE_SWORD, Material.IRON_SWORD, Material.GOLD_SWORD, Material.DIAMOND_SWORD));
-		
 		//register plugin-related stuff with the server's plugin manager
 		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
 		getServer().getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
+		//getServer().getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
 		
+		//TODO set aliases - this will be moved into reload() once dynamic nodes have been implemented.
+		// DON'T FORGET - casing needs to be handled, so that it's not an issue.
+		itemAliases.put("axe", Arrays.asList(Material.WOOD_AXE, Material.STONE_AXE, Material.IRON_AXE, Material.GOLD_AXE, Material.DIAMOND_AXE));
+		itemAliases.put("hoe", Arrays.asList(Material.WOOD_HOE, Material.STONE_HOE, Material.IRON_HOE, Material.GOLD_HOE, Material.DIAMOND_HOE));
+		itemAliases.put("pickaxe", Arrays.asList(Material.WOOD_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.GOLD_PICKAXE, Material.DIAMOND_PICKAXE));
+		itemAliases.put("spade", Arrays.asList(Material.WOOD_SPADE, Material.STONE_SPADE, Material.IRON_SPADE, Material.GOLD_SPADE, Material.DIAMOND_SPADE));
+		itemAliases.put("sword", Arrays.asList(Material.WOOD_SWORD, Material.STONE_SWORD, Material.IRON_SWORD, Material.GOLD_SWORD, Material.DIAMOND_SWORD));
 		reload(true);
 		
 		isEnabled = true;
@@ -111,11 +123,10 @@ public class ModDamage extends JavaPlugin
 	}
 
 
-////////////////////////// COMMAND PARSING ///////////////////////////////
+////////////////////////// COMMAND PARSING
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
-		//TODO Add "add", "delete", etc.
 		Player player = ((sender instanceof Player)?((Player)sender):null);
 		boolean fromConsole = (player == null);
 		
@@ -265,7 +276,7 @@ public class ModDamage extends JavaPlugin
 							{
 								try
 								{
-									sendConfig(player, args[1]); //TODO Page the world output...eventually. :P
+									sendConfig(player, args[1]);
 									//sendConfig(player, Integer.parseInt(args[1]));
 								} 
 								catch(NumberFormatException e){}
@@ -311,31 +322,30 @@ public class ModDamage extends JavaPlugin
 		return true;
 	}
 
-/////////////////// EVENT FUNCTIONS ////////////////////////////
-	public void passDamageEvent(EntityDamageEvent event) 
+/////////////////// EVENT FUNCTIONS
+	public void handleDamageEvent(EntityDamageEvent event) 
 	{
 		if(isEnabled && (event.getEntity() instanceof LivingEntity))
 		{
-			//simple check for noDamageTicks - 
-			if(((LivingEntity)event.getEntity()).getNoDamageTicks() > 50) //give this some leeway because this may be the time it takes to execute
-			{
-				event.setCancelled(true);
-				return;
-			}
 			LivingEntity ent_damaged = (LivingEntity)event.getEntity();
+			//simple check for noDamageTicks - not sure how this will affect other elements in Bukkit yet.
+			if(ent_damaged.getNoDamageTicks() > 50) //give this some leeway because this may be the time it takes to execute
+				return;
+			
 			WorldHandler worldHandler = (worldHandlers.containsKey(event.getEntity().getWorld())?(worldHandlers.get(event.getEntity().getWorld())):null);
 			if(worldHandler != null && worldHandler.loadedSomething())
 			{
-				EventInfo eventInfo = null;
+				DamageEventInfo eventInfo = null;
 				
 				if(DamageElement.matchNonlivingElement(event.getCause()) != null)
 				{
-				//Nonliving vs Player
+				//Nonliving damage to LivingEntity
+					//Nonliving vs Player
 					if(ent_damaged instanceof Player)
-						eventInfo = new EventInfo((Player)ent_damaged, DamageElement.matchNonlivingElement(event.getCause()), event.getDamage());
-				//Nonliving vs Mob
+						eventInfo = new DamageEventInfo((Player)ent_damaged, DamageElement.matchNonlivingElement(event.getCause()), event.getDamage());
+					//Nonliving vs Mob
 					else if(DamageElement.matchLivingElement(ent_damaged) != null)
-						eventInfo = new EventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), DamageElement.matchNonlivingElement(event.getCause()), event.getDamage());
+						eventInfo = new DamageEventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), DamageElement.matchNonlivingElement(event.getCause()), event.getDamage());
 				}
 				else if(event instanceof EntityDamageByEntityEvent)
 				{
@@ -349,23 +359,23 @@ public class ModDamage extends JavaPlugin
 					if(ent_damaged instanceof Player)
 					{
 					//Player vs Player
-						if(ent_damager instanceof Player) eventInfo = new EventInfo((Player)ent_damaged, (Player)ent_damager, rangedElement, event.getDamage());
+						if(ent_damager instanceof Player) eventInfo = new DamageEventInfo((Player)ent_damaged, (Player)ent_damager, rangedElement, event.getDamage());
 					//Mob vs Player
-						else eventInfo = new EventInfo((Player)ent_damaged, ent_damager, DamageElement.matchLivingElement(ent_damager), event.getDamage());
+						else eventInfo = new DamageEventInfo((Player)ent_damaged, ent_damager, DamageElement.matchLivingElement(ent_damager), event.getDamage());
 					}
 				//Monster-targeted damage
 					else if(DamageElement.matchLivingElement(ent_damaged) != null)
 					{
 					//Player vs Mob
-						if(ent_damager instanceof Player) eventInfo = new EventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), (Player)ent_damager, rangedElement, event.getDamage());
+						if(ent_damager instanceof Player) eventInfo = new DamageEventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), (Player)ent_damager, rangedElement, event.getDamage());
 					//Mob vs Mob 
 						else if(DamageElement.matchLivingElement(ent_damager) != null) 
-							eventInfo = new EventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), ent_damager, DamageElement.matchLivingElement(ent_damager), event.getDamage());
+							eventInfo = new DamageEventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), ent_damager, DamageElement.matchLivingElement(ent_damager), event.getDamage());
 					
 					}
 				}
 				else{ log.severe("Something horrible just happened. Bug KoryuObihiro about it.");}//TODO REMOVE....MEBBE
-				worldHandler.doCalculations(eventInfo);
+				worldHandler.doDamageCalculations(eventInfo);
 				if(eventInfo.shouldScan)
 				{
 					int displayHealth = (eventInfo.entity_target).getHealth() - ((!(eventInfo.eventDamage < 0 && negative_Heal))?eventInfo.eventDamage:0);
@@ -375,7 +385,6 @@ public class ModDamage extends JavaPlugin
 				}
 				if(eventInfo.eventDamage < 0 && !negative_Heal) 
 					eventInfo.eventDamage = 0;
-				//log.info("DAMAGE: " + eventInfo.eventDamage);
 				event.setDamage(eventInfo.eventDamage);
 			}
 		}
@@ -385,13 +394,14 @@ public class ModDamage extends JavaPlugin
 	{
 		if(event.getEntity() != null)
 		{
-			World world = event.getEntity().getWorld();
-			LivingEntity livingEntity = ((LivingEntity)event.getEntity());
-			if(disable_DefaultHealth) livingEntity.setHealth(0);
+			LivingEntity entity = (LivingEntity)event.getEntity();
+			SpawnEventInfo eventInfo = ((entity instanceof Player)?new SpawnEventInfo((Player)entity):new SpawnEventInfo((LivingEntity)entity));
+			if(disable_DefaultHealth) eventInfo.eventHealth = 0;
+			if(worldHandlers.containsKey(event.getEntity().getWorld()))
+				worldHandlers.get(event.getEntity().getWorld()).doSpawnCalculations(eventInfo);
 			
-			if(worldHandlers.containsKey(world))
-				worldHandlers.get(world).setHealth(livingEntity);
-			event.setCancelled(livingEntity.getHealth() <= 0);
+			entity.setHealth(eventInfo.eventHealth);
+			event.setCancelled(entity.getHealth() <= 0);
 		}
 	}
 	
@@ -434,10 +444,10 @@ public class ModDamage extends JavaPlugin
 						return groupHandler.getGroupName();
 		return null;
 	}
-	
+
 	public String ModDamageString(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "]";}
 	
-/////////////////// PLUGIN CONFIGURATION ////////////////////////////
+//// PLUGIN CONFIGURATION ////
 	private void setPluginStatus(Player player, boolean state) 
 	{
 		if(state)
@@ -521,7 +531,7 @@ public class ModDamage extends JavaPlugin
 		}
 	}
 
-/////////////////// MECHANICS CONFIGURATION ////////////////////////////
+/////////////////// MECHANICS CONFIGURATION 
 	private boolean reload(boolean printToConsole)
 	{
 	//CONFIGURATION
@@ -554,8 +564,7 @@ public class ModDamage extends JavaPlugin
 			else log.info("[" + getDescription().getName()+ "] Debug string not recognized - defaulting to normal settings.");
 		}
 		
-	//"disable"-type configs
-		//TODO Clean up this output stuff. Surely there's a more clever way to output? :P
+	//single-property configs
 		disable_DefaultDamage = config.getBoolean("disableDefaultDamage", false);
 		if(consoleDebugging_normal && disable_DefaultDamage)
 			log.info("[" + getDescription().getName()+ "] Default damage disabled.");
@@ -576,6 +585,11 @@ public class ModDamage extends JavaPlugin
 		
 		config.load(); //Discard any changes made to the file by the above reads.
 		
+	//TODO aliases 
+		//if(loadAliases() && consoleDebugging_normal) log.info("Aliases loaded!");
+		//else log.warning
+		
+		
 	//try to initialize WorldHandlers
 		boolean loadedSomething = false;
 		
@@ -590,7 +604,7 @@ public class ModDamage extends JavaPlugin
 				for(int i = 0; i < worldNodes.length; i++)
 					if(worldNodes[i] == null && (consoleDebugging_verbose))
 						log.warning("{Couldn't find " + nodeNames[i] +  " node for world \"" + world.getName() + "\"}");
-				WorldHandler worldHandler = new WorldHandler(this, world, worldNodes[0], worldNodes[1], worldNodes[2], worldNodes[3], damageCalc, healthCalc);
+				WorldHandler worldHandler = new WorldHandler(this, world, worldNodes[0], worldNodes[1], worldNodes[2], worldNodes[3], damageCalculationAllocator, healthCalculationAllocator);
 				if(worldHandler.loadedSomething())
 				{
 					worldHandlers.put(world, worldHandler);
@@ -603,11 +617,17 @@ public class ModDamage extends JavaPlugin
 
 	private void writeDefaults() 
 	{
+	//set server-global configuration
+		//set single-property stuff
 		log.severe("[" + getDescription().getName() + "] No configuration file found! Writing a blank config...");
 		config.setProperty("debugging", "normal");
 		config.setProperty("disableDefaultHealth", "false");
 		config.setProperty("disableDefaultDamage", "false");
 		config.setProperty("negativeHeal", "false");
+		
+		//TODO Add aliasing here soon.
+		//saveAliases();
+		
 		for(World world : getServer().getWorlds())
 		{
 			String worldName = world.getName();
@@ -635,7 +655,7 @@ public class ModDamage extends JavaPlugin
 				config.setProperty("Offensive." + worldName + ".global.armor", emptyList);
 				config.setProperty("Offensive." + worldName + ".groups", emptyList);
 				
-				/*//FIXME Documentation for Perms 3.0+ is lacking at best right now.
+				/*//FIXME Documentation for Perms 3.0+ is lacking at best right now...but this is definitely optional.
 				for(Group group : Permissions.getGroups(worldName))
 				{
 					log.info(group.toString());
@@ -657,8 +677,19 @@ public class ModDamage extends JavaPlugin
 		config.load();//TODO Necessary?
 		log.severe("[" + getDescription().getName() + "] Done! Don't forget that you can define armor, melee, and group nodes further.");
 	}
-	
+
 	/*
+	private boolean loadAliases()
+	{
+		//TODO
+		return false;
+	}
+	
+	private void saveAliases()
+	{
+		//TODO
+	}
+	
 	private boolean add(String string, List<String> calcStrings) 
 	{
 		try
@@ -733,6 +764,4 @@ public class ModDamage extends JavaPlugin
 			else player.sendMessage(errorString_findWorld);
 		}
 	}
-	
-	
 }

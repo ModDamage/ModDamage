@@ -1,10 +1,10 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.EventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 
-public class DiceRoll extends ChanceCalculation 
+public class DiceRoll extends ChanceDamageCalculation 
 {
 	public DiceRoll(){}
 	@Override
-	public void calculate(EventInfo eventInfo){ eventInfo.eventDamage = Math.abs(random.nextInt()%(eventInfo.eventDamage + 1));}
+	public void calculate(DamageEventInfo eventInfo){ eventInfo.eventDamage = Math.abs(random.nextInt()%(eventInfo.eventDamage + 1));}
 }

@@ -8,15 +8,15 @@ import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.HealthCalculationAllocator;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Health.HealthCalculation;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculationAllocator;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.ConditionalSpawnCalculation;
 
 
 
@@ -37,7 +37,7 @@ public class WorldHandler
 	
 	//nodes for config loading
 	final private DamageCalculationAllocator damageCalc;
-	final private HealthCalculationAllocator healthCalc;
+	final private SpawnCalculationAllocator healthCalc;
 	final private ConfigurationNode offensiveNode;
 	final private ConfigurationNode defensiveNode;
 	final private ConfigurationNode mobHealthNode;
@@ -53,7 +53,8 @@ public class WorldHandler
 	final private HashMap<String, List<DamageCalculation>> armorOffensiveRoutines = new HashMap<String, List<DamageCalculation>>();
 	final private HashMap<String, List<DamageCalculation>> armorDefensiveRoutines = new HashMap<String, List<DamageCalculation>>();
 	//other MD config
-	final private HashMap<DamageElement, HealthCalculation> mobHealthSettings = new HashMap<DamageElement, HealthCalculation>();
+	final private HashMap<DamageElement, SpawnCalculation> mobSpawnDefaults = new HashMap<DamageElement, SpawnCalculation>();
+	final private HashMap<DamageElement, List<ConditionalSpawnCalculation>> mobSpawnConditionals = new HashMap<DamageElement, List<ConditionalSpawnCalculation>>();
 	final private List<Material> globalScanItems = new ArrayList<Material>();
 	
 	//Handlers
@@ -61,7 +62,7 @@ public class WorldHandler
 	
 	
 //// CONSTRUCTOR ////
-	public WorldHandler(ModDamage plugin, World world, ConfigurationNode offensiveNode, ConfigurationNode defensiveNode, ConfigurationNode mobHealthNode, ConfigurationNode scanNode, DamageCalculationAllocator damageCalc, HealthCalculationAllocator healthCalc) 
+	public WorldHandler(ModDamage plugin, World world, ConfigurationNode offensiveNode, ConfigurationNode defensiveNode, ConfigurationNode mobHealthNode, ConfigurationNode scanNode, DamageCalculationAllocator damageCalc, SpawnCalculationAllocator healthCalc) 
 	{
 		this.world = world;
 		this.plugin = plugin;
@@ -286,7 +287,7 @@ public class WorldHandler
 									log.warning("[" + plugin.getDescription().getName() + "] Repetitive " + material.name() + "(" + material.getId() 
 											+ ") definition in " + (isOffensive?"Offensive":"Defensive") + " item globals - ignoring");
 							}
-							else if(!plugin.itemKeywords.containsKey(itemString) && ModDamage.consoleDebugging_verbose)
+							else if(!ModDamage.itemAliases.containsKey(itemString) && ModDamage.consoleDebugging_verbose)
 								log.warning("No instructions found for global " + material.name() + "(" + material.getId()
 									+ ") item node in " + (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
 							calcStrings = null;
@@ -316,11 +317,11 @@ public class WorldHandler
 				{
 					calcStrings = armorNode.getStringList(armorSetString, null);
 					
-					List<String> conditionalKeys = armorNode.getKeys(armorSetString);//TODO REMOVE ME
+					List<String> conditionalKeys = armorNode.getKeys(armorSetString);//TODO REMOVE ME WHEN CAN HAS SEEING KTHX
 					for(String key : conditionalKeys)
-						log.info("Key \"" + key + "\": " + armorNode.getNode(armorSetString).getStringList(key, null));
+						log.info("Key \"" + key + "\": " + armorNode.getNode(armorSetString).getStringList(key, new ArrayList<String>()));
 					
-					if(!calcStrings.equals(null))
+					if(!calcStrings.isEmpty())
 					{
 						List<DamageCalculation> damageCalculations = damageCalc.parseStrings(calcStrings);
 						if(!damageCalculations.isEmpty())
@@ -402,21 +403,23 @@ public class WorldHandler
 			//load Mob health settings
 			for(DamageElement creatureType : creatureTypes)
 			{
-			//check for leaf-node health strings
-				String calcString = (String)mobHealthNode.getProperty(creatureType.getReference());
+			//check the node property for a default spawn calculation
+				String calcString = null;
+				Object tryMe = mobHealthNode.getProperty(creatureType.getReference());
+				if(tryMe instanceof String)
+					calcString = (String)tryMe;
 				if(calcString != null)
 				{
-					HealthCalculation calculation = healthCalc.parseString(calcString);
+					SpawnCalculation calculation = healthCalc.parseDefault(calcString);
 					if(calculation == null)
 						log.severe("Invalid command string \"" + calcString + "\" in MobHealth " + creatureType.getReference() 
 								+ " definition - refer to config for proper calculation node");
-				//display debug message to acknowledge that the settings have been validated
 					else 
 					{
 						//check that this type of mob hasn't already been loaded
-						if(!mobHealthSettings.containsKey(creatureType))
+						if(!mobSpawnDefaults.containsKey(creatureType))
 						{
-							mobHealthSettings.put(creatureType, calculation);
+							mobSpawnDefaults.put(creatureType, calculation);
 							String configString = "-MobHealth:" + world.getName() + ":" + creatureType.getReference() 
 								+ " [" + calcString.toString() + "]";
 							configStrings.add(configString);
@@ -429,19 +432,30 @@ public class WorldHandler
 				}
 				else if(ModDamage.consoleDebugging_verbose)
 					log.warning("No instructions found for " + creatureType.getReference() + " - is this on purpose?");
+
+			//check the node's subconfiguration for conditionals
+				List<String> calcStrings = mobHealthNode.getStringList(creatureType.getReference(), new ArrayList<String>());
+				if(!calcStrings.isEmpty())
+				{
+					log.severe("Found under MobHealth node \"" + creatureType + "\"");
+					for(String string : calcStrings)
+						log.info(string);
+				}
 			}
 		}
 		return loadedSomething;
 	}
 	
-	public boolean setHealth(LivingEntity entity)
+	public boolean doSpawnCalculations(SpawnEventInfo eventInfo)
 	{
 		//determine creature type
-		DamageElement creatureType = DamageElement.matchLivingElement(entity);
-		if(creatureType != null)
+		if(eventInfo.damageElement != null)
 		{
-			if(mobHealthSettings.containsKey(creatureType))
-				entity.setHealth(mobHealthSettings.get(creatureType).calculate());
+			if(mobSpawnDefaults.containsKey(eventInfo.damageElement))
+				mobSpawnDefaults.get(eventInfo.damageElement).calculate(eventInfo);
+			if(mobSpawnConditionals.containsKey(eventInfo.damageElement))
+				for(ConditionalSpawnCalculation calculation : mobSpawnConditionals.get(eventInfo.damageElement))
+					calculation.calculate(eventInfo);
 			return true;
 		}
 		return false;
@@ -459,8 +473,8 @@ public class WorldHandler
 			{
 				for(String itemString : itemList)
 				{
-					if(plugin.itemKeywords.containsKey(itemString.toLowerCase()))
-						for(Material material : plugin.itemKeywords.get(itemString.toLowerCase()))
+					if(ModDamage.itemAliases.containsKey(itemString.toLowerCase()))
+						for(Material material : ModDamage.itemAliases.get(itemString.toLowerCase()))
 						{
 							globalScanItems.add(material);
 							String configString = "-Scan:" + world.getName() + ":" + material.name() + "(" + material.getId() + ")";
@@ -508,7 +522,7 @@ public class WorldHandler
 	}
 
 //// DAMAGE HANDLING ////
-	public void doCalculations(EventInfo eventInfo) 
+	public void doDamageCalculations(DamageEventInfo eventInfo) 
 	{
 		switch(eventInfo.eventType)
 		{
@@ -523,13 +537,12 @@ public class WorldHandler
 			//calculate group buff
 				try
 				{
-				//attack buff
 					for(String group_attacker : eventInfo.groups_attacker)
 						if(groupHandlers.containsKey(group_attacker))
 							for(String group_target : eventInfo.groups_target)
 							{
-								//groupHandlers.get(group_attacker).doAttackBuff(eventInfo, group_target);
-								//groupHandlers.get(group_target).doDefenseBuff(eventInfo, group_attacker);
+								groupHandlers.get(group_attacker).doAttackCalculations(eventInfo);//attack buff
+								groupHandlers.get(group_target).doDefenseCalculations(eventInfo);//defense buff		
 							}
 				}
 				catch(Exception e)
@@ -556,9 +569,7 @@ public class WorldHandler
 				{
 					for(String group_attacking : eventInfo.groups_attacker)
 						if(groupHandlers.containsKey(group_attacking))
-							{
-							//groupHandlers.get(group_attacking).doAttackBuff(eventInfo);
-							}
+							groupHandlers.get(group_attacking).doAttackCalculations(eventInfo);
 				}
 				catch(Exception e)
 				{
@@ -580,9 +591,7 @@ public class WorldHandler
 					String[] groups_target = ModDamage.Permissions.getGroups(world.getName(), ((Player)eventInfo.entity_target).getName());
 					for(String group_target : groups_target)
 						if(groupHandlers.containsKey(group_target))
-							{
-							//groupHandlers.get(group_target).doDefenseBuff(eventInfo);
-							}
+							groupHandlers.get(group_target).doDefenseCalculations(eventInfo);
 				}
 				catch(Exception e)
 				{
@@ -591,6 +600,14 @@ public class WorldHandler
 				}
 			return;
 			
+
+///////////////////// Mob vs. Mob
+			case MOB_MOB:
+				runRoutines(eventInfo, true);//attack buff
+
+				runRoutines(eventInfo, false);//defense buff
+			return;
+	
 ///////////////////// Nonliving vs. Player
 			case NONLIVING_PLAYER:
 				runRoutines(eventInfo, true);//attack buff
@@ -603,9 +620,7 @@ public class WorldHandler
 				{
 					for(String group_target : eventInfo.groups_target)
 						if(groupHandlers.containsKey(group_target))
-							{
-							//groupHandlers.get(group_target).doDefenseBuff(eventInfo);
-							}
+							groupHandlers.get(group_target).doDefenseCalculations(eventInfo);
 				}
 				catch(Exception e)
 				{
@@ -625,7 +640,7 @@ public class WorldHandler
 	}
 	
 ///////////////////// ROUTINE-SPECIFIC CALLS
-	private void runRoutines(EventInfo eventInfo, boolean isOffensive)
+	private void runRoutines(DamageEventInfo eventInfo, boolean isOffensive)
 	{ 
 		DamageElement damageElement = (isOffensive?eventInfo.damageElement_attacker:eventInfo.damageElement_target);
 		if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement.getType()))
@@ -634,7 +649,7 @@ public class WorldHandler
 			calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(damageElement));
 	}
 	
-	private void runPlayerRoutines(EventInfo eventInfo, boolean isOffensive)
+	private void runPlayerRoutines(DamageEventInfo eventInfo, boolean isOffensive)
 	{
 		if(eventInfo.rangedElement != null)
 		{
@@ -658,8 +673,7 @@ public class WorldHandler
 			calculateDamage(eventInfo, (isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).get(eventInfo.armorSetString_target));
 	}
 
-	//TODO Refactor for each, maybe? Might look messy.
-	private void calculateDamage(EventInfo eventInfo, List<DamageCalculation> damageCalculations) 
+	private void calculateDamage(DamageEventInfo eventInfo, List<DamageCalculation> damageCalculations) 
 	{
 		for(DamageCalculation damageCalculation : damageCalculations)
 			damageCalculation.calculate(eventInfo);
@@ -675,7 +689,7 @@ public class WorldHandler
 		meleeOffensiveRoutines.clear();
 		meleeDefensiveRoutines.clear();
 		globalScanItems.clear();
-		mobHealthSettings.clear();
+		mobSpawnConditionals.clear();
 		groupHandlers.clear();
 		configStrings.clear();
 	}
@@ -713,7 +727,7 @@ public class WorldHandler
 		return false;
 	}
 
-	/*
+	/* FIXME NAO
 	public boolean reloadConfig()
 	{
 		//Get config information dynamically

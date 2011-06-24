@@ -5,23 +5,22 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Addition;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Binomial;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.DiceRollAddition;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.DiceRoll;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.DivisionAddition;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.DiceRollAddition;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Division;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.DivisionAddition;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Set;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityDrowning;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityHealthEquals;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityHealthGreaterThan;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityHealthGreaterThanEquals;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityHealthLessThan;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityHealthLessThanEquals;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityHealthNotEquals;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityOnFire;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.EntityUnderwater;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.WorldTime;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Binomial;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Entity.EntityDrowning;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Entity.EntityHealthEquals;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Entity.EntityHealthGreaterThan;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Entity.EntityHealthGreaterThanEquals;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Entity.EntityHealthLessThan;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Entity.EntityHealthLessThanEquals;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Entity.EntityOnFire;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Entity.EntityUnderwater;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.World.WorldTime;
 
 public class DamageCalculationAllocator
 {	
@@ -81,7 +80,6 @@ public class DamageCalculationAllocator
 								else if(args[2].equalsIgnoreCase("greaterThan")) return new EntityHealthGreaterThan(true, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
 								else if(args[2].equalsIgnoreCase("greaterThanEquals")) return new EntityHealthGreaterThanEquals(true, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
 								else if(args[2].equalsIgnoreCase("equals")) return new EntityHealthEquals(true, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("notEquals")) return new EntityHealthNotEquals(true, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
 							}
 							else if(args[1].equalsIgnoreCase("targetHealth"))
 							{
@@ -90,7 +88,6 @@ public class DamageCalculationAllocator
 								else if(args[2].equalsIgnoreCase("greaterThan")) return new EntityHealthGreaterThan(false, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
 								else if(args[2].equalsIgnoreCase("greaterThanEquals")) return new EntityHealthGreaterThanEquals(false, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
 								else if(args[2].equalsIgnoreCase("equals")) return new EntityHealthEquals(false, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("notEquals")) return new EntityHealthNotEquals(false, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
 							}
 							else if(args[1].equalsIgnoreCase("worldTime"))
 							{
@@ -119,15 +116,7 @@ public class DamageCalculationAllocator
 		catch(Exception e){ return null;}
 	}
 	//IFs(?): TODO mebbe
-	// entityis.onblock.MATERIAL
-	// entityis.inlightlevel.#value
-	// entityis.exposedtoSky
-	// entityis.atAltitude.#value
-	// entityis.inBiome.$biome
-	// entityis.inEnvironment.$environment
-	// entityis.falling
-	// entityis.fallen.#value
-	// targetis.targeted
+	// entityis.targetedByOther
 	// playeris.locatedIRL.$area
 	// playeris.wearingonly.ARMORSET
 	// playeris.wearing.ARMORSET
@@ -138,8 +127,6 @@ public class DamageCalculationAllocator
 	//
 	//EFFECTs
 	//(GET and SET)
-	// setEntity.airticks.#value
-	// setEntity.fireticks.#value
 	// setEntity.health.#value   <- Sets event damage to 0? (probably not)
 	// setEntity.item.#material
 	

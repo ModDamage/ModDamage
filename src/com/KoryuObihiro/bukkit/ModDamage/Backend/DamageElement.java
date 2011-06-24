@@ -135,10 +135,12 @@ public enum DamageElement
 	{
 		if (entity instanceof LivingEntity) 
 		{
-			if(entity instanceof Slime)return DamageElement.MOB_SLIME;
-			else if(entity instanceof Creature) 
+			//if(entity instanceof Slime)return DamageElement.MOB_SLIME;
+			//else 
+			if(entity instanceof Creature) 
 			{
-				if(entity instanceof Animals) 
+				if(entity instanceof Slime)return DamageElement.MOB_SLIME;//XXX Not sure if this is broken - it was in a previous RB.
+				else if(entity instanceof Animals) 
 				{
 					if(entity instanceof Chicken) 		return DamageElement.ANIMAL_CHICKEN;
 					else if(entity instanceof Cow) 	return DamageElement.ANIMAL_COW; 
