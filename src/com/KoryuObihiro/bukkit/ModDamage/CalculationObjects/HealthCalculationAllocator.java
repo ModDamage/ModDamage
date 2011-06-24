@@ -30,5 +30,15 @@ public class HealthCalculationAllocator
 	//TODO IDEA: health spawn based on entity resting on block of type BLAH?
 	//TODO Add binomial health settings
 	//TODO REGEN?! :D Requires something else, though...
+	//IFs: TODO
+	// entityis.onblock.MATERIAL
+	// entityis.inlightlevel.#value
+	// entityis.exposedtoSky
+	// entityis.inBiome.$biome
+	// entityis.inEnvironment.$environment
+	// entityis.atAltitude.#value
+	// playeris.locatedIRL.$area
+	// serveris.onlinemode
+	// serveris.portedAt.#port
 	}
 }

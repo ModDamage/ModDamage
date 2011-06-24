@@ -11,7 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -68,7 +67,7 @@ public class ModDamage extends JavaPlugin
 	public static boolean disable_DefaultDamage;
 	public static boolean disable_DefaultHealth;
 	public static boolean negative_Heal;
-	public final HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
+	public final static HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
 	
 ////////////////////////// INITIALIZATION ///////////////////////////////
 	@Override
@@ -367,6 +366,13 @@ public class ModDamage extends JavaPlugin
 				}
 				else{ log.severe("Something horrible just happened. Bug KoryuObihiro about it.");}//TODO REMOVE....MEBBE
 				worldHandler.doCalculations(eventInfo);
+				if(eventInfo.shouldScan)
+				{
+					int displayHealth = (eventInfo.entity_target).getHealth() - ((!(eventInfo.eventDamage < 0 && negative_Heal))?eventInfo.eventDamage:0);
+					((Player)eventInfo.entity_attacker).sendMessage(ChatColor.DARK_PURPLE + eventInfo.damageElement_target.getReference() 
+							+ "(" + (eventInfo.name_attacker != null?eventInfo.name_attacker:("id " + eventInfo.entity_target.getEntityId()))
+							+ "): " + Integer.toString((displayHealth < 0)?0:displayHealth));
+				}
 				if(eventInfo.eventDamage < 0 && !negative_Heal) 
 					eventInfo.eventDamage = 0;
 				//log.info("DAMAGE: " + eventInfo.eventDamage);
@@ -391,7 +397,7 @@ public class ModDamage extends JavaPlugin
 	
 /////////////////// HELPER FUNCTIONS ////////////////////////////
 	//check for Permissions
-	private static boolean hasPermission(Player player, String permission)
+	public static boolean hasPermission(Player player, String permission)
 	{
 		if (ModDamage.Permissions != null)
 		{

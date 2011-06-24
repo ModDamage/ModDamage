@@ -9,11 +9,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 public abstract class ConditionalDamageCalculation extends DamageCalculation 
 {
 	protected List<DamageCalculation> calculations;
-	public int makeCalculations(EventInfo eventInfo, int eventDamage)
+	public void makeCalculations(EventInfo eventInfo)
 	{
-		int result = eventDamage;
 		for(DamageCalculation calculation : calculations)
-			result = calculation.calculate(eventInfo, result);
-		return result;
+			calculation.calculate(eventInfo);
 	}
 }

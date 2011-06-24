@@ -16,10 +16,9 @@ public class EntityHealthNotEquals extends EntityConditionalCalculation
 		this.calculations = calculations;
 	}
 	@Override
-	public int calculate(EventInfo eventInfo, int eventDamage) 
+	public void calculate(EventInfo eventInfo) 
 	{
 		if((forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getHealth() != value)
-			return calculate(eventInfo, eventDamage);
-		return eventDamage;
+			calculate(eventInfo);
 	}
 }

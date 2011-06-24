@@ -3,6 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -12,8 +13,8 @@ public class EventInfo
 {
 	Logger log = Logger.getLogger("Minecraft");
 	
-	
 	public int eventDamage;
+	public final World world;
 	//Having everything public may not be a good idea, but I don't intend to change anything later.
 	public final EventType eventType;
 	public final EventType getEventType(){ return eventType;}
@@ -35,15 +36,16 @@ public class EventInfo
 	public final String name_target;
 	public final String[] groups_attacker;
 	
+	public final boolean shouldScan;
+	
 //CONSTRUCTORS
 	public EventInfo(Player player_target, Player player_attacker, DamageElement rangedElement, int eventDamage) 
 	{
-		//log.info("Event: PvP");//TODO REMOVE ME
 		this.eventDamage = eventDamage;
 		eventType = EventType.PLAYER_PLAYER;
 		this.rangedElement = rangedElement;
 		
-		this.entity_target = player_target;
+		entity_target = player_target;
 		damageElement_target = DamageElement.GENERIC_HUMAN;
 		materialInHand_target = player_target.getItemInHand().getType();
 		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
@@ -51,13 +53,18 @@ public class EventInfo
 		name_target = player_target.getName();
 		groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
 		
-		this.entity_attacker = player_attacker;
+		entity_attacker = player_attacker;
 		damageElement_attacker = DamageElement.GENERIC_HUMAN;
 		materialInHand_attacker = player_attacker.getItemInHand().getType();
 		elementInHand_attacker = DamageElement.matchMeleeElement(materialInHand_attacker);
 		armorSetString_attacker = new ArmorSet(player_attacker).toString();
 		name_attacker = player_attacker.getName();
 		groups_attacker = ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName());
+		
+		world = entity_target.getWorld();
+
+		shouldScan = (ModDamage.hasPermission(player_attacker, "moddamage.scan.pvp") && ModDamage.worldHandlers.get(world).canScan(player_attacker));
+		
 	}
 	
 	public EventInfo(LivingEntity entity_target, DamageElement mobType_target, Player player_attacker, DamageElement rangedElement, int eventDamage) 
@@ -74,19 +81,18 @@ public class EventInfo
 		name_target = null;
 		groups_target = null;
 		
-		this.entity_attacker = player_attacker;
+		entity_attacker = player_attacker;
 		damageElement_attacker = DamageElement.GENERIC_HUMAN;
 		materialInHand_attacker = player_attacker.getItemInHand().getType();
 		elementInHand_attacker = DamageElement.matchMeleeElement(materialInHand_attacker);
 		armorSetString_attacker = new ArmorSet(player_attacker).toString();
 		name_attacker = player_attacker.getName();
 		groups_attacker = ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName());
-	
-		//log.info("Event: PvM");//TODO REMOVE ME
-		//log.info("Player " + name_attacker + " attacking a " + damageElement_target.getReference());//TODO REMOVE ME
-		//log.info("Wielding " + materialInHand_attacker + ", wearing " + armorSetString_attacker);//TODO REMOVE ME
-		//log.info("Groups: " + groups_attacker[0]);//TODO REMOVE ME
 		
+		world = entity_target.getWorld();
+		
+		shouldScan = (ModDamage.hasPermission(player_attacker, "moddamage.scan." + mobType_target.getReference().toLowerCase()) 
+				&& ModDamage.worldHandlers.get(world).canScan(player_attacker));		
 	}
 	
 	public EventInfo(Player player_target, LivingEntity entity_attacker, DamageElement mobType_attacker, int eventDamage) 
@@ -112,6 +118,9 @@ public class EventInfo
 		name_attacker = null;
 		groups_attacker = null;
 		
+		world = entity_target.getWorld();
+		
+		shouldScan = false;
 	}
 	
 	public EventInfo(LivingEntity entity_target, DamageElement mobType_target, LivingEntity entity_attacker, DamageElement mobType_attacker, int eventDamage) 
@@ -136,6 +145,10 @@ public class EventInfo
 		armorSetString_attacker = null;
 		name_attacker = null;
 		groups_attacker = null;
+		
+		world = entity_target.getWorld();
+		
+		shouldScan = false;
 	}
 	
 	public EventInfo(Player player_target, DamageElement damageType, int eventDamage) 
@@ -145,7 +158,7 @@ public class EventInfo
 		eventType = EventType.NONLIVING_PLAYER;
 		this.rangedElement = null;
 		
-		this.entity_target = player_target;
+		entity_target = player_target;
 		damageElement_target = DamageElement.GENERIC_HUMAN;
 		materialInHand_target = player_target.getItemInHand().getType();
 		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
@@ -160,6 +173,10 @@ public class EventInfo
 		armorSetString_attacker = null;
 		name_attacker = null;
 		groups_attacker = null;
+		
+		world = entity_target.getWorld();
+		
+		shouldScan = false;
 	}
 	
 	public EventInfo(LivingEntity entity_target, DamageElement mobType_target, DamageElement damageType, int eventDamage) 
@@ -184,5 +201,9 @@ public class EventInfo
 		armorSetString_attacker = null;
 		name_attacker = null;
 		groups_attacker = null;
+		
+		world = entity_target.getWorld();
+		
+		shouldScan = false;
 	}
 }

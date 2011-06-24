@@ -4,10 +4,10 @@ package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class DivisionAdditionCalculation extends DamageCalculation 
+public class Division extends DamageCalculation 
 {
 	private int divideValue;
-	public DivisionAdditionCalculation(int value){ divideValue = (value != 0?value:1);}
+	public Division(int value){ divideValue = value;}
 	@Override
-	public int calculate(EventInfo eventInfo, int eventDamage){ return eventDamage/divideValue;}
+	public void calculate(EventInfo eventInfo){ eventInfo.eventDamage = eventInfo.eventDamage/divideValue;}
 }

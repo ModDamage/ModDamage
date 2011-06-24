@@ -14,11 +14,10 @@ public class EntityUnderwater extends EntityConditionalCalculation
 		this.calculations = calculations;
 	}
 	@Override
-	public int calculate(EventInfo eventInfo, int eventDamage) 
+	public void calculate(EventInfo eventInfo) 
 	{
 		if((forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().add(0, 1, 0).getBlock().getType().equals(Material.WATER)
 				&& (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().getBlock().getType().equals(Material.WATER))
-			return makeCalculations(eventInfo, eventDamage);
-		return 0;
+			makeCalculations(eventInfo);
 	}
 }

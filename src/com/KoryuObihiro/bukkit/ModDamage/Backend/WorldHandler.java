@@ -185,7 +185,7 @@ public class WorldHandler
 					if(!calcStrings.equals(null)) //!calcStrings.equals(null)
 					{
 						List<DamageCalculation> damageCalculations = damageCalc.parseStrings(calcStrings);
-						if(damageCalculations != null)
+						if(!damageCalculations.isEmpty())
 						{
 							if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(element))
 							{
@@ -198,10 +198,7 @@ public class WorldHandler
 								loadedSomething = true;
 							}
 							else if(ModDamage.consoleDebugging_normal)
-							{
 								log.warning("Repetitive generic "  + damageCategory + " node in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
-								continue;
-							}
 						}
 						else if(ModDamage.consoleDebugging_verbose)
 							log.warning("No instructions found for generic " + damageCategory + " node - is this on purpose?");
@@ -227,7 +224,7 @@ public class WorldHandler
 						if(!calcStrings.equals(null))
 						{
 							List<DamageCalculation> damageCalculations = damageCalc.parseStrings(calcStrings);
-							if(damageCalculations != null)
+							if(!damageCalculations.isEmpty())
 							{
 								if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement))
 								{
@@ -240,10 +237,7 @@ public class WorldHandler
 									loadedSomething = true;
 								}
 								else if(ModDamage.consoleDebugging_normal)
-								{
 									log.warning("Repetitive " + elementReference + " specific node in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
-									continue;
-								}
 							}
 							else if(ModDamage.consoleDebugging_verbose)
 								log.warning("No instructions found for " + elementReference + " node - is this on purpose?");
@@ -277,7 +271,7 @@ public class WorldHandler
 						if(calcStrings != null)
 						{
 							List<DamageCalculation> damageCalculations = damageCalc.parseStrings(calcStrings);
-							if(damageCalculations != null)
+							if(!damageCalculations.isEmpty())
 							{
 								if(!(isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).containsKey(material))
 								{
@@ -288,8 +282,9 @@ public class WorldHandler
 									if(ModDamage.consoleDebugging_normal) log.info(configString);
 									loadedSomething = true;
 								}
-								else if(ModDamage.consoleDebugging_normal) log.warning("[" + plugin.getDescription().getName() + "] Repetitive " 
-										+ material.name() + "(" + material.getId() + ") definition in " + (isOffensive?"Offensive":"Defensive") + " item globals - ignoring");
+								else if(ModDamage.consoleDebugging_normal) 
+									log.warning("[" + plugin.getDescription().getName() + "] Repetitive " + material.name() + "(" + material.getId() 
+											+ ") definition in " + (isOffensive?"Offensive":"Defensive") + " item globals - ignoring");
 							}
 							else if(!plugin.itemKeywords.containsKey(itemString) && ModDamage.consoleDebugging_verbose)
 								log.warning("No instructions found for global " + material.name() + "(" + material.getId()
@@ -328,7 +323,7 @@ public class WorldHandler
 					if(!calcStrings.equals(null))
 					{
 						List<DamageCalculation> damageCalculations = damageCalc.parseStrings(calcStrings);
-						if(damageCalculations != null)
+						if(!damageCalculations.isEmpty())
 						{
 							if(!(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).containsKey(armorSet))
 							{
@@ -340,13 +335,13 @@ public class WorldHandler
 								if(ModDamage.consoleDebugging_normal) log.info(configString);
 								loadedSomething = true;
 							}
-							else if(ModDamage.consoleDebugging_normal) log.warning("[" + plugin.getDescription().getName() + "] Repetitive" 
-									+ armorSet.toString() + " definition in " + (isOffensive?"Offensive":"Defensive") 
-									+ " armor node - ignoring");
+							else if(ModDamage.consoleDebugging_normal) 
+								log.warning("[" + plugin.getDescription().getName() + "] Repetitive" + armorSet.toString() + " definition in " 
+									+ (isOffensive?"Offensive":"Defensive") + " armor node - ignoring");
 						}
 						else if(ModDamage.consoleDebugging_verbose)
 							log.warning("No instructions found for " + armorSet.toString() + " armor node in " 
-									+ (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
+								+ (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
 					}
 				}
 				calcStrings = null;
@@ -511,7 +506,6 @@ public class WorldHandler
 						?groupHandlers.get(groupName).canScan(itemType)
 						:false)));
 	}
-	
 
 //// DAMAGE HANDLING ////
 	public void doCalculations(EventInfo eventInfo) 
@@ -635,9 +629,9 @@ public class WorldHandler
 	{ 
 		DamageElement damageElement = (isOffensive?eventInfo.damageElement_attacker:eventInfo.damageElement_target);
 		if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement.getType()))
-			eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(damageElement.getType()), isOffensive);
+			calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(damageElement.getType()));
 		if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement))
-			eventInfo.eventDamage +=  this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(damageElement), isOffensive);
+			calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(damageElement));
 	}
 	
 	private void runPlayerRoutines(EventInfo eventInfo, boolean isOffensive)
@@ -645,43 +639,30 @@ public class WorldHandler
 		if(eventInfo.rangedElement != null)
 		{
 			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(DamageElement.GENERIC_RANGED))
-				eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(DamageElement.GENERIC_RANGED), isOffensive);
+				calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(DamageElement.GENERIC_RANGED));
 			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(eventInfo.rangedElement))
-				eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).get(eventInfo.rangedElement), isOffensive);
+				calculateDamage(eventInfo, (isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).get(eventInfo.rangedElement));
 		}
 		else 
 		{
-			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(eventInfo.elementInHand_attacker))
-				eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(DamageElement.GENERIC_MELEE), isOffensive);
+			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(DamageElement.GENERIC_MELEE))
+				calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(DamageElement.GENERIC_MELEE));
 
 			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(eventInfo.elementInHand_attacker))
-				eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(eventInfo.elementInHand_attacker), isOffensive);
+				calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(eventInfo.elementInHand_attacker));
 
 			if((isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).containsKey(eventInfo.materialInHand_attacker))
-				eventInfo.eventDamage += this.calculateDamage(eventInfo, (isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).get(eventInfo.materialInHand_attacker), isOffensive);
+				calculateDamage(eventInfo, (isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).get(eventInfo.materialInHand_attacker));
 		}
 		if((isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).containsKey(eventInfo.armorSetString_target))
-			eventInfo.eventDamage +=  this.calculateDamage(eventInfo, (isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).get(eventInfo.armorSetString_target), isOffensive);
+			calculateDamage(eventInfo, (isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).get(eventInfo.armorSetString_target));
 	}
 
-	private int calculateDamage(EventInfo eventInfo, List<DamageCalculation> damageCalculations, boolean isOffensive) 
+	//TODO Refactor for each, maybe? Might look messy.
+	private void calculateDamage(EventInfo eventInfo, List<DamageCalculation> damageCalculations) 
 	{
-		try
-		{
-			for(DamageCalculation damageCalculation : damageCalculations)
-				log.info(damageCalculation.toString());
-		}
-		catch(Exception e){}
-		
-		int result = eventInfo.eventDamage;
-		int defenseModifier = (isOffensive?1:-1);
 		for(DamageCalculation damageCalculation : damageCalculations)
-		{
-			int blah = damageCalculation.calculate(eventInfo, result);
-			log.info("SHOULD BE " + blah);//TODO REMOVE ME
-			result = blah;
-		}
-		return (result - eventInfo.eventDamage) * defenseModifier;
+			damageCalculation.calculate(eventInfo);
 	}
 	
 ////HELPER FUNCTIONS////
@@ -794,6 +775,9 @@ public class WorldHandler
 	}
 	*/
 	
+	
+	//TODO (mebbe)
+	//  Implement aliases?! :D
 }
 
 	

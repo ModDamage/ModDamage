@@ -6,18 +6,17 @@ import java.util.List;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntityDrowningConditional extends EntityConditionalCalculation 
+public class EntityDrowning extends EntityConditionalCalculation 
 {
-	public EntityDrowningConditional(boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityDrowning(boolean forAttacker, List<DamageCalculation> calculations)
 	{ 
 		this.forAttacker = forAttacker;
 		this.calculations = calculations;
 	}
 	@Override
-	public int calculate(EventInfo eventInfo, int eventDamage) 
+	public void calculate(EventInfo eventInfo) 
 	{
 		if((forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getRemainingAir() == 0)
-			return calculate(eventInfo, eventDamage);
-		return eventDamage;
+			calculate(eventInfo);
 	}
 }
