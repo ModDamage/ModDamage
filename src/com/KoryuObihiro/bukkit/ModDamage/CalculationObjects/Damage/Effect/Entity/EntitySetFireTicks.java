@@ -3,7 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Effect.Entit
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 
-public class EntitySetFireTicks extends EntityDamageEffectCalculation 
+public class EntitySetFireTicks extends EntityEffectDamageCalculation 
 {
 	final int ticks;
 	public EntitySetFireTicks(boolean forAttacker, int ticks)

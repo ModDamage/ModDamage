@@ -12,6 +12,7 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Creature;
+import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Flying;
@@ -129,42 +130,35 @@ public enum DamageElement
 			default: 				return null;//shouldn't happen
 		}
 	}
-	
-	//WinSock's nice algorithm for determining mob type, adapted for this plugin
+
 	public static DamageElement matchLivingElement(Entity entity)
 	{
 		if (entity instanceof LivingEntity) 
 		{
-			//if(entity instanceof Slime)return DamageElement.MOB_SLIME;
-			//else 
-			if(entity instanceof Creature) 
+			if(entity instanceof Slime)return DamageElement.MOB_SLIME;//XXX Not sure why, but Slimes aren't technically Creatures.
+			else if(entity instanceof Creature) 
 			{
-				if(entity instanceof Slime)return DamageElement.MOB_SLIME;//XXX Not sure if this is broken - it was in a previous RB.
-				else if(entity instanceof Animals) 
+				if(entity instanceof Animals) 
 				{
 					if(entity instanceof Chicken) 		return DamageElement.ANIMAL_CHICKEN;
-					else if(entity instanceof Cow) 	return DamageElement.ANIMAL_COW; 
-					else if(entity instanceof Pig) 	return DamageElement.ANIMAL_PIG; 
+					else if(entity instanceof Cow) 		return DamageElement.ANIMAL_COW; 
+					else if(entity instanceof Pig) 		return DamageElement.ANIMAL_PIG; 
 					else if(entity instanceof Sheep) 	return DamageElement.ANIMAL_SHEEP;
-					else if(entity instanceof Wolf)    return DamageElement.ANIMAL_WOLF;
+					else if(entity instanceof Wolf)    	return DamageElement.ANIMAL_WOLF;
 				}
 				else if(entity instanceof Monster) 
 				{
-					if(entity instanceof Zombie) 
-					{
-						if(entity instanceof PigZombie)return DamageElement.MOB_PIGZOMBIE;
-						else 							return DamageElement.MOB_ZOMBIE;
-					} 
-					else if(entity instanceof Creeper) return DamageElement.MOB_CREEPER;
+					if(entity instanceof Zombie) 		return (entity instanceof PigZombie?DamageElement.MOB_PIGZOMBIE:DamageElement.MOB_ZOMBIE);
+					else if(entity instanceof Creeper)	return DamageElement.MOB_CREEPER;
 					else if(entity instanceof Giant) 	return DamageElement.MOB_GIANT;
-					else if(entity instanceof Skeleton)return DamageElement.MOB_SKELETON;
+					else if(entity instanceof Skeleton)	return DamageElement.MOB_SKELETON;
 					else if(entity instanceof Spider)	return DamageElement.MOB_SPIDER; 
 				}
 				else if(entity instanceof WaterMob) 
 					if(entity instanceof Squid) 		return DamageElement.ANIMAL_SQUID;
 			}
 			else if(entity instanceof Flying) 
-				if(entity instanceof Ghast)return DamageElement.MOB_GHAST;
+				if(entity instanceof Ghast)				return DamageElement.MOB_GHAST;
 		}
 		return null;
 	}

@@ -6,7 +6,7 @@ import java.util.List;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntityReflect extends EntityDamageEffectCalculation 
+public class EntityReflect extends EntityEffectDamageCalculation 
 {
 	final List<DamageCalculation> calculations;
 	public EntityReflect(List<DamageCalculation> calculations)

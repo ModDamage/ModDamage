@@ -3,7 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Effect.Entit
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 
-public class EntityHeal extends EntityDamageEffectCalculation 
+public class EntityHeal extends EntityEffectDamageCalculation 
 {
 	public EntityHeal(boolean forAttacker)
 	{

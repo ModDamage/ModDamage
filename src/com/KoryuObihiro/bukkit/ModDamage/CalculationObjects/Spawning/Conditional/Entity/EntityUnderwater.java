@@ -1,21 +1,22 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity;
 
 import java.util.List;
+
 import net.minecraft.server.Material;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;
 
-public class EntityUnderwater extends EntityConditionalCalculation 
+public class EntityUnderwater extends EntityConditionalSpawnCalculation 
 {
-	public EntityUnderwater(boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityUnderwater(boolean inverted, List<SpawnCalculation> calculations)
 	{ 
-		this.forAttacker = forAttacker;
+		this.inverted = inverted;
 		this.calculations = calculations;
 	}
 	@Override
-	public boolean condition(DamageEventInfo eventInfo) 
+	public boolean condition(SpawnEventInfo eventInfo) 
 	{
-		return (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().add(0, 1, 0).getBlock().getType().equals(Material.WATER)
-				&& (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().getBlock().getType().equals(Material.WATER);}
+		return eventInfo.entity.getLocation().add(0, 1, 0).getBlock().getType().equals(Material.WATER)
+				&& eventInfo.entity.getLocation().getBlock().getType().equals(Material.WATER);}
 	}

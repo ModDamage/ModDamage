@@ -5,7 +5,7 @@ import org.bukkit.entity.Creature;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 
-public class EntitySetAirTicks extends EntityDamageEffectCalculation 
+public class EntitySetAirTicks extends EntityEffectDamageCalculation 
 {
 	final int ticks;
 	public EntitySetAirTicks(boolean forAttacker, int ticks)

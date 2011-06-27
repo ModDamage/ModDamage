@@ -2,6 +2,7 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -16,6 +17,7 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculationAllocator;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Set;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.ConditionalSpawnCalculation;
 
 
@@ -86,11 +88,11 @@ public class WorldHandler
 		//load Offensive configuration
 		globalsLoaded = loadDamageRoutines();
 
-		//load Scan item configuration
-		scanLoaded = loadScanItems();
-
 		//load MobHealth configuration
 		mobHealthLoaded = loadMobHealth();
+
+		//load Scan item configuration
+		scanLoaded = loadScanItems();
 
 		if(loadedSomething() && ModDamage.consoleDebugging_normal) 
 			log.info("[" + plugin.getDescription().getName() + "] Global configuration for world \"" 
@@ -315,12 +317,7 @@ public class WorldHandler
 				ArmorSet armorSet = new ArmorSet(armorSetString);
 				if(!armorSet.isEmpty())
 				{
-					calcStrings = armorNode.getStringList(armorSetString, null);
-					
-					List<String> conditionalKeys = armorNode.getKeys(armorSetString);//TODO REMOVE ME WHEN CAN HAS SEEING KTHX
-					for(String key : conditionalKeys)
-						log.info("Key \"" + key + "\": " + armorNode.getNode(armorSetString).getStringList(key, new ArrayList<String>()));
-					
+					calcStrings = armorNode.getStringList(armorSetString, new ArrayList<String>());
 					if(!calcStrings.isEmpty())
 					{
 						List<DamageCalculation> damageCalculations = damageCalc.parseStrings(calcStrings);
@@ -404,24 +401,20 @@ public class WorldHandler
 			for(DamageElement creatureType : creatureTypes)
 			{
 			//check the node property for a default spawn calculation
-				String calcString = null;
-				Object tryMe = mobHealthNode.getProperty(creatureType.getReference());
-				if(tryMe instanceof String)
-					calcString = (String)tryMe;
-				if(calcString != null)
+				List<Object> calcStrings = mobHealthNode.getList(creatureType.getReference());
+				//So, when a list of calculations are called, they're just ArrayList<Object>
+				// Normal calcStrings are just strings,
+				// conditionals are represented with a LinkedHashMap.
+				if(calcStrings != null)
 				{
-					SpawnCalculation calculation = healthCalc.parseDefault(calcString);
-					if(calculation == null)
-						log.severe("Invalid command string \"" + calcString + "\" in MobHealth " + creatureType.getReference() 
-								+ " definition - refer to config for proper calculation node");
-					else 
+					List<SpawnCalculation> calculations = healthCalc.parseList(calcStrings);
+					if(!calculations.isEmpty())
 					{
-						//check that this type of mob hasn't already been loaded
 						if(!mobSpawnDefaults.containsKey(creatureType))
 						{
-							mobSpawnDefaults.put(creatureType, calculation);
+							//mobSpawnDefaults.put(creatureType, calculation);
 							String configString = "-MobHealth:" + world.getName() + ":" + creatureType.getReference() 
-								+ " [" + calcString.toString() + "]";
+								+ " [" + calcStrings.toString() + "]";
 							configStrings.add(configString);
 							if(ModDamage.consoleDebugging_normal) log.info(configString);
 							loadedSomething = true;
@@ -429,18 +422,12 @@ public class WorldHandler
 						else if(ModDamage.consoleDebugging_normal) log.warning("Repetitive " + creatureType.getReference() 
 								+ " definition - ignoring");
 					}
+					else  log.severe("Invalid command string \"" + calcStrings.toString() + "\" in MobHealth " + creatureType.getReference() 
+							+ " definition - refer to config for proper calculation node");
+					
 				}
 				else if(ModDamage.consoleDebugging_verbose)
 					log.warning("No instructions found for " + creatureType.getReference() + " - is this on purpose?");
-
-			//check the node's subconfiguration for conditionals
-				List<String> calcStrings = mobHealthNode.getStringList(creatureType.getReference(), new ArrayList<String>());
-				if(!calcStrings.isEmpty())
-				{
-					log.severe("Found under MobHealth node \"" + creatureType + "\"");
-					for(String string : calcStrings)
-						log.info(string);
-				}
 			}
 		}
 		return loadedSomething;

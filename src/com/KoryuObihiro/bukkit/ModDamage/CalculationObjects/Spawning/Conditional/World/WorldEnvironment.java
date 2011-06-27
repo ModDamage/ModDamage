@@ -7,7 +7,7 @@ import org.bukkit.World.Environment;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class WorldEnvironment extends WorldConditionalCalculation 
+public class WorldEnvironment extends WorldConditionalSpawnCalculation 
 {
 	final Environment environment;
 	public WorldEnvironment(Environment environment, List<DamageCalculation> calculations)

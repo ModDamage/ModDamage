@@ -1,14 +1,14 @@
-package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity;
+package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Entity;
 
 import java.util.List;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntityLightLevel extends EntityConditionalCalculation 
+public class EntityLightLevelEquals extends EntityDamageConditionalCalculation 
 {
 	final byte lightLevel;
-	public EntityLightLevel(byte lightLevel, boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityLightLevelEquals(byte lightLevel, boolean forAttacker, List<DamageCalculation> calculations)
 	{ 
 		this.lightLevel = lightLevel;
 		this.forAttacker = forAttacker;

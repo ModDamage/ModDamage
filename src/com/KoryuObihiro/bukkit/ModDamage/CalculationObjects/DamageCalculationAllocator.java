@@ -30,33 +30,41 @@ public class DamageCalculationAllocator
 		List<DamageCalculation> calculations = new ArrayList<DamageCalculation>();
 		for(String calcString : calcStrings)
 		{
-			List<String> commandSplit = Arrays.asList(calcString.split("\\*"));
-			DamageCalculation calculation = parseString(commandSplit.get(0).split("\\."), commandSplit);
+			DamageCalculation calculation = parseString(calcStrings.get(0).split("\\."));
 			if(calculation != null)
 				calculations.add(calculation);
 		}
 		return calculations;
 	}
 	
-	private DamageCalculation parseString(String[] args, List<String> commandSplit) 
+	private DamageCalculation parseString(String[] args) 
 	{
 		try
 		{
-			
 			if(args.length > 0)
 			{        
 				try{ return new Addition(Integer.parseInt(args[0]));}
 				catch(Exception e){}
-				
-				if(commandSplit.size() > 1)
-				{
-					if(args.length == 2)
+					if(args.length == 1)
 					{
-						if(args[0].equalsIgnoreCase("binom")) return new Binomial(Integer.parseInt(args[1]), parseStrings(commandSplit.subList(1, commandSplit.size())));
+						if(args[0].equalsIgnoreCase("roll")) return new DiceRoll();
 					}
-					if(args[0].equalsIgnoreCase("if"))
+					else if(args.length == 2)
 					{
-						if(args.length == 3)
+						if(args[0].equalsIgnoreCase("binom"))return new Binomial(Integer.parseInt(args[1]));
+						else if(args[0].equalsIgnoreCase("div"))	return new Division(Integer.parseInt(args[1]));
+						else if(args[0].equalsIgnoreCase("div_add"))return new DivisionAddition(Integer.parseInt(args[1]));
+						else if(args[0].equalsIgnoreCase("mult")) 	return new Multiplication(Integer.parseInt(args[1]));
+						else if(args[0].equalsIgnoreCase("roll")) 	return new DiceRollAddition(Integer.parseInt(args[1]));
+						else if(args[0].equalsIgnoreCase("set"))	return new Set(Integer.parseInt(args[1]));
+						if(args[0].equalsIgnoreCase("binom"))
+						{
+							
+						}
+					}
+					if(args.length == 3)
+					{
+						if(args[0].equalsIgnoreCase("if"))
 						{
 							if(args[1].equalsIgnoreCase("attackerIs")) 
 							{
@@ -71,18 +79,19 @@ public class DamageCalculationAllocator
 								else if(args[2].equalsIgnoreCase("underwater")) return new EntityUnderwater(false, parseStrings(commandSplit.subList(1, commandSplit.size())));
 							}
 						}
-						else if(args.length == 4)
+					}
+					else if(args.length == 4)
+					{
+						if(args[0].equalsIgnoreCase("if") || args[0].equalsIgnoreCase("if_not"))
 						{
-							if(args[1].equalsIgnoreCase("attackerHealth"))
+							boolean inverted = args[0].equalsIgnoreCase("if_not");
+							if(args[1].equalsIgnoreCase("attackerHealth") || args[1].equalsIgnoreCase("targetHealth"))
 							{
-								if(args[2].equalsIgnoreCase("lessThan")) return new EntityHealthLessThan(true, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("lessThanEquals")) return new EntityHealthLessThanEquals(true, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("greaterThan")) return new EntityHealthGreaterThan(true, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("greaterThanEquals")) return new EntityHealthGreaterThanEquals(true, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("equals")) return new EntityHealthEquals(true, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
+								boolean forAttacker = args[0].equalsIgnoreCase("attackerHealth");
 							}
-							else if(args[1].equalsIgnoreCase("targetHealth"))
+							if(args[1].equalsIgnoreCase("attackerHealth") || args[1].equalsIgnoreCase("targetHealth"))
 							{
+								boolean forAttacker = args[0].equalsIgnoreCase("attackerHealth");
 								if(args[2].equalsIgnoreCase("lessThan")) return new EntityHealthLessThan(false, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
 								else if(args[2].equalsIgnoreCase("lessThanEquals")) return new EntityHealthLessThanEquals(false, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
 								else if(args[2].equalsIgnoreCase("greaterThan")) return new EntityHealthGreaterThan(false, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
@@ -93,23 +102,10 @@ public class DamageCalculationAllocator
 							{
 								return new WorldTime(Integer.parseInt(args[2]), Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
 							}
+							
 						}
 					}
 				}
-				else if(args.length == 1)
-				{
-					if(args[0].equalsIgnoreCase("roll")) return new DiceRoll();
-				}
-				else if(args.length == 2)
-				{
-					if(args[0].equalsIgnoreCase("binom"))return new Binomial(Integer.parseInt(args[1]));
-					else if(args[0].equalsIgnoreCase("div"))	return new Division(Integer.parseInt(args[1]));
-					else if(args[0].equalsIgnoreCase("div_add"))return new DivisionAddition(Integer.parseInt(args[1]));
-					else if(args[0].equalsIgnoreCase("mult")) 	return new Multiplication(Integer.parseInt(args[1]));
-					else if(args[0].equalsIgnoreCase("roll")) 	return new DiceRollAddition(Integer.parseInt(args[1]));
-					else if(args[0].equalsIgnoreCase("set"))	return new Set(Integer.parseInt(args[1]));
-				}
-				
 			}
 			throw new Exception();
 		}

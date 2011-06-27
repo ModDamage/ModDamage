@@ -5,7 +5,7 @@ import java.util.List;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class WorldTime extends WorldConditionalCalculation 
+public class WorldTime extends WorldConditionalSpawnCalculation 
 {
 	private boolean checkInverse;
 	private long beginningTime;

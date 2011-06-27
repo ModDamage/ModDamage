@@ -6,7 +6,7 @@ import java.util.List;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class DamageGreaterThan extends DamageConditionalCalculation
+public class DamageGreaterThan extends ConditionalDamageCalculation
 {
 	final int value;
 	public DamageGreaterThan(int value, List<DamageCalculation> calculations)

@@ -4,22 +4,22 @@ import java.util.List;
 
 import org.bukkit.Material;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;
 
-public class EntityExposedToSky extends EntityConditionalCalculation 
+public class EntityExposedToSky extends EntityConditionalSpawnCalculation 
 {
-	public EntityExposedToSky(boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityExposedToSky(boolean inverted, List<SpawnCalculation> calculations)
 	{ 
-		this.forAttacker = forAttacker;
+		this.inverted = inverted;
 		this.calculations = calculations;
 	}
 	@Override
-	public boolean condition(DamageEventInfo eventInfo)
+	public boolean condition(SpawnEventInfo eventInfo)
 	{ 
-		int i = (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().getBlockX();
-		int k = (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().getBlockZ();
-		for(int j = (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().getBlockY(); j < 128; j++)
+		int i = eventInfo.entity.getLocation().getBlockX();
+		int k = eventInfo.entity.getLocation().getBlockZ();
+		for(int j = eventInfo.entity.getLocation().getBlockY(); j < 128; j++)
 			//FIXME Add more block types!...might be expensive though.
 			if(!eventInfo.world.getBlockAt(i, j, k).equals(Material.AIR))
 				return false;

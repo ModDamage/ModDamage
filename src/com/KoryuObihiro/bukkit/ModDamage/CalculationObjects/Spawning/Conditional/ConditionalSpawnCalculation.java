@@ -5,7 +5,7 @@ import java.util.List;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;
 
-public abstract class ConditionalSpawnCalculation
+public abstract class ConditionalSpawnCalculation extends SpawnCalculation
 {
 	protected boolean inverted;
 	protected List<SpawnCalculation> calculations;

@@ -4,18 +4,18 @@ import java.util.List;
 
 import org.bukkit.block.Biome;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;
 
-public class EntityBiome extends EntityConditionalCalculation 
+public class EntityBiome extends EntityConditionalSpawnCalculation 
 {
 	final Biome biome;
-	public EntityBiome(Biome biome, boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityBiome(Biome biome, boolean inverted, List<SpawnCalculation> calculations)
 	{ 
 		this.biome = biome;
-		this.forAttacker = forAttacker;
+		this.inverted = inverted;
 		this.calculations = calculations;
 	}
 	@Override
-	public boolean condition(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().getBlock().getBiome().equals(biome);}
+	public boolean condition(SpawnEventInfo eventInfo){ return eventInfo.entity.getLocation().getBlock().getBiome().equals(biome);}
 }

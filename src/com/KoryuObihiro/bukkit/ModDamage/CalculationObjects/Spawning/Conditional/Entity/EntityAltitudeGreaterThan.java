@@ -2,18 +2,18 @@ package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditiona
 
 import java.util.List;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;
 
-public class EntityAltitudeGreaterThan extends EntityConditionalCalculation 
+public class EntityAltitudeGreaterThan extends EntityConditionalSpawnCalculation 
 {
 	final int altitude;
-	public EntityAltitudeGreaterThan(int altitude, boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityAltitudeGreaterThan(int altitude, boolean inverted, List<SpawnCalculation> calculations)
 	{ 
 		this.altitude = altitude;
-		this.forAttacker = forAttacker;
+		this.inverted = inverted;
 		this.calculations = calculations;
 	}
 	@Override
-	public boolean condition(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().getBlockY() > altitude;}
+	public boolean condition(SpawnEventInfo eventInfo){ return eventInfo.entity.getLocation().getBlockY() > altitude;}
 }

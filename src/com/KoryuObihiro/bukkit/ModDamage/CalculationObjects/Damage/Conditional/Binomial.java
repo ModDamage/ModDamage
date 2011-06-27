@@ -9,7 +9,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Set;
 
-public class Binomial extends DamageConditionalCalculation
+public class Binomial extends ConditionalDamageCalculation
 {
 	private final Random random = new Random();
 	private final int chance;

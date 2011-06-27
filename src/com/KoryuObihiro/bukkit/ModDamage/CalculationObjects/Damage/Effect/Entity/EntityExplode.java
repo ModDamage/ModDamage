@@ -3,7 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Effect.Entit
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 
-public class EntityExplode extends EntityDamageEffectCalculation 
+public class EntityExplode extends EntityEffectDamageCalculation 
 {
 	final int power;
 	public EntityExplode(boolean forAttacker, int power)
