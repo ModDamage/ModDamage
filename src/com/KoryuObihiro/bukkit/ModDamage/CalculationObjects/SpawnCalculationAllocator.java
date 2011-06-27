@@ -81,6 +81,7 @@ public class SpawnCalculationAllocator
 	
 	//A conditional is a bit more tricky, as we're not sure how nested things will get. 
 	// When we encounter a conditional, we're just grabbing the conditional itself, and passing the rest to another parseList call.
+	//TODO: Get rid of these warnings. I think the generics can be safely cast to <String, List<String>>, but I'm not sure.
 	private SpawnCalculation parseConditional(LinkedHashMap conditionalStatement)
 	{
 		Logger.getLogger("Minecraft").info("Found conditional, keys: " + conditionalStatement.keySet().toString());
@@ -91,6 +92,7 @@ public class SpawnCalculationAllocator
 				String[] args = ((String)key).split("\\.");
 				if(args[0].equalsIgnoreCase("if") || args[0].equalsIgnoreCase("if_not"))
 				{
+					Logger.getLogger("FOUND A CONDITIONAL. :D");//TODO REMOVE ME
 					boolean inverted = args[0].equalsIgnoreCase("if_not");
 					if(args.length == 3)
 					{
@@ -139,7 +141,7 @@ public class SpawnCalculationAllocator
 								if(biome != null) return new EntityBiome(biome, inverted, parseList((ArrayList<Object>)conditionalStatement.get(key)));
 							}
 						}
-						else if(args[1].equalsIgnoreCase("worldTime")) return new WorldTime(Integer.parseInt(args[2]), Integer.parseInt(args[3]), parseList((ArrayList<Object>)conditionalStatement.get(key)));
+						else if(args[1].equalsIgnoreCase("worldTime")) return new WorldTime(inverted, Integer.parseInt(args[2]), Integer.parseInt(args[3]), parseList((ArrayList<Object>)conditionalStatement.get(key)));
 					}
 					else if(args.length == 5)
 					{
@@ -158,13 +160,8 @@ public class SpawnCalculationAllocator
 	}
 	//TODO REGEN?! :D Requires something else, though...
 	//IFs: TODO
-	// entityis.onblock.MATERIAL
-	// entityis.inlightlevel.#value
-	// entityis.exposedtoSky
-	// entityis.inBiome.$biome
-	// entityis.inEnvironment.$environment
-	// entityis.atAltitude.#value
 	// playeris.locatedIRL.$area
 	// serveris.onlinemode
 	// serveris.portedAt.#port
+	// spawn reason
 }

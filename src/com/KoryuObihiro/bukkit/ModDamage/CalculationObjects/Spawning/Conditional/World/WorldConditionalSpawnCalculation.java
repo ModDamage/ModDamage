@@ -1,5 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.World;
 
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.ConditionalDamageCalculation;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.ConditionalSpawnCalculation;
 
-public abstract class WorldConditionalSpawnCalculation extends ConditionalDamageCalculation{}
+public abstract class WorldConditionalSpawnCalculation extends ConditionalSpawnCalculation{}

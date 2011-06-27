@@ -27,9 +27,9 @@ import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.GroupHandler;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.WorldHandler;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Handlers.Handler;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Handlers.WorldHandler;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculationAllocator;
 import com.nijiko.permissions.PermissionHandler;
@@ -434,11 +434,11 @@ public class ModDamage extends JavaPlugin
 	
 	public String getGroupMatch(World world, String name, boolean searchSubstrings)
 	{
-		for(GroupHandler groupHandler : worldHandlers.get(world).groupHandlers.values())
+		for(Handler groupHandler : worldHandlers.get(world).groupHandlers.values())
 			if(name.equalsIgnoreCase(groupHandler.getGroupName()))
 				return groupHandler.getGroupName();
 		if(searchSubstrings)
-			for(GroupHandler groupHandler : worldHandlers.get(world).groupHandlers.values())
+			for(Handler groupHandler : worldHandlers.get(world).groupHandlers.values())
 				for(int i = 0; i < (groupHandler.getGroupName().length() - name.length() - 1); i++)
 					if(name.equalsIgnoreCase(groupHandler.getGroupName().substring(i, i + name.length())))
 						return groupHandler.getGroupName();
