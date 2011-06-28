@@ -10,8 +10,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 public class WorldEnvironment extends WorldConditionalDamageCalculation 
 {
 	final Environment environment;
-	public WorldEnvironment(Environment environment, List<DamageCalculation> calculations)
+	public WorldEnvironment(boolean inverted, Environment environment, List<DamageCalculation> calculations)
 	{
+		this.inverted = inverted;
 		this.environment = environment;
 		this.calculations = calculations;
 	}

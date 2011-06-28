@@ -8,8 +8,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 public class EntityAltitudeLessThanEquals extends EntityDamageConditionalCalculation 
 {
 	final int altitude;
-	public EntityAltitudeLessThanEquals(int altitude, boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityAltitudeLessThanEquals(boolean inverted, int altitude, boolean forAttacker, List<DamageCalculation> calculations)
 	{ 
+		this.inverted = inverted;
 		this.altitude = altitude;
 		this.forAttacker = forAttacker;
 		this.calculations = calculations;

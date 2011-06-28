@@ -10,8 +10,9 @@ public class WorldTime extends WorldConditionalDamageCalculation
 	private boolean checkInverse;
 	private long beginningTime;
 	private long endTime;
-	public WorldTime(int beginningTime, int endTime, List<DamageCalculation> calculations)
+	public WorldTime(boolean inverted, int beginningTime, int endTime, List<DamageCalculation> calculations)
 	{
+		this.inverted = inverted;
 		this.calculations = calculations;
 		this.beginningTime = beginningTime;
 		this.endTime = endTime;

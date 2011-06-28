@@ -4,17 +4,17 @@ import java.util.List;
 
 import org.bukkit.World.Environment;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;
 
 public class WorldEnvironment extends WorldConditionalSpawnCalculation 
 {
 	final Environment environment;
-	public WorldEnvironment(Environment environment, List<DamageCalculation> calculations)
+	public WorldEnvironment(Environment environment, List<SpawnCalculation> calculations)
 	{
 		this.environment = environment;
 		this.calculations = calculations;
 	}
 	@Override
-	public boolean condition(DamageEventInfo eventInfo){ return eventInfo.world.getEnvironment().equals(environment);}
+	public boolean condition(SpawnEventInfo eventInfo){ return eventInfo.world.getEnvironment().equals(environment);}
 }

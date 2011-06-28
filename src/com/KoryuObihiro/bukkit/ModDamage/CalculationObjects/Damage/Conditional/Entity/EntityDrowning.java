@@ -8,8 +8,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
 public class EntityDrowning extends EntityDamageConditionalCalculation 
 {
-	public EntityDrowning(boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityDrowning(boolean inverted, boolean forAttacker, List<DamageCalculation> calculations)
 	{ 
+		this.inverted = inverted;
 		this.forAttacker = forAttacker;
 		this.calculations = calculations;
 	}

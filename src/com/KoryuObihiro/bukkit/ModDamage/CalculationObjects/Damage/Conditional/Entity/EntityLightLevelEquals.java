@@ -8,8 +8,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 public class EntityLightLevelEquals extends EntityDamageConditionalCalculation 
 {
 	final byte lightLevel;
-	public EntityLightLevelEquals(byte lightLevel, boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityLightLevelEquals(boolean inverted, byte lightLevel, boolean forAttacker, List<DamageCalculation> calculations)
 	{ 
+		this.inverted = inverted;
 		this.lightLevel = lightLevel;
 		this.forAttacker = forAttacker;
 		this.calculations = calculations;

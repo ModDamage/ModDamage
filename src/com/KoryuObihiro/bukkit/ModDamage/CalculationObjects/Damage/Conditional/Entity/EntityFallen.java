@@ -9,8 +9,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 public class EntityFallen extends EntityDamageConditionalCalculation 
 {
 	final int fallDistance;
-	public EntityFallen(int fallDistance, boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityFallen(boolean inverted, int fallDistance, boolean forAttacker, List<DamageCalculation> calculations)
 	{ 
+		this.inverted = inverted;
 		this.fallDistance = fallDistance;
 		this.forAttacker = forAttacker;
 		this.calculations = calculations;

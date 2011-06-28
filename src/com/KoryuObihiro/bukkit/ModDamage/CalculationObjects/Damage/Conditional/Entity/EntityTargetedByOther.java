@@ -9,8 +9,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
 public class EntityTargetedByOther extends EntityDamageConditionalCalculation 
 {
-	public EntityTargetedByOther(boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityTargetedByOther(boolean inverted, boolean forAttacker, List<DamageCalculation> calculations)
 	{ 
+		this.inverted = inverted;
 		this.forAttacker = forAttacker;
 		this.calculations = calculations;
 	}

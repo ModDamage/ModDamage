@@ -10,8 +10,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 public class EntityBiome extends EntityDamageConditionalCalculation 
 {
 	final Biome biome;
-	public EntityBiome(Biome biome, boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityBiome(boolean inverted, Biome biome, boolean forAttacker, List<DamageCalculation> calculations)
 	{ 
+		this.inverted = inverted;
 		this.biome = biome;
 		this.forAttacker = forAttacker;
 		this.calculations = calculations;

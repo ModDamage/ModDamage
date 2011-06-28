@@ -82,7 +82,7 @@ public class GroupHandler extends Handler
 			return;
 			
 			default: 
-				log.severe("[ModDamage] Oops...THAT wasn't supposed to happen. (Def, PvM)");//TODO REMOVE ME
+				log.severe("[ModDamage] Oops...THAT wasn't supposed to happen. (Def)");//TODO REMOVE ME
 			return;
 		}
 	}
@@ -100,13 +100,14 @@ public class GroupHandler extends Handler
 				if((isOffensive?groupOffensiveRoutines:groupDefensiveRoutines).containsKey(group_other))
 					calculateDamage(eventInfo, (isOffensive?groupOffensiveRoutines:groupDefensiveRoutines).get(group_other));
 	}
+	
 ///////////////////// SCAN ///////////////////////	
 	protected boolean loadScanItems() 
 	{
 		boolean loadedSomething = false;
 		if(scanNode != null) 
 		{
-			if(ModDamage.consoleDebugging_verbose) log.info("{Found group " + getDisplayString(false) + " Scan node" + getWorldString() + "}");
+			if(ModDamage.consoleDebugging_verbose) log.info("{Found Scan node for " + getDisplayString(false) + "}");
 			List<String> itemList = scanNode.getStringList(groupName, new ArrayList<String>());
 			if(!itemList.isEmpty())
 				for(String itemString : itemList)
@@ -131,7 +132,7 @@ public class GroupHandler extends Handler
 							if(ModDamage.consoleDebugging_normal) log.info(configString);
 							loadedSomething = true;
 						}
-						else if(ModDamage.consoleDebugging_verbose) log.warning("Invalid Scan item \"" + itemString + "\" found for " + getDisplayString(false) + getWorldString() + " - ignoring");
+						else if(ModDamage.consoleDebugging_verbose) log.warning("Invalid Scan item \"" + itemString + "\" found for " + getDisplayString(false) + " - ignoring");
 					}
 				}
 		}
@@ -143,10 +144,7 @@ public class GroupHandler extends Handler
 	protected String getConfigPath(){ return worldHandler.getWorld().getName() + ":groups:" + groupName;}
 	
 	@Override
-	protected String getDisplayString(boolean upperCase){ return (upperCase?"G":"g") + "roup \"" + groupName + "\"";}
-	
-	@Override
-	protected String getWorldString(){ return " for world \"" + worldHandler.getWorld().getName() + "\"";}
+	protected String getDisplayString(boolean upperCase){ return (upperCase?"G":"g") + "roup \"" + groupName + "\" (world \"" + worldHandler.getWorld().getName() + "\")";}
 	
 	public String getGroupName(){ return groupName;}
 }

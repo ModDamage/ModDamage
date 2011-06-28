@@ -1,8 +1,9 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Addition;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.DiceRoll;
@@ -11,7 +12,6 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Division;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.DivisionAddition;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Set;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Binomial;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Entity.EntityDrowning;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Entity.EntityHealthEquals;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Entity.EntityHealthGreaterThan;
@@ -25,91 +25,95 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.W
 public class DamageCalculationAllocator
 {	
 	//for file parsing
-	public List<DamageCalculation> parseStrings(List<String> calcStrings) 
+	public List<DamageCalculation> parseStrings(List<Object> calcStrings) 
 	{
 		List<DamageCalculation> calculations = new ArrayList<DamageCalculation>();
-		for(String calcString : calcStrings)
+		for(Object calculationString : calcStrings)
 		{
-			DamageCalculation calculation = parseString(calcStrings.get(0).split("\\."));
+			DamageCalculation calculation = null;
+			
+			if(calculationString instanceof LinkedHashMap)
+				calculation = parseConditional((LinkedHashMap)calculationString);
+			else if(calculationString instanceof String)
+				calculation = parseNormal((String)calculationString);
+			
 			if(calculation != null)
+			{
 				calculations.add(calculation);
+				Logger.getLogger("Minecraft").info("Yay, added something!");
+			}
 		}
 		return calculations;
 	}
 	
-	private DamageCalculation parseString(String[] args) 
+	private DamageCalculation parseNormal(String argString) 
 	{
+
+		try{ return new Addition(Integer.parseInt(argString));}
+		catch(Exception e){}
+		
 		try
 		{
+			String[] args = argString.split("\\.");
 			if(args.length > 0)
-			{        
-				try{ return new Addition(Integer.parseInt(args[0]));}
-				catch(Exception e){}
+			{ 
 					if(args.length == 1)
 					{
 						if(args[0].equalsIgnoreCase("roll")) return new DiceRoll();
 					}
 					else if(args.length == 2)
 					{
-						if(args[0].equalsIgnoreCase("binom"))return new Binomial(Integer.parseInt(args[1]));
-						else if(args[0].equalsIgnoreCase("div"))	return new Division(Integer.parseInt(args[1]));
+						if(args[0].equalsIgnoreCase("div"))	return new Division(Integer.parseInt(args[1]));
 						else if(args[0].equalsIgnoreCase("div_add"))return new DivisionAddition(Integer.parseInt(args[1]));
 						else if(args[0].equalsIgnoreCase("mult")) 	return new Multiplication(Integer.parseInt(args[1]));
 						else if(args[0].equalsIgnoreCase("roll")) 	return new DiceRollAddition(Integer.parseInt(args[1]));
 						else if(args[0].equalsIgnoreCase("set"))	return new Set(Integer.parseInt(args[1]));
-						if(args[0].equalsIgnoreCase("binom"))
-						{
-							
-						}
-					}
-					if(args.length == 3)
-					{
-						if(args[0].equalsIgnoreCase("if"))
-						{
-							if(args[1].equalsIgnoreCase("attackerIs")) 
-							{
-								if(args[2].equalsIgnoreCase("onFire")) return new EntityOnFire(true, parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("drowning")) return new EntityDrowning(true, parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("underwater")) return new EntityUnderwater(true, parseStrings(commandSplit.subList(1, commandSplit.size())));
-							}
-							else if(args[1].equalsIgnoreCase("targetIs"))
-							{
-								if(args[2].equalsIgnoreCase("onFire")) return new EntityOnFire(false, parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("drowning")) return new EntityDrowning(false, parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("underwater")) return new EntityUnderwater(false, parseStrings(commandSplit.subList(1, commandSplit.size())));
-							}
-						}
-					}
-					else if(args.length == 4)
-					{
-						if(args[0].equalsIgnoreCase("if") || args[0].equalsIgnoreCase("if_not"))
-						{
-							boolean inverted = args[0].equalsIgnoreCase("if_not");
-							if(args[1].equalsIgnoreCase("attackerHealth") || args[1].equalsIgnoreCase("targetHealth"))
-							{
-								boolean forAttacker = args[0].equalsIgnoreCase("attackerHealth");
-							}
-							if(args[1].equalsIgnoreCase("attackerHealth") || args[1].equalsIgnoreCase("targetHealth"))
-							{
-								boolean forAttacker = args[0].equalsIgnoreCase("attackerHealth");
-								if(args[2].equalsIgnoreCase("lessThan")) return new EntityHealthLessThan(false, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("lessThanEquals")) return new EntityHealthLessThanEquals(false, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("greaterThan")) return new EntityHealthGreaterThan(false, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("greaterThanEquals")) return new EntityHealthGreaterThanEquals(false, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
-								else if(args[2].equalsIgnoreCase("equals")) return new EntityHealthEquals(false, Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
-							}
-							else if(args[1].equalsIgnoreCase("worldTime"))
-							{
-								return new WorldTime(Integer.parseInt(args[2]), Integer.parseInt(args[3]), parseStrings(commandSplit.subList(1, commandSplit.size())));
-							}
-							
-						}
 					}
 				}
-			}
 			throw new Exception();
 		}
 		catch(Exception e){ return null;}
+	}
+	
+	private DamageCalculation parseConditional(LinkedHashMap conditionalStatement)
+	{
+		
+		for(Object key : conditionalStatement.keySet())//should only be one. :<
+		{
+			String[] args = ((String)key).split("\\.");
+			if(args[0].equalsIgnoreCase("if") || args[0].equalsIgnoreCase("if_not"))
+			{
+				boolean inverted = args[0].equalsIgnoreCase("if_not");
+				if(args.length == 3)
+				{
+					Logger.getLogger("FOUND A CONDITIONAL. :D");//TODO REMOVE ME
+					if(args[1].equalsIgnoreCase("attackerIs") || args[1].equalsIgnoreCase("targetIs")) 
+					{
+						boolean forAttacker = args[1].equalsIgnoreCase("attackerIs");
+						if(args[2].equalsIgnoreCase("onFire")) return new EntityOnFire(forAttacker, parseStrings((ArrayList<Object>)conditionalStatement.get(key)));
+						else if(args[2].equalsIgnoreCase("drowning")) return new EntityDrowning(forAttacker, parseStrings((ArrayList<Object>)conditionalStatement.get(key)));
+						else if(args[2].equalsIgnoreCase("underwater")) return new EntityUnderwater(forAttacker, parseStrings((ArrayList<Object>)conditionalStatement.get(key)));
+					}
+				}
+				else if(args.length == 4)
+				{
+					if(args[1].equalsIgnoreCase("attackerHealth") || args[1].equalsIgnoreCase("targetHealth"))
+					{
+						boolean forAttacker = args[0].equalsIgnoreCase("attackerHealth");
+						if(args[2].equalsIgnoreCase("lessThan")) return new EntityHealthLessThan(forAttacker, Integer.parseInt(args[3]), parseStrings((ArrayList<Object>)conditionalStatement.get(key)));
+						else if(args[2].equalsIgnoreCase("lessThanEquals")) return new EntityHealthLessThanEquals(forAttacker, Integer.parseInt(args[3]), parseStrings((ArrayList<Object>)conditionalStatement.get(key)));
+						else if(args[2].equalsIgnoreCase("greaterThan")) return new EntityHealthGreaterThan(forAttacker, Integer.parseInt(args[3]), parseStrings((ArrayList<Object>)conditionalStatement.get(key)));
+						else if(args[2].equalsIgnoreCase("greaterThanEquals")) return new EntityHealthGreaterThanEquals(forAttacker, Integer.parseInt(args[3]), parseStrings((ArrayList<Object>)conditionalStatement.get(key)));
+						else if(args[2].equalsIgnoreCase("equals")) return new EntityHealthEquals(forAttacker, Integer.parseInt(args[3]), parseStrings((ArrayList<Object>)conditionalStatement.get(key)));
+					}
+					else if(args[1].equalsIgnoreCase("worldTime"))
+					{
+						return new WorldTime(Integer.parseInt(args[2]), Integer.parseInt(args[3]), parseStrings((ArrayList<Object>)conditionalStatement.get(key)));
+					}
+				}
+			}
+		}
+		return null;
 	}
 	//IFs(?): TODO mebbe
 	// entityis.targetedByOther

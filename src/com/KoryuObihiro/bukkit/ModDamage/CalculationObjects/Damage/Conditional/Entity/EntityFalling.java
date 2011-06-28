@@ -8,8 +8,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
 public class EntityFalling extends EntityDamageConditionalCalculation 
 {
-	public EntityFalling(boolean forAttacker, List<DamageCalculation> calculations)
-	{ 
+	public EntityFalling(boolean inverted, boolean forAttacker, List<DamageCalculation> calculations)
+	{  
+		this.inverted = inverted;
 		this.forAttacker = forAttacker;
 		this.calculations = calculations;
 	}

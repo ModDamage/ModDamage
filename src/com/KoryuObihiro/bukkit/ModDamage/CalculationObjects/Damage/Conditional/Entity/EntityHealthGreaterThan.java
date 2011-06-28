@@ -9,8 +9,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 public class EntityHealthGreaterThan extends EntityDamageConditionalCalculation 
 {
 	int value;
-	public EntityHealthGreaterThan(boolean forAttacker, int compareTo, List<DamageCalculation> calculations)
+	public EntityHealthGreaterThan(boolean inverted, boolean forAttacker, int compareTo, List<DamageCalculation> calculations)
 	{ 
+		this.inverted = inverted;
 		this.forAttacker = forAttacker;
 		this.value = compareTo;
 		this.calculations = calculations;

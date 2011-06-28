@@ -61,18 +61,17 @@ public abstract class Handler
 		configPages = configStrings.size()/9 + ((configStrings.size()%9 > 0)?1:0);
 		
 		if(loadedSomething()) 
-				log.info("[" + plugin.getDescription().getName() + "] " + getDisplayString(true) + " configuration" + getWorldString() + " initialized!");
+				log.info("[" + plugin.getDescription().getName() + "] " + getDisplayString(true) + " configuration initialized!");
 			else if(ModDamage.consoleDebugging_verbose)
-				log.warning("[" + plugin.getDescription().getName() + "] " + getDisplayString(true) + " configuration" + getWorldString() + " could not load.");
+				log.warning("[" + plugin.getDescription().getName() + "] " + getDisplayString(true) + " configuration could not load.");
 	}
 	
 	abstract protected void loadAdditionalConfiguration();
 	
 	abstract protected String getConfigPath();
 	
+	//TODO another bool for inserting more info?
 	abstract protected String getDisplayString(boolean upperCase);
-	
-	protected String getWorldString(){ return "";}
 	
 	///////////////////// OFFENSIVE/DEFENSIVE ///////////////////////
 	protected boolean loadDamageRoutines() 
@@ -138,7 +137,7 @@ public abstract class Handler
 		catch(Exception e)
 		{
 			log.severe("[" + plugin.getDescription().getName() 
-					+ "] Invalid configuration for "+ getDisplayString(true) + getWorldString() + " - failed to load " + progressString + ".");
+					+ "] Invalid configuration for "+ getDisplayString(true) + " - failed to load " + progressString + ".");
 			return false;
 		}
 	}
@@ -190,7 +189,7 @@ public abstract class Handler
 				if(relevantNode != null)
 				{
 					if(ModDamage.consoleDebugging_verbose) log.info("{Found " + getDisplayString(false) + " specific " + (isOffensive?"Offensive":"Defensive") + " " 
-							+ damageCategory + " " + getWorldString() + "}");
+							+ damageCategory + "}");
 					for(DamageElement damageElement : DamageElement.getElementsOf(damageCategory))
 					{
 						String elementReference = damageElement.getReference();
@@ -219,8 +218,7 @@ public abstract class Handler
 							else if(ModDamage.consoleDebugging_verbose)
 								log.warning("No instructions found for " + elementReference + " node - is this on purpose?");
 						}
-						else if(ModDamage.consoleDebugging_verbose) log.info(getDisplayString(true) + " " + damageElement.getReference() + " specific node" + getWorldString()
-								+ " for" + (isOffensive?"Offensive":"Defensive") + " not found.");
+						else if(ModDamage.consoleDebugging_verbose) log.info(damageElement.getReference() + " specific node not found for " + getDisplayString(true) + " in " + (isOffensive?"Offensive":"Defensive") + ".");
 					}
 				}
 			}
@@ -235,7 +233,7 @@ public abstract class Handler
 		if(meleeNode != null)	
 		{
 			if(ModDamage.consoleDebugging_verbose) log.info("{Found group specific " + (isOffensive?"Offensive":"Defensive") + " " 
-					+ "melee node for " + getDisplayString(false) + getWorldString() + "}");
+					+ "melee node for " + getDisplayString(false) + "}");
 			List<String> itemList = (isOffensive?offensiveNode:defensiveNode).getKeys(DamageElement.GENERIC_MELEE.getReference());
 			List<String> calcStrings = null;
 			if(!itemList.equals(null))
@@ -271,7 +269,7 @@ public abstract class Handler
 						}
 					}
 					else if(!ModDamage.itemAliases.containsKey(itemString) && ModDamage.consoleDebugging_verbose)
-							log.warning("Unrecognized item name \"" + itemString + "\" found in specific melee node for " + getDisplayString(false) + getWorldString() + " - ignoring");
+							log.warning("Unrecognized item name \"" + itemString + "\" found in specific melee node for " + getDisplayString(false) + " - ignoring");
 				}
 		}
 		return loadedSomething;
@@ -284,7 +282,7 @@ public abstract class Handler
 		if(armorNode != null)
 		{
 			if(ModDamage.consoleDebugging_verbose) log.info("{Found group specific " + (isOffensive?"Offensive":"Defensive") + " " 
-					+ "armor node for " + getDisplayString(false) + getWorldString() + "}");
+					+ "armor node for " + getDisplayString(false) + "}");
 			List<String> armorSetList = (isOffensive?offensiveNode:defensiveNode).getKeys(DamageElement.GENERIC_ARMOR.getReference());
 			List<String> calcStrings = null;
 			for(String armorSetString : armorSetList)
@@ -348,7 +346,7 @@ public abstract class Handler
 							log.warning("Repetitive " + group + " definition in " + (isOffensive?"Offensive":"Defensive") + " settings for " + getDisplayString(false) + " - ignoring");
 					}
 					else if(ModDamage.consoleDebugging_verbose)
-						log.warning("No instructions found for " + getDisplayString(false) + " groups node in " + (isOffensive?"Offensive":"Defensive") + getWorldString() + " - is this on purpose?");
+						log.warning("No instructions found for " + getDisplayString(false) + " groups node in " + (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
 				}
 			}
 		return loadedSomething;
@@ -422,7 +420,7 @@ public abstract class Handler
 				log.severe("Well, frick...this shouldn't have happened. o_o"); //TODO REMOVE ME EVENTUALLY
 				return false;
 			}
-			String printString = "Config for " + getDisplayString(false) + getWorldString() + ":";
+			String printString = "Config for " + getDisplayString(false) + ":";
 			for(String configString : configStrings)
 				printString += "\n" + configString;
 			log.info(printString);
@@ -430,7 +428,7 @@ public abstract class Handler
 		}
 		if(configPages > 0 && configPages >= pageNumber && pageNumber > 0)
 		{
-			player.sendMessage(plugin.ModDamageString(ChatColor.GOLD) +  " " + getDisplayString(false) + getWorldString() + " (" + pageNumber + "/" + configPages + ")");
+			player.sendMessage(plugin.ModDamageString(ChatColor.GOLD) +  " " + getDisplayString(false) + " (" + pageNumber + "/" + configPages + ")");
 			for(int i = (9 * (pageNumber - 1)); i < (configStrings.size() < (9 * pageNumber)
 														?configStrings.size()
 														:(9 * pageNumber)); i++)

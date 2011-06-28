@@ -39,23 +39,12 @@ public class WorldHandler extends Handler
 	//private int configPages = 0;
 	
 	//nodes for config loading
-	final private DamageCalculationAllocator damageCalc;
-	final private SpawnCalculationAllocator healthCalc;
-	final private ConfigurationNode offensiveNode;
-	final private ConfigurationNode defensiveNode;
+	final private SpawnCalculationAllocator healthAllocator;
 	final private ConfigurationNode mobHealthNode;
-	final private ConfigurationNode scanNode;
 	private List<String> configStrings = new ArrayList<String>();
 	private int configPages = 0;
 	
-	//O/D routines
-	final private HashMap<DamageElement, List<DamageCalculation>> offensiveRoutines = new HashMap<DamageElement, List<DamageCalculation>>();
-	final private HashMap<DamageElement, List<DamageCalculation>> defensiveRoutines = new HashMap<DamageElement, List<DamageCalculation>>();
-	final private HashMap<Material, List<DamageCalculation>> meleeOffensiveRoutines = new HashMap<Material, List<DamageCalculation>>();
-	final private HashMap<Material, List<DamageCalculation>> meleeDefensiveRoutines = new HashMap<Material, List<DamageCalculation>>();
-	final private HashMap<String, List<DamageCalculation>> armorOffensiveRoutines = new HashMap<String, List<DamageCalculation>>();
-	final private HashMap<String, List<DamageCalculation>> armorDefensiveRoutines = new HashMap<String, List<DamageCalculation>>();
-	//other MD config
+	//MobHealth
 	final private HashMap<DamageElement, List<ConditionalSpawnCalculation>> mobSpawnRoutines = new HashMap<DamageElement, List<ConditionalSpawnCalculation>>();
 	
 	//Handlers
@@ -63,7 +52,7 @@ public class WorldHandler extends Handler
 	
 	
 //// CONSTRUCTOR ////
-	public WorldHandler(ModDamage plugin, World world, ConfigurationNode offensiveNode, ConfigurationNode defensiveNode, ConfigurationNode mobHealthNode, ConfigurationNode scanNode, DamageCalculationAllocator damageCalc, SpawnCalculationAllocator healthCalc) 
+	public WorldHandler(ModDamage plugin, World world, ConfigurationNode offensiveNode, ConfigurationNode defensiveNode, ConfigurationNode mobHealthNode, ConfigurationNode scanNode, DamageCalculationAllocator damageAllocator, SpawnCalculationAllocator healthAllocator) 
 	{
 		this.world = world;
 		this.plugin = plugin;
@@ -72,37 +61,13 @@ public class WorldHandler extends Handler
 		this.defensiveNode = defensiveNode;
 		this.mobHealthNode = mobHealthNode;
 		this.scanNode = scanNode;
-		this.damageCalc = damageCalc;
-		this.healthCalc = healthCalc;
+		this.damageAllocator = damageAllocator;
+		this.healthAllocator = healthAllocator;
 		
-		reload(true);
+		reload();
 	}
 
 //// CONFIG LOADING ////
-	public void reload(boolean printToConsole)
-	{ 
-		//clear everything first
-		clear();
-		
-		//load Offensive configuration
-		routinesLoaded = loadDamageRoutines();
-
-		//load MobHealth configuration
-		mobHealthLoaded = loadMobHealth();
-
-		//load Scan item configuration
-		scanLoaded = loadScanItems();
-
-		if(loadedSomething() && ModDamage.consoleDebugging_normal) 
-			log.info("[" + plugin.getDescription().getName() + "] Global configuration for world \"" 
-				+ world.getName() + "\" initialized!");
-		else if(ModDamage.consoleDebugging_verbose)
-			log.warning("[" + plugin.getDescription().getName() + "] Global configuration for world \"" 
-				+ world.getName() + "\" could not load.");
-		
-		isLoaded = (routinesLoaded || mobHealthLoaded || scanLoaded || groupsLoaded);
-	}
-	
 	@Override
 	protected boolean loadGroupRoutines(boolean isOffensive)
 	{
@@ -130,7 +95,7 @@ public class WorldHandler extends Handler
 							((offensiveNode != null && offensiveNode.getNode("groups") != null)?offensiveNode.getNode("groups").getNode(group):null),
 							((defensiveNode != null && defensiveNode.getNode("groups") != null)?defensiveNode.getNode("groups").getNode(group):null), 
 							((scanNode != null && scanNode.getNode("groups") != null)?scanNode.getNode("groups"):null), 
-							damageCalc);
+							damageAllocator);
 							
 					if(groupHandler.loadedSomething())
 					{
@@ -142,6 +107,7 @@ public class WorldHandler extends Handler
 		}
 		return loadedSomething;
 	}
+
 ///////////////////// MOBHEALTH
 	public boolean loadMobHealth()
 	{
@@ -162,7 +128,7 @@ public class WorldHandler extends Handler
 				// conditionals are represented with a LinkedHashMap.
 				if(calcStrings != null)
 				{
-					List<SpawnCalculation> calculations = healthCalc.parseList(calcStrings);
+					List<SpawnCalculation> calculations = healthAllocator.parseList(calcStrings);
 					if(!calculations.isEmpty())
 					{
 						if(!mobSpawnRoutines.containsKey(creatureType))
@@ -251,6 +217,7 @@ public class WorldHandler extends Handler
 			}
 		return (scanLoaded && groupCanScan);
 	}
+	
 	protected boolean canScan(Material itemType, String groupName)
 	{ 
 		if(groupName == null) groupName = "";
@@ -380,6 +347,12 @@ public class WorldHandler extends Handler
 	
 ////HELPER FUNCTIONS////
 	public World getWorld(){ return world;}
+
+	@Override
+	protected String getConfigPath(){ return "world:" + world.getName();}
+
+	@Override
+	protected String getDisplayString(boolean upperCase){ return (upperCase?"W":"w") + "orld \"" + world.getName() + "\"";}
 	
 	@Override
 	public void clear()
@@ -420,6 +393,14 @@ public class WorldHandler extends Handler
 		}
 		return false;
 	}
+
+	@Override
+	protected void loadAdditionalConfiguration()
+	{
+		scanLoaded = loadScanItems();
+		mobHealthLoaded = loadMobHealth();
+	}
+
 
 	/* FIXME NAO
 	public boolean reloadConfig()

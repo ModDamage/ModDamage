@@ -9,8 +9,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 public class DamageGreaterThanEquals extends ConditionalDamageCalculation
 {
 	final int value;
-	public DamageGreaterThanEquals(int value, List<DamageCalculation> calculations)
+	public DamageGreaterThanEquals(boolean inverted, int value, List<DamageCalculation> calculations)
 	{ 
+		this.inverted = inverted;
 		this.value = value;
 		this.calculations = calculations;
 	}

@@ -9,8 +9,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
 public class EntityExposedToSky extends EntityDamageConditionalCalculation 
 {
-	public EntityExposedToSky(boolean forAttacker, List<DamageCalculation> calculations)
-	{ 
+	public EntityExposedToSky(boolean inverted, boolean forAttacker, List<DamageCalculation> calculations)
+	{  
+		this.inverted = inverted;
 		this.forAttacker = forAttacker;
 		this.calculations = calculations;
 	}
