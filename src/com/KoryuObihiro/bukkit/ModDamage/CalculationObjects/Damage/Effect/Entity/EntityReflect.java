@@ -8,19 +8,29 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
 public class EntityReflect extends EntityEffectDamageCalculation 
 {
-	final List<DamageCalculation> calculations;
+	int damageBack;
 	public EntityReflect(List<DamageCalculation> calculations)
 	{
 		forAttacker = true;
 		this.calculations = calculations;
 	}
+	
+	public EntityReflect(int damageBack)
+	{
+		forAttacker = true;
+		this.damageBack = damageBack;
+	}
 	@Override
 	public void calculate(DamageEventInfo eventInfo)
 	{ 
-		int originalDamage = eventInfo.eventDamage;
-		for(DamageCalculation calculation : calculations)
-			calculation.calculate(eventInfo);
-		eventInfo.entity_attacker.damage(eventInfo.eventDamage);//Don't use an attacking entity here because of the nature of this mechanic.
-		eventInfo.eventDamage = originalDamage;
+		if(calculations != null)
+		{
+			damageBack = eventInfo.eventDamage;
+			for(DamageCalculation calculation : calculations)
+				calculation.calculate(eventInfo);
+			eventInfo.entity_attacker.damage(eventInfo.eventDamage);//Don't use an attacking entity here because of the nature of this mechanic.
+			eventInfo.eventDamage = damageBack;
+		}
+		else eventInfo.entity_attacker.damage(damageBack);
 	}
 }

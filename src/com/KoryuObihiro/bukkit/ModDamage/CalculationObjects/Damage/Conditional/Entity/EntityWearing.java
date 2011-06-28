@@ -2,19 +2,20 @@ package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.
 
 import java.util.List;
 
-
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntityFalling extends EntityConditionaDamageCalculation 
+public class EntityWearing extends EntityConditionaDamageCalculation 
 {
-	public EntityFalling(boolean inverted, boolean forAttacker, List<DamageCalculation> calculations)
+	final String armorSetString;
+	public EntityWearing(boolean inverted, boolean forAttacker, String armorSetString, List<DamageCalculation> calculations)
 	{  
 		this.inverted = inverted;
 		this.forAttacker = forAttacker;
+		this.armorSetString = armorSetString;
 		this.calculations = calculations;
 	}
 	@Override
-	public boolean condition(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getFallDistance() > 3;}
+	public boolean condition(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.armorSetString_attacker:eventInfo.armorSetString_target).contains(armorSetString);}
 	//TODO Check that this is the correct integer for falling.
 }

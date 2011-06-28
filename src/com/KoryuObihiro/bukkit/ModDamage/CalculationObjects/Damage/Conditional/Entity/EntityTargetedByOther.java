@@ -7,7 +7,7 @@ import org.bukkit.entity.Creature;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntityTargetedByOther extends EntityDamageConditionalCalculation 
+public class EntityTargetedByOther extends EntityConditionaDamageCalculation 
 {
 	public EntityTargetedByOther(boolean inverted, boolean forAttacker, List<DamageCalculation> calculations)
 	{ 

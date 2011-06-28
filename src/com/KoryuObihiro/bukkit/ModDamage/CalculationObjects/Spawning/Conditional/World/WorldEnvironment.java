@@ -10,8 +10,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;
 public class WorldEnvironment extends WorldConditionalSpawnCalculation 
 {
 	final Environment environment;
-	public WorldEnvironment(Environment environment, List<SpawnCalculation> calculations)
+	public WorldEnvironment(boolean inverted, Environment environment, List<SpawnCalculation> calculations)
 	{
+		this.inverted = inverted;
 		this.environment = environment;
 		this.calculations = calculations;
 	}

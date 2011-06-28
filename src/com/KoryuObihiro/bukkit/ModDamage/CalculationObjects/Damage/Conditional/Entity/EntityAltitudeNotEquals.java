@@ -5,10 +5,10 @@ import java.util.List;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntityAltitudeNotEquals extends EntityDamageConditionalCalculation 
+public class EntityAltitudeNotEquals extends EntityConditionaDamageCalculation 
 {
 	final int altitude;
-	public EntityAltitudeNotEquals(boolean inverted, int altitude, boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityAltitudeNotEquals(boolean forAttacker, boolean inverted, int altitude, List<DamageCalculation> calculations)
 	{ 
 		this.inverted = inverted;
 		this.altitude = altitude;

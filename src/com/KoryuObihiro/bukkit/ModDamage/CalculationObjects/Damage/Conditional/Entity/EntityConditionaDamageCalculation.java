@@ -2,7 +2,7 @@ package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.
 
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.ConditionalDamageCalculation;
 
-public abstract class EntityDamageConditionalCalculation extends ConditionalDamageCalculation
+public abstract class EntityConditionaDamageCalculation extends ConditionalDamageCalculation
 {
 	protected boolean forAttacker;
 }

@@ -19,24 +19,23 @@ public class GroupHandler extends Handler
 	
 	public GroupHandler(ModDamage plugin, WorldHandler worldHandler, Logger log,  String name, ConfigurationNode offensiveNode, ConfigurationNode defensiveNode, ConfigurationNode scanNode, DamageCalculationAllocator damageCalcAllocator) 
 	{
-		this.isGroupHandler = true;
 		this.plugin = plugin;
 		this.log = log;
 		this.worldHandler = worldHandler;
 		this.groupName = name;
-		this.offensiveNode = offensiveNode;
-		this.defensiveNode = defensiveNode;
-		this.scanNode = scanNode;
+		this.offensiveNode = this.offensiveGlobalNode = offensiveNode;
+		this.defensiveNode = this.defensiveGlobalNode =defensiveNode;
+		this.scanNode = this.scanGlobalNode = scanNode;
 		this.damageAllocator = damageCalcAllocator;
 		
 		reload();
 	}
 
+////CONFIG LOADING ////
 	@Override
 	protected void loadAdditionalConfiguration(){ scanLoaded = loadScanItems();}
-	
-	
-///////////////////// DAMAGE HANDLING ///////////////////////
+
+//// DAMAGE HANDLING ////
 	public void doAttackCalculations(DamageEventInfo eventInfo) 
 	{
 		switch(eventInfo.eventType)
@@ -45,6 +44,7 @@ public class GroupHandler extends Handler
 			case PLAYER_PLAYER:
 				runRoutines(eventInfo, true);		
 				runEquipmentRoutines(eventInfo, true);
+				runGroupRoutines(eventInfo, true);
 			return;
 
 ///////////////////// Player vs. Mob
@@ -54,7 +54,7 @@ public class GroupHandler extends Handler
 			return;
 			
 			default:
-				log.severe("[ModDamage] Oops...THAT wasn't supposed to happen.(Att)");//TODO REMOVE ME
+				log.severe("[ModDamage] Oops...THAT wasn't supposed to happen.(Att)");//TODO REMOVE ME...MEBBE
 			return;
 		}
 	}
@@ -67,6 +67,7 @@ public class GroupHandler extends Handler
 			case PLAYER_PLAYER:
 				runRoutines(eventInfo, false);
 				runEquipmentRoutines(eventInfo, false);
+				runGroupRoutines(eventInfo, false);
 			return;
 				
 ///////////////////// Mob vs. Player
@@ -82,17 +83,12 @@ public class GroupHandler extends Handler
 			return;
 			
 			default: 
-				log.severe("[ModDamage] Oops...THAT wasn't supposed to happen. (Def)");//TODO REMOVE ME
+				log.severe("[ModDamage] Oops...THAT wasn't supposed to happen. (Def)");//TODO REMOVE ME...MEBBE
 			return;
 		}
 	}
-	
-	@Override
-	protected void runRoutines(DamageEventInfo eventInfo, boolean isOffensive)
-	{
-		super.runRoutines(eventInfo, isOffensive);
-		super.runEquipmentRoutines(eventInfo, isOffensive);
-	}
+
+///////////////////// ROUTINE-SPECIFIC CALLS	
 	protected void runGroupRoutines(DamageEventInfo eventInfo, boolean isOffensive)
 	{
 		if((isOffensive?eventInfo.groups_target:eventInfo.groups_attacker) != null)
@@ -100,8 +96,8 @@ public class GroupHandler extends Handler
 				if((isOffensive?groupOffensiveRoutines:groupDefensiveRoutines).containsKey(group_other))
 					calculateDamage(eventInfo, (isOffensive?groupOffensiveRoutines:groupDefensiveRoutines).get(group_other));
 	}
-	
-///////////////////// SCAN ///////////////////////	
+
+//// SCAN ////
 	protected boolean loadScanItems() 
 	{
 		boolean loadedSomething = false;
@@ -140,6 +136,8 @@ public class GroupHandler extends Handler
 	}
 	
 	public boolean canScan(Material itemType){ return(scanItems.contains(itemType));}
+
+//// HELPER FUNCTIONS ////
 	@Override
 	protected String getConfigPath(){ return worldHandler.getWorld().getName() + ":groups:" + groupName;}
 	

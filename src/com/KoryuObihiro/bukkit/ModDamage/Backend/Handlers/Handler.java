@@ -25,7 +25,6 @@ public abstract class Handler
 	
 	protected ModDamage plugin;
 	protected Logger log;
-	protected boolean isGroupHandler = false;
 	protected boolean routinesLoaded = false;
 	protected boolean scanLoaded = false;
 	protected List<String> configStrings = new ArrayList<String>();
@@ -33,8 +32,11 @@ public abstract class Handler
 
 	//nodes for config loading
 	protected ConfigurationNode offensiveNode;
+	protected ConfigurationNode offensiveGlobalNode;
 	protected ConfigurationNode defensiveNode;
+	protected ConfigurationNode defensiveGlobalNode;
 	protected ConfigurationNode scanNode;
+	protected ConfigurationNode scanGlobalNode;
 	protected DamageCalculationAllocator damageAllocator;
 	
 	//O/D config
@@ -50,8 +52,8 @@ public abstract class Handler
 	//Scan
 	final protected List<Material> scanItems = new ArrayList<Material>();
 	
-////CONFIG LOADING ////
-	public void reload()
+//// CONFIG LOADING ////
+	public boolean reload()
 	{ 
 		this.clear();
 		
@@ -60,10 +62,12 @@ public abstract class Handler
 
 		configPages = configStrings.size()/9 + ((configStrings.size()%9 > 0)?1:0);
 		
-		if(loadedSomething()) 
+		if(loadedSomething() && ModDamage.consoleDebugging_verbose) 
 				log.info("[" + plugin.getDescription().getName() + "] " + getDisplayString(true) + " configuration initialized!");
 			else if(ModDamage.consoleDebugging_verbose)
 				log.warning("[" + plugin.getDescription().getName() + "] " + getDisplayString(true) + " configuration could not load.");
+		
+		return loadedSomething();
 	}
 	
 	abstract protected void loadAdditionalConfiguration();
@@ -73,7 +77,7 @@ public abstract class Handler
 	//TODO another bool for inserting more info?
 	abstract protected String getDisplayString(boolean upperCase);
 	
-	///////////////////// OFFENSIVE/DEFENSIVE ///////////////////////
+//// OFFENSIVE/DEFENSIVE ////
 	protected boolean loadDamageRoutines() 
 	{
 		String progressString = "UNKNOWN";
@@ -146,28 +150,26 @@ public abstract class Handler
 	{
 		boolean loadedSomething = false;
 		List<String>damageCategories = DamageElement.getGenericTypeStrings();
-		ConfigurationNode genericNode = (isOffensive?offensiveNode:defensiveNode).getNode("generic");
+		ConfigurationNode genericNode = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getNode("generic");
 		for(String damageCategory : damageCategories)
 		{
 			if(genericNode != null)
 			{
-				List<String> calcStrings = genericNode.getStringList(damageCategory, null);
+				List<Object> calcStrings = genericNode.getList(damageCategory);
 				DamageElement element = DamageElement.matchDamageElement(damageCategory);
 				if(calcStrings != null)
 				{
 					if(ModDamage.consoleDebugging_verbose) log.info("{Found " + getDisplayString(false) + " generic " 
 							+ (isOffensive?"Offensive":"Defensive") + " " + damageCategory + " node " + "}");
-					if(!calcStrings.equals(null)) //!calcStrings.equals(null)
+					if(calcStrings != null) //!calcStrings.equals(null)
 					{
-						List<DamageCalculation> Calculations = damageAllocator.parseStrings(calcStrings);
-						if(Calculations != null)
+						List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
+						if(calculations != null)
 						{
 							if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(element))
 							{
-								(isOffensive?offensiveRoutines:defensiveRoutines).put(element, Calculations);
-								String configString = "-" + (isOffensive?"Offensive":"Defensive") + ":" + getConfigPath() + ":Generic:" + damageCategory + calcStrings.toString();
-								configStrings.add(configString);
-								if(ModDamage.consoleDebugging_normal) log.info(configString);
+								(isOffensive?offensiveRoutines:defensiveRoutines).put(element, calculations);
+								addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getConfigPath() + ":Generic:" + damageCategory + calcStrings.toString());
 								loadedSomething = true;
 							}
 							else if(ModDamage.consoleDebugging_normal)
@@ -185,7 +187,7 @@ public abstract class Handler
 			}
 			if(DamageElement.matchDamageElement(damageCategory).hasSubConfiguration())
 			{
-				ConfigurationNode relevantNode = ((isOffensive?offensiveNode:defensiveNode).getNode(damageCategory));
+				ConfigurationNode relevantNode = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getNode(damageCategory);
 				if(relevantNode != null)
 				{
 					if(ModDamage.consoleDebugging_verbose) log.info("{Found " + getDisplayString(false) + " specific " + (isOffensive?"Offensive":"Defensive") + " " 
@@ -194,19 +196,16 @@ public abstract class Handler
 					{
 						String elementReference = damageElement.getReference();
 						//check for leaf-node buff strings
-						List<String> calcStrings = relevantNode.getStringList(elementReference, null);
-						if(!calcStrings.equals(null)) //!calcStrings.equals(null)
+						List<Object> calcStrings = relevantNode.getList(elementReference);
+						if(calcStrings != null) //!calcStrings.equals(null)
 						{
-							List<DamageCalculation> Calculations = damageAllocator.parseStrings(calcStrings);
-							if(Calculations != null)
+							List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
+							if(calculations != null)
 							{
 								if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement))
 								{
-									(isOffensive?offensiveRoutines:defensiveRoutines).put(damageElement, Calculations);
-									String configString = "-" + (isOffensive?"Offensive":"Defensive") + ":" + getConfigPath() + ":" + damageCategory + ":" 
-										+ elementReference + calcStrings.toString();
-									configStrings.add(configString);
-									if(ModDamage.consoleDebugging_normal) log.info(configString);
+									(isOffensive?offensiveRoutines:defensiveRoutines).put(damageElement, calculations);
+									addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getConfigPath() + ":" + damageCategory + ":" + elementReference + calcStrings.toString());
 									loadedSomething = true;
 								}
 								else if(ModDamage.consoleDebugging_normal)
@@ -225,35 +224,32 @@ public abstract class Handler
 		}
 		return loadedSomething;
 	}
-	
+
 	protected boolean loadMeleeRoutines(boolean isOffensive)
 	{
 		boolean loadedSomething = false;
-		ConfigurationNode meleeNode = (isOffensive?offensiveNode:defensiveNode).getNode(DamageElement.GENERIC_MELEE.getReference());
+		ConfigurationNode meleeNode = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getNode(DamageElement.GENERIC_MELEE.getReference());
 		if(meleeNode != null)	
 		{
 			if(ModDamage.consoleDebugging_verbose) log.info("{Found group specific " + (isOffensive?"Offensive":"Defensive") + " " 
 					+ "melee node for " + getDisplayString(false) + "}");
 			List<String> itemList = (isOffensive?offensiveNode:defensiveNode).getKeys(DamageElement.GENERIC_MELEE.getReference());
-			List<String> calcStrings = null;
-			if(!itemList.equals(null))
+			if(itemList != null)
 				for(String itemString : itemList)
 				{
 					Material material = Material.matchMaterial(itemString);
 					if(material != null)
 					{
-						calcStrings = meleeNode.getStringList(itemString, null);
+						List<Object> calcStrings = meleeNode.getList(itemString);
 						if(calcStrings != null)
 						{
-							List<DamageCalculation> Calculations = damageAllocator.parseStrings(calcStrings);
-							if(Calculations != null)
+							List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
+							if(calculations != null)
 							{
 								if(!(isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).containsKey(material))
 								{
-									(isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).put(material, Calculations);
-									String configString = "-" + (isOffensive?"Offensive":"Defensive") + getConfigPath() + ":" + material.name() + "(" + material.getId() + ")" + calcStrings.toString();
-									configStrings.add(configString);
-									if(ModDamage.consoleDebugging_normal) log.info(configString);
+									(isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).put(material, calculations);
+									addConfigString("-" + (isOffensive?"Offensive":"Defensive") + getConfigPath() + ":" + material.name() + "(" + material.getId() + ")" + calcStrings.toString());
 									loadedSomething = true;
 								}
 								else if(ModDamage.consoleDebugging_normal) 
@@ -265,7 +261,6 @@ public abstract class Handler
 								log.warning("No instructions found for " + getDisplayString(false) + " " + material.name() 
 									+ "(" + material.getId()+ ") item node in " + (isOffensive?"Offensive":"Defensive") 
 									+ " - is this on purpose?");
-							calcStrings = null;
 						}
 					}
 					else if(!ModDamage.itemAliases.containsKey(itemString) && ModDamage.consoleDebugging_verbose)
@@ -278,20 +273,19 @@ public abstract class Handler
 	protected boolean loadArmorRoutines(boolean isOffensive)
 	{
 		boolean loadedSomething = false;
-		ConfigurationNode armorNode = (isOffensive?offensiveNode:defensiveNode).getNode(DamageElement.GENERIC_ARMOR.getReference());
+		ConfigurationNode armorNode = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getNode(DamageElement.GENERIC_ARMOR.getReference());
 		if(armorNode != null)
 		{
 			if(ModDamage.consoleDebugging_verbose) log.info("{Found group specific " + (isOffensive?"Offensive":"Defensive") + " " 
 					+ "armor node for " + getDisplayString(false) + "}");
 			List<String> armorSetList = (isOffensive?offensiveNode:defensiveNode).getKeys(DamageElement.GENERIC_ARMOR.getReference());
-			List<String> calcStrings = null;
 			for(String armorSetString : armorSetList)
 			{
 				ArmorSet armorSet = new ArmorSet(armorSetString);
 				if(!armorSet.isEmpty())
 				{
-					calcStrings = armorNode.getStringList(armorSetString, null);
-					if(!calcStrings.equals(null))
+					List<Object> calcStrings = armorNode.getList(armorSetString);
+					if(calcStrings != null)
 					{
 						List<DamageCalculation> Calculations = damageAllocator.parseStrings(calcStrings);
 						if(Calculations != null)
@@ -299,9 +293,7 @@ public abstract class Handler
 							if(!(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).containsKey(armorSet))
 							{
 								(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).put(armorSet.toString(), Calculations);
-								String configString = "-" + (isOffensive?"Offensive":"Defensive") + ":" + getConfigPath() + ":armor:" + armorSet.toString() + " " + calcStrings.toString();
-								configStrings.add(configString);
-								if(ModDamage.consoleDebugging_normal) log.info(configString);
+								addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getConfigPath() + ":armor:" + armorSet.toString() + " " + calcStrings.toString());
 								loadedSomething = true;
 							}
 							else if(ModDamage.consoleDebugging_normal) log.warning("[" + plugin.getDescription().getName() + "] Repetitive" 
@@ -314,7 +306,6 @@ public abstract class Handler
 									+ " - is this on purpose?");
 					}
 				}
-				calcStrings = null;
 			}
 		}
 		return loadedSomething;
@@ -328,8 +319,8 @@ public abstract class Handler
 		if(groups != null)
 			for(String group : groups)
 			{
-				List<String> calcStrings = (isOffensive?offensiveNode:defensiveNode).getNode("groups").getStringList(group, null);
-				if(!calcStrings.equals(null))
+				List<Object> calcStrings = (isOffensive?offensiveNode:defensiveNode).getNode("groups").getList(group);
+				if(calcStrings != null)
 				{
 					List<DamageCalculation> Calculations = damageAllocator.parseStrings(calcStrings);
 					if(Calculations != null)
@@ -337,9 +328,7 @@ public abstract class Handler
 						if(!(isOffensive?groupOffensiveRoutines:groupDefensiveRoutines).containsKey(group))
 						{
 							(isOffensive?groupOffensiveRoutines:groupDefensiveRoutines).put(group, Calculations);
-							String configString = "-" + (isOffensive?"Offensive":"Defensive") + ":" + getConfigPath() + ":groups:" + group + " " + calcStrings.toString();
-							configStrings.add(configString);
-							if(ModDamage.consoleDebugging_normal) log.info(configString);
+							addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getConfigPath() + ":groups:" + group + " " + calcStrings.toString());
 							loadedSomething = true;
 						}
 						else if(ModDamage.consoleDebugging_normal) 
@@ -352,6 +341,41 @@ public abstract class Handler
 		return loadedSomething;
 	}
 
+////SCAN ////
+	protected boolean loadScanItems() 
+	{
+		boolean loadedSomething = false;
+		if(scanNode != null) 
+		{
+			if(ModDamage.consoleDebugging_verbose) log.info("{Found Scan node for " + getDisplayString(false) + "\"}");
+			List<String> itemList = scanNode.getStringList("global", null);
+			if(!itemList.equals(null))
+			{
+				for(String itemString : itemList)
+				{
+					if(ModDamage.itemAliases.containsKey(itemString.toLowerCase()))
+						for(Material material : ModDamage.itemAliases.get(itemString.toLowerCase()))
+						{
+							scanItems.add(material);
+							addConfigString("-Scan:" + getConfigPath() + ":" + material.name() + "(" + material.getId() + ")");
+							loadedSomething = true;
+						}
+					else
+					{
+						Material material = Material.matchMaterial(itemString);
+						if(material != null)
+						{
+							scanItems.add(material);
+							addConfigString("-Scan:" + getConfigPath() + ":" + material.name() + "(" + material.getId() + ")");
+							loadedSomething = true;
+						}
+						else if(ModDamage.consoleDebugging_verbose) log.warning("Invalid Scan item \"" + itemString + "\" found in " + getDisplayString(false) + " globals - ignoring");
+					}
+				}
+			}
+		}
+		return loadedSomething;
+	}
 
 ///////////////////// ROUTINE-SPECIFIC CALLS
 	protected void runRoutines(DamageEventInfo eventInfo, boolean isOffensive)
@@ -393,7 +417,7 @@ public abstract class Handler
 			Calculation.calculate(eventInfo);
 	}
 
-///////////////////// HELPER FUNCTIONS ///////////////////////
+//// HELPER FUNCTIONS ////
 	protected void clear() 
 	{
 		offensiveRoutines.clear();
@@ -409,8 +433,15 @@ public abstract class Handler
 	}
 
 	protected boolean loadedSomething(){ return routinesLoaded || scanLoaded;}
+
+	private void addConfigString(String string) 
+	{
+		//FIXME Change so that character lengths are counted for accurate paging.
+		configStrings.add(string);
+		if(ModDamage.consoleDebugging_normal) log.info(string);
+	}
 	
-///////////////////// INGAME COMMANDS ///////////////////////	
+//// INGAME COMMANDS ////
 	public boolean sendGroupConfig(Player player, int pageNumber)
 	{
 		if(player == null)
@@ -428,7 +459,7 @@ public abstract class Handler
 		}
 		if(configPages > 0 && configPages >= pageNumber && pageNumber > 0)
 		{
-			player.sendMessage(plugin.ModDamageString(ChatColor.GOLD) +  " " + getDisplayString(false) + " (" + pageNumber + "/" + configPages + ")");
+			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) +  " " + getDisplayString(false) + " (" + pageNumber + "/" + configPages + ")");
 			for(int i = (9 * (pageNumber - 1)); i < (configStrings.size() < (9 * pageNumber)
 														?configStrings.size()
 														:(9 * pageNumber)); i++)

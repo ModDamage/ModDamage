@@ -6,31 +6,30 @@ import java.util.List;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntitySetFireTicks extends EntityEffectDamageCalculation 
+public class EntitySetHealth extends EntityEffectDamageCalculation 
 {
-	int ticks;
-	public EntitySetFireTicks(boolean forAttacker, List<DamageCalculation> calculations)
+	int value;
+	public EntitySetHealth(boolean forAttacker, List<DamageCalculation> calculations)
 	{
 		this.forAttacker = forAttacker;
 		this.calculations = calculations;
-		this.ticks = 0;
 	}
-	public EntitySetFireTicks(boolean forAttacker, int ticks)
+	public EntitySetHealth(boolean forAttacker, int value)
 	{
 		this.forAttacker = forAttacker;
-		this.ticks = ticks;
+		this.value = value;
 	}
 	@Override
 	public void calculate(DamageEventInfo eventInfo)
 	{ 
 		if(calculations != null)
 		{
-			ticks = eventInfo.eventDamage;
+			value = eventInfo.eventDamage;
 			for(DamageCalculation calculation : calculations)
 				calculation.calculate(eventInfo);
-			(forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).setFireTicks(eventInfo.eventDamage);
-			eventInfo.eventDamage = ticks;
+			(forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).setHealth(value);
+			eventInfo.eventDamage = value;
 		}
-		else (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).setFireTicks(ticks);
+		else (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).setHealth(value);
 	}
 }

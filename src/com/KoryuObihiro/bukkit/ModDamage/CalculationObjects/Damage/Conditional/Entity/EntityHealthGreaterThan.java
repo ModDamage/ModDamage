@@ -6,7 +6,7 @@ import java.util.List;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntityHealthGreaterThan extends EntityDamageConditionalCalculation 
+public class EntityHealthGreaterThan extends EntityConditionaDamageCalculation 
 {
 	int value;
 	public EntityHealthGreaterThan(boolean inverted, boolean forAttacker, int compareTo, List<DamageCalculation> calculations)

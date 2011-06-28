@@ -6,7 +6,7 @@ import net.minecraft.server.Material;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntityUnderwater extends EntityDamageConditionalCalculation 
+public class EntityUnderwater extends EntityConditionaDamageCalculation 
 {
 	public EntityUnderwater(boolean inverted, boolean forAttacker, List<DamageCalculation> calculations)
 	{ 

@@ -6,7 +6,7 @@ import java.util.List;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntityFallen extends EntityDamageConditionalCalculation 
+public class EntityFallen extends EntityConditionaDamageCalculation 
 {
 	final int fallDistance;
 	public EntityFallen(boolean inverted, int fallDistance, boolean forAttacker, List<DamageCalculation> calculations)

@@ -7,7 +7,7 @@ import org.bukkit.Material;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntityExposedToSky extends EntityDamageConditionalCalculation 
+public class EntityExposedToSky extends EntityConditionaDamageCalculation 
 {
 	public EntityExposedToSky(boolean inverted, boolean forAttacker, List<DamageCalculation> calculations)
 	{  

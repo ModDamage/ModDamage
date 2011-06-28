@@ -63,7 +63,7 @@ public class DamageEventInfo
 		
 		world = entity_target.getWorld();
 
-		shouldScan = (ModDamage.hasPermission(player_attacker, "moddamage.scan.pvp") && ModDamage.worldHandlers.get(world).canScan(player_attacker));
+		shouldScan = (ModDamage.hasPermission(player_attacker, "moddamage.scan.pvp") && ModDamage.serverHandler.canScan(player_attacker));
 		
 	}
 	
@@ -92,7 +92,7 @@ public class DamageEventInfo
 		world = entity_target.getWorld();
 		
 		shouldScan = (ModDamage.hasPermission(player_attacker, "moddamage.scan." + mobType_target.getReference().toLowerCase()) 
-				&& ModDamage.worldHandlers.get(world).canScan(player_attacker));		
+				&& ModDamage.serverHandler.canScan(player_attacker));		
 	}
 	
 	public DamageEventInfo(Player player_target, LivingEntity entity_attacker, DamageElement mobType_attacker, int eventDamage) 

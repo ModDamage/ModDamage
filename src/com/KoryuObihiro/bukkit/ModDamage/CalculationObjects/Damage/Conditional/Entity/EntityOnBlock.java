@@ -7,10 +7,10 @@ import org.bukkit.Material;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntityOnBlock extends EntityDamageConditionalCalculation 
+public class EntityOnBlock extends EntityConditionaDamageCalculation 
 {
 	final Material material;
-	public EntityOnBlock(boolean inverted, Material material, boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityOnBlock(boolean forAttacker, boolean inverted, Material material, List<DamageCalculation> calculations)
 	{ 
 		this.inverted = inverted;
 		this.material = material;

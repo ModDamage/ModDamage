@@ -5,10 +5,10 @@ import java.util.List;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntityLightLevelEquals extends EntityConditionaDamageCalculation 
+public class EntityLightLevelLessThan extends EntityConditionaDamageCalculation 
 {
 	final byte lightLevel;
-	public EntityLightLevelEquals(boolean inverted, boolean forAttacker, byte lightLevel, List<DamageCalculation> calculations)
+	public EntityLightLevelLessThan(boolean inverted, boolean forAttacker, byte lightLevel, List<DamageCalculation> calculations)
 	{ 
 		this.inverted = inverted;
 		this.lightLevel = lightLevel;
@@ -16,5 +16,5 @@ public class EntityLightLevelEquals extends EntityConditionaDamageCalculation
 		this.calculations = calculations;
 	}
 	@Override
-	public boolean condition(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().getBlock().getLightLevel() == lightLevel;}
+	public boolean condition(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().getBlock().getLightLevel() < lightLevel;}
 }

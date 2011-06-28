@@ -7,10 +7,10 @@ import org.bukkit.block.Biome;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 
-public class EntityBiome extends EntityDamageConditionalCalculation 
+public class EntityBiome extends EntityConditionaDamageCalculation 
 {
 	final Biome biome;
-	public EntityBiome(boolean inverted, Biome biome, boolean forAttacker, List<DamageCalculation> calculations)
+	public EntityBiome(boolean forAttacker, boolean inverted, Biome biome, List<DamageCalculation> calculations)
 	{ 
 		this.inverted = inverted;
 		this.biome = biome;
