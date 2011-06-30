@@ -12,7 +12,6 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Creature;
-import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Flying;
@@ -52,9 +51,9 @@ public enum DamageElement
 	
 //ranged items
 	RANGED_BOW("bow", GENERIC_RANGED, false),
-	RANGED_SNOWBALL("snowball", GENERIC_RANGED, false),
 	RANGED_EGG("egg", GENERIC_RANGED, false), 
 	RANGED_FIREBALL ("fireball", GENERIC_RANGED, false),
+	RANGED_SNOWBALL("snowball", GENERIC_RANGED, false),
 	
 //armor
 	ARMOR_HELMET ("head", GENERIC_ARMOR, false),

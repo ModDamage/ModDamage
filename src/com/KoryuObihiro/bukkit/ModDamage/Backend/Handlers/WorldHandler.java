@@ -34,7 +34,7 @@ public class WorldHandler extends Handler
 	final protected SpawnCalculationAllocator healthAllocator;
 	
 	//MobHealth
-	final protected HashMap<DamageElement, List<ConditionalSpawnCalculation>> mobSpawnRoutines = new HashMap<DamageElement, List<ConditionalSpawnCalculation>>();
+	final protected HashMap<DamageElement, List<SpawnCalculation>> mobSpawnRoutines = new HashMap<DamageElement, List<SpawnCalculation>>();
 	
 	//Handlers
 	protected final HashMap<String, GroupHandler> groupHandlers = new HashMap<String, GroupHandler>();
@@ -128,7 +128,7 @@ public class WorldHandler extends Handler
 					{
 						if(!mobSpawnRoutines.containsKey(creatureType))
 						{
-							//mobSpawnDefaults.put(creatureType, calculation);
+							mobSpawnRoutines.put(creatureType, calculations);
 							String configString = "-MobHealth:" + world.getName() + ":" + creatureType.getReference() 
 								+ " [" + calcStrings.toString() + "]";
 							configStrings.add(configString);
