@@ -2,7 +2,7 @@ package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditiona
 
 import java.util.List;
 
-import net.minecraft.server.Material;
+import org.bukkit.Material;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;

@@ -457,7 +457,7 @@ public class ModDamage extends JavaPlugin
 	//CONFIGURATION
 		config.load();
 		//get plugin config.yml...if it doesn't exist, create it.
-		if(!(new File("plugins\\" + getDescription().getName(), "config.yml")).exists()) writeDefaults();
+		if(!(new File(this.getDataFolder(), "config.yml")).exists()) writeDefaults();
 
 	//load debug settings
 		String debugString = config.getString("debugging");

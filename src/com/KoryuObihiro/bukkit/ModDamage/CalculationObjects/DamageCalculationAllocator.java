@@ -147,34 +147,35 @@ public class DamageCalculationAllocator
 			List<DamageCalculation> nestedCalculations = parseStrings(conditionalStatement.get(key));
 			if(nestedCalculations.isEmpty()) return null;
 			
-			if(args[0].equalsIgnoreCase("if") || args[0].equalsIgnoreCase("if_not"))
+			if(args.length == 2)
+			{
+				if(args[0].equalsIgnoreCase("attackerEffect") || args[0].equalsIgnoreCase("targetEffect"))
+				{
+					boolean forAttacker = args[0].equalsIgnoreCase("attackerEffect");
+					if(args[1].equalsIgnoreCase("heal")) 				return new EntityHeal(forAttacker, nestedCalculations);
+					else if(args[1].equalsIgnoreCase("explode"))		return new EntityExplode(forAttacker, nestedCalculations);
+					else if(args[1].equalsIgnoreCase("setAirTicks"))	return new EntitySetAirTicks(forAttacker, nestedCalculations);
+					else if(args[1].equalsIgnoreCase("setFireTicks"))	return new EntitySetFireTicks(forAttacker, nestedCalculations);
+					else if(args[1].equalsIgnoreCase("setHealth"))		return new EntitySetHealth(forAttacker, nestedCalculations);
+					else if(args[1].equalsIgnoreCase("setItem"))		
+					{
+						Material material = Material.matchMaterial(args[2]);
+						if(material != null) return new EntitySetItem(forAttacker, material, nestedCalculations);
+					}
+					else if(args[1].equalsIgnoreCase("setHealth"))		
+					{
+						Material material = Material.matchMaterial(args[2]);
+						if(material != null) return new EntitySetHealth(forAttacker, nestedCalculations);
+					}
+				}
+				else if(args[0].equalsIgnoreCase("effect"))
+					if(args[1].equalsIgnoreCase("reflect")) return new EntityReflect(nestedCalculations);
+			}
+			else if(args[0].equalsIgnoreCase("if") || args[0].equalsIgnoreCase("if_not"))
 			{
 				boolean inverted = args[0].equalsIgnoreCase("if_not");
-				if(args.length == 2)
-				{
-					if(args[0].equalsIgnoreCase("attackerEffect") || args[0].equalsIgnoreCase("targetEffect"))
-					{
-						boolean forAttacker = args[1].equalsIgnoreCase("attackerEffect");
-						if(args[1].equalsIgnoreCase("heal")) 				return new EntityHeal(forAttacker, nestedCalculations);
-						else if(args[1].equalsIgnoreCase("explode"))		return new EntityExplode(forAttacker, nestedCalculations);
-						else if(args[1].equalsIgnoreCase("setAirTicks"))	return new EntitySetAirTicks(forAttacker, nestedCalculations);
-						else if(args[1].equalsIgnoreCase("setFireTicks"))	return new EntitySetFireTicks(forAttacker, nestedCalculations);
-						else if(args[1].equalsIgnoreCase("setHealth"))		return new EntitySetHealth(forAttacker, nestedCalculations);
-						else if(args[1].equalsIgnoreCase("setItem"))		
-						{
-							Material material = Material.matchMaterial(args[2]);
-							if(material != null) return new EntitySetItem(forAttacker, material, nestedCalculations);
-						}
-						else if(args[1].equalsIgnoreCase("setHealth"))		
-						{
-							Material material = Material.matchMaterial(args[2]);
-							if(material != null) return new EntitySetHealth(forAttacker, nestedCalculations);
-						}
-					}
-					else if(args[0].equalsIgnoreCase("effect"))
-						if(args[1].equalsIgnoreCase("reflect")) return new EntityReflect(nestedCalculations);
-				}
-				else if(args.length == 3)
+				
+				if(args.length == 3)
 				{
 					if(args[1].equalsIgnoreCase("damageIs"))
 					{

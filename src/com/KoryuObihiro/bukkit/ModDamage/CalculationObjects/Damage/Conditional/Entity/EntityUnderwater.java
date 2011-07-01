@@ -1,7 +1,8 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Entity;
 
 import java.util.List;
-import net.minecraft.server.Material;
+
+import org.bukkit.Material;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;

@@ -11,6 +11,7 @@ public class EntityExplode extends EntityEffectDamageCalculation
 	int power;
 	public EntityExplode(boolean forAttacker, List<DamageCalculation> calculations)
 	{
+		this.forAttacker = forAttacker;
 		this.calculations = calculations;
 		this.power = 0;
 	}
@@ -27,10 +28,10 @@ public class EntityExplode extends EntityEffectDamageCalculation
 			power = eventInfo.eventDamage;
 			for(DamageCalculation calculation : calculations)
 				calculation.calculate(eventInfo);
-			eventInfo.world.createExplosion((forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation(), eventInfo.eventDamage);
+			eventInfo.world.createExplosion((forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getEyeLocation(), eventInfo.eventDamage);
 			eventInfo.eventDamage = power;
 			power = 0;
 		}
-		else eventInfo.world.createExplosion((forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().add(0, 1, 0), power);
+		else eventInfo.world.createExplosion((forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getEyeLocation(), power);
 	}
 }

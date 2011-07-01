@@ -1,6 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
-import java.lang.reflect.Array;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
