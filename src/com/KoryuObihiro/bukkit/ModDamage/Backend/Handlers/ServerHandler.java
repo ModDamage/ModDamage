@@ -15,19 +15,21 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculationAllocator;
 
-
-
 public class ServerHandler extends WorldHandler
 {
+//// MEMBERS ////
 	public static final HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
 	private static final DamageCalculationAllocator damageCalculationAllocator = new DamageCalculationAllocator();
 	private static final SpawnCalculationAllocator healthCalculationAllocator = new SpawnCalculationAllocator();
 	
 	private boolean worldHandlersLoaded = false;
-	
+
+//// FUNCTIONS ////
+//// CONSTRUCTOR ////
 	public ServerHandler(ModDamage plugin, ConfigurationNode offensiveNode, ConfigurationNode defensiveNode, ConfigurationNode mobHealthNode, ConfigurationNode scanNode) 
 	{
 		super(plugin, null, offensiveNode, defensiveNode, mobHealthNode, scanNode, damageCalculationAllocator, healthCalculationAllocator);
+		additionalConfigChecks = 2;
 
 		//TODO set aliases - this will be moved into reload() once dynamic nodes have been implemented.
 		// DON'T FORGET - casing needs to be handled, so that it's not an issue.
@@ -77,7 +79,7 @@ public class ServerHandler extends WorldHandler
 		if(!loadedSomething()) log.severe("[" + plugin.getDescription().getName() + "] No configurations loaded! Are any calculation strings defined?");
 		return loadedSomething();
 	}
-	
+
 //// HELPER FUNCTIONS ////
 	@Override
 	public void clear()
@@ -90,7 +92,7 @@ public class ServerHandler extends WorldHandler
 	protected String getDisplayString(boolean uppercase){ return (uppercase?"S":"s") + "erver";}
 	
 	@Override
-	protected String getConfigPath(){ return "";}
+	protected String getCalculationHeader(){ return "";}
 
 	private World getWorldMatch(String name, boolean searchSubstrings)
 	{
@@ -123,28 +125,36 @@ public class ServerHandler extends WorldHandler
 	public boolean loadedSomething(){ return super.loadedSomething() || worldHandlersLoaded;}
 
 //// INGAME CONFIG ////
-	public void sendConfig(Player player, int pageNumber)
+	@Override
+	public boolean printAdditionalConfiguration(Player player, int pageNumber)
 	{
-		if(player == null)
+		if(pageNumber == configPages + 1)
 		{
-			for(WorldHandler worldHandler : worldHandlers.values())
-				if(worldHandler.loadedSomething())
-					super.sendWorldConfig(player, pageNumber);
+			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " " + getDisplayString(true) + ": (" + pageNumber + "/" + (configPages + 2) + ")");
+			player.sendMessage(ModDamage.ModDamageString(ChatColor.YELLOW) + " The following groups have been configured:");
+			if(!groupHandlers.isEmpty())
+			{
+				for(GroupHandler groupHandler : groupHandlers.values())
+						player.sendMessage(ChatColor.GREEN + groupHandler.getGroupName());
+				player.sendMessage(ChatColor.BLUE + "Use /md check [groupname] or /md check [groupname] [page] for more info.");
+			}
+			else player.sendMessage(ChatColor.RED + "No groups configured!");
+			return true;
 		}
-		else
+		else if(pageNumber == configPages + 2)
 		{
+			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " " + getDisplayString(true) + " (" + pageNumber + "/" + (configPages + 2) + ")");
 			player.sendMessage(ModDamage.ModDamageString(ChatColor.YELLOW) + " The following worlds have been configured:");
-			boolean sentSomething = false;
-			for(WorldHandler worldHandler : worldHandlers.values())
-				if(worldHandler.loadedSomething())
-				{
-					player.sendMessage(ChatColor.GREEN + worldHandler.getWorld().getName());
-					sentSomething = true;
-				}
-			player.sendMessage(sentSomething
-								?ChatColor.BLUE + "Use /md check [worldname] for more information."
-								:ChatColor.RED + "No worlds configured!");
+			if(!worldHandlers.isEmpty())
+			{
+				for(WorldHandler worldHandler : worldHandlers.values())
+						player.sendMessage(ChatColor.GREEN + worldHandler.getWorld().getName());
+				player.sendMessage(ChatColor.BLUE + "Use /md check [worldname] for more info.");
+			}
+			else player.sendMessage(ChatColor.RED + "No worlds configured!");
+			return true;
 		}
+		return false;
 	}
 	
 	public void sendConfig(Player player, String worldSearchTerm){ sendConfig(player, worldSearchTerm, 1);}
@@ -156,7 +166,7 @@ public class ServerHandler extends WorldHandler
 		{
 			if(ModDamage.hasPermission(player, "moddamage.check." + worldMatch.getName()))
 			{
-				if(!worldHandlers.get(worldMatch).sendWorldConfig(player, pageNumber))
+				if(!worldHandlers.get(worldMatch).sendConfig(player, pageNumber))
 					player.sendMessage(ModDamage.ModDamageString(ChatColor.RED) + " Invalid page number for world \"" + worldMatch.getName() + "\".");
 			}
 			else player.sendMessage(ModDamage.ModDamageString(ChatColor.RED) 
@@ -175,7 +185,7 @@ public class ServerHandler extends WorldHandler
 			{
 				if(ModDamage.hasPermission(player, "moddamage.check." + worldMatch.getName() + "." + groupMatch))
 				{
-					if(!worldHandlers.get(worldMatch).getGroupHandler(groupMatch).sendGroupConfig(player, pageNumber))
+					if(!worldHandlers.get(worldMatch).getGroupHandler(groupMatch).sendConfig(player, pageNumber))
 						player.sendMessage(ModDamage.ModDamageString(ChatColor.RED) + " You don't have permission to check group \"" 
 								+ groupMatch + "\" for world \"" + worldMatch.getName() + "\".");
 				}
@@ -188,6 +198,5 @@ public class ServerHandler extends WorldHandler
 			if(player == null) log.info("Error: Couldn't find matching world substring.");
 			else player.sendMessage(ModDamage.errorString_findWorld);
 		}
-	}
-
+	}	
 }

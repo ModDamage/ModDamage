@@ -33,7 +33,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public enum DamageElement 
 {
-	GENERIC ("generic", null, true),
+	GENERIC 		("generic", null, true),
 	GENERIC_HUMAN 	("humans", GENERIC, false),
 	GENERIC_ANIMAL 	("animal", GENERIC, true),
 	GENERIC_MELEE 	("melee", GENERIC, true),
@@ -42,24 +42,26 @@ public enum DamageElement
 	GENERIC_MOB 	("mob", GENERIC, true),
 	GENERIC_NATURE 	("nature", GENERIC, true),
 //tools
-	MELEE_AXE ("axe", GENERIC_MELEE, false),
-	MELEE_HOE ("hoe", GENERIC_MELEE, false),
-	MELEE_PICKAXE ("pickaxe", GENERIC_MELEE, false),
-	MELEE_SPADE ("spade", GENERIC_MELEE, false),
-	MELEE_SWORD ("sword", GENERIC_MELEE, false),
-	MELEE_OTHER ("other", GENERIC_MELEE, false),
+	MELEE_AXE 		("axe", GENERIC_MELEE, false),
+	MELEE_FIST 		("fist", GENERIC_MELEE, false),
+	MELEE_HOE 		("hoe", GENERIC_MELEE, false),
+	MELEE_PICKAXE 	("pickaxe", GENERIC_MELEE, false),
+	MELEE_SPADE 	("spade", GENERIC_MELEE, false),
+	MELEE_SWORD 	("sword", GENERIC_MELEE, false),
+	MELEE_OTHER 	("other", GENERIC_MELEE, false),
 	
 //ranged items
-	RANGED_BOW("bow", GENERIC_RANGED, false),
-	RANGED_EGG("egg", GENERIC_RANGED, false), 
-	RANGED_FIREBALL ("fireball", GENERIC_RANGED, false),
-	RANGED_SNOWBALL("snowball", GENERIC_RANGED, false),
+	RANGED_BOW 		("bow", GENERIC_RANGED, false),
+	RANGED_EGG 		("egg", GENERIC_RANGED, false), 
+	RANGED_FIREBALL	("fireball", GENERIC_RANGED, false),
+	RANGED_SNOWBALL	("snowball", GENERIC_RANGED, false),
 	
 //armor
-	ARMOR_HELMET ("head", GENERIC_ARMOR, false),
-	ARMOR_CHESTPLATE ("chest", GENERIC_ARMOR, false),
-	ARMOR_LEGGINGS ("legs", GENERIC_ARMOR, false),
-	ARMOR_BOOTS ("boots", GENERIC_ARMOR, false),
+	ARMOR_HELMET	("head", GENERIC_ARMOR, false),
+	ARMOR_CHESTPLATE("chest", GENERIC_ARMOR, false),
+	ARMOR_LEGGINGS	("legs", GENERIC_ARMOR, false),
+	ARMOR_BOOTS	("boots", GENERIC_ARMOR, false),
+	
 //animals
 	ANIMAL_CHICKEN ("Chicken", GENERIC_ANIMAL, false),
 	ANIMAL_COW ("Cow", GENERIC_ANIMAL, false),
@@ -167,6 +169,8 @@ public enum DamageElement
 		if(material != null)
 			switch(material)
 			{
+			//Fist
+				case AIR:			return DamageElement.MELEE_FIST;
 			//Axes
 				case WOOD_AXE: 		return DamageElement.MELEE_AXE;
 				case STONE_AXE: 	return DamageElement.MELEE_AXE;
@@ -190,14 +194,14 @@ public enum DamageElement
 				case STONE_SPADE: 	return DamageElement.MELEE_SPADE;
 				case IRON_SPADE:	return DamageElement.MELEE_SPADE;
 				case GOLD_SPADE:	return DamageElement.MELEE_SPADE;
-				case DIAMOND_SPADE: return DamageElement.MELEE_SPADE;
+				case DIAMOND_SPADE:	return DamageElement.MELEE_SPADE;
 			//Swords	
 				case WOOD_SWORD: 	return DamageElement.MELEE_SWORD;
 				case STONE_SWORD: 	return DamageElement.MELEE_SWORD;
 				case IRON_SWORD:	return DamageElement.MELEE_SWORD;
 				case GOLD_SWORD:	return DamageElement.MELEE_SWORD;
-				case DIAMOND_SWORD: return DamageElement.MELEE_SWORD;
-				
+				case DIAMOND_SWORD:	return DamageElement.MELEE_SWORD;
+			//All others
 				default: 			return MELEE_OTHER;
 			}
 		return null;
@@ -256,8 +260,6 @@ public enum DamageElement
 			if(element.getType() != null
 					&& element.getType().getReference().equals(elementType))
 				typeStrings.add(element.getReference());
-		
-		//if(typeStrings.isEmpty()) typeStrings = null;
 		return typeStrings;
 	}
 
@@ -270,8 +272,6 @@ public enum DamageElement
 			if(element.getType() != null
 					&& element.getType().getReference().equals(elementType))
 				typeStrings.add(element);
-		
-		//if(typeStrings.isEmpty()) typeStrings = null;
 		return typeStrings;
 	}
 	

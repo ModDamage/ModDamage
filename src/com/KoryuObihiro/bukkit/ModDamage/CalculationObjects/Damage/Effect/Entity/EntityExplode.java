@@ -31,6 +31,6 @@ public class EntityExplode extends EntityEffectDamageCalculation
 			eventInfo.eventDamage = power;
 			power = 0;
 		}
-		else eventInfo.world.createExplosion((forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation(), power);
+		else eventInfo.world.createExplosion((forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().add(0, 1, 0), power);
 	}
 }

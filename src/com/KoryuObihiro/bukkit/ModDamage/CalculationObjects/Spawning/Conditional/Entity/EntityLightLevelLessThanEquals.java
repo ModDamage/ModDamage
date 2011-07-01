@@ -8,7 +8,7 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;
 public class EntityLightLevelLessThanEquals extends EntityConditionalSpawnCalculation 
 {
 	final byte lightLevel;
-	public EntityLightLevelLessThanEquals(byte lightLevel, boolean inverted, List<SpawnCalculation> calculations)
+	public EntityLightLevelLessThanEquals(boolean inverted, byte lightLevel, List<SpawnCalculation> calculations)
 	{ 
 		this.lightLevel = lightLevel;
 		this.inverted = inverted;

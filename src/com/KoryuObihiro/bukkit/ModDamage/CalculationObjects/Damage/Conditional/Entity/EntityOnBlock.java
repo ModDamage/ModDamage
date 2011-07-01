@@ -10,7 +10,7 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 public class EntityOnBlock extends EntityConditionaDamageCalculation 
 {
 	final Material material;
-	public EntityOnBlock(boolean forAttacker, boolean inverted, Material material, List<DamageCalculation> calculations)
+	public EntityOnBlock(boolean inverted, boolean forAttacker, Material material, List<DamageCalculation> calculations)
 	{ 
 		this.inverted = inverted;
 		this.material = material;

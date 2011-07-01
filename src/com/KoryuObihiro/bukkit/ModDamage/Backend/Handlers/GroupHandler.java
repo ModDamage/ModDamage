@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
@@ -13,15 +14,18 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAll
 
 public class GroupHandler extends Handler 
 {
+//// MEMBERS //// 
 	final protected String groupName;
 	
-	final private WorldHandler worldHandler;
-	
+	final private WorldHandler parentHandler;
+
+//// FUNCTIONS ////
+//// CONSTRUCTOR ////
 	public GroupHandler(ModDamage plugin, WorldHandler worldHandler, Logger log,  String name, ConfigurationNode offensiveNode, ConfigurationNode defensiveNode, ConfigurationNode scanNode, DamageCalculationAllocator damageCalcAllocator) 
 	{
 		this.plugin = plugin;
 		this.log = log;
-		this.worldHandler = worldHandler;
+		this.parentHandler = worldHandler;
 		this.groupName = name;
 		this.offensiveNode = this.offensiveGlobalNode = offensiveNode;
 		this.defensiveNode = this.defensiveGlobalNode =defensiveNode;
@@ -31,7 +35,7 @@ public class GroupHandler extends Handler
 		reload();
 	}
 
-////CONFIG LOADING ////
+//// CONFIG LOADING ////
 	@Override
 	protected void loadAdditionalConfiguration(){ scanLoaded = loadScanItems();}
 
@@ -112,7 +116,7 @@ public class GroupHandler extends Handler
 						for(Material material : ModDamage.itemAliases.get(itemString.toLowerCase()))
 						{
 							scanItems.add(material);
-							String configString = "-Scan:" + getConfigPath() + ":" + material.name() + "(" + material.getId() + ")";
+							String configString = "-Scan:" + getCalculationHeader() + ":" + material.name() + "(" + material.getId() + ")";
 							configStrings.add(configString);
 							if(ModDamage.consoleDebugging_normal) log.info(configString);
 							loadedSomething = true;
@@ -123,7 +127,7 @@ public class GroupHandler extends Handler
 						if(material != null)
 						{
 							scanItems.add(material);
-							String configString = "-Scan:" + getConfigPath() + ":" + material.name() + "(" + material.getId() + ") ";
+							String configString = "-Scan:" + getCalculationHeader() + ":" + material.name() + "(" + material.getId() + ") ";
 							configStrings.add(configString);
 							if(ModDamage.consoleDebugging_normal) log.info(configString);
 							loadedSomething = true;
@@ -139,10 +143,20 @@ public class GroupHandler extends Handler
 
 //// HELPER FUNCTIONS ////
 	@Override
-	protected String getConfigPath(){ return worldHandler.getWorld().getName() + ":groups:" + groupName;}
+	protected String getCalculationHeader(){ return parentHandler.getCalculationHeader() + ":groups:" + groupName;}
 	
 	@Override
-	protected String getDisplayString(boolean upperCase){ return (upperCase?"G":"g") + "roup \"" + groupName + "\" (world \"" + worldHandler.getWorld().getName() + "\")";}
+	protected String getDisplayString(boolean upperCase){ return (upperCase?"G":"g") + "roup \"" + groupName + "\" (" + parentHandler.getDisplayString(false) + ")";}
 	
 	public String getGroupName(){ return groupName;}
+
+////INGAME COMMANDS ////
+	@Override
+	public void printAdditionalStrings(){}
+
+	@Override
+	public boolean printAdditionalConfiguration(Player player, int pageNumber){ return false;}
+
+	@Override
+	protected String getConfigPath(){ return parentHandler.getConfigPath() + "groups." + groupName + ".";}
 }

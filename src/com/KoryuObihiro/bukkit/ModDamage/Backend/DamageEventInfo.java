@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
+import java.lang.reflect.Array;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
@@ -51,7 +52,9 @@ public class DamageEventInfo
 		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
 		armorSetString_target = new ArmorSet(player_target).toString();
 		name_target = player_target.getName();
-		groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
+		groups_target = (ModDamage.multigroupPermissions
+				?ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName())
+				:ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName()).split(" "));
 		
 		entity_attacker = player_attacker;
 		damageElement_attacker = DamageElement.GENERIC_HUMAN;
@@ -59,12 +62,13 @@ public class DamageEventInfo
 		elementInHand_attacker = DamageElement.matchMeleeElement(materialInHand_attacker);
 		armorSetString_attacker = new ArmorSet(player_attacker).toString();
 		name_attacker = player_attacker.getName();
-		groups_attacker = ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName());
+		groups_attacker = (ModDamage.multigroupPermissions
+							?ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName())
+							:ModDamage.Permissions.getGroup(player_attacker.getWorld().getName(), player_attacker.getName()).split(" "));
 		
 		world = entity_target.getWorld();
 
 		shouldScan = (ModDamage.hasPermission(player_attacker, "moddamage.scan.pvp") && ModDamage.serverHandler.canScan(player_attacker));
-		
 	}
 	
 	public DamageEventInfo(LivingEntity entity_target, DamageElement mobType_target, Player player_attacker, DamageElement rangedElement, int eventDamage) 
@@ -87,12 +91,13 @@ public class DamageEventInfo
 		elementInHand_attacker = DamageElement.matchMeleeElement(materialInHand_attacker);
 		armorSetString_attacker = new ArmorSet(player_attacker).toString();
 		name_attacker = player_attacker.getName();
-		groups_attacker = ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName());
+		groups_attacker = (ModDamage.multigroupPermissions
+				?ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName())
+				:ModDamage.Permissions.getGroup(player_attacker.getWorld().getName(), player_attacker.getName()).split(" "));
 		
 		world = entity_target.getWorld();
 		
-		shouldScan = (ModDamage.hasPermission(player_attacker, "moddamage.scan." + mobType_target.getReference().toLowerCase()) 
-				&& ModDamage.serverHandler.canScan(player_attacker));		
+		shouldScan = (ModDamage.hasPermission(player_attacker, "moddamage.scan." + mobType_target.getReference().toLowerCase()) && ModDamage.serverHandler.canScan(player_attacker));		
 	}
 	
 	public DamageEventInfo(Player player_target, LivingEntity entity_attacker, DamageElement mobType_attacker, int eventDamage) 
@@ -107,7 +112,9 @@ public class DamageEventInfo
 		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
 		armorSetString_target = new ArmorSet(player_target).toString();
 		name_target = player_target.getName();
-		groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
+		groups_target = (ModDamage.multigroupPermissions
+				?ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName())
+				:ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName()).split(" "));
 
 		this.entity_attacker = entity_attacker;
 		damageElement_attacker = mobType_attacker;
@@ -161,7 +168,9 @@ public class DamageEventInfo
 		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
 		armorSetString_target = new ArmorSet(player_target).toString();
 		name_target = player_target.getName();
-		groups_target = ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName());
+		groups_target = (ModDamage.multigroupPermissions
+				?ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName())
+				:ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName()).split(" ")); //FIXME Works???
 		
 		entity_attacker = null;
 		damageElement_attacker = damageType;

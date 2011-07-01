@@ -22,13 +22,10 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAll
 public abstract class Handler
 {
 //// MEMBERS //// 
-	
 	protected ModDamage plugin;
 	protected Logger log;
 	protected boolean routinesLoaded = false;
 	protected boolean scanLoaded = false;
-	protected List<String> configStrings = new ArrayList<String>();
-	protected int configPages = 0;
 
 	//nodes for config loading
 	protected ConfigurationNode offensiveNode;
@@ -52,6 +49,13 @@ public abstract class Handler
 	//Scan
 	final protected List<Material> scanItems = new ArrayList<Material>();
 	
+	//Ingame
+	protected int configPages = 0;
+	protected List<String> configStrings = new ArrayList<String>();
+	protected int additionalConfigChecks = 0;
+	
+	
+//// FUNCTIONS ////
 //// CONFIG LOADING ////
 	public boolean reload()
 	{ 
@@ -71,11 +75,6 @@ public abstract class Handler
 	}
 	
 	abstract protected void loadAdditionalConfiguration();
-	
-	abstract protected String getConfigPath();
-	
-	//TODO another bool for inserting more info?
-	abstract protected String getDisplayString(boolean upperCase);
 	
 //// OFFENSIVE/DEFENSIVE ////
 	protected boolean loadDamageRoutines() 
@@ -149,7 +148,7 @@ public abstract class Handler
 	protected boolean loadGenericRoutines(boolean isOffensive)
 	{
 		boolean loadedSomething = false;
-		List<String>damageCategories = DamageElement.getGenericTypeStrings();
+		List<String> damageCategories = DamageElement.getGenericTypeStrings();
 		ConfigurationNode genericNode = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getNode("generic");
 		for(String damageCategory : damageCategories)
 		{
@@ -161,29 +160,24 @@ public abstract class Handler
 				{
 					if(ModDamage.consoleDebugging_verbose) log.info("{Found " + getDisplayString(false) + " generic " 
 							+ (isOffensive?"Offensive":"Defensive") + " " + damageCategory + " node " + "}");
-					if(calcStrings != null) //!calcStrings.equals(null)
-					{
 						List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
-						if(calculations != null)
+					if(!calculations.isEmpty())
+					{
+						if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(element))
 						{
-							if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(element))
-							{
-								(isOffensive?offensiveRoutines:defensiveRoutines).put(element, calculations);
-								addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getConfigPath() + ":Generic:" + damageCategory + calcStrings.toString());
-								loadedSomething = true;
-							}
-							else if(ModDamage.consoleDebugging_normal)
-							{
-								log.warning("Repetitive generic "  + damageCategory + " node in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
-								continue;
-							}
+							(isOffensive?offensiveRoutines:defensiveRoutines).put(element, calculations);
+							addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getCalculationHeader() + ":Generic:" + damageCategory + calcStrings.toString());
+							loadedSomething = true;
 						}
-						else if(ModDamage.consoleDebugging_verbose)
-							log.warning("No instructions found for generic " + damageCategory + " node - is this on purpose?");
+						else if(ModDamage.consoleDebugging_normal)
+						{
+							log.warning("Repetitive generic "  + damageCategory + " node in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
+							continue;
+						}
 					}
+					else log.severe("Invalid command string \"" + calcStrings.toString() + "\" in generic \"" + damageCategory + "\" definition");
 				}
-				else if(ModDamage.consoleDebugging_verbose) log.info(getDisplayString(true) + " generic " + element.getReference() 
-						+ " node for" + (isOffensive?"Offensive":"Defensive") + " not found.");
+				else if(ModDamage.consoleDebugging_verbose) log.warning("No instructions found for generic " + damageCategory + " node - is this on purpose?");
 			}
 			if(DamageElement.matchDamageElement(damageCategory).hasSubConfiguration())
 			{
@@ -200,12 +194,12 @@ public abstract class Handler
 						if(calcStrings != null) //!calcStrings.equals(null)
 						{
 							List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
-							if(calculations != null)
+							if(!calculations.isEmpty())
 							{
 								if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement))
 								{
 									(isOffensive?offensiveRoutines:defensiveRoutines).put(damageElement, calculations);
-									addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getConfigPath() + ":" + damageCategory + ":" + elementReference + calcStrings.toString());
+									addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getCalculationHeader() + ":" + damageCategory + ":" + elementReference + calcStrings.toString());
 									loadedSomething = true;
 								}
 								else if(ModDamage.consoleDebugging_normal)
@@ -214,10 +208,9 @@ public abstract class Handler
 									continue;
 								}
 							}
-							else if(ModDamage.consoleDebugging_verbose)
-								log.warning("No instructions found for " + elementReference + " node - is this on purpose?");
+							else log.severe("Invalid command string \"" + calcStrings.toString() + "\" in \"" + elementReference + " definition");
 						}
-						else if(ModDamage.consoleDebugging_verbose) log.info(damageElement.getReference() + " specific node not found for " + getDisplayString(true) + " in " + (isOffensive?"Offensive":"Defensive") + ".");
+						else if(ModDamage.consoleDebugging_verbose) log.warning("No instructions found for " + elementReference + " node - is this on purpose?");
 					}
 				}
 			}
@@ -244,12 +237,12 @@ public abstract class Handler
 						if(calcStrings != null)
 						{
 							List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
-							if(calculations != null)
+							if(!calculations.isEmpty())
 							{
 								if(!(isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).containsKey(material))
 								{
 									(isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).put(material, calculations);
-									addConfigString("-" + (isOffensive?"Offensive":"Defensive") + getConfigPath() + ":" + material.name() + "(" + material.getId() + ")" + calcStrings.toString());
+									addConfigString("-" + (isOffensive?"Offensive":"Defensive") + getCalculationHeader() + ":" + material.name() + "(" + material.getId() + ")" + calcStrings.toString());
 									loadedSomething = true;
 								}
 								else if(ModDamage.consoleDebugging_normal) 
@@ -257,11 +250,12 @@ public abstract class Handler
 										+ material.name() + "(" + material.getId() + ") definition in " + getDisplayString(false)
 										+ " " + (isOffensive?"Offensive":"Defensive") + " item settings - ignoring");
 							}
-							else if(ModDamage.consoleDebugging_verbose)
-								log.warning("No instructions found for " + getDisplayString(false) + " " + material.name() 
-									+ "(" + material.getId()+ ") item node in " + (isOffensive?"Offensive":"Defensive") 
-									+ " - is this on purpose?");
+							else log.severe("Invalid command string \"" + calcStrings.toString() + "\" in melee " + material.name() + " definition");
 						}
+						else if(ModDamage.consoleDebugging_verbose)
+							log.warning("No instructions found for " + getDisplayString(false) + " " + material.name() 
+								+ "(" + material.getId()+ ") item node in " + (isOffensive?"Offensive":"Defensive") 
+								+ " - is this on purpose?");
 					}
 					else if(!ModDamage.itemAliases.containsKey(itemString) && ModDamage.consoleDebugging_verbose)
 							log.warning("Unrecognized item name \"" + itemString + "\" found in specific melee node for " + getDisplayString(false) + " - ignoring");
@@ -287,25 +281,27 @@ public abstract class Handler
 					List<Object> calcStrings = armorNode.getList(armorSetString);
 					if(calcStrings != null)
 					{
-						List<DamageCalculation> Calculations = damageAllocator.parseStrings(calcStrings);
-						if(Calculations != null)
+						List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
+						if(!calculations.isEmpty())
 						{
 							if(!(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).containsKey(armorSet))
 							{
-								(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).put(armorSet.toString(), Calculations);
-								addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getConfigPath() + ":armor:" + armorSet.toString() + " " + calcStrings.toString());
+								(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).put(armorSet.toString(), calculations);
+								addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getCalculationHeader() + ":armor:" + armorSet.toString() + " " + calcStrings.toString());
 								loadedSomething = true;
 							}
 							else if(ModDamage.consoleDebugging_normal) log.warning("[" + plugin.getDescription().getName() + "] Repetitive" 
 									+ armorSet.toString() + "definition in " + (isOffensive?"Offensive":"Defensive") 
 									+ " armor set for " + getDisplayString(false) + "'s settings - ignoring");
 						}
-						else if(ModDamage.consoleDebugging_verbose)
-							log.warning("No instructions found for " + getDisplayString(false) + "\n\t:" 
-									+ armorSet.toString() + "\narmor node in " + (isOffensive?"Offensive":"Defensive") 
-									+ " - is this on purpose?");
+						else log.severe("Invalid command string \"" + calcStrings.toString() + "\" in armor set \"" + armorSetString + "\" definition");
 					}
+					else if(ModDamage.consoleDebugging_verbose)
+						log.warning("No instructions found for " + getDisplayString(false) + "\n\t:" 
+								+ armorSet.toString() + "\narmor node in " + (isOffensive?"Offensive":"Defensive") 
+								+ " - is this on purpose?");
 				}
+				else log.severe("");
 			}
 		}
 		return loadedSomething;
@@ -322,21 +318,22 @@ public abstract class Handler
 				List<Object> calcStrings = (isOffensive?offensiveNode:defensiveNode).getNode("groups").getList(group);
 				if(calcStrings != null)
 				{
-					List<DamageCalculation> Calculations = damageAllocator.parseStrings(calcStrings);
-					if(Calculations != null)
+					List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
+					if(!calculations.isEmpty())
 					{
 						if(!(isOffensive?groupOffensiveRoutines:groupDefensiveRoutines).containsKey(group))
 						{
-							(isOffensive?groupOffensiveRoutines:groupDefensiveRoutines).put(group, Calculations);
-							addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getConfigPath() + ":groups:" + group + " " + calcStrings.toString());
+							(isOffensive?groupOffensiveRoutines:groupDefensiveRoutines).put(group, calculations);
+							addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getCalculationHeader() + ":groups:" + group + " " + calcStrings.toString());
 							loadedSomething = true;
 						}
 						else if(ModDamage.consoleDebugging_normal) 
 							log.warning("Repetitive " + group + " definition in " + (isOffensive?"Offensive":"Defensive") + " settings for " + getDisplayString(false) + " - ignoring");
 					}
-					else if(ModDamage.consoleDebugging_verbose)
-						log.warning("No instructions found for " + getDisplayString(false) + " groups node in " + (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
+					else log.severe("Invalid command string \"" + calcStrings.toString() + "\" in group \"" + group + "\" definition");
 				}
+				else if(ModDamage.consoleDebugging_verbose)
+					log.warning("No instructions found for " + getDisplayString(false) + " groups node in " + (isOffensive?"Offensive":"Defensive") + " - is this on purpose?");
 			}
 		return loadedSomething;
 	}
@@ -357,7 +354,7 @@ public abstract class Handler
 						for(Material material : ModDamage.itemAliases.get(itemString.toLowerCase()))
 						{
 							scanItems.add(material);
-							addConfigString("-Scan:" + getConfigPath() + ":" + material.name() + "(" + material.getId() + ")");
+							addConfigString("-Scan:" + getCalculationHeader() + ":" + material.name() + "(" + material.getId() + ")");
 							loadedSomething = true;
 						}
 					else
@@ -366,7 +363,7 @@ public abstract class Handler
 						if(material != null)
 						{
 							scanItems.add(material);
-							addConfigString("-Scan:" + getConfigPath() + ":" + material.name() + "(" + material.getId() + ")");
+							addConfigString("-Scan:" + getCalculationHeader() + ":" + material.name() + "(" + material.getId() + ")");
 							loadedSomething = true;
 						}
 						else if(ModDamage.consoleDebugging_verbose) log.warning("Invalid Scan item \"" + itemString + "\" found in " + getDisplayString(false) + " globals - ignoring");
@@ -394,7 +391,7 @@ public abstract class Handler
 			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(DamageElement.GENERIC_RANGED))
 				calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(DamageElement.GENERIC_RANGED));
 			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(eventInfo.rangedElement))
-				calculateDamage(eventInfo, (isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).get(eventInfo.rangedElement));
+				calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(eventInfo.rangedElement));
 		}
 		else 
 		{
@@ -411,9 +408,9 @@ public abstract class Handler
 			calculateDamage(eventInfo, (isOffensive?armorOffensiveRoutines.get(eventInfo.armorSetString_attacker):armorDefensiveRoutines.get(eventInfo.armorSetString_target)));
 	}
 	
-	protected void calculateDamage(DamageEventInfo eventInfo, List<DamageCalculation> Calculations) 
+	protected void calculateDamage(DamageEventInfo eventInfo, List<DamageCalculation> calculations) 
 	{
-		for(DamageCalculation Calculation : Calculations)
+		for(DamageCalculation Calculation : calculations)
 			Calculation.calculate(eventInfo);
 	}
 
@@ -434,6 +431,12 @@ public abstract class Handler
 
 	protected boolean loadedSomething(){ return routinesLoaded || scanLoaded;}
 
+	abstract protected String getConfigPath();
+	
+	abstract protected String getCalculationHeader();
+	
+	abstract protected String getDisplayString(boolean upperCase);
+	
 	private void addConfigString(String string) 
 	{
 		//FIXME Change so that character lengths are counted for accurate paging.
@@ -441,34 +444,41 @@ public abstract class Handler
 		if(ModDamage.consoleDebugging_normal) log.info(string);
 	}
 	
-//// INGAME COMMANDS ////
-	public boolean sendGroupConfig(Player player, int pageNumber)
+//// COMMAND FUNCTIONS ////
+	public boolean sendConfig(Player player, int pageNumber)
 	{
 		if(player == null)
 		{
-			if(configStrings.isEmpty())
-			{
-				log.severe("Well, frick...this shouldn't have happened. o_o"); //TODO REMOVE ME EVENTUALLY
-				return false;
-			}
-			String printString = "Config for " + getDisplayString(false) + ":";
+			String printString = "Global configuration for " + getDisplayString(false) + ":";
 			for(String configString : configStrings)
 				printString += "\n" + configString;
+			
 			log.info(printString);
+			printAdditionalStrings();
+			
 			return true;
 		}
-		if(configPages > 0 && configPages >= pageNumber && pageNumber > 0)
+		else if(pageNumber > 0)
 		{
-			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) +  " " + getDisplayString(false) + " (" + pageNumber + "/" + configPages + ")");
-			for(int i = (9 * (pageNumber - 1)); i < (configStrings.size() < (9 * pageNumber)
-														?configStrings.size()
-														:(9 * pageNumber)); i++)
-				player.sendMessage(ChatColor.DARK_AQUA + configStrings.get(i));
-			return true;
+			if(pageNumber <= configPages)
+			{
+				player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " " + getDisplayString(true) + ": (" + pageNumber + "/" + (configPages + additionalConfigChecks) + ")");
+				for(int i = (9 * (pageNumber - 1)); i < (configStrings.size() < (9 * pageNumber)
+															?configStrings.size()
+															:(9 * pageNumber)); i++)
+					player.sendMessage(ChatColor.DARK_AQUA + configStrings.get(i));
+				return true;
+			}
+			return printAdditionalConfiguration(player, pageNumber);
 		}
 		return false;
 	}
 
+	abstract public void printAdditionalStrings();
+	
+	abstract public boolean printAdditionalConfiguration(Player player, int pageNumber);
+	
+	
 }
 
 	

@@ -43,15 +43,18 @@ public class ModDamage extends JavaPlugin
 	//- Deregister when Bukkit supports!
 	//- Client-sided mod for displaying health?
 	//- Add worldLoad-triggered loading of MD
-	//- aliasing
+	//- Aliasing?
 	//- "Failed to reload" ingame
+	//- per-world for disableDefault variables
+	//- count characters in config for message length
+	//- Refactor config to contain errors?
 	
 	//plugin-related
 	public static boolean isEnabled = false;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	public final static Logger log = Logger.getLogger("Minecraft");
 	public static PermissionHandler Permissions = null;
-	private Configuration config;
+	public Configuration config;
 	public static String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
 	public static String errorString_findWorld = ModDamageString(ChatColor.RED) + " Couldn't find matching world name.";
 	
@@ -62,7 +65,7 @@ public class ModDamage extends JavaPlugin
 	
 	//Configuration
 	private ConfigurationNode pluginOffensiveNode, pluginDefensiveNode, pluginMobHealthNode, pluginScanNode;
-	public boolean multigroupPermissions = true;
+	public static boolean multigroupPermissions = true;
 	
 	//User-customized config
 	public static boolean consoleDebugging_normal = true;
@@ -70,6 +73,7 @@ public class ModDamage extends JavaPlugin
 	public static boolean disable_DefaultDamage;
 	public static boolean disable_DefaultHealth;
 	public static boolean negative_Heal;
+	final static List<String> emptyList = null; //FIXME Dunno if it can be just any null object, but at least it leaves things blank.		
 	
 	public static ServerHandler serverHandler;
 	
@@ -121,29 +125,6 @@ public class ModDamage extends JavaPlugin
 				}
 				else if(args.length >= 0)
 				{
-					/*
-					if(args[0].equalsIgnoreCase("configuration") || args[0].equalsIgnoreCase("config"))
-					{
-						if(fromConsole || hasPermission(player, "moddamage.configuration"))
-						{
-							if(args.length == 3)
-								if(args[1].equalsIgnoreCase("delete") || args[1].equalsIgnoreCase("del"))
-									delete(args[2]);
-							if(args.length >= 4)
-							{
-								if(args[1].equalsIgnoreCase("add"))
-								{
-									List<String> calcStrings = new ArrayList<String>();
-									for(int i = 3; i < args.length; i++)
-										calcStrings.add(args[i]);
-									add(args[2], calcStrings);
-								}
-							}
-							else sendUsage(player, true);
-						}
-						else player.sendMessage(errorString_Permissions);
-					}
-					else */
 					if(args[0].equalsIgnoreCase("debug") || args[0].equalsIgnoreCase("d"))
 						{
 							if(fromConsole || hasPermission(player, "moddamage.debug"))
@@ -223,32 +204,34 @@ public class ModDamage extends JavaPlugin
 						if(args[0].equalsIgnoreCase("check") || args[0].equalsIgnoreCase("c"))
 						{
 							//md check
-							if(args.length == 1)
+							if(fromConsole)
+							{
+								log.info("[" + getDescription().getName() + "] Sending server config info...");
+								serverHandler.sendConfig(null, 9001);
+								log.info("[" + getDescription().getName() + "] Done.");
+							}
+							else if(args.length == 1)
 							{
 								//Send everything if from console
-								if(fromConsole)
-								{
-									log.info("[" + getDescription().getName() + "] Sending server config info...");
-									serverHandler.sendConfig(null, 9001);
-								}
 								//Send list of loaded worlds
-								else if(hasPermission(player, "moddamage.check"))
+								if(hasPermission(player, "moddamage.check"))
 								{
-									
+									serverHandler.sendConfig(player, 1);
 								}
 								else player.sendMessage(errorString_Permissions);
 								return true;
 							}
 							//md check worldname || md check int
-							//Console doesn't need specifying commands, so just stop console stuff here.
-							else if(fromConsole) sendUsage(player, true);
 							else if(args.length == 2)
 							{
 								try
 								{
-									serverHandler.sendConfig(player, args[1]);
+									serverHandler.sendConfig(player, Integer.parseInt(args[1]));
 								} 
-								catch(NumberFormatException e){}
+								catch(NumberFormatException e)
+								{
+									serverHandler.sendConfig(player, args[1]);
+								}
 								return true;
 							}
 							//md check worldname groupname || md check worldname int
@@ -271,7 +254,7 @@ public class ModDamage extends JavaPlugin
 								{
 									serverHandler.sendConfig(player, args[1], args[2], Integer.parseInt(args[3]));
 								}
-								catch(NumberFormatException e){}
+								catch(NumberFormatException e){ player.sendMessage(ModDamageString(ChatColor.RED) + "Error: final parameter should be an integer." );}
 								return true;
 							}
 						}
@@ -359,7 +342,9 @@ public class ModDamage extends JavaPlugin
 		if(event.getEntity() != null)
 		{
 			LivingEntity entity = (LivingEntity)event.getEntity();
-			SpawnEventInfo eventInfo = ((entity instanceof Player)?new SpawnEventInfo((Player)entity):new SpawnEventInfo((LivingEntity)entity));
+			SpawnEventInfo eventInfo = ((entity instanceof Player)
+											?new SpawnEventInfo((Player)entity)
+											:new SpawnEventInfo((LivingEntity)entity));
 			if(ModDamage.disable_DefaultHealth) eventInfo.eventHealth = 0;
 			serverHandler.doSpawnCalculations(eventInfo);
 			
@@ -526,113 +511,110 @@ public class ModDamage extends JavaPlugin
 		pluginMobHealthNode = config.getNode("MobHealth");
 		pluginScanNode = config.getNode("Scan");
 		ModDamage.serverHandler = new ServerHandler(this, pluginOffensiveNode, pluginDefensiveNode, pluginMobHealthNode, pluginScanNode);
-		return serverHandler.reload();
+		return serverHandler.loadedSomething();
 	}
 
 	private void writeDefaults() 
-	{
-	//set server-global configuration
-		//set single-property stuff
+	{		
+		//TODO Migrate this into the Handler class.
+	//set single-property stuff
 		log.severe("[" + getDescription().getName() + "] No configuration file found! Writing a blank config...");
 		config.setProperty("debugging", "normal");
-		config.setProperty("disableDefaultHealth", "false");
-		config.setProperty("disableDefaultDamage", "false");
-		config.setProperty("negativeHeal", "false");
-		
-		//TODO Add aliasing here soon.
-		//saveAliases();
-		
-		for(World world : getServer().getWorlds())
-		{
-			String worldName = world.getName();
-			List<String> emptyList = null; //Dunno if it can be just any null object, but at least it leaves things blank.
 
-			config.setProperty("Scan." + worldName + ".global", emptyList);
-			for(DamageElement damageCategory : DamageElement.getGenericElements())
-			{
-				config.setProperty("Offensive." + worldName + ".global.generic." + damageCategory.getReference(), emptyList);
-				if(!damageCategory.equals(DamageElement.GENERIC_NATURE))
-					config.setProperty("Defensive." + worldName + ".global.generic." + damageCategory.getReference(), emptyList);
-				if(damageCategory.hasSubConfiguration())
-					for(DamageElement subElement : DamageElement.getElementsOf(damageCategory))
-					{
-						config.setProperty("Offensive." + worldName + ".global."+ damageCategory.getReference() + "." + subElement.getReference(), emptyList);
-						if(!damageCategory.equals(DamageElement.GENERIC_NATURE))
-							config.setProperty("Defensive." + worldName + ".global."+ damageCategory.getReference() + "." + subElement.getReference(), emptyList);
-					}
-				if(damageCategory.equals(DamageElement.GENERIC_ANIMAL) || damageCategory.equals(DamageElement.GENERIC_MOB))
-				{
-					for(DamageElement creatureElement : DamageElement.getElementsOf(damageCategory))
-						config.setProperty("MobHealth." + worldName + "." + creatureElement.getReference(), emptyList);
-				}
-				
-				config.setProperty("Offensive." + worldName + ".global.armor", emptyList);
-				config.setProperty("Offensive." + worldName + ".groups", emptyList);
-				
-				/*//FIXME Documentation for Perms 3.0+ is lacking at best right now...but this is definitely optional.
-				for(Group group : Permissions.getGroups(worldName))
-				{
-					log.info(group.toString());
-					String groupName = group.getName();
-					config.setProperty("Offensive." + worldName + ".groups." + groupName + ".generic." + damageCategory.getReference(), emptyList);
-					config.setProperty("Defensive." + worldName + ".groups." + groupName + ".generic." + damageCategory.getReference(), emptyList);
-					if(damageCategory.hasSubConfiguration())
-						for(DamageElement subElement : DamageElement.getElementsOf(damageCategory))
-						{
-							config.setProperty("Offensive." + worldName + ".groups." + groupName + "." + damageCategory.getReference() + "." + subElement.getReference(), emptyList);
-							config.setProperty("Defensive." + worldName + ".groups." + groupName + "." + damageCategory.getReference() + "." + subElement.getReference(), emptyList);
-						}
-					config.setProperty("Scan." + worldName + ".groups." + groupName, emptyList);
-				}
-				*/
-			}
+	//write server globals
+		writeDamageElements("global");
+		writeMobHealthElements("global");
+		config.setProperty("Scan.global", emptyList);
+		config.save();
+		
+	//write world globals
+		for(World world : this.getServer().getWorlds())
+		{
+			String configPath = "worlds." + world.getName();
+			writeDamageElements(configPath + ".global");
+			writeMobHealthElements(configPath + ".global");
+			config.setProperty("Scan." + configPath, emptyList);
+			config.setProperty("Scan." + configPath + ".groups", emptyList);
 		}
+		
 		config.save();
 		config.load();//TODO Necessary?
 		log.severe("[" + getDescription().getName() + "] Done! Don't forget that you can define armor, melee, and group nodes further.");
 	}
 
+
+	private void writeDamageElements(String configPath)
+	{
+		for(DamageElement damageCategory : DamageElement.getGenericElements())
+		{
+		//write generics
+			config.setProperty("Offensive." + configPath + ".generic." + damageCategory.getReference(), emptyList);
+			if(!damageCategory.equals(DamageElement.GENERIC_NATURE))
+				config.setProperty("Defensive." + configPath + ".generic." + damageCategory.getReference(), emptyList);
+		//write specifics
+			if(damageCategory.hasSubConfiguration())
+				for(DamageElement subElement : DamageElement.getElementsOf(damageCategory))
+				{
+					config.setProperty("Offensive." + configPath + "." + damageCategory.getReference() + "." + subElement.getReference(), emptyList);
+					if(!damageCategory.equals(DamageElement.GENERIC_NATURE))
+						config.setProperty("Defensive." + configPath + "." + damageCategory.getReference() + "." + subElement.getReference(), emptyList);
+				}
+			config.setProperty("Offensive." + configPath + ".armor", emptyList);
+			config.setProperty("Defensive." + configPath + ".armor", emptyList);
+			config.setProperty("Offensive." + configPath + ".groups", emptyList);
+			config.setProperty("Defensive." + configPath + ".groups", emptyList);
+		}
+	}
+	
+	private void writeMobHealthElements(String configPath)
+	{
+		List<DamageElement> mobHealthList = DamageElement.getElementsOf(DamageElement.GENERIC_ANIMAL);
+		mobHealthList.addAll(DamageElement.getElementsOf(DamageElement.GENERIC_MOB));
+			for(DamageElement creatureElement : mobHealthList)
+				config.setProperty("MobHealth." + configPath + "." + creatureElement.getReference(), emptyList);
+	}
+	
+
 	/*
 	private boolean loadAliases()
 	{
-		//TODO
 		return false;
 	}
 	
-	private void saveAliases()
-	{
-		//TODO
-	}
-	
-	private boolean add(String string, List<String> calcStrings) 
-	{
-		try
-		{
-			String[] args = string.split(":");
-			World literalWorldMatch = getWorldMatch(args[1], false);
-			if(literalWorldMatch != null && (args[0] == "Offensive" || args[0] == "Defensive" || args[0] == "Scan" || args[0] == "MobHealth"))
-			{
-				WorldHandler worldHandler = null;
-				if(!worldHandlers.containsKey(literalWorldMatch))
-					worldHandler = new WorldHandler(this, literalWorldMatch, null, null, null, null, damageCalc, healthCalc);
-				else worldHandler = worldHandlers.get(literalWorldMatch);
-				
-				return worldHandler.add(args, calcStrings);
-			}
-			return false;
-		}
-		catch(ArrayIndexOutOfBoundsException e)
-		{
-			
-			return false;
-		}
-	}
+	private void saveAliases(){}
+	*/
+}
 
-	private boolean delete(String string)
+	
+/*
+private boolean add(String string, List<String> calcStrings) 
+{
+	try
 	{
 		String[] args = string.split(":");
-		if(args.length == 1) string.split("\\.");
+		World literalWorldMatch = getWorldMatch(args[1], false);
+		if(literalWorldMatch != null && (args[0] == "Offensive" || args[0] == "Defensive" || args[0] == "Scan" || args[0] == "MobHealth"))
+		{
+			WorldHandler worldHandler = null;
+			if(!worldHandlers.containsKey(literalWorldMatch))
+				worldHandler = new WorldHandler(this, literalWorldMatch, null, null, null, null, damageCalc, healthCalc);
+			else worldHandler = worldHandlers.get(literalWorldMatch);
+			
+			return worldHandler.add(args, calcStrings);
+		}
 		return false;
 	}
-	 */
+	catch(ArrayIndexOutOfBoundsException e)
+	{
+		
+		return false;
+	}
 }
+
+private boolean delete(String string)
+{
+	String[] args = string.split(":");
+	if(args.length == 1) string.split("\\.");
+	return false;
+}
+ */

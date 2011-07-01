@@ -18,7 +18,6 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculationAllocator;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.ConditionalSpawnCalculation;
 
 public class WorldHandler extends Handler
 {
@@ -38,9 +37,8 @@ public class WorldHandler extends Handler
 	
 	//Handlers
 	protected final HashMap<String, GroupHandler> groupHandlers = new HashMap<String, GroupHandler>();
-	//TODO Add hashmaps for other handlers when ready
-	
-	
+
+////FUNCTIONS ////
 //// CONSTRUCTOR ////
 	public WorldHandler(ModDamage plugin, World world, ConfigurationNode offensiveNode, ConfigurationNode defensiveNode, ConfigurationNode mobHealthNode, ConfigurationNode scanNode, DamageCalculationAllocator damageAllocator, SpawnCalculationAllocator healthAllocator) 
 	{
@@ -56,11 +54,20 @@ public class WorldHandler extends Handler
 		this.mobHealthNode = mobHealthNode;
 		this.damageAllocator = damageAllocator;
 		this.healthAllocator = healthAllocator;
+		additionalConfigChecks = 1;
 		
 		reload();
 	}
 
 //// CONFIG LOADING ////
+
+	@Override
+	protected void loadAdditionalConfiguration()
+	{
+		scanLoaded = loadScanItems();
+		mobHealthLoaded = loadMobHealth();
+	}
+	
 	@Override
 	protected boolean loadGroupRoutines(boolean isOffensive)
 	{
@@ -99,7 +106,6 @@ public class WorldHandler extends Handler
 				}
 			}
 		}
-	//load EntityHandlers TODO
 		return loadedSomething;
 	}
 	
@@ -139,7 +145,7 @@ public class WorldHandler extends Handler
 								+ " definition - ignoring");
 					}
 					else  log.severe("Invalid command string \"" + calcStrings.toString() + "\" in MobHealth " + creatureType.getReference() 
-							+ " definition - refer to config for proper calculation node");
+							+ " definition");
 					
 				}
 				else if(ModDamage.consoleDebugging_verbose)
@@ -302,10 +308,8 @@ public class WorldHandler extends Handler
 	}
 	
 //// HELPER FUNCTIONS////
-	public World getWorld(){ return world;}
-
 	@Override
-	protected String getConfigPath(){ return "worlds:" + world.getName();}
+	protected String getCalculationHeader(){ return "worlds:" + world.getName();}
 
 	@Override
 	protected String getDisplayString(boolean upperCase){ return (upperCase?"W":"w") + "orld \"" + world.getName() + "\"";}
@@ -318,111 +322,44 @@ public class WorldHandler extends Handler
 		groupHandlers.clear();
 	}
 
+	@Override
 	public boolean loadedSomething(){ return super.loadedSomething() || groupsLoaded || mobHealthLoaded;}
 
-//// COMMAND FUNCTIONS ////
-	public boolean sendWorldConfig(Player player, int pageNumber)
-	{
-
-		//reloadConfig();
-		//now send config information to the player (or console)
-		if(player == null)
-		{
-			String printString = "Config for world \"" + world.getName() + "\":";
-			for(String configString : configStrings)
-				printString += "\n" + configString;
-			log.info(printString);
-			for(Handler groupHandler : groupHandlers.values())
-			{
-				groupHandler.sendGroupConfig(player, pageNumber);
-			}
-			return true;
-		}
-		else if(configPages > 0 && configPages >= pageNumber && pageNumber > 0)
-		{
-			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " World \"" + world.getName().toUpperCase() 
-					+ "\" (" + pageNumber + "/" + configPages + ")");
-			for(int i = (9 * (pageNumber - 1)); i < (configStrings.size() < (9 * pageNumber)
-														?configStrings.size()
-														:(9 * pageNumber)); i++)
-				player.sendMessage(ChatColor.DARK_AQUA + configStrings.get(i));
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	protected void loadAdditionalConfiguration()
-	{
-		scanLoaded = loadScanItems();
-		mobHealthLoaded = loadMobHealth();
-	}
-
+	public World getWorld(){ return world;}
+	
 	public GroupHandler getGroupHandler(String groupMatch){ return groupHandlers.get(groupMatch);}
 
 	public Collection<GroupHandler> getGroupHandlers(){ return groupHandlers.values();}
-
-	/* FIXME NAO
-	public boolean reloadConfig()
+	
+//// COMMAND FUNCTIONS ////
+	@Override
+	public void printAdditionalStrings()
 	{
-		//Get config information dynamically
-		List<String> configStrings = new ArrayList<String>();
-		configPages = 0;
-		if(loadedSomething())
+		for(GroupHandler groupHandler : groupHandlers.values())
+			groupHandler.sendConfig(null, 9001);
+	}
+
+	@Override
+	public boolean printAdditionalConfiguration(Player player, int pageNumber)
+	{
+		if(pageNumber == configPages + 1)
 		{
-			for(DamageElement damageElement : offensiveRoutines.keySet())
+			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " " + getDisplayString(true) + ": (" + pageNumber + "/" + (configPages + additionalConfigChecks) + ")");
+			player.sendMessage(ModDamage.ModDamageString(ChatColor.YELLOW) + " The following groups have been configured:");
+			if(!groupHandlers.isEmpty())
 			{
-				configStrings.add(ChatColor.DARK_AQUA + "-Offensive:" + world.getName() + ":" + (damageElement.hasSubConfiguration()?"generic":"") + );
-			}
-			if(groupsLoaded) 
-			{
-				configStrings.add(ChatColor.DARK_PURPLE + "Groups loaded:"); //TODO Customize colors later
 				for(GroupHandler groupHandler : groupHandlers.values())
-					configStrings.add(ChatColor.DARK_PURPLE + groupHandler.getGroupName());
+						player.sendMessage(ChatColor.GREEN + groupHandler.getGroupName());
+				player.sendMessage(ChatColor.BLUE + "Use /md check " + world.getName() + " [groupname] or /md check " + world.getName() + " [page] for more info.");
 			}
-			configPages = configStrings.size()/9 + ((configStrings.size()%9 > 0)?1:0);
+			else player.sendMessage(ChatColor.RED + "No groups configured!");
+			return true;
 		}
-		else
-		{
-			
-		}
-		
+		return false;
+	}
 
-		List<String> configStrings = new ArrayList<String>();
-		configPages = configStrings.size()/9 + ((configStrings.size()%9 > 0)?1:0);
-	}
 	
-	
-	public boolean add(String[] args, List<String> calcStrings)
-	{
-		if(args[2] == "global")
-		{
-			
-		}
-		else if(args[2] == "groups")
-		{
-			GroupHandler groupHandler = groupHandlers.get(plugin.getGroupMatch(world, args[3], false));
-			if(groupHandler != null)
-				groupHandler.add(args, calcStrings);
-		}
-		return false;
-	}
-	
-	public boolean remove(String[] args)
-	{
-		if(args[2] == "global")
-		{
-			
-		}
-		else if(args[2] == "groups")
-		{
-			GroupHandler groupHandler = groupHandlers.get(plugin.getGroupMatch(world, args[3], false));
-			if(groupHandler != null)
-				groupHandler.remove(args);
-		}
-		return false;
-	}
-	*/
+	@Override
+	protected String getConfigPath(){ return "worlds." + world.getName();}
 }
-
 	

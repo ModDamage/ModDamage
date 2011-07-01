@@ -28,7 +28,7 @@ public class EntityReflect extends EntityEffectDamageCalculation
 			damageBack = eventInfo.eventDamage;
 			for(DamageCalculation calculation : calculations)
 				calculation.calculate(eventInfo);
-			eventInfo.entity_attacker.damage(eventInfo.eventDamage);//Don't use an attacking entity here because of the nature of this mechanic.
+			eventInfo.entity_attacker.damage(eventInfo.eventDamage, eventInfo.entity_attacker);
 			eventInfo.eventDamage = damageBack;
 		}
 		else eventInfo.entity_attacker.damage(damageBack);

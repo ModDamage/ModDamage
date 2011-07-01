@@ -8,7 +8,7 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;
 public class EntityAltitudeLessThanEquals extends EntityConditionalSpawnCalculation 
 {
 	final int altitude;
-	public EntityAltitudeLessThanEquals(int altitude, boolean inverted, List<SpawnCalculation> calculations)
+	public EntityAltitudeLessThanEquals(boolean inverted, int altitude, List<SpawnCalculation> calculations)
 	{ 
 		this.altitude = altitude;
 		this.inverted = inverted;

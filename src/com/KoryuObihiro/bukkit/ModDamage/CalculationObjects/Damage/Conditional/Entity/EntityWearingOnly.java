@@ -16,6 +16,10 @@ public class EntityWearingOnly extends EntityConditionaDamageCalculation
 		this.calculations = calculations;
 	}
 	@Override
-	public boolean condition(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.armorSetString_attacker:eventInfo.armorSetString_target).equals(armorSetString);}
-	//TODO Check that this is the correct integer for falling.
+	public boolean condition(DamageEventInfo eventInfo)
+	{ 
+		return ((forAttacker?eventInfo.armorSetString_attacker:eventInfo.armorSetString_target) != null) 
+				?(forAttacker?eventInfo.armorSetString_attacker:eventInfo.armorSetString_target).equals(armorSetString)
+				:false;
+	}
 }

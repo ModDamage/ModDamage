@@ -26,7 +26,9 @@ public class SpawnEventInfo
 		eventHealth = player.getHealth();
 		entity = player;
 		damageElement = DamageElement.GENERIC_HUMAN;
-		groups = ModDamage.Permissions.getGroups(player.getWorld().getName(), player.getName());
+		groups = (ModDamage.multigroupPermissions
+				?ModDamage.Permissions.getGroups(player.getWorld().getName(), player.getName())
+				:ModDamage.Permissions.getGroup(player.getWorld().getName(), player.getName()).split(" "));
 		
 		world = entity.getWorld();
 	}
