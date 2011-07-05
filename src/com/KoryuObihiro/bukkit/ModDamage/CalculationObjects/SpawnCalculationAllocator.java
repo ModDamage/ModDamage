@@ -8,26 +8,18 @@ import org.bukkit.Material;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.IntervalRange;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.LiteralRange;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Set;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Binomial;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityAltitudeEquals;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityAltitudeGreaterThan;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityAltitudeGreaterThanEquals;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityAltitudeLessThan;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityAltitudeLessThanEquals;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityBiome;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityExposedToSky;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityLightLevelEquals;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityLightLevelGreaterThan;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityLightLevelGreaterThanEquals;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityLightLevelLessThan;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityLightLevelLessThanEquals;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityOnBlock;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.Entity.EntityUnderwater;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.World.WorldEnvironment;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Spawning.Conditional.World.WorldTime;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.IntervalRange;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.LiteralRange;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Set;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Binomial;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityAltitudeComparison;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityBiome;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityExposedToSky;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityLightComparison;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityOnBlock;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityUnderwater;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.World.WorldEnvironment;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.World.WorldTime;
 
 //IFs: TODO
 // playeris.locatedIRL.$area
@@ -42,12 +34,12 @@ public class SpawnCalculationAllocator
 {
 	//Parse commands for different command strings the handlers pass
 	//parseStrings is used to determine the next calculation object's type, and pass if off accordingly.
-	public List<SpawnCalculation> parseStrings(List<Object> commandStrings)
+	public List<ModDamageCalculation> parseStrings(List<Object> commandStrings)
 	{
-		List<SpawnCalculation> calculations = new ArrayList<SpawnCalculation>();
+		List<ModDamageCalculation> calculations = new ArrayList<ModDamageCalculation>();
 		for(Object calculationString : commandStrings)	
 		{
-			SpawnCalculation calculation = null;
+			ModDamageCalculation calculation = null;
 			
 			if(calculationString instanceof LinkedHashMap)
 				calculation = parseConditional((LinkedHashMap<String, List<Object>>)calculationString);
@@ -55,13 +47,13 @@ public class SpawnCalculationAllocator
 				calculation = parseNormal((String)calculationString);
 			
 			if(calculation != null) calculations.add(calculation);
-			else return new ArrayList<SpawnCalculation>();
+			else return new ArrayList<ModDamageCalculation>();
 		}
 		return calculations;
 	}
 	
 	//parseNormal seeks for a base calculation (i.e., not a conditional) and returns it (if found) for appending to the calling list.
-	public SpawnCalculation parseNormal(String commandString)
+	public ModDamageCalculation parseNormal(String commandString)
 	{
 		try
 		{
@@ -84,7 +76,7 @@ public class SpawnCalculationAllocator
 	
 	//A conditional is a bit more tricky, as we're not sure how nested things will get. 
 	// When we encounter a conditional, we're just grabbing the conditional itself, and passing the rest to another parseList call.
-	private SpawnCalculation parseConditional(LinkedHashMap<String, List<Object>> conditionalStatement)
+	private ModDamageCalculation parseConditional(LinkedHashMap<String, List<Object>> conditionalStatement)
 	{
 		try
 		{
@@ -92,7 +84,7 @@ public class SpawnCalculationAllocator
 			{
 				String[] args = key.split("\\.");
 				//TODO Refactor this so it only runs as many times as necessary.
-				List<SpawnCalculation> nestedCalculations = parseStrings(conditionalStatement.get(key));
+				List<ModDamageCalculation> nestedCalculations = parseStrings(conditionalStatement.get(key));
 				if(nestedCalculations.isEmpty()) return null;
 				
 				if(args[0].equalsIgnoreCase("if") || args[0].equalsIgnoreCase("if_not"))
@@ -102,8 +94,8 @@ public class SpawnCalculationAllocator
 					{
 						if(args[1].equalsIgnoreCase("entityis"))
 						{
-							if(args[2].equalsIgnoreCase("exposedToSky"))		return new EntityExposedToSky(inverted, nestedCalculations);
-							else if(args[2].equalsIgnoreCase("underwater")) 	return new EntityUnderwater(inverted, nestedCalculations);
+							if(args[2].equalsIgnoreCase("exposedToSky"))		return new EntityExposedToSky(inverted, false, nestedCalculations);
+							else if(args[2].equalsIgnoreCase("underwater")) 	return new EntityUnderwater(inverted, false, nestedCalculations);
 						}
 						else if(args[1].equalsIgnoreCase("binom")) 				return new Binomial(Integer.parseInt(args[1]), nestedCalculations);
 					}
@@ -114,30 +106,23 @@ public class SpawnCalculationAllocator
 							if(args[2].equalsIgnoreCase("inBiome"))
 							{
 								Biome biome = CalculationUtility.matchBiome(args[3].toLowerCase());
-								if(biome != null) 	return new EntityBiome(biome, inverted, nestedCalculations);
+								if(biome != null) return new EntityBiome(inverted, false, biome, nestedCalculations);
 							}
 							else if(args[2].equalsIgnoreCase("onBlock"))
 							{
 								Material material = Material.matchMaterial(args[3]);
-								if(material != null) return new EntityOnBlock(material, inverted, nestedCalculations);
+								if(material != null) return new EntityOnBlock(inverted, false, material, nestedCalculations);
 							}
 						}
 						else if(args[1].equalsIgnoreCase("entityAltitude"))
 						{
-							if(args[2].equalsIgnoreCase("equals")) 				return new EntityAltitudeEquals(inverted, Integer.parseInt(args[3]), nestedCalculations);
-							if(args[2].equalsIgnoreCase("lessThan") || args[2].equalsIgnoreCase("<")) 				return new EntityAltitudeLessThan(inverted, Integer.parseInt(args[3]), nestedCalculations);
-							else if(args[2].equalsIgnoreCase("lessThanEquals") || args[2].equalsIgnoreCase("<="))	return new EntityAltitudeLessThanEquals(inverted, Integer.parseInt(args[3]), nestedCalculations);
-							else if(args[2].equalsIgnoreCase("greaterThan") || args[2].equalsIgnoreCase(">")) 		return new EntityAltitudeGreaterThan(inverted, Integer.parseInt(args[3]), nestedCalculations);
-							else if(args[2].equalsIgnoreCase("greaterThanEquals") || args[2].equalsIgnoreCase(">="))return new EntityAltitudeGreaterThanEquals(inverted, Integer.parseInt(args[3]), nestedCalculations);
-							else if(args[2].equalsIgnoreCase("equals") || args[2].equalsIgnoreCase("=")) 			return new EntityAltitudeEquals(inverted, Integer.parseInt(args[3]), nestedCalculations);
+							ComparisonType comparisonType = ComparisonType.matchType(args[2]);
+							if(comparisonType != null) return new EntityAltitudeComparison(inverted, false, comparisonType, Integer.parseInt(args[3]), nestedCalculations);
 						}
 						else if(args[1].equalsIgnoreCase("entityLight"))
 						{
-							if(args[2].equalsIgnoreCase("lessThan") || args[2].equalsIgnoreCase("<")) 				return new EntityLightLevelLessThan(inverted, Byte.parseByte(args[3]), nestedCalculations);
-							else if(args[2].equalsIgnoreCase("lessThanEquals") || args[2].equalsIgnoreCase("<="))	return new EntityLightLevelLessThanEquals(inverted, Byte.parseByte(args[3]), nestedCalculations);
-							else if(args[2].equalsIgnoreCase("greaterThan") || args[2].equalsIgnoreCase(">")) 		return new EntityLightLevelGreaterThan(inverted, Byte.parseByte(args[3]), nestedCalculations);
-							else if(args[2].equalsIgnoreCase("greaterThanEquals") || args[2].equalsIgnoreCase(">="))return new EntityLightLevelGreaterThanEquals(inverted, Byte.parseByte(args[3]), nestedCalculations);
-							else if(args[2].equalsIgnoreCase("equals") || args[2].equalsIgnoreCase("=")) 			return new EntityLightLevelEquals(inverted, Byte.parseByte(args[3]), nestedCalculations);
+							ComparisonType comparisonType = ComparisonType.matchType(args[2]);
+							if(comparisonType != null) return new EntityLightComparison(inverted, false, comparisonType, Byte.parseByte(args[3]), nestedCalculations);
 						}
 						else if(args[1].equalsIgnoreCase("worldTime")) return new WorldTime(inverted, Integer.parseInt(args[2]), Integer.parseInt(args[3]), nestedCalculations);
 						else if(args[1].equalsIgnoreCase("worldEnvironment"))

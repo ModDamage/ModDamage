@@ -5,7 +5,21 @@ import org.bukkit.block.Biome;
 
 public class CalculationUtility
 {
-	//Frankly, most of the stuff in here should be considered for implementation into Bukkit. :<
+	public static boolean compare(ComparisonType comparisonType, int operand_1, int operand_2)
+	{
+		switch(comparisonType)
+		{
+			case EQUALS:				return operand_1 == operand_2;
+			case NOT_EQUALS:			return operand_1 != operand_2;
+			case LESS_THAN:				return operand_1 < operand_2;
+			case LESS_THAN_EQUALS:		return operand_1 <= operand_2;
+			case GREATER_THAN:			return operand_1 > operand_2;
+			case GREATER_THAN_EQUALS:	return operand_1 >= operand_2;
+			default:					return false;
+		}
+	}
+	
+	//Frankly, most of the stuff below should be considered for implementation into Bukkit. :<
 	public static Biome matchBiome(String biomeName)
 	{
 		if(biomeName.equalsIgnoreCase("DESERT")) return Biome.DESERT;
@@ -31,5 +45,4 @@ public class CalculationUtility
 		else if(environmentName.equalsIgnoreCase("SKYLANDS")) return Environment.SKYLANDS;
 		return null;
 	}
-
 }

@@ -1,9 +1,9 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Handlers;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -16,35 +16,45 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculation;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculationAllocator;
 
-public class WorldHandler extends Handler
+public class WorldHandler
 {
 //// MEMBERS ////
+	protected ModDamage plugin;
+	protected Logger log;
+	protected boolean damageRoutinesLoaded = false;
+	protected boolean spawnRoutinesLoaded = false;
+	protected boolean scanLoaded = false;
+
 	private World world;
 	
-	protected boolean groupsLoaded = false;
-	protected boolean scanLoaded = false;
-	protected boolean mobHealthLoaded = false;
-	
 	//nodes for config loading
+	protected static final DamageCalculationAllocator damageCalculationAllocator = new DamageCalculationAllocator();
+	protected static final SpawnCalculationAllocator healthCalculationAllocator = new SpawnCalculationAllocator();
+
+	final protected List<ModDamageCalculation> damageRoutines = new ArrayList<ModDamageCalculation>();
+	final protected HashMap<DamageElement, List<ModDamageCalculation>> spawnRoutines = new HashMap<DamageElement, List<ModDamageCalculation>>();
 	protected ConfigurationNode mobHealthNode;
 	final protected SpawnCalculationAllocator healthAllocator;
 	
-	//MobHealth
-	final protected HashMap<DamageElement, List<SpawnCalculation>> mobSpawnRoutines = new HashMap<DamageElement, List<SpawnCalculation>>();
+	//Scan
+	final protected List<Material> globalScanItems = new ArrayList<Material>();
+	final protected HashMap<String, List<Material>> groupScanItems= new HashMap<String, List<Material>>();
 	
-	//Handlers
-	protected final HashMap<String, GroupHandler> groupHandlers = new HashMap<String, GroupHandler>();
+	//Ingame
+	protected int configPages = 0;
+	protected List<String> configStrings = new ArrayList<String>();
+	protected int additionalConfigChecks = 0;
 
 ////FUNCTIONS ////
 //// CONSTRUCTOR ////
-	public WorldHandler(ModDamage plugin, World world, ConfigurationNode offensiveNode, ConfigurationNode defensiveNode, ConfigurationNode mobHealthNode, ConfigurationNode scanNode, DamageCalculationAllocator damageAllocator, SpawnCalculationAllocator healthAllocator) 
+	public WorldHandler(ModDamage plugin, World world, ConfigurationNode damageWorldsNode, ConfigurationNode mobHealthNode, ConfigurationNode scanNode) 
 	{
-		this.world = world;
 		this.plugin = plugin;
 		this.log = ModDamage.log;
+		this.world = world;
 		this.offensiveNode = offensiveNode;
 		this.offensiveGlobalNode = (offensiveNode != null?offensiveNode.getNode("global"):null);
 		this.defensiveNode = defensiveNode;
@@ -59,23 +69,24 @@ public class WorldHandler extends Handler
 		load();
 	}
 
-//// CONFIG LOADING ////
-
-	@Override
-	protected void loadAdditionalConfiguration()
-	{
-		scanLoaded = loadScanItems();
-		mobHealthLoaded = loadMobHealth();
+		damageRoutinesLoaded = loadDamageRoutines(damageWorldsNode);
+		spawnRoutinesLoaded = loadSpawnRoutines(mobHealthNode);
+		scanLoaded = loadScanItems(scanNode);
 	}
+
 	
-	@Override
-	protected boolean loadGroupRoutines(boolean isOffensive)
+//// DAMAGE ////
+	protected boolean loadDamageRoutines(ConfigurationNode damageWorldsNode) //TODO Test, add debug output
 	{
 		boolean loadedSomething = false;
-	//load GroupHandlers
-		//get all of the groups in configuration
-		List<String> groups = new ArrayList<String>();
+		if(damageWorldsNode != null)
 		{
+			List<Object> calcStrings = damageWorldsNode.getList(world.getName());
+			if(!calcStrings.isEmpty())
+			{
+				List<ModDamageCalculation> calculations = damageCalculationAllocator.parseStrings(calcStrings);
+				if(!calculations.isEmpty())
+					damageRoutines.addAll(calculations);
 			groups.addAll((offensiveNode != null && offensiveNode.getKeys("groups") != null)?offensiveNode.getKeys("groups"):new ArrayList<String>());
 			groups.addAll((defensiveNode != null && defensiveNode.getKeys("groups") != null)?defensiveNode.getKeys("groups"):new ArrayList<String>());
 			groups.addAll((scanNode != null && scanNode.getKeys("groups") != null)?scanNode.getKeys("groups"):new ArrayList<String>());
@@ -107,13 +118,20 @@ public class WorldHandler extends Handler
 		}
 		return loadedSomething;
 	}
+
+	public void doDamageCalculations(DamageEventInfo eventInfo) 
+	{
+		for(ModDamageCalculation calculation : damageRoutines)
+			calculation.calculate(eventInfo);
+	}
 	
 //// MOBHEALTH ////
-	public boolean loadMobHealth()
+	protected boolean loadSpawnRoutines(ConfigurationNode configurationNode)
 	{
 		boolean loadedSomething = false;
-		if(mobHealthNode != null) 
+		if(configurationNode != null) 
 		{
+			if(ModDamage.consoleDebugging_verbose) log.info("{Found MobHealth node for " + getDisplayString(false) + "}");
 			if(ModDamage.consoleDebugging_verbose) log.info("{Found MobHealth node for " + getCalculationHeader() + "}");
 			List<DamageElement> creatureTypes = new ArrayList<DamageElement>();
 			creatureTypes.addAll(DamageElement.getElementsOf("animal"));
@@ -122,17 +140,21 @@ public class WorldHandler extends Handler
 			for(DamageElement creatureType : creatureTypes)
 			{
 			//check the node property for a default spawn calculation
-				List<Object> calcStrings = mobHealthNode.getList(creatureType.getReference());
+				List<Object> calcStrings = configurationNode.getList(creatureType.getReference());
 				//So, when a list of calculations are called, they're just ArrayList<Object>
 				// Normal calcStrings are just strings,
 				// conditionals are represented with a LinkedHashMap.
 				if(calcStrings != null)
 				{
+					List<ModDamageCalculation> calculations = healthCalculationAllocator.parseStrings(calcStrings);
 					List<SpawnCalculation> calculations = healthAllocator.parseStrings(calcStrings);//healthAllocator.parseStrings(calcStrings);
 					if(!calculations.isEmpty())
 					{
-						if(!mobSpawnRoutines.containsKey(creatureType))
+						if(!spawnRoutines.containsKey(creatureType))
 						{
+							spawnRoutines.put(creatureType, calculations);
+							String configString = "-MobHealth:" + getCalculationHeader() + ":" + creatureType.getReference() 
+								+ " [" + calcStrings.toString() + "]";
 							mobSpawnRoutines.put(creatureType, calculations);
 							String configString = "-MobHealth:" + getCalculationHeader() + ":" + creatureType.getReference() + calcStrings.toString();
 							configStrings.add(configString);
@@ -156,9 +178,9 @@ public class WorldHandler extends Handler
 	public boolean doSpawnCalculations(SpawnEventInfo eventInfo)
 	{
 		//determine creature type
-		if(eventInfo.damageElement != null && mobSpawnRoutines.containsKey(eventInfo.damageElement))
+		if(eventInfo.spawnedElement != null && spawnRoutines.containsKey(eventInfo.spawnedElement))
 		{
-			for(SpawnCalculation calculation : mobSpawnRoutines.get(eventInfo.damageElement))
+			for(ModDamageCalculation calculation : spawnRoutines.get(eventInfo.spawnedElement))
 				calculation.calculate(eventInfo);
 			return true;
 		}
@@ -166,6 +188,41 @@ public class WorldHandler extends Handler
 	}	
 
 //// SCAN ////
+	protected boolean loadScanItems(ConfigurationNode configurationNode) 
+	{
+		boolean loadedSomething = true;
+		if(configurationNode != null) 
+		{
+			if(ModDamage.consoleDebugging_verbose) log.info("{Found Scan node for " + getDisplayString(false) + "\"}");
+			List<String> itemList = configurationNode.getStringList("global", null);
+			if(!itemList.equals(null))
+			{
+				for(String itemString : itemList)
+				{
+					if(ModDamage.itemAliases.containsKey(itemString.toLowerCase()))
+						for(Material material : ModDamage.itemAliases.get(itemString.toLowerCase()))
+						{
+							globalScanItems.add(material);
+							addConfigString("-Scan:" + getCalculationHeader() + ":" + material.name() + "(" + material.getId() + ")");
+							loadedSomething = true;
+						}
+					else
+					{
+						Material material = Material.matchMaterial(itemString);
+						if(material != null)
+						{
+							globalScanItems.add(material);
+							addConfigString("-Scan:" + getCalculationHeader() + ":" + material.name() + "(" + material.getId() + ")");
+							loadedSomething = true;
+						}
+						else if(ModDamage.consoleDebugging_verbose) log.warning("Invalid Scan item \"" + itemString + "\" found in " + getDisplayString(false) + " globals - ignoring");
+					}
+				}
+			}
+		}
+		return loadedSomething;
+	}
+	
 	public boolean canScan(Player player)
 	{ 
 		boolean groupCanScan = false;
@@ -181,175 +238,71 @@ public class WorldHandler extends Handler
 	protected boolean canScan(Material itemType, String groupName)
 	{ 
 		if(groupName == null) groupName = "";
-		return ((scanLoaded && scanItems.contains(itemType) 
-				|| ((groupHandlers.get(groupName) != null)
-						?groupHandlers.get(groupName).canScan(itemType)
-						:false)));
+		return ((scanLoaded && (globalScanItems.contains(itemType) 
+				|| ((groupScanItems.get(groupName) != null)
+						?groupScanItems.get(groupName).contains(itemType)
+						:false))));
 	}
 
-//// DAMAGE HANDLING ////
-	public void doDamageCalculations(DamageEventInfo eventInfo) 
-	{
-		switch(eventInfo.eventType)
-		{
-///////////////////// Player vs. Player 
-			case PLAYER_PLAYER:
-				runRoutines(eventInfo, true);//attack buff
-				runEquipmentRoutines(eventInfo, true);
-				
-				runRoutines(eventInfo, false);//defense buff
-				runEquipmentRoutines(eventInfo, false);
-				
-			//calculate group buff
-				try
-				{
-					for(String group_attacker : eventInfo.groups_attacker)
-						if(groupHandlers.containsKey(group_attacker))
-							for(String group_target : eventInfo.groups_target)
-							{
-								groupHandlers.get(group_attacker).doAttackCalculations(eventInfo);//attack buff
-								groupHandlers.get(group_target).doDefenseCalculations(eventInfo);//defense buff		
-							}
-				}
-				catch(Exception e)
-				{
-					if(eventInfo.groups_target == null)
-						log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
-								+ eventInfo.name_target + "\" in world \"" + eventInfo.world.getName() + "\" - add this player to a group in Permissions!");
-					else if(eventInfo.groups_attacker == null)
-						log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
-								+ eventInfo.name_attacker + "\" in world \"" + eventInfo.world.getName() + "\" - add this player to a group in Permissions!");
-				}
-				
-			return;
-
-///////////////////// Player vs. Mob
-			case PLAYER_MOB:
-				runRoutines(eventInfo, true);//attack buff
-				runEquipmentRoutines(eventInfo, true);
-				
-				runRoutines(eventInfo, false);//defense buff
-			
-			//group buff
-				try
-				{
-					for(String group_attacking : eventInfo.groups_attacker)
-						if(groupHandlers.containsKey(group_attacking))
-							groupHandlers.get(group_attacking).doAttackCalculations(eventInfo);
-				}
-				catch(Exception e)
-				{
-					log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
-							+ eventInfo.name_attacker + "\" in world \"" + eventInfo.world.getName() + "\" - add this player to a group in Permissions!");
-				}
-			return;
-				
-///////////////////// Mob vs. Player
-			case MOB_PLAYER:
-				runRoutines(eventInfo, true);//attack buff
-				
-				runRoutines(eventInfo, false);//defense buff
-				runEquipmentRoutines(eventInfo, false);
-				
-			//calculate group buff
-				try
-				{
-					String[] groups_target = ModDamage.Permissions.getGroups(eventInfo.world.getName(), ((Player)eventInfo.entity_target).getName());
-					for(String group_target : groups_target)
-						if(groupHandlers.containsKey(group_target))
-							groupHandlers.get(group_target).doDefenseCalculations(eventInfo);
-				}
-				catch(Exception e)
-				{
-					log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
-							+ eventInfo.name_target + "\" in world \"" + eventInfo.world.getName() + "\" - add this player to a group in Permissions!");
-				}
-			return;
-			
-
-///////////////////// Mob vs. Mob
-			case MOB_MOB:
-				runRoutines(eventInfo, true);//attack buff
-
-				runRoutines(eventInfo, false);//defense buff
-			return;
-	
-///////////////////// Nonliving vs. Player
-			case NONLIVING_PLAYER:
-				runRoutines(eventInfo, true);//attack buff
-				
-				runRoutines(eventInfo, false);//defense buff
-				runEquipmentRoutines(eventInfo, false);
-				
-			//calculate group buff
-				try
-				{
-					for(String group_target : eventInfo.groups_target)
-						if(groupHandlers.containsKey(group_target))
-							groupHandlers.get(group_target).doDefenseCalculations(eventInfo);
-				}
-				catch(Exception e)
-				{
-					log.warning("[" + plugin.getDescription().getName() + "] No groups found for player \"" 
-						+ eventInfo.name_target + "\" in world \"" + eventInfo.world.getName() + "\" - add this player to a group in Permissions!");
-				}
-			return;
-
-///////////////////// Nonliving vs. Mob
-			case NONLIVING_MOB:
-				runRoutines(eventInfo, true);//attack buff
-				runRoutines(eventInfo, false);//defense buff
-			return;
-			
-			default: return;
-		}
-	}
-	
 //// HELPER FUNCTIONS////
-	@Override
 	protected String getCalculationHeader(){ return "worlds:" + world.getName();}
 
-	@Override
 	protected String getDisplayString(boolean upperCase){ return (upperCase?"W":"w") + "orld \"" + world.getName() + "\"";}
-
-	@Override
-	public boolean loadedSomething(){ return super.loadedSomething() || groupsLoaded || mobHealthLoaded;}
-
-	public World getWorld(){ return world;}
 	
-	public GroupHandler getGroupHandler(String groupMatch){ return groupHandlers.get(groupMatch);}
-
-	public Collection<GroupHandler> getGroupHandlers(){ return groupHandlers.values();}
-	
-//// COMMAND FUNCTIONS ////
-	@Override
-	public void printAdditionalStrings()
+	protected void clear() 
 	{
-		for(GroupHandler groupHandler : groupHandlers.values())
-			groupHandler.sendConfig(null, 9001);
+		damageRoutines.clear();
+		spawnRoutines.clear();
+		globalScanItems.clear();
+		groupScanItems.clear();
+		configStrings.clear();
+		
+		damageRoutinesLoaded = spawnRoutinesLoaded = scanLoaded = false;
 	}
 
-	@Override
-	public boolean printAdditionalConfiguration(Player player, int pageNumber)
+	public boolean loadedSomething(){ return damageRoutinesLoaded || spawnRoutinesLoaded;}
+
+	public World getWorld(){ return world;}
+
+	protected void addConfigString(String string) 
 	{
-		if(pageNumber == configPages + 1)
+		//FIXME Change so that character lengths are counted for accurate paging.
+		configStrings.add(string);
+		if(ModDamage.consoleDebugging_normal) log.info(string);
+	}
+	
+//// COMMAND FUNCTIONS ////	
+	protected String getConfigPath(){ return "worlds." + world.getName();}
+	
+	public boolean sendConfig(Player player, int pageNumber)
+	{
+		if(player == null)
 		{
-			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " " + getDisplayString(true) + ": (" + pageNumber + "/" + (configPages + additionalConfigChecks) + ")");
-			player.sendMessage(ModDamage.ModDamageString(ChatColor.YELLOW) + " The following groups have been configured:");
-			if(!groupHandlers.isEmpty())
-			{
-				for(GroupHandler groupHandler : groupHandlers.values())
-						player.sendMessage(ChatColor.GREEN + groupHandler.getGroupName());
-				player.sendMessage(ChatColor.BLUE + "Use /md check " + world.getName() + " [groupname] or /md check " + world.getName() + " [page] for more info.");
-			}
-			else player.sendMessage(ChatColor.RED + "No groups configured!");
+			String printString = "Global configuration for " + getDisplayString(false) + ":";
+			for(String configString : configStrings)
+				printString += "\n" + configString;
+			
+			log.info(printString);
+			
 			return true;
+		}
+		else if(pageNumber > 0)
+		{
+			if(pageNumber <= configPages)
+			{
+				player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " " + getDisplayString(true) + ": (" + pageNumber + "/" + (configPages + additionalConfigChecks) + ")");
+				for(int i = (9 * (pageNumber - 1)); i < (configStrings.size() < (9 * pageNumber)
+															?configStrings.size()
+															:(9 * pageNumber)); i++)
+					player.sendMessage(ChatColor.DARK_AQUA + configStrings.get(i));
+				return true;
+			}
+			return printAdditionalConfiguration(player, pageNumber);
 		}
 		return false;
 	}
 
-	
-	@Override
-	protected String getConfigPath(){ return "worlds." + world.getName();}
+	public boolean printAdditionalConfiguration(Player player, int pageNumber){ return false;}
 }
+	
 	

@@ -64,7 +64,7 @@ public class ModDamage extends JavaPlugin
 	public final static HashMap<String, List<String>> mobAliases = new HashMap<String, List<String>>();
 	
 	//Configuration
-	private ConfigurationNode pluginOffensiveNode, pluginDefensiveNode, pluginMobHealthNode, pluginScanNode;
+	private ConfigurationNode pluginDamageNode, pluginMobHealthNode, pluginScanNode;
 	public static boolean multigroupPermissions = true;
 	
 	//User-customized config
@@ -231,29 +231,6 @@ public class ModDamage extends JavaPlugin
 								{
 									serverHandler.sendConfig(player, args[1]);
 								}
-								return true;
-							}
-							//md check worldname groupname || md check worldname int
-							else if(args.length == 3)
-							{
-								try
-								{
-									serverHandler.sendConfig(player, args[1], Integer.parseInt(args[2]));
-								}
-								catch(NumberFormatException e)
-								{
-									serverHandler.sendConfig(player, args[1], args[2]);
-								}
-								return true;
-							}
-							//md check worldname groupname int
-							else if(args.length == 4)
-							{
-								try
-								{
-									serverHandler.sendConfig(player, args[1], args[2], Integer.parseInt(args[3]));
-								}
-								catch(NumberFormatException e){ player.sendMessage(ModDamageString(ChatColor.RED) + "Error: final parameter should be an integer." );}
 								return true;
 							}
 						}
@@ -505,11 +482,10 @@ public class ModDamage extends JavaPlugin
 		
 	//try to initialize WorldHandlers
 
-		pluginOffensiveNode = config.getNode("Offensive");
-		pluginDefensiveNode = config.getNode("Defensive");
+		pluginDamageNode = config.getNode("Damage");
 		pluginMobHealthNode = config.getNode("MobHealth");
 		pluginScanNode = config.getNode("Scan");
-		ModDamage.serverHandler = new ServerHandler(this, pluginOffensiveNode, pluginDefensiveNode, pluginMobHealthNode, pluginScanNode);
+		ModDamage.serverHandler = new ServerHandler(this, pluginDamageNode, pluginMobHealthNode, pluginScanNode);
 		return serverHandler.loadedSomething();
 	}
 

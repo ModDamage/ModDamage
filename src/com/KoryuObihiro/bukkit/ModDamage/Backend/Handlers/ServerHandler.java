@@ -12,22 +12,57 @@ import org.bukkit.util.config.ConfigurationNode;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculationAllocator;
 
 public class ServerHandler extends WorldHandler
 {
 //// MEMBERS ////
+	protected ConfigurationNode damageNode;
+	protected ConfigurationNode scanNode;
+	protected ConfigurationNode mobHealthNode;
+	
+	public static final HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
 	public HashMap<String, WorldHandler> worldHandlers;
-	private static final DamageCalculationAllocator damageCalculationAllocator = new DamageCalculationAllocator();
-	private static final SpawnCalculationAllocator healthCalculationAllocator = new SpawnCalculationAllocator();
 	
 	private boolean worldHandlersLoaded;
 
 //// FUNCTIONS ////
 //// CONSTRUCTOR ////
-	public ServerHandler(ModDamage plugin, ConfigurationNode offensiveNode, ConfigurationNode defensiveNode, ConfigurationNode mobHealthNode, ConfigurationNode scanNode) 
+	public ServerHandler(ModDamage plugin, ConfigurationNode damageNode, ConfigurationNode mobHealthNode, ConfigurationNode scanNode) 
 	{
+		super(plugin, null, damageNode, mobHealthNode, scanNode);
+		this.damageNode = damageNode;
+		this.mobHealthNode = mobHealthNode;
+		this.scanNode = scanNode;
+		//try to initialize WorldHandlers
+		String nodeNames[] = {"Damage", "MobHealth", "Scan"};
+		if(damageNode != null || mobHealthNode != null || scanNode != null)
+		{
+			ConfigurationNode worldsNode = (damageNode != null && damageNode.getNode("worlds") != null?damageNode.getNode("worlds"):null);
+			for(World world : plugin.getServer().getWorlds())
+			{
+				ConfigurationNode worldConfigurations[] = {worldsNode,  
+															(mobHealthNode != null && mobHealthNode.getNode("worlds") != null?mobHealthNode.getNode("worlds").getNode(world.getName()):null),
+															(scanNode != null && scanNode.getNode("worlds") != null?scanNode.getNode("worlds").getNode(world.getName()):null)};
+				boolean foundSomething = false;
+				for(int i = 0; i < worldConfigurations.length; i++)
+				{
+					if(worldConfigurations[i] == null && (ModDamage.consoleDebugging_verbose))
+						log.warning("{Couldn't find " + nodeNames[i] +  " node for world \"" + world.getName() + "\"}");
+					else foundSomething = true;
+				}
+				if(foundSomething)
+				{
+					WorldHandler worldHandler = new WorldHandler(plugin, world, worldConfigurations[0], worldConfigurations[1], worldConfigurations[2]);
+					if(worldHandler.loadedSomething())
+					{
+						worldHandlers.put(world, worldHandler);
+						worldHandlersLoaded = true;
+					}
+				}
+			}
+		}
+		
+		if(!loadedSomething()) log.severe("[" + plugin.getDescription().getName() + "] No configurations loaded! Are any calculation strings defined?");
 		super(plugin, null, offensiveNode, defensiveNode, mobHealthNode, scanNode, damageCalculationAllocator, healthCalculationAllocator);
 		additionalConfigChecks = 2;
 		//TODO set aliases - this will be moved into reload() once dynamic nodes have been implemented.
@@ -37,9 +72,12 @@ public class ServerHandler extends WorldHandler
 		ModDamage.itemAliases.put("pickaxe", Arrays.asList(Material.WOOD_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.GOLD_PICKAXE, Material.DIAMOND_PICKAXE));
 		ModDamage.itemAliases.put("spade", Arrays.asList(Material.WOOD_SPADE, Material.STONE_SPADE, Material.IRON_SPADE, Material.GOLD_SPADE, Material.DIAMOND_SPADE));
 		ModDamage.itemAliases.put("sword", Arrays.asList(Material.WOOD_SWORD, Material.STONE_SWORD, Material.IRON_SWORD, Material.GOLD_SWORD, Material.DIAMOND_SWORD));
+		additionalConfigChecks = 2;
 	}
 	
-//// DAMAGE HANDLING ////
+//// CONFIG LOADING ////
+	
+//// DAMAGE ////
 	@Override
 	public void doDamageCalculations(DamageEventInfo eventInfo)
 	{ 
@@ -102,19 +140,6 @@ public class ServerHandler extends WorldHandler
 						return world.getName();
 		return null;
 	}
-	
-	private String getGroupMatch(String worldName, String name, boolean searchSubstrings)
-	{
-		for(GroupHandler groupHandler : worldHandlers.get(worldName).getGroupHandlers())
-			if(name.equalsIgnoreCase(groupHandler.getGroupName()))
-				return groupHandler.getGroupName();
-		if(searchSubstrings)
-			for(GroupHandler groupHandler : worldHandlers.get(worldName).getGroupHandlers())
-				for(int i = 0; i < (groupHandler.getGroupName().length() - name.length() - 1); i++)
-					if(name.equalsIgnoreCase(groupHandler.getGroupName().substring(i, i + name.length())))
-						return groupHandler.getGroupName();
-		return null;
-	}
 
 	@Override
 	public boolean loadedSomething(){ return super.loadedSomething() || worldHandlersLoaded;}
@@ -124,19 +149,6 @@ public class ServerHandler extends WorldHandler
 	public boolean printAdditionalConfiguration(Player player, int pageNumber)
 	{
 		if(pageNumber == configPages + 1)
-		{
-			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " " + getDisplayString(true) + ": (" + pageNumber + "/" + (configPages + 2) + ")");
-			player.sendMessage(ModDamage.ModDamageString(ChatColor.YELLOW) + " The following groups have been configured:");
-			if(!groupHandlers.isEmpty())
-			{
-				for(GroupHandler groupHandler : groupHandlers.values())
-						player.sendMessage(ChatColor.GREEN + groupHandler.getGroupName());
-				player.sendMessage(ChatColor.BLUE + "Use /md check [groupname] or /md check [groupname] [page] for more info.");
-			}
-			else player.sendMessage(ChatColor.RED + "No groups configured!");
-			return true;
-		}
-		else if(pageNumber == configPages + 2)
 		{
 			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " " + getDisplayString(true) + " (" + pageNumber + "/" + (configPages + 2) + ")");
 			player.sendMessage(ModDamage.ModDamageString(ChatColor.YELLOW) + " The following worlds have been configured:");
@@ -169,29 +181,4 @@ public class ServerHandler extends WorldHandler
 		}
 		else player.sendMessage(ModDamage.errorString_findWorld);
 	}
-	public void sendConfig(Player player, String worldSearchTerm, String groupSearchTerm){ sendConfig(player, worldSearchTerm, groupSearchTerm, 1);}
-	public void sendConfig(Player player, String worldSearchTerm, String groupSearchTerm, int pageNumber) 
-	{
-		String worldMatch = getWorldMatch(worldSearchTerm, true);
-		if(worldMatch != null)
-		{
-			String groupMatch = getGroupMatch(worldMatch, groupSearchTerm, true);
-			if(groupMatch != null)
-			{
-				if(ModDamage.hasPermission(player, "moddamage.check." + worldMatch + "." + groupMatch))
-				{
-					if(!worldHandlers.get(worldMatch).getGroupHandler(groupMatch).sendConfig(player, pageNumber))
-						player.sendMessage(ModDamage.ModDamageString(ChatColor.RED) + " You don't have permission to check group \"" 
-								+ groupMatch + "\" for world \"" + worldMatch + "\".");
-				}
-				else player.sendMessage(ModDamage.ModDamageString(ChatColor.RED) + " You don't have permission to check group \"" + groupMatch + "\".");
-			}
-			else player.sendMessage(ModDamage.ModDamageString(ChatColor.RED) + " Couldn't find matching group name.");
-		}
-		else
-		{
-			if(player == null) log.info("Error: Couldn't find matching world substring.");
-			else player.sendMessage(ModDamage.errorString_findWorld);
-		}
-	}	
 }

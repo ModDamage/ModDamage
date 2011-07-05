@@ -9,6 +9,36 @@ import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Addition;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.DiceRoll;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.DiceRollAddition;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Division;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.DivisionAddition;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Multiplication;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Set;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.EventValueComparison;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityAltitudeComparison;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityBiome;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityDrowning;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityFallen;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityFalling;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityHealthComparison;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityLightComparison;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityOnBlock;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityOnFire;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityUnderwater;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityWearing;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityWearingOnly;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityWielding;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.World.WorldEnvironment;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.World.WorldTime;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntityExplode;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntityHeal;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntityReflect;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntitySetAirTicks;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntitySetFireTicks;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntitySetHealth;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntitySetItem;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Addition;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.DiceRoll;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.DiceRollAddition;
@@ -67,18 +97,20 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Effect.Entity
 // entityEffect.increaseItem.amount
 // entityEffect.decreaseItem.amount
 // send player message
-// entityis.inRegion //XXX Might require something like Regios
+// entityis.inRegion...Might require something like Regios
 // entityis.ofgroup
 // fix armorset comparison
 
+//API considerations
+// Force to adhere to ModDamageCalculation
 public class DamageCalculationAllocator
 {	
-	public List<DamageCalculation> parseStrings(List<Object> calcStrings) 
+	public List<ModDamageCalculation> parseStrings(List<Object> calcStrings) 
 	{
-		List<DamageCalculation> calculations = new ArrayList<DamageCalculation>();
+		List<ModDamageCalculation> calculations = new ArrayList<ModDamageCalculation>();
 		for(Object calculationString : calcStrings)
 		{
-			DamageCalculation calculation = null;
+			ModDamageCalculation calculation = null;
 			
 			if(calculationString instanceof LinkedHashMap)
 				calculation = parseConditional((LinkedHashMap<String, List<Object>>)calculationString);
@@ -86,14 +118,13 @@ public class DamageCalculationAllocator
 				calculation = parseNormal((String)calculationString);
 			
 			if(calculation != null) calculations.add(calculation);
-			else return new ArrayList<DamageCalculation>();
+			else return new ArrayList<ModDamageCalculation>();
 		}
 		return calculations;
 	}
 	
-	public DamageCalculation parseNormal(String argString) 
+	public ModDamageCalculation parseNormal(String argString) 
 	{
-
 		try{ return new Addition(Integer.parseInt(argString));}
 		catch(Exception e){}
 		
@@ -140,13 +171,13 @@ public class DamageCalculationAllocator
 		return null;
 	}
 	
-	private DamageCalculation parseConditional(LinkedHashMap<String, List<Object>> conditionalStatement)
+	private ModDamageCalculation parseConditional(LinkedHashMap<String, List<Object>> conditionalStatement)
 	{
 		for(Object key : conditionalStatement.keySet())//should only be one. :<
 		{
 			String[] args = ((String)key).split("\\.");
 			//TODO Refactor this so it only runs as many times as necessary.
-			List<DamageCalculation> nestedCalculations = parseStrings(conditionalStatement.get(key));
+			List<ModDamageCalculation> nestedCalculations = parseStrings(conditionalStatement.get(key));
 			if(nestedCalculations.isEmpty()) return null;
 			
 			if(args.length == 2)
@@ -187,11 +218,8 @@ public class DamageCalculationAllocator
 				{
 					if(args[1].equalsIgnoreCase("damageIs"))
 					{
-						if(args[2].equalsIgnoreCase("lessThan") || args[2].equalsIgnoreCase("<")) 				return new DamageLessThan(inverted, Integer.parseInt(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("lessThanEquals") || args[2].equalsIgnoreCase("<="))	return new DamageLessThanEquals(inverted, Integer.parseInt(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("greaterThan") || args[2].equalsIgnoreCase(">")) 		return new DamageGreaterThan(inverted, Integer.parseInt(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("greaterThanEquals") || args[2].equalsIgnoreCase(">="))return new DamageGreaterThanEquals(inverted, Integer.parseInt(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("equals") || args[2].equalsIgnoreCase("="))			return new DamageEquals(inverted, Integer.parseInt(args[3]), nestedCalculations);
+						ComparisonType comparisonType = ComparisonType.matchType(args[2]);
+						if(comparisonType != null) return new EventValueComparison(inverted, comparisonType, Integer.parseInt(args[3]), nestedCalculations);
 					}
 					else if(args[1].equalsIgnoreCase("attackerIs") || args[1].equalsIgnoreCase("targetIs")) 
 					{
@@ -238,31 +266,22 @@ public class DamageCalculationAllocator
 					if(args[1].equalsIgnoreCase("attackerAltitude") || args[1].equalsIgnoreCase("targetAltitude"))
 					{
 						boolean forAttacker = args[0].equalsIgnoreCase("attackerAltitude");
-						if(args[2].equalsIgnoreCase("lessThan") || args[2].equalsIgnoreCase("<")) 				return new EntityAltitudeLessThan(inverted, forAttacker, Integer.parseInt(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("lessThanEquals") || args[2].equalsIgnoreCase("<="))	return new EntityAltitudeLessThanEquals(inverted, forAttacker, Integer.parseInt(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("greaterThan") || args[2].equalsIgnoreCase(">")) 		return new EntityAltitudeGreaterThan(inverted, forAttacker, Integer.parseInt(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("greaterThanEquals") || args[2].equalsIgnoreCase(">="))return new EntityAltitudeGreaterThanEquals(inverted, forAttacker, Integer.parseInt(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("equals") || args[2].equalsIgnoreCase("=")) 			return new EntityAltitudeEquals(inverted, forAttacker, Integer.parseInt(args[3]), nestedCalculations);
+						ComparisonType comparisonType = ComparisonType.matchType(args[2]);
+						if(comparisonType != null) return new EntityAltitudeComparison(inverted, forAttacker, comparisonType, Integer.parseInt(args[3]), nestedCalculations);
 					}
 					if(args[1].equalsIgnoreCase("attackerHealth") || args[1].equalsIgnoreCase("targetHealth"))
 					{
 						boolean forAttacker = args[0].equalsIgnoreCase("attackerHealth");
-						if(args[2].equalsIgnoreCase("lessThan") || args[2].equalsIgnoreCase("<")) 				return new EntityHealthLessThan(inverted, forAttacker, Integer.parseInt(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("lessThanEquals") || args[2].equalsIgnoreCase("<="))		return new EntityHealthLessThanEquals(inverted, forAttacker, Integer.parseInt(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("greaterThan") || args[2].equalsIgnoreCase(">")) 		return new EntityHealthGreaterThan(inverted, forAttacker, Integer.parseInt(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("greaterThanEquals")) 	return new EntityHealthGreaterThanEquals(inverted, forAttacker, Integer.parseInt(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("equals")) 			return new EntityHealthEquals(inverted, forAttacker, Integer.parseInt(args[3]), nestedCalculations);
+						ComparisonType comparisonType = ComparisonType.matchType(args[2]);
+						if(comparisonType != null) return new EntityHealthComparison(inverted, forAttacker, comparisonType, Integer.parseInt(args[3]), nestedCalculations);
 					}
 					if(args[1].equalsIgnoreCase("attackerLight") || args[1].equalsIgnoreCase("targetLight"))
 					{
-						boolean forAttacker = args[0].equalsIgnoreCase("attackerLightLevel");
-						if(args[2].equalsIgnoreCase("lessThan") || args[2].equalsIgnoreCase("<")) 				return new EntityLightLevelLessThan(inverted, forAttacker, Byte.parseByte(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("lessThanEquals") || args[2].equalsIgnoreCase("<="))	return new EntityLightLevelLessThanEquals(inverted, forAttacker, Byte.parseByte(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("greaterThan") || args[2].equalsIgnoreCase(">")) 		return new EntityLightLevelGreaterThan(inverted, forAttacker, Byte.parseByte(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("greaterThanEquals") || args[2].equalsIgnoreCase(">="))return new EntityLightLevelGreaterThanEquals(inverted, forAttacker, Byte.parseByte(args[3]), nestedCalculations);
-						else if(args[2].equalsIgnoreCase("equals") || args[2].equalsIgnoreCase("=")) 			return new EntityLightLevelEquals(inverted, forAttacker, Byte.parseByte(args[3]), nestedCalculations);
+						boolean forAttacker = args[0].equalsIgnoreCase("attackerLight");
+						ComparisonType comparisonType = ComparisonType.matchType(args[2]);
+						if(comparisonType != null) return new EntityLightComparison(inverted, forAttacker, comparisonType, Byte.parseByte(args[3]), nestedCalculations);
 					}
-					else if(args[1].equalsIgnoreCase("worldTime")) 				return new WorldTime(inverted, Integer.parseInt(args[2]), Integer.parseInt(args[3]), nestedCalculations);
+					else if(args[1].equalsIgnoreCase("worldTime")) return new WorldTime(inverted, Integer.parseInt(args[2]), Integer.parseInt(args[3]), nestedCalculations);
 					else if(args[1].equalsIgnoreCase("worldEnvironment"))
 					{
 						Environment environment = CalculationUtility.matchEnvironment(args[2]);
@@ -273,4 +292,5 @@ public class DamageCalculationAllocator
 		}
 		return null;
 	}
+}
 }
