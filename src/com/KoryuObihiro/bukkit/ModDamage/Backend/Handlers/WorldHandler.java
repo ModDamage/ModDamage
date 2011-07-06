@@ -79,8 +79,12 @@ public class WorldHandler
 	protected boolean loadDamageRoutines(ConfigurationNode damageWorldsNode) //TODO Test, add debug output
 	{
 		boolean loadedSomething = false;
-		if(damageWorldsNode != null)
+		List<Object> calcStrings = damageWorldsNode.getList(world.getName());
+		if(!calcStrings.isEmpty())
 		{
+			List<ModDamageCalculation> calculations = damageCalculationAllocator.parseStrings(calcStrings);
+			if(!calculations.isEmpty())
+				damageRoutines.addAll(calculations);
 			List<Object> calcStrings = damageWorldsNode.getList(world.getName());
 			if(!calcStrings.isEmpty())
 			{
@@ -147,7 +151,6 @@ public class WorldHandler
 				if(calcStrings != null)
 				{
 					List<ModDamageCalculation> calculations = healthCalculationAllocator.parseStrings(calcStrings);
-					List<SpawnCalculation> calculations = healthAllocator.parseStrings(calcStrings);//healthAllocator.parseStrings(calcStrings);
 					if(!calculations.isEmpty())
 					{
 						if(!spawnRoutines.containsKey(creatureType))
@@ -155,9 +158,8 @@ public class WorldHandler
 							spawnRoutines.put(creatureType, calculations);
 							String configString = "-MobHealth:" + getCalculationHeader() + ":" + creatureType.getReference() 
 								+ " [" + calcStrings.toString() + "]";
-							mobSpawnRoutines.put(creatureType, calculations);
-							String configString = "-MobHealth:" + getCalculationHeader() + ":" + creatureType.getReference() + calcStrings.toString();
-							configStrings.add(configString);
+							spawnRoutines.put(creatureType, calculations);
+							configStrings.add("-MobHealth:" + getCalculationHeader() + ":" + creatureType.getReference() + calcStrings.toString());
 							if(ModDamage.consoleDebugging_normal) log.info(configString);
 							loadedSomething = true;
 						}
