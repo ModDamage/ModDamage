@@ -16,6 +16,7 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Division;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.DivisionAddition;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Set;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.Binomial;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.DamageEquals;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.DamageGreaterThan;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Damage.Conditional.DamageGreaterThanEquals;
@@ -112,6 +113,7 @@ public class DamageCalculationAllocator
 						else if(args[0].equalsIgnoreCase("mult")) 	return new Multiplication(Integer.parseInt(args[1]));
 						else if(args[0].equalsIgnoreCase("roll")) 	return new DiceRollAddition(Integer.parseInt(args[1]));
 						else if(args[0].equalsIgnoreCase("set"))	return new Set(Integer.parseInt(args[1]));
+						else if(args[0].equalsIgnoreCase("binom"))	return new Binomial(Integer.parseInt(args[1]));
 					}
 					else if(args.length == 3)
 					{
@@ -169,7 +171,13 @@ public class DamageCalculationAllocator
 					}
 				}
 				else if(args[0].equalsIgnoreCase("effect"))
+				{
 					if(args[1].equalsIgnoreCase("reflect")) return new EntityReflect(nestedCalculations);
+				}
+				else if(args[0].equalsIgnoreCase("binom"))
+				{
+					return new Binomial(Integer.parseInt(args[1]), nestedCalculations);
+				}
 			}
 			else if(args[0].equalsIgnoreCase("if") || args[0].equalsIgnoreCase("if_not"))
 			{

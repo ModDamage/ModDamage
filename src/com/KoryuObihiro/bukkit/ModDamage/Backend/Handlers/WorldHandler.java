@@ -29,7 +29,7 @@ public class WorldHandler extends Handler
 	protected boolean mobHealthLoaded = false;
 	
 	//nodes for config loading
-	final protected ConfigurationNode mobHealthNode;
+	protected ConfigurationNode mobHealthNode;
 	final protected SpawnCalculationAllocator healthAllocator;
 	
 	//MobHealth
@@ -87,8 +87,7 @@ public class WorldHandler extends Handler
 			{	
 				if(groupHandlers.containsKey(group))
 				{
-					if(ModDamage.consoleDebugging_normal)
-						log.warning("Repetitive group definition found for group \"" + group + "\" found - ignoring.");
+					if(ModDamage.consoleDebugging_normal) log.warning("Repetitive group definition found for group \"" + group + "\" found - ignoring.");
 				}
 				else 
 				{
@@ -115,7 +114,7 @@ public class WorldHandler extends Handler
 		boolean loadedSomething = false;
 		if(mobHealthNode != null) 
 		{
-			if(ModDamage.consoleDebugging_verbose) log.info("{Found MobHealth node for " + getDisplayString(false) + "}");
+			if(ModDamage.consoleDebugging_verbose) log.info("{Found MobHealth node for " + getCalculationHeader() + "}");
 			List<DamageElement> creatureTypes = new ArrayList<DamageElement>();
 			creatureTypes.addAll(DamageElement.getElementsOf("animal"));
 			creatureTypes.addAll(DamageElement.getElementsOf("mob"));
@@ -129,14 +128,13 @@ public class WorldHandler extends Handler
 				// conditionals are represented with a LinkedHashMap.
 				if(calcStrings != null)
 				{
-					List<SpawnCalculation> calculations = healthAllocator.parseStrings(calcStrings);
+					List<SpawnCalculation> calculations = healthAllocator.parseStrings(calcStrings);//healthAllocator.parseStrings(calcStrings);
 					if(!calculations.isEmpty())
 					{
 						if(!mobSpawnRoutines.containsKey(creatureType))
 						{
 							mobSpawnRoutines.put(creatureType, calculations);
-							String configString = "-MobHealth:" + getDisplayString(false) + ":" + creatureType.getReference() 
-								+ " [" + calcStrings.toString() + "]";
+							String configString = "-MobHealth:" + getCalculationHeader() + ":" + creatureType.getReference() + calcStrings.toString();
 							configStrings.add(configString);
 							if(ModDamage.consoleDebugging_normal) log.info(configString);
 							loadedSomething = true;

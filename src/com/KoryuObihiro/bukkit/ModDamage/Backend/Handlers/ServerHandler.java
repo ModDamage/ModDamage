@@ -30,7 +30,6 @@ public class ServerHandler extends WorldHandler
 	{
 		super(plugin, null, offensiveNode, defensiveNode, mobHealthNode, scanNode, damageCalculationAllocator, healthCalculationAllocator);
 		additionalConfigChecks = 2;
-
 		//TODO set aliases - this will be moved into reload() once dynamic nodes have been implemented.
 		// DON'T FORGET - casing needs to be handled, so that it's not an issue.
 		ModDamage.itemAliases.put("axe", Arrays.asList(Material.WOOD_AXE, Material.STONE_AXE, Material.IRON_AXE, Material.GOLD_AXE, Material.DIAMOND_AXE));
@@ -55,8 +54,6 @@ public class ServerHandler extends WorldHandler
 	@Override
 	public boolean reload()
 	{
-		super.reload();
-		
 	//try to initialize WorldHandlers
 		String nodeNames[] = {"Offensive", "Defensive", "MobHealth", "Scan"};
 		if(offensiveNode != null || defensiveNode != null || mobHealthNode != null || scanNode != null)
@@ -76,6 +73,9 @@ public class ServerHandler extends WorldHandler
 					worldHandlersLoaded = true;
 				}
 			}
+
+		mobHealthNode = (mobHealthNode != null?mobHealthNode.getNode("global"):null);
+		super.reload();
 		if(!loadedSomething()) log.severe("[" + plugin.getDescription().getName() + "] No configurations loaded! Are any calculation strings defined?");
 		return loadedSomething();
 	}
@@ -92,7 +92,7 @@ public class ServerHandler extends WorldHandler
 	protected String getDisplayString(boolean uppercase){ return (uppercase?"S":"s") + "erver";}
 	
 	@Override
-	protected String getCalculationHeader(){ return "";}
+	protected String getCalculationHeader(){ return "server";}
 
 	private World getWorldMatch(String name, boolean searchSubstrings)
 	{
