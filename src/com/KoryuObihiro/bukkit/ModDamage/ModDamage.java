@@ -1,7 +1,8 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -22,7 +23,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
@@ -48,6 +48,7 @@ public class ModDamage extends JavaPlugin
 	//- per-world for disableDefault variables
 	//- count characters in config for message length
 	//- Refactor config to contain errors?
+	//- Change md debug to reflect previous state
 	
 	//plugin-related
 	public static boolean isEnabled = false;
@@ -58,13 +59,7 @@ public class ModDamage extends JavaPlugin
 	public static String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
 	public static String errorString_findWorld = ModDamageString(ChatColor.RED) + " Couldn't find matching world name.";
 	
-	//Alias hashmaps
-	public final static HashMap<String, List<Material>> itemAliases = new HashMap<String, List<Material>>();
-	public final static HashMap<String, List<String>> groupAliases = new HashMap<String, List<String>>();
-	public final static HashMap<String, List<String>> mobAliases = new HashMap<String, List<String>>();
-	
 	//Configuration
-	private ConfigurationNode pluginDamageNode, pluginMobHealthNode, pluginScanNode;
 	public static boolean multigroupPermissions = true;
 	
 	//User-customized config
@@ -98,8 +93,7 @@ public class ModDamage extends JavaPlugin
 		getServer().getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
 		
 		config = this.getConfiguration();
-		reload(true);
-		isEnabled = true;
+		isEnabled = reload(true);
 	}
 
 	@Override
@@ -177,9 +171,10 @@ public class ModDamage extends JavaPlugin
 							if(fromConsole) reload(true);
 							else if(hasPermission(player, "moddamage.reload")) 
 							{
-								log.info("[" + getDescription().getName() + "] Reload initiated by user " + player.getName());
+								log.info("[" + getDescription().getName() + "] Reload initiated by user " + player.getName() + "...");
 								if(reload(true)) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Reloaded!");
 								else player.sendMessage(ModDamageString(ChatColor.RED) + " No configurations loaded! Are any calculation strings defined?");
+								log.info("[" + getDescription().getName() + "] Reload complete.");
 							}
 							else player.sendMessage(errorString_Permissions);
 							return true;
@@ -254,6 +249,8 @@ public class ModDamage extends JavaPlugin
 	public void handleDamageEvent(EntityDamageEvent event) 
 	{
 		LivingEntity ent_damaged = (LivingEntity)event.getEntity();
+		//simple check for noDamageTicks - the appropriate event-firing check should be implemented in Bukkit soon.
+		if(ent_damaged.getNoDamageTicks() > 40) return;
 	 	//simple check for noDamageTicks - not sure how this will affect other elements in Bukkit yet.
  		if(ent_damaged.getNoDamageTicks() > 40) return;
 		
@@ -298,7 +295,7 @@ public class ModDamage extends JavaPlugin
 				
 				}
 			}
-			else{ log.severe("Something horrible just happened. Bug KoryuObihiro about it.");}//TODO REMOVE....MEBBE
+			else{ log.severe("[" + getDescription().getName() + "] Error! Unhandled damage event. Is this plugin up-to-date?");}
 			serverHandler.doDamageCalculations(eventInfo);
 			if(eventInfo.shouldScan)
 			{
@@ -434,6 +431,7 @@ public class ModDamage extends JavaPlugin
 		config.load();
 		//get plugin config.yml...if it doesn't exist, create it.
 		if(!(new File(this.getDataFolder(), "config.yml")).exists()) writeDefaults();
+		else serverHandler = new ServerHandler(this, config.getNode("Damage"), config.getNode("MobHealth"), config.getNode("Scan"));
 
 	//load debug settings
 		String debugString = config.getString("debugging");
@@ -478,67 +476,46 @@ public class ModDamage extends JavaPlugin
 	//TODO aliases 
 		//if(loadAliases() && consoleDebugging_normal) log.info("Aliases loaded!");
 		//else log.warning
-		
-		
-	//try to initialize WorldHandlers
-
-		pluginDamageNode = config.getNode("Damage");
-		pluginMobHealthNode = config.getNode("MobHealth");
-		pluginScanNode = config.getNode("Scan");
-		ModDamage.serverHandler = new ServerHandler(this, pluginDamageNode, pluginMobHealthNode, pluginScanNode);
 		return serverHandler.loadedSomething();
 	}
 
 	private void writeDefaults() 
-	{		
-		//TODO Migrate this into the Handler class.
+	{
+		serverHandler = new ServerHandler(this, null, null, null);
 	//set single-property stuff
 		log.severe("[" + getDescription().getName() + "] No configuration file found! Writing a blank config...");
 		config.setProperty("debugging", "normal");
 
 	//write server globals
-		writeDamageElements("global");
+		config.setProperty("Damage.global", emptyList);
 		writeMobHealthElements("global");
 		config.setProperty("Scan.global", emptyList);
+		config.setProperty("Scan.groups", emptyList);
 		config.save();
 		
 	//write world globals
 		for(World world : this.getServer().getWorlds())
 		{
 			String configPath = "worlds." + world.getName();
-			writeDamageElements(configPath + ".global");
+			config.setProperty("Damage." + configPath, emptyList);
 			writeMobHealthElements(configPath + ".global");
-			config.setProperty("Scan." + configPath, emptyList);
+			config.setProperty("Scan." + configPath + ".global", emptyList);
 			config.setProperty("Scan." + configPath + ".groups", emptyList);
+		}
+		
+	//write default aliases
+		String[][] toolAliases = { {"axe", "hoe", "pickaxe", "spade", "sword"}, {"WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_"}};
+		for(String toolType : toolAliases[0])
+		{
+			List<String> combinations = new ArrayList<String>();
+			for(String toolMaterial : toolAliases[1])
+				combinations.add(toolMaterial + toolType.toUpperCase());
+			config.setProperty("Aliases." + toolType, combinations);
 		}
 		
 		config.save();
 		config.load();//TODO Necessary?
-		log.severe("[" + getDescription().getName() + "] Done! Don't forget that you can define armor, melee, and group nodes further.");
-	}
-
-
-	private void writeDamageElements(String configPath)
-	{
-		for(DamageElement damageCategory : DamageElement.getGenericElements())
-		{
-		//write generics
-			config.setProperty("Offensive." + configPath + ".generic." + damageCategory.getReference(), emptyList);
-			if(!damageCategory.equals(DamageElement.GENERIC_NATURE))
-				config.setProperty("Defensive." + configPath + ".generic." + damageCategory.getReference(), emptyList);
-		//write specifics
-			if(damageCategory.hasSubConfiguration())
-				for(DamageElement subElement : DamageElement.getElementsOf(damageCategory))
-				{
-					config.setProperty("Offensive." + configPath + "." + damageCategory.getReference() + "." + subElement.getReference(), emptyList);
-					if(!damageCategory.equals(DamageElement.GENERIC_NATURE))
-						config.setProperty("Defensive." + configPath + "." + damageCategory.getReference() + "." + subElement.getReference(), emptyList);
-				}
-			config.setProperty("Offensive." + configPath + ".armor", emptyList);
-			config.setProperty("Defensive." + configPath + ".armor", emptyList);
-			config.setProperty("Offensive." + configPath + ".groups", emptyList);
-			config.setProperty("Defensive." + configPath + ".groups", emptyList);
-		}
+		log.severe("[" + getDescription().getName() + "] Defaults written!");
 	}
 	
 	private void writeMobHealthElements(String configPath)
@@ -559,37 +536,3 @@ public class ModDamage extends JavaPlugin
 	private void saveAliases(){}
 	*/
 }
-
-	
-/*
-private boolean add(String string, List<String> calcStrings) 
-{
-	try
-	{
-		String[] args = string.split(":");
-		World literalWorldMatch = getWorldMatch(args[1], false);
-		if(literalWorldMatch != null && (args[0] == "Offensive" || args[0] == "Defensive" || args[0] == "Scan" || args[0] == "MobHealth"))
-		{
-			WorldHandler worldHandler = null;
-			if(!worldHandlers.containsKey(literalWorldMatch))
-				worldHandler = new WorldHandler(this, literalWorldMatch, null, null, null, null, damageCalc, healthCalc);
-			else worldHandler = worldHandlers.get(literalWorldMatch);
-			
-			return worldHandler.add(args, calcStrings);
-		}
-		return false;
-	}
-	catch(ArrayIndexOutOfBoundsException e)
-	{
-		
-		return false;
-	}
-}
-
-private boolean delete(String string)
-{
-	String[] args = string.split(":");
-	if(args.length == 1) string.split("\\.");
-	return false;
-}
- */

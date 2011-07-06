@@ -1,7 +1,9 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Handlers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -16,10 +18,6 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 public class ServerHandler extends WorldHandler
 {
 //// MEMBERS ////
-	protected ConfigurationNode damageNode;
-	protected ConfigurationNode scanNode;
-	protected ConfigurationNode mobHealthNode;
-	
 	public static final HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
 	public HashMap<String, WorldHandler> worldHandlers;
 	
@@ -29,36 +27,39 @@ public class ServerHandler extends WorldHandler
 //// CONSTRUCTOR ////
 	public ServerHandler(ModDamage plugin, ConfigurationNode damageNode, ConfigurationNode mobHealthNode, ConfigurationNode scanNode) 
 	{
-		super(plugin, null, damageNode, mobHealthNode, scanNode);
-		this.damageNode = damageNode;
-		this.mobHealthNode = mobHealthNode;
-		this.scanNode = scanNode;
+		super(null, (damageNode != null?damageNode.getList("global"):new ArrayList<Object>()), (mobHealthNode != null?mobHealthNode.getNode("global"):null), (scanNode != null?scanNode.getStringList("global", new ArrayList<String>()):new ArrayList<String>()), (scanNode != null?scanNode.getNode("groups"):null));
+		WorldHandler.plugin = plugin;
 		//try to initialize WorldHandlers
-		String nodeNames[] = {"Damage", "MobHealth", "Scan"};
-		if(damageNode != null || mobHealthNode != null || scanNode != null)
+		String nodeNames[] = {"Damage node", "MobHealth node", "Global Scan items", "Group Scan items"};
+		if((damageNode != null?damageNode.getNode("worlds"):null) != null 
+			|| (mobHealthNode != null?mobHealthNode.getNode("worlds"):null) != null 
+			|| (scanNode != null?scanNode.getNode("worlds"):null) != null)
 		{
-			ConfigurationNode worldsNode = (damageNode != null && damageNode.getNode("worlds") != null?damageNode.getNode("worlds"):null);
 			for(World world : plugin.getServer().getWorlds())
 			{
-				ConfigurationNode worldConfigurations[] = {worldsNode,  
-															(mobHealthNode != null && mobHealthNode.getNode("worlds") != null?mobHealthNode.getNode("worlds").getNode(world.getName()):null),
-															(scanNode != null && scanNode.getNode("worlds") != null?scanNode.getNode("worlds").getNode(world.getName()):null)};
+				List<Object> worldConfigurations = Arrays.asList(((damageNode != null && damageNode.getNode("worlds") != null)?damageNode.getNode("worlds").getList(world.getName()):null),
+														((mobHealthNode != null && mobHealthNode.getNode("worlds") != null)?mobHealthNode.getNode("worlds").getNode(world.getName()):null),
+														((scanNode != null && scanNode.getNode("worlds." + world.getName() + ".global") != null)?scanNode.getNode("worlds." + world.getName() + ".global").getStringList(world.getName(), null):null),
+														((scanNode != null && scanNode.getNode("worlds." + world.getName() + ".groups") != null)?scanNode.getNode("worlds." + world.getName() + ".groups"):null));
+				if(ModDamage.consoleDebugging_verbose) log.info("{Loading configuration for world \"" + world.getName() + "\"}");
 				boolean foundSomething = false;
-				for(int i = 0; i < worldConfigurations.length; i++)
+				for(int i = 0; i < worldConfigurations.size(); i++)
 				{
-					if(worldConfigurations[i] == null && (ModDamage.consoleDebugging_verbose))
-						log.warning("{Couldn't find " + nodeNames[i] +  " node for world \"" + world.getName() + "\"}");
-					else foundSomething = true;
+					if(worldConfigurations.get(i) != null)
+						foundSomething = true;
+					else if(ModDamage.consoleDebugging_verbose) log.warning("{" + nodeNames[i] + " not found for world \"" + world.getName() + "\"}");
 				}
 				if(foundSomething)
 				{
-					WorldHandler worldHandler = new WorldHandler(plugin, world, worldConfigurations[0], worldConfigurations[1], worldConfigurations[2]);
+					WorldHandler worldHandler = new WorldHandler(world.getName(), (List<Object>)worldConfigurations.get(0), (ConfigurationNode)worldConfigurations.get(1), (List<String>)worldConfigurations.get(2), (ConfigurationNode)worldConfigurations.get(3));
 					if(worldHandler.loadedSomething())
 					{
 						worldHandlers.put(world, worldHandler);
 						worldHandlersLoaded = true;
 					}
+					else if(ModDamage.consoleDebugging_verbose) log.severe("{No configuration loaded for world " + world.getName() + "\"}");
 				}
+				else if(ModDamage.consoleDebugging_verbose) log.warning("{No configuration found for world " + world.getName() + "\"}");
 			}
 		}
 		
@@ -67,11 +68,8 @@ public class ServerHandler extends WorldHandler
 		additionalConfigChecks = 2;
 		//TODO set aliases - this will be moved into reload() once dynamic nodes have been implemented.
 		// DON'T FORGET - casing needs to be handled, so that it's not an issue.
-		ModDamage.itemAliases.put("axe", Arrays.asList(Material.WOOD_AXE, Material.STONE_AXE, Material.IRON_AXE, Material.GOLD_AXE, Material.DIAMOND_AXE));
-		ModDamage.itemAliases.put("hoe", Arrays.asList(Material.WOOD_HOE, Material.STONE_HOE, Material.IRON_HOE, Material.GOLD_HOE, Material.DIAMOND_HOE));
-		ModDamage.itemAliases.put("pickaxe", Arrays.asList(Material.WOOD_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.GOLD_PICKAXE, Material.DIAMOND_PICKAXE));
-		ModDamage.itemAliases.put("spade", Arrays.asList(Material.WOOD_SPADE, Material.STONE_SPADE, Material.IRON_SPADE, Material.GOLD_SPADE, Material.DIAMOND_SPADE));
-		ModDamage.itemAliases.put("sword", Arrays.asList(Material.WOOD_SWORD, Material.STONE_SWORD, Material.IRON_SWORD, Material.GOLD_SWORD, Material.DIAMOND_SWORD));
+		/*
+		*/
 		additionalConfigChecks = 2;
 	}
 	
@@ -155,7 +153,7 @@ public class ServerHandler extends WorldHandler
 			if(!worldHandlers.isEmpty())
 			{
 				for(WorldHandler worldHandler : worldHandlers.values())
-						player.sendMessage(ChatColor.GREEN + worldHandler.getWorld().getName());
+						player.sendMessage(ChatColor.GREEN + worldHandler.getName());
 				player.sendMessage(ChatColor.BLUE + "Use /md check [worldname] for more info.");
 			}
 			else player.sendMessage(ChatColor.RED + "No worlds configured!");
