@@ -115,7 +115,7 @@ public class WorldHandler extends Handler
 		boolean loadedSomething = false;
 		if(mobHealthNode != null) 
 		{
-			if(ModDamage.consoleDebugging_verbose) log.info("{Found MobHealth node for world \"" + world.getName() + "\"}");
+			if(ModDamage.consoleDebugging_verbose) log.info("{Found MobHealth node for " + getDisplayString(false) + "}");
 			List<DamageElement> creatureTypes = new ArrayList<DamageElement>();
 			creatureTypes.addAll(DamageElement.getElementsOf("animal"));
 			creatureTypes.addAll(DamageElement.getElementsOf("mob"));
@@ -135,7 +135,7 @@ public class WorldHandler extends Handler
 						if(!mobSpawnRoutines.containsKey(creatureType))
 						{
 							mobSpawnRoutines.put(creatureType, calculations);
-							String configString = "-MobHealth:" + world.getName() + ":" + creatureType.getReference() 
+							String configString = "-MobHealth:" + getDisplayString(false) + ":" + creatureType.getReference() 
 								+ " [" + calcStrings.toString() + "]";
 							configStrings.add(configString);
 							if(ModDamage.consoleDebugging_normal) log.info(configString);
