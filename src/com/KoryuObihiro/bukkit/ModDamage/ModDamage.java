@@ -2,12 +2,10 @@ package com.KoryuObihiro.bukkit.ModDamage;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -28,6 +26,8 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Handlers.ServerHandler;
+import com.elbukkit.api.elregions.elRegionsPlugin;
+import com.elbukkit.api.elregions.region.RegionManager;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
@@ -87,6 +87,11 @@ public class ModDamage extends JavaPlugin
 			multigroupPermissions = permissionsPlugin.getDescription().getVersion().startsWith("3.");
 		}
 		else log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions not found]");
+		
+		/*
+        elRegionsPlugin elRegions = (elRegionsPlugin) this.getServer().getPluginManager().getPlugin("elRegions");
+		RegionManager el = elRegions.getRegionManager((World)null);
+		*/
 		
 		//register plugin-related stuff with the server's plugin manager
 		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
@@ -480,8 +485,8 @@ public class ModDamage extends JavaPlugin
 	}
 
 	private void writeDefaults() 
-	{
-		serverHandler = new ServerHandler(this, null, null, null);
+	{        
+        serverHandler = new ServerHandler(this, null, null, null);
 	//set single-property stuff
 		log.severe("[" + getDescription().getName() + "] No configuration file found! Writing a blank config...");
 		config.setProperty("debugging", "normal");

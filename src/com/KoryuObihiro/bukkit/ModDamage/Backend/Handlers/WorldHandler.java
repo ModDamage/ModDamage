@@ -79,8 +79,9 @@ public class WorldHandler
 			if(ModDamage.consoleDebugging_normal) log.info("Damage configuration found for " + getDisplayString(false) + ", parsing...");
 			List<ModDamageCalculation> calculations = calculationUtility.parseStrings(calcStrings, false);
 			if(!calculations.isEmpty())
+			{
 				damageRoutines.addAll(calculations);
-			else log.severe("No damage routines loaded for " + getDisplayString(false) + "!");
+			}
 			List<Object> calcStrings = damageWorldsNode.getList(world.getName());
 			if(!calcStrings.isEmpty())
 			{

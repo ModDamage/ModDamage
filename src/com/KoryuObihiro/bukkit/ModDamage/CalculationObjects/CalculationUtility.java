@@ -45,20 +45,25 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntitySetHeal
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntitySetItem;
 //TODO
 //--Calculation Ideas:
-// playeris.locatedIRL.$area
-// serveris.onlinemode
-// serveris.portedAt.#port
-// spawn-reason based stuff (command vs. natural?)
-// implement some syntax help
-// implement and/or/else?
-// send player message
-// relative health/altitude/light
-// entityEffect.increaseItem.amount
-// entityEffect.decreaseItem.amount
-// entityis.inRegion //XXX Might require something like Regios
-// entityis.ofgroup
+// -implement some syntax help
+// -implement and/or/else?
+// -send player message
+// -relative health/altitude/light
+// -entityEffect.increaseItem.amount
+// -entityEffect.decreaseItem.amount
+// -if.entityis.inRegion
+// -if.playeris.locatedIRL.$area
+// -if.serveris.onlinemode
+// -if.serveris.portedAt.#port
+// -switch.region
+// -switch.entitygroup
+// -switch.worldtime
+// -switch.environment
+// -switch.spawnreason
+//--Refactor:
+// -Give each major division of MDCalcs their own function
 //--Fix:
-// fix armorset comparison
+// -fix armorset comparison
 
 
 public class CalculationUtility
@@ -73,9 +78,9 @@ public class CalculationUtility
 			ModDamageCalculation calculation = null;
 			
 			if(calculationString instanceof LinkedHashMap)
-				calculation = parseConditional((LinkedHashMap<String, List<Object>>)calculationString, forSpawn);
+				calculation = parseNestableCalculation((LinkedHashMap<String, List<Object>>)calculationString, forSpawn);
 			else if(calculationString instanceof String)
-				calculation = parseNormal((String)calculationString, forSpawn);
+				calculation = parseBaseCalculation((String)calculationString, forSpawn);
 			
 			if(calculation != null) calculations.add(calculation);
 			else return new ArrayList<ModDamageCalculation>();
@@ -84,10 +89,10 @@ public class CalculationUtility
 	}
 	
 	//parseNormal seeks for a base calculation (i.e., not a conditional) and returns it (if found) for appending to the calling list.
-	public ModDamageCalculation parseNormal(String commandString, boolean forSpawn)
+	public ModDamageCalculation parseBaseCalculation(String commandString, boolean forSpawn)
 	{
-//// DAMAGE SYNTAX ////
-		if(!forSpawn)
+//// SPAWN SYNTAX ////
+		if(forSpawn)
 		{
 			try
 			{
@@ -107,7 +112,7 @@ public class CalculationUtility
 			}
 			catch(Exception e){}
 		}
-//// SPAWN SYNTAX ////
+//// DAMAGE SYNTAX ////
 		else 
 		{
 			try{ return new Addition(Integer.parseInt(commandString));}
@@ -159,7 +164,7 @@ public class CalculationUtility
 	
 	//A conditional is a bit more tricky, as we're not sure how nested things will get. 
 	// When we encounter a conditional, we're just grabbing the conditional itself, and passing the rest to another parseList call.
-	private ModDamageCalculation parseConditional(LinkedHashMap<String, List<Object>> conditionalStatement, boolean forSpawn)
+	private ModDamageCalculation parseNestableCalculation(LinkedHashMap<String, List<Object>> conditionalStatement, boolean forSpawn)
 	{
 //// DAMAGE SYNTAX ////
 		if(!forSpawn)
