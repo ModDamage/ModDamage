@@ -192,24 +192,17 @@ public class WorldHandler
 			if(ModDamage.consoleDebugging_normal) log.info("Global Scan configuration found for " + getDisplayString(false) + ", parsing...");
 			for(String itemString : itemList)
 			{
-				if(ServerHandler.itemAliases.containsKey(itemString.toLowerCase()))
-					for(Material material : ServerHandler.itemAliases.get(itemString.toLowerCase()))
-					{
-						globalScanItems.add(material);
-						addConfigString("-Scan:" + getCalculationHeader() + ":" + material.name() + "(" + material.getId() + ")");
-						loadedSomething = true;
-					}
-				else
+				List<Material> materials = ServerHandler.matchItems(itemString);
+				if(!materials.isEmpty())
 				{
-					Material material = Material.matchMaterial(itemString);
-					if(material != null)
+					for(Material material : materials)
 					{
 						globalScanItems.add(material);
 						addConfigString("-Scan:" + getCalculationHeader() + ":" + material.name() + "(" + material.getId() + ")");
 						loadedSomething = true;
 					}
-					else if(ModDamage.consoleDebugging_verbose) log.warning("Invalid Scan item \"" + itemString + "\" found in " + getDisplayString(false) + " globals - ignoring");
 				}
+				else if(ModDamage.consoleDebugging_verbose) log.warning("Invalid Scan item \"" + itemString + "\" found in " + getDisplayString(false) + " globals - ignoring");
 			}
 		}
 		if(groupNode != null)
@@ -219,27 +212,19 @@ public class WorldHandler
 			{
 				if(!groupScanItems.containsKey(groupName))
 					groupScanItems.put(groupName, new ArrayList<Material>());
-				List<Material> groupItemList = groupScanItems.get(groupName);
 				for(String itemString : groupNode.getStringList(groupName, new ArrayList<String>()))
 				{
-					if(ServerHandler.itemAliases.containsKey(itemString.toLowerCase()))
-						for(Material material : ServerHandler.itemAliases.get(itemString.toLowerCase()))
-						{
-							groupItemList.add(material);
-							addConfigString("-Scan:" + getCalculationHeader() + ":" + groupName + ":" + material.name() + "(" + material.getId() + ")");
-							loadedSomething = true;
-						}
-					else
+					List<Material> materials = ServerHandler.matchItems(itemString);
+					if(!materials.isEmpty())
 					{
-						Material material = Material.matchMaterial(itemString);
-						if(material != null)
+						for(Material material : materials)
 						{
-							groupItemList.add(material);
+							groupScanItems.get(groupName).add(material);
 							addConfigString("-Scan:" + getCalculationHeader() + ":" + groupName + ":" + material.name() + "(" + material.getId() + ")");
 							loadedSomething = true;
 						}
-						else if(ModDamage.consoleDebugging_verbose) log.warning("Invalid Scan item \"" + itemString + "\" found in " + getDisplayString(false) + " globals - ignoring");
 					}
+					else if(ModDamage.consoleDebugging_verbose) log.warning("Invalid Scan item \"" + itemString + "\" found in " + getDisplayString(false) + " globals - ignoring");
 				}
 			}
 		}

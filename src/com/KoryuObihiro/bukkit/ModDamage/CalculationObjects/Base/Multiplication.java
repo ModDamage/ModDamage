@@ -5,7 +5,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class Multiplication implements ModDamageCalculation 
+public class Multiplication extends ModDamageCalculation 
 {
 	private int multiplicationValue;
 	public Multiplication(int value){ multiplicationValue = value;}

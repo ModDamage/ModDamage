@@ -21,6 +21,12 @@ public class ServerHandler extends WorldHandler
 	public static final HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
 	public HashMap<String, WorldHandler> worldHandlers;
 	
+	private static boolean worldHandlersLoaded = false;
+	
+	//Alias hashmaps
+	public final static HashMap<String, List<Material>> itemAliases = new HashMap<String, List<Material>>();
+	//public final static HashMap<String, List<String>> groupAliases = new HashMap<String, List<String>>();
+	//public final static HashMap<String, List<String>> mobAliases = new HashMap<String, List<String>>();
 	private boolean worldHandlersLoaded;
 
 //// FUNCTIONS ////
@@ -87,6 +93,23 @@ public class ServerHandler extends WorldHandler
 	@Override
 	public boolean doSpawnCalculations(SpawnEventInfo eventInfo){ return super.doSpawnCalculations(eventInfo) || (worldHandlers.containsKey(eventInfo.world.getName())?worldHandlers.get(eventInfo.world.getName()).doSpawnCalculations(eventInfo):false);}	
 
+//// ITEM ALIASING ////
+	public static boolean addAlias(String key, List<Material> values)
+	{
+		if(itemAliases.containsKey(key)) return false;
+		itemAliases.put(key, values);
+		return true;
+	}
+	
+	public static List<Material> matchItems(String key)
+	{
+		if(itemAliases.containsKey(key.toLowerCase())) return itemAliases.get(key);
+		Material material = Material.matchMaterial(key);
+		if(material != null) return Arrays.asList(material);
+		return new ArrayList<Material>();
+	}
+
+//// HELPER FUNCTIONS ////
 	@Override
 	public boolean load()
 	{

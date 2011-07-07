@@ -27,7 +27,6 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Handlers.ServerHandler;
 import com.elbukkit.api.elregions.elRegionsPlugin;
-import com.elbukkit.api.elregions.region.RegionManager;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
@@ -40,26 +39,35 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 public class ModDamage extends JavaPlugin
 {
 	//TODO
-	//- Deregister when Bukkit supports!
-	//- Client-sided mod for displaying health?
-	//- Add worldLoad-triggered loading of MD
-	//- Aliasing?
-	//- "Failed to reload" ingame
-	//- per-world for disableDefault variables
-	//- count characters in config for message length
-	//- Refactor config to contain errors?
-	//- Change md debug to reflect previous state
+	//--ModDamage Main
+	// -Deregister when Bukkit supports!
+	// -Client-sided mod for displaying health?
+	// -"Failed to reload" ingame
+	// -per-world for disableDefault variables
+	// -count characters in config for message length
+	// -change md debug messages to reflect previous state
+	
+	//--EntityListener
+	// -Add worldLoad-triggered loading of MD
+	
+	//--EventInfo
+	// -
+	
+	//--CalculationUtility
+	// -Refactor config to contain errors?
 	
 	//plugin-related
 	public static boolean isEnabled = false;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	public final static Logger log = Logger.getLogger("Minecraft");
 	public static PermissionHandler Permissions = null;
+	public static elRegionsPlugin elRegions = null;
 	public Configuration config;
 	public static String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
 	public static String errorString_findWorld = ModDamageString(ChatColor.RED) + " Couldn't find matching world name.";
 	
-	//Configuration
+	//External Configuration
+	public static boolean elRegions_enabled = false;
 	public static boolean multigroupPermissions = true;
 	
 	//User-customized config
@@ -87,6 +95,13 @@ public class ModDamage extends JavaPlugin
 			multigroupPermissions = permissionsPlugin.getDescription().getVersion().startsWith("3.");
 		}
 		else log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions not found]");
+		
+		elRegions = (elRegionsPlugin) this.getServer().getPluginManager().getPlugin("elRegions");
+		if (elRegions != null) 
+		{
+		    log.info("[" + getDescription().getName() + "] Found elRegions plugin v" + elRegions.getDescription().getVersion());
+		    elRegions_enabled = true;
+		}
 		
 		/*
         elRegionsPlugin elRegions = (elRegionsPlugin) this.getServer().getPluginManager().getPlugin("elRegions");

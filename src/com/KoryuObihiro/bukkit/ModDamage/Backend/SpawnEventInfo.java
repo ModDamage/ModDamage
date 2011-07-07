@@ -3,6 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend;
 import java.util.logging.Logger;
 
 import org.bukkit.World;
+import org.bukkit.World.Environment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -16,6 +17,7 @@ public class SpawnEventInfo
 	
 	public int eventHealth;
 	public final World world;
+	public final Environment environment;
 	public final DamageElement spawnedElement;
 	public final LivingEntity entity;
 	public final String[] groups;
@@ -31,6 +33,7 @@ public class SpawnEventInfo
 				:ModDamage.Permissions.getGroup(player.getWorld().getName(), player.getName()).split(" "));
 		
 		world = entity.getWorld();
+		environment = world.getEnvironment();
 	}
 	
 	public SpawnEventInfo(LivingEntity entity) 
@@ -41,5 +44,6 @@ public class SpawnEventInfo
 		groups = null;
 		
 		world = entity.getWorld();	
+		environment = world.getEnvironment();
 	}
 }

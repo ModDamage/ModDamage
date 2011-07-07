@@ -18,37 +18,39 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.IntervalRange;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Set;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Binomial;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.EventValueComparison;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityAltitudeComparison;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityBiome;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityDrowning;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityExposedToSky;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityFallen;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityFalling;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityHealthComparison;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityLightComparison;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityOnBlock;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityOnFire;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityUnderwater;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityWearing;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityWearingOnly;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.Entity.EntityWielding;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.World.WorldEnvironment;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Conditional.World.WorldTime;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntityExplode;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntityHeal;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntityReflect;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntitySetAirTicks;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntitySetFireTicks;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntitySetHealth;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntitySetItem;
 //TODO
 //--Calculation Ideas:
 // -implement some syntax help
 // -implement and/or/else?
 // -send player message
 // -relative health/altitude/light
+// -AoE clearance, block search nearby for Material?
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.Binomial;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityAirTicksComparison;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityAltitudeComparison;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityBiome;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityExposedToSky;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityFallComparison;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityFalling;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityHealthComparison;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityLightComparison;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityOnBlock;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityUnderwater;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityWearing;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityWearingOnly;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityWielding;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EventValueComparison;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.WorldEnvironment;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.WorldTime;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.EntityExplode;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.EntityHeal;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.EntityReflect;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.EntitySetAirTicks;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.EntitySetFireTicks;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.EntitySetHealth;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.EntitySetItem;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Entity.EntityOnFire;
+
 // -entityEffect.increaseItem.amount
 // -entityEffect.decreaseItem.amount
 // -if.entityis.inRegion
@@ -60,6 +62,7 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Effect.EntitySetItem
 // -switch.worldtime
 // -switch.environment
 // -switch.spawnreason
+
 //--Refactor:
 // -Give each major division of MDCalcs their own function
 //--Fix:
@@ -207,12 +210,12 @@ public class CalculationUtility
 							}
 							else if(args[1].equalsIgnoreCase("entityAltitude"))
 							{
-								ComparisonUtility comparisonType = ComparisonUtility.matchType(args[2]);
+								ComparisonType comparisonType = ComparisonType.matchType(args[2]);
 								if(comparisonType != null) return new EntityAltitudeComparison(inverted, false, comparisonType, Integer.parseInt(args[3]), nestedCalculations);
 							}
 							else if(args[1].equalsIgnoreCase("entityLight"))
 							{
-								ComparisonUtility comparisonType = ComparisonUtility.matchType(args[2]);
+								ComparisonType comparisonType = ComparisonType.matchType(args[2]);
 								if(comparisonType != null) return new EntityLightComparison(inverted, false, comparisonType, Byte.parseByte(args[3]), nestedCalculations);
 							}
 							else if(args[1].equalsIgnoreCase("worldTime")) return new WorldTime(inverted, Integer.parseInt(args[2]), Integer.parseInt(args[3]), nestedCalculations);
@@ -277,14 +280,14 @@ public class CalculationUtility
 						{
 							if(args[1].equalsIgnoreCase("damageIs"))
 							{
-								ComparisonUtility comparisonType = ComparisonUtility.matchType(args[2]);
+								ComparisonType comparisonType = ComparisonType.matchType(args[2]);
 								if(comparisonType != null) return new EventValueComparison(inverted, comparisonType, Integer.parseInt(args[3]), nestedCalculations);
 							}
 							else if(args[1].equalsIgnoreCase("attackerIs") || args[1].equalsIgnoreCase("targetIs")) 
 							{
 								boolean forAttacker = args[1].equalsIgnoreCase("attackerIs");
 								if(args[2].equalsIgnoreCase("onFire")) 			return new EntityOnFire(inverted, forAttacker, nestedCalculations);
-								else if(args[2].equalsIgnoreCase("drowning")) 	return new EntityDrowning(inverted, forAttacker, nestedCalculations);
+								else if(args[2].equalsIgnoreCase("drowning")) 	return new EntityAirTicksComparison(inverted, forAttacker, nestedCalculations);
 								else if(args[2].equalsIgnoreCase("underwater")) return new EntityUnderwater(inverted, forAttacker, nestedCalculations);
 							}
 						}
@@ -318,27 +321,27 @@ public class CalculationUtility
 									Material material = Material.matchMaterial(args[3]);
 									if(material != null) return new EntityOnBlock(forAttacker, inverted, material, nestedCalculations);
 								}
-								else if(args[2].equalsIgnoreCase("fallen")) return new EntityFallen(inverted, forAttacker, Integer.parseInt(args[3]), nestedCalculations);
-								else if(args[2].equalsIgnoreCase("falling")) return new EntityFalling(inverted, forAttacker, nestedCalculations);
+								else if(args[2].equalsIgnoreCase("fallen")) return new EntityFallComparison(inverted, forAttacker, Integer.parseInt(args[3]), ComparisonType.GREATER_THAN_EQUALS, nestedCalculations);
+								else if(args[2].equalsIgnoreCase("falling")) return new EntityFallComparison(inverted, forAttacker, 3, ComparisonType.GREATER_THAN_EQUALS, nestedCalculations);
 								
 							}
 							if(args[1].equalsIgnoreCase("attackerAltitude") || args[1].equalsIgnoreCase("targetAltitude"))
 							{
 								boolean forAttacker = args[0].equalsIgnoreCase("attackerAltitude");
-								ComparisonUtility comparisonType = ComparisonUtility.matchType(args[2]);
+								ComparisonType comparisonType = ComparisonType.matchType(args[2]);
 								if(comparisonType != null) return new EntityAltitudeComparison(inverted, forAttacker, comparisonType, Integer.parseInt(args[3]), nestedCalculations);
 							}
 							if(args[1].equalsIgnoreCase("attackerHealth") || args[1].equalsIgnoreCase("targetHealth"))
 							{
 								boolean forAttacker = args[0].equalsIgnoreCase("attackerHealth");
-								ComparisonUtility comparisonType = ComparisonUtility.matchType(args[2]);
+								ComparisonType comparisonType = ComparisonType.matchType(args[2]);
 								if(comparisonType != null) return new EntityHealthComparison(inverted, forAttacker, comparisonType, Integer.parseInt(args[3]), nestedCalculations);
 							}
 							if(args[1].equalsIgnoreCase("attackerLight") || args[1].equalsIgnoreCase("targetLight"))
 							{
 								boolean forAttacker = args[0].equalsIgnoreCase("attackerLight");
-								ComparisonUtility comparisonType = ComparisonUtility.matchType(args[2]);
-								if(comparisonType != null) return new EntityLightComparison(inverted, forAttacker, comparisonType, Byte.parseByte(args[3]), nestedCalculations);
+								ComparisonType comparisonType = ComparisonType.matchType(args[2]);
+								if(comparisonType != null) return new EntityLightComparison(inverted, forAttacker, Byte.parseByte(args[3]), comparisonType, nestedCalculations);
 							}
 							else if(args[1].equalsIgnoreCase("worldTime")) return new WorldTime(inverted, Integer.parseInt(args[2]), Integer.parseInt(args[3]), nestedCalculations);
 							else if(args[1].equalsIgnoreCase("worldEnvironment"))
@@ -355,6 +358,28 @@ public class CalculationUtility
 		return null;
 	}
 
+	private ModDamageCalculation parseSwitchCalculation(LinkedHashMap<String, List<Object>> switchStatement, boolean forSpawn)
+	{
+		for(String key : switchStatement.keySet())//should only be one. :<
+		{
+		
+		if(!forSpawn)
+		{
+			try
+			{
+			}
+			catch(Exception e){}
+		}
+		else
+		{
+			try
+			{
+			}
+			catch(Exception e){}
+		}
+		}
+	}
+	
 //// CALCULATION ////	
 	//Frankly, most of the stuff below should be considered for implementation into Bukkit. :<
 	public static Biome matchBiome(String biomeName)

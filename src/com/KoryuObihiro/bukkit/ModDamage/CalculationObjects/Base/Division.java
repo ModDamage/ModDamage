@@ -5,7 +5,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class Division implements ModDamageCalculation 
+public class Division extends ModDamageCalculation 
 {
 	private int divideValue;
 	public Division(int value){ divideValue = value;}

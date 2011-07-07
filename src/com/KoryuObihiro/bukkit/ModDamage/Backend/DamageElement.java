@@ -131,36 +131,78 @@ public enum DamageElement
 			default: 				return null;//shouldn't happen
 		}
 	}
-
-	public static DamageElement matchLivingElement(Entity entity)
+	public static DamageElement matchNonlivingElement(String elementReference)
 	{
-		if (entity instanceof LivingEntity) 
+		if(elementReference.equalsIgnoreCase("BLOCK_EXPLOSION") || elementReference.equalsIgnoreCase("BLOCKEXPLOSION"))
+			return DamageElement.NATURE_BLOCK_EXPLOSION;
+		if(elementReference.equalsIgnoreCase("CONTACT"))		
+			return DamageElement.NATURE_CONTACT;
+		if(elementReference.equalsIgnoreCase("DROWNING"))		
+			return DamageElement.NATURE_DROWNING;
+		if(elementReference.equalsIgnoreCase("ENTITY_EXPLOSION") || elementReference.equalsIgnoreCase("ENTITYEXPLOSION"))
+			return DamageElement.NATURE_EXPLOSION;
+		if(elementReference.equalsIgnoreCase("FALL"))			
+			return DamageElement.NATURE_FALL;
+		if(elementReference.equalsIgnoreCase("FIRE"))			
+			return DamageElement.NATURE_FIRE;
+		if(elementReference.equalsIgnoreCase("FIRE_TICK") || elementReference.equalsIgnoreCase("FIREFICK"))
+			return DamageElement.NATURE_FIRE_TICK;
+		if(elementReference.equalsIgnoreCase("LAVA")) 			
+			return DamageElement.NATURE_LAVA;
+		if(elementReference.equalsIgnoreCase("LIGHTNING"))		
+			return DamageElement.NATURE_LIGHTNING;
+		if(elementReference.equalsIgnoreCase("SUFFOCATION"))	
+			return DamageElement.NATURE_SUFFOCATION;
+		if(elementReference.equalsIgnoreCase("VOID"))
+			return DamageElement.NATURE_VOID;
+		return null;
+	}
+
+	public static DamageElement matchLivingElement(LivingEntity entity)
+	{
+		if(entity instanceof Slime)				return DamageElement.MOB_SLIME;//XXX Not sure why, but Slimes aren't technically Creatures.
+		if(entity instanceof Creature) 
 		{
-			if(entity instanceof Slime)return DamageElement.MOB_SLIME;//XXX Not sure why, but Slimes aren't technically Creatures.
-			else if(entity instanceof Creature) 
+			if(entity instanceof Animals) 
 			{
-				if(entity instanceof Animals) 
-				{
-					if(entity instanceof Chicken) 		return DamageElement.ANIMAL_CHICKEN;
-					else if(entity instanceof Cow) 		return DamageElement.ANIMAL_COW; 
-					else if(entity instanceof Pig) 		return DamageElement.ANIMAL_PIG; 
-					else if(entity instanceof Sheep) 	return DamageElement.ANIMAL_SHEEP;
-					else if(entity instanceof Wolf)    	return DamageElement.ANIMAL_WOLF;
-				}
-				else if(entity instanceof Monster) 
-				{
-					if(entity instanceof Zombie) 		return (entity instanceof PigZombie?DamageElement.MOB_PIGZOMBIE:DamageElement.MOB_ZOMBIE);
-					else if(entity instanceof Creeper)	return DamageElement.MOB_CREEPER;
-					else if(entity instanceof Giant) 	return DamageElement.MOB_GIANT;
-					else if(entity instanceof Skeleton)	return DamageElement.MOB_SKELETON;
-					else if(entity instanceof Spider)	return DamageElement.MOB_SPIDER; 
-				}
-				else if(entity instanceof WaterMob) 
-					if(entity instanceof Squid) 		return DamageElement.ANIMAL_SQUID;
+				if(entity instanceof Chicken) 	return DamageElement.ANIMAL_CHICKEN;
+				if(entity instanceof Cow) 		return DamageElement.ANIMAL_COW; 
+				if(entity instanceof Pig) 		return DamageElement.ANIMAL_PIG; 
+				if(entity instanceof Sheep) 	return DamageElement.ANIMAL_SHEEP;
+				if(entity instanceof Wolf)    	return DamageElement.ANIMAL_WOLF;
 			}
-			else if(entity instanceof Flying) 
-				if(entity instanceof Ghast)				return DamageElement.MOB_GHAST;
+			if(entity instanceof Monster) 
+			{
+				if(entity instanceof Zombie) 	return (entity instanceof PigZombie?DamageElement.MOB_PIGZOMBIE:DamageElement.MOB_ZOMBIE);
+				if(entity instanceof Creeper)	return DamageElement.MOB_CREEPER;
+				if(entity instanceof Giant) 	return DamageElement.MOB_GIANT;
+				if(entity instanceof Skeleton)	return DamageElement.MOB_SKELETON;
+				if(entity instanceof Spider)	return DamageElement.MOB_SPIDER; 
+			}
+			if(entity instanceof WaterMob) 
+				if(entity instanceof Squid) 	return DamageElement.ANIMAL_SQUID;
 		}
+		if(entity instanceof Flying) 
+			if(entity instanceof Ghast)			return DamageElement.MOB_GHAST;
+		return null;
+	}
+	
+	public static DamageElement matchLivingElement(String elementReference)
+	{
+		if(elementReference.equalsIgnoreCase("Slime"))	return DamageElement.MOB_SLIME;
+		if(elementReference.equalsIgnoreCase("Chicken"))return DamageElement.ANIMAL_CHICKEN;
+		if(elementReference.equalsIgnoreCase("Cow")) 	return DamageElement.ANIMAL_COW; 
+		if(elementReference.equalsIgnoreCase("Pig")) 	return DamageElement.ANIMAL_PIG; 
+		if(elementReference.equalsIgnoreCase("Sheep"))	return DamageElement.ANIMAL_SHEEP;
+		if(elementReference.equalsIgnoreCase("Wolf"))   return DamageElement.ANIMAL_WOLF;
+		if(elementReference.equalsIgnoreCase("Zombie"))	return DamageElement.MOB_ZOMBIE;
+		if(elementReference.equalsIgnoreCase("PigZombie"))return DamageElement.MOB_PIGZOMBIE;
+		if(elementReference.equalsIgnoreCase("Creeper"))return DamageElement.MOB_CREEPER;
+		if(elementReference.equalsIgnoreCase("Giant")) 	return DamageElement.MOB_GIANT;
+		if(elementReference.equalsIgnoreCase("Skeleton"))return DamageElement.MOB_SKELETON;
+		if(elementReference.equalsIgnoreCase("Spider"))	return DamageElement.MOB_SPIDER; 
+		if(elementReference.equalsIgnoreCase("Squid"))	return DamageElement.ANIMAL_SQUID;
+		if(elementReference.equalsIgnoreCase("Ghast"))	return DamageElement.MOB_GHAST;
 		return null;
 	}
 	

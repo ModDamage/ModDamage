@@ -5,7 +5,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class Set implements ModDamageCalculation 
+public class Set extends ModDamageCalculation 
 {
 	private int setValue;
 	public Set(int value){ setValue = value;}

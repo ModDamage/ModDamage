@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.World.Environment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -14,8 +15,9 @@ public class DamageEventInfo
 	Logger log = Logger.getLogger("Minecraft");
 	
 	public int eventDamage;
-	//public final Server server; //TODO Implement me soon. :P
 	public final World world;
+	public final Environment environment;
+	
 	//Having everything public may not be a good idea, but I don't intend to change anything later.
 	public final EventType eventType;
 	public final DamageElement rangedElement;
@@ -66,6 +68,7 @@ public class DamageEventInfo
 							:ModDamage.Permissions.getGroup(player_attacker.getWorld().getName(), player_attacker.getName()).split(" "));
 		
 		world = entity_target.getWorld();
+		environment = world.getEnvironment();
 
 		shouldScan = (ModDamage.hasPermission(player_attacker, "moddamage.scan.pvp") && ModDamage.serverHandler.canScan(player_attacker));
 	}
@@ -95,6 +98,7 @@ public class DamageEventInfo
 				:ModDamage.Permissions.getGroup(player_attacker.getWorld().getName(), player_attacker.getName()).split(" "));
 		
 		world = entity_target.getWorld();
+		environment = world.getEnvironment();
 		
 		shouldScan = (ModDamage.hasPermission(player_attacker, "moddamage.scan." + mobType_target.getReference().toLowerCase()) && ModDamage.serverHandler.canScan(player_attacker));		
 	}
@@ -124,6 +128,7 @@ public class DamageEventInfo
 		groups_attacker = null;
 		
 		world = entity_target.getWorld();
+		environment = world.getEnvironment();
 		
 		shouldScan = false;
 	}
@@ -151,6 +156,7 @@ public class DamageEventInfo
 		groups_attacker = null;
 		
 		world = entity_target.getWorld();
+		environment = world.getEnvironment();
 		
 		shouldScan = false;
 	}
@@ -180,6 +186,7 @@ public class DamageEventInfo
 		groups_attacker = null;
 		
 		world = entity_target.getWorld();
+		environment = world.getEnvironment();
 		
 		shouldScan = false;
 	}
@@ -207,6 +214,7 @@ public class DamageEventInfo
 		groups_attacker = null;
 		
 		world = entity_target.getWorld();
+		environment = world.getEnvironment();
 		
 		shouldScan = false;
 	}

@@ -4,7 +4,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class Addition implements ModDamageCalculation 
+public class Addition extends ModDamageCalculation 
 {
 	private int addValue;
 	public Addition(int value){ addValue = value;}
