@@ -18,7 +18,7 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.SpawnCalculationAllo
 public class ServerHandler extends WorldHandler
 {
 //// MEMBERS ////
-	public static final HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
+	public HashMap<String, WorldHandler> worldHandlers;
 	private static final DamageCalculationAllocator damageCalculationAllocator = new DamageCalculationAllocator();
 	private static final SpawnCalculationAllocator healthCalculationAllocator = new SpawnCalculationAllocator();
 	
@@ -44,16 +44,17 @@ public class ServerHandler extends WorldHandler
 	public void doDamageCalculations(DamageEventInfo eventInfo)
 	{ 
 		super.doDamageCalculations(eventInfo);
-		if(worldHandlers.containsKey(eventInfo.world)) worldHandlers.get(eventInfo.world).doDamageCalculations(eventInfo);
+		if(worldHandlers.containsKey(eventInfo.world.getName())) worldHandlers.get(eventInfo.world.getName()).doDamageCalculations(eventInfo);
 	}
 	
 //// SPAWN HANDLING ////
 	@Override
-	public boolean doSpawnCalculations(SpawnEventInfo eventInfo){ return super.doSpawnCalculations(eventInfo) || (worldHandlers.containsKey(eventInfo.world)?worldHandlers.get(eventInfo.world).doSpawnCalculations(eventInfo):false);}	
+	public boolean doSpawnCalculations(SpawnEventInfo eventInfo){ return super.doSpawnCalculations(eventInfo) || (worldHandlers.containsKey(eventInfo.world.getName())?worldHandlers.get(eventInfo.world.getName()).doSpawnCalculations(eventInfo):false);}	
 
 	@Override
-	public boolean reload()
+	public boolean load()
 	{
+		worldHandlers = new HashMap<String, WorldHandler>();
 	//try to initialize WorldHandlers
 		String nodeNames[] = {"Offensive", "Defensive", "MobHealth", "Scan"};
 		if(offensiveNode != null || defensiveNode != null || mobHealthNode != null || scanNode != null)
@@ -69,25 +70,18 @@ public class ServerHandler extends WorldHandler
 				WorldHandler worldHandler = new WorldHandler(plugin, world, worldNodes[0], worldNodes[1], worldNodes[2], worldNodes[3], damageCalculationAllocator, healthCalculationAllocator);
 				if(worldHandler.loadedSomething())
 				{
-					worldHandlers.put(world, worldHandler);
+					worldHandlers.put(world.getName(), worldHandler);
 					worldHandlersLoaded = true;
 				}
 			}
 
 		mobHealthNode = (mobHealthNode != null?mobHealthNode.getNode("global"):null);
-		super.reload();
+		super.load();
 		if(!loadedSomething()) log.severe("[" + plugin.getDescription().getName() + "] No configurations loaded! Are any calculation strings defined?");
 		return loadedSomething();
 	}
 
 //// HELPER FUNCTIONS ////
-	@Override
-	public void clear()
-	{
-		super.clear();
-		worldHandlers.clear();
-	}
-	
 	@Override
 	protected String getDisplayString(boolean uppercase){ return (uppercase?"S":"s") + "erver";}
 	

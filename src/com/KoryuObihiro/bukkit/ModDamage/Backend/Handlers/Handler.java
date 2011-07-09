@@ -57,10 +57,8 @@ public abstract class Handler
 	
 //// FUNCTIONS ////
 //// CONFIG LOADING ////
-	public boolean reload()
-	{ 
-		this.clear();
-		
+	public boolean load()
+	{
 		routinesLoaded = loadDamageRoutines();
 		loadAdditionalConfiguration();
 
@@ -415,20 +413,6 @@ public abstract class Handler
 	}
 
 //// HELPER FUNCTIONS ////
-	protected void clear() 
-	{
-		offensiveRoutines.clear();
-		defensiveRoutines.clear();
-		meleeOffensiveRoutines.clear();
-		meleeDefensiveRoutines.clear();
-		armorOffensiveRoutines.clear();
-		armorDefensiveRoutines.clear();
-		groupOffensiveRoutines.clear();
-		groupDefensiveRoutines.clear();
-		scanItems.clear();
-		configStrings.clear();
-	}
-
 	protected boolean loadedSomething(){ return routinesLoaded || scanLoaded;}
 
 	abstract protected String getConfigPath();

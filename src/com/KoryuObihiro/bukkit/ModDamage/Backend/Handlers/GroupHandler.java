@@ -32,7 +32,7 @@ public class GroupHandler extends Handler
 		this.scanNode = this.scanGlobalNode = scanNode;
 		this.damageAllocator = damageCalcAllocator;
 		
-		reload();
+		load();
 	}
 
 //// CONFIG LOADING ////

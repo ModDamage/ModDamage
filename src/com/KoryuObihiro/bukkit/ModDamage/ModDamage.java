@@ -105,8 +105,7 @@ public class ModDamage extends JavaPlugin
 	@Override
 	public void onDisable() 
 	{
-		log.info("[" + getDescription().getName() + "] disabled.");	
-		serverHandler.clear();
+		log.info("[" + getDescription().getName() + "] disabled.");
 	}
 
 ////COMMAND PARSING ////
@@ -278,8 +277,8 @@ public class ModDamage extends JavaPlugin
 	public void handleDamageEvent(EntityDamageEvent event) 
 	{
 		LivingEntity ent_damaged = (LivingEntity)event.getEntity();
-		//simple check for noDamageTicks - not sure how this will affect other elements in Bukkit yet.
-		if(ent_damaged.getNoDamageTicks() > 40) return;
+	 	//simple check for noDamageTicks - not sure how this will affect other elements in Bukkit yet.
+ 		if(ent_damaged.getNoDamageTicks() > 40) return;
 		
 		if(serverHandler.loadedSomething())
 		{
@@ -328,7 +327,7 @@ public class ModDamage extends JavaPlugin
 			{
 				int displayHealth = (eventInfo.entity_target).getHealth() - ((!(eventInfo.eventDamage < 0 && ModDamage.negative_Heal))?eventInfo.eventDamage:0);
 				((Player)eventInfo.entity_attacker).sendMessage(ChatColor.DARK_PURPLE + eventInfo.damageElement_target.getReference() 
-						+ "(" + (eventInfo.name_attacker != null?eventInfo.name_attacker:("id " + eventInfo.entity_target.getEntityId()))
+						+ "(" + (eventInfo.name_target != null?eventInfo.name_target:("id " + eventInfo.entity_target.getEntityId()))
 						+ "): " + Integer.toString((displayHealth < 0)?0:displayHealth));
 			}
 			if(eventInfo.eventDamage < 0 && !ModDamage.negative_Heal) 

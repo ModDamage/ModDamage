@@ -56,7 +56,7 @@ public class WorldHandler extends Handler
 		this.healthAllocator = healthAllocator;
 		additionalConfigChecks = 1;
 		
-		reload();
+		load();
 	}
 
 //// CONFIG LOADING ////
@@ -311,14 +311,6 @@ public class WorldHandler extends Handler
 
 	@Override
 	protected String getDisplayString(boolean upperCase){ return (upperCase?"W":"w") + "orld \"" + world.getName() + "\"";}
-	
-	@Override
-	public void clear()
-	{
-		super.clear();
-		mobSpawnRoutines.clear();
-		groupHandlers.clear();
-	}
 
 	@Override
 	public boolean loadedSomething(){ return super.loadedSomething() || groupsLoaded || mobHealthLoaded;}
