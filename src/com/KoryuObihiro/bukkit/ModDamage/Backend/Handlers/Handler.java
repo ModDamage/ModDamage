@@ -17,8 +17,6 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculation;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
 
-
-
 public abstract class Handler
 {
 //// MEMBERS //// 
@@ -80,7 +78,7 @@ public abstract class Handler
 		String progressString = "UNKNOWN";
 		try
 		{			
-			boolean loadedSomething = false;
+ 			boolean loadedSomething = false;
 			if(offensiveNode != null)
 			{
 				progressString = "damage elements in Offensive";
@@ -147,68 +145,71 @@ public abstract class Handler
 	{
 		boolean loadedSomething = false;
 		List<String> damageCategories = DamageElement.getGenericTypeStrings();
-		ConfigurationNode genericNode = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getNode("generic");
-		for(String damageCategory : damageCategories)
+		if((isOffensive?offensiveGlobalNode:defensiveGlobalNode) != null)
 		{
-			if(genericNode != null)
+			ConfigurationNode genericNode = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getNode("generic");
+			for(String damageCategory : damageCategories)
 			{
-				List<Object> calcStrings = genericNode.getList(damageCategory);
-				DamageElement element = DamageElement.matchDamageElement(damageCategory);
-				if(calcStrings != null)
+				if(genericNode != null)
 				{
-					if(ModDamage.consoleDebugging_verbose) log.info("{Found " + getDisplayString(false) + " generic " 
-							+ (isOffensive?"Offensive":"Defensive") + " " + damageCategory + " node " + "}");
-						List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
-					if(!calculations.isEmpty())
+					List<Object> calcStrings = genericNode.getList(damageCategory);
+					DamageElement element = DamageElement.matchDamageElement(damageCategory);
+					if(calcStrings != null)
 					{
-						if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(element))
-						{
-							(isOffensive?offensiveRoutines:defensiveRoutines).put(element, calculations);
-							addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getCalculationHeader() + ":Generic:" + damageCategory + calcStrings.toString());
-							loadedSomething = true;
-						}
-						else if(ModDamage.consoleDebugging_normal)
-						{
-							log.warning("Repetitive generic "  + damageCategory + " node in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
-							continue;
-						}
-					}
-					else log.severe("Invalid command string \"" + calcStrings.toString() + "\" in generic \"" + damageCategory + "\" definition");
-				}
-				else if(ModDamage.consoleDebugging_verbose) log.warning("No instructions found for generic " + damageCategory + " node - is this on purpose?");
-			}
-			if(DamageElement.matchDamageElement(damageCategory).hasSubConfiguration())
-			{
-				ConfigurationNode relevantNode = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getNode(damageCategory);
-				if(relevantNode != null)
-				{
-					if(ModDamage.consoleDebugging_verbose) log.info("{Found " + getDisplayString(false) + " specific " + (isOffensive?"Offensive":"Defensive") + " " 
-							+ damageCategory + "}");
-					for(DamageElement damageElement : DamageElement.getElementsOf(damageCategory))
-					{
-						String elementReference = damageElement.getReference();
-						//check for leaf-node buff strings
-						List<Object> calcStrings = relevantNode.getList(elementReference);
-						if(calcStrings != null) //!calcStrings.equals(null)
-						{
+						if(ModDamage.consoleDebugging_verbose) log.info("{Found " + getDisplayString(false) + " generic " 
+								+ (isOffensive?"Offensive":"Defensive") + " " + damageCategory + " node " + "}");
 							List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
-							if(!calculations.isEmpty())
+						if(!calculations.isEmpty())
+						{
+							if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(element))
 							{
-								if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement))
-								{
-									(isOffensive?offensiveRoutines:defensiveRoutines).put(damageElement, calculations);
-									addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getCalculationHeader() + ":" + damageCategory + ":" + elementReference + calcStrings.toString());
-									loadedSomething = true;
-								}
-								else if(ModDamage.consoleDebugging_normal)
-								{
-									log.warning("Repetitive " + elementReference + " specific node in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
-									continue;
-								}
+								(isOffensive?offensiveRoutines:defensiveRoutines).put(element, calculations);
+								addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getCalculationHeader() + ":Generic:" + damageCategory + calcStrings.toString());
+								loadedSomething = true;
 							}
-							else log.severe("Invalid command string \"" + calcStrings.toString() + "\" in \"" + elementReference + " definition");
+							else if(ModDamage.consoleDebugging_normal)
+							{
+								log.warning("Repetitive generic "  + damageCategory + " node in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
+								continue;
+							}
 						}
-						else if(ModDamage.consoleDebugging_verbose) log.warning("No instructions found for " + elementReference + " node - is this on purpose?");
+						else log.severe("Invalid command string \"" + calcStrings.toString() + "\" in generic \"" + damageCategory + "\" definition");
+					}
+					else if(ModDamage.consoleDebugging_verbose) log.warning("No instructions found for generic " + damageCategory + " node - is this on purpose?");
+				}
+				if(DamageElement.matchDamageElement(damageCategory).hasSubConfiguration())
+				{
+					ConfigurationNode relevantNode = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getNode(damageCategory);
+					if(relevantNode != null)
+					{
+						if(ModDamage.consoleDebugging_verbose) log.info("{Found " + getDisplayString(false) + " specific " + (isOffensive?"Offensive":"Defensive") + " " 
+								+ damageCategory + "}");
+						for(DamageElement damageElement : DamageElement.getElementsOf(damageCategory))
+						{
+							String elementReference = damageElement.getReference();
+							//check for leaf-node buff strings
+							List<Object> calcStrings = relevantNode.getList(elementReference);
+	 						if(calcStrings != null) //!calcStrings.equals(null)
+							{
+								List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
+								if(!calculations.isEmpty())
+								{
+									if(!(isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement))
+									{
+										(isOffensive?offensiveRoutines:defensiveRoutines).put(damageElement, calculations);
+										addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getCalculationHeader() + ":" + damageCategory + ":" + elementReference + calcStrings.toString());
+										loadedSomething = true;
+									}
+									else if(ModDamage.consoleDebugging_normal)
+									{
+										log.warning("Repetitive " + elementReference + " specific node in " + (isOffensive?"Offensive":"Defensive") + " - ignoring");
+										continue;
+									}
+								}
+								else log.severe("Invalid command string \"" + calcStrings.toString() + "\" in \"" + elementReference + " definition");
+							}
+							else if(ModDamage.consoleDebugging_verbose) log.warning("No instructions found for " + elementReference + " node - is this on purpose?");
+						}
 					}
 				}
 			}
@@ -219,87 +220,93 @@ public abstract class Handler
 	protected boolean loadMeleeRoutines(boolean isOffensive)
 	{
 		boolean loadedSomething = false;
-		ConfigurationNode meleeNode = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getNode(DamageElement.GENERIC_MELEE.getReference());
-		if(meleeNode != null)	
+		if((isOffensive?offensiveGlobalNode:defensiveGlobalNode) != null)
 		{
-			if(ModDamage.consoleDebugging_verbose) log.info("{Found group specific " + (isOffensive?"Offensive":"Defensive") + " " 
-					+ "melee node for " + getDisplayString(false) + "}");
-			List<String> itemList = (isOffensive?offensiveNode:defensiveNode).getKeys(DamageElement.GENERIC_MELEE.getReference());
-			if(itemList != null)
-				for(String itemString : itemList)
-				{
-					Material material = Material.matchMaterial(itemString);
-					if(material != null)
+			ConfigurationNode meleeNode = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getNode(DamageElement.GENERIC_MELEE.getReference());
+			if(meleeNode != null)	
+			{
+				if(ModDamage.consoleDebugging_verbose) log.info("{Found group specific " + (isOffensive?"Offensive":"Defensive") + " " 
+						+ "melee node for " + getDisplayString(false) + "}");
+				List<String> itemList = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getKeys(DamageElement.GENERIC_MELEE.getReference());
+				if(itemList != null)
+					for(String itemString : itemList)
 					{
-						List<Object> calcStrings = meleeNode.getList(itemString);
-						if(calcStrings != null)
+						Material material = Material.matchMaterial(itemString);
+						if(material != null)
 						{
-							List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
-							if(!calculations.isEmpty())
+							List<Object> calcStrings = meleeNode.getList(itemString);
+							if(calcStrings != null)
 							{
-								if(!(isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).containsKey(material))
+								List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
+								if(!calculations.isEmpty())
 								{
-									(isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).put(material, calculations);
-									addConfigString("-" + (isOffensive?"Offensive":"Defensive") + getCalculationHeader() + ":" + material.name() + "(" + material.getId() + ")" + calcStrings.toString());
-									loadedSomething = true;
+									if(!(isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).containsKey(material))
+									{
+										(isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).put(material, calculations);
+										addConfigString("-" + (isOffensive?"Offensive":"Defensive") + getCalculationHeader() + ":" + material.name() + "(" + material.getId() + ")" + calcStrings.toString());
+										loadedSomething = true;
+									}
+									else if(ModDamage.consoleDebugging_normal) 
+										log.warning("[" + plugin.getDescription().getName() + "] Repetitive " 
+											+ material.name() + "(" + material.getId() + ") definition in " + getDisplayString(false)
+											+ " " + (isOffensive?"Offensive":"Defensive") + " item settings - ignoring");
 								}
-								else if(ModDamage.consoleDebugging_normal) 
-									log.warning("[" + plugin.getDescription().getName() + "] Repetitive " 
-										+ material.name() + "(" + material.getId() + ") definition in " + getDisplayString(false)
-										+ " " + (isOffensive?"Offensive":"Defensive") + " item settings - ignoring");
+								else log.severe("Invalid command string \"" + calcStrings.toString() + "\" in melee " + material.name() + " definition");
 							}
-							else log.severe("Invalid command string \"" + calcStrings.toString() + "\" in melee " + material.name() + " definition");
+							else if(ModDamage.consoleDebugging_verbose)
+								log.warning("No instructions found for " + getDisplayString(false) + " " + material.name() 
+									+ "(" + material.getId()+ ") item node in " + (isOffensive?"Offensive":"Defensive") 
+									+ " - is this on purpose?");
 						}
-						else if(ModDamage.consoleDebugging_verbose)
-							log.warning("No instructions found for " + getDisplayString(false) + " " + material.name() 
-								+ "(" + material.getId()+ ") item node in " + (isOffensive?"Offensive":"Defensive") 
-								+ " - is this on purpose?");
+						else if(!ModDamage.itemAliases.containsKey(itemString) && ModDamage.consoleDebugging_verbose)
+								log.warning("Unrecognized item name \"" + itemString + "\" found in specific melee node for " + getDisplayString(false) + " - ignoring");
 					}
-					else if(!ModDamage.itemAliases.containsKey(itemString) && ModDamage.consoleDebugging_verbose)
-							log.warning("Unrecognized item name \"" + itemString + "\" found in specific melee node for " + getDisplayString(false) + " - ignoring");
 				}
-		}
+			}
 		return loadedSomething;
 	}
 	
 	protected boolean loadArmorRoutines(boolean isOffensive)
 	{
 		boolean loadedSomething = false;
-		ConfigurationNode armorNode = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getNode(DamageElement.GENERIC_ARMOR.getReference());
-		if(armorNode != null)
+		if((isOffensive?offensiveGlobalNode:defensiveGlobalNode) != null)
 		{
-			if(ModDamage.consoleDebugging_verbose) log.info("{Found group specific " + (isOffensive?"Offensive":"Defensive") + " " 
-					+ "armor node for " + getDisplayString(false) + "}");
-			List<String> armorSetList = (isOffensive?offensiveNode:defensiveNode).getKeys(DamageElement.GENERIC_ARMOR.getReference());
-			for(String armorSetString : armorSetList)
+			ConfigurationNode armorNode = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getNode(DamageElement.GENERIC_ARMOR.getReference());
+			if(armorNode != null)
 			{
-				ArmorSet armorSet = new ArmorSet(armorSetString);
-				if(!armorSet.isEmpty())
+				if(ModDamage.consoleDebugging_verbose) log.info("{Found group specific " + (isOffensive?"Offensive":"Defensive") + " " 
+						+ "armor node for " + getDisplayString(false) + "}");
+				List<String> armorSetList = (isOffensive?offensiveGlobalNode:defensiveGlobalNode).getKeys(DamageElement.GENERIC_ARMOR.getReference());
+				for(String armorSetString : armorSetList)
 				{
-					List<Object> calcStrings = armorNode.getList(armorSetString);
-					if(calcStrings != null)
+					ArmorSet armorSet = new ArmorSet(armorSetString);
+					if(!armorSet.isEmpty())
 					{
-						List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
-						if(!calculations.isEmpty())
+						List<Object> calcStrings = armorNode.getList(armorSetString);
+						if(calcStrings != null)
 						{
-							if(!(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).containsKey(armorSet))
+							List<DamageCalculation> calculations = damageAllocator.parseStrings(calcStrings);
+							if(!calculations.isEmpty())
 							{
-								(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).put(armorSet.toString(), calculations);
-								addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getCalculationHeader() + ":armor:" + armorSet.toString() + " " + calcStrings.toString());
-								loadedSomething = true;
+								if(!(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).containsKey(armorSet))
+								{
+									(isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).put(armorSet.toString(), calculations);
+									addConfigString("-" + (isOffensive?"Offensive":"Defensive") + ":" + getCalculationHeader() + ":armor:" + armorSet.toString() + " " + calcStrings.toString());
+									loadedSomething = true;
+								}
+								else if(ModDamage.consoleDebugging_normal) log.warning("[" + plugin.getDescription().getName() + "] Repetitive" 
+										+ armorSet.toString() + "definition in " + (isOffensive?"Offensive":"Defensive") 
+										+ " armor set for " + getDisplayString(false) + "'s settings - ignoring");
 							}
-							else if(ModDamage.consoleDebugging_normal) log.warning("[" + plugin.getDescription().getName() + "] Repetitive" 
-									+ armorSet.toString() + "definition in " + (isOffensive?"Offensive":"Defensive") 
-									+ " armor set for " + getDisplayString(false) + "'s settings - ignoring");
+							else log.severe("Invalid command string \"" + calcStrings.toString() + "\" in armor set \"" + armorSetString + "\" definition");
 						}
-						else log.severe("Invalid command string \"" + calcStrings.toString() + "\" in armor set \"" + armorSetString + "\" definition");
+						else if(ModDamage.consoleDebugging_verbose)
+							log.warning("No instructions found for " + getDisplayString(false) + "\n\t:" 
+									+ armorSet.toString() + "\narmor node in " + (isOffensive?"Offensive":"Defensive") 
+									+ " - is this on purpose?");
 					}
-					else if(ModDamage.consoleDebugging_verbose)
-						log.warning("No instructions found for " + getDisplayString(false) + "\n\t:" 
-								+ armorSet.toString() + "\narmor node in " + (isOffensive?"Offensive":"Defensive") 
-								+ " - is this on purpose?");
+					else log.severe("");
 				}
-				else log.severe("");
 			}
 		}
 		return loadedSomething;
