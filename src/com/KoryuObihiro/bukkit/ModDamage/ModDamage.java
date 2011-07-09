@@ -47,12 +47,10 @@ public class ModDamage extends JavaPlugin
 	// -per-world for disableDefault variables
 	// -count characters in config for message length
 	// -change md debug messages to reflect previous state
+	// -single-line configuration!
 	
 	//--EntityListener
 	// -Add worldLoad-triggered loading of MD
-	
-	//--EventInfo
-	// -
 	
 	//--CalculationUtility
 	// -Refactor config to contain errors?

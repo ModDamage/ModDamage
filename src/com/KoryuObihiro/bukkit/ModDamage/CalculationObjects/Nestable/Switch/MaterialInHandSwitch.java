@@ -22,12 +22,6 @@ public class MaterialInHandSwitch extends EntitySwitchCalculation<Material>
 	}
 
 	@Override
-	public void calculate(SpawnEventInfo eventInfo) {}
-	
-	@Override
-	protected Material useMatcher(String key){return null;}
-
-	@Override
 	protected Material getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.materialInHand_attacker:eventInfo.materialInHand_target);}
 
 	@Override
