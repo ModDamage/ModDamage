@@ -8,10 +8,11 @@ import org.bukkit.Material;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Handlers.ServerHandler;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
 public class MaterialInHandSwitch extends EntitySwitchCalculation<Material>
 {
-	public MaterialInHandSwitch(boolean forAttacker, LinkedHashMap<String, List<Object>> switchStatements) 
+	public MaterialInHandSwitch(boolean forAttacker, LinkedHashMap<Material, List<ModDamageCalculation>> switchStatements) 
 	{
 		super(forAttacker, switchStatements);
 		

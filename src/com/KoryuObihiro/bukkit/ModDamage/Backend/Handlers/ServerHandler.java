@@ -18,10 +18,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 public class ServerHandler extends WorldHandler
 {
 //// MEMBERS ////
-	public static final HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
-	
-	private static boolean worldHandlersLoaded = false;
-	
+	public HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
 	//Alias hashmaps
 	public final static HashMap<String, List<Material>> itemAliases = new HashMap<String, List<Material>>();
 	//public final static HashMap<String, List<String>> groupAliases = new HashMap<String, List<String>>();
