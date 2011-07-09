@@ -9,32 +9,16 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class BiomeSwitch extends SwitchCalculation
+public class BiomeSwitch extends EntitySwitchCalculation<Biome>
 {
-	final boolean forAttacker;
-	protected final HashMap<Biome, List<ModDamageCalculation>> switchLabels;
 	public BiomeSwitch(boolean forAttacker, HashMap<Biome, List<ModDamageCalculation>> switchLabels)
 	{
-		this.forAttacker = forAttacker;
-		this.switchLabels = switchLabels;
-	}
-	
-	@Override
-	public void calculate(DamageEventInfo eventInfo) 
-	{
-		Biome biome = (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().getBlock().getBiome();
-		if(biome != null && switchLabels.containsKey(biome))
-			for(ModDamageCalculation calculation : switchLabels.get(biome))
-				calculation.calculate(eventInfo);
+		super(forAttacker, switchLabels);
 	}
 
 	@Override
-	public void calculate(SpawnEventInfo eventInfo) 
-	{
-		Biome biome = eventInfo.entity.getLocation().getBlock().getBiome();
-		if(biome != null && switchLabels.containsKey(biome))
-			for(ModDamageCalculation calculation : switchLabels.get(biome))
-				calculation.calculate(eventInfo);
-	}
+	protected Biome getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().getBlock().getBiome();}
 
+	@Override
+	protected Biome getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.entity.getLocation().getBlock().getBiome();}
 }

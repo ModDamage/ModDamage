@@ -8,9 +8,9 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EntityWielding extends EntityConditionalCalculation<Material> 
+public class PlayerWielding extends EntityConditionalCalculation<Material> 
 {
-	public EntityWielding(boolean inverted, boolean forAttacker, Material material, List<ModDamageCalculation> calculations)
+	public PlayerWielding(boolean inverted, boolean forAttacker, Material material, List<ModDamageCalculation> calculations)
 	{  
 		super(inverted, forAttacker, material, calculations);
 	}

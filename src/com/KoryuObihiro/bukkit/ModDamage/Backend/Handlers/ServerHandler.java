@@ -19,7 +19,6 @@ public class ServerHandler extends WorldHandler
 {
 //// MEMBERS ////
 	public static final HashMap<World, WorldHandler> worldHandlers = new HashMap<World, WorldHandler>(); //groupHandlers are allocated within the WorldHandler class
-	public HashMap<String, WorldHandler> worldHandlers;
 	
 	private static boolean worldHandlersLoaded = false;
 	
@@ -70,8 +69,7 @@ public class ServerHandler extends WorldHandler
 		}
 		
 		if(!loadedSomething()) log.severe("[" + plugin.getDescription().getName() + "] No configurations loaded! Are any calculation strings defined?");
-		super(plugin, null, offensiveNode, defensiveNode, mobHealthNode, scanNode, damageCalculationAllocator, healthCalculationAllocator);
-		additionalConfigChecks = 2;
+		
 		//TODO set aliases - this will be moved into reload() once dynamic nodes have been implemented.
 		// DON'T FORGET - casing needs to be handled, so that it's not an issue.
 		/*
@@ -86,12 +84,12 @@ public class ServerHandler extends WorldHandler
 	public void doDamageCalculations(DamageEventInfo eventInfo)
 	{ 
 		super.doDamageCalculations(eventInfo);
-		if(worldHandlers.containsKey(eventInfo.world.getName())) worldHandlers.get(eventInfo.world.getName()).doDamageCalculations(eventInfo);
+		if(worldHandlers.containsKey(eventInfo.world)) worldHandlers.get(eventInfo.world).doDamageCalculations(eventInfo);
 	}
 	
 //// SPAWN HANDLING ////
 	@Override
-	public boolean doSpawnCalculations(SpawnEventInfo eventInfo){ return super.doSpawnCalculations(eventInfo) || (worldHandlers.containsKey(eventInfo.world.getName())?worldHandlers.get(eventInfo.world.getName()).doSpawnCalculations(eventInfo):false);}	
+	public boolean doSpawnCalculations(SpawnEventInfo eventInfo){ return super.doSpawnCalculations(eventInfo) || (worldHandlers.containsKey(eventInfo.world)?worldHandlers.get(eventInfo.world).doSpawnCalculations(eventInfo):false);}	
 
 //// ITEM ALIASING ////
 	public static boolean addAlias(String key, List<Material> values)
@@ -111,37 +109,12 @@ public class ServerHandler extends WorldHandler
 
 //// HELPER FUNCTIONS ////
 	@Override
-	public boolean load()
+	public void clear()
 	{
-		worldHandlersLoaded = false;
-		worldHandlers = new HashMap<String, WorldHandler>();
-	//try to initialize WorldHandlers
-		String nodeNames[] = {"Offensive", "Defensive", "MobHealth", "Scan"};
-		if(offensiveNode != null || defensiveNode != null || mobHealthNode != null || scanNode != null)
-			for(World world : plugin.getServer().getWorlds())
-			{
-				ConfigurationNode worldNodes[] = {	(offensiveNode != null && offensiveNode.getNode("worlds") != null?offensiveNode.getNode("worlds").getNode(world.getName()):null), 
-													(defensiveNode != null && defensiveNode.getNode("worlds") != null?defensiveNode.getNode("worlds").getNode(world.getName()):null), 
-													(mobHealthNode != null && mobHealthNode.getNode("worlds") != null?mobHealthNode.getNode("worlds").getNode(world.getName()):null),
-													(scanNode != null && scanNode.getNode("worlds") != null?scanNode.getNode("worlds").getNode(world.getName()):null)};
-				for(int i = 0; i < worldNodes.length; i++)
-					if(worldNodes[i] == null && (ModDamage.consoleDebugging_verbose))
-						log.warning("{Couldn't find " + nodeNames[i] +  " node for world \"" + world.getName() + "\"}");
-				WorldHandler worldHandler = new WorldHandler(plugin, world, worldNodes[0], worldNodes[1], worldNodes[2], worldNodes[3], damageCalculationAllocator, healthCalculationAllocator);
-				if(worldHandler.loadedSomething())
-				{
-					worldHandlers.put(world.getName(), worldHandler);
-					worldHandlersLoaded = true;
-				}
-			}
-
-		mobHealthNode = (mobHealthNode != null?mobHealthNode.getNode("global"):null);
-		super.load();
-		if(!loadedSomething()) log.severe("[" + plugin.getDescription().getName() + "] No configurations loaded! Are any calculation strings defined?");
-		return loadedSomething();
+		super.clear();
+		worldHandlers.clear();
 	}
-
-//// HELPER FUNCTIONS ////
+	
 	@Override
 	protected String getDisplayString(boolean uppercase){ return (uppercase?"S":"s") + "erver";}
 	

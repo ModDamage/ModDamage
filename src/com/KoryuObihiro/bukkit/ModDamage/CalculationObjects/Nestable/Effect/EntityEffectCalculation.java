@@ -1,32 +1,30 @@
-package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect;
+	package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect;
 
 import java.util.List;
 
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-abstract public class EntityEffectCalculation extends EffectCalculation<Entity>
+abstract public class EntityEffectCalculation<InputType> extends EffectCalculation<LivingEntity, InputType>
 {
-	final int value;
-	final protected boolean forAttacker;
-	
-	public EntityEffectCalculation(boolean forAttacker, int value, List<ModDamageCalculation> calculations)
+	protected final boolean forAttacker;
+	public EntityEffectCalculation(boolean forAttacker, InputType value)
+	{
+		super(value);
+		this.forAttacker = forAttacker;
+	}
+	public EntityEffectCalculation(boolean forAttacker, List<ModDamageCalculation> calculations)
 	{
 		super(calculations);
 		this.forAttacker = forAttacker;
-		this.value = value;
 	}
-	protected void doCalculations(DamageEventInfo eventInfo)
-	{
-		for(ModDamageCalculation calculation : calculations)
-			calculation.calculate(eventInfo);
-	}
-	protected void doCalculations(SpawnEventInfo eventInfo)
-	{
-		for(ModDamageCalculation calculation : calculations)
-			calculation.calculate(eventInfo);
-	}
+
+	@Override
+	protected LivingEntity getAffectedObject(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target);}
+	@Override
+	protected LivingEntity getAffectedObject(SpawnEventInfo eventInfo){ return eventInfo.entity;}
+	
 }

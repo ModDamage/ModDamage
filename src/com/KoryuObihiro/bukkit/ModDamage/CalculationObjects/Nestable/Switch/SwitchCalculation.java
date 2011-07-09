@@ -1,42 +1,40 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Switch;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-abstract public class SwitchCalculation<T> implements ModDamageCalculation 
+abstract public class SwitchCalculation<InfoType> extends ModDamageCalculation 
 {
-	final protected HashMap<T, List<ModDamageCalculation>> switchLabels;
+	final protected HashMap<InfoType, List<ModDamageCalculation>> switchStatements;
 	
-	public SwitchCalculation(LinkedHashMap<String, List<Object>> switchStatements)
+	public SwitchCalculation(HashMap<InfoType, List<ModDamageCalculation>> switchStatements)
 	{
-
+		this.switchStatements = switchStatements;
 	}
 	
 	@Override
 	public void calculate(DamageEventInfo eventInfo) 
 	{
-		T t = getRelevantInfo(eventInfo);
-		if(t != null && switchLabels.containsKey(t))
-			for(ModDamageCalculation calculation : switchLabels.get(t))
+		InfoType info = getRelevantInfo(eventInfo);
+		if(info != null && switchStatements.containsKey(info))
+			for(ModDamageCalculation calculation : switchStatements.get(info))
 				calculation.calculate(eventInfo);
 	}
 
 	@Override
 	public void calculate(SpawnEventInfo eventInfo) 
 	{
-		T t = getRelevantInfo(eventInfo);
-		if(t != null && switchLabels.containsKey(t))
-			for(ModDamageCalculation calculation : switchLabels.get(t))
+		InfoType info = getRelevantInfo(eventInfo);
+		if(info != null && switchStatements.containsKey(info))
+			for(ModDamageCalculation calculation : switchStatements.get(info))
 				calculation.calculate(eventInfo);
 	}
-
-	abstract protected T getRelevantInfo(DamageEventInfo eventInfo);
-	abstract protected T getRelevantInfo(SpawnEventInfo eventInfo);
 	
-	abstract protected T useMatcher(String key);
+	abstract protected InfoType getRelevantInfo(DamageEventInfo eventInfo);
+	
+	abstract protected InfoType getRelevantInfo(SpawnEventInfo eventInfo);
 }

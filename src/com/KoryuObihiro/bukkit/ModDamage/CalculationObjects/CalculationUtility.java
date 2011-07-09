@@ -18,28 +18,21 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.IntervalRange;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Set;
-//TODO
-//--Calculation Ideas:
-// -implement some syntax help
-// -implement and/or/else?
-// -send player message
-// -relative health/altitude/light
-// -AoE clearance, block search nearby for Material?
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.Binomial;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityAirTicksComparison;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityAltitudeComparison;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityBiome;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityDrowning;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityExposedToSky;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityFallComparison;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityFalling;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityHealthComparison;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityLightComparison;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityOnBlock;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityOnFire;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityUnderwater;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityWearing;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityWearingOnly;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityWielding;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EventValueComparison;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.PlayerWearing;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.PlayerWearingOnly;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.PlayerWielding;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.WorldEnvironment;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.WorldTime;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.EntityExplode;
@@ -48,11 +41,16 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.Enti
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.EntitySetAirTicks;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.EntitySetFireTicks;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.EntitySetHealth;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.EntitySetItem;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Entity.EntityOnFire;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect.PlayerSetItem;
 
-// -entityEffect.increaseItem.amount
-// -entityEffect.decreaseItem.amount
+//TODO	
+//--Calculation Ideas:
+// -implement some syntax help
+// -implement and/or/else?
+// -send player message
+// -relative health/altitude/light
+// -AoE clearance, block search nearby for Material?
+
 // -if.entityis.inRegion
 // -if.playeris.locatedIRL.$area
 // -if.serveris.onlinemode
@@ -64,9 +62,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Entity.Enti
 // -switch.spawnreason
 
 //--Refactor:
-// -Give each major division of MDCalcs their own function
+// -registry of MDCalcs with regexs
 //--Fix:
-// -fix armorset comparison
+// -fix iswearing comparison (out of order results in no good unless exact match)
 
 
 public class CalculationUtility
@@ -152,7 +150,7 @@ public class CalculationUtility
 								else if(args[1].equalsIgnoreCase("setItem"))
 								{
 									Material material = Material.matchMaterial(args[2]);
-									if(material != null) return new EntitySetItem(forAttacker, material, Integer.parseInt(args[2]));
+									if(material != null) return new PlayerSetItem(forAttacker, material, Integer.parseInt(args[2]));
 								}
 							}
 							else if(args[0].equalsIgnoreCase("effect"))
@@ -211,12 +209,12 @@ public class CalculationUtility
 							else if(args[1].equalsIgnoreCase("entityAltitude"))
 							{
 								ComparisonType comparisonType = ComparisonType.matchType(args[2]);
-								if(comparisonType != null) return new EntityAltitudeComparison(inverted, false, comparisonType, Integer.parseInt(args[3]), nestedCalculations);
+								if(comparisonType != null) return new EntityAltitudeComparison(inverted, false, Integer.parseInt(args[3]), comparisonType, nestedCalculations);
 							}
 							else if(args[1].equalsIgnoreCase("entityLight"))
 							{
 								ComparisonType comparisonType = ComparisonType.matchType(args[2]);
-								if(comparisonType != null) return new EntityLightComparison(inverted, false, comparisonType, Byte.parseByte(args[3]), nestedCalculations);
+								if(comparisonType != null) return new EntityLightComparison(inverted, false, Byte.parseByte(args[3]), comparisonType, nestedCalculations);
 							}
 							else if(args[1].equalsIgnoreCase("worldTime")) return new WorldTime(inverted, Integer.parseInt(args[2]), Integer.parseInt(args[3]), nestedCalculations);
 							else if(args[1].equalsIgnoreCase("worldEnvironment"))
@@ -255,7 +253,7 @@ public class CalculationUtility
 							else if(args[1].equalsIgnoreCase("setItem"))		
 							{
 								Material material = Material.matchMaterial(args[2]);
-								if(material != null) return new EntitySetItem(forAttacker, material, nestedCalculations);
+								if(material != null) return new PlayerSetItem(forAttacker, material, nestedCalculations);
 							}
 							else if(args[1].equalsIgnoreCase("setHealth"))		
 							{
@@ -287,7 +285,7 @@ public class CalculationUtility
 							{
 								boolean forAttacker = args[1].equalsIgnoreCase("attackerIs");
 								if(args[2].equalsIgnoreCase("onFire")) 			return new EntityOnFire(inverted, forAttacker, nestedCalculations);
-								else if(args[2].equalsIgnoreCase("drowning")) 	return new EntityAirTicksComparison(inverted, forAttacker, nestedCalculations);
+								else if(args[2].equalsIgnoreCase("drowning")) 	return new EntityDrowning(inverted, forAttacker, nestedCalculations);
 								else if(args[2].equalsIgnoreCase("underwater")) return new EntityUnderwater(inverted, forAttacker, nestedCalculations);
 							}
 						}
@@ -299,17 +297,17 @@ public class CalculationUtility
 								if(args[2].equalsIgnoreCase("wearing"))
 								{
 									ArmorSet armorSet = new ArmorSet(args[3]);
-									if(!armorSet.isEmpty()) return new EntityWearing(inverted, forAttacker, armorSet.toString(), nestedCalculations);
+									if(!armorSet.isEmpty()) return new PlayerWearing(inverted, forAttacker, armorSet.toString(), nestedCalculations);
 								}
 								else if(args[2].equalsIgnoreCase("wearingOnly"))
 								{
 									ArmorSet armorSet = new ArmorSet(args[3]);
-									if(!armorSet.isEmpty()) return new EntityWearingOnly(inverted, forAttacker, armorSet.toString(), nestedCalculations);
+									if(!armorSet.isEmpty()) return new PlayerWearingOnly(inverted, forAttacker, armorSet.toString(), nestedCalculations);
 								}
 								else if(args[2].equalsIgnoreCase("wielding"))
 								{
 									Material material = Material.matchMaterial(args[3]);
-									if(material != null) return new EntityWielding(inverted, forAttacker, material, nestedCalculations);
+									if(material != null) return new PlayerWielding(inverted, forAttacker, material, nestedCalculations);
 								}
 								else if(args[2].equalsIgnoreCase("inBiome"))
 								{
@@ -329,13 +327,13 @@ public class CalculationUtility
 							{
 								boolean forAttacker = args[0].equalsIgnoreCase("attackerAltitude");
 								ComparisonType comparisonType = ComparisonType.matchType(args[2]);
-								if(comparisonType != null) return new EntityAltitudeComparison(inverted, forAttacker, comparisonType, Integer.parseInt(args[3]), nestedCalculations);
+								if(comparisonType != null) return new EntityAltitudeComparison(inverted, forAttacker, Integer.parseInt(args[3]), comparisonType, nestedCalculations);
 							}
 							if(args[1].equalsIgnoreCase("attackerHealth") || args[1].equalsIgnoreCase("targetHealth"))
 							{
 								boolean forAttacker = args[0].equalsIgnoreCase("attackerHealth");
 								ComparisonType comparisonType = ComparisonType.matchType(args[2]);
-								if(comparisonType != null) return new EntityHealthComparison(inverted, forAttacker, comparisonType, Integer.parseInt(args[3]), nestedCalculations);
+								if(comparisonType != null) return new EntityHealthComparison(inverted, forAttacker, Integer.parseInt(args[3]), comparisonType, nestedCalculations);
 							}
 							if(args[1].equalsIgnoreCase("attackerLight") || args[1].equalsIgnoreCase("targetLight"))
 							{
@@ -343,11 +341,11 @@ public class CalculationUtility
 								ComparisonType comparisonType = ComparisonType.matchType(args[2]);
 								if(comparisonType != null) return new EntityLightComparison(inverted, forAttacker, Byte.parseByte(args[3]), comparisonType, nestedCalculations);
 							}
-							else if(args[1].equalsIgnoreCase("worldTime")) return new WorldTime(inverted, Integer.parseInt(args[2]), Integer.parseInt(args[3]), nestedCalculations);
+							else if(args[1].equalsIgnoreCase("worldTime")) return new WorldTime(inverted, null, Integer.parseInt(args[2]), Integer.parseInt(args[3]), nestedCalculations);
 							else if(args[1].equalsIgnoreCase("worldEnvironment"))
 							{
 								Environment environment = CalculationUtility.matchEnvironment(args[2]);
-								if(environment != null) return new WorldEnvironment(inverted, environment, nestedCalculations);
+								if(environment != null) return new WorldEnvironment(inverted, null, environment, nestedCalculations);
 							}
 						}
 					}

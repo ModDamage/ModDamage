@@ -33,8 +33,6 @@ public class WorldHandler
 
 	final protected List<ModDamageCalculation> damageRoutines = new ArrayList<ModDamageCalculation>();
 	final protected HashMap<DamageElement, List<ModDamageCalculation>> spawnRoutines = new HashMap<DamageElement, List<ModDamageCalculation>>();
-	protected ConfigurationNode mobHealthNode;
-	final protected SpawnCalculationAllocator healthAllocator;
 	
 	//Scan
 	final protected List<Material> globalScanItems = new ArrayList<Material>();
@@ -51,19 +49,6 @@ public class WorldHandler
 	{
 		WorldHandler.log = ModDamage.log;
 		this.name = worldName;
-		this.offensiveNode = offensiveNode;
-		this.offensiveGlobalNode = (offensiveNode != null?offensiveNode.getNode("global"):null);
-		this.defensiveNode = defensiveNode;
-		this.defensiveGlobalNode = (defensiveNode != null?defensiveNode.getNode("global"):null);
-		this.scanNode = scanNode;
-		this.scanGlobalNode = (scanNode != null?scanNode.getNode("global"):null);
-		this.mobHealthNode = mobHealthNode;
-		this.damageAllocator = damageAllocator;
-		this.healthAllocator = healthAllocator;
-		additionalConfigChecks = 1;
-		
-		load();
-	}
 
 		damageRoutinesLoaded = loadDamageRoutines(damageStrings);
 		spawnRoutinesLoaded = loadSpawnRoutines(mobHealthNode);
@@ -82,40 +67,6 @@ public class WorldHandler
 			{
 				damageRoutines.addAll(calculations);
 			}
-			List<Object> calcStrings = damageWorldsNode.getList(world.getName());
-			if(!calcStrings.isEmpty())
-			{
-				List<ModDamageCalculation> calculations = damageCalculationAllocator.parseStrings(calcStrings);
-				if(!calculations.isEmpty())
-					damageRoutines.addAll(calculations);
-			groups.addAll((offensiveNode != null && offensiveNode.getKeys("groups") != null)?offensiveNode.getKeys("groups"):new ArrayList<String>());
-			groups.addAll((defensiveNode != null && defensiveNode.getKeys("groups") != null)?defensiveNode.getKeys("groups"):new ArrayList<String>());
-			groups.addAll((scanNode != null && scanNode.getKeys("groups") != null)?scanNode.getKeys("groups"):new ArrayList<String>());
-		}
-		//load groups with offensive and defensive settings first
-		if(!groups.isEmpty())
-		{
-			for(String group : groups)
-			{	
-				if(groupHandlers.containsKey(group))
-				{
-					if(ModDamage.consoleDebugging_normal) log.warning("Repetitive group definition found for group \"" + group + "\" found - ignoring.");
-				}
-				else 
-				{
-					GroupHandler groupHandler = new GroupHandler(plugin, this, log, group,
-							((offensiveNode != null && offensiveNode.getNode("groups") != null)?offensiveNode.getNode("groups").getNode(group):null),
-							((defensiveNode != null && defensiveNode.getNode("groups") != null)?defensiveNode.getNode("groups").getNode(group):null), 
-							((scanNode != null && scanNode.getNode("groups") != null)?scanNode.getNode("groups"):null), 
-							damageAllocator);
-							
-					if(groupHandler.loadedSomething())
-					{
-						groupHandlers.put(group, groupHandler);
-						loadedSomething = true;
-					}
-				}
-			}
 		}
 		return loadedSomething;
 	}
@@ -133,8 +84,6 @@ public class WorldHandler
 		if(configurationNode != null) 
 		{
 			if(ModDamage.consoleDebugging_normal) log.info("MobHealth configuration found for " + getDisplayString(false) + ", parsing...");
-			if(ModDamage.consoleDebugging_verbose) log.info("{Found MobHealth node for " + getDisplayString(false) + "}");
-			if(ModDamage.consoleDebugging_verbose) log.info("{Found MobHealth node for " + getCalculationHeader() + "}");
 			List<DamageElement> creatureTypes = new ArrayList<DamageElement>();
 			creatureTypes.addAll(DamageElement.getElementsOf("animal"));
 			creatureTypes.addAll(DamageElement.getElementsOf("mob"));
@@ -312,5 +261,4 @@ public class WorldHandler
 
 	public boolean printAdditionalConfiguration(Player player, int pageNumber){ return false;}
 }
-	
 	

@@ -6,9 +6,9 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EntityWearingOnly extends EntityConditionalCalculation<String>
+public class PlayerWearingOnly extends EntityConditionalCalculation<String>
 {
-	public EntityWearingOnly(boolean inverted, boolean forAttacker, String armorSetString, List<ModDamageCalculation> calculations)
+	public PlayerWearingOnly(boolean inverted, boolean forAttacker, String armorSetString, List<ModDamageCalculation> calculations)
 	{  
 		super(forAttacker, forAttacker, armorSetString, calculations);
 	}

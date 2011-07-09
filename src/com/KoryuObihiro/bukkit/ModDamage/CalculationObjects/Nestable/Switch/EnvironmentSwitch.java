@@ -7,17 +7,15 @@ import org.bukkit.World.Environment;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EnvironmentSwitch extends SwitchCalculation<Environment>
+public class EnvironmentSwitch extends WorldSwitch<Environment>
 {	
-	public EnvironmentSwitch(LinkedHashMap<String, List<Object>> switchStatements){ super(switchStatements);}
-	@Override
-	protected Environment useMatcher(String key){ return CalculationUtility.matchEnvironment(key);}
+	public EnvironmentSwitch(LinkedHashMap<Environment, List<ModDamageCalculation>> switchStatements){ super(switchStatements);}
 
 	@Override
 	protected Environment getRelevantInfo(DamageEventInfo eventInfo){ return eventInfo.environment;}
 
 	@Override
-	protected Environment getRelevantInfo(SpawnEventInfo eventInfo) { return eventInfo.environment;}
+	protected Environment getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.environment;}	
 }

@@ -1,12 +1,14 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Switch;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 
-abstract public class EntitySwitchCalculation<T> extends SwitchCalculation<T>
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
+
+abstract public class EntitySwitchCalculation<InfoType> extends SwitchCalculation<InfoType>
 {
 	protected final boolean forAttacker;
-	public EntitySwitchCalculation(boolean forAttacker, LinkedHashMap<String, List<Object>> switchStatements) 
+	public EntitySwitchCalculation(boolean forAttacker, HashMap<InfoType, List<ModDamageCalculation>> switchStatements) 
 	{
 		super(switchStatements);
 		this.forAttacker = forAttacker;

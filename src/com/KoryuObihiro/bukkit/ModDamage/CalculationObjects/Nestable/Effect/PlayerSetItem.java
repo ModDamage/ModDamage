@@ -2,28 +2,33 @@ package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect;
 
 import java.util.List;
 
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EntitySetFireTicks extends EntityEffectCalculation<Integer>
+public class PlayerSetItem extends PlayerEffectCalculation<Integer>
 {
-	public EntitySetFireTicks(boolean forAttacker, List<ModDamageCalculation> calculations)
+	protected final Material material;
+	public PlayerSetItem(boolean forAttacker, Material material, List<ModDamageCalculation> calculations)
 	{
 		super(forAttacker, calculations);
+		this.material = material;
 	}
 	
-	public EntitySetFireTicks(boolean forAttacker, int power)
+	public PlayerSetItem(boolean forAttacker, Material material, int quantity)
 	{
-		super(forAttacker, power);
+		super(forAttacker, quantity);
+		this.material = material;
 	}
 
 	@Override
-	void applyEffect(LivingEntity affectedObject, Integer input) 
+	void applyEffect(Player affectedObject, Integer input) 
 	{
-		affectedObject.setFireTicks(input);
+		affectedObject.setItemInHand(new ItemStack(material, input));
 	}
 	
 	@Override

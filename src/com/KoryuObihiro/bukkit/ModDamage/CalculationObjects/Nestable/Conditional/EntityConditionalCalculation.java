@@ -9,21 +9,21 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public abstract class EntityConditionalCalculation<T> extends ConditionalCalculation
+public abstract class EntityConditionalCalculation<InputType> extends ConditionalCalculation
 {
 	protected final boolean forAttacker;
-	protected final T value;
+	protected final InputType value;
 	
-	public EntityConditionalCalculation(boolean inverted, boolean forAttacker, T value, List<ModDamageCalculation> calculations)
+	public EntityConditionalCalculation(boolean inverted, boolean forAttacker, InputType value, List<ModDamageCalculation> calculations)
 	{ 
 		super(inverted, calculations);
 		this.forAttacker = forAttacker; 
 		this.value = value;
 	}
 	
-	abstract protected T getRelevantInfo(DamageEventInfo eventInfo);
+	abstract protected InputType getRelevantInfo(DamageEventInfo eventInfo);
 	
-	abstract protected T getRelevantInfo(SpawnEventInfo eventInfo);
+	abstract protected InputType getRelevantInfo(SpawnEventInfo eventInfo);
 	
 	protected LivingEntity getRelevantEntity(DamageEventInfo eventInfo){ return forAttacker?eventInfo.entity_attacker:eventInfo.entity_target;}
 	

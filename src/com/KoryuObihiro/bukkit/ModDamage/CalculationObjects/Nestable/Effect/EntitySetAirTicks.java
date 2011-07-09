@@ -1,49 +1,50 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect;
 
-
 import java.util.List;
 
-import org.bukkit.entity.Creature;
+import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EntitySetAirTicks extends EntityEffectDamageCalculation 
+public class EntitySetAirTicks extends EntityEffectCalculation<Integer>
 {
 	public EntitySetAirTicks(boolean forAttacker, List<ModDamageCalculation> calculations)
 	{
-		this.forAttacker = forAttacker;
-		this.calculations = calculations;
-		this.value = 0;
+		super(forAttacker, calculations);
 	}
-	public EntitySetAirTicks(boolean forAttacker, int ticks)
+	
+	public EntitySetAirTicks(boolean forAttacker, int power)
 	{
-		this.forAttacker = forAttacker;
-		this.value = ticks;
+		super(forAttacker, power);
 	}
+
 	@Override
-	public void calculate(DamageEventInfo eventInfo)
-	{ 
-		if(calculations != null)
-		{
-			value = eventInfo.eventDamage;
-			doCalculations(eventInfo);
-			((Creature)(forAttacker?eventInfo.entity_attacker:eventInfo.entity_target)).setRemainingAir(eventInfo.eventDamage);
-			eventInfo.eventDamage = value;
-		}
-		else ((Creature)(forAttacker?eventInfo.entity_attacker:eventInfo.entity_target)).setRemainingAir(value);
+	void applyEffect(LivingEntity affectedObject, Integer input) 
+	{
+		affectedObject.setRemainingAir(input);
 	}
+	
 	@Override
-	public void calculate(SpawnEventInfo eventInfo)
-	{ 
-		if(calculations != null)
-		{
-			value = eventInfo.eventHealth;
-			doCalculations(eventInfo);
-			((Creature)eventInfo.entity).setRemainingAir(eventInfo.eventHealth);
-			eventInfo.eventHealth = value;
-		}
-		else ((Creature)eventInfo.entity).setRemainingAir(value);
+	protected Integer calculateInputValue(DamageEventInfo eventInfo) 
+	{
+		int temp1 = eventInfo.eventDamage, temp2;
+		eventInfo.eventDamage = 0;
+		doCalculations(eventInfo);
+		temp2 = eventInfo.eventDamage;
+		eventInfo.eventDamage = temp1;
+		return temp2;
+	}
+
+	@Override
+	protected Integer calculateInputValue(SpawnEventInfo eventInfo) 
+	{
+		int temp1 = eventInfo.eventHealth, temp2;
+		eventInfo.eventHealth = 0;
+		doCalculations(eventInfo);
+		temp2 = eventInfo.eventHealth;
+		eventInfo.eventHealth = temp1;
+		return temp2;
 	}
 }

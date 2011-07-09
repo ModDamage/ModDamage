@@ -10,26 +10,25 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.NestableCal
 public abstract class ConditionalCalculation extends NestableCalculation 
 {
 	final protected boolean inverted;
-	
 	public ConditionalCalculation(boolean inverted, List<ModDamageCalculation> calculations)
 	{
 		super(calculations);
 		this.inverted = inverted;
 	}
-	protected abstract boolean condition(DamageEventInfo eventInfo);
-	protected abstract boolean condition(SpawnEventInfo eventInfo);
-	
 	@Override
 	public void calculate(DamageEventInfo eventInfo)
 	{
 		if(inverted?!condition(eventInfo):condition(eventInfo))
-			makeCalculations(eventInfo);
+			doCalculations(eventInfo);
 	}
 	
 	@Override
 	public void calculate(SpawnEventInfo eventInfo)
 	{
 		if(inverted?!condition(eventInfo):condition(eventInfo))
-			makeCalculations(eventInfo);
+			doCalculations(eventInfo);
 	}
+	
+	protected abstract boolean condition(DamageEventInfo eventInfo);
+	protected abstract boolean condition(SpawnEventInfo eventInfo);
 }

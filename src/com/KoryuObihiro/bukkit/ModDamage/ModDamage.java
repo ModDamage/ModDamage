@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -58,6 +59,7 @@ public class ModDamage extends JavaPlugin
 	
 	//plugin-related
 	public static boolean isEnabled = false;
+	public static Server server;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	public final static Logger log = Logger.getLogger("Minecraft");
 	public static PermissionHandler Permissions = null;
@@ -84,6 +86,8 @@ public class ModDamage extends JavaPlugin
 	@Override
 	public void onEnable() 
 	{
+		ModDamage.server = getServer();
+		
 	//PERMISSIONS
 		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
 		if (permissionsPlugin != null)

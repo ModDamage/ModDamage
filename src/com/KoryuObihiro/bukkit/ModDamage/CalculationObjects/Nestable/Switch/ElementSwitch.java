@@ -8,13 +8,12 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EntityGenericTypeSwitch extends EntitySwitchCalculation<DamageElement>
+public class ElementSwitch extends EntitySwitchCalculation<DamageElement>
 {
-	public EntityGenericTypeSwitch(boolean forAttacker, HashMap<DamageElement, List<ModDamageCalculation>> switchStatements){ super(forAttacker, switchStatements);}
+	public ElementSwitch(boolean forAttacker, HashMap<DamageElement, List<ModDamageCalculation>> switchStatements){ super(forAttacker, switchStatements);}
 
 	@Override
 	protected DamageElement getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.damageElement_attacker:eventInfo.damageElement_target);}
-
 	@Override
 	protected DamageElement getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.spawnedElement;}
 }

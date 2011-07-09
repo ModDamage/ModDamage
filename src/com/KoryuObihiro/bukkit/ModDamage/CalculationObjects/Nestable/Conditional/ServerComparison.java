@@ -7,12 +7,12 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ComparisonType;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-abstract public class EntityComparison extends EntityConditionalCalculation<Integer>
+abstract public class ServerComparison extends ServerConditionalCalculation<Integer>
 {
 	final protected ComparisonType comparisonType;
-	EntityComparison(boolean inverted, boolean forAttacker, int value, ComparisonType comparisonType, List<ModDamageCalculation> calculations)
-	{ 
-		super(inverted, forAttacker, value, calculations);
+	ServerComparison(boolean inverted, int value, ComparisonType comparisonType, List<ModDamageCalculation> calculations)
+	{
+		super(inverted, value, calculations);
 		this.comparisonType = comparisonType;
 	}
 
@@ -20,4 +20,8 @@ abstract public class EntityComparison extends EntityConditionalCalculation<Inte
 	protected boolean condition(DamageEventInfo eventInfo){ return ComparisonType.compare(comparisonType, getRelevantInfo(eventInfo), value);}
 	@Override
 	protected boolean condition(SpawnEventInfo eventInfo){ return ComparisonType.compare(comparisonType, getRelevantInfo(eventInfo), value);}
+
+	abstract protected int getRelevantInfo(SpawnEventInfo eventInfo);
+
+	abstract protected int getRelevantInfo(DamageEventInfo eventInfo);
 }

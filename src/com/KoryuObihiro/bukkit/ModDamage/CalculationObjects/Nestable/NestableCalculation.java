@@ -13,18 +13,18 @@ abstract public class NestableCalculation extends ModDamageCalculation
 	{
 		this.calculations = calculations;
 	}
-	protected void makeCalculations(DamageEventInfo eventInfo)
+	protected void doCalculations(DamageEventInfo eventInfo)
 	{
 		for(ModDamageCalculation calculation : calculations)
 			calculation.calculate(eventInfo);
 	}
-	protected void makeCalculations(SpawnEventInfo eventInfo)
+	protected void doCalculations(SpawnEventInfo eventInfo)
 	{
 		for(ModDamageCalculation calculation : calculations)
 			calculation.calculate(eventInfo);
 	}
 	@Override
-	public void calculate(DamageEventInfo eventInfo){ makeCalculations(eventInfo);}
+	public void calculate(DamageEventInfo eventInfo){ doCalculations(eventInfo);}
 	@Override
-	public void calculate(SpawnEventInfo eventInfo){ makeCalculations(eventInfo);}
+	public void calculate(SpawnEventInfo eventInfo){ doCalculations(eventInfo);}
 }

@@ -7,22 +7,71 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.NestableCalculation;
 
-abstract public class EffectCalculation<T> extends NestableCalculation 
+abstract public class EffectCalculation<AffectedClass, InputType> extends NestableCalculation 
 {
+	final InputType value;
+	final boolean useCalculations;
+	final AffectedClass affectedObject;
+	final boolean useEventObject;
+	EffectCalculation(AffectedClass affectedObject, List<ModDamageCalculation> calculations)
+	{
+		super(calculations);
+		this.useCalculations = true;
+		this.value = null;
+		this.affectedObject = affectedObject;
+		this.useEventObject = true;
+	}
+	
+	EffectCalculation(AffectedClass affectedObject, InputType value)
+	{
+		super(null);
+		this.useCalculations = false;
+		this.value = value;
+		this.affectedObject = affectedObject;
+		this.useEventObject = true;
+	}
+	
+	EffectCalculation(InputType value)
+	{
+		super(null);
+		this.useCalculations = false;
+		this.value = value;
+		this.affectedObject = null;
+		this.useEventObject = false;
+	}
+	
 	EffectCalculation(List<ModDamageCalculation> calculations)
 	{
 		super(calculations);
+		this.useCalculations = true;
+		this.value = null;
+		this.affectedObject = null;
+		this.useEventObject = false;
 	}
 	
-	protected void doCalculations(DamageEventInfo eventInfo)
+	@Override
+	public void calculate(DamageEventInfo eventInfo)
 	{
-		for(ModDamageCalculation calculation : calculations)
-			calculation.calculate(eventInfo);
+		AffectedClass someObject = (useEventObject?getAffectedObject(eventInfo):affectedObject);
+		if(someObject != null)
+			applyEffect(someObject, (useCalculations?calculateInputValue(eventInfo):value));
 	}
-	protected void doCalculations(SpawnEventInfo eventInfo)
+
+
+	@Override
+	public void calculate(SpawnEventInfo eventInfo)
 	{
-		for(ModDamageCalculation calculation : calculations)
-			calculation.calculate(eventInfo);
+		AffectedClass someObject = (useEventObject?getAffectedObject(eventInfo):affectedObject);
+		if(someObject != null)
+			applyEffect(someObject, (useCalculations?calculateInputValue(eventInfo):value));
 	}
-	abstract void applyEffect(T t);
+
+
+	abstract void applyEffect(AffectedClass affectedObject, InputType input);
+
+	abstract protected AffectedClass getAffectedObject(DamageEventInfo eventInfo);
+	abstract protected AffectedClass getAffectedObject(SpawnEventInfo eventInfo);
+	
+	abstract protected InputType calculateInputValue(DamageEventInfo eventInfo);
+	abstract protected InputType calculateInputValue(SpawnEventInfo eventInfo);
 }

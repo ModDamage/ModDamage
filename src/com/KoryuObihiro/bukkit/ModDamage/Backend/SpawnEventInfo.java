@@ -20,6 +20,7 @@ public class SpawnEventInfo
 	public final Environment environment;
 	public final DamageElement spawnedElement;
 	public final LivingEntity entity;
+	public final String name;
 	public final String[] groups;
 	
 //CONSTRUCTORS
@@ -28,6 +29,7 @@ public class SpawnEventInfo
 		eventHealth = player.getHealth();
 		entity = player;
 		spawnedElement = DamageElement.GENERIC_HUMAN;
+		name = player.getName();
 		groups = (ModDamage.multigroupPermissions
 				?ModDamage.Permissions.getGroups(player.getWorld().getName(), player.getName())
 				:ModDamage.Permissions.getGroup(player.getWorld().getName(), player.getName()).split(" "));
@@ -41,6 +43,7 @@ public class SpawnEventInfo
 		eventHealth = entity.getHealth();
 		this.entity = entity;
 		spawnedElement= DamageElement.matchLivingElement(entity);
+		name = null;
 		groups = null;
 		
 		world = entity.getWorld();	

@@ -10,26 +10,22 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation
 
 public class WorldTime extends WorldConditionalCalculation 
 {
-	private boolean checkInverse;
 	private long beginningTime;
 	private long endTime;
-	public WorldTime(boolean inverted, int beginningTime, int endTime, List<ModDamageCalculation> calculations)
+	public WorldTime(boolean inverted, World world, int beginningTime, int endTime, List<ModDamageCalculation> calculations)
 	{
-		this.inverted = inverted;
-		this.calculations = calculations;
+		super(beginningTime > endTime | inverted, world, calculations);
 		this.beginningTime = beginningTime;
 		this.endTime = endTime;
-		checkInverse = beginningTime > endTime;
 	}
-	@Override
-	public boolean condition(DamageEventInfo eventInfo){ return checkTime(eventInfo.world);}
-	@Override
-	public boolean condition(SpawnEventInfo eventInfo){ return checkTime(eventInfo.world);}
-
-	private boolean checkTime(World world)
+	public WorldTime(boolean inverted, int beginningTime, int endTime, List<ModDamageCalculation> calculations)
 	{
-		return(checkInverse
-				?(world.getTime() > beginningTime && world.getTime() < endTime)
-				:(!(world.getTime() > beginningTime) || !(world.getTime() < endTime)));
+		super(beginningTime > endTime | inverted, calculations);
+		this.beginningTime = beginningTime;
+		this.endTime = endTime;
 	}
+	@Override
+	public boolean condition(DamageEventInfo eventInfo){ return (world.getTime() > beginningTime && world.getTime() < endTime);}
+	@Override
+	public boolean condition(SpawnEventInfo eventInfo){ return (world.getTime() > beginningTime && world.getTime() < endTime);}
 }

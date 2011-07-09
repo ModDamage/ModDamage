@@ -1,49 +1,51 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect;
 
-
 import java.util.List;
+
+import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EntityExplode extends EntityEffectDamageCalculation 
+public class EntityExplode extends EntityEffectCalculation<Float>
 {
 	public EntityExplode(boolean forAttacker, List<ModDamageCalculation> calculations)
 	{
-		this.forAttacker = forAttacker;
-		this.calculations = calculations;
-		this.value = 0;
+		super(forAttacker, calculations);
 	}
-	public EntityExplode(boolean forAttacker, int power)
+	
+	public EntityExplode(boolean forAttacker, float power)
 	{
-		this.forAttacker = forAttacker;
-		this.value = power;
+		super(forAttacker, power);
+	}
+
+	@Override
+	void applyEffect(LivingEntity affectedObject, Float input) 
+	{
+		affectedObject.getWorld().createExplosion(affectedObject.getLocation(), input);
+	}
+	
+	@Override
+	protected Float calculateInputValue(DamageEventInfo eventInfo) 
+	{
+		int temp1 = eventInfo.eventDamage;
+		float temp2;
+		eventInfo.eventDamage = 0;
+		doCalculations(eventInfo);
+		temp2 = eventInfo.eventDamage;
+		eventInfo.eventDamage = temp1;
+		return temp2;
 	}
 	@Override
-	public void calculate(DamageEventInfo eventInfo)
+	protected Float calculateInputValue(SpawnEventInfo eventInfo) 
 	{
-		if(calculations != null)
-		{
-			value = eventInfo.eventDamage;
-			doCalculations(eventInfo);
-			eventInfo.world.createExplosion((forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getEyeLocation(), eventInfo.eventDamage);
-			eventInfo.eventDamage = value;
-			value = 0;
-		}
-		else eventInfo.world.createExplosion((forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getEyeLocation(), value);
-	}
-	@Override
-	public void calculate(SpawnEventInfo eventInfo)
-	{
-		if(calculations != null)
-		{
-			value = eventInfo.eventHealth;
-			doCalculations(eventInfo);
-			eventInfo.world.createExplosion(eventInfo.entity.getEyeLocation(), eventInfo.eventHealth);
-			eventInfo.eventHealth = value;
-			value = 0;
-		}
-		else eventInfo.world.createExplosion(eventInfo.entity.getEyeLocation(), value);
+		int temp1 = eventInfo.eventHealth;
+		float temp2;
+		eventInfo.eventHealth = 0;
+		doCalculations(eventInfo);
+		temp2 = eventInfo.eventHealth;
+		eventInfo.eventHealth = temp1;
+		return temp2;
 	}
 }

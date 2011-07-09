@@ -8,14 +8,14 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
 
-public abstract class ServerConditionalCalculation<T> extends ConditionalCalculation
+public abstract class ServerConditional extends ConditionalCalculation
 {
-	final T value;
-	public ServerConditionalCalculation(boolean inverted, T value, List<ModDamageCalculation> calculations) 
+	public ServerConditional(boolean inverted, List<ModDamageCalculation> calculations) 
 	{
 		super(inverted, calculations);
-		this.value = value;
 	}
 
 	Server server = ModDamage.server;
 }
+
+//XXX This feature will not be implemented until 0.9.5
