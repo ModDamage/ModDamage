@@ -2,12 +2,16 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.entity.CraftArrow;
+import org.bukkit.craftbukkit.entity.CraftCreeper;
 import org.bukkit.craftbukkit.entity.CraftEgg;
 import org.bukkit.craftbukkit.entity.CraftFireball;
+import org.bukkit.craftbukkit.entity.CraftSlime;
 import org.bukkit.craftbukkit.entity.CraftSnowball;
+import org.bukkit.craftbukkit.entity.CraftWolf;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Cow;
@@ -21,6 +25,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.PigZombie;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
@@ -54,6 +59,7 @@ public enum DamageElement
 	RANGED_BOW 		("bow", GENERIC_RANGED, false),
 	RANGED_EGG 		("egg", GENERIC_RANGED, false), 
 	RANGED_FIREBALL	("fireball", GENERIC_RANGED, false),
+	RANGED_FISHINGROD("fishingrod", GENERIC_RANGED, false),
 	RANGED_SNOWBALL	("snowball", GENERIC_RANGED, false),
 	
 //armor
@@ -75,7 +81,7 @@ public enum DamageElement
 	MOB_GIANT ("Giant", GENERIC_MOB, false),
 	MOB_PIGZOMBIE ("ZombiePigman", GENERIC_MOB, false),
 	MOB_SKELETON ("Skeleton", GENERIC_MOB, false),
-	MOB_SLIME ("Slime", GENERIC_MOB, false),
+	MOB_SLIME ("Slime", GENERIC_MOB, true),
 	MOB_SPIDER ("Spider", GENERIC_MOB, false),
 	MOB_ZOMBIE ("Zombie", GENERIC_MOB, false),
 //nature
@@ -89,7 +95,20 @@ public enum DamageElement
 	NATURE_LAVA ("lava", GENERIC_NATURE, false),
 	NATURE_LIGHTNING ("lightning", GENERIC_NATURE, false),
 	NATURE_SUFFOCATION ("suffocation", GENERIC_NATURE, false),
-	NATURE_VOID ("void", GENERIC_NATURE, false);
+	NATURE_VOID ("void", GENERIC_NATURE, false),
+	
+//mob-specific stuff
+	ANIMAL_WOLF_WILD ("WildWolf", ANIMAL_WOLF, false),
+	ANIMAL_WOLF_ANGRY ("HostileWolf", ANIMAL_WOLF, false),
+	ANIMAL_WOLF_TAME ("TameWolf", ANIMAL_WOLF, false),
+
+	MOB_CREEPER_CHARGED("ChargedCreeper", GENERIC_MOB, false),
+	MOB_CREEPER_NORMAL ("NormalCreeper", GENERIC_MOB, false),
+
+	MOB_SLIME_HUGE ("HugeSlime", MOB_SLIME, false),
+	MOB_SLIME_LARGE ("LargeSlime", MOB_SLIME, false),
+	MOB_SLIME_MEDIUM("MediumSlime", MOB_SLIME, false),
+	MOB_SLIME_SMALL("SmallSlime", MOB_SLIME, false);
 	
 	
 	private final String stringReference;
@@ -113,6 +132,7 @@ public enum DamageElement
 				return true;
 		return false;
 	}
+	
 	public static DamageElement matchNonlivingElement(DamageCause cause)
 	{
 		switch(cause) 
@@ -131,34 +151,15 @@ public enum DamageElement
 			default: 				return null;//shouldn't happen
 		}
 	}
-	public static DamageElement matchNonlivingElement(String elementReference)
+	public static DamageElement matchElement(DamageElement genericElement, String elementReference)
 	{
-		if(elementReference.equalsIgnoreCase("BLOCK_EXPLOSION") || elementReference.equalsIgnoreCase("BLOCKEXPLOSION"))
-			return DamageElement.NATURE_BLOCK_EXPLOSION;
-		if(elementReference.equalsIgnoreCase("CONTACT"))		
-			return DamageElement.NATURE_CONTACT;
-		if(elementReference.equalsIgnoreCase("DROWNING"))		
-			return DamageElement.NATURE_DROWNING;
-		if(elementReference.equalsIgnoreCase("ENTITY_EXPLOSION") || elementReference.equalsIgnoreCase("ENTITYEXPLOSION"))
-			return DamageElement.NATURE_EXPLOSION;
-		if(elementReference.equalsIgnoreCase("FALL"))			
-			return DamageElement.NATURE_FALL;
-		if(elementReference.equalsIgnoreCase("FIRE"))			
-			return DamageElement.NATURE_FIRE;
-		if(elementReference.equalsIgnoreCase("FIRE_TICK") || elementReference.equalsIgnoreCase("FIREFICK"))
-			return DamageElement.NATURE_FIRE_TICK;
-		if(elementReference.equalsIgnoreCase("LAVA")) 			
-			return DamageElement.NATURE_LAVA;
-		if(elementReference.equalsIgnoreCase("LIGHTNING"))		
-			return DamageElement.NATURE_LIGHTNING;
-		if(elementReference.equalsIgnoreCase("SUFFOCATION"))	
-			return DamageElement.NATURE_SUFFOCATION;
-		if(elementReference.equalsIgnoreCase("VOID"))
-			return DamageElement.NATURE_VOID;
+		if(genericElement.hasSubConfig)
+			for(DamageElement element : DamageElement.getElementsOf(genericElement))
+				if(elementReference.equalsIgnoreCase(element.getReference())) return element;
 		return null;
 	}
 
-	public static DamageElement matchLivingElement(LivingEntity entity)
+	public static DamageElement matchMobType(LivingEntity entity)
 	{
 		if(entity instanceof Slime)				return DamageElement.MOB_SLIME;//XXX Not sure why, but Slimes aren't technically Creatures.
 		if(entity instanceof Creature) 
@@ -169,12 +170,12 @@ public enum DamageElement
 				if(entity instanceof Cow) 		return DamageElement.ANIMAL_COW; 
 				if(entity instanceof Pig) 		return DamageElement.ANIMAL_PIG; 
 				if(entity instanceof Sheep) 	return DamageElement.ANIMAL_SHEEP;
-				if(entity instanceof Wolf)    	return DamageElement.ANIMAL_WOLF;
+				if(entity instanceof Wolf)		return DamageElement.ANIMAL_WOLF;
 			}
 			if(entity instanceof Monster) 
 			{
 				if(entity instanceof Zombie) 	return (entity instanceof PigZombie?DamageElement.MOB_PIGZOMBIE:DamageElement.MOB_ZOMBIE);
-				if(entity instanceof Creeper)	return DamageElement.MOB_CREEPER;
+				if(entity instanceof Creeper)	return DamageElement.MOB_CREEPER_NORMAL;
 				if(entity instanceof Giant) 	return DamageElement.MOB_GIANT;
 				if(entity instanceof Skeleton)	return DamageElement.MOB_SKELETON;
 				if(entity instanceof Spider)	return DamageElement.MOB_SPIDER; 
@@ -187,25 +188,27 @@ public enum DamageElement
 		return null;
 	}
 	
-	public static DamageElement matchLivingElement(String elementReference)
+	public static DamageElement matchMobState(LivingEntity entity)
 	{
-		if(elementReference.equalsIgnoreCase("Slime"))	return DamageElement.MOB_SLIME;
-		if(elementReference.equalsIgnoreCase("Chicken"))return DamageElement.ANIMAL_CHICKEN;
-		if(elementReference.equalsIgnoreCase("Cow")) 	return DamageElement.ANIMAL_COW; 
-		if(elementReference.equalsIgnoreCase("Pig")) 	return DamageElement.ANIMAL_PIG; 
-		if(elementReference.equalsIgnoreCase("Sheep"))	return DamageElement.ANIMAL_SHEEP;
-		if(elementReference.equalsIgnoreCase("Wolf"))   return DamageElement.ANIMAL_WOLF;
-		if(elementReference.equalsIgnoreCase("Zombie"))	return DamageElement.MOB_ZOMBIE;
-		if(elementReference.equalsIgnoreCase("PigZombie"))return DamageElement.MOB_PIGZOMBIE;
-		if(elementReference.equalsIgnoreCase("Creeper"))return DamageElement.MOB_CREEPER;
-		if(elementReference.equalsIgnoreCase("Giant")) 	return DamageElement.MOB_GIANT;
-		if(elementReference.equalsIgnoreCase("Skeleton"))return DamageElement.MOB_SKELETON;
-		if(elementReference.equalsIgnoreCase("Spider"))	return DamageElement.MOB_SPIDER; 
-		if(elementReference.equalsIgnoreCase("Squid"))	return DamageElement.ANIMAL_SQUID;
-		if(elementReference.equalsIgnoreCase("Ghast"))	return DamageElement.MOB_GHAST;
+		if(entity instanceof Creeper)
+		{
+			if(((CraftCreeper)entity).isPowered()) return DamageElement.MOB_CREEPER_CHARGED;
+			return DamageElement.MOB_CREEPER_NORMAL;
+		}
+		if(entity instanceof Slime)
+		{
+			Logger.getLogger("Minecraft").info("FOUND SLIME, size: " + ((CraftSlime)entity).getSize());//TODO REMOVE ME
+			switch(((CraftSlime)entity).getSize());
+		}
+		if(entity instanceof Wolf)
+		{
+			if(((CraftWolf)entity).getOwner() != null) return DamageElement.ANIMAL_WOLF_TAME;
+			if(((CraftWolf)entity).isAngry()) return DamageElement.ANIMAL_WOLF_ANGRY;
+			return DamageElement.ANIMAL_WOLF_WILD;
+		}
 		return null;
 	}
-	
+
 	public static DamageElement matchMeleeElement(Material material)
 	{
 		if(material != null)
@@ -286,10 +289,11 @@ public enum DamageElement
 	
 	public static DamageElement matchRangedElement(Entity entity)
 	{
-		if(entity instanceof CraftArrow) return DamageElement.RANGED_BOW;
-		if(entity instanceof CraftEgg) return DamageElement.RANGED_EGG;
-		if(entity instanceof CraftSnowball) return DamageElement.RANGED_SNOWBALL;
-		if(entity instanceof CraftFireball) return DamageElement.RANGED_FIREBALL;
+		if(entity instanceof CraftArrow)	return DamageElement.RANGED_BOW;
+		if(entity instanceof CraftEgg)		return DamageElement.RANGED_EGG;
+		if(entity instanceof CraftSnowball)	return DamageElement.RANGED_SNOWBALL;
+		if(entity instanceof CraftFireball)	return DamageElement.RANGED_FIREBALL;
+		if(entity instanceof Projectile)	return DamageElement.RANGED_FISHINGROD; //XXX Deeefinitely sure this isn't going to work.
 		return null;
 	}
 

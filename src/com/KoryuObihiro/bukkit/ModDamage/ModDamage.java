@@ -76,9 +76,11 @@ public class ModDamage extends JavaPlugin
 	public static boolean disable_DefaultDamage;
 	public static boolean disable_DefaultHealth;
 	public static boolean negative_Heal;
-	final static List<String> emptyList = null; //FIXME Dunno if it can be just any null object, but at least it leaves things blank.		
+	public static final List<String> emptyList = null; //FIXME Dunno if it can be just any null object, but at least it leaves things blank.		
 	
 	public static ServerHandler serverHandler;
+	public static boolean using_Permissions = false;
+	public static boolean using_elRegions = false;
 	
 ////////////////////////// INITIALIZATION
 	@Override
@@ -90,6 +92,7 @@ public class ModDamage extends JavaPlugin
 		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
 		if (permissionsPlugin != null)
 		{
+			using_Permissions = true;
 			ModDamage.Permissions = ((Permissions)permissionsPlugin).getHandler();
 			log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions v" + permissionsPlugin.getDescription().getVersion() + " active]");
 			
@@ -101,7 +104,8 @@ public class ModDamage extends JavaPlugin
 		elRegions = (elRegionsPlugin) this.getServer().getPluginManager().getPlugin("elRegions");
 		if (elRegions != null) 
 		{
-		    log.info("[" + getDescription().getName() + "] Found elRegions plugin v" + elRegions.getDescription().getVersion());
+			using_elRegions = true;
+		    log.info("[" + getDescription().getName() + "] Found elRegions v" + elRegions.getDescription().getVersion());
 		    elRegions_enabled = true;
 		}
 		
@@ -273,8 +277,6 @@ public class ModDamage extends JavaPlugin
 		LivingEntity ent_damaged = (LivingEntity)event.getEntity();
 		//simple check for noDamageTicks - the appropriate event-firing check should be implemented in Bukkit soon.
 		if(ent_damaged.getNoDamageTicks() > 40) return;
-	 	//simple check for noDamageTicks - not sure how this will affect other elements in Bukkit yet.
- 		if(ent_damaged.getNoDamageTicks() > 40) return;
 		
 		if(serverHandler.loadedSomething())
 		{
@@ -287,8 +289,8 @@ public class ModDamage extends JavaPlugin
 				if(ent_damaged instanceof Player)
 					eventInfo = new DamageEventInfo((Player)ent_damaged, DamageElement.matchNonlivingElement(event.getCause()), event.getDamage());
 				//Nonliving vs Mob
-				else if(DamageElement.matchLivingElement(ent_damaged) != null)
-					eventInfo = new DamageEventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), DamageElement.matchNonlivingElement(event.getCause()), event.getDamage());
+				else if(DamageElement.matchMobType(ent_damaged) != null)
+					eventInfo = new DamageEventInfo(ent_damaged, DamageElement.matchMobType(ent_damaged), DamageElement.matchNonlivingElement(event.getCause()), event.getDamage());
 			}
 			else if(event instanceof EntityDamageByEntityEvent)
 			{
@@ -304,16 +306,16 @@ public class ModDamage extends JavaPlugin
 				//Player vs Player
 					if(ent_damager instanceof Player) eventInfo = new DamageEventInfo((Player)ent_damaged, (Player)ent_damager, rangedElement, event.getDamage());
 				//Mob vs Player
-					else eventInfo = new DamageEventInfo((Player)ent_damaged, ent_damager, DamageElement.matchLivingElement(ent_damager), event.getDamage());
+					else eventInfo = new DamageEventInfo((Player)ent_damaged, ent_damager, DamageElement.matchMobType(ent_damager), event.getDamage());
 				}
 			//Monster-targeted damage
-				else if(DamageElement.matchLivingElement(ent_damaged) != null)
+				else if(DamageElement.matchMobType(ent_damaged) != null)
 				{
 				//Player vs Mob
-					if(ent_damager instanceof Player) eventInfo = new DamageEventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), (Player)ent_damager, rangedElement, event.getDamage());
+					if(ent_damager instanceof Player) eventInfo = new DamageEventInfo(ent_damaged, DamageElement.matchMobType(ent_damaged), (Player)ent_damager, rangedElement, event.getDamage());
 				//Mob vs Mob 
-					else if(DamageElement.matchLivingElement(ent_damager) != null) 
-						eventInfo = new DamageEventInfo(ent_damaged, DamageElement.matchLivingElement(ent_damaged), ent_damager, DamageElement.matchLivingElement(ent_damager), event.getDamage());
+					else if(DamageElement.matchMobType(ent_damager) != null) 
+						eventInfo = new DamageEventInfo(ent_damaged, DamageElement.matchMobType(ent_damaged), ent_damager, DamageElement.matchMobType(ent_damager), event.getDamage());
 				
 				}
 			}
