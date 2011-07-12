@@ -165,14 +165,9 @@ public class CalculationUtility
 	public static List<ModDamageCalculation> parseStrings(List<Object> commandStrings, boolean forSpawn)
 	{
 		List<ModDamageCalculation> calculations = new ArrayList<ModDamageCalculation>();
-		Logger.getLogger("Minecraft").info("Class of found configuration is " + commandStrings.getClass().getName());//TODO REMOVE ME?
-		if(commandStrings instanceof ArrayList)
-			Logger.getLogger("Minecraft").info(commandStrings.toString());
-		
 		for(Object calculationString : commandStrings)	
 		{
 			ModDamageCalculation calculation = null;
-			
 			if(calculationString instanceof LinkedHashMap)
 			{
 				for(String key : ((LinkedHashMap<String, List<Object>>)calculationString).keySet())
@@ -190,6 +185,7 @@ public class CalculationUtility
 									calculation = calculationClass.getConstructor(Matcher.class, List.class).newInstance(matcher, nestedCalculations);
 								}
 								catch (Exception e){ e.printStackTrace();}
+								if(!calculation.loaded()) calculation = null;
 							}
 						}
 					}
@@ -207,6 +203,7 @@ public class CalculationUtility
 							calculation = calculationClass.getConstructor(Matcher.class).newInstance(matcher);
 						}
 						catch (Exception e){ e.printStackTrace();}
+						if(!calculation.loaded()) calculation = null;
 					}
 				}
 			}
