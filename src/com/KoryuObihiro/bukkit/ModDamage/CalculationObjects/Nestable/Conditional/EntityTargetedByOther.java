@@ -1,12 +1,14 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
 public class EntityTargetedByOther extends EntityConditionalCalculation<LivingEntity>
@@ -19,7 +21,6 @@ public class EntityTargetedByOther extends EntityConditionalCalculation<LivingEn
 	@Override
 	public boolean condition(DamageEventInfo eventInfo)
 	{ 
-		//TODO Make sure that Slimes work here - they failed in a previous RB.
 		value = (forAttacker?eventInfo.entity_target:eventInfo.entity_attacker);
 		return ((Creature)getRelevantEntity(eventInfo)).getTarget().equals(value);
 	}
@@ -29,4 +30,9 @@ public class EntityTargetedByOther extends EntityConditionalCalculation<LivingEn
 	protected LivingEntity getRelevantInfo(DamageEventInfo eventInfo){ return null;}
 	@Override
 	protected LivingEntity getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
+	
+	public static void register()
+	{
+		CalculationUtility.register(EntityTargetedByOther.class, Pattern.compile(CalculationUtility.ifPart + CalculationUtility.entityPart + "targetedbyother", Pattern.CASE_INSENSITIVE));
+	}
 }

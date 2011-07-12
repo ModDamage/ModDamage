@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -8,6 +9,7 @@ import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
 public class EntityExposedToSky extends EntityConditionalCalculation<Object>
@@ -37,5 +39,10 @@ public class EntityExposedToSky extends EntityConditionalCalculation<Object>
 	protected Object getRelevantInfo(DamageEventInfo eventInfo){ return null;}
 	@Override
 	protected Object getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
+	
+	public static void register()
+	{
+		CalculationUtility.register(EntityExposedToSky.class, Pattern.compile(CalculationUtility.ifPart + CalculationUtility.entityPart + "exposedtosky", Pattern.CASE_INSENSITIVE));
+	}
 
 }

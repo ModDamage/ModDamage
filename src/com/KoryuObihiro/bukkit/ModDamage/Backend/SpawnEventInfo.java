@@ -42,7 +42,7 @@ public class SpawnEventInfo
 	{
 		eventHealth = entity.getHealth();
 		this.entity = entity;
-		spawnedElement= DamageElement.matchLivingElement(entity);
+		spawnedElement= DamageElement.matchMobType(entity);
 		name = null;
 		groups = null;
 		

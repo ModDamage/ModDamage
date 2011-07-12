@@ -2,28 +2,24 @@ package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect;
 
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EntityReflect extends EntityEffectCalculation<Integer>
+public class EntityReflect extends EntityEffectCalculation
 {
-
 	public EntityReflect(List<ModDamageCalculation> calculations)
 	{
 		super(true, calculations);
 	}
 	
-	public EntityReflect(int power)
-	{
-		super(true, power);
-	}
-
 	@Override
-	void applyEffect(LivingEntity affectedObject, Integer input) 
+	void applyEffect(LivingEntity affectedObject, int input) 
 	{
 		affectedObject.getWorld().createExplosion(affectedObject.getLocation(), input);
 	}
@@ -32,7 +28,7 @@ public class EntityReflect extends EntityEffectCalculation<Integer>
 	protected LivingEntity getAffectedObject(SpawnEventInfo eventInfo){ return null;}
 	
 	@Override
-	protected Integer calculateInputValue(DamageEventInfo eventInfo) 
+	protected int calculateInputValue(DamageEventInfo eventInfo) 
 	{
 		int temp1 = eventInfo.eventDamage, temp2;
 		eventInfo.eventDamage = 0;
@@ -43,5 +39,10 @@ public class EntityReflect extends EntityEffectCalculation<Integer>
 	}
 
 	@Override
-	protected Integer calculateInputValue(SpawnEventInfo eventInfo){ return 0;}
+	protected int calculateInputValue(SpawnEventInfo eventInfo){ return 0;}
+	
+	public static void register()
+	{
+		CalculationUtility.register(EntityReflect.class, Pattern.compile("effect\\.reflect", Pattern.CASE_INSENSITIVE));
+	}
 }

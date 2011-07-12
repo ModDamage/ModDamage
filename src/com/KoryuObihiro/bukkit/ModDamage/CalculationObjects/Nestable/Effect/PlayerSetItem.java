@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -8,9 +9,10 @@ import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class PlayerSetItem extends PlayerEffectCalculation<Integer>
+public class PlayerSetItem extends PlayerEffectCalculation
 {
 	protected final Material material;
 	public PlayerSetItem(boolean forAttacker, Material material, List<ModDamageCalculation> calculations)
@@ -19,20 +21,14 @@ public class PlayerSetItem extends PlayerEffectCalculation<Integer>
 		this.material = material;
 	}
 	
-	public PlayerSetItem(boolean forAttacker, Material material, int quantity)
-	{
-		super(forAttacker, quantity);
-		this.material = material;
-	}
-
 	@Override
-	void applyEffect(Player affectedObject, Integer input) 
+	void applyEffect(Player affectedObject, int input) 
 	{
 		affectedObject.setItemInHand(new ItemStack(material, input));
 	}
 	
 	@Override
-	protected Integer calculateInputValue(DamageEventInfo eventInfo) 
+	protected int calculateInputValue(DamageEventInfo eventInfo) 
 	{
 		int temp1 = eventInfo.eventDamage, temp2;
 		eventInfo.eventDamage = 0;
@@ -43,7 +39,7 @@ public class PlayerSetItem extends PlayerEffectCalculation<Integer>
 	}
 
 	@Override
-	protected Integer calculateInputValue(SpawnEventInfo eventInfo) 
+	protected int calculateInputValue(SpawnEventInfo eventInfo) 
 	{
 		int temp1 = eventInfo.eventHealth, temp2;
 		eventInfo.eventHealth = 0;
@@ -51,5 +47,10 @@ public class PlayerSetItem extends PlayerEffectCalculation<Integer>
 		temp2 = eventInfo.eventHealth;
 		eventInfo.eventHealth = temp1;
 		return temp2;
+	}
+
+	public static void register()
+	{
+		CalculationUtility.register(PlayerSetItem.class, Pattern.compile(CalculationUtility.entityPart + "effect\\.addItem" + CalculationUtility.materialRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

@@ -1,11 +1,13 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.bukkit.Material;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
 public class PlayerWielding extends EntityConditionalCalculation<Material> 
@@ -19,5 +21,8 @@ public class PlayerWielding extends EntityConditionalCalculation<Material>
 	@Override
 	public Material getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
 	
-	
+	public static void register()
+	{
+		CalculationUtility.register(PlayerWielding.class, Pattern.compile(CalculationUtility.ifPart + CalculationUtility.entityPart + "wielding\\." + CalculationUtility.materialRegex, Pattern.CASE_INSENSITIVE));
+	}	
 }

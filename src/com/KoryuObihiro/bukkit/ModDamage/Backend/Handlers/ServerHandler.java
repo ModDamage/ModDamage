@@ -66,11 +66,6 @@ public class ServerHandler extends WorldHandler
 		}
 		
 		if(!loadedSomething()) log.severe("[" + plugin.getDescription().getName() + "] No configurations loaded! Are any calculation strings defined?");
-		
-		//TODO set aliases - this will be moved into reload() once dynamic nodes have been implemented.
-		// DON'T FORGET - casing needs to be handled, so that it's not an issue.
-		/*
-		*/
 		additionalConfigChecks = 2;
 	}
 	

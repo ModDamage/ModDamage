@@ -3,10 +3,13 @@ package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditiona
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.DiceRoll;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Set;
 
 public class Binomial extends ConditionalCalculation
@@ -33,5 +36,10 @@ public class Binomial extends ConditionalCalculation
 	protected boolean condition(SpawnEventInfo eventInfo) 
 	{
 		return Math.abs(random.nextInt()%101) <= chance;
+	}
+	
+	public static void register()
+	{
+		CalculationUtility.register(DiceRoll.class, Pattern.compile("binom\\.([0-9]*)", Pattern.CASE_INSENSITIVE));
 	}
 }

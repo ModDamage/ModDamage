@@ -48,12 +48,14 @@ public class ModDamage extends JavaPlugin
 	// -count characters in config for message length
 	// -change md debug messages to reflect previous state
 	// -single-line configuration!
+	// -API for adding stuff to aliases
 	
 	//--EntityListener
 	// -Add worldLoad-triggered loading of MD
 	
 	//--CalculationUtility
 	// -Refactor config to contain errors?
+	// -Make sure that Slimes work for EntityTargetedByOther - they failed in a previous RB.
 	
 	//plugin-related
 	public static boolean isEnabled = false;

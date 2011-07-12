@@ -1,7 +1,10 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base;
 
+import java.util.regex.Pattern;
+
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 
 public class DiceRollAddition extends ChanceCalculation 
 {
@@ -11,4 +14,9 @@ public class DiceRollAddition extends ChanceCalculation
 	public void calculate(DamageEventInfo eventInfo){ eventInfo.eventDamage += Math.abs(random.nextInt()%(maxValue + 1));}
 	@Override
 	public void calculate(SpawnEventInfo eventInfo){ eventInfo.eventHealth += Math.abs(random.nextInt()%(maxValue + 1));}
+	
+	public static void register()
+	{
+		CalculationUtility.register(DiceRollAddition.class, Pattern.compile("roll\\.([0-9]*)", Pattern.CASE_INSENSITIVE));
+	}
 }

@@ -1,12 +1,14 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
 public class WorldEnvironment extends WorldConditionalCalculation 
@@ -26,4 +28,9 @@ public class WorldEnvironment extends WorldConditionalCalculation
 	public boolean condition(DamageEventInfo eventInfo){ return (useEventWorld?eventInfo.world:world).getEnvironment().equals(environment);}
 	@Override
 	public boolean condition(SpawnEventInfo eventInfo){ return (useEventWorld?eventInfo.world:world).getEnvironment().equals(environment);}
+	
+	public static void register()
+	{
+		CalculationUtility.register(WorldEnvironment.class, Pattern.compile(CalculationUtility.ifPart + "world\\.environment\\." + CalculationUtility.environmentRegex, Pattern.CASE_INSENSITIVE));
+	}
 }

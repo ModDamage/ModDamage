@@ -1,36 +1,32 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Effect;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EntityExplode extends EntityEffectCalculation<Float>
+public class EntityExplode extends EntityEffectCalculation
 {
 	public EntityExplode(boolean forAttacker, List<ModDamageCalculation> calculations)
 	{
 		super(forAttacker, calculations);
 	}
 	
-	public EntityExplode(boolean forAttacker, float power)
-	{
-		super(forAttacker, power);
-	}
-
 	@Override
-	void applyEffect(LivingEntity affectedObject, Float input) 
+	void applyEffect(LivingEntity affectedObject, int input) 
 	{
 		affectedObject.getWorld().createExplosion(affectedObject.getLocation(), input);
 	}
 	
 	@Override
-	protected Float calculateInputValue(DamageEventInfo eventInfo) 
+	protected int calculateInputValue(DamageEventInfo eventInfo) 
 	{
-		int temp1 = eventInfo.eventDamage;
-		float temp2;
+		int temp1 = eventInfo.eventDamage, temp2;
 		eventInfo.eventDamage = 0;
 		doCalculations(eventInfo);
 		temp2 = eventInfo.eventDamage;
@@ -38,14 +34,18 @@ public class EntityExplode extends EntityEffectCalculation<Float>
 		return temp2;
 	}
 	@Override
-	protected Float calculateInputValue(SpawnEventInfo eventInfo) 
+	protected int calculateInputValue(SpawnEventInfo eventInfo) 
 	{
-		int temp1 = eventInfo.eventHealth;
-		float temp2;
+		int temp1 = eventInfo.eventHealth, temp2;
 		eventInfo.eventHealth = 0;
 		doCalculations(eventInfo);
 		temp2 = eventInfo.eventHealth;
 		eventInfo.eventHealth = temp1;
 		return temp2;
+	}
+	
+	public static void register()
+	{
+		CalculationUtility.register(EntityExplode.class, Pattern.compile(CalculationUtility.entityPart + "effect\\.explode", Pattern.CASE_INSENSITIVE));
 	}
 }

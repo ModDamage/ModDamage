@@ -1,7 +1,10 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base;
 
+import java.util.regex.Pattern;
+
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 
 public class IntervalRange extends ChanceCalculation 
 {
@@ -16,4 +19,9 @@ public class IntervalRange extends ChanceCalculation
 	public void calculate(DamageEventInfo eventInfo){ eventInfo.eventDamage = baseValue + (intervalValue * (Math.abs(random.nextInt()%(rangeValue + 1))));}
 	@Override
 	public void calculate(SpawnEventInfo eventInfo){ eventInfo.eventHealth = baseValue + (intervalValue * (Math.abs(random.nextInt()%(rangeValue + 1))));}
+	
+	public static void register()
+	{
+		CalculationUtility.register(DiceRoll.class, Pattern.compile("range_int\\.([0-9]*)\\.([0-9]*)", Pattern.CASE_INSENSITIVE));
+	}
 }

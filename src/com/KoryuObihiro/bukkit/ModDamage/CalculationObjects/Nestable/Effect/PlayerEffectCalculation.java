@@ -8,14 +8,9 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-abstract public class PlayerEffectCalculation<InputType> extends EffectCalculation<Player, InputType>
+abstract public class PlayerEffectCalculation extends EffectCalculation<Player>
 {
 	protected final boolean forAttacker;
-	public PlayerEffectCalculation(boolean forAttacker, InputType value)
-	{
-		super(value);
-		this.forAttacker = forAttacker;
-	}
 	public PlayerEffectCalculation(boolean forAttacker, List<ModDamageCalculation> calculations)
 	{
 		super(calculations);
