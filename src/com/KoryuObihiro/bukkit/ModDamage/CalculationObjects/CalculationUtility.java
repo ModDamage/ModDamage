@@ -1,5 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -13,38 +15,7 @@ import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Addition;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.DiceRoll;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.DiceRollAddition;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Division;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.DivisionAddition;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.IntervalRange;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.LiteralRange;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Multiplication;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Set;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.Binomial;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityAirTicksComparison;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityBiome;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityCoordinateComparison;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityDrowning;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityExposedToSky;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityFallComparison;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityFalling;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityFireTicksComparison;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityHealthComparison;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityLightComparison;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityOnBlock;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityOnFire;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityTargetedByOther;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityUnderwater;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EventValueComparison;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.PlayerWearing;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.PlayerWearingOnly;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.PlayerWielding;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.ServerOnlineMode;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.ServerPlayerCount;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.WorldEnvironment;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.WorldTime;
+import com.mysql.jdbc.AssertionFailedException;
 
 //TODO	
 // COUNTER FOR NEST DEPTH
@@ -80,7 +51,7 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional
 public class CalculationUtility
 {
 	static Logger log = Logger.getLogger("Minecraft");
-	private static HashMap<Class<? extends ModDamageCalculation>, Pattern> registeredCalculations = new HashMap<Class<? extends ModDamageCalculation>, Pattern>();
+	private static HashMap<Pattern, Method> registeredCalculations = new HashMap<Pattern, Method>();
 	public static final String ifPart = "(if|if_not)\\.";
 	public static final String entityPart = "(entity|attacker|target)\\.";
 	public static final String comparisonPart = "(equals|notequals|lessthan|lessthanequals|greaterthan|greaterthanequals)\\.";
@@ -115,48 +86,6 @@ public class CalculationUtility
 			for(String equipType : armorParts)
 				armorRegex += material + equipType + "|";
 		armorRegex += aliasPart + "){1-4}";
-		
-//Base Calculations
-		Addition.register();
-		DiceRoll.register();
-		DiceRollAddition.register();
-		Division.register();
-		DivisionAddition.register();
-		IntervalRange.register();
-		LiteralRange.register();
-		Multiplication.register();
-		Set.register();		
-//Nestable Calculations
-	//Conditionals
-		Binomial.register();
-		//Entity
-		EntityAirTicksComparison.register();
-		EntityBiome.register();
-		EntityCoordinateComparison.register();
-		EntityDrowning.register();
-		EntityExposedToSky.register();
-		EntityFallComparison.register();
-		EntityFalling.register();
-		EntityFireTicksComparison.register();
-		EntityHealthComparison.register();
-		EntityLightComparison.register();
-		EntityOnBlock.register();
-		EntityOnFire.register();
-		EntityTargetedByOther.register();
-		EntityUnderwater.register();
-		EventValueComparison.register();
-		PlayerWearing.register();
-		PlayerWearingOnly.register();
-		PlayerWielding.register();
-		//World
-		WorldTime.register();
-		WorldEnvironment.register();
-		//Server
-		ServerOnlineMode.register();
-		ServerPlayerCount.register();
-		//Event
-		EventValueComparison.register();
-	//Effects
 	}
 	
 	//Parse commands for different command strings the handlers pass
@@ -170,22 +99,22 @@ public class CalculationUtility
 			ModDamageCalculation calculation = null;
 			if(calculationString instanceof LinkedHashMap)
 			{
-				for(String key : ((LinkedHashMap<String, List<Object>>)calculationString).keySet())
+				for(String key : ((LinkedHashMap<String, List<Object>>)calculationString).keySet())//should only be one, supposedly
 				{
-					for(Class<? extends ModDamageCalculation> calculationClass : registeredCalculations.keySet())
+					for(Pattern pattern : registeredCalculations.keySet())
 					{
-						Matcher matcher = registeredCalculations.get(calculationClass).matcher((String)calculationString);
+						Matcher matcher = pattern.matcher((String)calculationString);
 						if(matcher.matches())
 						{
+							Method method = registeredCalculations.get(pattern);
 							List<ModDamageCalculation> nestedCalculations = parseStrings(((LinkedHashMap<String, List<Object>>)calculationString).get(key), forSpawn);
 							if(nestedCalculations.isEmpty()) return null;
 							{
 								try 
 								{
-									calculation = calculationClass.getConstructor(Matcher.class, List.class).newInstance(matcher, nestedCalculations);
+									calculation = (ModDamageCalculation) method.getDeclaringClass().cast(method.invoke(null, matcher, nestedCalculations));
 								}
 								catch (Exception e){ e.printStackTrace();}
-								if(!calculation.loaded()) calculation = null;
 							}
 						}
 					}
@@ -193,17 +122,17 @@ public class CalculationUtility
 			}
 			else if(calculationString instanceof String)
 			{
-				for(Class<? extends ModDamageCalculation> calculationClass : registeredCalculations.keySet())
+				for(Pattern pattern : registeredCalculations.keySet())
 				{
-					Matcher matcher = registeredCalculations.get(calculationClass).matcher((String)calculationString);
+					Matcher matcher = pattern.matcher((String)calculationString);
 					if(matcher.matches())
 					{
-						try
+						Method method = registeredCalculations.get(pattern);
+						try 
 						{
-							calculation = calculationClass.getConstructor(Matcher.class).newInstance(matcher);
+							calculation = (ModDamageCalculation) method.getDeclaringClass().cast(method.invoke(null, matcher));
 						}
 						catch (Exception e){ e.printStackTrace();}
-						if(!calculation.loaded()) calculation = null;
 					}
 				}
 			}
@@ -219,14 +148,31 @@ public class CalculationUtility
 		boolean successfullyRegistered = false;
 		if(syntax != null)
 		{
-			registeredCalculations.put(calculationClass, syntax);
-			successfullyRegistered = true;
+			try
+			{
+				Method method = calculationClass.getMethod("getNew", Matcher.class);
+				if(method != null)
+				{
+					assert(method.getReturnType().equals(calculationClass));
+					method.invoke(null, (Matcher)null);
+					registeredCalculations.put(syntax, method);
+					successfullyRegistered = true;
+				}
+				else log.severe("Method getNew not found for class ");
+			}
+			catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return registered class " + calculationClass.getName() + "!");}
+			catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + calculationClass.getName() + " is not static!");}
+			catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Calculation class \"" + calculationClass.toString() + "\" does not have a getNew() method!");} 
+			catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Calculation class \"" + calculationClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
+			catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Calculation class \"" + calculationClass.toString() + "\" does not have valid getNew() method!");} 
+			catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Calculation class \"" + calculationClass.toString() + "\" does not have valid getNew() method!");} 
+			
 		}
+		else log.severe("[ModDamage] Error: Bad regex in calculation class \"" + calculationClass.toString() + "\"!");
 		if(successfullyRegistered)
 		{
 			if(ModDamage.consoleDebugging_verbose) log.info("[ModDamage] Registering calculation " + calculationClass.toString() + " with pattern " + syntax.pattern());
 		}
-		else log.severe("[ModDamage] Error! Couldn't register calculation " + calculationClass.toString());
 	}
 
 	

@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
@@ -19,8 +20,15 @@ public class LiteralRange extends ChanceCalculation
 	@Override
 	public void calculate(SpawnEventInfo eventInfo){ eventInfo.eventHealth = lowerBound + Math.abs(random.nextInt()%(upperBound - lowerBound + 1));}
 	
+	public static LiteralRange getNew(Matcher matcher)
+	{ 
+		if(matcher != null)
+			return new LiteralRange(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)));
+		return null;
+	}
+	
 	public static void register()
 	{
-		CalculationUtility.register(LiteralRange.class, Pattern.compile("range\\.([0-9]*)\\.([0-9]*)", Pattern.CASE_INSENSITIVE));
+		CalculationUtility.register(LiteralRange.class, Pattern.compile("range\\.([0-9]+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

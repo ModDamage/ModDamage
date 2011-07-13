@@ -123,9 +123,9 @@ public class WorldHandler
 	public boolean doSpawnCalculations(SpawnEventInfo eventInfo)
 	{
 		//determine creature type
-		if(eventInfo.spawnedElement != null && spawnRoutines.containsKey(eventInfo.spawnedElement))
+		if(eventInfo.element != null && spawnRoutines.containsKey(eventInfo.element))
 		{
-			for(ModDamageCalculation calculation : spawnRoutines.get(eventInfo.spawnedElement))
+			for(ModDamageCalculation calculation : spawnRoutines.get(eventInfo.element))
 				calculation.calculate(eventInfo);
 			return true;
 		}
