@@ -1,6 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
@@ -24,7 +23,7 @@ public class DamageEventInfo
 	public final EventType eventType;
 	public final DamageElement rangedElement;
 	
-	public final DamageElement damageElement_target;
+	public final DamageElement element_target;
 	public final LivingEntity entity_target;
 	public final Material materialInHand_target;
 	public final DamageElement elementInHand_target;
@@ -32,7 +31,7 @@ public class DamageEventInfo
 	public final String name_attacker;
 	public final String[] groups_target;
 
-	public final DamageElement damageElement_attacker;
+	public final DamageElement element_attacker;
 	public final LivingEntity entity_attacker;
 	public final String armorSetString_attacker;
 	public final Material materialInHand_attacker;
@@ -50,7 +49,7 @@ public class DamageEventInfo
 		this.rangedElement = rangedElement;
 		
 		entity_target = player_target;
-		damageElement_target = DamageElement.GENERIC_HUMAN;
+		element_target = DamageElement.GENERIC_HUMAN;
 		materialInHand_target = player_target.getItemInHand().getType();
 		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
 		armorSetString_target = new ArmorSet(player_target).toString();
@@ -60,7 +59,7 @@ public class DamageEventInfo
 				:ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName()).split(" "):emptyStringArray);
 		
 		entity_attacker = player_attacker;
-		damageElement_attacker = DamageElement.GENERIC_HUMAN;
+		element_attacker = DamageElement.GENERIC_HUMAN;
 		materialInHand_attacker = player_attacker.getItemInHand().getType();
 		elementInHand_attacker = DamageElement.matchMeleeElement(materialInHand_attacker);
 		armorSetString_attacker = new ArmorSet(player_attacker).toString();
@@ -82,7 +81,7 @@ public class DamageEventInfo
 		this.rangedElement = rangedElement;
 		
 		this.entity_target = entity_target;
-		damageElement_target= mobType_target;
+		element_target= mobType_target;
 		materialInHand_target = null;
 		elementInHand_target = null;
 		armorSetString_target = null;
@@ -90,7 +89,7 @@ public class DamageEventInfo
 		groups_target = null;
 		
 		entity_attacker = player_attacker;
-		damageElement_attacker = DamageElement.GENERIC_HUMAN;
+		element_attacker = DamageElement.GENERIC_HUMAN;
 		materialInHand_attacker = player_attacker.getItemInHand().getType();
 		elementInHand_attacker = DamageElement.matchMeleeElement(materialInHand_attacker);
 		armorSetString_attacker = new ArmorSet(player_attacker).toString();
@@ -112,7 +111,7 @@ public class DamageEventInfo
 		this.rangedElement = null;
 		
 		this.entity_target = player_target;
-		damageElement_target = DamageElement.GENERIC_HUMAN;
+		element_target = DamageElement.GENERIC_HUMAN;
 		materialInHand_target = player_target.getItemInHand().getType();
 		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
 		armorSetString_target = new ArmorSet(player_target).toString();
@@ -122,7 +121,7 @@ public class DamageEventInfo
 				:ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName()).split(" "):emptyStringArray);
 
 		this.entity_attacker = entity_attacker;
-		damageElement_attacker = mobType_attacker;
+		element_attacker = mobType_attacker;
 		materialInHand_attacker = null;
 		elementInHand_attacker = null;
 		armorSetString_attacker = null;
@@ -142,7 +141,7 @@ public class DamageEventInfo
 		rangedElement = null;
 
 		this.entity_target = entity_target;
-		damageElement_target = mobType_target;
+		element_target = mobType_target;
 		materialInHand_target = null;
 		elementInHand_target = null;
 		armorSetString_target = null;
@@ -150,7 +149,7 @@ public class DamageEventInfo
 		groups_target = null;
 
 		this.entity_attacker = entity_attacker;
-		damageElement_attacker = mobType_target;
+		element_attacker = mobType_target;
 		materialInHand_attacker = null;
 		elementInHand_attacker = null;
 		armorSetString_attacker = null;
@@ -170,7 +169,7 @@ public class DamageEventInfo
 		this.rangedElement = null;
 		
 		entity_target = player_target;
-		damageElement_target = DamageElement.GENERIC_HUMAN;
+		element_target = DamageElement.GENERIC_HUMAN;
 		materialInHand_target = player_target.getItemInHand().getType();
 		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
 		armorSetString_target = new ArmorSet(player_target).toString();
@@ -180,7 +179,7 @@ public class DamageEventInfo
 				:ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName()).split(" "):emptyStringArray);
 		
 		entity_attacker = null;
-		damageElement_attacker = damageType;
+		element_attacker = damageType;
 		materialInHand_attacker = null;
 		elementInHand_attacker = null;
 		armorSetString_attacker = null;
@@ -200,7 +199,7 @@ public class DamageEventInfo
 		this.rangedElement = null;
 
 		this.entity_target = entity_target;
-		damageElement_target = mobType_target;
+		element_target = mobType_target;
 		materialInHand_target = null;
 		elementInHand_target = null;
 		armorSetString_target = null;
@@ -208,7 +207,7 @@ public class DamageEventInfo
 		groups_target = null;
 		
 		entity_attacker = null;
-		damageElement_attacker = damageType;
+		element_attacker = damageType;
 		materialInHand_attacker = null;
 		elementInHand_attacker = null;
 		armorSetString_attacker = null;

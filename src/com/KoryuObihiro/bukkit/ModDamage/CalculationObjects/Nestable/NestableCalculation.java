@@ -1,7 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable;
 
 import java.util.List;
-import java.util.regex.Matcher;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
@@ -10,7 +9,7 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation
 abstract public class NestableCalculation extends ModDamageCalculation 
 {
 	final protected List<ModDamageCalculation> calculations;
-	public NestableCalculation(Matcher matcher, List<ModDamageCalculation> calculations)
+	public NestableCalculation(List<ModDamageCalculation> calculations)
 	{
 		this.calculations = calculations;
 	}

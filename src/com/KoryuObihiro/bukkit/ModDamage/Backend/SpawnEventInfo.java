@@ -18,7 +18,7 @@ public class SpawnEventInfo
 	public int eventHealth;
 	public final World world;
 	public final Environment environment;
-	public final DamageElement spawnedElement;
+	public final DamageElement element;
 	public final LivingEntity entity;
 	public final String name;
 	public final String[] groups;
@@ -28,7 +28,7 @@ public class SpawnEventInfo
 	{
 		eventHealth = player.getHealth();
 		entity = player;
-		spawnedElement = DamageElement.GENERIC_HUMAN;
+		element = DamageElement.GENERIC_HUMAN;
 		name = player.getName();
 		groups = (ModDamage.multigroupPermissions
 				?ModDamage.Permissions.getGroups(player.getWorld().getName(), player.getName())
@@ -42,7 +42,7 @@ public class SpawnEventInfo
 	{
 		eventHealth = entity.getHealth();
 		this.entity = entity;
-		spawnedElement= DamageElement.matchMobType(entity);
+		element= DamageElement.matchMobType(entity);
 		name = null;
 		groups = null;
 		

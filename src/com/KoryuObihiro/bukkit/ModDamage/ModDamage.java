@@ -27,6 +27,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Handlers.ServerHandler;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.VanillaRegistrar;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
@@ -59,6 +60,7 @@ public class ModDamage extends JavaPlugin
 	
 	//plugin-related
 	public static boolean isEnabled = false;
+	public static Plugin plugin;
 	public static Server server;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	public final static Logger log = Logger.getLogger("Minecraft");
@@ -88,6 +90,7 @@ public class ModDamage extends JavaPlugin
 	@Override
 	public void onEnable() 
 	{
+		plugin = this;
 		ModDamage.server = getServer();
 		
 	//PERMISSIONS
@@ -111,14 +114,13 @@ public class ModDamage extends JavaPlugin
 		    elRegions_enabled = true;
 		}
 		
-		/*
-        elRegionsPlugin elRegions = (elRegionsPlugin) this.getServer().getPluginManager().getPlugin("elRegions");
-		RegionManager el = elRegions.getRegionManager((World)null);
-		*/
-		
 		//register plugin-related stuff with the server's plugin manager
 		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
 		getServer().getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
+		
+		//register MD-vanilla calculation strings
+		VanillaRegistrar registrar = new VanillaRegistrar();
+		registrar.registerCalculations();
 		
 		config = this.getConfiguration();
 		isEnabled = reload(true);
@@ -326,7 +328,7 @@ public class ModDamage extends JavaPlugin
 			if(eventInfo.shouldScan)
 			{
 				int displayHealth = (eventInfo.entity_target).getHealth() - ((!(eventInfo.eventDamage < 0 && ModDamage.negative_Heal))?eventInfo.eventDamage:0);
-				((Player)eventInfo.entity_attacker).sendMessage(ChatColor.DARK_PURPLE + eventInfo.damageElement_target.getReference() 
+				((Player)eventInfo.entity_attacker).sendMessage(ChatColor.DARK_PURPLE + eventInfo.element_target.getReference() 
 						+ "(" + (eventInfo.name_target != null?eventInfo.name_target:("id " + eventInfo.entity_target.getEntityId()))
 						+ "): " + Integer.toString((displayHealth < 0)?0:displayHealth));
 			}

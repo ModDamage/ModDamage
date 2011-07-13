@@ -13,8 +13,8 @@ public class EntityTypeSwitch extends EntitySwitchCalculation<DamageElement>
 	public EntityTypeSwitch(boolean forAttacker, HashMap<DamageElement, List<ModDamageCalculation>> switchStatements){ super(forAttacker, switchStatements);}
 
 	@Override
-	protected DamageElement getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.damageElement_attacker:eventInfo.damageElement_target).getType();}
+	protected DamageElement getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.element_attacker:eventInfo.element_target).getType();}
 
 	@Override
-	protected DamageElement getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.spawnedElement.getType();}
+	protected DamageElement getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.element.getType();}
 }

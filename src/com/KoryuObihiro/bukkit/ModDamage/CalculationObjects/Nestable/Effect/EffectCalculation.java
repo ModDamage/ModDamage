@@ -45,6 +45,23 @@ abstract public class EffectCalculation<AffectedClass> extends NestableCalculati
 	abstract protected AffectedClass getAffectedObject(DamageEventInfo eventInfo);
 	abstract protected AffectedClass getAffectedObject(SpawnEventInfo eventInfo);
 	
-	abstract protected int calculateInputValue(DamageEventInfo eventInfo);
-	abstract protected int calculateInputValue(SpawnEventInfo eventInfo);
+	protected int calculateInputValue(DamageEventInfo eventInfo) 
+	{
+		int temp1 = eventInfo.eventDamage, temp2;
+		eventInfo.eventDamage = 0;
+		doCalculations(eventInfo);
+		temp2 = eventInfo.eventDamage;
+		eventInfo.eventDamage = temp1;
+		return temp2;
+	}
+
+	protected int calculateInputValue(SpawnEventInfo eventInfo) 
+	{
+		int temp1 = eventInfo.eventHealth, temp2;
+		eventInfo.eventHealth = 0;
+		doCalculations(eventInfo);
+		temp2 = eventInfo.eventHealth;
+		eventInfo.eventHealth = temp1;
+		return temp2;
+	}
 }

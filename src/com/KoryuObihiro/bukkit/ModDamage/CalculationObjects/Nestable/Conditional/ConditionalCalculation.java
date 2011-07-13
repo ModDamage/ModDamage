@@ -7,7 +7,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.NestableCalculation;
 
-public class ConditionalCalculation extends NestableCalculation 
+public abstract class ConditionalCalculation extends NestableCalculation 
 {
 	final protected boolean inverted;
 	public ConditionalCalculation(boolean inverted, List<ModDamageCalculation> calculations)

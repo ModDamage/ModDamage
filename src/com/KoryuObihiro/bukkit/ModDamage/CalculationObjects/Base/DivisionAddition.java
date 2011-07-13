@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base;
 
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
@@ -17,8 +18,15 @@ public class DivisionAddition extends ModDamageCalculation
 	@Override
 	public void calculate(SpawnEventInfo eventInfo){ eventInfo.eventHealth += eventInfo.eventHealth/divideValue;}
 	
+	public static DivisionAddition getNew(Matcher matcher)
+	{ 
+		if(matcher != null)
+			return new DivisionAddition(Integer.parseInt(matcher.group(1)));
+		return null;
+	}
+	
 	public static void register()
 	{
-		CalculationUtility.register(DivisionAddition.class, Pattern.compile("div_add\\.([0-9]*)", Pattern.CASE_INSENSITIVE));
+		CalculationUtility.register(DivisionAddition.class, Pattern.compile("div_add\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }
