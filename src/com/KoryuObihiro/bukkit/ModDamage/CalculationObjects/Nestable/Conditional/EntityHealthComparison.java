@@ -1,19 +1,17 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ComparisonType;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
 public class EntityHealthComparison extends EntityComparison
 {
-	public EntityHealthComparison(boolean inverted, boolean forAttacker, int health, ComparisonType comparisonType, List<ModDamageCalculation> calculations)
+	public EntityHealthComparison(boolean inverted, boolean forAttacker, int health, ComparisonType comparisonType)
 	{ 
-		super(inverted, forAttacker, health, comparisonType, calculations);
+		super(inverted, forAttacker, health, comparisonType);
 	}
 	
 	@Override
@@ -23,6 +21,6 @@ public class EntityHealthComparison extends EntityComparison
 	
 	public static void register()
 	{
-		CalculationUtility.register(EntityHealthComparison.class, Pattern.compile(CalculationUtility.ifPart + CalculationUtility.entityPart + "health" + CalculationUtility.comparisonPart + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalCalculation.registerStatement(EntityHealthComparison.class, Pattern.compile(CalculationUtility.entityPart + "health" + CalculationUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

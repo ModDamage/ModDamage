@@ -1,19 +1,17 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ComparisonType;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
 public class EntityAirTicksComparison extends EntityComparison
 {
-	public EntityAirTicksComparison(boolean inverted, boolean forAttacker, int ticks, ComparisonType comparisonType, List<ModDamageCalculation> calculations)
+	public EntityAirTicksComparison(boolean inverted, boolean forAttacker, int ticks, ComparisonType comparisonType)
 	{ 
-		super(inverted, forAttacker, ticks, comparisonType, calculations);
+		super(inverted, forAttacker, ticks, comparisonType);
 	}
 	protected Integer getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getRemainingAir();}
 	@Override
@@ -21,6 +19,6 @@ public class EntityAirTicksComparison extends EntityComparison
 	
 	public static void register()
 	{
-		CalculationUtility.register(EntityAirTicksComparison.class, Pattern.compile(CalculationUtility.ifPart + CalculationUtility.entityPart + "airticks" + CalculationUtility.comparisonPart + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalCalculation.registerStatement(EntityAirTicksComparison.class, Pattern.compile(CalculationUtility.entityPart + "airticks" + CalculationUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

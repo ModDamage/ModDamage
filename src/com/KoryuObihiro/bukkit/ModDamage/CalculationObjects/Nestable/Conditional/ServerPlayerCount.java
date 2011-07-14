@@ -1,19 +1,17 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ComparisonType;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
 public class ServerPlayerCount extends ServerComparison
 {
-	public ServerPlayerCount(boolean inverted, int value, ComparisonType comparisonType, List<ModDamageCalculation> calculations)
+	public ServerPlayerCount(boolean inverted, int value, ComparisonType comparisonType)
 	{
-		super(inverted, value, comparisonType, calculations);
+		super(inverted, value, comparisonType);
 	}
 	@Override
 	protected int getRelevantInfo(SpawnEventInfo eventInfo){ return server.getOnlinePlayers().length;}
@@ -22,6 +20,6 @@ public class ServerPlayerCount extends ServerComparison
 	
 	public static void register()
 	{
-		CalculationUtility.register(ServerPlayerCount.class, Pattern.compile(CalculationUtility.ifPart + "server\\.playercount" + CalculationUtility.comparisonPart + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalCalculation.registerStatement(ServerPlayerCount.class, Pattern.compile("server\\.playercount" + CalculationUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

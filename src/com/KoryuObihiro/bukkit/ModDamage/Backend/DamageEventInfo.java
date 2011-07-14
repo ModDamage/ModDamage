@@ -3,6 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.LivingEntity;
@@ -13,6 +14,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 public class DamageEventInfo
 {
 	Logger log = Logger.getLogger("Minecraft");
+	public final Server server = ModDamage.server;
 	String[] emptyStringArray = {};
 	
 	public int eventDamage;
@@ -27,15 +29,15 @@ public class DamageEventInfo
 	public final LivingEntity entity_target;
 	public final Material materialInHand_target;
 	public final DamageElement elementInHand_target;
-	public final String armorSetString_target;
+	public final ArmorSet armorSetString_target;
 	public final String name_attacker;
 	public final String[] groups_target;
 
 	public final DamageElement element_attacker;
 	public final LivingEntity entity_attacker;
-	public final String armorSetString_attacker;
 	public final Material materialInHand_attacker;
 	public final DamageElement elementInHand_attacker;
+	public final ArmorSet armorSetString_attacker;
 	public final String name_target;
 	public final String[] groups_attacker;
 	
@@ -52,7 +54,7 @@ public class DamageEventInfo
 		element_target = DamageElement.GENERIC_HUMAN;
 		materialInHand_target = player_target.getItemInHand().getType();
 		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
-		armorSetString_target = new ArmorSet(player_target).toString();
+		armorSetString_target = new ArmorSet(player_target);
 		name_target = player_target.getName();
 		groups_target = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
 				?ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName())
@@ -62,7 +64,7 @@ public class DamageEventInfo
 		element_attacker = DamageElement.GENERIC_HUMAN;
 		materialInHand_attacker = player_attacker.getItemInHand().getType();
 		elementInHand_attacker = DamageElement.matchMeleeElement(materialInHand_attacker);
-		armorSetString_attacker = new ArmorSet(player_attacker).toString();
+		armorSetString_attacker = new ArmorSet(player_attacker);
 		name_attacker = player_attacker.getName();
 		groups_attacker = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
 							?ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName())
@@ -92,7 +94,7 @@ public class DamageEventInfo
 		element_attacker = DamageElement.GENERIC_HUMAN;
 		materialInHand_attacker = player_attacker.getItemInHand().getType();
 		elementInHand_attacker = DamageElement.matchMeleeElement(materialInHand_attacker);
-		armorSetString_attacker = new ArmorSet(player_attacker).toString();
+		armorSetString_attacker = new ArmorSet(player_attacker);
 		name_attacker = player_attacker.getName();
 		groups_attacker = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
 				?ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName())
@@ -114,7 +116,7 @@ public class DamageEventInfo
 		element_target = DamageElement.GENERIC_HUMAN;
 		materialInHand_target = player_target.getItemInHand().getType();
 		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
-		armorSetString_target = new ArmorSet(player_target).toString();
+		armorSetString_target = new ArmorSet(player_target);
 		name_target = player_target.getName();
 		groups_target = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
 				?ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName())
@@ -172,7 +174,7 @@ public class DamageEventInfo
 		element_target = DamageElement.GENERIC_HUMAN;
 		materialInHand_target = player_target.getItemInHand().getType();
 		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
-		armorSetString_target = new ArmorSet(player_target).toString();
+		armorSetString_target = new ArmorSet(player_target);
 		name_target = player_target.getName();
 		groups_target = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
 				?ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName())

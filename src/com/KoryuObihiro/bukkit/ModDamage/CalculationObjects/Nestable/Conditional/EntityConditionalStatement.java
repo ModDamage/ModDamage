@@ -1,22 +1,18 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
-
-import java.util.List;
-
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public abstract class EntityConditionalCalculation<InputType> extends ConditionalCalculation
+public abstract class EntityConditionalStatement<InputType> extends ConditionalStatement
 {
 	protected final boolean forAttacker;
 	protected final InputType value;
 	
-	public EntityConditionalCalculation(boolean inverted, boolean forAttacker, InputType value, List<ModDamageCalculation> calculations)
+	public EntityConditionalStatement(boolean inverted, boolean forAttacker, InputType value)
 	{ 
-		super(inverted, calculations);
+		super(inverted);
 		this.forAttacker = forAttacker; 
 		this.value = value;
 	}
@@ -30,8 +26,8 @@ public abstract class EntityConditionalCalculation<InputType> extends Conditiona
 	protected LivingEntity getRelevantEntity(SpawnEventInfo eventInfo){ return eventInfo.entity;}
 	
 	@Override
-	protected boolean condition(DamageEventInfo eventInfo){ return getRelevantInfo(eventInfo).equals(value);}
-	
+	public boolean condition(DamageEventInfo eventInfo){ return getRelevantInfo(eventInfo).equals(value);}
 	@Override
-	protected boolean condition(SpawnEventInfo eventInfo){ return getRelevantInfo(eventInfo).equals(value);}
+	public boolean condition(SpawnEventInfo eventInfo){ return getRelevantInfo(eventInfo).equals(value);}
+	
 }

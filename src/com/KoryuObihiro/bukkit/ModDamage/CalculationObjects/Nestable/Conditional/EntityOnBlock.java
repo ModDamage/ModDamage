@@ -1,6 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.bukkit.Material;
@@ -8,14 +7,13 @@ import org.bukkit.Material;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EntityOnBlock extends EntityConditionalCalculation<Material>
+public class EntityOnBlock extends EntityConditionalStatement<Material>
 {
 	final Material material;
-	public EntityOnBlock(boolean inverted, boolean forAttacker, Material material, List<ModDamageCalculation> calculations)
+	public EntityOnBlock(boolean inverted, boolean forAttacker, Material material)
 	{ 
-		super(inverted, forAttacker, material, calculations);
+		super(inverted, forAttacker, material);
 		this.material = material;
 	}
 	@Override
@@ -25,6 +23,6 @@ public class EntityOnBlock extends EntityConditionalCalculation<Material>
 	
 	public static void register()
 	{
-		CalculationUtility.register(EntityOnBlock.class, Pattern.compile(CalculationUtility.ifPart + CalculationUtility.entityPart + "onblock\\." + CalculationUtility.materialRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalCalculation.registerStatement(EntityOnBlock.class, Pattern.compile(CalculationUtility.entityPart + "onblock\\." + CalculationUtility.materialRegex, Pattern.CASE_INSENSITIVE));
 	}
 }

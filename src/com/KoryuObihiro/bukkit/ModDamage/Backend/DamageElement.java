@@ -21,10 +21,12 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Flying;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Giant;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.PigZombie;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Skeleton;
@@ -46,6 +48,7 @@ public enum DamageElement
 	GENERIC_ARMOR	("armor", GENERIC, false),
 	GENERIC_MOB 	("mob", GENERIC, true),
 	GENERIC_NATURE 	("nature", GENERIC, true),
+	GENERIC_TRAP	("trap", GENERIC, true),
 //tools
 	MELEE_AXE 		("axe", GENERIC_MELEE, false),
 	MELEE_FIST 		("fist", GENERIC_MELEE, false),
@@ -75,6 +78,9 @@ public enum DamageElement
 	ANIMAL_SHEEP ("Sheep", GENERIC_ANIMAL, false),
 	ANIMAL_SQUID ("Squid", GENERIC_ANIMAL, false),
 	ANIMAL_WOLF ("Wolf", GENERIC_ANIMAL, false),
+//humans
+	HUMAN_PLAYER ("Player", GENERIC_HUMAN, false),
+	HUMAN_NPC ("NPC", GENERIC_HUMAN, false),
 //mobs
 	MOB_CREEPER ("Creeper", GENERIC_MOB, false),
 	MOB_GHAST ("Ghast", GENERIC_MOB, false),
@@ -96,20 +102,21 @@ public enum DamageElement
 	NATURE_LIGHTNING ("lightning", GENERIC_NATURE, false),
 	NATURE_SUFFOCATION ("suffocation", GENERIC_NATURE, false),
 	NATURE_VOID ("void", GENERIC_NATURE, false),
-	
+//Dispenser/Spikes
+	TRAP_DISPENSER("dispenser", GENERIC_TRAP, false),
 //mob-specific stuff
-	ANIMAL_WOLF_WILD ("WildWolf", ANIMAL_WOLF, false),
-	ANIMAL_WOLF_ANGRY ("HostileWolf", ANIMAL_WOLF, false),
-	ANIMAL_WOLF_TAME ("TameWolf", ANIMAL_WOLF, false),
+	ANIMAL_WOLF_WILD ("Wolf_Wild", ANIMAL_WOLF, false),
+	ANIMAL_WOLF_ANGRY ("Wolf_Hostile", ANIMAL_WOLF, false),
+	ANIMAL_WOLF_TAME ("Wolf_Tame", ANIMAL_WOLF, false),
 
-	MOB_CREEPER_CHARGED("ChargedCreeper", GENERIC_MOB, false),
-	MOB_CREEPER_NORMAL ("NormalCreeper", GENERIC_MOB, false),
+	MOB_CREEPER_CHARGED("Creeper_Charged", GENERIC_MOB, false),
+	MOB_CREEPER_NORMAL ("Creeper_Normal", GENERIC_MOB, false),
 
-	MOB_SLIME_HUGE ("HugeSlime", MOB_SLIME, false),
-	MOB_SLIME_LARGE ("LargeSlime", MOB_SLIME, false),
-	MOB_SLIME_MEDIUM("MediumSlime", MOB_SLIME, false),
-	MOB_SLIME_OTHER("OtherSlime", MOB_SLIME, false),
-	MOB_SLIME_SMALL("SmallSlime", MOB_SLIME, false);
+	MOB_SLIME_HUGE ("Slime_Huge", MOB_SLIME, false),
+	MOB_SLIME_LARGE ("Slime_Large", MOB_SLIME, false),
+	MOB_SLIME_MEDIUM("Slime_Medium", MOB_SLIME, false),
+	MOB_SLIME_OTHER("Slime_Other", MOB_SLIME, false),
+	MOB_SLIME_SMALL("Slime_Small", MOB_SLIME, false);
 	
 	
 	private final String stringReference;
@@ -186,6 +193,7 @@ public enum DamageElement
 		}
 		if(entity instanceof Flying) 
 			if(entity instanceof Ghast)			return MOB_GHAST;
+		if(entity instanceof HumanEntity)		return GENERIC_HUMAN;
 		return null;
 	}
 	
@@ -193,20 +201,17 @@ public enum DamageElement
 	{
 		if(entity != null)
 		{
-			if(entity instanceof Creeper)
-			{
-				if(((CraftCreeper)entity).isPowered()) return MOB_CREEPER_CHARGED;
-				return MOB_CREEPER_NORMAL;
-			}
+			if(entity instanceof Creeper)		return((CraftCreeper)entity).isPowered()?MOB_CREEPER_CHARGED:MOB_CREEPER_NORMAL;
+			if(entity instanceof HumanEntity)	return (entity instanceof Player)?HUMAN_PLAYER:HUMAN_NPC;
 			if(entity instanceof Slime)
 			{
 				Logger.getLogger("Minecraft").info("FOUND SLIME, size: " + ((CraftSlime)entity).getSize());//TODO REMOVE ME
 				switch(((CraftSlime)entity).getSize())
 				{
 					case 0: return MOB_SLIME_SMALL;
-					case 1: return MOB_SLIME_SMALL;
-					case 2: return MOB_SLIME_SMALL;
-					case 3: return MOB_SLIME_SMALL;
+					case 1: return MOB_SLIME_MEDIUM;
+					case 2: return MOB_SLIME_LARGE;
+					case 3: return MOB_SLIME_HUGE;
 					default:return MOB_SLIME_OTHER;
 				}
 			}
@@ -228,35 +233,36 @@ public enum DamageElement
 			//Fist
 				case AIR:			return MELEE_FIST;
 			//Axes
-				case WOOD_AXE: 		return MELEE_AXE;
-				case STONE_AXE: 	return MELEE_AXE;
-				case IRON_AXE:		return MELEE_AXE;
-				case GOLD_AXE: 		return MELEE_AXE;
+				case WOOD_AXE:
+				case STONE_AXE:
+				case IRON_AXE:
+				case GOLD_AXE:
 				case DIAMOND_AXE: 	return MELEE_AXE;
 			//Hoes
-				case WOOD_HOE: 		return MELEE_HOE;
-				case STONE_HOE: 	return MELEE_HOE;
-				case IRON_HOE:		return MELEE_HOE;
-				case GOLD_HOE:		return MELEE_HOE;
+				case WOOD_HOE:
+				case STONE_HOE:
+				case IRON_HOE:
+				case GOLD_HOE:
 				case DIAMOND_HOE: 	return MELEE_HOE;
 			//Picks
-				case WOOD_PICKAXE: 	return MELEE_PICKAXE;
-				case STONE_PICKAXE: return MELEE_PICKAXE;
-				case IRON_PICKAXE:	return MELEE_PICKAXE;
-				case GOLD_PICKAXE:	return MELEE_PICKAXE;
+				case WOOD_PICKAXE:
+				case STONE_PICKAXE:
+				case IRON_PICKAXE:
+				case GOLD_PICKAXE:
 				case DIAMOND_PICKAXE:return MELEE_PICKAXE;
 			//Shovels	
-				case WOOD_SPADE: 	return MELEE_SPADE;
-				case STONE_SPADE: 	return MELEE_SPADE;
-				case IRON_SPADE:	return MELEE_SPADE;
-				case GOLD_SPADE:	return MELEE_SPADE;
+				case WOOD_SPADE:
+				case STONE_SPADE:
+				case IRON_SPADE:
+				case GOLD_SPADE:
 				case DIAMOND_SPADE:	return MELEE_SPADE;
 			//Swords	
-				case WOOD_SWORD: 	return MELEE_SWORD;
-				case STONE_SWORD: 	return MELEE_SWORD;
-				case IRON_SWORD:	return MELEE_SWORD;
-				case GOLD_SWORD:	return MELEE_SWORD;
+				case WOOD_SWORD:
+				case STONE_SWORD:
+				case IRON_SWORD:
+				case GOLD_SWORD:
 				case DIAMOND_SWORD:	return MELEE_SWORD;
+				
 			//All others
 				default: 			return MELEE_OTHER;
 			}
@@ -269,28 +275,28 @@ public enum DamageElement
 			switch(material)
 			{
 			//Headwear
-				case LEATHER_HELMET:		return ARMOR_HELMET;
-				case IRON_HELMET:			return ARMOR_HELMET;
-				case GOLD_HELMET:			return ARMOR_HELMET;
-				case DIAMOND_HELMET:		return ARMOR_HELMET;
+				case LEATHER_HELMET:
+				case IRON_HELMET:
+				case GOLD_HELMET:
+				case DIAMOND_HELMET:
 				case CHAINMAIL_HELMET:		return ARMOR_HELMET;
 			//Chest
-				case LEATHER_CHESTPLATE:	return ARMOR_CHESTPLATE;
-				case IRON_CHESTPLATE:		return ARMOR_CHESTPLATE;
-				case GOLD_CHESTPLATE:		return ARMOR_CHESTPLATE;
-				case DIAMOND_CHESTPLATE:	return ARMOR_CHESTPLATE;
+				case LEATHER_CHESTPLATE:
+				case IRON_CHESTPLATE:
+				case GOLD_CHESTPLATE:
+				case DIAMOND_CHESTPLATE:
 				case CHAINMAIL_CHESTPLATE:	return ARMOR_CHESTPLATE;
 			//Legs
-				case LEATHER_LEGGINGS:		return ARMOR_LEGGINGS;
-				case IRON_LEGGINGS:			return ARMOR_LEGGINGS;
-				case GOLD_LEGGINGS:			return ARMOR_LEGGINGS;
-				case DIAMOND_LEGGINGS:		return ARMOR_LEGGINGS;
+				case LEATHER_LEGGINGS:
+				case IRON_LEGGINGS:
+				case GOLD_LEGGINGS:
+				case DIAMOND_LEGGINGS:
 				case CHAINMAIL_LEGGINGS:	return ARMOR_LEGGINGS;
 			//Boots
-				case LEATHER_BOOTS:			return ARMOR_BOOTS;
-				case IRON_BOOTS:			return ARMOR_BOOTS;
-				case GOLD_BOOTS:			return ARMOR_BOOTS;
-				case DIAMOND_BOOTS:			return ARMOR_BOOTS;
+				case LEATHER_BOOTS:
+				case IRON_BOOTS:
+				case GOLD_BOOTS:
+				case DIAMOND_BOOTS:
 				case CHAINMAIL_BOOTS:		return ARMOR_BOOTS;
 				
 				default:					return null;
@@ -308,26 +314,12 @@ public enum DamageElement
 		return null;
 	}
 
-	public static List<String> getStringsOf(DamageElement element){ return getStringsOf(element.getReference());}
-	public static List<String> getGenericTypeStrings(){ return getStringsOf("generic");}
-	public static List<String> getStringsOf(String elementType)
-	{
-		List<String> typeStrings = new ArrayList<String>();
-		for(DamageElement element : values())
-			if(element.getType() != null
-					&& element.getType().getReference().equals(elementType))
-				typeStrings.add(element.getReference());
-		return typeStrings;
-	}
-
 	public static List<DamageElement> getElementsOf(DamageElement element){ return getElementsOf(element.getReference());}
-	public static List<DamageElement> getGenericElements(){ return getElementsOf("generic");}
 	public static List<DamageElement> getElementsOf(String elementType)
 	{
 		List<DamageElement> typeStrings = new ArrayList<DamageElement>();
 		for(DamageElement element : values())
-			if(element.getType() != null
-					&& element.getType().getReference().equals(elementType))
+			if(element.getType() != null && element.getType().getReference().equals(elementType))
 				typeStrings.add(element);
 		return typeStrings;
 	}

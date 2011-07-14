@@ -8,6 +8,7 @@ public class ArmorSet
 {
 	//private boolean inclusive = true;
 	private boolean hasSomething = false;
+	private byte slotsOccupied = 0;
 	protected Material armorSet[] = new Material[4];
 	
 	public ArmorSet(Player player)
@@ -20,11 +21,14 @@ public class ArmorSet
 	{
 		String parts[] = armorConfigString.split("\\*");
 		for(String part : parts)
+		{
 			if(!this.put(Material.matchMaterial(part)))
 			{
 				clear();
 				break;
 			}
+			else slotsOccupied++;
+		}
 	}
 	
 	private boolean put(Material material)
@@ -63,6 +67,16 @@ public class ArmorSet
 	
 	public Material get(int i){ return armorSet[i];}
 	
+	public boolean contains(ArmorSet someArmorSet)
+	{
+		if(this.isEmpty()) return true;
+		if(someArmorSet.isEmpty()) return false;		
+		for(int i = 0; i < 4; i++)
+			if(armorSet[i] != null && !armorSet[i].equals(someArmorSet.get(i)))
+				return false;
+		return true;
+	}
+	
 	public boolean equals(ArmorSet someArmorSet)
 	{
 		if(hasSomething)
@@ -83,7 +97,6 @@ public class ArmorSet
 		//inclusive = true;
 	}
 	
-	//public boolean isInclusive(){ return inclusive;}
 	public boolean isEmpty(){ return !hasSomething;}
 	
 	public String toString()//TODO Format better, mebbe?
@@ -99,7 +112,7 @@ public class ArmorSet
 		return "";
 	}
 	
-	public Material[] toMaterialArray(){ if(hasSomething) return armorSet; else return null;}
+	public Material[] toMaterialArray(){ return armorSet;}
 	
 	
 }

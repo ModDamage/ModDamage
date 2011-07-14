@@ -10,7 +10,7 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.IntervalRange;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Base.Set;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.Binomial;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.EventMiss;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityAirTicksComparison;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityBiome;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional.EntityCoordinateComparison;
@@ -49,7 +49,6 @@ public final class VanillaRegistrar extends ModDamageCalculationRegistrar
 	{
 //Base Calculations
 		Addition.register();
-		/*
 		DiceRoll.register();
 		DiceRollAddition.register();
 		Division.register();
@@ -57,10 +56,10 @@ public final class VanillaRegistrar extends ModDamageCalculationRegistrar
 		IntervalRange.register();
 		LiteralRange.register();
 		Multiplication.register();
-		Set.register();		
+		Set.register();	
 //Nestable Calculations
 	//Conditionals
-		Binomial.register();
+		EventMiss.register();
 		//Entity
 		EntityAirTicksComparison.register();
 		EntityBiome.register();
@@ -97,6 +96,5 @@ public final class VanillaRegistrar extends ModDamageCalculationRegistrar
 		EntitySetHealth.register();
 		PlayerSetItem.register();
 		SlimeSetSize.register();
-		*/
 	}
 }

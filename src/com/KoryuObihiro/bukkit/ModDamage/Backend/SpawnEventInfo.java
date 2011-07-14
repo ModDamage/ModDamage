@@ -2,6 +2,7 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
 import java.util.logging.Logger;
 
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.LivingEntity;
@@ -12,8 +13,8 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 public class SpawnEventInfo
 {
 	Logger log = Logger.getLogger("Minecraft");
-	
-	//public final Server server; //TODO Implement me soon. :P
+	public final Server server = ModDamage.server;
+	String[] emptyStringArray = {};
 	
 	public int eventHealth;
 	public final World world;
@@ -30,9 +31,9 @@ public class SpawnEventInfo
 		entity = player;
 		element = DamageElement.GENERIC_HUMAN;
 		name = player.getName();
-		groups = (ModDamage.multigroupPermissions
-				?ModDamage.Permissions.getGroups(player.getWorld().getName(), player.getName())
-				:ModDamage.Permissions.getGroup(player.getWorld().getName(), player.getName()).split(" "));
+		groups = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
+					?ModDamage.Permissions.getGroups(player.getWorld().getName(), player.getName())
+					:ModDamage.Permissions.getGroup(player.getWorld().getName(), player.getName()).split(" "):emptyStringArray);
 		
 		world = entity.getWorld();
 		environment = world.getEnvironment();

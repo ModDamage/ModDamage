@@ -48,15 +48,50 @@ public class ModDamage extends JavaPlugin
 	// -per-world for disableDefault variables
 	// -count characters in config for message length
 	// -change md debug messages to reflect previous state
-	// -single-line configuration!
-	// -API for adding stuff to aliases
+	// -single-line configuration
 	
-	//--EntityListener
-	// -Add worldLoad-triggered loading of MD
+	//--API
+	// -aliases (dynamic: $ and static: _): //Check in config allocation for existing static!
+	//   -items
+	//   -armor
+	//   -entities
+	// -event keyword (_event)
+	// -External: tag entities with an alias
+	// -External: check entity tags
+	// -Print plugin name at fault when calculation registry fails
+	// -Write tut, code requirements, and regex guidelines for using the API
+	
+	//Aliasing config tree:
+	//```yaml
+	// Aliases:
+	//     items:
+	//         aliasname:
+	//             - 'item'
+	// 
+	//     elements:
+	//         aliasname:
+	//             - 'element'
+	// 
+	//     armor:
+	//         aliasname:
+	//             - 'armorset'
+	// 
+	//     groups:
+	//         aliasname:
+	//             - 'group' #uses aliases
+	// 
+	//     entities:
+	//         aliasname:
+	//             - 'entity' #uses aliases
+	//```
 	
 	//--CalculationUtility
-	// -Refactor config to contain errors?
+	// -Refactor config to contain errors and display - add config strings regardless
 	// -Make sure that Slimes work for EntityTargetedByOther - they failed in a previous RB.
+	// -FIXME Check the "!" in the statementPart member actually works, and isn't a regex metacharacter.
+	
+	//--DamageElement
+	// -Make DamageElement do some parsing with Material.name()? (update ArmorSet and CalculationUtility accordingly if this is done)
 	
 	//plugin-related
 	public static boolean isEnabled = false;
@@ -66,7 +101,7 @@ public class ModDamage extends JavaPlugin
 	public final static Logger log = Logger.getLogger("Minecraft");
 	public static PermissionHandler Permissions = null;
 	public static elRegionsPlugin elRegions = null;
-	public Configuration config;
+	public static Configuration config;
 	public static String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
 	public static String errorString_findWorld = ModDamageString(ChatColor.RED) + " Couldn't find matching world name.";
 	
@@ -80,7 +115,7 @@ public class ModDamage extends JavaPlugin
 	public static boolean disable_DefaultDamage;
 	public static boolean disable_DefaultHealth;
 	public static boolean negative_Heal;
-	public static final List<String> emptyList = null; //FIXME Dunno if it can be just any null object, but at least it leaves things blank.		
+	public static final List<String> emptyList = null; //Dunno if it can be just any null object, but at least it leaves things blank.		
 	
 	public static ServerHandler serverHandler;
 	public static boolean using_Permissions = false;
@@ -115,8 +150,8 @@ public class ModDamage extends JavaPlugin
 		}
 		
 		//register plugin-related stuff with the server's plugin manager
-		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
-		getServer().getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
+		server.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
+		server.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
 		
 		//register MD-vanilla calculation strings
 		VanillaRegistrar registrar = new VanillaRegistrar();
@@ -369,9 +404,9 @@ public class ModDamage extends JavaPlugin
 	public static String ModDamageString(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "]";}
 	
 //// PLUGIN CONFIGURATION ////
-	private void setPluginStatus(Player player, boolean state) 
+	private void setPluginStatus(Player player, boolean sentEnable) 
 	{
-		if(state)
+		if(sentEnable)
 		{
 			if(isEnabled)
 			{
@@ -542,7 +577,6 @@ public class ModDamage extends JavaPlugin
 		}
 		
 		config.save();
-		config.load();//TODO Necessary?
 		log.severe("[" + getDescription().getName() + "] Defaults written!");
 	}
 	
@@ -553,14 +587,4 @@ public class ModDamage extends JavaPlugin
 			for(DamageElement creatureElement : mobHealthList)
 				config.setProperty("MobHealth." + configPath + "." + creatureElement.getReference(), emptyList);
 	}
-	
-
-	/*
-	private boolean loadAliases()
-	{
-		return false;
-	}
-	
-	private void saveAliases(){}
-	*/
 }

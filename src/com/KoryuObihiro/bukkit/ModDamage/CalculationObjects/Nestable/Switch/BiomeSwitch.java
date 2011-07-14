@@ -1,6 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Switch;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.bukkit.block.Biome;
@@ -11,7 +11,7 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation
 
 public class BiomeSwitch extends EntitySwitchCalculation<Biome>
 {
-	public BiomeSwitch(boolean forAttacker, HashMap<Biome, List<ModDamageCalculation>> switchLabels)
+	public BiomeSwitch(boolean forAttacker, LinkedHashMap<Biome, List<ModDamageCalculation>> switchLabels)
 	{
 		super(forAttacker, switchLabels);
 	}
