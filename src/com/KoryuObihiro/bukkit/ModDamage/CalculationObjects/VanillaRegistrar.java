@@ -49,7 +49,6 @@ public final class VanillaRegistrar extends ModDamageCalculationRegistrar
 	{
 //Base Calculations
 		Addition.register();
-		/*
 		DiceRoll.register();
 		DiceRollAddition.register();
 		Division.register();
@@ -97,6 +96,5 @@ public final class VanillaRegistrar extends ModDamageCalculationRegistrar
 		EntitySetHealth.register();
 		PlayerSetItem.register();
 		SlimeSetSize.register();
-		*/
 	}
 }

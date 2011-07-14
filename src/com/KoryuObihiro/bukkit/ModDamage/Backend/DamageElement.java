@@ -46,6 +46,7 @@ public enum DamageElement
 	GENERIC_ARMOR	("armor", GENERIC, false),
 	GENERIC_MOB 	("mob", GENERIC, true),
 	GENERIC_NATURE 	("nature", GENERIC, true),
+	GENERIC_TRAP	("trap", GENERIC, true),
 //tools
 	MELEE_AXE 		("axe", GENERIC_MELEE, false),
 	MELEE_FIST 		("fist", GENERIC_MELEE, false),
@@ -75,6 +76,9 @@ public enum DamageElement
 	ANIMAL_SHEEP ("Sheep", GENERIC_ANIMAL, false),
 	ANIMAL_SQUID ("Squid", GENERIC_ANIMAL, false),
 	ANIMAL_WOLF ("Wolf", GENERIC_ANIMAL, false),
+//humans
+	HUMAN_PLAYER ("Player", GENERIC_HUMAN, false),
+	HUMAN_NPC ("NPC", GENERIC_HUMAN, false),
 //mobs
 	MOB_CREEPER ("Creeper", GENERIC_MOB, false),
 	MOB_GHAST ("Ghast", GENERIC_MOB, false),
@@ -96,6 +100,9 @@ public enum DamageElement
 	NATURE_LIGHTNING ("lightning", GENERIC_NATURE, false),
 	NATURE_SUFFOCATION ("suffocation", GENERIC_NATURE, false),
 	NATURE_VOID ("void", GENERIC_NATURE, false),
+	
+//Dispenser/Spikes
+	TRAP_DISPENSER("dispenser", GENERIC_TRAP, false),
 	
 //mob-specific stuff
 	ANIMAL_WOLF_WILD ("WildWolf", ANIMAL_WOLF, false),
