@@ -1,6 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.bukkit.Material;
@@ -8,14 +7,13 @@ import org.bukkit.Material;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EntityUnderwater extends EntityConditionalCalculation<Material[]>
+public class EntityUnderwater extends EntityConditionalStatement<Material[]>
 {
 	static Material[] materialSet = { Material.WATER, Material.WATER };
-	public EntityUnderwater(boolean inverted, boolean forAttacker, List<ModDamageCalculation> calculations)
+	public EntityUnderwater(boolean inverted, boolean forAttacker)
 	{ 
-		super(forAttacker, forAttacker, materialSet, calculations);
+		super(forAttacker, forAttacker, materialSet);
 	}
 	@Override
 	protected Material[] getRelevantInfo(DamageEventInfo eventInfo)
@@ -32,6 +30,6 @@ public class EntityUnderwater extends EntityConditionalCalculation<Material[]>
 	
 	public static void register()
 	{
-		CalculationUtility.register(EntityUnderwater.class, Pattern.compile(CalculationUtility.ifPart + CalculationUtility.entityPart + "underwater", Pattern.CASE_INSENSITIVE));
+		ConditionalCalculation.registerStatement(EntityUnderwater.class, Pattern.compile(CalculationUtility.entityPart + "underwater", Pattern.CASE_INSENSITIVE));
 	}
 }

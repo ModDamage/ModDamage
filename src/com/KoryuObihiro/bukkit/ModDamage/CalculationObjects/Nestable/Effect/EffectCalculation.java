@@ -5,9 +5,9 @@ import java.util.List;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.NestableCalculation;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.NestedCalculation;
 
-abstract public class EffectCalculation<AffectedClass> extends NestableCalculation 
+abstract public class EffectCalculation<AffectedClass> extends NestedCalculation 
 {
 	final AffectedClass affectedObject;
 	final boolean useEventObject;

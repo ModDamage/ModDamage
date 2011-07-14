@@ -1,6 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.bukkit.block.Biome;
@@ -8,13 +7,12 @@ import org.bukkit.block.Biome;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EntityBiome extends EntityConditionalCalculation<Biome>
+public class EntityBiome extends EntityConditionalStatement<Biome>
 {
-	public EntityBiome(boolean inverted, boolean forAttacker, Biome biome, List<ModDamageCalculation> calculations)
+	public EntityBiome(boolean inverted, boolean forAttacker, Biome biome)
 	{ 
-		super(inverted, forAttacker, biome, calculations);
+		super(inverted, forAttacker, biome);
 	}
 	
 	@Override
@@ -24,6 +22,6 @@ public class EntityBiome extends EntityConditionalCalculation<Biome>
 	
 	public static void register()
 	{
-		CalculationUtility.register(EntityBiome.class, Pattern.compile(CalculationUtility.ifPart + CalculationUtility.entityPart + "biome\\." + CalculationUtility.biomeRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalCalculation.registerStatement(EntityBiome.class, Pattern.compile(CalculationUtility.entityPart + "biome\\." + CalculationUtility.biomeRegex, Pattern.CASE_INSENSITIVE));
 	}
 }

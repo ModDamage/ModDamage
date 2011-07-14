@@ -11,17 +11,17 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class WorldEnvironment extends WorldConditionalCalculation 
+public class WorldEnvironment extends WorldConditionalStatement 
 {
 	protected final Environment environment;
 	public WorldEnvironment(boolean inverted, World world, Environment environment, List<ModDamageCalculation> calculations)
 	{
-		super(inverted, world, calculations);
+		super(inverted, world);
 		this.environment = environment;
 	}
-	public WorldEnvironment(boolean inverted, Environment environment, List<ModDamageCalculation> calculations)
+	public WorldEnvironment(boolean inverted, Environment environment)
 	{
-		super(inverted, calculations);
+		super(inverted);
 		this.environment = environment;
 	}
 	@Override
@@ -31,6 +31,6 @@ public class WorldEnvironment extends WorldConditionalCalculation
 	
 	public static void register()
 	{
-		CalculationUtility.register(WorldEnvironment.class, Pattern.compile(CalculationUtility.ifPart + "world\\.environment\\." + CalculationUtility.environmentRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalCalculation.registerStatement(WorldEnvironment.class, Pattern.compile("world\\.environment\\." + CalculationUtility.environmentRegex, Pattern.CASE_INSENSITIVE));
 	}
 }

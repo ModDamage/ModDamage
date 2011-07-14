@@ -1,33 +1,30 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
-
-import java.util.List;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ComparisonType;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EventValueComparison extends ConditionalCalculation
+public class EventValueComparison extends ConditionalStatement
 {
 	protected final int value;
 	protected final ComparisonType comparisonType;
-	public EventValueComparison(boolean inverted, ComparisonType comparisonType, int value, List<ModDamageCalculation> calculations)
+	public EventValueComparison(boolean inverted, ComparisonType comparisonType, int value)
 	{ 
-		super(inverted, calculations);
+		super(inverted);
 		this.comparisonType = comparisonType;
 		this.value = value;
 	}
 	@Override
-	protected boolean condition(DamageEventInfo eventInfo){ return ComparisonType.compare(comparisonType, eventInfo.eventDamage, value);}
+	public boolean condition(DamageEventInfo eventInfo){ return comparisonType.compare(eventInfo.eventDamage, value);}
 	@Override
-	protected boolean condition(SpawnEventInfo eventInfo){ return ComparisonType.compare(comparisonType, eventInfo.eventHealth, value);}
+	public boolean condition(SpawnEventInfo eventInfo){ return comparisonType.compare(eventInfo.eventHealth, value);}
 	
 	public static void register()
 	{
-		CalculationUtility.register(EventValueComparison.class, Pattern.compile(CalculationUtility.ifPart + "value" + CalculationUtility.comparisonPart + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalCalculation.registerStatement(EventValueComparison.class, Pattern.compile("value" + CalculationUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 
 }

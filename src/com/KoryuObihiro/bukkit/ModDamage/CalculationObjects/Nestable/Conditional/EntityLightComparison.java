@@ -1,19 +1,17 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ComparisonType;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
 public class EntityLightComparison extends EntityComparison
 {
-	public EntityLightComparison(boolean inverted, boolean forAttacker, int lightLevel, ComparisonType comparisonType, List<ModDamageCalculation> calculations) 
+	public EntityLightComparison(boolean inverted, boolean forAttacker, int lightLevel, ComparisonType comparisonType) 
 	{
-		super(inverted, forAttacker, lightLevel, comparisonType, calculations);
+		super(inverted, forAttacker, lightLevel, comparisonType);
 	}
 
 	@Override
@@ -24,6 +22,6 @@ public class EntityLightComparison extends EntityComparison
 	
 	public static void register()
 	{
-		CalculationUtility.register(EntityLightComparison.class, Pattern.compile(CalculationUtility.ifPart + CalculationUtility.entityPart + "light" + CalculationUtility.comparisonPart + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalCalculation.registerStatement(EntityLightComparison.class, Pattern.compile(CalculationUtility.entityPart + "light" + CalculationUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

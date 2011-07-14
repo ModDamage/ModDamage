@@ -1,28 +1,25 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.bukkit.World;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class WorldTime extends WorldConditionalCalculation 
+public class WorldTime extends WorldConditionalStatement 
 {
 	private long beginningTime;
 	private long endTime;
-	public WorldTime(boolean inverted, World world, int beginningTime, int endTime, List<ModDamageCalculation> calculations)
+	public WorldTime(boolean inverted, World world, int beginningTime, int endTime)
 	{
-		super(beginningTime > endTime | inverted, world, calculations);
+		super(beginningTime > endTime | inverted, world);
 		this.beginningTime = beginningTime;
 		this.endTime = endTime;
 	}
-	public WorldTime(boolean inverted, int beginningTime, int endTime, List<ModDamageCalculation> calculations)
+	public WorldTime(boolean inverted, int beginningTime, int endTime)
 	{
-		super(beginningTime > endTime | inverted, calculations);
+		super(beginningTime > endTime | inverted);
 		this.beginningTime = beginningTime;
 		this.endTime = endTime;
 	}
@@ -33,6 +30,6 @@ public class WorldTime extends WorldConditionalCalculation
 	
 	public static void register()
 	{
-		CalculationUtility.register(WorldTime.class, Pattern.compile(CalculationUtility.ifPart + "world\\.time\\.([0-9]+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalCalculation.registerStatement(WorldTime.class, Pattern.compile("world\\.time\\.([0-9]+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

@@ -1,6 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Creature;
@@ -9,14 +8,13 @@ import org.bukkit.entity.LivingEntity;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EntityTargetedByOther extends EntityConditionalCalculation<LivingEntity>
+public class EntityTargetedByOther extends EntityConditionalStatement<LivingEntity>
 {
 	LivingEntity value;
-	public EntityTargetedByOther(boolean inverted, boolean forAttacker, List<ModDamageCalculation> calculations)
+	public EntityTargetedByOther(boolean inverted, boolean forAttacker)
 	{ 
-		super(inverted, forAttacker, null, calculations);
+		super(inverted, forAttacker, null);
 	}
 	@Override
 	public boolean condition(DamageEventInfo eventInfo)
@@ -33,6 +31,6 @@ public class EntityTargetedByOther extends EntityConditionalCalculation<LivingEn
 	
 	public static void register()
 	{
-		CalculationUtility.register(EntityTargetedByOther.class, Pattern.compile(CalculationUtility.ifPart + CalculationUtility.entityPart + "targetedbyother", Pattern.CASE_INSENSITIVE));
+		ConditionalCalculation.registerStatement(EntityTargetedByOther.class, Pattern.compile(CalculationUtility.entityPart + "targetedbyother", Pattern.CASE_INSENSITIVE));
 	}
 }

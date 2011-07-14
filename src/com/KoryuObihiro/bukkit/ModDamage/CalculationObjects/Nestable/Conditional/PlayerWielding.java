@@ -1,6 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.bukkit.Material;
@@ -8,13 +7,12 @@ import org.bukkit.Material;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class PlayerWielding extends EntityConditionalCalculation<Material> 
+public class PlayerWielding extends EntityConditionalStatement<Material> 
 {
-	public PlayerWielding(boolean inverted, boolean forAttacker, Material material, List<ModDamageCalculation> calculations)
+	public PlayerWielding(boolean inverted, boolean forAttacker, Material material)
 	{  
-		super(inverted, forAttacker, material, calculations);
+		super(inverted, forAttacker, material);
 	}
 	@Override
 	public Material getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.materialInHand_attacker:eventInfo.materialInHand_target);}
@@ -23,6 +21,6 @@ public class PlayerWielding extends EntityConditionalCalculation<Material>
 	
 	public static void register()
 	{
-		CalculationUtility.register(PlayerWielding.class, Pattern.compile(CalculationUtility.ifPart + CalculationUtility.entityPart + "wielding\\." + CalculationUtility.materialRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalCalculation.registerStatement(PlayerWielding.class, Pattern.compile(CalculationUtility.entityPart + "wielding\\." + CalculationUtility.materialRegex, Pattern.CASE_INSENSITIVE));
 	}	
 }

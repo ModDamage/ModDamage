@@ -15,6 +15,7 @@ import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.NestedCalculation;
 import com.mysql.jdbc.AssertionFailedException;
 
 //TODO	
@@ -22,9 +23,7 @@ import com.mysql.jdbc.AssertionFailedException;
 
 //--Calculation Ideas:
 // -implement some syntax help
-// -implement and/or/else?
 // -send player message
-// -relative health/altitude/light
 // -AoE clearance, block search nearby for Material?
 // -check against an itemstack in the player's inventory
 
@@ -51,16 +50,19 @@ import com.mysql.jdbc.AssertionFailedException;
 public class CalculationUtility
 {
 	static Logger log = Logger.getLogger("Minecraft");
-	private static HashMap<Pattern, Method> registeredCalculations = new HashMap<Pattern, Method>();
-	public static final String ifPart = "(if|if_not)\\.";
+	private static HashMap<Pattern, Method> registeredBaseCalculations = new HashMap<Pattern, Method>();
+	private static HashMap<Pattern, Method> registeredNestedCalculations = new HashMap<Pattern, Method>();
+	public static final String numberPart = "([0-9]+)";
+	public static final String wordPart = "([a-z]+)";
 	public static final String entityPart = "(entity|attacker|target)\\.";
-	public static final String comparisonPart = "(equals|notequals|lessthan|lessthanequals|greaterthan|greaterthanequals)\\.";
-	public static final String aliasPart = "_[a-z]+";
-	
+	public static final String aliasPart = "_([a-z0-9]+)";
+
+	public static String comparisonRegex;
 	public static String biomeRegex;
 	public static String environmentRegex;
 	public static String materialRegex;
 	public static String armorRegex;
+	public static String logicalRegex;
 	
 	public CalculationUtility()
 	{
@@ -86,6 +88,16 @@ public class CalculationUtility
 			for(String equipType : armorParts)
 				armorRegex += material + equipType + "|";
 		armorRegex += aliasPart + "){1-4}";
+		
+		logicalRegex = "(";
+		for(LogicalOperation operation : LogicalOperation.values())
+			logicalRegex += operation.name() + "|" + operation.getShortHand() + "|";
+		logicalRegex = aliasPart + ")";		
+		
+		comparisonRegex = "(";
+		for(ComparisonType type : ComparisonType.values())
+			comparisonRegex += type.name() + "|" + type.getShortHand() + "|";
+		comparisonRegex += "\\.";
 	}
 	
 	//Parse commands for different command strings the handlers pass
@@ -101,12 +113,12 @@ public class CalculationUtility
 			{
 				for(String key : ((LinkedHashMap<String, List<Object>>)calculationString).keySet())//should only be one, supposedly
 				{
-					for(Pattern pattern : registeredCalculations.keySet())
+					for(Pattern pattern : registeredNestedCalculations.keySet())
 					{
 						Matcher matcher = pattern.matcher((String)calculationString);
 						if(matcher.matches())
 						{
-							Method method = registeredCalculations.get(pattern);
+							Method method = registeredNestedCalculations.get(pattern);
 							List<ModDamageCalculation> nestedCalculations = parseStrings(((LinkedHashMap<String, List<Object>>)calculationString).get(key), forSpawn);
 							if(nestedCalculations.isEmpty()) return null;
 							{
@@ -122,12 +134,12 @@ public class CalculationUtility
 			}
 			else if(calculationString instanceof String)
 			{
-				for(Pattern pattern : registeredCalculations.keySet())
+				for(Pattern pattern : registeredBaseCalculations.keySet())
 				{
 					Matcher matcher = pattern.matcher((String)calculationString);
 					if(matcher.matches())
 					{
-						Method method = registeredCalculations.get(pattern);
+						Method method = registeredBaseCalculations.get(pattern);
 						try 
 						{
 							calculation = (ModDamageCalculation) method.getDeclaringClass().cast(method.invoke(null, matcher));
@@ -142,6 +154,7 @@ public class CalculationUtility
 		return calculations;
 	}
 	
+	//TODO Make a checking function, instead of repeating code
 	public static void register(Class<? extends ModDamageCalculation> calculationClass, Pattern syntax)
 	{
 		//TODO Code an info class for registered calculations? Not using "description" right now.
@@ -155,18 +168,18 @@ public class CalculationUtility
 				{
 					assert(method.getReturnType().equals(calculationClass));
 					method.invoke(null, (Matcher)null);
-					registeredCalculations.put(syntax, method);
+					registeredBaseCalculations.put(syntax, method);
 					successfullyRegistered = true;
 				}
 				else log.severe("Method getNew not found for class ");
 			}
 			catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return registered class " + calculationClass.getName() + "!");}
+			catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for registered class " + calculationClass.getName() + "!");}
 			catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + calculationClass.getName() + " is not static!");}
 			catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Calculation class \"" + calculationClass.toString() + "\" does not have a getNew() method!");} 
 			catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Calculation class \"" + calculationClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
 			catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Calculation class \"" + calculationClass.toString() + "\" does not have valid getNew() method!");} 
-			catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Calculation class \"" + calculationClass.toString() + "\" does not have valid getNew() method!");} 
-			
+			catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Calculation class \"" + calculationClass.toString() + "\" does not have valid getNew() method!");} 	
 		}
 		else log.severe("[ModDamage] Error: Bad regex in calculation class \"" + calculationClass.toString() + "\"!");
 		if(successfullyRegistered)
@@ -174,7 +187,39 @@ public class CalculationUtility
 			if(ModDamage.consoleDebugging_verbose) log.info("[ModDamage] Registering calculation " + calculationClass.toString() + " with pattern " + syntax.pattern());
 		}
 	}
-
+	
+	public static void registerNestable(Class<? extends NestedCalculation> calculationClass, Pattern syntax)
+	{
+		//TODO Code an info class for registered calculations? Not using "description" right now.
+		boolean successfullyRegistered = false;
+		if(syntax != null)
+		{
+			try
+			{
+				Method method = calculationClass.getMethod("getNew", Matcher.class, List.class);
+				if(method != null)
+				{
+					assert(method.getReturnType().equals(calculationClass));
+					method.invoke(null, (Matcher)null, (List<ModDamageCalculation>)null);
+					registeredBaseCalculations.put(syntax, method);
+					successfullyRegistered = true;
+				}
+				else log.severe("Method getNew not found for class ");
+			}
+			catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return registered class " + calculationClass.getName() + "!");}
+			catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for registered class " + calculationClass.getName() + "!");}
+			catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + calculationClass.getName() + " is not static!");}
+			catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Calculation class \"" + calculationClass.toString() + "\" does not have a getNew() method!");} 
+			catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Calculation class \"" + calculationClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
+			catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Calculation class \"" + calculationClass.toString() + "\" does not have valid getNew() method!");} 
+			catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Calculation class \"" + calculationClass.toString() + "\" does not have valid getNew() method!");} 	
+		}
+		else log.severe("[ModDamage] Error: Bad regex in calculation class \"" + calculationClass.toString() + "\"!");
+		if(successfullyRegistered)
+		{
+			if(ModDamage.consoleDebugging_verbose) log.info("[ModDamage] Registering calculation " + calculationClass.toString() + " with pattern " + syntax.pattern());
+		}
+	}
 	
 //// INGAME MATCHING ////	
 	//Frankly, most of the stuff below should be considered for implementation into Bukkit. :<
@@ -192,18 +237,5 @@ public class CalculationUtility
 		else if(environmentName.equalsIgnoreCase("NETHER")) return Environment.NETHER;
 		else if(environmentName.equalsIgnoreCase("SKYLANDS")) return Environment.SKYLANDS;
 		return null;
-	}
-	
-//An enum would be nice, but I want this integrated into the CalculationUtility at the moment.
-	public static final int CONTINUE = 0x00;
-	public static final int SKIP_ELSE = 0x01;
-	public static final int STOP = 0x02;
-	
-	public static int matchState(String key)
-	{
-		if(key.equalsIgnoreCase("CONTINUE")) return CONTINUE;
-		if(key.equalsIgnoreCase("SKIP_ELSE")) return SKIP_ELSE;
-		if(key.equalsIgnoreCase("STOP")) return STOP;
-		return 0;
 	}
 }

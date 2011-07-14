@@ -6,10 +6,10 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-abstract public class NestableCalculation extends ModDamageCalculation 
+abstract public class NestedCalculation extends ModDamageCalculation 
 {
 	final protected List<ModDamageCalculation> calculations;
-	public NestableCalculation(List<ModDamageCalculation> calculations)
+	public NestedCalculation(List<ModDamageCalculation> calculations)
 	{
 		this.calculations = calculations;
 	}

@@ -1,48 +1,48 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Conditional;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.CalculationUtility;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation;
 
-public class EntityExposedToSky extends EntityConditionalCalculation<Object>
+public class EntityExposedToSky extends EntityConditionalStatement<Boolean>
 {
-	public EntityExposedToSky(boolean inverted, boolean forAttacker, List<ModDamageCalculation> calculations) 
+	public EntityExposedToSky(boolean inverted, boolean forAttacker) 
 	{
-		super(inverted, forAttacker, 0, calculations);
+		super(inverted, forAttacker, true);
 	}
 	
 	@Override
-	public boolean condition(DamageEventInfo eventInfo){ return isExposedToSky(getRelevantEntity(eventInfo), eventInfo.world);}
+	protected Boolean getRelevantInfo(DamageEventInfo eventInfo){ return isExposedToSky(getRelevantEntity(eventInfo), eventInfo.world);}
 	@Override
-	public boolean condition(SpawnEventInfo eventInfo){ return isExposedToSky(getRelevantEntity(eventInfo), eventInfo.world);}
-	
+	protected Boolean getRelevantInfo(SpawnEventInfo eventInfo){ return isExposedToSky(getRelevantEntity(eventInfo), eventInfo.world);}
+
 	private boolean isExposedToSky(LivingEntity entity, World world)
 	{
 		int i = entity.getLocation().getBlockX();
 		int k = entity.getLocation().getBlockZ();
 		for(int j = entity.getLocation().getBlockY(); j < 128; j++)
-			//FIXME Add more block types!...might be expensive though.
-			if(!world.getBlockAt(i, j, k).equals(Material.AIR))
-				return false;
+			switch(world.getBlockAt(i, j, k).getType())
+			{
+				case AIR: 
+				case TORCH: 
+				case LADDER:
+				case FIRE:
+				case LEVER:
+				case STONE_BUTTON:
+				case WALL_SIGN:
+				case GLASS: return false;
+			}
 		return true;
 	}
 	
-	@Override
-	protected Object getRelevantInfo(DamageEventInfo eventInfo){ return null;}
-	@Override
-	protected Object getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
-	
 	public static void register()
 	{
-		CalculationUtility.register(EntityExposedToSky.class, Pattern.compile(CalculationUtility.ifPart + CalculationUtility.entityPart + "exposedtosky", Pattern.CASE_INSENSITIVE));
+		ConditionalCalculation.registerStatement(EntityExposedToSky.class, Pattern.compile(CalculationUtility.entityPart + "exposedtosky", Pattern.CASE_INSENSITIVE));
 	}
 
 }

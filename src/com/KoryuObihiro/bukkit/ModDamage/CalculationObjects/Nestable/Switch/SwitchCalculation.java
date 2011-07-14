@@ -1,6 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.Nestable.Switch;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
@@ -9,9 +9,9 @@ import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.ModDamageCalculation
 
 abstract public class SwitchCalculation<InfoType> extends ModDamageCalculation 
 {
-	final protected HashMap<InfoType, List<ModDamageCalculation>> switchStatements;
+	final protected LinkedHashMap<InfoType, List<ModDamageCalculation>> switchStatements;
 	
-	public SwitchCalculation(HashMap<InfoType, List<ModDamageCalculation>> switchStatements)
+	public SwitchCalculation(LinkedHashMap<InfoType, List<ModDamageCalculation>> switchStatements)
 	{
 		this.switchStatements = switchStatements;
 	}
