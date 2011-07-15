@@ -2,10 +2,13 @@ package com.KoryuObihiro.bukkit.ModDamage;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -22,12 +25,16 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
+import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Handlers.ServerHandler;
-import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.VanillaRegistrar;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Handlers.WorldHandler;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ModDamageRegistrar;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
@@ -89,21 +96,23 @@ public class ModDamage extends JavaPlugin
 	// -Refactor config to contain errors and display - add config strings regardless
 	// -Make sure that Slimes work for EntityTargetedByOther - they failed in a previous RB.
 	// -FIXME Check the "!" in the statementPart member actually works, and isn't a regex metacharacter.
+	// -FIXME Get UUIDs in events
 	
 	//--DamageElement
 	// -Make DamageElement do some parsing with Material.name()? (update ArmorSet and CalculationUtility accordingly if this is done)
 	
 	//plugin-related
-	public static boolean isEnabled = false;
-	public static Plugin plugin;
+	private static boolean isEnabled = false;
+	private static Plugin plugin;
 	public static Server server;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
-	public final static Logger log = Logger.getLogger("Minecraft");
+	private final RoutineUtility calculationUtility = new RoutineUtility(this);
+	private final static Logger log = Logger.getLogger("Minecraft");
 	public static PermissionHandler Permissions = null;
-	public static elRegionsPlugin elRegions = null;
-	public static Configuration config;
-	public static String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
-	public static String errorString_findWorld = ModDamageString(ChatColor.RED) + " Couldn't find matching world name.";
+	private static elRegionsPlugin elRegions = null;
+	private static Configuration config;
+	private static String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
+	private static String errorString_findWorld = ModDamageString(ChatColor.RED) + " Couldn't find matching world name.";
 	
 	//External Configuration
 	public static boolean elRegions_enabled = false;
@@ -115,11 +124,26 @@ public class ModDamage extends JavaPlugin
 	public static boolean disable_DefaultDamage;
 	public static boolean disable_DefaultHealth;
 	public static boolean negative_Heal;
-	public static final List<String> emptyList = null; //Dunno if it can be just any null object, but at least it leaves things blank.		
+	private static final List<String> dummyList = null; //Dunno if it can be just any null object, but at least it leaves things blank.		
 	
 	public static ServerHandler serverHandler;
 	public static boolean using_Permissions = false;
 	public static boolean using_elRegions = false;
+
+	private static boolean damageRoutinesLoaded = false;
+	private static boolean spawnRoutinesLoaded = false;
+	private final List<Routine> damageRoutines = new ArrayList<Routine>();
+	private final List<Routine> spawnRoutines = new ArrayList<Routine>();
+	
+	//Aliases
+	public final static HashMap<String, List<Material>> itemAliases = new HashMap<String, List<Material>>();
+	//public final static HashMap<String, List<String>> groupAliases = new HashMap<String, List<String>>();
+	//public final static HashMap<String, List<String>> mobAliases = new HashMap<String, List<String>>();
+	
+	//Ingame
+	protected int configPages = 0;
+	protected List<String> configStrings = new ArrayList<String>();
+	protected int additionalConfigChecks = 0;
 	
 ////////////////////////// INITIALIZATION
 	@Override
@@ -154,7 +178,7 @@ public class ModDamage extends JavaPlugin
 		server.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
 		
 		//register MD-vanilla calculation strings
-		VanillaRegistrar registrar = new VanillaRegistrar();
+		ModDamageRegistrar registrar = new ModDamageRegistrar();
 		registrar.registerCalculations();
 		
 		config = this.getConfiguration();
@@ -359,7 +383,8 @@ public class ModDamage extends JavaPlugin
 				}
 			}
 			else{ log.severe("[" + getDescription().getName() + "] Error! Unhandled damage event. Is this plugin up-to-date?");}
-			serverHandler.doDamageCalculations(eventInfo);
+			for(Routine routine : damageRoutines)
+				routine.run(eventInfo);
 			if(eventInfo.shouldScan)
 			{
 				int displayHealth = (eventInfo.entity_target).getHealth() - ((!(eventInfo.eventDamage < 0 && ModDamage.negative_Heal))?eventInfo.eventDamage:0);
@@ -373,6 +398,7 @@ public class ModDamage extends JavaPlugin
 		}
 	}
 
+	
 	public void handleSpawnEvent(CreatureSpawnEvent event)
 	{
 		if(event.getEntity() != null)
@@ -382,13 +408,33 @@ public class ModDamage extends JavaPlugin
 											?new SpawnEventInfo((Player)entity)
 											:new SpawnEventInfo((LivingEntity)entity));
 			if(ModDamage.disable_DefaultHealth) eventInfo.eventHealth = 0;
-			serverHandler.doSpawnCalculations(eventInfo);
+
+			if(eventInfo.element != null)
+				for(Routine routine : spawnRoutines)
+					routine.run(eventInfo);
 			
 			entity.setHealth(eventInfo.eventHealth);
 			event.setCancelled(entity.getHealth() <= 0);
 		}
 	}
 
+
+////ITEM ALIASING ////
+	public static boolean addAlias(String key, List<Material> values)
+	{
+		if(itemAliases.containsKey(key)) return false;
+		itemAliases.put(key, values);
+		return true;
+	}
+	
+	public static List<Material> matchItems(String key)
+	{
+		if(itemAliases.containsKey(key.toLowerCase())) return itemAliases.get(key);
+		Material material = Material.matchMaterial(key);
+		if(material != null) return Arrays.asList(material);
+		return new ArrayList<Material>();
+	}
+	
 ///// HELPER FUNCTIONS ////
 	public static boolean hasPermission(Player player, String permission)
 	{
@@ -402,6 +448,29 @@ public class ModDamage extends JavaPlugin
 	}
 
 	public static String ModDamageString(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "]";}
+
+	private String getWorldMatch(String name, boolean searchSubstrings)
+	{
+		for(World world : plugin.getServer().getWorlds())
+			if(name.equalsIgnoreCase(world.getName()))
+				return world.getName();
+		
+		if(searchSubstrings)
+			for(World world : plugin.getServer().getWorlds())
+				for(int i = 0; i < (world.getName().length() - name.length() - 1); i++)
+					if(name.equalsIgnoreCase(world.getName().substring(i, i + name.length())))
+						return world.getName();
+		return null;
+	}
+	
+	protected void clear() 
+	{
+		damageRoutines.clear();
+		spawnRoutines.clear();
+		configStrings.clear();
+		
+		damageRoutinesLoaded = spawnRoutinesLoaded = false;
+	}
 	
 //// PLUGIN CONFIGURATION ////
 	private void setPluginStatus(Player player, boolean sentEnable) 
@@ -487,6 +556,34 @@ public class ModDamage extends JavaPlugin
 		}
 	}
 
+	public boolean sendConfig(Player player, int pageNumber)
+	{
+		if(player == null)
+		{
+			String printString = "Complete configuration for this server:";
+			for(String configString : configStrings)
+				printString += "\n" + configString;
+			
+			log.info(printString);
+			
+			return true;
+		}
+		else if(pageNumber > 0)
+		{
+			if(pageNumber <= configPages)
+			{
+				player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " (" + pageNumber + "/" + (configPages + additionalConfigChecks) + ")");
+				for(int i = (9 * (pageNumber - 1)); i < (configStrings.size() < (9 * pageNumber)
+															?configStrings.size()
+															:(9 * pageNumber)); i++)
+					player.sendMessage(ChatColor.DARK_AQUA + configStrings.get(i));
+				return true;
+			}
+			return printAdditionalConfiguration(player, pageNumber);
+		}
+		return false;
+	}
+	
 /////////////////// MECHANICS CONFIGURATION 
 	private boolean reload(boolean printToConsole)
 	{
@@ -494,8 +591,10 @@ public class ModDamage extends JavaPlugin
 		config.load();
 		//get plugin config.yml...if it doesn't exist, create it.
 		if(!(new File(this.getDataFolder(), "config.yml")).exists()) writeDefaults();
-		else serverHandler = new ServerHandler(this, config.getNode("Damage"), config.getNode("MobHealth"), config.getNode("Scan"));
 
+		damageRoutinesLoaded = loadDamageRoutines(config.getNode("Damage"));
+		spawnRoutinesLoaded = loadSpawnRoutines(config.getNode("MobHealth"));
+		
 	//load debug settings
 		String debugString = config.getString("debugging");
 		if(debugString != null)
@@ -537,34 +636,15 @@ public class ModDamage extends JavaPlugin
 		config.load(); //Discard any changes made to the file by the above reads.
 		
 	//TODO aliases 
-		//if(loadAliases() && consoleDebugging_normal) log.info("Aliases loaded!");
-		//else log.warning
-		return serverHandler.loadedSomething();
+		if(loadAliases() && consoleDebugging_normal) log.info("Aliases loaded!");
+		else log.warning("No aliases loaded! D:");//TODO EXTRAPOLATE
 	}
 
 	private void writeDefaults() 
-	{        
-        serverHandler = new ServerHandler(this, null, null, null);
+	{
 	//set single-property stuff
 		log.severe("[" + getDescription().getName() + "] No configuration file found! Writing a blank config...");
 		config.setProperty("debugging", "normal");
-
-	//write server globals
-		config.setProperty("Damage.global", emptyList);
-		writeMobHealthElements("global");
-		config.setProperty("Scan.global", emptyList);
-		config.setProperty("Scan.groups", emptyList);
-		config.save();
-		
-	//write world globals
-		for(World world : this.getServer().getWorlds())
-		{
-			String configPath = "worlds." + world.getName();
-			config.setProperty("Damage." + configPath, emptyList);
-			writeMobHealthElements(configPath + ".global");
-			config.setProperty("Scan." + configPath + ".global", emptyList);
-			config.setProperty("Scan." + configPath + ".groups", emptyList);
-		}
 		
 	//write default aliases
 		String[][] toolAliases = { {"axe", "hoe", "pickaxe", "spade", "sword"}, {"WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_"}};
@@ -579,12 +659,62 @@ public class ModDamage extends JavaPlugin
 		config.save();
 		log.severe("[" + getDescription().getName() + "] Defaults written!");
 	}
-	
-	private void writeMobHealthElements(String configPath)
+
+	protected boolean loadDamageRoutines(ConfigurationNode configurationNode)
 	{
-		List<DamageElement> mobHealthList = DamageElement.getElementsOf(DamageElement.GENERIC_ANIMAL);
-		mobHealthList.addAll(DamageElement.getElementsOf(DamageElement.GENERIC_MOB));
-			for(DamageElement creatureElement : mobHealthList)
-				config.setProperty("MobHealth." + configPath + "." + creatureElement.getReference(), emptyList);
+		boolean loadedSomething = false;
+		List<Object> routineStrings = (configurationNode.getNode("Damage"))
+		if(routineStrings != null)
+		{
+			if(ModDamage.consoleDebugging_normal) log.info("Damage configuration found, parsing...");
+			List<Routine> calculations = calculationUtility.parseStrings(routineStrings, false);
+			if(!calculations.isEmpty())
+			{
+				damageRoutines.addAll(calculations);
+			}
+		}
+		return loadedSomething;
+	}
+
+	protected boolean loadSpawnRoutines(ConfigurationNode configurationNode)
+	{
+		boolean loadedSomething = false;
+		if(configurationNode != null) 
+		{
+			if(ModDamage.consoleDebugging_normal) log.info("MobHealth configuration found, parsing...");
+			List<DamageElement> creatureTypes = new ArrayList<DamageElement>();
+			creatureTypes.addAll(DamageElement.getElementsOf("animal"));
+			creatureTypes.addAll(DamageElement.getElementsOf("mob"));
+			//load Mob health settings
+			for(DamageElement creatureType : creatureTypes)
+			{
+			//check the node property for a default spawn calculation
+				List<Object> calcStrings = configurationNode.getList(creatureType.getReference());
+				//So, when a list of calculations are called, they're just ArrayList<Object>
+				// Normal calcStrings are just strings,
+				// conditionals are represented with a LinkedHashMap.
+				if(calcStrings != null)
+				{
+					List<Routine> calculations = calculationUtility.parseStrings(calcStrings, true);
+					if(!calculations.isEmpty())
+					{
+						if(!spawnRoutines.containsKey(creatureType))
+						{
+							spawnRoutines.put(creatureType, calculations);
+							addConfigString("-MobHealth:" + getCalculationHeader() + ":" + creatureType.getReference() + calcStrings.toString());
+							loadedSomething = true;
+						}
+						else if(ModDamage.consoleDebugging_normal) log.warning("Repetitive " + creatureType.getReference() 
+								+ " definition - ignoring");
+					}
+					else  log.severe("Invalid command string \"" + calcStrings.toString() + "\" in MobHealth " + creatureType.getReference() 
+							+ " definition");
+					
+				}
+				else if(ModDamage.consoleDebugging_verbose)
+					log.warning("No instructions found for " + creatureType.getReference() + " - is this on purpose?");
+			}
+		}
+		return loadedSomething;
 	}
 }
