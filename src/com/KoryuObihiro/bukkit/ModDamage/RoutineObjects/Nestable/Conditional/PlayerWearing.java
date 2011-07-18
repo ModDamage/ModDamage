@@ -18,8 +18,8 @@ public class PlayerWearing extends EntityConditionalStatement<ArmorSet>
 	@Override
 	public ArmorSet getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(PlayerWearing.class, Pattern.compile(RoutineUtility.entityPart + "wearing\\." + RoutineUtility.armorRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerWearing.class, Pattern.compile(entityPart + "wearing\\." + RoutineUtility.armorRegex, Pattern.CASE_INSENSITIVE));
 	}
 }

@@ -18,8 +18,8 @@ public class ServerPlayerCount extends ServerComparison
 	@Override
 	protected int getRelevantInfo(DamageEventInfo eventInfo){ return server.getOnlinePlayers().length;}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(ServerPlayerCount.class, Pattern.compile("server\\.playercount" + RoutineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, ServerPlayerCount.class, Pattern.compile("server\\.playercount" + routineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

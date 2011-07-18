@@ -40,9 +40,9 @@ public class EntityExposedToSky extends EntityConditionalStatement<Boolean>
 		return true;
 	}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(EntityExposedToSky.class, Pattern.compile(RoutineUtility.entityPart + "exposedtosky", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityExposedToSky.class, Pattern.compile(entityPart + "exposedtosky", Pattern.CASE_INSENSITIVE));
 	}
 
 }

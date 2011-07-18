@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Effect;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect;
 
 import java.util.List;
 
@@ -7,17 +7,17 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.NestedRoutine;
 
-abstract public class EffectCalculation<AffectedClass> extends NestedRoutine 
+abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine 
 {
 	final AffectedClass affectedObject;
 	final boolean useEventObject;
-	EffectCalculation(AffectedClass affectedObject, List<Routine> calculations)
+	CalculatedEffectRoutine(AffectedClass affectedObject, List<Routine> calculations)
 	{
 		super(calculations);
 		this.affectedObject = affectedObject;
 		this.useEventObject = true;
 	}	
-	EffectCalculation(List<Routine> calculations)
+	CalculatedEffectRoutine(List<Routine> calculations)
 	{
 		super(calculations);
 		this.affectedObject = null;
@@ -49,7 +49,7 @@ abstract public class EffectCalculation<AffectedClass> extends NestedRoutine
 	{
 		int temp1 = eventInfo.eventDamage, temp2;
 		eventInfo.eventDamage = 0;
-		doCalculations(eventInfo);
+		executeNested(eventInfo);
 		temp2 = eventInfo.eventDamage;
 		eventInfo.eventDamage = temp1;
 		return temp2;
@@ -59,7 +59,7 @@ abstract public class EffectCalculation<AffectedClass> extends NestedRoutine
 	{
 		int temp1 = eventInfo.eventHealth, temp2;
 		eventInfo.eventHealth = 0;
-		doCalculations(eventInfo);
+		executeNested(eventInfo);
 		temp2 = eventInfo.eventHealth;
 		eventInfo.eventHealth = temp1;
 		return temp2;

@@ -19,8 +19,8 @@ public class EntityFallComparison extends EntityComparison
 	@Override
 	protected Integer getRelevantInfo(SpawnEventInfo eventInfo){ return (int)getRelevantEntity(eventInfo).getFallDistance();}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(EntityFallComparison.class, Pattern.compile(RoutineUtility.entityPart + "falldistance" + RoutineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityFallComparison.class, Pattern.compile(entityPart + "falldistance" + routineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

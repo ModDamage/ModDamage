@@ -25,16 +25,52 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Handlers.ServerHandler;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Handlers.WorldHandler;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ModDamageRegistrar;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility.LogSetting;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRoll;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRollAddition;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Division;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DivisionAddition;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.IntervalRange;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.EntityExplode;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.EntityHeal;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.EntityReflect;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.EntitySetAirTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.EntitySetFireTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.EntitySetHealth;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.PlayerSetItem;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.SlimeSetSize;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityAirTicksComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityBiome;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityCoordinateComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityDrowning;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityExposedToSky;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityFallComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityFalling;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityFireTicksComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityHealthComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityLightComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityOnBlock;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityOnFire;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityTargetedByOther;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityUnderwater;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EventValueComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.PlayerWearing;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.PlayerWearingOnly;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.PlayerWielding;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.ServerOnlineMode;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.ServerPlayerCount;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.WorldEnvironment;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.WorldTime;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
@@ -52,45 +88,24 @@ public class ModDamage extends JavaPlugin
 	// -Deregister when Bukkit supports!
 	// -Client-sided mod for displaying health?
 	// -"Failed to reload" ingame
-	// -per-world for disableDefault variables
 	// -count characters in config for message length
 	// -change md debug messages to reflect previous state
 	// -single-line configuration
 	
 	//--API
 	// -aliases (dynamic: $ and static: _): //Check in config allocation for existing static!
-	//   -items
 	//   -armor
+	//   -elements
 	//   -entities
+	//   -items
+	//   -groups
 	// -event keyword (_event)
 	// -External: tag entities with an alias
 	// -External: check entity tags
-	// -Print plugin name at fault when calculation registry fails
-	// -Write tut, code requirements, and regex guidelines for using the API
 	
-	//Aliasing config tree:
-	//```yaml
-	// Aliases:
-	//     items:
-	//         aliasname:
-	//             - 'item'
-	// 
-	//     elements:
-	//         aliasname:
-	//             - 'element'
-	// 
-	//     armor:
-	//         aliasname:
-	//             - 'armorset'
-	// 
-	//     groups:
-	//         aliasname:
-	//             - 'group' #uses aliases
-	// 
-	//     entities:
-	//         aliasname:
-	//             - 'entity' #uses aliases
-	//```
+	//--ModMC library:
+	// -Write tut, code requirements, and regex guidelines for using this library
+	// -Print plugin name at fault when calculation registry fails
 	
 	//--CalculationUtility
 	// -Refactor config to contain errors and display - add config strings regardless
@@ -106,27 +121,21 @@ public class ModDamage extends JavaPlugin
 	private static Plugin plugin;
 	public static Server server;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
-	private final RoutineUtility calculationUtility = new RoutineUtility(this);
 	private final static Logger log = Logger.getLogger("Minecraft");
+	private RoutineUtility routineUtility;
 	public static PermissionHandler Permissions = null;
 	private static elRegionsPlugin elRegions = null;
 	private static Configuration config;
 	private static String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
-	private static String errorString_findWorld = ModDamageString(ChatColor.RED) + " Couldn't find matching world name.";
+	//private static String errorString_findWorld = ModDamageString(ChatColor.RED) + " Couldn't find matching world name.";
 	
 	//External Configuration
 	public static boolean elRegions_enabled = false;
 	public static boolean multigroupPermissions = true;
 	
-	//User-customized config
-	public static boolean consoleDebugging_normal = true;
-	public static boolean consoleDebugging_verbose = false;
-	public static boolean disable_DefaultDamage;
-	public static boolean disable_DefaultHealth;
 	public static boolean negative_Heal;
 	private static final List<String> dummyList = null; //Dunno if it can be just any null object, but at least it leaves things blank.		
 	
-	public static ServerHandler serverHandler;
 	public static boolean using_Permissions = false;
 	public static boolean using_elRegions = false;
 
@@ -140,18 +149,13 @@ public class ModDamage extends JavaPlugin
 	//public final static HashMap<String, List<String>> groupAliases = new HashMap<String, List<String>>();
 	//public final static HashMap<String, List<String>> mobAliases = new HashMap<String, List<String>>();
 	
-	//Ingame
-	protected int configPages = 0;
-	protected List<String> configStrings = new ArrayList<String>();
-	protected int additionalConfigChecks = 0;
-	
 ////////////////////////// INITIALIZATION
 	@Override
 	public void onEnable() 
 	{
 		plugin = this;
 		ModDamage.server = getServer();
-		
+		routineUtility = new RoutineUtility(this, log);
 	//PERMISSIONS
 		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
 		if (permissionsPlugin != null)
@@ -177,10 +181,58 @@ public class ModDamage extends JavaPlugin
 		server.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
 		server.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
 		
-		//register MD-vanilla calculation strings
-		ModDamageRegistrar registrar = new ModDamageRegistrar();
-		registrar.registerCalculations();
-		
+		/*
+		//register MD routines
+//Base Calculations
+		Addition.register(routineUtility);
+		DiceRoll.register(routineUtility);
+		DiceRollAddition.register(routineUtility);
+		Division.register(routineUtility);
+		DivisionAddition.register(routineUtility);
+		IntervalRange.register(routineUtility);
+		LiteralRange.register(routineUtility);
+		Multiplication.register(routineUtility);
+		Set.register(routineUtility);	
+//Nestable Calculations
+	//Conditionals
+		Binomial.register(routineUtility);
+		//Entity
+		EntityAirTicksComparison.register(routineUtility);
+		EntityBiome.register(routineUtility);
+		EntityCoordinateComparison.register(routineUtility);
+		EntityDrowning.register(routineUtility);
+		EntityExposedToSky.register(routineUtility);
+		EntityFallComparison.register(routineUtility);
+		EntityFalling.register(routineUtility);
+		EntityFireTicksComparison.register(routineUtility);
+		EntityHealthComparison.register(routineUtility);
+		EntityLightComparison.register(routineUtility);
+		EntityOnBlock.register(routineUtility);
+		EntityOnFire.register(routineUtility);
+		EntityTargetedByOther.register(routineUtility);
+		EntityUnderwater.register(routineUtility);
+		EventValueComparison.register(routineUtility);
+		PlayerWearing.register(routineUtility);
+		PlayerWearingOnly.register(routineUtility);
+		PlayerWielding.register(routineUtility);
+		//World
+		WorldTime.register(routineUtility);
+		WorldEnvironment.register(routineUtility);
+		//Server
+		ServerOnlineMode.register(routineUtility);
+		ServerPlayerCount.register(routineUtility);
+		//Event
+		EventValueComparison.register(routineUtility);
+	//Effects
+		EntityExplode.register(routineUtility);
+		EntityHeal.register(routineUtility);
+		EntityReflect.register(routineUtility);
+		EntitySetAirTicks.register(routineUtility);
+		EntitySetFireTicks.register(routineUtility);
+		EntitySetHealth.register(routineUtility);
+		PlayerSetItem.register(routineUtility);
+		SlimeSetSize.register(routineUtility);
+		*/
 		config = this.getConfiguration();
 		isEnabled = reload(true);
 	}
@@ -211,44 +263,22 @@ public class ModDamage extends JavaPlugin
 						{
 							if(fromConsole || hasPermission(player, "moddamage.debug"))
 							{
-								if(args.length == 1)
-									toggleConsoleDebug(player);
+								if(args.length == 1) routineUtility.toggleLogging(player);
 								else if(args.length == 2)
 								{
-									String sendThis;
-									if(args[1].equalsIgnoreCase("quiet") || args[0].equalsIgnoreCase("q"))
+									LogSetting matchedSetting = LogSetting.matchSetting(args[2]);
+									if(matchedSetting != null)
 									{
-										consoleDebugging_normal = false;
-										consoleDebugging_verbose = false;
-										sendThis = "[" + getDescription().getName() + "] \"Quiet\" mode " + (consoleDebugging_normal?"enabled - suppressing debug messages and warnings.":"already active!");
-										config.setProperty("debugging", "quiet");
-										config.save();
-									}
-									else if(args[1].equalsIgnoreCase("normal") || args[0].equalsIgnoreCase("n"))
-									{
-										if(consoleDebugging_normal && !consoleDebugging_verbose)
-											sendThis = "[" + getDescription().getName() + "] Debugging already active!";
-										else sendThis = "[" + getDescription().getName() + "] " + (consoleDebugging_verbose?"Debugging enabled.":"Verbose debugging disabled - normal debugging enabled.");
-										consoleDebugging_normal = true;
-										consoleDebugging_verbose = false;
-										config.setProperty("debugging", "normal");
-										config.save();
-									}
-									else if(args[1].equalsIgnoreCase("verbose") || args[0].equalsIgnoreCase("v"))
-									{
-										sendThis = "[" + getDescription().getName() + "] " + (consoleDebugging_normal?"Verbose debugging enabled.":"Verbose debugging already active!");
-										consoleDebugging_normal = true;
-										consoleDebugging_verbose = true;
-										config.setProperty("debugging", "verbose");
-										config.save();
+										String sendThis = "Changed debug settings from " + routineUtility.logSetting.name().toLowerCase() + " to " + matchedSetting.name().toLowerCase();
+										log.info(sendThis);
+										if(!fromConsole) player.sendMessage(ChatColor.GREEN + sendThis);
+										routineUtility.logSetting = matchedSetting;
 									}
 									else
 									{
 										sendUsage(player, true);
 										return true;
 									}
-									log.info(sendThis);
-									if(!fromConsole) player.sendMessage(ChatColor.GREEN + sendThis);
 									return true;
 								}
 							}
@@ -290,7 +320,7 @@ public class ModDamage extends JavaPlugin
 							if(fromConsole)
 							{
 								log.info("[" + getDescription().getName() + "] Sending server config info...");
-								serverHandler.sendConfig(null, 9001);
+								routineUtility.sendConfig(null, 9001);
 								log.info("[" + getDescription().getName() + "] Done.");
 							}
 							else if(args.length == 1)
@@ -299,7 +329,7 @@ public class ModDamage extends JavaPlugin
 								//Send list of loaded worlds
 								if(hasPermission(player, "moddamage.check"))
 								{
-									serverHandler.sendConfig(player, 1);
+									routineUtility.sendConfig(player, 1);
 								}
 								else player.sendMessage(errorString_Permissions);
 								return true;
@@ -309,11 +339,11 @@ public class ModDamage extends JavaPlugin
 							{
 								try
 								{
-									serverHandler.sendConfig(player, Integer.parseInt(args[1]));
+									routineUtility.sendConfig(player, Integer.parseInt(args[1]));
 								} 
 								catch(NumberFormatException e)
 								{
-									serverHandler.sendConfig(player, args[1]);
+									sendUsage(player, true);
 								}
 								return true;
 							}
@@ -333,15 +363,15 @@ public class ModDamage extends JavaPlugin
 		sendUsage(player, true);
 		return true;
 	}
-	
-////EVENT FUNCTIONS ////
+
+//// EVENT FUNCTIONS ////
 	public void handleDamageEvent(EntityDamageEvent event) 
 	{
 		LivingEntity ent_damaged = (LivingEntity)event.getEntity();
 		//simple check for noDamageTicks - the appropriate event-firing check should be implemented in Bukkit soon.
 		if(ent_damaged.getNoDamageTicks() > 40) return;
 		
-		if(serverHandler.loadedSomething())
+		if(loadedSomething())
 		{
 			DamageEventInfo eventInfo = null;
 			
@@ -385,6 +415,11 @@ public class ModDamage extends JavaPlugin
 			else{ log.severe("[" + getDescription().getName() + "] Error! Unhandled damage event. Is this plugin up-to-date?");}
 			for(Routine routine : damageRoutines)
 				routine.run(eventInfo);
+			if(eventInfo.eventDamage < 0 && !ModDamage.negative_Heal) 
+				eventInfo.eventDamage = 0;
+			event.setDamage(eventInfo.eventDamage);
+			
+			/*
 			if(eventInfo.shouldScan)
 			{
 				int displayHealth = (eventInfo.entity_target).getHealth() - ((!(eventInfo.eventDamage < 0 && ModDamage.negative_Heal))?eventInfo.eventDamage:0);
@@ -392,13 +427,10 @@ public class ModDamage extends JavaPlugin
 						+ "(" + (eventInfo.name_target != null?eventInfo.name_target:("id " + eventInfo.entity_target.getEntityId()))
 						+ "): " + Integer.toString((displayHealth < 0)?0:displayHealth));
 			}
-			if(eventInfo.eventDamage < 0 && !ModDamage.negative_Heal) 
-				eventInfo.eventDamage = 0;
-			event.setDamage(eventInfo.eventDamage);
+			*/
 		}
 	}
 
-	
 	public void handleSpawnEvent(CreatureSpawnEvent event)
 	{
 		if(event.getEntity() != null)
@@ -407,7 +439,6 @@ public class ModDamage extends JavaPlugin
 			SpawnEventInfo eventInfo = ((entity instanceof Player)
 											?new SpawnEventInfo((Player)entity)
 											:new SpawnEventInfo((LivingEntity)entity));
-			if(ModDamage.disable_DefaultHealth) eventInfo.eventHealth = 0;
 
 			if(eventInfo.element != null)
 				for(Routine routine : spawnRoutines)
@@ -436,6 +467,8 @@ public class ModDamage extends JavaPlugin
 	}
 	
 ///// HELPER FUNCTIONS ////
+	private boolean loadedSomething(){ return damageRoutinesLoaded || spawnRoutinesLoaded;}
+	
 	public static boolean hasPermission(Player player, String permission)
 	{
 		if (ModDamage.Permissions != null)
@@ -467,8 +500,6 @@ public class ModDamage extends JavaPlugin
 	{
 		damageRoutines.clear();
 		spawnRoutines.clear();
-		configStrings.clear();
-		
 		damageRoutinesLoaded = spawnRoutinesLoaded = false;
 	}
 	
@@ -506,30 +537,6 @@ public class ModDamage extends JavaPlugin
 		}
 	}
 
-	private void toggleConsoleDebug(Player player) 
-	{
-		boolean fromConsole = (player == null);
-		String sendThis;
-		if(consoleDebugging_verbose) //verbose was active, go to quiet
-		{
-			consoleDebugging_normal = false;
-			consoleDebugging_verbose = false;
-			sendThis = "[" + getDescription().getName() + "] \"Quiet\" mode active.";
-		}
-		else if(consoleDebugging_normal) //normal was active, go to verbose
-		{
-			consoleDebugging_verbose = true;
-			sendThis = "[" + getDescription().getName() + "] Verbose debugging active.";
-		}
-		else //quiet was active, go to normal
-		{
-			consoleDebugging_normal = true;
-			sendThis = "[" + getDescription().getName() + "] Debugging active.";
-		}
-		log.info(sendThis);
-		if(!fromConsole) player.sendMessage(ChatColor.GREEN + sendThis);
-	}
-
 	private void sendUsage(Player player, boolean forError) 
 	{
 		if(player != null)
@@ -556,33 +563,6 @@ public class ModDamage extends JavaPlugin
 		}
 	}
 
-	public boolean sendConfig(Player player, int pageNumber)
-	{
-		if(player == null)
-		{
-			String printString = "Complete configuration for this server:";
-			for(String configString : configStrings)
-				printString += "\n" + configString;
-			
-			log.info(printString);
-			
-			return true;
-		}
-		else if(pageNumber > 0)
-		{
-			if(pageNumber <= configPages)
-			{
-				player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " (" + pageNumber + "/" + (configPages + additionalConfigChecks) + ")");
-				for(int i = (9 * (pageNumber - 1)); i < (configStrings.size() < (9 * pageNumber)
-															?configStrings.size()
-															:(9 * pageNumber)); i++)
-					player.sendMessage(ChatColor.DARK_AQUA + configStrings.get(i));
-				return true;
-			}
-			return printAdditionalConfiguration(player, pageNumber);
-		}
-		return false;
-	}
 	
 /////////////////// MECHANICS CONFIGURATION 
 	private boolean reload(boolean printToConsole)
@@ -591,53 +571,33 @@ public class ModDamage extends JavaPlugin
 		config.load();
 		//get plugin config.yml...if it doesn't exist, create it.
 		if(!(new File(this.getDataFolder(), "config.yml")).exists()) writeDefaults();
-
-		damageRoutinesLoaded = loadDamageRoutines(config.getNode("Damage"));
-		spawnRoutinesLoaded = loadSpawnRoutines(config.getNode("MobHealth"));
-		
+		damageRoutinesLoaded = loadRoutines("Damage");
+		spawnRoutinesLoaded = loadRoutines("MobHealth");
 	//load debug settings
 		String debugString = config.getString("debugging");
 		if(debugString != null)
 		{
-			if(debugString.equals("quiet"))
+			LogSetting logSetting = LogSetting.matchSetting(debugString);
+			switch(logSetting)
 			{
-				consoleDebugging_normal = false;
-				log.info("[" + getDescription().getName()+ "] \"Quiet\" mode active - suppressing debug messages and warnings.");
+				case QUIET: log.info("[" + getDescription().getName()+ "] \"Quiet\" mode active - suppressing debug messages and warnings.");
+				case NORMAL: log.info("[" + getDescription().getName()+ "] Debugging active.");
+				case VERBOSE: log.info("[" + getDescription().getName()+ "] Verbose debugging active.");
+				routineUtility.setLogging(logSetting);
+				default: log.info("[" + getDescription().getName()+ "] Debug string not recognized - defaulting to \"normal\" settings.");
 			}
-			else if(debugString.equals("normal"))
-				log.info("[" + getDescription().getName()+ "] Debugging active.");
-			else if(debugString.equals("verbose"))
-			{
-				consoleDebugging_verbose = true;
-				log.info("[" + getDescription().getName()+ "] Verbose debugging active.");
-			}
-			else log.info("[" + getDescription().getName()+ "] Debug string not recognized - defaulting to normal settings.");
 		}
-		
-	//single-property configs
-		disable_DefaultDamage = config.getBoolean("disableDefaultDamage", false);
-		if(consoleDebugging_normal && disable_DefaultDamage)
-			log.info("[" + getDescription().getName()+ "] Default damage disabled.");
-		else if(consoleDebugging_verbose && !disable_DefaultDamage)
-			log.info("[" + getDescription().getName()+ "] Default damage enabled.");
-		
-		disable_DefaultHealth = config.getBoolean("disableDefaultHealth", false);
-		if(consoleDebugging_normal && disable_DefaultHealth)
-			log.info("[" + getDescription().getName()+ "] Default health disabled.");
-		else if(consoleDebugging_verbose && !disable_DefaultHealth)
-			log.info("[" + getDescription().getName()+ "] Default health enabled.");
-		
+	//single-property config
 		negative_Heal = config.getBoolean("negativeHeal", false);
-		if(consoleDebugging_normal && negative_Heal) 
-			log.info("[" + getDescription().getName()+ "] Negative-damage healing enabled.");
-		else if(consoleDebugging_verbose && !negative_Heal)
-			log.info("[" + getDescription().getName()+ "] Negative-damage healing disabled.");
+		if(routineUtility.shouldOutput(LogSetting.VERBOSE))
+			log.info("[" + getDescription().getName()+ "] Negative-damage healing " + (negative_Heal?"en":"dis") + "abled.");
 		
 		config.load(); //Discard any changes made to the file by the above reads.
+	//Aliases
+		if(loadAliases() && routineUtility.shouldOutput(LogSetting.VERBOSE)) log.info("Aliases loaded!");
+		else log.warning("No aliases loaded! Are any aliases defined?");//TODO EXTRAPOLATE
 		
-	//TODO aliases 
-		if(loadAliases() && consoleDebugging_normal) log.info("Aliases loaded!");
-		else log.warning("No aliases loaded! D:");//TODO EXTRAPOLATE
+		return loadedSomething();
 	}
 
 	private void writeDefaults() 
@@ -645,6 +605,9 @@ public class ModDamage extends JavaPlugin
 	//set single-property stuff
 		log.severe("[" + getDescription().getName() + "] No configuration file found! Writing a blank config...");
 		config.setProperty("debugging", "normal");
+		config.setProperty("Damage", null);
+		config.setProperty("MobHealth", null);
+		
 		
 	//write default aliases
 		String[][] toolAliases = { {"axe", "hoe", "pickaxe", "spade", "sword"}, {"WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_"}};
@@ -655,66 +618,27 @@ public class ModDamage extends JavaPlugin
 				combinations.add(toolMaterial + toolType.toUpperCase());
 			config.setProperty("Aliases." + toolType, combinations);
 		}
-		
 		config.save();
-		log.severe("[" + getDescription().getName() + "] Defaults written!");
+		log.severe("[" + getDescription().getName() + "] Defaults written to config.yml!");
 	}
 
-	protected boolean loadDamageRoutines(ConfigurationNode configurationNode)
+	protected boolean loadRoutines(String loadType)
 	{
 		boolean loadedSomething = false;
-		List<Object> routineStrings = (configurationNode.getNode("Damage"))
-		if(routineStrings != null)
+		List<Object> routineObjects = config.getList(loadType);
+		if(routineObjects != null)
 		{
-			if(ModDamage.consoleDebugging_normal) log.info("Damage configuration found, parsing...");
-			List<Routine> calculations = calculationUtility.parseStrings(routineStrings, false);
+			if(routineUtility.shouldOutput(LogSetting.VERBOSE)) log.info(loadType + " configuration found, parsing...");
+			List<Routine> calculations = routineUtility.parse(routineObjects, loadType);
 			if(!calculations.isEmpty())
-			{
 				damageRoutines.addAll(calculations);
-			}
 		}
 		return loadedSomething;
 	}
-
-	protected boolean loadSpawnRoutines(ConfigurationNode configurationNode)
+	
+	protected boolean loadAliases()
 	{
-		boolean loadedSomething = false;
-		if(configurationNode != null) 
-		{
-			if(ModDamage.consoleDebugging_normal) log.info("MobHealth configuration found, parsing...");
-			List<DamageElement> creatureTypes = new ArrayList<DamageElement>();
-			creatureTypes.addAll(DamageElement.getElementsOf("animal"));
-			creatureTypes.addAll(DamageElement.getElementsOf("mob"));
-			//load Mob health settings
-			for(DamageElement creatureType : creatureTypes)
-			{
-			//check the node property for a default spawn calculation
-				List<Object> calcStrings = configurationNode.getList(creatureType.getReference());
-				//So, when a list of calculations are called, they're just ArrayList<Object>
-				// Normal calcStrings are just strings,
-				// conditionals are represented with a LinkedHashMap.
-				if(calcStrings != null)
-				{
-					List<Routine> calculations = calculationUtility.parseStrings(calcStrings, true);
-					if(!calculations.isEmpty())
-					{
-						if(!spawnRoutines.containsKey(creatureType))
-						{
-							spawnRoutines.put(creatureType, calculations);
-							addConfigString("-MobHealth:" + getCalculationHeader() + ":" + creatureType.getReference() + calcStrings.toString());
-							loadedSomething = true;
-						}
-						else if(ModDamage.consoleDebugging_normal) log.warning("Repetitive " + creatureType.getReference() 
-								+ " definition - ignoring");
-					}
-					else  log.severe("Invalid command string \"" + calcStrings.toString() + "\" in MobHealth " + creatureType.getReference() 
-							+ " definition");
-					
-				}
-				else if(ModDamage.consoleDebugging_verbose)
-					log.warning("No instructions found for " + creatureType.getReference() + " - is this on purpose?");
-			}
-		}
-		return loadedSomething;
+		//TODO
+		return false;
 	}
 }

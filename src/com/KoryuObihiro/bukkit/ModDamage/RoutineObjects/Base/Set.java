@@ -25,8 +25,8 @@ public class Set extends Routine
 		return null;
 	}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		RoutineUtility.register(Set.class, Pattern.compile("set\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(Set.class, Pattern.compile("set\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

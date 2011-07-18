@@ -28,8 +28,8 @@ public class IntervalRange extends ChanceCalculation
 		return null;
 	}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		RoutineUtility.register(DiceRoll.class, Pattern.compile("range_int\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(DiceRoll.class, Pattern.compile("range_int\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Effect;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -9,7 +9,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class EntityReflect extends EntityEffectCalculation
+public class EntityReflect extends EntityCalculatedEffectRoutine
 {
 	public EntityReflect(boolean forAttacker, List<Routine> calculations){ super(forAttacker, calculations);}
 	
@@ -22,8 +22,8 @@ public class EntityReflect extends EntityEffectCalculation
 	@Override
 	protected LivingEntity getAffectedObject(SpawnEventInfo eventInfo){ return null;}
 
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		RoutineUtility.register(EntityReflect.class, Pattern.compile("effect\\.reflect", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(EntityReflect.class, Pattern.compile("effect\\.reflect", Pattern.CASE_INSENSITIVE));
 	}
 }

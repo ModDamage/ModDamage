@@ -25,8 +25,8 @@ public class DivisionAddition extends Routine
 		return null;
 	}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		RoutineUtility.register(DivisionAddition.class, Pattern.compile("div_add\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(DivisionAddition.class, Pattern.compile("div_add\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

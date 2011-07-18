@@ -24,5 +24,8 @@ public class Addition extends Routine
 		return null;
 	}
 	
-	public static void register(){ RoutineUtility.register(Addition.class, Pattern.compile("([0-9]+)", Pattern.CASE_INSENSITIVE));}
+	public static void register(RoutineUtility routineUtility)
+	{
+		routineUtility.registerBase(Addition.class, Pattern.compile("([0-9]+)", Pattern.CASE_INSENSITIVE));
+	}
 }

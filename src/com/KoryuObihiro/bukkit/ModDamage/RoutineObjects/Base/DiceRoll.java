@@ -22,8 +22,8 @@ public class DiceRoll extends ChanceCalculation
 		return null;
 	}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		RoutineUtility.register(DiceRoll.class, Pattern.compile("roll", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(DiceRoll.class, Pattern.compile("roll", Pattern.CASE_INSENSITIVE));
 	}
 }

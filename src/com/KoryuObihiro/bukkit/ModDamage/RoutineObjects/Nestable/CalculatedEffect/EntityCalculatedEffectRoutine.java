@@ -1,4 +1,4 @@
-	package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Effect;
+	package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect;
 
 import java.util.List;
 
@@ -8,10 +8,11 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-abstract public class EntityEffectCalculation extends EffectCalculation<LivingEntity>
+abstract public class EntityCalculatedEffectRoutine extends CalculatedEffectRoutine<LivingEntity>
 {
 	protected final boolean forAttacker;
-	public EntityEffectCalculation(boolean forAttacker, List<Routine> calculations)
+	protected static final String entityPart = "(entity|attacker|target)";
+	public EntityCalculatedEffectRoutine(boolean forAttacker, List<Routine> calculations)
 	{
 		super(calculations);
 		this.forAttacker = forAttacker;
@@ -21,5 +22,4 @@ abstract public class EntityEffectCalculation extends EffectCalculation<LivingEn
 	protected LivingEntity getAffectedObject(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target);}
 	@Override
 	protected LivingEntity getAffectedObject(SpawnEventInfo eventInfo){ return eventInfo.entity;}
-	
 }

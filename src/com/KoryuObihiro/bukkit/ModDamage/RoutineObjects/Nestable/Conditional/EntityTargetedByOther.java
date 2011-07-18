@@ -29,8 +29,8 @@ public class EntityTargetedByOther extends EntityConditionalStatement<LivingEnti
 	@Override
 	protected LivingEntity getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(EntityTargetedByOther.class, Pattern.compile(RoutineUtility.entityPart + "targetedbyother", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityTargetedByOther.class, Pattern.compile(entityPart + "targetedbyother", Pattern.CASE_INSENSITIVE));
 	}
 }

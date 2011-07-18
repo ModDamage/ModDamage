@@ -12,8 +12,8 @@ public class EntityOnFire extends EntityFireTicksComparison
 		super(inverted, forAttacker, 3, ComparisonType.GREATER_THAN_EQUALS);
 	}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(EntityOnFire.class, Pattern.compile(RoutineUtility.entityPart + "onfire", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityOnFire.class, Pattern.compile(entityPart + "onfire", Pattern.CASE_INSENSITIVE));
 	}
 }

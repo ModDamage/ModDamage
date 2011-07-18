@@ -23,8 +23,8 @@ public class DiceRollAddition extends ChanceCalculation
 		return null;
 	}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility) 
 	{
-		RoutineUtility.register(DiceRollAddition.class, Pattern.compile("roll\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(DiceRollAddition.class, Pattern.compile("roll\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

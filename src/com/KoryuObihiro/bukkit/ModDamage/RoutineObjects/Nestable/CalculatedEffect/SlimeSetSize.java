@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Effect;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -11,7 +11,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class SlimeSetSize extends EffectCalculation<Slime>
+public class SlimeSetSize extends CalculatedEffectRoutine<Slime>
 {
 	final boolean forAttacker;
 	public SlimeSetSize(boolean forAttacker, List<Routine> calculations)
@@ -29,8 +29,8 @@ public class SlimeSetSize extends EffectCalculation<Slime>
 	@Override
 	protected Slime getAffectedObject(SpawnEventInfo eventInfo){ return (eventInfo.element.equals(DamageElement.MOB_SLIME))?((Slime)eventInfo.entity):null;}	
 
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		RoutineUtility.register(PlayerSetItem.class, Pattern.compile(RoutineUtility.entityPart + "effect\\.setSlimeSize\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(PlayerSetItem.class, Pattern.compile("(entity|attacker|target)effect\\.setSlimeSize\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

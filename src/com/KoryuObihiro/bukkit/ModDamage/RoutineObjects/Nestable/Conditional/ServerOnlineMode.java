@@ -4,6 +4,7 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 
 public class ServerOnlineMode extends ServerConditionalStatement<Boolean>
 {
@@ -17,8 +18,8 @@ public class ServerOnlineMode extends ServerConditionalStatement<Boolean>
 	@Override
 	public boolean condition(SpawnEventInfo eventInfo){ return (inverted?!server.getOnlineMode():server.getOnlineMode());}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(ServerOnlineMode.class, Pattern.compile("server\\.hasOnlineMode", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, ServerOnlineMode.class, Pattern.compile("server\\.hasOnlineMode", Pattern.CASE_INSENSITIVE));
 	}
 }

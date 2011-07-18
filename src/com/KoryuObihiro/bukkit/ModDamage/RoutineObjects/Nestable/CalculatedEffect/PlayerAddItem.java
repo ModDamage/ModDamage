@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Effect;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class PlayerAddItem extends PlayerEffectCalculation
+public class PlayerAddItem extends PlayerCalculatedEffectRoutine
 {
 	protected Material material;
 	public PlayerAddItem(boolean forAttacker, List<Routine> calculations){ super(forAttacker, calculations);}
@@ -21,8 +21,8 @@ public class PlayerAddItem extends PlayerEffectCalculation
 		affectedObject.getInventory().addItem(new ItemStack(affectedObject.getItemInHand().getType(), affectedObject.getItemInHand().getAmount() + input));
 	}
 
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		RoutineUtility.register(PlayerAddItem.class, Pattern.compile(RoutineUtility.entityPart + "effect\\.addItem\\." + RoutineUtility.materialRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(PlayerAddItem.class, Pattern.compile(entityPart + "effect\\.addItem\\." + routineUtility.materialRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

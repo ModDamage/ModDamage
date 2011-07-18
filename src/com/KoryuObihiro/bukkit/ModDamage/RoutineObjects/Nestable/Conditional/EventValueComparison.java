@@ -22,9 +22,9 @@ public class EventValueComparison extends ConditionalStatement
 	@Override
 	public boolean condition(SpawnEventInfo eventInfo){ return comparisonType.compare(eventInfo.eventHealth, value);}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(EventValueComparison.class, Pattern.compile("value" + RoutineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EventValueComparison.class, Pattern.compile("value" + routineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 
 }

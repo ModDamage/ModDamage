@@ -19,8 +19,8 @@ public class PlayerWielding extends EntityConditionalStatement<Material>
 	@Override
 	public Material getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(PlayerWielding.class, Pattern.compile(RoutineUtility.entityPart + "wielding\\." + RoutineUtility.materialRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerWielding.class, Pattern.compile(entityPart + "wielding\\." + routineUtility.materialRegex, Pattern.CASE_INSENSITIVE));
 	}	
 }

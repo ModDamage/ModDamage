@@ -21,8 +21,8 @@ public class EntityOnBlock extends EntityConditionalStatement<Material>
 	@Override
 	protected Material getRelevantInfo(SpawnEventInfo eventInfo){ return getRelevantEntity(eventInfo).getLocation().add(0, -1, 0).getBlock().getType();}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(EntityOnBlock.class, Pattern.compile(RoutineUtility.entityPart + "onblock\\." + RoutineUtility.materialRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityOnBlock.class, Pattern.compile(entityPart + "onblock\\." + routineUtility.materialRegex, Pattern.CASE_INSENSITIVE));
 	}
 }

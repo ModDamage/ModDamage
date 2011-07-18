@@ -1,4 +1,4 @@
-	package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Effect;
+	package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect;
 
 import java.util.List;
 
@@ -8,10 +8,11 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-abstract public class PlayerEffectCalculation extends EffectCalculation<Player>
+abstract public class PlayerCalculatedEffectRoutine extends CalculatedEffectRoutine<Player>
 {
 	protected final boolean forAttacker;
-	public PlayerEffectCalculation(boolean forAttacker, List<Routine> calculations)
+	protected static final String entityPart = "(entity|attacker|target)";
+	public PlayerCalculatedEffectRoutine(boolean forAttacker, List<Routine> calculations)
 	{
 		super(calculations);
 		this.forAttacker = forAttacker;

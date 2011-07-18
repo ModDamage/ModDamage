@@ -28,8 +28,8 @@ public class EntityUnderwater extends EntityConditionalStatement<Material[]>
 		return entityBlocks;
 	}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(EntityUnderwater.class, Pattern.compile(RoutineUtility.entityPart + "underwater", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityUnderwater.class, Pattern.compile(entityPart + "underwater", Pattern.CASE_INSENSITIVE));
 	}
 }

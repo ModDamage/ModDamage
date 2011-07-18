@@ -42,9 +42,9 @@ public class EntityCoordinateComparison extends EntityComparison
 		}
 	}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(EntityCoordinateComparison.class, Pattern.compile(RoutineUtility.entityPart + "(X|Y|Z)\\." + RoutineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityCoordinateComparison.class, Pattern.compile(entityPart + "(X|Y|Z)\\." + routineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static final byte COORDINATE_X = 0;

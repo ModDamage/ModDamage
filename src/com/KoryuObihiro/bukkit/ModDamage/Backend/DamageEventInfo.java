@@ -41,8 +41,6 @@ public class DamageEventInfo
 	public final String name_target;
 	public final String[] groups_attacker;
 	
-	public final boolean shouldScan;
-	
 //CONSTRUCTORS
 	public DamageEventInfo(Player player_target, Player player_attacker, DamageElement rangedElement, int eventDamage) 
 	{
@@ -72,8 +70,6 @@ public class DamageEventInfo
 		
 		world = entity_target.getWorld();
 		environment = world.getEnvironment();
-
-		shouldScan = (ModDamage.hasPermission(player_attacker, "moddamage.scan.pvp") && ModDamage.serverHandler.canScan(player_attacker));
 	}
 	
 	public DamageEventInfo(LivingEntity entity_target, DamageElement mobType_target, Player player_attacker, DamageElement rangedElement, int eventDamage) 
@@ -101,9 +97,7 @@ public class DamageEventInfo
 				:ModDamage.Permissions.getGroup(player_attacker.getWorld().getName(), player_attacker.getName()).split(" "):emptyStringArray);
 		
 		world = entity_target.getWorld();
-		environment = world.getEnvironment();
-		
-		shouldScan = (ModDamage.hasPermission(player_attacker, "moddamage.scan." + mobType_target.getReference().toLowerCase()) && ModDamage.serverHandler.canScan(player_attacker));		
+		environment = world.getEnvironment();		
 	}
 	
 	public DamageEventInfo(Player player_target, LivingEntity entity_attacker, DamageElement mobType_attacker, int eventDamage) 
@@ -132,8 +126,6 @@ public class DamageEventInfo
 		
 		world = entity_target.getWorld();
 		environment = world.getEnvironment();
-		
-		shouldScan = false;
 	}
 	
 	public DamageEventInfo(LivingEntity entity_target, DamageElement mobType_target, LivingEntity entity_attacker, DamageElement mobType_attacker, int eventDamage) 
@@ -160,8 +152,6 @@ public class DamageEventInfo
 		
 		world = entity_target.getWorld();
 		environment = world.getEnvironment();
-		
-		shouldScan = false;
 	}
 	
 	public DamageEventInfo(Player player_target, DamageElement damageType, int eventDamage) 
@@ -190,8 +180,6 @@ public class DamageEventInfo
 		
 		world = entity_target.getWorld();
 		environment = world.getEnvironment();
-		
-		shouldScan = false;
 	}
 	
 	public DamageEventInfo(LivingEntity entity_target, DamageElement mobType_target, DamageElement damageType, int eventDamage) 
@@ -218,7 +206,5 @@ public class DamageEventInfo
 		
 		world = entity_target.getWorld();
 		environment = world.getEnvironment();
-		
-		shouldScan = false;
 	}
 }

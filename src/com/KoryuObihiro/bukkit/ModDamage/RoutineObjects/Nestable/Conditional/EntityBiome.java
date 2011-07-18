@@ -20,8 +20,8 @@ public class EntityBiome extends EntityConditionalStatement<Biome>
 	@Override
 	protected Biome getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.entity.getLocation().getBlock().getBiome();}
 	
-	public static void register()
+	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(EntityBiome.class, Pattern.compile(RoutineUtility.entityPart + "biome\\." + RoutineUtility.biomeRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityBiome.class, Pattern.compile(entityPart + "biome\\." + RoutineUtility.biomeRegex, Pattern.CASE_INSENSITIVE));
 	}
 }
