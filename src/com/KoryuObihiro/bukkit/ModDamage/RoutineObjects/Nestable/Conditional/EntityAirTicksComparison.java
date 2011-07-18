@@ -19,6 +19,6 @@ public class EntityAirTicksComparison extends EntityComparison
 	
 	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityAirTicksComparison.class, Pattern.compile(entityPart + "airticks" + routineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityAirTicksComparison.class, Pattern.compile(RoutineUtility.entityPart + "airticks" + RoutineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

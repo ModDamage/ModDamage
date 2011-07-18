@@ -14,7 +14,11 @@ public class ArmorSet
 	public ArmorSet(Player player)
 	{
 		for(ItemStack stack : player.getInventory().getArmorContents())
-			this.put(stack.getType());
+			if(!this.put(stack.getType()))
+			{
+				clear();
+				break;
+			}
 	}
 	
 	public ArmorSet(String armorConfigString)

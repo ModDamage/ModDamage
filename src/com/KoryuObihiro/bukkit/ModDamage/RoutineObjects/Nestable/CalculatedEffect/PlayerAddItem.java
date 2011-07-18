@@ -23,6 +23,6 @@ public class PlayerAddItem extends PlayerCalculatedEffectRoutine
 
 	public static void register(RoutineUtility routineUtility)
 	{
-		routineUtility.registerBase(PlayerAddItem.class, Pattern.compile(entityPart + "effect\\.addItem\\." + routineUtility.materialRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(PlayerAddItem.class, Pattern.compile(RoutineUtility.entityPart + "effect\\.addItem\\." + RoutineUtility.materialRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

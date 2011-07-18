@@ -22,6 +22,6 @@ public class EntityBiome extends EntityConditionalStatement<Biome>
 	
 	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityBiome.class, Pattern.compile(entityPart + "biome\\." + RoutineUtility.biomeRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityBiome.class, Pattern.compile(RoutineUtility.entityPart + "biome\\." + RoutineUtility.biomeRegex, Pattern.CASE_INSENSITIVE));
 	}
 }

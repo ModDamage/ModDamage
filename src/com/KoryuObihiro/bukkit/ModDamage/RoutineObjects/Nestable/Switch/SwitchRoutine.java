@@ -15,12 +15,27 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 abstract public class SwitchRoutine<InfoType> extends Routine 
 {
 	public static HashMap<Pattern, Method> registeredStatements = new HashMap<Pattern, Method>();
-	public static final String statementPart = "(!" + RoutineUtility.wordPart + "(?:\\." + RoutineUtility.wordPart +")*)";
 	final protected LinkedHashMap<InfoType, List<Routine>> switchStatements;
+	final protected boolean isLoaded;
 	
-	public SwitchRoutine(LinkedHashMap<InfoType, List<Routine>> switchStatements)
+	//TODO Definitely not as efficient as it could be. Refactor?
+	public SwitchRoutine(LinkedHashMap<String, List<Routine>> switchStatements)
 	{
-		this.switchStatements = switchStatements;
+		LinkedHashMap<InfoType, List<Routine>> container = new LinkedHashMap<InfoType, List<Routine>>();
+		boolean failedMatch = false;
+		for(String switchCase : switchStatements.keySet())
+		{
+			InfoType matchedCase = matchCase(switchCase);
+			if(matchedCase != null)
+				container.put(matchCase(switchCase), switchStatements.get(switchCase));
+			else
+			{
+				failedMatch = true;
+				break;
+			}
+		}
+		isLoaded = !failedMatch;
+		this.switchStatements = container;
 	}
 	
 	@Override
@@ -44,31 +59,30 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 	abstract protected InfoType getRelevantInfo(DamageEventInfo eventInfo);
 	
 	abstract protected InfoType getRelevantInfo(SpawnEventInfo eventInfo);
+
+	abstract protected InfoType matchCase(String switchCase);
 	
-	public static SwitchRoutine getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchBlock)
+	public static SwitchRoutine<?> getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchBlock)
 	{
-		SwitchRoutine statement = null;
+		SwitchRoutine<?> statement = null;
 		for(Pattern pattern : registeredStatements.keySet())
 		{
 			Matcher switchMatcher = pattern.matcher(matcher.group(1));
 			if(switchMatcher.matches())
 			{
 				Method method = registeredStatements.get(pattern);
-				//get next statement
 				try 
 				{
-					statement = (SwitchRoutine)method.invoke(null, switchMatcher, switchBlock);
+					statement = (SwitchRoutine<?>)method.invoke(null, switchMatcher, switchBlock);
 				}
 				catch (Exception e){ e.printStackTrace();}
-				if(statement != null) return statement;
-				return null;
-				//get its relation to the previous statement
+				return statement;
 			}
 		}
 		return statement;
 	}
 	
-	public static void registerStatement(RoutineUtility routineUtility, Class<? extends SwitchRoutine> statementClass, Pattern syntax)
+	public static void registerStatement(RoutineUtility routineUtility, Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)
 	{
 		routineUtility.registerSwitch(statementClass, syntax);
 	}

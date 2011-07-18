@@ -31,6 +31,6 @@ public class EntityTargetedByOther extends EntityConditionalStatement<LivingEnti
 	
 	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityTargetedByOther.class, Pattern.compile(entityPart + "targetedbyother", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityTargetedByOther.class, Pattern.compile(RoutineUtility.entityPart + "targetedbyother", Pattern.CASE_INSENSITIVE));
 	}
 }

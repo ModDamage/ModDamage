@@ -20,6 +20,6 @@ public class PlayerWearing extends EntityConditionalStatement<ArmorSet>
 	
 	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWearing.class, Pattern.compile(entityPart + "wearing\\." + RoutineUtility.armorRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerWearing.class, Pattern.compile(RoutineUtility.entityPart + "wearing\\." + RoutineUtility.armorRegex, Pattern.CASE_INSENSITIVE));
 	}
 }

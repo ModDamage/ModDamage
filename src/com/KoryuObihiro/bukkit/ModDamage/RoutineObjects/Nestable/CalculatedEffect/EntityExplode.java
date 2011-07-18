@@ -20,6 +20,6 @@ public class EntityExplode extends EntityCalculatedEffectRoutine
 	
 	public static void register(RoutineUtility routineUtility)
 	{
-		routineUtility.registerBase(EntityExplode.class, Pattern.compile(entityPart + "effect\\.explode", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(EntityExplode.class, Pattern.compile(RoutineUtility.entityPart + "effect\\.explode", Pattern.CASE_INSENSITIVE));
 	}
 }

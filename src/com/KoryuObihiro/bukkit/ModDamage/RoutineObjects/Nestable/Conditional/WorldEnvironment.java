@@ -31,6 +31,6 @@ public class WorldEnvironment extends WorldConditionalStatement
 	
 	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, WorldEnvironment.class, Pattern.compile("world\\.environment\\." + routineUtility.environmentRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, WorldEnvironment.class, Pattern.compile("world\\.environment\\." + RoutineUtility.environmentRegex, Pattern.CASE_INSENSITIVE));
 	}
 }

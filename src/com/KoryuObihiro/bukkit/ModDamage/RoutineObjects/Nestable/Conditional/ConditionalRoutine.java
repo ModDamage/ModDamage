@@ -1,6 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -99,7 +98,7 @@ public class ConditionalRoutine extends Routine
 	
 	public static void registerStatement(RoutineUtility routineUtility, Class<? extends ConditionalStatement> statementClass, Pattern syntax)
 	{
-		routineUtility.registerStatement(routineUtility, statementClass, syntax);
+		routineUtility.registerConditional(statementClass, syntax);
 	}
 	
 	private static class FalseStatement extends ConditionalStatement

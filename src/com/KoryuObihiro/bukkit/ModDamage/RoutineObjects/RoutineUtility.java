@@ -15,11 +15,11 @@ import org.bukkit.Material;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.ConditionalStatement;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.ConditionalStatement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Switch.SwitchRoutine;
 import com.mysql.jdbc.AssertionFailedException;
 
@@ -62,9 +62,11 @@ public class RoutineUtility
 	public static final String wordPart = "(?:[a-z0-9]+)";
 	public static final String potentialAliasPart = "(?:_[a-z0-9]+)";
 	public static final String statementPart = "(!(?:" + RoutineUtility.wordPart + ")(?:\\." + RoutineUtility.wordPart +")*)";
+	public static final String entityPart = "(entity|attacker|target)";
 	public static String comparisonRegex;
 	public static String biomeRegex;
 	public static String environmentRegex;
+	public static String elementRegex;
 	public static String materialRegex;
 	public static String armorRegex;
 	public static String logicalRegex;
@@ -111,6 +113,11 @@ public class RoutineUtility
 				environmentRegex += environment.name() + "|";
 			environmentRegex += potentialAliasPart + ")";
 	
+			elementRegex = "(";
+			for(DamageElement element : DamageElement.values())
+				elementRegex += element.getReference() + "|";
+			elementRegex += potentialAliasPart + ")";
+			
 			String[] armorParts = {"HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS" };
 			materialRegex = armorRegex = "(";
 			for(Material material : Material.values())
@@ -229,7 +236,7 @@ public class RoutineUtility
 	catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");}
 	}
 
-	public void registerStatement(routineUtility, Class<? extends ConditionalStatement> statementClass, Pattern syntax)
+	public void registerConditional(Class<? extends ConditionalStatement> statementClass, Pattern syntax)
 	{
 		try
 		{

@@ -324,7 +324,7 @@ public enum DamageElement
 		return typeStrings;
 	}
 	
-	public static DamageElement matchDamageElement(String nodeName)
+	public static DamageElement matchElement(String nodeName)
 	{
 		for(DamageElement element : values())
 			if(element.getReference().equals(nodeName))

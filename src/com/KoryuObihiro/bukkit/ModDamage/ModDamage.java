@@ -41,36 +41,11 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.IntervalRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.EntityExplode;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.EntityHeal;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.EntityReflect;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.EntitySetAirTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.EntitySetFireTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.EntitySetHealth;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.PlayerSetItem;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect.SlimeSetSize;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityAirTicksComparison;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityBiome;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityCoordinateComparison;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityDrowning;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityExposedToSky;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityFallComparison;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityFalling;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityFireTicksComparison;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityHealthComparison;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityLightComparison;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityOnBlock;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityOnFire;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityTargetedByOther;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EntityUnderwater;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.EventValueComparison;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.PlayerWearing;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.PlayerWearingOnly;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.PlayerWielding;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.ServerOnlineMode;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.ServerPlayerCount;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.WorldEnvironment;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.WorldTime;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Switch.ArmorSetSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Switch.BiomeSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Switch.EntityTypeSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Switch.EnvironmentSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Switch.PlayerWieldSwitch;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
@@ -130,14 +105,10 @@ public class ModDamage extends JavaPlugin
 	//private static String errorString_findWorld = ModDamageString(ChatColor.RED) + " Couldn't find matching world name.";
 	
 	//External Configuration
-	public static boolean elRegions_enabled = false;
-	public static boolean multigroupPermissions = true;
-	
-	public static boolean negative_Heal;
-	private static final List<String> dummyList = null; //Dunno if it can be just any null object, but at least it leaves things blank.		
-	
+	public static boolean multigroupPermissions = true;	
 	public static boolean using_Permissions = false;
 	public static boolean using_elRegions = false;
+	public static boolean negative_Heal;
 
 	private static boolean damageRoutinesLoaded = false;
 	private static boolean spawnRoutinesLoaded = false;
@@ -155,7 +126,7 @@ public class ModDamage extends JavaPlugin
 	{
 		plugin = this;
 		ModDamage.server = getServer();
-		routineUtility = new RoutineUtility(this, log);
+		routineUtility = new RoutineUtility(log);
 	//PERMISSIONS
 		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
 		if (permissionsPlugin != null)
@@ -174,14 +145,12 @@ public class ModDamage extends JavaPlugin
 		{
 			using_elRegions = true;
 		    log.info("[" + getDescription().getName() + "] Found elRegions v" + elRegions.getDescription().getVersion());
-		    elRegions_enabled = true;
 		}
 		
 		//register plugin-related stuff with the server's plugin manager
 		server.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
 		server.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
 		
-		/*
 		//register MD routines
 //Base Calculations
 		Addition.register(routineUtility);
@@ -193,6 +162,7 @@ public class ModDamage extends JavaPlugin
 		LiteralRange.register(routineUtility);
 		Multiplication.register(routineUtility);
 		Set.register(routineUtility);	
+		/*
 //Nestable Calculations
 	//Conditionals
 		Binomial.register(routineUtility);
@@ -233,6 +203,12 @@ public class ModDamage extends JavaPlugin
 		PlayerSetItem.register(routineUtility);
 		SlimeSetSize.register(routineUtility);
 		*/
+	//Switches
+		ArmorSetSwitch.register(routineUtility);
+		BiomeSwitch.register(routineUtility);
+		EntityTypeSwitch.register(routineUtility);
+		EnvironmentSwitch.register(routineUtility);
+		PlayerWieldSwitch.register(routineUtility);
 		config = this.getConfiguration();
 		isEnabled = reload(true);
 	}

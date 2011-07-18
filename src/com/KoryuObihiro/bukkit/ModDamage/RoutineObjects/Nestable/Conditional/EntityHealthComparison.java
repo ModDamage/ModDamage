@@ -21,6 +21,6 @@ public class EntityHealthComparison extends EntityComparison
 	
 	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityHealthComparison.class, Pattern.compile(entityPart + "health" + routineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityHealthComparison.class, Pattern.compile(RoutineUtility.entityPart + "health" + RoutineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

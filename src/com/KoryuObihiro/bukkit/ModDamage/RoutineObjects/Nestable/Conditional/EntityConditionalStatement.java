@@ -9,7 +9,6 @@ public abstract class EntityConditionalStatement<InputType> extends ConditionalS
 {
 	protected final boolean forAttacker;
 	protected final InputType value;
-	protected static final String entityPart = "(entity|attacker|target)";
 	public EntityConditionalStatement(boolean inverted, boolean forAttacker, InputType value)
 	{ 
 		super(inverted);

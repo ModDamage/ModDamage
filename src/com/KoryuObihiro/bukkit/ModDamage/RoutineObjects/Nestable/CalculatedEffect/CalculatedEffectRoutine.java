@@ -1,25 +1,34 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.CalculatedEffect;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.LogicalOperation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.NestedRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.ConditionalStatement;
 
 abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine 
 {
+	public static HashMap<Pattern, Method> registeredStatements = new HashMap<Pattern, Method>();
+	final List<Routine> calculations;
 	final AffectedClass affectedObject;
 	final boolean useEventObject;
 	CalculatedEffectRoutine(AffectedClass affectedObject, List<Routine> calculations)
 	{
-		super(calculations);
+		this.calculations = calculations;
 		this.affectedObject = affectedObject;
 		this.useEventObject = true;
 	}	
 	CalculatedEffectRoutine(List<Routine> calculations)
 	{
-		super(calculations);
+		this.calculations = calculations;
 		this.affectedObject = null;
 		this.useEventObject = false;
 	}
@@ -49,7 +58,8 @@ abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine
 	{
 		int temp1 = eventInfo.eventDamage, temp2;
 		eventInfo.eventDamage = 0;
-		executeNested(eventInfo);
+		for(Routine routine : calculations)
+			routine.run(eventInfo);
 		temp2 = eventInfo.eventDamage;
 		eventInfo.eventDamage = temp1;
 		return temp2;
@@ -59,9 +69,34 @@ abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine
 	{
 		int temp1 = eventInfo.eventHealth, temp2;
 		eventInfo.eventHealth = 0;
-		executeNested(eventInfo);
+		for(Routine routine : calculations)
+			routine.run(eventInfo);
 		temp2 = eventInfo.eventHealth;
 		eventInfo.eventHealth = temp1;
 		return temp2;
+	}
+	
+
+	public static CalculatedEffectRoutine<?> getNew(Matcher matcher, List<Routine> routines)
+	{
+		//parse all of the conditionals
+		for(int i = 0; i < matcher.groupCount(); i += 2)
+			for(Pattern pattern : registeredStatements.keySet())
+			{
+				Matcher statementMatcher = pattern.matcher(matcher.group(i));
+				if(statementMatcher.matches())
+				{
+					Method method = registeredStatements.get(pattern);
+					//get next statement
+					CalculatedEffectRoutine<?> statement = null;
+					try 
+					{
+						statement = (CalculatedEffectRoutine<?>)method.invoke(null, statementMatcher, routines);
+					}
+					catch (Exception e){ e.printStackTrace();}
+					return statement;
+				}
+			}
+		return null;
 	}
 }

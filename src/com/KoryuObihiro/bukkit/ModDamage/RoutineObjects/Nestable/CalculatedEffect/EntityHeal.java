@@ -20,6 +20,6 @@ public class EntityHeal extends EntityCalculatedEffectRoutine
 	
 	public static void register(RoutineUtility routineUtility)
 	{
-		routineUtility.registerBase(EntityHeal.class, Pattern.compile(entityPart + "effect\\.heal", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(EntityHeal.class, Pattern.compile(RoutineUtility.entityPart + "effect\\.heal", Pattern.CASE_INSENSITIVE));
 	}
 }

@@ -20,6 +20,6 @@ public class EntitySetFireTicks extends EntityCalculatedEffectRoutine
 
 	public static void register(RoutineUtility routineUtility)
 	{
-		routineUtility.registerBase(EntitySetFireTicks.class, Pattern.compile(entityPart + "effect\\.setfireticks", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(EntitySetFireTicks.class, Pattern.compile(RoutineUtility.entityPart + "effect\\.setfireticks", Pattern.CASE_INSENSITIVE));
 	}
 }

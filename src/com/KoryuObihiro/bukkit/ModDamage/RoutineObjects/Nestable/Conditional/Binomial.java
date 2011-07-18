@@ -31,6 +31,6 @@ public class Binomial extends ConditionalStatement
 	
 	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerNested(routineUtility, Binomial.class, Pattern.compile("binom\\.([0-9]{1,2})", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, Binomial.class, Pattern.compile("binom\\.([0-9]{1,2})", Pattern.CASE_INSENSITIVE));
 	}
 }

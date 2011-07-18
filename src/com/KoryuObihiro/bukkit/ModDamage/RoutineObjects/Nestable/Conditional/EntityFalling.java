@@ -14,6 +14,6 @@ public class EntityFalling extends EntityFallComparison
 	
 	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityFalling.class, Pattern.compile(entityPart + "falling", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityFalling.class, Pattern.compile(RoutineUtility.entityPart + "falling", Pattern.CASE_INSENSITIVE));
 	}
 }

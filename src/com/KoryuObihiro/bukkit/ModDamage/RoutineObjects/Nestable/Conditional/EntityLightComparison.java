@@ -22,6 +22,6 @@ public class EntityLightComparison extends EntityComparison
 	
 	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityLightComparison.class, Pattern.compile(entityPart + "light" + routineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityLightComparison.class, Pattern.compile(RoutineUtility.entityPart + "light" + RoutineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

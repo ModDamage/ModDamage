@@ -23,6 +23,6 @@ public class EntityOnBlock extends EntityConditionalStatement<Material>
 	
 	public static void register(RoutineUtility routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityOnBlock.class, Pattern.compile(entityPart + "onblock\\." + routineUtility.materialRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityOnBlock.class, Pattern.compile(RoutineUtility.entityPart + "onblock\\." + RoutineUtility.materialRegex, Pattern.CASE_INSENSITIVE));
 	}
 }

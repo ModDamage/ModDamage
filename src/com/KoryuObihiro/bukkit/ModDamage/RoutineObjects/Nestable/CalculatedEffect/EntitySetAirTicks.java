@@ -20,6 +20,6 @@ public class EntitySetAirTicks extends EntityCalculatedEffectRoutine
 	
 	public static void register(RoutineUtility routineUtility)
 	{
-		routineUtility.registerBase(EntitySetAirTicks.class, Pattern.compile(entityPart + "effect\\.setairticks", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(EntitySetAirTicks.class, Pattern.compile(RoutineUtility.entityPart + "effect\\.setairticks", Pattern.CASE_INSENSITIVE));
 	}
 }
