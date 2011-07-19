@@ -23,35 +23,35 @@ public class DamageEventInfo
 	
 	//Having everything public may not be a good idea, but I don't intend to change anything later.
 	public final EventType eventType;
-	public final DamageElement rangedElement;
+	public final ModDamageElement rangedElement;
 	
-	public final DamageElement element_target;
+	public final ModDamageElement element_target;
 	public final LivingEntity entity_target;
 	public final Material materialInHand_target;
-	public final DamageElement elementInHand_target;
+	public final ModDamageElement elementInHand_target;
 	public final ArmorSet armorSetString_target;
 	public final String name_attacker;
 	public final String[] groups_target;
 
-	public final DamageElement element_attacker;
+	public final ModDamageElement element_attacker;
 	public final LivingEntity entity_attacker;
 	public final Material materialInHand_attacker;
-	public final DamageElement elementInHand_attacker;
+	public final ModDamageElement elementInHand_attacker;
 	public final ArmorSet armorSetString_attacker;
 	public final String name_target;
 	public final String[] groups_attacker;
 	
 //CONSTRUCTORS
-	public DamageEventInfo(Player player_target, Player player_attacker, DamageElement rangedElement, int eventDamage) 
+	public DamageEventInfo(Player player_target, Player player_attacker, ModDamageElement rangedElement, int eventDamage) 
 	{
 		this.eventDamage = eventDamage;
 		eventType = EventType.PLAYER_PLAYER;
 		this.rangedElement = rangedElement;
 		
 		entity_target = player_target;
-		element_target = DamageElement.GENERIC_HUMAN;
+		element_target = ModDamageElement.GENERIC_HUMAN;
 		materialInHand_target = player_target.getItemInHand().getType();
-		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
+		elementInHand_target = ModDamageElement.matchMeleeElement(materialInHand_target);
 		armorSetString_target = new ArmorSet(player_target);
 		name_target = player_target.getName();
 		groups_target = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
@@ -59,9 +59,9 @@ public class DamageEventInfo
 				:ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName()).split(" "):emptyStringArray);
 		
 		entity_attacker = player_attacker;
-		element_attacker = DamageElement.GENERIC_HUMAN;
+		element_attacker = ModDamageElement.GENERIC_HUMAN;
 		materialInHand_attacker = player_attacker.getItemInHand().getType();
-		elementInHand_attacker = DamageElement.matchMeleeElement(materialInHand_attacker);
+		elementInHand_attacker = ModDamageElement.matchMeleeElement(materialInHand_attacker);
 		armorSetString_attacker = new ArmorSet(player_attacker);
 		name_attacker = player_attacker.getName();
 		groups_attacker = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
@@ -72,7 +72,7 @@ public class DamageEventInfo
 		environment = world.getEnvironment();
 	}
 	
-	public DamageEventInfo(LivingEntity entity_target, DamageElement mobType_target, Player player_attacker, DamageElement rangedElement, int eventDamage) 
+	public DamageEventInfo(LivingEntity entity_target, ModDamageElement mobType_target, Player player_attacker, ModDamageElement rangedElement, int eventDamage) 
 	{
 		this.eventDamage = eventDamage;
 		eventType = EventType.PLAYER_MOB;
@@ -87,9 +87,9 @@ public class DamageEventInfo
 		groups_target = null;
 		
 		entity_attacker = player_attacker;
-		element_attacker = DamageElement.GENERIC_HUMAN;
+		element_attacker = ModDamageElement.GENERIC_HUMAN;
 		materialInHand_attacker = player_attacker.getItemInHand().getType();
-		elementInHand_attacker = DamageElement.matchMeleeElement(materialInHand_attacker);
+		elementInHand_attacker = ModDamageElement.matchMeleeElement(materialInHand_attacker);
 		armorSetString_attacker = new ArmorSet(player_attacker);
 		name_attacker = player_attacker.getName();
 		groups_attacker = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
@@ -100,16 +100,16 @@ public class DamageEventInfo
 		environment = world.getEnvironment();		
 	}
 	
-	public DamageEventInfo(Player player_target, LivingEntity entity_attacker, DamageElement mobType_attacker, int eventDamage) 
+	public DamageEventInfo(Player player_target, LivingEntity entity_attacker, ModDamageElement mobType_attacker, int eventDamage) 
 	{
 		this.eventDamage = eventDamage;
 		eventType = EventType.MOB_PLAYER;
 		this.rangedElement = null;
 		
 		this.entity_target = player_target;
-		element_target = DamageElement.GENERIC_HUMAN;
+		element_target = ModDamageElement.GENERIC_HUMAN;
 		materialInHand_target = player_target.getItemInHand().getType();
-		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
+		elementInHand_target = ModDamageElement.matchMeleeElement(materialInHand_target);
 		armorSetString_target = new ArmorSet(player_target);
 		name_target = player_target.getName();
 		groups_target = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
@@ -128,7 +128,7 @@ public class DamageEventInfo
 		environment = world.getEnvironment();
 	}
 	
-	public DamageEventInfo(LivingEntity entity_target, DamageElement mobType_target, LivingEntity entity_attacker, DamageElement mobType_attacker, int eventDamage) 
+	public DamageEventInfo(LivingEntity entity_target, ModDamageElement mobType_target, LivingEntity entity_attacker, ModDamageElement mobType_attacker, int eventDamage) 
 	{
 		this.eventDamage = eventDamage;
 		eventType = EventType.MOB_MOB;
@@ -154,16 +154,16 @@ public class DamageEventInfo
 		environment = world.getEnvironment();
 	}
 	
-	public DamageEventInfo(Player player_target, DamageElement damageType, int eventDamage) 
+	public DamageEventInfo(Player player_target, ModDamageElement damageType, int eventDamage) 
 	{
 		this.eventDamage = eventDamage;
 		eventType = EventType.NONLIVING_PLAYER;
 		this.rangedElement = null;
 		
 		entity_target = player_target;
-		element_target = DamageElement.GENERIC_HUMAN;
+		element_target = ModDamageElement.GENERIC_HUMAN;
 		materialInHand_target = player_target.getItemInHand().getType();
-		elementInHand_target = DamageElement.matchMeleeElement(materialInHand_target);
+		elementInHand_target = ModDamageElement.matchMeleeElement(materialInHand_target);
 		armorSetString_target = new ArmorSet(player_target);
 		name_target = player_target.getName();
 		groups_target = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
@@ -182,7 +182,7 @@ public class DamageEventInfo
 		environment = world.getEnvironment();
 	}
 	
-	public DamageEventInfo(LivingEntity entity_target, DamageElement mobType_target, DamageElement damageType, int eventDamage) 
+	public DamageEventInfo(LivingEntity entity_target, ModDamageElement mobType_target, ModDamageElement damageType, int eventDamage) 
 	{
 		this.eventDamage = eventDamage;
 		eventType = EventType.NONLIVING_MOB;

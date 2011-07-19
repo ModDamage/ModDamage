@@ -17,34 +17,8 @@ import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Conditional.ConditionalStatement;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nestable.Switch.SwitchRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.mysql.jdbc.AssertionFailedException;
-
-//TODO	
-// COUNTER FOR NEST DEPTH
-
-//--Calculation Ideas:
-// -implement some syntax help
-// -send player message
-// -AoE clearance, block search nearby for Material?
-// -check against an itemstack in the player's inventory
-
-// -if.entityis.inRegion
-// -if.playeris.locatedIRL.$area
-// -if.serveris.onlinemode
-// -if.serveris.portedAt.#port
-// -switch.region
-// -switch.entitygroup
-// -switch.environment
-// -switch.spawnreason
-// -switch.type //Accepts any Damage Element.
-// -switch.type.$DamageElement //Accepts only child Damage Elements of named element class.
-// -tag.$aliasName
-// -ability to clear non-static tags
-// -switch.conditional
 
 public class RoutineUtility
 {
@@ -55,13 +29,14 @@ public class RoutineUtility
 	
 	private static HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
 	private static Pattern conditionalPattern;
+	private static Pattern effectPattern;
 	private static Pattern switchPattern;
 	
 	private static boolean loadedUtilityRegexes = false;
 	public static final String numberPart = "(?:[0-9]+)";
-	public static final String wordPart = "(?:[a-z0-9]+)";
+	public static final String alphanumericPart = "(?:[a-z0-9]+)";
 	public static final String potentialAliasPart = "(?:_[a-z0-9]+)";
-	public static final String statementPart = "(!(?:" + RoutineUtility.wordPart + ")(?:\\." + RoutineUtility.wordPart +")*)";
+	public static final String statementPart = "((?:" + RoutineUtility.alphanumericPart + ")(?:\\." + RoutineUtility.alphanumericPart +")*)";
 	public static final String entityPart = "(entity|attacker|target)";
 	public static String comparisonRegex;
 	public static String biomeRegex;
@@ -71,7 +46,6 @@ public class RoutineUtility
 	public static String armorRegex;
 	public static String logicalRegex;
 	
-
 	public LogSetting logSetting = LogSetting.NORMAL;
 	public enum LogSetting
 	{ 
@@ -89,67 +63,57 @@ public class RoutineUtility
 				return true;
 			return false;
 		}
-	}
+	}	
 	
+	public RoutineUtility(Logger log){ RoutineUtility.log = log;}
 	
-	public RoutineUtility(Logger log)
+	static
 	{
-		RoutineUtility.log = log;
+		biomeRegex = "(";
+		for(Biome biome : Biome.values())
+			biomeRegex += biome.name() + "|";
+		biomeRegex += potentialAliasPart + ")";
 		
-		reloadRegexes(false);
-	}
-	
-	public void reloadRegexes(boolean force)
-	{
-		if(!loadedUtilityRegexes || force)
+		environmentRegex = "(";
+		for(Environment environment : Environment.values())
+			environmentRegex += environment.name() + "|";
+		environmentRegex += potentialAliasPart + ")";
+
+		elementRegex = "(";
+		for(ModDamageElement element : ModDamageElement.values())
+			elementRegex += element.getReference() + "|";
+		elementRegex += potentialAliasPart + ")";
+		
+		String[] armorParts = {"HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS" };
+		materialRegex = armorRegex = "(";
+		for(Material material : Material.values())
 		{
-			biomeRegex = "(";
-			for(Biome biome : Biome.values())
-				biomeRegex += biome.name() + "|";
-			biomeRegex += potentialAliasPart + ")";
-			
-			environmentRegex = "(";
-			for(Environment environment : Environment.values())
-				environmentRegex += environment.name() + "|";
-			environmentRegex += potentialAliasPart + ")";
-	
-			elementRegex = "(";
-			for(DamageElement element : DamageElement.values())
-				elementRegex += element.getReference() + "|";
-			elementRegex += potentialAliasPart + ")";
-			
-			String[] armorParts = {"HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS" };
-			materialRegex = armorRegex = "(";
-			for(Material material : Material.values())
-			{
-				materialRegex += material.name() + "|";
-				for(String part : armorParts)
-					if(material.name().endsWith(part))
-						armorRegex += material.name() + "|";
-						
-			}
-			materialRegex += potentialAliasPart + ")";
-			armorRegex += potentialAliasPart + "){1,4}";
-			
-			logicalRegex = "(";
-			for(LogicalOperation operation : LogicalOperation.values())
-				logicalRegex += operation.name() + "|" + operation.getShortHand() + "|";
-			logicalRegex += potentialAliasPart + ")";		
-			
-			comparisonRegex = "(";
-			for(ComparisonType type : ComparisonType.values())
-				comparisonRegex += type.name() + "|" + type.getShortHand() + "|";
-			comparisonRegex += ")\\.";
-			
-			conditionalPattern = Pattern.compile(("if|if_not|if!)\\s" + statementPart + "" + "(?:\\s(" + logicalRegex + ")" + statementPart + ")*"), Pattern.CASE_INSENSITIVE);
-			switchPattern = Pattern.compile("switch." + statementPart, Pattern.CASE_INSENSITIVE);
-			
-			loadedUtilityRegexes = true;
+			materialRegex += material.name() + "|";
+			for(String part : armorParts)
+				if(material.name().endsWith(part))
+					armorRegex += material.name() + "|";
+					
 		}
+		materialRegex += potentialAliasPart + ")";
+		armorRegex += potentialAliasPart + "){1,4}";
+		
+		logicalRegex = "(";
+		for(LogicalOperation operation : LogicalOperation.values())
+			logicalRegex += operation.name() + "|" + operation.getShortHand() + "|";
+		logicalRegex += potentialAliasPart + ")";		
+		
+		comparisonRegex = "(";
+		for(ComparisonType type : ComparisonType.values())
+			comparisonRegex += type.name() + "|" + type.getShortHand() + "|";
+		comparisonRegex += ")\\.";
+		
+		conditionalPattern = Pattern.compile("(if|if_not|if!)\\s+(!)?" + statementPart + "(?:\\s*" + logicalRegex + "\\s*" + statementPart + ")*", Pattern.CASE_INSENSITIVE);
+		switchPattern = Pattern.compile("switch\\." + statementPart, Pattern.CASE_INSENSITIVE);
+		effectPattern = Pattern.compile(entityPart + "effect\\." + statementPart);
 	}
 	
 	//Parse commands recursively for different command strings the handlers pass
-	//TODO Put found values into the config strings. :D
+	//TODO Put these into config strings, color according to output type
 	public List<Routine> parse(List<Object> routineStrings, String loadType){ return parse(routineStrings, loadType, 0);}
 	private List<Routine> parse(Object object, String loadType, int nestCount)
 	{
@@ -159,7 +123,27 @@ public class RoutineUtility
 			nestIndentation += "    ";
 		if(object instanceof String)
 		{
-			log.info(nestIndentation + "Found base routine \"" + (String)object + "\"");
+			Routine routine = null;
+			for(Pattern pattern : registeredBaseRoutines.keySet())
+			{
+				Matcher matcher = pattern.matcher((String)object);
+				if(matcher.matches())
+				{
+					try
+					{
+						routine = (Routine)registeredBaseRoutines.get(pattern).invoke(null, matcher);
+						break;
+					}
+					catch(Exception e){ e.printStackTrace();}
+				}
+			}
+			if(routine != null)
+			{
+				log.info(nestIndentation + "Routine: \"" + (String)object + "\"");
+				routines.add(routine);
+			}
+			else log.info(nestIndentation + "Couldn't match base routine string \"" + (String)object +"\"");
+			
 		}
 		else if(object instanceof LinkedHashMap)
 		{
@@ -168,72 +152,78 @@ public class RoutineUtility
 				for(String key : someHashMap.keySet())
 				{
 					Matcher conditionalMatcher = conditionalPattern.matcher(key);
+					Matcher switchMatcher = switchPattern.matcher(key);
+					Matcher effectMatcher = effectPattern.matcher(key);
 					if(conditionalMatcher.matches())
 					{
 						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
-						log.info(nestIndentation + "Found conditional statement \"" + key + "\"...getting values");
+						if(logSetting.shouldOutput(LogSetting.NORMAL)) log.info(nestIndentation + "Conditional: \"" + key + "\"");
 						ConditionalRoutine routine = ConditionalRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
 						if(routine != null) routines.add(routine);
 						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End conditional statement \"" + key + "\"\n");
 					}
-					else
-					{ 
-						Matcher switchMatcher = conditionalPattern.matcher(key);
-						if(switchMatcher.matches())
-						{
-							if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
-							log.info(nestIndentation + "Found switch statement \"" + key + "\"...getting values");
-							
-							LinkedHashMap<String, Object> anotherHashMap = (someHashMap.get(key) instanceof LinkedHashMap?(LinkedHashMap<String, Object>)someHashMap.get(key):null);
-							if(anotherHashMap != null)
-							{
-								LinkedHashMap<String, List<Routine>> routineHashMap = new LinkedHashMap<String, List<Routine>>();
-								for(String anotherKey : anotherHashMap.keySet())
-								{
-									if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
-									log.info(nestIndentation + "Found switch case \"" + anotherKey + "\"");
-									routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1));
-									if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End switch case \"" + anotherKey + "\"\n");
-								}
-								SwitchRoutine routine = SwitchRoutine.getNew(switchMatcher, routineHashMap);
-								if(routine != null) routines.add(routine);
-								else log.severe("[ModDamage] Error: invalid switch case");
-							}
-							if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End switch statement \"" + key + "\"\n");
-						}
-						else log.severe(nestIndentation + " No match: \"" + key + "\"");
+					else if(effectMatcher.matches())
+					{
+						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
+						if(logSetting.shouldOutput(LogSetting.NORMAL)) log.info(nestIndentation + "Effect: \"" + key + "\"");
+						CalculatedEffectRoutine<?> routine = CalculatedEffectRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
+						if(routine != null) routines.add(routine);
+						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End effect calculation \"" + key + "\"\n");
 					}
+					else if(switchMatcher.matches())
+					{
+						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
+						if(logSetting.shouldOutput(LogSetting.NORMAL)) log.info(nestIndentation + "Switch: \"" + key + "\"");
+						
+						LinkedHashMap<String, Object> anotherHashMap = (someHashMap.get(key) instanceof LinkedHashMap?(LinkedHashMap<String, Object>)someHashMap.get(key):null);
+						if(anotherHashMap != null)
+						{
+							LinkedHashMap<String, List<Routine>> routineHashMap = new LinkedHashMap<String, List<Routine>>();
+							for(String anotherKey : anotherHashMap.keySet())
+							{
+								if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
+								if(logSetting.shouldOutput(LogSetting.NORMAL)) log.info(nestIndentation + " case: \"" + anotherKey + "\"");
+								routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1));
+								if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End switch case \"" + anotherKey + "\"\n");
+							}
+							SwitchRoutine<?> routine = SwitchRoutine.getNew(switchMatcher, routineHashMap);
+							if(routine != null) routines.add(routine);
+							else log.severe("[ModDamage] Error: invalid switch case");//TODO Add the offending case! This needs to work with "quiet"
+						}
+						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End switch statement \"" + key + "\"\n");
+					}
+					else log.severe(nestIndentation + " No match found for nested node \"" + key + "\"");
 				}
-			else log.info(nestIndentation + "Found bad nestable. D:");
+			else log.info(nestIndentation + "[ModDamage] Parse error: bad nestable found in configuration.");
 		}
 		else if(object instanceof List)
 		{
 			for(Object nestedObject : (List<Object>)object)
 				routines.addAll(parse(nestedObject, loadType, nestCount));
 		}
-		else log.info(nestIndentation + "Found something...but I have no idea how the hell to parse it.");
+		else log.info(nestIndentation + "[ModDamage] Error: could not parse object " + object.toString() + " of type " + object.getClass().getName());
 		return routines;
 	}
-	
 	public void registerBase(Class<? extends Routine> routineClass, Pattern syntax)
-	{try
 	{
-		Method method = routineClass.getMethod("getNew", Matcher.class);
-		if(method != null)
+		try
 		{
-			assert(method.getReturnType().equals(routineClass));
-			method.invoke(null, (Matcher)null);
-			register(registeredBaseRoutines, method, syntax);
+			Method method = routineClass.getMethod("getNew", Matcher.class);
+			if(method != null)
+			{
+				assert(method.getReturnType().equals(routineClass));
+				method.invoke(null, (Matcher)null);
+				register(registeredBaseRoutines, method, syntax);
+			}
+			else log.severe("Method getNew not found for statement " + routineClass.getName());
 		}
-		else log.severe("Method getNew not found for statement " + routineClass.getName());
-	}
-	catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return class " + routineClass.getName() + "!");}
-	catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + routineClass.getName() + "!");}
-	catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + routineClass.getName() + " is not static!");}
-	catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have a getNew() method!");} 
-	catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
-	catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
-	catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");}
+		catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return class " + routineClass.getName() + "!");}
+		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + routineClass.getName() + "!");}
+		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + routineClass.getName() + " is not static!");}
+		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have a getNew() method!");} 
+		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
+		catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
+		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");}
 	}
 
 	public void registerConditional(Class<? extends ConditionalStatement> statementClass, Pattern syntax)
@@ -258,7 +248,7 @@ public class RoutineUtility
 		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
 	}
 
-	public void registerSwitch(Class<? extends SwitchRoutine> statementClass, Pattern syntax)
+	public void registerSwitch(Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)
 	{
 		try
 		{
@@ -266,7 +256,7 @@ public class RoutineUtility
 			if(method != null)
 			{
 				assert(method.getReturnType().equals(statementClass));
-				method.invoke(null, (Matcher)null);
+				method.invoke(null, (Matcher)null, (LinkedHashMap<String, List<Routine>>)null);
 				register(SwitchRoutine.registeredStatements, method, syntax);
 			}
 			else log.severe("Method getNew not found for statement " + statementClass.getName());
@@ -275,9 +265,33 @@ public class RoutineUtility
 		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + statementClass.getName() + "!");}
 		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + statementClass.getName() + " is not static!");}
 		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have a getNew() method!");} 
-		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
+		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have matching method getNew(Matcher, LinkedHashMap)!");} 
 		catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
 		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
+	}
+	
+	public void registerEffect(Class<? extends CalculatedEffectRoutine<?>> routineClass, Pattern syntax)
+	{
+		try
+		{
+			Method method = routineClass.getMethod("getNew", Matcher.class, List.class);
+			if(method != null)//XXX Is this necessary?
+			{
+				assert(method.getReturnType().equals(routineClass));
+				method.invoke(null, (Matcher)null);
+				register(CalculatedEffectRoutine.registeredStatements, method, syntax);
+			}
+			else log.severe("Method getNew not found for statement " + routineClass.getName());
+		}
+		catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return class " + routineClass.getName() + "!");}
+		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + routineClass.getName() + "!");}
+		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + routineClass.getName() + " is not static!");}
+		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have a getNew() method!");} 
+		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
+		catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
+		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
+	
+		
 	}
 	
 	public void register(HashMap<Pattern, Method> registry, Method method, Pattern syntax)
@@ -288,7 +302,7 @@ public class RoutineUtility
 			registry.put(syntax, method);	
 			successfullyRegistered = true;
 		}
-		else log.severe("[ModDamage] Error: Bad regex in registering class \"" + method.getClass().getName() + "\"!");
+		else log.severe("[ModDamage] Error: Bad regex for registering class \"" + method.getClass().getName() + "\"!");
 		if(successfullyRegistered)
 		{
 			if(shouldOutput(LogSetting.VERBOSE)) log.info("[ModDamage] Registering class " + method.getClass().getName() + " with pattern " + syntax.pattern());
@@ -296,8 +310,7 @@ public class RoutineUtility
 	}
 //// HELPER FUNCTIONS ////
 	public void clearConfig(){ configStrings.clear();}
-	
-	
+		
 //// LOGGING ////
 	public void setLogging(LogSetting setting)
 	{ 
