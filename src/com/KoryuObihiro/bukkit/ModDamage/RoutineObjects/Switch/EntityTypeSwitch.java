@@ -12,7 +12,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-public class EntityTypeSwitch extends EntitySwitchCalculation<ModDamageElement>
+public class EntityTypeSwitch extends EntitySwitchRoutine<ModDamageElement>
 {
 	private ModDamageElement type;
 	public EntityTypeSwitch(boolean forAttacker, ModDamageElement type, LinkedHashMap<String, List<Routine>> switchStatements)

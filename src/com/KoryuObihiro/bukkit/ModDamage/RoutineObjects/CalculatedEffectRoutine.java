@@ -12,18 +12,18 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine 
 {
 	public static HashMap<Pattern, Method> registeredStatements = new HashMap<Pattern, Method>();
-	final List<Routine> calculations;
+	final List<Routine> routines;
 	final AffectedClass affectedObject;
 	final boolean useEventObject;
-	CalculatedEffectRoutine(AffectedClass affectedObject, List<Routine> calculations)
+	CalculatedEffectRoutine(AffectedClass affectedObject, List<Routine> routines)
 	{
-		this.calculations = calculations;
+		this.routines = routines;
 		this.affectedObject = affectedObject;
 		this.useEventObject = true;
 	}	
-	protected CalculatedEffectRoutine(List<Routine> calculations)
+	protected CalculatedEffectRoutine(List<Routine> routines)
 	{
-		this.calculations = calculations;
+		this.routines = routines;
 		this.affectedObject = null;
 		this.useEventObject = false;
 	}
@@ -53,7 +53,7 @@ abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine
 	{
 		int temp1 = eventInfo.eventDamage, temp2;
 		eventInfo.eventDamage = 0;
-		for(Routine routine : calculations)
+		for(Routine routine : routines)
 			routine.run(eventInfo);
 		temp2 = eventInfo.eventDamage;
 		eventInfo.eventDamage = temp1;
@@ -64,7 +64,7 @@ abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine
 	{
 		int temp1 = eventInfo.eventHealth, temp2;
 		eventInfo.eventHealth = 0;
-		for(Routine routine : calculations)
+		for(Routine routine : routines)
 			routine.run(eventInfo);
 		temp2 = eventInfo.eventHealth;
 		eventInfo.eventHealth = temp1;

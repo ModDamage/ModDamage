@@ -10,7 +10,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class WorldTime extends WorldCalculatedEffectRoutine
 {
-	public WorldTime(List<Routine> calculations){ super(calculations);}
+	public WorldTime(List<Routine> routines){ super(routines);}
 
 	@Override
 	protected World getAffectedObject(DamageEventInfo eventInfo){ return eventInfo.world;}

@@ -15,9 +15,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class SlimeSetSize extends CalculatedEffectRoutine<Slime>
 {
 	final boolean forAttacker;
-	public SlimeSetSize(boolean forAttacker, List<Routine> calculations)
+	public SlimeSetSize(boolean forAttacker, List<Routine> routines)
 	{
-		super(calculations);
+		super(routines);
 		this.forAttacker = forAttacker;
 	}
 

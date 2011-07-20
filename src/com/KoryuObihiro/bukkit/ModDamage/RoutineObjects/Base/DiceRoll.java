@@ -7,7 +7,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 
-public class DiceRoll extends ChanceCalculation 
+public class DiceRoll extends Chanceroutine 
 {
 	public DiceRoll(){}
 	@Override

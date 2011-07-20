@@ -7,7 +7,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 
-public class IntervalRange extends ChanceCalculation 
+public class IntervalRange extends Chanceroutine 
 {
 	private int baseValue, intervalValue, rangeValue;
 	public IntervalRange(int base, int interval, int interval_range)

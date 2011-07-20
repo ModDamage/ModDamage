@@ -13,7 +13,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-public class PlayerWieldSwitch extends EntitySwitchCalculation<Material>
+public class PlayerWieldSwitch extends EntitySwitchRoutine<Material>
 {
 	public PlayerWieldSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements) 
 	{

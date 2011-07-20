@@ -14,7 +14,8 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 {
 	public static HashMap<Pattern, Method> registeredStatements = new HashMap<Pattern, Method>();
 	final protected LinkedHashMap<InfoType, List<Routine>> switchStatements;
-	final protected boolean isLoaded;
+	protected final boolean isLoaded;
+	public String failedCase = "";
 	
 	//TODO Definitely not as efficient as it could be. Refactor?
 	public SwitchRoutine(LinkedHashMap<String, List<Routine>> switchStatements)
@@ -28,6 +29,7 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 				container.put(matchCase(switchCase), switchStatements.get(switchCase));
 			else
 			{
+				failedCase = switchCase;
 				failedMatch = true;
 				break;
 			}
@@ -41,8 +43,8 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 	{
 		InfoType info = getRelevantInfo(eventInfo);
 		if(info != null && switchStatements.containsKey(info))
-			for(Routine calculatson : switchStatements.get(info))
-				calculation.run(eventInfo);
+			for(Routine routine : switchStatements.get(info))
+				routine.run(eventInfo);
 	}
 
 	@Override
@@ -50,8 +52,8 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 	{
 		InfoType info = getRelevantInfo(eventInfo);
 		if(info != null && switchStatements.containsKey(info))
-			for(Routine calculation : switchStatements.get(info))
-				calculation.run(eventInfo);
+			for(Routine routine : switchStatements.get(info))
+				routine.run(eventInfo);
 	}
 	
 	abstract protected InfoType getRelevantInfo(DamageEventInfo eventInfo);

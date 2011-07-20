@@ -73,10 +73,11 @@ public class ModDamage extends JavaPlugin
 	
 	//--DamageElement
 	// -Make DamageElement do some parsing with Material.name()? (update ArmorSet and CalculationUtility accordingly if this is done)
+	// -Separate materials/armor from DamageElement
 	
 	//--RoutineUtility
 	// FIXME Why aren't the patternParts all final? o_o
-	// TODO message routines, don't forget this nasty thing:
+	// TODO message routines (force aliasing here), don't forget this nasty thing:
 	/*
 	if(eventInfo.shouldScan)
 	{
@@ -86,9 +87,10 @@ public class ModDamage extends JavaPlugin
 				+ "): " + Integer.toString((displayHealth < 0)?0:displayHealth));
 	}
 	*/
-	// -Refactor config to contain errors and display - add config strings regardless
+	// -Refactor config to contain errors and display classes allocated - add to config strings regardless
 	// -Make sure that Slimes work for EntityTargetedByOther - they failed in a previous RB.
 	// -AoE clearance, block search nearby for Material?
+	// -Use warnings inside constructors (pass routineUtility)
 	// -check against an itemstack in the player's inventory
 	// -if.entityis.inRegion
 	// -if.server.onlineenabled
@@ -96,6 +98,9 @@ public class ModDamage extends JavaPlugin
 	// -switch.region
 	// -switch.spawnreason
 	// -switch.wieldquantity
+	// -
+	// -for.#
+	// -for.eventvalue
 	
 	//--Yet-to-be-plausible:
 	// -switch.conditional
@@ -108,7 +113,7 @@ public class ModDamage extends JavaPlugin
 	//   -items
 	//   -groups
 	// -event keyword (_event)
-	// -External: tag entities with an alias
+	// -External: tag entities with an alias ($)
 	// -External: check entity tags
 	
 	//plugin-related

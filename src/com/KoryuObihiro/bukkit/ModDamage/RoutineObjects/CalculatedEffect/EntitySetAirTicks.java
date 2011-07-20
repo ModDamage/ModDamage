@@ -10,7 +10,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntitySetAirTicks extends EntityCalculatedEffectRoutine
 {
-	public EntitySetAirTicks(boolean forAttacker, List<Routine> calculations){ super(forAttacker, calculations);}
+	public EntitySetAirTicks(boolean forAttacker, List<Routine> routines){ super(forAttacker, routines);}
 
 	@Override
 	protected void applyEffect(LivingEntity affectedObject, int input) 
