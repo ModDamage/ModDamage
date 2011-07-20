@@ -35,6 +35,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Division;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DivisionAddition;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.IntervalRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Message;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
@@ -73,10 +74,11 @@ public class ModDamage extends JavaPlugin
 	
 	//--DamageElement
 	// -Make DamageElement do some parsing with Material.name()? (update ArmorSet and CalculationUtility accordingly if this is done)
+	// -Separate materials/armor from DamageElement
 	
 	//--RoutineUtility
 	// FIXME Why aren't the patternParts all final? o_o
-	// TODO message routines, don't forget this nasty thing:
+	// TODO message routines (force aliasing here), don't forget this nasty thing:
 	/*
 	if(eventInfo.shouldScan)
 	{
@@ -86,9 +88,10 @@ public class ModDamage extends JavaPlugin
 				+ "): " + Integer.toString((displayHealth < 0)?0:displayHealth));
 	}
 	*/
-	// -Refactor config to contain errors and display - add config strings regardless
+	// -Refactor config to contain errors and display classes allocated - add to config strings regardless
 	// -Make sure that Slimes work for EntityTargetedByOther - they failed in a previous RB.
 	// -AoE clearance, block search nearby for Material?
+	// -Use warnings inside constructors (pass routineUtility)
 	// -check against an itemstack in the player's inventory
 	// -if.entityis.inRegion
 	// -if.server.onlineenabled
@@ -96,6 +99,9 @@ public class ModDamage extends JavaPlugin
 	// -switch.region
 	// -switch.spawnreason
 	// -switch.wieldquantity
+	// -
+	// -for.#
+	// -for.eventvalue
 	
 	//--Yet-to-be-plausible:
 	// -switch.conditional
@@ -108,7 +114,7 @@ public class ModDamage extends JavaPlugin
 	//   -items
 	//   -groups
 	// -event keyword (_event)
-	// -External: tag entities with an alias
+	// -External: tag entities with an alias ($)
 	// -External: check entity tags
 	
 	//plugin-related
@@ -199,6 +205,7 @@ public class ModDamage extends JavaPlugin
 		LiteralRange.register(routineUtility);
 		Multiplication.register(routineUtility);
 		Set.register(routineUtility);	
+		Message.register(routineUtility);
 		/*
 //Nestable Calculations
 	//Conditionals
@@ -556,6 +563,8 @@ public class ModDamage extends JavaPlugin
 /////////////////// MECHANICS CONFIGURATION 
 	private void reload()
 	{
+		damageRoutines.clear();
+		spawnRoutines.clear();
 		config.load();
 	//get plugin config.yml...if it doesn't exist, create it.
 		if(!(new File(this.getDataFolder(), "config.yml")).exists()) writeDefaults();
@@ -574,8 +583,8 @@ public class ModDamage extends JavaPlugin
 			}
 		}
 	//routines
-		damageRoutinesLoaded = loadRoutines("Damage");
-		spawnRoutinesLoaded = loadRoutines("MobHealth");
+		damageRoutinesLoaded = loadRoutines("Damage", damageRoutines);
+		spawnRoutinesLoaded = loadRoutines("MobHealth", spawnRoutines);
 	//single-property config
 		negative_Heal = config.getBoolean("negativeHeal", false);
 		if(routineUtility.shouldOutput(LogSetting.VERBOSE))
@@ -584,7 +593,7 @@ public class ModDamage extends JavaPlugin
 		config.load(); //Discard any changes made to the file by the above reads.
 		if(isLoaded())
 		{
-			
+			//TODO Give success message here
 		}
 		else
 		{
@@ -604,7 +613,7 @@ public class ModDamage extends JavaPlugin
 		log.severe("[" + getDescription().getName() + "] Defaults written to config.yml!");
 	}
 
-	protected boolean loadRoutines(String loadType)
+	protected boolean loadRoutines(String loadType, List<Routine> routineList)
 	{
 		boolean loadedSomething = false;
 		List<Object> routineObjects = config.getList(loadType);
@@ -613,7 +622,10 @@ public class ModDamage extends JavaPlugin
 			if(routineUtility.shouldOutput(LogSetting.VERBOSE)) log.info(loadType + " configuration found, parsing...");
 			List<Routine> calculations = routineUtility.parse(routineObjects, loadType);
 			if(!calculations.isEmpty())
-				damageRoutines.addAll(calculations);
+			{
+				routineList.addAll(calculations);
+				loadedSomething = true;
+			}
 		}
 		return loadedSomething;
 	}

@@ -13,9 +13,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class PlayerSetItem extends PlayerCalculatedEffectRoutine
 {
 	protected final Material material;
-	public PlayerSetItem(boolean forAttacker, Material material, List<Routine> calculations)
+	public PlayerSetItem(boolean forAttacker, Material material, List<Routine> routines)
 	{
-		super(forAttacker, calculations);
+		super(forAttacker, routines);
 		this.material = material;
 	}
 	

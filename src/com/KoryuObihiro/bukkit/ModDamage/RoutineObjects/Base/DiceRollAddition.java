@@ -7,7 +7,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 
-public class DiceRollAddition extends ChanceCalculation 
+public class DiceRollAddition extends Chanceroutine 
 {
 	private int maxValue;
 	public DiceRollAddition(int value){ maxValue = value;}

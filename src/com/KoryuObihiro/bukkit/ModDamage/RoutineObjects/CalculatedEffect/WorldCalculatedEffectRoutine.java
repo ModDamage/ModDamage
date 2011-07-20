@@ -11,9 +11,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 abstract public class WorldCalculatedEffectRoutine extends CalculatedEffectRoutine<World>
 {
-	public WorldCalculatedEffectRoutine(List<Routine> calculations)
+	public WorldCalculatedEffectRoutine(List<Routine> routines)
 	{
-		super(calculations);
+		super(routines);
 	}
 
 	@Override

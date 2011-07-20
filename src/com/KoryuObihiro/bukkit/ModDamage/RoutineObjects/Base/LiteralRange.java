@@ -7,7 +7,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 
-public class LiteralRange extends ChanceCalculation 
+public class LiteralRange extends Chanceroutine 
 {
 	private int lowerBound, upperBound;
 	public LiteralRange(int lower, int upper)

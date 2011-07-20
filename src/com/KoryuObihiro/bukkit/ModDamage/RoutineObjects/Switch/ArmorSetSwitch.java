@@ -12,7 +12,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-public class ArmorSetSwitch extends EntitySwitchCalculation<ArmorSet>
+public class ArmorSetSwitch extends EntitySwitchRoutine<ArmorSet>
 {
 	public ArmorSetSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements){ super(forAttacker, switchStatements);}
 

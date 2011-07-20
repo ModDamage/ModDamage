@@ -13,9 +13,9 @@ abstract public class EntityCalculatedEffectRoutine extends CalculatedEffectRout
 {
 	protected final boolean forAttacker;
 	protected static final String entityPart = "(entity|attacker|target)";
-	public EntityCalculatedEffectRoutine(boolean forAttacker, List<Routine> calculations)
+	public EntityCalculatedEffectRoutine(boolean forAttacker, List<Routine> routines)
 	{
-		super(calculations);
+		super(routines);
 		this.forAttacker = forAttacker;
 	}
 

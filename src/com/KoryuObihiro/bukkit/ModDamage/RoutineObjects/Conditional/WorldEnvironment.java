@@ -15,7 +15,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class WorldEnvironment extends WorldConditionalStatement 
 {
 	protected final Environment environment;
-	public WorldEnvironment(boolean inverted, World world, Environment environment, List<Routine> calculations)
+	public WorldEnvironment(boolean inverted, World world, Environment environment, List<Routine> routines)
 	{
 		super(inverted, world);
 		this.environment = environment;

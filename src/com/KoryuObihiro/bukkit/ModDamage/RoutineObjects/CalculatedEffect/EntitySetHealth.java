@@ -10,7 +10,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntitySetHealth extends EntityCalculatedEffectRoutine
 {
-	public EntitySetHealth(boolean forAttacker, List<Routine> calculations){ super(forAttacker, calculations);}
+	public EntitySetHealth(boolean forAttacker, List<Routine> routines){ super(forAttacker, routines);}
 
 	@Override
 	protected void applyEffect(LivingEntity affectedObject, int input) 

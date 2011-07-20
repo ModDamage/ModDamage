@@ -12,13 +12,15 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-public class EntityTypeSwitch extends EntitySwitchCalculation<ModDamageElement>
+public class EntityTypeSwitch extends EntitySwitchRoutine<ModDamageElement>
 {
-	private ModDamageElement type;
-	public EntityTypeSwitch(boolean forAttacker, ModDamageElement type, LinkedHashMap<String, List<Routine>> switchStatements)
+	static 
+	{
+		
+	}
+	public EntityTypeSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
 		super(forAttacker, switchStatements);
-		this.type = type;
 	}
 
 	@Override
@@ -30,18 +32,7 @@ public class EntityTypeSwitch extends EntitySwitchCalculation<ModDamageElement>
 	@Override
 	protected ModDamageElement matchCase(String switchCase) 
 	{
-		ModDamageElement element = ModDamageElement.matchElement(switchCase);
-		if(type != null && !type.equals(ModDamageElement.GENERIC) && !element.equals(type) && element != null)
-		{
-			ModDamageElement temp = element.getType();
-			while(true)
-			{
-				if(temp.equals(type)) break;
-				temp = temp.getType();
-				if(temp.equals(ModDamageElement.GENERIC)) return null;
-			}
-		}
-		return element;
+		return ModDamageElement.matchElement(switchCase);
 	}
 	
 	public static void register(RoutineUtility routineUtility)
@@ -55,16 +46,10 @@ public class EntityTypeSwitch extends EntitySwitchCalculation<ModDamageElement>
 		if(matcher != null && switchStatements != null)
 		{
 			boolean forAttacker = matcher.group(1).equalsIgnoreCase("attacker");
-			try
-			{
-				routine = new EntityTypeSwitch(forAttacker, ModDamageElement.matchElement(matcher.group(2)), switchStatements);
-			}
-			catch(IndexOutOfBoundsException e)
-			{
-				routine = new EntityTypeSwitch(forAttacker, ModDamageElement.GENERIC, switchStatements);
-			}
-			return (routine.isLoaded?routine:null);
+			String typeString = matcher.group(2);
+			ModDamageElement element = (typeString != null?ModDamageElement.matchElement(typeString):ModDamageElement.GENERIC);
+			if(element != null) routine = new EntityTypeSwitch(forAttacker, switchStatements);
 		}
-		return null;
+		return routine;
 	}
 }

@@ -32,12 +32,11 @@ public class RoutineUtility
 	private static Pattern effectPattern;
 	private static Pattern switchPattern;
 	
-	private static boolean loadedUtilityRegexes = false;
 	public static final String numberPart = "(?:[0-9]+)";
 	public static final String alphanumericPart = "(?:[a-z0-9]+)";
 	public static final String potentialAliasPart = "(?:_[a-z0-9]+)";
 	public static final String statementPart = "((?:" + RoutineUtility.alphanumericPart + ")(?:\\." + RoutineUtility.alphanumericPart +")*)";
-	public static final String entityPart = "(entity|attacker|target)";
+	public static final String entityPart = "(attacker|target)";
 	public static String comparisonRegex;
 	public static String biomeRegex;
 	public static String environmentRegex;
@@ -159,16 +158,24 @@ public class RoutineUtility
 						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
 						if(logSetting.shouldOutput(LogSetting.NORMAL)) log.info(nestIndentation + "Conditional: \"" + key + "\"");
 						ConditionalRoutine routine = ConditionalRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
-						if(routine != null) routines.add(routine);
-						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End conditional statement \"" + key + "\"\n");
+						if(routine != null)
+						{
+							routines.add(routine);
+							if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End conditional statement \"" + key + "\"\n");
+						}
+						else log.severe("[ModDamage] Error: invalid Conditional " + key);
 					}
 					else if(effectMatcher.matches())
 					{
-						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
-						if(logSetting.shouldOutput(LogSetting.NORMAL)) log.info(nestIndentation + "Effect: \"" + key + "\"");
 						CalculatedEffectRoutine<?> routine = CalculatedEffectRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
-						if(routine != null) routines.add(routine);
-						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End effect calculation \"" + key + "\"\n");
+						if(routine != null)
+						{
+							if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
+							if(logSetting.shouldOutput(LogSetting.NORMAL)) log.info(nestIndentation + "CalculatedEffect: \"" + key + "\"");
+							routines.add(routine);
+							if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End effect routine \"" + key + "\"\n");
+						}
+						else log.severe("[ModDamage] Error: invalid CalculatedEffect " + key);
 					}
 					else if(switchMatcher.matches())
 					{
@@ -184,11 +191,18 @@ public class RoutineUtility
 								if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
 								if(logSetting.shouldOutput(LogSetting.NORMAL)) log.info(nestIndentation + " case: \"" + anotherKey + "\"");
 								routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1));
-								if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End switch case \"" + anotherKey + "\"\n");
+								SwitchRoutine<?> routine = SwitchRoutine.getNew(switchMatcher, routineHashMap);
+								if(routine != null)
+								{
+									if(routine.isLoaded)
+									{
+										routines.add(routine);
+										if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End case \"" + anotherKey + "\"\n");
+									}
+									else log.severe("[ModDamage] Error: invalid case " + routine.failedCase);
+								}
+								else log.severe("[ModDamage] Error: invalid Switch " + key);
 							}
-							SwitchRoutine<?> routine = SwitchRoutine.getNew(switchMatcher, routineHashMap);
-							if(routine != null) routines.add(routine);
-							else log.severe("[ModDamage] Error: invalid switch case");//TODO Add the offending case! This needs to work with "quiet"
 						}
 						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End switch statement \"" + key + "\"\n");
 					}
@@ -308,6 +322,7 @@ public class RoutineUtility
 			if(shouldOutput(LogSetting.VERBOSE)) log.info("[ModDamage] Registering class " + method.getClass().getName() + " with pattern " + syntax.pattern());
 		}
 	}
+
 //// HELPER FUNCTIONS ////
 	public void clearConfig(){ configStrings.clear();}
 		

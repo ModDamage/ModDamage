@@ -13,7 +13,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class PlayerAddItem extends PlayerCalculatedEffectRoutine
 {
 	protected Material material;
-	public PlayerAddItem(boolean forAttacker, List<Routine> calculations){ super(forAttacker, calculations);}
+	public PlayerAddItem(boolean forAttacker, List<Routine> routines){ super(forAttacker, routines);}
 	
 	@Override
 	protected void applyEffect(Player affectedObject, int input) 

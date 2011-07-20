@@ -57,7 +57,7 @@ public class ConditionalRoutine extends Routine
 	
 	public static ConditionalRoutine getNew(Matcher matcher, List<Routine> routines)
 	{
-		//start with a programmatic "false ||" ... because of how this calculation is executed.
+		//start with a programmatic "false ||" ... because of how this routine is executed.
 		List<ConditionalStatement> statements = new ArrayList<ConditionalStatement>();
 		List<LogicalOperation> operations = new ArrayList<LogicalOperation>();
 		statements.add(new FalseStatement());

@@ -13,7 +13,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-public class BiomeSwitch extends EntitySwitchCalculation<Biome>
+public class BiomeSwitch extends EntitySwitchRoutine<Biome>
 {
 	public BiomeSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchLabels)
 	{

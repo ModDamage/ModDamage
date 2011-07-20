@@ -11,7 +11,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityReflect extends EntityCalculatedEffectRoutine
 {
-	public EntityReflect(boolean forAttacker, List<Routine> calculations){ super(forAttacker, calculations);}
+	public EntityReflect(boolean forAttacker, List<Routine> routines){ super(forAttacker, routines);}
 	
 	@Override
 	protected void applyEffect(LivingEntity affectedObject, int input) 
