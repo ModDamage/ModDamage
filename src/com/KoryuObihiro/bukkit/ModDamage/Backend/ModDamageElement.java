@@ -41,7 +41,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 public enum ModDamageElement 
 {
 	GENERIC 		("generic", null, true),
-	GENERIC_HUMAN 	("humans", GENERIC, false),
+	GENERIC_HUMAN 	("human", GENERIC, false),
 	GENERIC_ANIMAL 	("animal", GENERIC, true),
 	GENERIC_MELEE 	("melee", GENERIC, true),
 	GENERIC_RANGED	("ranged", GENERIC, true),
@@ -166,10 +166,37 @@ public enum ModDamageElement
 				if(elementReference.equalsIgnoreCase(element.getReference())) return element;
 		return null;
 	}
+	
+	public boolean isSubTypeOf(ModDamageElement element)
+	{
+		if(!this.equals(GENERIC) && element != null)
+		{
+			ModDamageElement temp = this.getType();
+			while(true)
+			{
+				if(temp.equals(element)) return true;
+				if(temp.equals(ModDamageElement.GENERIC)) break;
+				temp = temp.getType();
+			}
+		}
+		return false;
+	}
 
 	public static ModDamageElement matchMobType(LivingEntity entity)
 	{
-		if(entity instanceof Slime)				return MOB_SLIME;//XXX Not sure why, but Slimes aren't technically Creatures.
+		if(entity instanceof Slime)	
+		{
+			Logger.getLogger("Minecraft").info("FOUND SLIME, size: " + ((CraftSlime)entity).getSize());//TODO REMOVE ME
+			switch(((CraftSlime)entity).getSize())
+			{
+				
+				case 0: return MOB_SLIME_SMALL;
+				case 1: return MOB_SLIME_MEDIUM;
+				case 2: return MOB_SLIME_LARGE;
+				case 3: return MOB_SLIME_HUGE;
+				default:return MOB_SLIME_OTHER;
+			}
+		}
 		if(entity instanceof Creature) 
 		{
 			if(entity instanceof Animals) 
@@ -178,12 +205,17 @@ public enum ModDamageElement
 				if(entity instanceof Cow) 		return ANIMAL_COW; 
 				if(entity instanceof Pig) 		return ANIMAL_PIG; 
 				if(entity instanceof Sheep) 	return ANIMAL_SHEEP;
-				if(entity instanceof Wolf)		return ANIMAL_WOLF;
+				if(entity instanceof Wolf)
+				{
+					if(((CraftWolf)entity).getOwner() != null) return ANIMAL_WOLF_TAME;
+					if(((CraftWolf)entity).isAngry()) return ANIMAL_WOLF_ANGRY;
+					return ANIMAL_WOLF_WILD;
+				}
 			}
 			if(entity instanceof Monster) 
 			{
 				if(entity instanceof Zombie) 	return (entity instanceof PigZombie?MOB_PIGZOMBIE:MOB_ZOMBIE);
-				if(entity instanceof Creeper)	return MOB_CREEPER_NORMAL;
+				if(entity instanceof Creeper)	return ((CraftCreeper)entity).isPowered()?MOB_CREEPER_CHARGED:MOB_CREEPER_NORMAL;;
 				if(entity instanceof Giant) 	return MOB_GIANT;
 				if(entity instanceof Skeleton)	return MOB_SKELETON;
 				if(entity instanceof Spider)	return MOB_SPIDER; 
@@ -193,35 +225,7 @@ public enum ModDamageElement
 		}
 		if(entity instanceof Flying) 
 			if(entity instanceof Ghast)			return MOB_GHAST;
-		if(entity instanceof HumanEntity)		return GENERIC_HUMAN;
-		return null;
-	}
-	
-	public static ModDamageElement matchMobState(LivingEntity entity)
-	{
-		if(entity != null)
-		{
-			if(entity instanceof Creeper)		return((CraftCreeper)entity).isPowered()?MOB_CREEPER_CHARGED:MOB_CREEPER_NORMAL;
-			if(entity instanceof HumanEntity)	return (entity instanceof Player)?HUMAN_PLAYER:HUMAN_NPC;
-			if(entity instanceof Slime)
-			{
-				Logger.getLogger("Minecraft").info("FOUND SLIME, size: " + ((CraftSlime)entity).getSize());//TODO REMOVE ME
-				switch(((CraftSlime)entity).getSize())
-				{
-					case 0: return MOB_SLIME_SMALL;
-					case 1: return MOB_SLIME_MEDIUM;
-					case 2: return MOB_SLIME_LARGE;
-					case 3: return MOB_SLIME_HUGE;
-					default:return MOB_SLIME_OTHER;
-				}
-			}
-			if(entity instanceof Wolf)
-			{
-				if(((CraftWolf)entity).getOwner() != null) return ANIMAL_WOLF_TAME;
-				if(((CraftWolf)entity).isAngry()) return ANIMAL_WOLF_ANGRY;
-				return ANIMAL_WOLF_WILD;
-			}
-		}
+		if(entity instanceof HumanEntity)		return (entity instanceof Player)?HUMAN_PLAYER:HUMAN_NPC;
 		return null;
 	}
 
@@ -329,7 +333,7 @@ public enum ModDamageElement
 	public static ModDamageElement matchElement(String nodeName)
 	{
 		for(ModDamageElement element : values())
-			if(element.getReference().equals(nodeName))
+			if(element.getReference().equalsIgnoreCase(nodeName))
 				return element;
 		return null;
 	}

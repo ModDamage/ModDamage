@@ -79,7 +79,7 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 				break;
 			}
 		}
-		return (statement != null && statement.isLoaded)?statement:null;
+		return statement;
 	}
 	
 	public static void registerStatement(RoutineUtility routineUtility, Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)

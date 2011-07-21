@@ -36,7 +36,7 @@ public class RoutineUtility
 	public static final String alphanumericPart = "(?:[a-z0-9]+)";
 	public static final String potentialAliasPart = "(?:_[a-z0-9]+)";
 	public static final String statementPart = "((?:" + RoutineUtility.alphanumericPart + ")(?:\\." + RoutineUtility.alphanumericPart +")*)";
-	public static final String entityPart = "(entity|attacker|target)";
+	public static final String entityPart = "(attacker|target)";
 	public static String comparisonRegex;
 	public static String biomeRegex;
 	public static String environmentRegex;
