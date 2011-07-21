@@ -37,29 +37,29 @@ public class ArmorSet
 	
 	private boolean put(Material material)
 	{
-		ModDamageElement armorType = ModDamageElement.matchArmorElement(material);
+		ArmorElement armorType = ArmorElement.matchElement(material);
 		if(armorType != null)
 			switch(armorType)
 			{
-				case ARMOR_HELMET:
+				case HELMET:
 					if(armorSet[0] == null) armorSet[0] = material;
 					else return false;
 					hasSomething = true;
 					return true;
 					
-				case ARMOR_CHESTPLATE:
+				case CHESTPLATE:
 					if(armorSet[1] == null) armorSet[1] = material;
 					else return false;
 					hasSomething = true;
 					return true;
 					
-				case ARMOR_LEGGINGS:
+				case LEGGINGS:
 					if(armorSet[2] == null) armorSet[2] = material;
 					else return false;
 					hasSomething = true;
 					return true;
 					
-				case ARMOR_BOOTS:
+				case BOOTS:
 					if(armorSet[3] == null) armorSet[3] = material;
 					else return false;
 					hasSomething = true;
@@ -118,5 +118,43 @@ public class ArmorSet
 	
 	public Material[] toMaterialArray(){ return armorSet;}
 	
-	
+	private enum ArmorElement
+	{
+		HELMET, CHESTPLATE, LEGGINGS, BOOTS;
+		
+		private static ArmorElement matchElement(Material material)
+		{
+			if(material != null)
+				switch(material)
+				{
+				//Headwear
+					case LEATHER_HELMET:
+					case IRON_HELMET:
+					case GOLD_HELMET:
+					case DIAMOND_HELMET:
+					case CHAINMAIL_HELMET:		return HELMET;
+				//Chest
+					case LEATHER_CHESTPLATE:
+					case IRON_CHESTPLATE:
+					case GOLD_CHESTPLATE:
+					case DIAMOND_CHESTPLATE:
+					case CHAINMAIL_CHESTPLATE:	return CHESTPLATE;
+				//Legs
+					case LEATHER_LEGGINGS:
+					case IRON_LEGGINGS:
+					case GOLD_LEGGINGS:
+					case DIAMOND_LEGGINGS:
+					case CHAINMAIL_LEGGINGS:	return LEGGINGS;
+				//Boots
+					case LEATHER_BOOTS:
+					case IRON_BOOTS:
+					case GOLD_BOOTS:
+					case DIAMOND_BOOTS:
+					case CHAINMAIL_BOOTS:		return BOOTS;
+					
+					default:					return null;
+				}
+			return null;
+		}
+	}
 }

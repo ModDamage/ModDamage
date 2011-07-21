@@ -22,8 +22,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
@@ -67,6 +68,8 @@ public class ModDamage extends JavaPlugin
 	// -single-line configuration
 	// -get Dispenser attackers
 	// -Fishing rod implementation
+	// -Autogen world/entitytype switches?
+	// -find a way to give players ownership of an explosion
 	
 	//--API
 	// -Write tut, code requirements, and regex guidelines for using this library
@@ -408,9 +411,9 @@ public class ModDamage extends JavaPlugin
 			{
 				EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
 				LivingEntity ent_damager = (LivingEntity)event_EE.getDamager();
-				ModDamageElement rangedElement = ((event instanceof EntityDamageByProjectileEvent) 
+				RangedElement rangedElement = ((event instanceof EntityDamageByProjectileEvent) 
 													&& !(ent_damager instanceof Skeleton || ent_damager instanceof Ghast))
-														?ModDamageElement.matchRangedElement(((EntityDamageByProjectileEvent)event).getProjectile())
+														?RangedElement.matchElement(((EntityDamageByProjectileEvent)event).getProjectile())
 														:null;
 			//Player-targeted damage
 				if(ent_damaged instanceof Player)
@@ -608,7 +611,7 @@ public class ModDamage extends JavaPlugin
 		log.severe("[" + getDescription().getName() + "] No configuration file found! Writing a blank config...");
 		config.setProperty("debugging", "normal");
 		config.setProperty("Damage", null);
-		config.setProperty("MobHealth", null);
+		config.setProperty("Spawn", null);
 		config.save();
 		log.severe("[" + getDescription().getName() + "] Defaults written to config.yml!");
 	}

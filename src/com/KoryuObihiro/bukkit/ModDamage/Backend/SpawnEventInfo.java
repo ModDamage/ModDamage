@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
+@SuppressWarnings("deprecation")
 public class SpawnEventInfo
 {
 	Logger log = Logger.getLogger("Minecraft");

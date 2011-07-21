@@ -17,7 +17,7 @@ public class ArmorSetSwitch extends EntitySwitchRoutine<ArmorSet>
 	public ArmorSetSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements){ super(forAttacker, switchStatements);}
 
 	@Override
-	protected ArmorSet getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.armorSetString_attacker:eventInfo.armorSetString_target);}
+	protected ArmorSet getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.armorSet_attacker:eventInfo.armorSet_target);}
 
 	@Override
 	protected ArmorSet getRelevantInfo(SpawnEventInfo eventInfo){ return null;}

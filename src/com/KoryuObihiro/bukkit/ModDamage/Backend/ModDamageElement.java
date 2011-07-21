@@ -4,20 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.bukkit.Material;
-import org.bukkit.craftbukkit.entity.CraftArrow;
 import org.bukkit.craftbukkit.entity.CraftCreeper;
-import org.bukkit.craftbukkit.entity.CraftEgg;
-import org.bukkit.craftbukkit.entity.CraftFireball;
 import org.bukkit.craftbukkit.entity.CraftSlime;
-import org.bukkit.craftbukkit.entity.CraftSnowball;
 import org.bukkit.craftbukkit.entity.CraftWolf;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Creeper;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Flying;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Giant;
@@ -27,7 +21,6 @@ import org.bukkit.entity.Monster;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
@@ -40,85 +33,55 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public enum ModDamageElement 
 {
-	GENERIC 		("generic", null, true),
-	GENERIC_HUMAN 	("human", GENERIC, false),
+GENERIC ("generic", null, true),
 	GENERIC_ANIMAL 	("animal", GENERIC, true),
-	GENERIC_MELEE 	("melee", GENERIC, true),
-	GENERIC_RANGED	("ranged", GENERIC, true),
-	GENERIC_ARMOR	("armor", GENERIC, false),
+		ANIMAL_CHICKEN ("Chicken", GENERIC_ANIMAL, false),
+		ANIMAL_COW ("Cow", GENERIC_ANIMAL, false),
+		ANIMAL_PIG ("Pig", GENERIC_ANIMAL, false),
+		ANIMAL_SHEEP ("Sheep", GENERIC_ANIMAL, false),
+		ANIMAL_SQUID ("Squid", GENERIC_ANIMAL, false),
+		ANIMAL_WOLF ("Wolf", GENERIC_ANIMAL, false),
+			ANIMAL_WOLF_WILD ("Wolf_Wild", ANIMAL_WOLF, false),
+			ANIMAL_WOLF_ANGRY ("Wolf_Hostile", ANIMAL_WOLF, false),
+			ANIMAL_WOLF_TAME ("Wolf_Tame", ANIMAL_WOLF, false),
+		
+	GENERIC_HUMAN 	("human", GENERIC, false),
+		HUMAN_PLAYER ("Player", GENERIC_HUMAN, false),
+		HUMAN_NPC ("NPC", GENERIC_HUMAN, false),
+	
 	GENERIC_MOB 	("mob", GENERIC, true),
+		MOB_CREEPER ("Creeper", GENERIC_MOB, false),
+			MOB_CREEPER_CHARGED("Creeper_Charged", GENERIC_MOB, false),
+			MOB_CREEPER_NORMAL ("Creeper_Normal", GENERIC_MOB, false),
+		MOB_GHAST ("Ghast", GENERIC_MOB, false),
+		MOB_GIANT ("Giant", GENERIC_MOB, false),
+		MOB_PIGZOMBIE ("ZombiePigman", GENERIC_MOB, false),
+		MOB_SKELETON ("Skeleton", GENERIC_MOB, false),
+		MOB_SLIME ("Slime", GENERIC_MOB, true),
+			MOB_SLIME_HUGE ("Slime_Huge", MOB_SLIME, false),
+			MOB_SLIME_LARGE ("Slime_Large", MOB_SLIME, false),
+			MOB_SLIME_MEDIUM("Slime_Medium", MOB_SLIME, false),
+			MOB_SLIME_OTHER("Slime_Other", MOB_SLIME, false),
+			MOB_SLIME_SMALL("Slime_Small", MOB_SLIME, false),
+		MOB_SPIDER ("Spider", GENERIC_MOB, false),
+		MOB_ZOMBIE ("Zombie", GENERIC_MOB, false),
+	
 	GENERIC_NATURE 	("nature", GENERIC, true),
+		NATURE_BLOCK_EXPLOSION ("blockexplosion", GENERIC_NATURE, false),
+		NATURE_CONTACT("cactus", GENERIC_NATURE, false),
+		NATURE_DROWNING ("drowning", GENERIC_NATURE, false),
+		NATURE_EXPLOSION ("explosion", GENERIC_NATURE, false),
+		NATURE_FALL ("fall", GENERIC_NATURE, false),
+		NATURE_FIRE ("fire", GENERIC_NATURE, false),
+		NATURE_FIRE_TICK ("burn", GENERIC_NATURE, false),
+		NATURE_LAVA ("lava", GENERIC_NATURE, false),
+		NATURE_LIGHTNING ("lightning", GENERIC_NATURE, false),
+		NATURE_SUFFOCATION ("suffocation", GENERIC_NATURE, false),
+		NATURE_VOID ("void", GENERIC_NATURE, false),
+	
 	GENERIC_TRAP	("trap", GENERIC, true),
-//tools
-	MELEE_AXE 		("axe", GENERIC_MELEE, false),
-	MELEE_FIST 		("fist", GENERIC_MELEE, false),
-	MELEE_HOE 		("hoe", GENERIC_MELEE, false),
-	MELEE_PICKAXE 	("pickaxe", GENERIC_MELEE, false),
-	MELEE_SPADE 	("spade", GENERIC_MELEE, false),
-	MELEE_SWORD 	("sword", GENERIC_MELEE, false),
-	MELEE_OTHER 	("other", GENERIC_MELEE, false),
-	
-//ranged items
-	RANGED_BOW 		("bow", GENERIC_RANGED, false),
-	RANGED_EGG 		("egg", GENERIC_RANGED, false), 
-	RANGED_FIREBALL	("fireball", GENERIC_RANGED, false),
-	RANGED_FISHINGROD("fishingrod", GENERIC_RANGED, false),
-	RANGED_SNOWBALL	("snowball", GENERIC_RANGED, false),
-	
-//armor
-	ARMOR_HELMET	("head", GENERIC_ARMOR, false),
-	ARMOR_CHESTPLATE("chest", GENERIC_ARMOR, false),
-	ARMOR_LEGGINGS	("legs", GENERIC_ARMOR, false),
-	ARMOR_BOOTS	("boots", GENERIC_ARMOR, false),
-	
-//animals
-	ANIMAL_CHICKEN ("Chicken", GENERIC_ANIMAL, false),
-	ANIMAL_COW ("Cow", GENERIC_ANIMAL, false),
-	ANIMAL_PIG ("Pig", GENERIC_ANIMAL, false),
-	ANIMAL_SHEEP ("Sheep", GENERIC_ANIMAL, false),
-	ANIMAL_SQUID ("Squid", GENERIC_ANIMAL, false),
-	ANIMAL_WOLF ("Wolf", GENERIC_ANIMAL, false),
-//humans
-	HUMAN_PLAYER ("Player", GENERIC_HUMAN, false),
-	HUMAN_NPC ("NPC", GENERIC_HUMAN, false),
-//mobs
-	MOB_CREEPER ("Creeper", GENERIC_MOB, false),
-	MOB_GHAST ("Ghast", GENERIC_MOB, false),
-	MOB_GIANT ("Giant", GENERIC_MOB, false),
-	MOB_PIGZOMBIE ("ZombiePigman", GENERIC_MOB, false),
-	MOB_SKELETON ("Skeleton", GENERIC_MOB, false),
-	MOB_SLIME ("Slime", GENERIC_MOB, true),
-	MOB_SPIDER ("Spider", GENERIC_MOB, false),
-	MOB_ZOMBIE ("Zombie", GENERIC_MOB, false),
-//nature
-	NATURE_BLOCK_EXPLOSION ("blockexplosion", GENERIC_NATURE, false),
-	NATURE_CONTACT("cactus", GENERIC_NATURE, false),
-	NATURE_DROWNING ("drowning", GENERIC_NATURE, false),
-	NATURE_EXPLOSION ("explosion", GENERIC_NATURE, false),
-	NATURE_FALL ("fall", GENERIC_NATURE, false),
-	NATURE_FIRE ("fire", GENERIC_NATURE, false),
-	NATURE_FIRE_TICK ("burn", GENERIC_NATURE, false),
-	NATURE_LAVA ("lava", GENERIC_NATURE, false),
-	NATURE_LIGHTNING ("lightning", GENERIC_NATURE, false),
-	NATURE_SUFFOCATION ("suffocation", GENERIC_NATURE, false),
-	NATURE_VOID ("void", GENERIC_NATURE, false),
-//Dispenser/Spikes
-	TRAP_DISPENSER("dispenser", GENERIC_TRAP, false),
-//mob-specific stuff
-	ANIMAL_WOLF_WILD ("Wolf_Wild", ANIMAL_WOLF, false),
-	ANIMAL_WOLF_ANGRY ("Wolf_Hostile", ANIMAL_WOLF, false),
-	ANIMAL_WOLF_TAME ("Wolf_Tame", ANIMAL_WOLF, false),
+		TRAP_DISPENSER("dispenser", GENERIC_TRAP, false);
 
-	MOB_CREEPER_CHARGED("Creeper_Charged", GENERIC_MOB, false),
-	MOB_CREEPER_NORMAL ("Creeper_Normal", GENERIC_MOB, false),
-
-	MOB_SLIME_HUGE ("Slime_Huge", MOB_SLIME, false),
-	MOB_SLIME_LARGE ("Slime_Large", MOB_SLIME, false),
-	MOB_SLIME_MEDIUM("Slime_Medium", MOB_SLIME, false),
-	MOB_SLIME_OTHER("Slime_Other", MOB_SLIME, false),
-	MOB_SLIME_SMALL("Slime_Small", MOB_SLIME, false);
-	
-	
 	private final String stringReference;
 	private final ModDamageElement genericElement;
 	private final boolean hasSubConfig;
@@ -167,11 +130,12 @@ public enum ModDamageElement
 		return null;
 	}
 	
-	public boolean isSubTypeOf(ModDamageElement element)
+	//Returns true if this is equals or a subtype of the inputted element
+	public boolean equals(ModDamageElement element)
 	{
-		if(!this.equals(GENERIC) && element != null)
+		if(element != null)
 		{
-			ModDamageElement temp = this.getType();
+			ModDamageElement temp = this;
 			while(true)
 			{
 				if(temp.equals(element)) return true;
@@ -226,97 +190,6 @@ public enum ModDamageElement
 		if(entity instanceof Flying) 
 			if(entity instanceof Ghast)			return MOB_GHAST;
 		if(entity instanceof HumanEntity)		return (entity instanceof Player)?HUMAN_PLAYER:HUMAN_NPC;
-		return null;
-	}
-
-	public static ModDamageElement matchMeleeElement(Material material)
-	{
-		if(material != null)
-			switch(material)
-			{
-			//Fist
-				case AIR:
-					Logger.getLogger("Minecraft").warning("HOLY CRAP FISTS"); //TODO REMOVE ME
-					return MELEE_FIST;
-			//Axes
-				case WOOD_AXE:
-				case STONE_AXE:
-				case IRON_AXE:
-				case GOLD_AXE:
-				case DIAMOND_AXE: 	return MELEE_AXE;
-			//Hoes
-				case WOOD_HOE:
-				case STONE_HOE:
-				case IRON_HOE:
-				case GOLD_HOE:
-				case DIAMOND_HOE: 	return MELEE_HOE;
-			//Picks
-				case WOOD_PICKAXE:
-				case STONE_PICKAXE:
-				case IRON_PICKAXE:
-				case GOLD_PICKAXE:
-				case DIAMOND_PICKAXE:return MELEE_PICKAXE;
-			//Shovels	
-				case WOOD_SPADE:
-				case STONE_SPADE:
-				case IRON_SPADE:
-				case GOLD_SPADE:
-				case DIAMOND_SPADE:	return MELEE_SPADE;
-			//Swords	
-				case WOOD_SWORD:
-				case STONE_SWORD:
-				case IRON_SWORD:
-				case GOLD_SWORD:
-				case DIAMOND_SWORD:	return MELEE_SWORD;
-				
-			//All others
-				default: 			return MELEE_OTHER;
-			}
-		return null;
-	}
-
-	public static ModDamageElement matchArmorElement(Material material)
-	{
-		if(material != null)
-			switch(material)
-			{
-			//Headwear
-				case LEATHER_HELMET:
-				case IRON_HELMET:
-				case GOLD_HELMET:
-				case DIAMOND_HELMET:
-				case CHAINMAIL_HELMET:		return ARMOR_HELMET;
-			//Chest
-				case LEATHER_CHESTPLATE:
-				case IRON_CHESTPLATE:
-				case GOLD_CHESTPLATE:
-				case DIAMOND_CHESTPLATE:
-				case CHAINMAIL_CHESTPLATE:	return ARMOR_CHESTPLATE;
-			//Legs
-				case LEATHER_LEGGINGS:
-				case IRON_LEGGINGS:
-				case GOLD_LEGGINGS:
-				case DIAMOND_LEGGINGS:
-				case CHAINMAIL_LEGGINGS:	return ARMOR_LEGGINGS;
-			//Boots
-				case LEATHER_BOOTS:
-				case IRON_BOOTS:
-				case GOLD_BOOTS:
-				case DIAMOND_BOOTS:
-				case CHAINMAIL_BOOTS:		return ARMOR_BOOTS;
-				
-				default:					return null;
-			}
-		return null;
-	}
-	
-	public static ModDamageElement matchRangedElement(Entity entity)
-	{
-		if(entity instanceof CraftArrow)	return RANGED_BOW;
-		if(entity instanceof CraftEgg)		return RANGED_EGG;
-		if(entity instanceof CraftSnowball)	return RANGED_SNOWBALL;
-		if(entity instanceof CraftFireball)	return RANGED_FIREBALL;
-		if(entity instanceof Projectile)	return RANGED_FISHINGROD; //XXX Deeefinitely sure this isn't going to work.
 		return null;
 	}
 

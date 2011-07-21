@@ -19,7 +19,7 @@ public class PlayerWearingOnly extends EntityConditionalStatement<ArmorSet>
 	public boolean condition(SpawnEventInfo eventInfo){ return false;}
 	
 	@Override
-	protected ArmorSet getRelevantInfo(DamageEventInfo eventInfo){ return(forAttacker?eventInfo.armorSetString_attacker:eventInfo.armorSetString_target);}
+	protected ArmorSet getRelevantInfo(DamageEventInfo eventInfo){ return(forAttacker?eventInfo.armorSet_attacker:eventInfo.armorSet_target);}
 	@Override
 	protected ArmorSet getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
 	

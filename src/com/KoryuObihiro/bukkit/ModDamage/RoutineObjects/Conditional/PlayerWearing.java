@@ -15,7 +15,7 @@ public class PlayerWearing extends EntityConditionalStatement<ArmorSet>
 		super(inverted, forAttacker, armorSet);
 	}
 	@Override
-	public ArmorSet getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.armorSetString_attacker:eventInfo.armorSetString_target);}
+	public ArmorSet getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.armorSet_attacker:eventInfo.armorSet_target);}
 	@Override
 	public ArmorSet getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
 	

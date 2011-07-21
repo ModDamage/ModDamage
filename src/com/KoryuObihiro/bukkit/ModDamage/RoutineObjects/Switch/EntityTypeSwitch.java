@@ -14,10 +14,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class EntityTypeSwitch extends EntitySwitchRoutine<ModDamageElement>
 {
-	static 
-	{
-		
-	}
 	public EntityTypeSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
 		super(forAttacker, switchStatements);
@@ -30,10 +26,7 @@ public class EntityTypeSwitch extends EntitySwitchRoutine<ModDamageElement>
 	protected ModDamageElement getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.element.getType();}
 
 	@Override
-	protected ModDamageElement matchCase(String switchCase) 
-	{
-		return ModDamageElement.matchElement(switchCase);
-	}
+	protected ModDamageElement matchCase(String switchCase){ return ModDamageElement.matchElement(switchCase);}
 	
 	public static void register(RoutineUtility routineUtility)
 	{

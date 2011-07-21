@@ -112,8 +112,8 @@ public class RoutineUtility
 	}
 	
 	//Parse commands recursively for different command strings the handlers pass
-	//TODO Put these into config strings, color according to output type
 	public List<Routine> parse(List<Object> routineStrings, String loadType){ return parse(routineStrings, loadType, 0);}
+	@SuppressWarnings("unchecked")
 	private List<Routine> parse(Object object, String loadType, int nestCount)
 	{
 		List<Routine> routines = new ArrayList<Routine>();

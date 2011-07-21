@@ -42,18 +42,38 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 	public void run(DamageEventInfo eventInfo) 
 	{
 		InfoType info = getRelevantInfo(eventInfo);
-		if(info != null && switchStatements.containsKey(info))
-			for(Routine routine : switchStatements.get(info))
-				routine.run(eventInfo);
+		boolean matched = false;
+		if(info != null)
+			for(InfoType infoKey : switchStatements.keySet())
+				if(info.equals(infoKey) || matched)
+				{
+					if(switchStatements.get(infoKey) != null)
+					{
+						for(Routine routine : switchStatements.get(infoKey))
+							routine.run(eventInfo);
+						break;
+					}
+					matched = true;
+				}
 	}
 
 	@Override
 	public void run(SpawnEventInfo eventInfo) 
 	{
 		InfoType info = getRelevantInfo(eventInfo);
-		if(info != null && switchStatements.containsKey(info))
-			for(Routine routine : switchStatements.get(info))
-				routine.run(eventInfo);
+		boolean matched = false;
+		if(info != null)
+			for(InfoType infoKey : switchStatements.keySet())
+				if(info.equals(infoKey) || matched)
+				{
+					if(switchStatements.get(infoKey) != null)
+					{
+						for(Routine routine : switchStatements.get(infoKey))
+							routine.run(eventInfo);
+						break;
+					}
+					matched = true;
+				}
 	}
 	
 	abstract protected InfoType getRelevantInfo(DamageEventInfo eventInfo);

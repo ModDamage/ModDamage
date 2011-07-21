@@ -9,14 +9,14 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class EntityReflect extends EntityCalculatedEffectRoutine
+public class EntityHurt extends EntityCalculatedEffectRoutine
 {
-	public EntityReflect(boolean forAttacker, List<Routine> routines){ super(forAttacker, routines);}
+	public EntityHurt(boolean forAttacker, List<Routine> routines){ super(forAttacker, routines);}
 	
 	@Override
 	protected void applyEffect(LivingEntity affectedObject, int input) 
 	{
-		affectedObject.getWorld().createExplosion(affectedObject.getLocation(), input);
+		affectedObject.damage(input);
 	}
 	
 	@Override
@@ -24,6 +24,6 @@ public class EntityReflect extends EntityCalculatedEffectRoutine
 
 	public static void register(RoutineUtility routineUtility)
 	{
-		routineUtility.registerBase(EntityReflect.class, Pattern.compile("effect\\.reflect", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(EntityHurt.class, Pattern.compile(RoutineUtility.entityPart + "effect\\.hurt", Pattern.CASE_INSENSITIVE));
 	}
 }
