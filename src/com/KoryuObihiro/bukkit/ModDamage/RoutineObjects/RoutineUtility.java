@@ -24,7 +24,7 @@ public class RoutineUtility
 {
 	private static Logger log;
 	protected static int configPages = 0;
-	protected List<String> configStrings = new ArrayList<String>();
+	protected static List<String> configStrings = new ArrayList<String>();
 	protected static int additionalConfigChecks = 0;
 	
 	private static HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
@@ -44,9 +44,9 @@ public class RoutineUtility
 	public static String materialRegex;
 	public static String armorRegex;
 	public static String logicalRegex;
-	
-	public LogSetting logSetting = LogSetting.NORMAL;
-	public enum LogSetting
+
+	public static LogSetting logSetting = LogSetting.NORMAL;
+	public static enum LogSetting
 	{ 
 		QUIET, NORMAL, VERBOSE;
 		public static LogSetting matchSetting(String key)
@@ -112,14 +112,11 @@ public class RoutineUtility
 	}
 	
 	//Parse commands recursively for different command strings the handlers pass
-	public List<Routine> parse(List<Object> routineStrings, String loadType){ return parse(routineStrings, loadType, 0);}
+	public static List<Routine> parse(List<Object> routineStrings, String loadType){ return parse(routineStrings, loadType, 0);}
 	@SuppressWarnings("unchecked")
-	private List<Routine> parse(Object object, String loadType, int nestCount)
+	private static List<Routine> parse(Object object, String loadType, int nestCount)
 	{
 		List<Routine> routines = new ArrayList<Routine>();
-		String nestIndentation = "";
-		for(int i = 0; i < nestCount; i++)
-			nestIndentation += "    ";
 		if(object instanceof String)
 		{
 			Routine routine = null;
@@ -138,10 +135,10 @@ public class RoutineUtility
 			}
 			if(routine != null)
 			{
-				log.info(nestIndentation + "Routine: \"" + (String)object + "\"");
+				addToConfig(LogSetting.NORMAL, nestCount, "Routine: \"" + (String)object + "\"", false);
 				routines.add(routine);
 			}
-			else log.info(nestIndentation + "Couldn't match base routine string \"" + (String)object +"\"");
+			else addToConfig(LogSetting.QUIET, nestCount, "Couldn't match base routine string \"" + (String)object +"\"", true);
 			
 		}
 		else if(object instanceof LinkedHashMap)
@@ -155,32 +152,32 @@ public class RoutineUtility
 					Matcher effectMatcher = effectPattern.matcher(key);
 					if(conditionalMatcher.matches())
 					{
-						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
-						if(logSetting.shouldOutput(LogSetting.NORMAL)) log.info(nestIndentation + "Conditional: \"" + key + "\"");
+						addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+						addToConfig(LogSetting.NORMAL, nestCount, "Conditional: \"" + key + "\"", false);
 						ConditionalRoutine routine = ConditionalRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
 						if(routine != null)
 						{
 							routines.add(routine);
-							if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End conditional statement \"" + key + "\"\n");
+							addToConfig(LogSetting.VERBOSE, nestCount, "End conditional statement \"" + key + "\"\n", false);
 						}
-						else log.severe("[ModDamage] Error: invalid Conditional " + key);
+						else addToConfig(LogSetting.QUIET, nestCount, "Invalid Conditional " + key, true);
 					}
 					else if(effectMatcher.matches())
 					{
 						CalculatedEffectRoutine<?> routine = CalculatedEffectRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
 						if(routine != null)
 						{
-							if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
-							if(logSetting.shouldOutput(LogSetting.NORMAL)) log.info(nestIndentation + "CalculatedEffect: \"" + key + "\"");
+							addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+							addToConfig(LogSetting.NORMAL, nestCount, "CalculatedEffect: \"" + key + "\"", false);
 							routines.add(routine);
-							if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End effect routine \"" + key + "\"\n");
+							addToConfig(LogSetting.VERBOSE, nestCount, "End effect routine \"" + key + "\"\n", false);
 						}
-						else log.severe("[ModDamage] Error: invalid CalculatedEffect " + key);
+						else addToConfig(LogSetting.QUIET, nestCount, "Error: Invalid CalculatedEffect " + key, true);
 					}
 					else if(switchMatcher.matches())
 					{
-						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
-						if(logSetting.shouldOutput(LogSetting.NORMAL)) log.info(nestIndentation + "Switch: \"" + key + "\"");
+						addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+						addToConfig(LogSetting.NORMAL, nestCount, "Switch: \"" + key + "\"", false);
 						
 						LinkedHashMap<String, Object> anotherHashMap = (someHashMap.get(key) instanceof LinkedHashMap?(LinkedHashMap<String, Object>)someHashMap.get(key):null);
 						if(anotherHashMap != null)
@@ -188,8 +185,8 @@ public class RoutineUtility
 							LinkedHashMap<String, List<Routine>> routineHashMap = new LinkedHashMap<String, List<Routine>>();
 							for(String anotherKey : anotherHashMap.keySet())
 							{
-								if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("");
-								if(logSetting.shouldOutput(LogSetting.NORMAL)) log.info(nestIndentation + " case: \"" + anotherKey + "\"");
+								addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+								addToConfig(LogSetting.NORMAL, nestCount, " case: \"" + anotherKey + "\"", false);
 								routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1));
 								SwitchRoutine<?> routine = SwitchRoutine.getNew(switchMatcher, routineHashMap);
 								if(routine != null)
@@ -197,27 +194,28 @@ public class RoutineUtility
 									if(routine.isLoaded)
 									{
 										routines.add(routine);
-										if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End case \"" + anotherKey + "\"\n");
+										addToConfig(LogSetting.VERBOSE, nestCount, "End case \"" + anotherKey + "\"\n", false);
 									}
-									else log.severe("[ModDamage] Error: invalid case " + routine.failedCase);
+									else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid case " + routine.failedCase, true);
 								}
-								else log.severe("[ModDamage] Error: invalid Switch " + key);
+								else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid Switch " + key, true);
 							}
 						}
-						if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(nestIndentation + "End switch statement \"" + key + "\"\n");
+						addToConfig(LogSetting.VERBOSE, nestCount, "End switch \"" + key + "\"", false);
 					}
-					else log.severe(nestIndentation + " No match found for nested node \"" + key + "\"");
+					else addToConfig(LogSetting.QUIET, nestCount, " No match found for nested node \"" + key + "\"", true);
 				}
-			else log.info(nestIndentation + "[ModDamage] Parse error: bad nestable found in configuration.");
+			else addToConfig(LogSetting.QUIET, nestCount, "Parse error: bad nested routine.", true);
 		}
 		else if(object instanceof List)
 		{
 			for(Object nestedObject : (List<Object>)object)
 				routines.addAll(parse(nestedObject, loadType, nestCount));
 		}
-		else log.info(nestIndentation + "[ModDamage] Error: could not parse object " + object.toString() + " of type " + object.getClass().getName());
+		else addToConfig(LogSetting.QUIET, nestCount, "Parse error: object " + object.toString() + " of type " + object.getClass().getName(), true);
 		return routines;
 	}
+	
 	public void registerBase(Class<? extends Routine> routineClass, Pattern syntax)
 	{
 		try
@@ -240,7 +238,7 @@ public class RoutineUtility
 		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");}
 	}
 
-	public void registerConditional(Class<? extends ConditionalStatement> statementClass, Pattern syntax)
+	public static void registerConditional(Class<? extends ConditionalStatement> statementClass, Pattern syntax)
 	{
 		try
 		{
@@ -262,7 +260,7 @@ public class RoutineUtility
 		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
 	}
 
-	public void registerSwitch(Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)
+	public static void registerSwitch(Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)
 	{
 		try
 		{
@@ -284,7 +282,7 @@ public class RoutineUtility
 		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
 	}
 	
-	public void registerEffect(Class<? extends CalculatedEffectRoutine<?>> routineClass, Pattern syntax)
+	public static void registerEffect(Class<? extends CalculatedEffectRoutine<?>> routineClass, Pattern syntax)
 	{
 		try
 		{
@@ -308,7 +306,7 @@ public class RoutineUtility
 		
 	}
 	
-	public void register(HashMap<Pattern, Method> registry, Method method, Pattern syntax)
+	public static void register(HashMap<Pattern, Method> registry, Method method, Pattern syntax)
 	{
 		boolean successfullyRegistered = false;
 		if(syntax != null)
@@ -322,19 +320,22 @@ public class RoutineUtility
 			if(shouldOutput(LogSetting.VERBOSE)) log.info("[ModDamage] Registering class " + method.getClass().getName() + " with pattern " + syntax.pattern());
 		}
 	}
-
+	
 //// HELPER FUNCTIONS ////
-	public void clearConfig(){ configStrings.clear();}
+	public static void clear()
+	{
+		configStrings.clear();
+	}
 		
 //// LOGGING ////
-	public void setLogging(LogSetting setting)
+	public static void setLogging(LogSetting setting)
 	{ 
 		if(setting != null) 
-			this.logSetting = setting;
+			logSetting = setting;
 		else log.severe("[ModDamage] Error: bad debug setting. Valid settings: normal, quiet, verbose");
 	}
 	
-	public void toggleLogging(Player player) 
+	public static void toggleLogging(Player player) 
 	{
 		LogSetting nextSetting = null; //shouldn't stay like this.
 		switch(logSetting)
@@ -357,10 +358,25 @@ public class RoutineUtility
 		logSetting = nextSetting;
 	}
 	
-	public boolean shouldOutput(LogSetting setting){ return logSetting.shouldOutput(setting);}
+	public static boolean shouldOutput(LogSetting setting){ return logSetting.shouldOutput(setting);}
+	
+	public static void addToConfig(LogSetting outputSetting, int nestCount, String string, boolean severe)
+	{
+		configStrings.add(nestCount + "] " + (severe?ChatColor.RED:ChatColor.AQUA) + string);
+		if(logSetting.shouldOutput(outputSetting))
+		{
+			if(severe) log.severe(string);
+			else 
+			{
+				String nestIndentation = "";
+				for(int i = 0; i < nestCount; i++)
+					nestIndentation += "    ";
+				log.info(nestIndentation + string);
+			}
+		}
+	}
 
-//// CONFIGURATION REPORTING ////
-	public boolean sendConfig(Player player, int pageNumber)
+	public static boolean sendConfig(Player player, int pageNumber)
 	{
 		if(player == null)
 		{

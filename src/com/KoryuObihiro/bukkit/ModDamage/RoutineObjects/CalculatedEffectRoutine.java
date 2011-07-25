@@ -96,6 +96,6 @@ abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine
 	
 	public static void registerStatement(RoutineUtility routineUtility, Class<? extends CalculatedEffectRoutine<?>> statementClass, Pattern syntax)
 	{
-		routineUtility.registerEffect(statementClass, syntax);
+		RoutineUtility.registerEffect(statementClass, syntax);
 	}
 }

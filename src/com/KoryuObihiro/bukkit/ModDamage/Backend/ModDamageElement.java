@@ -131,7 +131,7 @@ GENERIC ("generic", null, true),
 	}
 	
 	//Returns true if this is equals or a subtype of the inputted element
-	public boolean equals(ModDamageElement element)
+	public boolean matchesType(ModDamageElement element)
 	{
 		if(element != null)
 		{
@@ -150,10 +150,8 @@ GENERIC ("generic", null, true),
 	{
 		if(entity instanceof Slime)	
 		{
-			Logger.getLogger("Minecraft").info("FOUND SLIME, size: " + ((CraftSlime)entity).getSize());//TODO REMOVE ME
 			switch(((CraftSlime)entity).getSize())
 			{
-				
 				case 0: return MOB_SLIME_SMALL;
 				case 1: return MOB_SLIME_MEDIUM;
 				case 2: return MOB_SLIME_LARGE;
@@ -182,7 +180,12 @@ GENERIC ("generic", null, true),
 				if(entity instanceof Creeper)	return ((CraftCreeper)entity).isPowered()?MOB_CREEPER_CHARGED:MOB_CREEPER_NORMAL;;
 				if(entity instanceof Giant) 	return MOB_GIANT;
 				if(entity instanceof Skeleton)	return MOB_SKELETON;
-				if(entity instanceof Spider)	return MOB_SPIDER; 
+				if(entity instanceof Spider)
+				{
+					if(entity.getPassenger() != null)
+						Logger.getLogger("Minecraft").info("Found a SPIDER JOCKAY :D");//TODO REMOVE ME
+					return MOB_SPIDER; 
+				}
 			}
 			if(entity instanceof WaterMob) 
 				if(entity instanceof Squid) 	return ANIMAL_SQUID;

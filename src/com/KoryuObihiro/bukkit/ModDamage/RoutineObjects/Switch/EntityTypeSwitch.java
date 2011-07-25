@@ -20,13 +20,16 @@ public class EntityTypeSwitch extends EntitySwitchRoutine<ModDamageElement>
 	}
 
 	@Override
-	protected ModDamageElement getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.element_attacker:eventInfo.element_target).getType();}
+	protected ModDamageElement getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.element_attacker:eventInfo.element_target);}
 
 	@Override
-	protected ModDamageElement getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.element.getType();}
+	protected ModDamageElement getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.element;}
 
 	@Override
 	protected ModDamageElement matchCase(String switchCase){ return ModDamageElement.matchElement(switchCase);}
+	
+	@Override
+	protected boolean compare(ModDamageElement info_1, ModDamageElement info_2){ return info_1.matchesType(info_2);}
 	
 	public static void register(RoutineUtility routineUtility)
 	{

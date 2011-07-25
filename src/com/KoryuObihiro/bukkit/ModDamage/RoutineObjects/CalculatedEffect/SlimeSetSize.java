@@ -25,10 +25,10 @@ public class SlimeSetSize extends CalculatedEffectRoutine<Slime>
 	protected void applyEffect(Slime affectedObject, int input){ affectedObject.setSize(input);}
 
 	@Override
-	protected Slime getAffectedObject(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.element_attacker:eventInfo.element_target).equals(ModDamageElement.MOB_SLIME)?((Slime)(forAttacker?eventInfo.entity_attacker:eventInfo.entity_target)):null;}
+	protected Slime getAffectedObject(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.element_attacker:eventInfo.element_target).matchesType(ModDamageElement.MOB_SLIME)?((Slime)(forAttacker?eventInfo.entity_attacker:eventInfo.entity_target)):null;}
 
 	@Override
-	protected Slime getAffectedObject(SpawnEventInfo eventInfo){ return (eventInfo.element.equals(ModDamageElement.MOB_SLIME))?((Slime)eventInfo.entity):null;}	
+	protected Slime getAffectedObject(SpawnEventInfo eventInfo){ return (eventInfo.element.matchesType(ModDamageElement.MOB_SLIME))?((Slime)eventInfo.entity):null;}	
 
 	public static void register(RoutineUtility routineUtility)
 	{
