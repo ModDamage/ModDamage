@@ -2,17 +2,18 @@ package com.KoryuObihiro.bukkit.ModDamage;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Ghast;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Skeleton;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -21,6 +22,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
+import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
@@ -44,7 +46,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EnvironmentSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
-import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
@@ -58,28 +59,28 @@ public class ModDamage extends JavaPlugin
 {
 	//TODO
 	//--ModDamage Main
-	// FIXME Save config on reload/disable
-	// FIXME Get UUIDs in events
-	// -Deregister when Bukkit supports!
-	// -Client-sided mod for displaying health?
-	// -"Failed to reload" ingame
 	// -count characters in config for message length
-	// -change md debug messages to reflect previous state
-	// -single-line configuration
 	// -get Dispenser attackers
 	// -Fishing rod implementation
 	// -Autogen world/entitytype switches?
+	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
+
 	// -find a way to give players ownership of an explosion
+	// -Deregister when Bukkit supports!
+	// -Client-sided mod for displaying health?
 	
 	//--API
 	// -Write tut, code requirements, and regex guidelines for using this library
 	// -Print plugin name at fault when calculation registry fails
-	
-	//--DamageElement
-	// -Make DamageElement do some parsing with Material.name()? (update ArmorSet and CalculationUtility accordingly if this is done)
-	// -Separate materials/armor from DamageElement
+	// Ideas
+	// -External calls to aliased sets of routines? But...EventInfo would be screwed up. :P
+	//--ModDamageElement
+	// -Make ModDamageElement do some parsing with Material.name()? (update ArmorSet and CalculationUtility accordingly if this is done)
 	
 	//--RoutineUtility
+	// 0.9.5
+	// -Refactor config to contain errors and display classes allocated - add to config strings regardless
+	// -Use warnings inside constructors (pass routineUtility)
 	// FIXME Why aren't the patternParts all final? o_o
 	// TODO message routines (force aliasing here), don't forget this nasty thing:
 	/*
@@ -91,10 +92,11 @@ public class ModDamage extends JavaPlugin
 				+ "): " + Integer.toString((displayHealth < 0)?0:displayHealth));
 	}
 	*/
-	// -Refactor config to contain errors and display classes allocated - add to config strings regardless
-	// -Make sure that Slimes work for EntityTargetedByOther - they failed in a previous RB.
+	// -Make sure that Slimes work for EntityTargetedByOther[ - they failed in a previous RB.
+	// 0.9.6
 	// -AoE clearance, block search nearby for Material?
-	// -Use warnings inside constructors (pass routineUtility)
+	
+	// Ideas
 	// -check against an itemstack in the player's inventory
 	// -if.entityis.inRegion
 	// -if.server.onlineenabled
@@ -105,6 +107,8 @@ public class ModDamage extends JavaPlugin
 	// -
 	// -for.#
 	// -for.eventvalue
+	// -foreach
+	// -Area pieces too!
 	
 	//--Yet-to-be-plausible:
 	// -switch.conditional
@@ -127,7 +131,7 @@ public class ModDamage extends JavaPlugin
 	private final static Logger log = Logger.getLogger("Minecraft");
 	private RoutineUtility routineUtility;
 	public static PermissionHandler Permissions = null;
-	private static elRegionsPlugin elRegions = null;
+	//private static elRegionsPlugin elRegions = null;
 	private static Configuration config;
 	private static String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
 	
@@ -142,30 +146,12 @@ public class ModDamage extends JavaPlugin
 	private final List<Routine> damageRoutines = new ArrayList<Routine>();
 	private final List<Routine> spawnRoutines = new ArrayList<Routine>();
 	
-	//Aliases
-	//public final static HashMap<String, List<Material>> itemAliases = new HashMap<String, List<Material>>();
-	//public final static HashMap<String, List<String>> groupAliases = new HashMap<String, List<String>>();
-	//public final static HashMap<String, List<String>> mobAliases = new HashMap<String, List<String>>();
-	/*
-	//reload()
-		if(loadAliases() && routineUtility.shouldOutput(LogSetting.VERBOSE)) log.info("Aliases loaded!");
-		else log.warning("No aliases loaded! Are any aliases defined?");
-	//In class body
-		protected boolean loadAliases()
-		{
-			//TODO
-			return false;
-		}
-	//writeDefaults()
-		String[][] toolAliases = { {"axe", "hoe", "pickaxe", "spade", "sword"}, {"WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_"}};
-		for(String toolType : toolAliases[0])
-		{
-			List<String> combinations = new ArrayList<String>();
-			for(String toolMaterial : toolAliases[1])
-				combinations.add(toolMaterial + toolType.toUpperCase());
-			config.setProperty("Aliases." + toolType, combinations);
-		}
-	*/
+	///public static HashMap<String, List<ArmorSet>> armorAliases = new HashMap<String, List<ArmorSet>>();
+	public static HashMap<String, List<Material>> itemAliases = new HashMap<String, List<Material>>();
+	//public static HashMap<String, List<String>> groupAliases = new HashMap<String, List<String>>();
+	//public static HashMap<String, List<String>> messageAliases = new HashMap<String, List<String>>();
+	//public static HashMap<String, List<ModDamageElement>> mobAliases = new HashMap<String, List<ModDamageElement>>();
+	
 	
 ////////////////////////// INITIALIZATION
 	@Override
@@ -186,12 +172,14 @@ public class ModDamage extends JavaPlugin
 		}
 		else log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions not found]");
 		
+		/*
 		elRegions = (elRegionsPlugin) this.getServer().getPluginManager().getPlugin("elRegions");
 		if (elRegions != null) 
 		{
 			using_elRegions = true;
 		    log.info("[" + getDescription().getName() + "] Found elRegions v" + elRegions.getDescription().getVersion());
 		}
+		*/
 		
 		//register plugin-related stuff with the server's plugin manager
 		server.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
@@ -284,16 +272,16 @@ public class ModDamage extends JavaPlugin
 						{
 							if(fromConsole || hasPermission(player, "moddamage.debug"))
 							{
-								if(args.length == 1) routineUtility.toggleLogging(player);
+								if(args.length == 1) RoutineUtility.toggleLogging(player);
 								else if(args.length == 2)
 								{
 									LogSetting matchedSetting = LogSetting.matchSetting(args[1]);
 									if(matchedSetting != null)
 									{
-										String sendThis = "Changed debug mode from " + routineUtility.logSetting.name().toLowerCase() + " to " + matchedSetting.name().toLowerCase();
+										String sendThis = "Changed debug mode from " + RoutineUtility.logSetting.name().toLowerCase() + " to " + matchedSetting.name().toLowerCase();
 										log.info("[" + getDescription().getName() + "] " + sendThis);
 										if(!fromConsole) player.sendMessage(ChatColor.GREEN + sendThis);
-										routineUtility.logSetting = matchedSetting;
+										RoutineUtility.logSetting = matchedSetting;
 									}
 									else
 									{
@@ -342,7 +330,7 @@ public class ModDamage extends JavaPlugin
 							if(fromConsole)
 							{
 								log.info("[" + getDescription().getName() + "] Sending server config info...");
-								routineUtility.sendConfig(null, 9001);
+								RoutineUtility.sendConfig(null, 9001);
 								log.info("[" + getDescription().getName() + "] Done.");
 							}
 							else if(args.length == 1)
@@ -351,7 +339,7 @@ public class ModDamage extends JavaPlugin
 								//Send list of loaded worlds
 								if(hasPermission(player, "moddamage.check"))
 								{
-									routineUtility.sendConfig(player, 1);
+									RoutineUtility.sendConfig(player, 1);
 								}
 								else player.sendMessage(errorString_Permissions);
 								return true;
@@ -361,7 +349,7 @@ public class ModDamage extends JavaPlugin
 							{
 								try
 								{
-									routineUtility.sendConfig(player, Integer.parseInt(args[1]));
+									RoutineUtility.sendConfig(player, Integer.parseInt(args[1]));
 								} 
 								catch(NumberFormatException e)
 								{
@@ -390,49 +378,18 @@ public class ModDamage extends JavaPlugin
 	public void handleDamageEvent(EntityDamageEvent event) 
 	{
 		LivingEntity ent_damaged = (LivingEntity)event.getEntity();
-		//simple check for noDamageTicks - the appropriate event-firing check should be implemented in Bukkit soon.
-		if(ent_damaged.getNoDamageTicks() > 40) return;
-		
-		if(isLoaded())
+		if(isLoaded() && ent_damaged.getNoDamageTicks() <= 40)
 		{
 			DamageEventInfo eventInfo = null;
-			
 			if(ModDamageElement.matchNonlivingElement(event.getCause()) != null)
-			{
-			//Nonliving damage to LivingEntity
-				//Nonliving vs Player
-				if(ent_damaged instanceof Player)
-					eventInfo = new DamageEventInfo((Player)ent_damaged, ModDamageElement.matchNonlivingElement(event.getCause()), event.getDamage());
-				//Nonliving vs Mob
-				else if(ModDamageElement.matchMobType(ent_damaged) != null)
-					eventInfo = new DamageEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), ModDamageElement.matchNonlivingElement(event.getCause()), event.getDamage());
-			}
+				eventInfo = new DamageEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.matchNonlivingElement(event.getCause()), null, event.getDamage());
 			else if(event instanceof EntityDamageByEntityEvent)
 			{
 				EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
+				//TODO Make this compatible with dispensers!
 				LivingEntity ent_damager = (LivingEntity)event_EE.getDamager();
-				RangedElement rangedElement = ((event instanceof EntityDamageByProjectileEvent) 
-													&& !(ent_damager instanceof Skeleton || ent_damager instanceof Ghast))
-														?RangedElement.matchElement(((EntityDamageByProjectileEvent)event).getProjectile())
-														:null;
-			//Player-targeted damage
-				if(ent_damaged instanceof Player)
-				{
-				//Player vs Player
-					if(ent_damager instanceof Player) eventInfo = new DamageEventInfo((Player)ent_damaged, (Player)ent_damager, rangedElement, event.getDamage());
-				//Mob vs Player
-					else eventInfo = new DamageEventInfo((Player)ent_damaged, ent_damager, ModDamageElement.matchMobType(ent_damager), event.getDamage());
-				}
-			//Monster-targeted damage
-				else if(ModDamageElement.matchMobType(ent_damaged) != null)
-				{
-				//Player vs Mob
-					if(ent_damager instanceof Player) eventInfo = new DamageEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), (Player)ent_damager, rangedElement, event.getDamage());
-				//Mob vs Mob 
-					else if(ModDamageElement.matchMobType(ent_damager) != null) 
-						eventInfo = new DamageEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), ent_damager, ModDamageElement.matchMobType(ent_damager), event.getDamage());
-				
-				}
+				RangedElement rangedElement = (event instanceof EntityDamageByProjectileEvent?RangedElement.matchElement(((EntityDamageByProjectileEvent)event).getProjectile()):null);
+				eventInfo = new DamageEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), ent_damager, ModDamageElement.matchMobType(ent_damager), rangedElement, event.getDamage());
 			}
 			else{ log.severe("[" + getDescription().getName() + "] Error! Unhandled damage event. Is this plugin up-to-date?");}
 			for(Routine routine : damageRoutines)
@@ -441,16 +398,14 @@ public class ModDamage extends JavaPlugin
 				eventInfo.eventDamage = 0;
 			event.setDamage(eventInfo.eventDamage);
 		}
-	}
+	} 
 
 	public void handleSpawnEvent(CreatureSpawnEvent event)
 	{
 		if(event.getEntity() != null)
 		{
 			LivingEntity entity = (LivingEntity)event.getEntity();
-			SpawnEventInfo eventInfo = ((entity instanceof Player)
-											?new SpawnEventInfo((Player)entity)
-											:new SpawnEventInfo((LivingEntity)entity));
+			SpawnEventInfo eventInfo = new SpawnEventInfo(entity);
 
 			if(eventInfo.element != null)
 				for(Routine routine : spawnRoutines)
@@ -460,25 +415,6 @@ public class ModDamage extends JavaPlugin
 			event.setCancelled(entity.getHealth() <= 0);
 		}
 	}
-
-
-////ITEM ALIASING ////
-	/*
-	public static boolean addAlias(String key, List<Material> values)
-	{
-		if(itemAliases.containsKey(key)) return false;
-		itemAliases.put(key, values);
-		return true;
-	}
-	
-	public static List<Material> matchItems(String key)
-	{
-		if(itemAliases.containsKey(key.toLowerCase())) return itemAliases.get(key);
-		Material material = Material.matchMaterial(key);
-		if(material != null) return Arrays.asList(material);
-		return new ArrayList<Material>();
-	}
-	*/
 	
 ///// HELPER FUNCTIONS ////
 	private boolean isLoaded(){ return damageRoutinesLoaded || spawnRoutinesLoaded;}
@@ -500,6 +436,7 @@ public class ModDamage extends JavaPlugin
 	{
 		damageRoutines.clear();
 		spawnRoutines.clear();
+		itemAliases.clear();
 		damageRoutinesLoaded = spawnRoutinesLoaded = false;
 	}
 	
@@ -568,6 +505,7 @@ public class ModDamage extends JavaPlugin
 	{
 		damageRoutines.clear();
 		spawnRoutines.clear();
+		RoutineUtility.clear();
 		config.load();
 	//get plugin config.yml...if it doesn't exist, create it.
 		if(!(new File(this.getDataFolder(), "config.yml")).exists()) writeDefaults();
@@ -578,11 +516,22 @@ public class ModDamage extends JavaPlugin
 			LogSetting logSetting = LogSetting.matchSetting(debugString);
 			switch(logSetting)
 			{
-				case QUIET: log.info("[" + getDescription().getName()+ "] \"Quiet\" mode active - suppressing debug messages and warnings.");
-				case NORMAL: log.info("[" + getDescription().getName()+ "] Debugging active.");
-				case VERBOSE: log.info("[" + getDescription().getName()+ "] Verbose debugging active.");
-				routineUtility.setLogging(logSetting);
-				default: log.info("[" + getDescription().getName()+ "] Debug string not recognized - defaulting to \"normal\" settings.");
+				case QUIET: 
+					log.info("[" + getDescription().getName()+ "] \"Quiet\" mode active - suppressing debug messages and warnings.");
+					RoutineUtility.setLogging(logSetting);
+					break;
+				case NORMAL: 
+					log.info("[" + getDescription().getName()+ "] Debugging active.");
+					RoutineUtility.setLogging(logSetting);
+					break;
+				case VERBOSE: 
+					log.info("[" + getDescription().getName()+ "] Verbose debugging active.");
+					RoutineUtility.setLogging(logSetting);
+					break;
+				default: 
+					log.info("[" + getDescription().getName()+ "] Debug string not recognized - defaulting to \"normal\" settings.");
+					RoutineUtility.setLogging(LogSetting.NORMAL);
+					break;
 			}
 		}
 	//routines
@@ -590,28 +539,32 @@ public class ModDamage extends JavaPlugin
 		spawnRoutinesLoaded = loadRoutines("MobHealth", spawnRoutines);
 	//single-property config
 		negative_Heal = config.getBoolean("negativeHeal", false);
-		if(routineUtility.shouldOutput(LogSetting.VERBOSE))
+		if(RoutineUtility.shouldOutput(LogSetting.VERBOSE))
 			log.info("[" + getDescription().getName()+ "] Negative-damage healing " + (negative_Heal?"en":"dis") + "abled.");
 		
+		if(loadAliases() && RoutineUtility.shouldOutput(LogSetting.VERBOSE)) log.info("Aliases loaded!");
+		else log.warning("No aliases loaded! Are any aliases defined?");
+		
 		config.load(); //Discard any changes made to the file by the above reads.
-		if(isLoaded())
-		{
-			//TODO Give success message here
-		}
-		else
-		{
-			
-		}
-		log.info("[" + getDescription().getName() + "] Finished loading configuration.");
+		log.info("[" + getDescription().getName() + "] " + (isLoaded()?"Finished loading configuration.":"Error loading configuration."));
 	}
 
 	private void writeDefaults() 
 	{
-	//set single-property stuff
 		log.severe("[" + getDescription().getName() + "] No configuration file found! Writing a blank config...");
 		config.setProperty("debugging", "normal");
 		config.setProperty("Damage", null);
 		config.setProperty("Spawn", null);
+		
+		String[][] toolAliases = { {"axe", "hoe", "pickaxe", "spade", "sword"}, {"WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_"}};
+		for(String toolType : toolAliases[0])
+		{
+			List<String> combinations = new ArrayList<String>();
+			for(String toolMaterial : toolAliases[1])
+				combinations.add(toolMaterial + toolType.toUpperCase());
+			config.setProperty("Aliases.Item." + toolType, combinations);
+		}
+
 		config.save();
 		log.severe("[" + getDescription().getName() + "] Defaults written to config.yml!");
 	}
@@ -622,8 +575,8 @@ public class ModDamage extends JavaPlugin
 		List<Object> routineObjects = config.getList(loadType);
 		if(routineObjects != null)
 		{
-			if(routineUtility.shouldOutput(LogSetting.VERBOSE)) log.info(loadType + " configuration found, parsing...");
-			List<Routine> calculations = routineUtility.parse(routineObjects, loadType);
+			if(RoutineUtility.shouldOutput(LogSetting.VERBOSE)) log.info(loadType + " configuration found, parsing...");
+			List<Routine> calculations = RoutineUtility.parse(routineObjects, loadType);
 			if(!calculations.isEmpty())
 			{
 				routineList.addAll(calculations);
@@ -631,5 +584,57 @@ public class ModDamage extends JavaPlugin
 			}
 		}
 		return loadedSomething;
+	}
+	
+//// ALIASING ////
+	protected boolean loadAliases()
+	{
+		//XXX FIXME
+		ConfigurationNode aliasNode = config.getNode("Aliases");
+		if(aliasNode != null)
+		{
+			if(aliasNode.getNode("Item") != null)
+			{
+				boolean addedAlias = false;
+				routineUtility.addToConfig(LogSetting.NORMAL, 0, "Found alias " + aliasString, severe);
+				for(Object object : config.getProperty(arg0))
+				{
+					if(object instanceof String)
+					{
+						String aliasString
+					}
+					else
+					{
+						
+					}
+				
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean addItemAlias(String key, List<String> values)
+	{
+		if(itemAliases.containsKey(key)) return false;
+		List<Material> matchedItems = new ArrayList<Material>();
+		for(String value : values)
+		{
+			List<Material> matchedTerm = matchItemAlias(value);
+			if(!matchedTerm.isEmpty())
+				for(Material material : matchedTerm)
+					matchedItems.add(material);
+			else return false;
+		}
+		itemAliases.put(key, matchedItems);
+		return true;
+	}
+	
+	public static List<Material> matchItemAlias(String key)
+	{
+		if(itemAliases.containsKey(key.toLowerCase())) return itemAliases.get(key);
+		Material material = Material.matchMaterial(key);
+		if(material != null) return Arrays.asList(material);
+		return new ArrayList<Material>();
 	}
 }

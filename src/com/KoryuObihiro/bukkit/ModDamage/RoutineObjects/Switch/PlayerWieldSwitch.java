@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -13,7 +14,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-public class PlayerWieldSwitch extends EntitySwitchRoutine<Material>
+public class PlayerWieldSwitch extends EntitySwitchRoutine<List<Material>>
 {
 	public PlayerWieldSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements) 
 	{
@@ -21,12 +22,13 @@ public class PlayerWieldSwitch extends EntitySwitchRoutine<Material>
 	}
 
 	@Override
-	protected Material getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.materialInHand_attacker:eventInfo.materialInHand_target);}
+	protected List<Material> getRelevantInfo(DamageEventInfo eventInfo){ return Arrays.asList((forAttacker?eventInfo.materialInHand_attacker:eventInfo.materialInHand_target));}
 	@Override
-	protected Material getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
-
+	protected List<Material> getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
 	@Override
-	protected Material matchCase(String switchCase){ return Material.matchMaterial(switchCase);}
+	protected boolean compare(List<Material> info_1, List<Material> info_2){ return info_2.contains(info_1.get(0));}
+	@Override
+	protected List<Material> matchCase(String switchCase){ return RoutineUtility.matchItemAlias(switchCase);}
 	
 	public static void register(RoutineUtility routineUtility)
 	{

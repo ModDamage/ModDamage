@@ -30,7 +30,7 @@ public class SpawnEventInfo
 	{
 		eventHealth = player.getHealth();
 		entity = player;
-		element = ModDamageElement.GENERIC_HUMAN;
+		element = ModDamageElement.HUMAN_PLAYER;
 		name = player.getName();
 		groups = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
 					?ModDamage.Permissions.getGroups(player.getWorld().getName(), player.getName())

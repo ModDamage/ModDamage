@@ -95,7 +95,7 @@ public class ConditionalRoutine extends Routine
 	
 	public static void registerStatement(RoutineUtility routineUtility, Class<? extends ConditionalStatement> statementClass, Pattern syntax)
 	{
-		routineUtility.registerConditional(statementClass, syntax);
+		RoutineUtility.registerConditional(statementClass, syntax);
 	}
 	
 	private static class FalseStatement extends ConditionalStatement

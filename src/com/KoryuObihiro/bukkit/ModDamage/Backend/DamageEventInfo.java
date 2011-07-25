@@ -22,8 +22,7 @@ public class DamageEventInfo
 	public final World world;
 	public final Environment environment;
 	
-	//Having everything public may not be a good idea, but I don't intend to change anything later.
-	public final EventType eventType;
+	//Having everything public may not be a good idea, but I don't intend to change anything later. Do you?
 	public final RangedElement rangedElement;
 	
 	public final ModDamageElement element_target;
@@ -41,155 +40,50 @@ public class DamageEventInfo
 	public final String[] groups_attacker;
 	
 //CONSTRUCTORS
-	public DamageEventInfo(Player player_target, Player player_attacker, RangedElement rangedElement, int eventDamage) 
+	public DamageEventInfo(LivingEntity eventEntity_target, ModDamageElement eventElement_target, LivingEntity eventEntity_attacker, ModDamageElement eventElement_attacker, RangedElement rangedElement, int eventDamage) 
 	{
 		this.eventDamage = eventDamage;
-		eventType = EventType.PLAYER_PLAYER;
 		this.rangedElement = rangedElement;
 		
-		entity_target = player_target;
-		element_target = ModDamageElement.GENERIC_HUMAN;
-		materialInHand_target = player_target.getItemInHand().getType();
-		armorSet_target = new ArmorSet(player_target);
-		name_target = player_target.getName();
-		groups_target = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
-				?ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName())
-				:ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName()).split(" "):emptyStringArray);
-		
-		entity_attacker = player_attacker;
-		element_attacker = ModDamageElement.GENERIC_HUMAN;
-		materialInHand_attacker = player_attacker.getItemInHand().getType();
-		armorSet_attacker = new ArmorSet(player_attacker);
-		name_attacker = player_attacker.getName();
-		groups_attacker = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
-							?ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName())
-							:ModDamage.Permissions.getGroup(player_attacker.getWorld().getName(), player_attacker.getName()).split(" "):emptyStringArray);
-		
-		world = entity_target.getWorld();
-		environment = world.getEnvironment();
-	}
-	
-	public DamageEventInfo(LivingEntity entity_target, ModDamageElement mobType_target, Player player_attacker, RangedElement rangedElement, int eventDamage) 
-	{
-		this.eventDamage = eventDamage;
-		eventType = EventType.PLAYER_MOB;
-		this.rangedElement = rangedElement;
-		
-		this.entity_target = entity_target;
-		element_target= mobType_target;
-		materialInHand_target = null;
-		armorSet_target = null;
-		name_target = null;
-		groups_target = null;
-		
-		entity_attacker = player_attacker;
-		element_attacker = ModDamageElement.GENERIC_HUMAN;
-		materialInHand_attacker = player_attacker.getItemInHand().getType();
-		armorSet_attacker = new ArmorSet(player_attacker);
-		name_attacker = player_attacker.getName();
-		groups_attacker = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
-				?ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName())
-				:ModDamage.Permissions.getGroup(player_attacker.getWorld().getName(), player_attacker.getName()).split(" "):emptyStringArray);
-		
-		world = entity_target.getWorld();
-		environment = world.getEnvironment();		
-	}
-	
-	public DamageEventInfo(Player player_target, LivingEntity entity_attacker, ModDamageElement mobType_attacker, int eventDamage) 
-	{
-		this.eventDamage = eventDamage;
-		eventType = EventType.MOB_PLAYER;
-		this.rangedElement = null;
-		
-		this.entity_target = player_target;
-		element_target = ModDamageElement.GENERIC_HUMAN;
-		materialInHand_target = player_target.getItemInHand().getType();
-		armorSet_target = new ArmorSet(player_target);
-		name_target = player_target.getName();
-		groups_target = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
-				?ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName())
-				:ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName()).split(" "):emptyStringArray);
+		entity_target = eventEntity_target;
+		element_target = eventElement_attacker;
+		if(entity_target instanceof Player)
+		{
+			Player player_target = (Player)entity_target;
+			materialInHand_target = player_target.getItemInHand().getType();
+			armorSet_target = new ArmorSet(player_target);
+			name_target = player_target.getName();
+			groups_target = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
+					?ModDamage.Permissions.getGroups(eventEntity_target.getWorld().getName(), player_target.getName())
+					:ModDamage.Permissions.getGroup(eventEntity_target.getWorld().getName(), player_target.getName()).split(" "):emptyStringArray);
+		}
+		else
+		{
+			materialInHand_target = null;
+			armorSet_target = null;
+			name_target = null;
+			groups_target = null;
+		}
 
-		this.entity_attacker = entity_attacker;
-		element_attacker = mobType_attacker;
-		materialInHand_attacker = null;
-		armorSet_attacker = null;
-		name_attacker = null;
-		groups_attacker = null;
-		
-		world = entity_target.getWorld();
-		environment = world.getEnvironment();
-	}
-	
-	public DamageEventInfo(LivingEntity entity_target, ModDamageElement mobType_target, LivingEntity entity_attacker, ModDamageElement mobType_attacker, int eventDamage) 
-	{
-		this.eventDamage = eventDamage;
-		eventType = EventType.MOB_MOB;
-		rangedElement = null;
-
-		this.entity_target = entity_target;
-		element_target = mobType_target;
-		materialInHand_target = null;
-		armorSet_target = null;
-		name_target = null;
-		groups_target = null;
-
-		this.entity_attacker = entity_attacker;
-		element_attacker = mobType_target;
-		materialInHand_attacker = null;
-		armorSet_attacker = null;
-		name_attacker = null;
-		groups_attacker = null;
-		
-		world = entity_target.getWorld();
-		environment = world.getEnvironment();
-	}
-	
-	public DamageEventInfo(Player player_target, ModDamageElement damageType, int eventDamage) 
-	{
-		this.eventDamage = eventDamage;
-		eventType = EventType.NONLIVING_PLAYER;
-		this.rangedElement = null;
-		
-		entity_target = player_target;
-		element_target = ModDamageElement.GENERIC_HUMAN;
-		materialInHand_target = player_target.getItemInHand().getType();
-		armorSet_target = new ArmorSet(player_target);
-		name_target = player_target.getName();
-		groups_target = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
-				?ModDamage.Permissions.getGroups(player_target.getWorld().getName(), player_target.getName())
-				:ModDamage.Permissions.getGroup(player_target.getWorld().getName(), player_target.getName()).split(" "):emptyStringArray);
-		
-		entity_attacker = null;
-		element_attacker = damageType;
-		materialInHand_attacker = null;
-		armorSet_attacker = null;
-		name_attacker = null;
-		groups_attacker = null;
-		
-		world = entity_target.getWorld();
-		environment = world.getEnvironment();
-	}
-	
-	public DamageEventInfo(LivingEntity entity_target, ModDamageElement mobType_target, ModDamageElement damageType, int eventDamage) 
-	{
-		this.eventDamage = eventDamage;
-		eventType = EventType.NONLIVING_MOB;
-		this.rangedElement = null;
-
-		this.entity_target = entity_target;
-		element_target = mobType_target;
-		materialInHand_target = null;
-		armorSet_target = null;
-		name_target = null;
-		groups_target = null;
-		
-		entity_attacker = null;
-		element_attacker = damageType;
-		materialInHand_attacker = null;
-		armorSet_attacker = null;
-		name_attacker = null;
-		groups_attacker = null;
+		entity_attacker = eventEntity_attacker;
+		element_attacker = eventElement_attacker;
+		if(entity_attacker instanceof Player)
+		{
+			Player player_attacker = (Player)entity_attacker;
+			materialInHand_attacker = player_attacker.getItemInHand().getType();
+			armorSet_attacker = new ArmorSet(player_attacker);
+			name_attacker = player_attacker.getName();
+			groups_attacker = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
+								?ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName())
+								:ModDamage.Permissions.getGroup(player_attacker.getWorld().getName(), player_attacker.getName()).split(" "):emptyStringArray);
+		}
+		else
+		{
+			materialInHand_attacker = null;
+			armorSet_attacker = null;
+			name_attacker = null;
+			groups_attacker = null;
+		}
 		
 		world = entity_target.getWorld();
 		environment = world.getEnvironment();

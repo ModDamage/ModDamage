@@ -45,7 +45,7 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 		boolean matched = false;
 		if(info != null)
 			for(InfoType infoKey : switchStatements.keySet())
-				if(info.equals(infoKey) || matched)
+				if(compare(info, infoKey) || matched)
 				{
 					if(switchStatements.get(infoKey) != null)
 					{
@@ -64,7 +64,7 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 		boolean matched = false;
 		if(info != null)
 			for(InfoType infoKey : switchStatements.keySet())
-				if(info.equals(infoKey) || matched)
+				if(compare(info, infoKey) || matched)
 				{
 					if(switchStatements.get(infoKey) != null)
 					{
@@ -75,6 +75,8 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 					matched = true;
 				}
 	}
+	
+	protected boolean compare(InfoType info_1, InfoType info_2){ return info_1.equals(info_2);}
 	
 	abstract protected InfoType getRelevantInfo(DamageEventInfo eventInfo);
 	
@@ -104,6 +106,6 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 	
 	public static void registerStatement(RoutineUtility routineUtility, Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)
 	{
-		routineUtility.registerSwitch(statementClass, syntax);
+		RoutineUtility.registerSwitch(statementClass, syntax);
 	}
 }
