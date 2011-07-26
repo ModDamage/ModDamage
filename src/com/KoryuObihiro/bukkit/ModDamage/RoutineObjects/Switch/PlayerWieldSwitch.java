@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Material;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
@@ -28,7 +29,7 @@ public class PlayerWieldSwitch extends EntitySwitchRoutine<List<Material>>
 	@Override
 	protected boolean compare(List<Material> info_1, List<Material> info_2){ return info_2.contains(info_1.get(0));}
 	@Override
-	protected List<Material> matchCase(String switchCase){ return RoutineUtility.matchItemAlias(switchCase);}
+	protected List<Material> matchCase(String switchCase){ return ModDamage.matchItemAlias(switchCase);}
 	
 	public static void register(RoutineUtility routineUtility)
 	{

@@ -589,31 +589,48 @@ public class ModDamage extends JavaPlugin
 //// ALIASING ////
 	protected boolean loadAliases()
 	{
-		//XXX FIXME
 		ConfigurationNode aliasNode = config.getNode("Aliases");
 		if(aliasNode != null)
 		{
-			if(aliasNode.getNode("Item") != null)
+			ConfigurationNode itemNode = aliasNode.getNode("Item");
+			if(itemNode != null)
 			{
-				boolean addedAlias = false;
-				routineUtility.addToConfig(LogSetting.NORMAL, 0, "Found alias " + aliasString, severe);
-				for(Object object : config.getProperty(arg0))
+				List<String> aliasKeys = aliasNode.getKeys("Item");
+				for(String alias : aliasKeys)
 				{
-					if(object instanceof String)
+					List<Material> aliasValues = new ArrayList<Material>();
+					boolean addedAlias = false;
+					for(String itemString : itemNode.getStringList(alias, new ArrayList<String>()))
 					{
-						String aliasString
+						List<Material> matchedValues = matchItemAlias(itemString);
+						if(!matchedValues.isEmpty())
+						{
+							aliasValues.addAll(matchedValues);
+							addedAlias = true;
+						}
+						else 
+						{
+							RoutineUtility.addToConfig(LogSetting.QUIET, 0, "No matching alias or material name \"" + itemString + "\"" + alias, true);
+							matchedValues.clear();
+							addedAlias = false;
+						}
+					}
+					if(addedAlias)
+					{
+						RoutineUtility.addToConfig(LogSetting.NORMAL, 0, "Found alias " + alias, false);
+						for(Material material : aliasValues)
+							RoutineUtility.addToConfig(LogSetting.VERBOSE, 0, "Adding " + material.name(), false);
 					}
 					else
 					{
-						
+						RoutineUtility.addToConfig(LogSetting.QUIET, 0, "Failed to create alias " + alias, true);
 					}
-				
 				}
 			}
 		}
 		return false;
 	}
-
+	
 	public boolean addItemAlias(String key, List<String> values)
 	{
 		if(itemAliases.containsKey(key)) return false;
