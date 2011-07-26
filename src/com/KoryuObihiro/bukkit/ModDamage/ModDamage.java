@@ -151,6 +151,8 @@ public class ModDamage extends JavaPlugin
 	//public static HashMap<String, List<String>> groupAliases = new HashMap<String, List<String>>();
 	//public static HashMap<String, List<String>> messageAliases = new HashMap<String, List<String>>();
 	//public static HashMap<String, List<ModDamageElement>> mobAliases = new HashMap<String, List<ModDamageElement>>();
+
+	private static boolean aliasesLoaded = false;
 	
 	
 ////////////////////////// INITIALIZATION
@@ -417,7 +419,7 @@ public class ModDamage extends JavaPlugin
 	}
 	
 ///// HELPER FUNCTIONS ////
-	private boolean isLoaded(){ return damageRoutinesLoaded || spawnRoutinesLoaded;}
+	private boolean isLoaded(){ return damageRoutinesLoaded || spawnRoutinesLoaded || aliasesLoaded;}
 	
 	public static boolean hasPermission(Player player, String permission)
 	{
@@ -542,7 +544,11 @@ public class ModDamage extends JavaPlugin
 		if(RoutineUtility.shouldOutput(LogSetting.VERBOSE))
 			log.info("[" + getDescription().getName()+ "] Negative-damage healing " + (negative_Heal?"en":"dis") + "abled.");
 		
-		if(loadAliases() && RoutineUtility.shouldOutput(LogSetting.VERBOSE)) log.info("Aliases loaded!");
+		aliasesLoaded = loadAliases();
+		if(aliasesLoaded)
+		{
+			if(RoutineUtility.shouldOutput(LogSetting.VERBOSE)) log.info("Aliases loaded!");
+		}
 		else log.warning("No aliases loaded! Are any aliases defined?");
 		
 		config.load(); //Discard any changes made to the file by the above reads.
@@ -590,6 +596,7 @@ public class ModDamage extends JavaPlugin
 	protected boolean loadAliases()
 	{
 		ConfigurationNode aliasNode = config.getNode("Aliases");
+		boolean addedSomething = false;
 		if(aliasNode != null)
 		{
 			ConfigurationNode itemNode = aliasNode.getNode("Item");
@@ -599,37 +606,38 @@ public class ModDamage extends JavaPlugin
 				for(String alias : aliasKeys)
 				{
 					List<Material> aliasValues = new ArrayList<Material>();
-					boolean addedAlias = false;
+					boolean validAlias = false;
 					for(String itemString : itemNode.getStringList(alias, new ArrayList<String>()))
 					{
 						List<Material> matchedValues = matchItemAlias(itemString);
 						if(!matchedValues.isEmpty())
 						{
 							aliasValues.addAll(matchedValues);
-							addedAlias = true;
+							validAlias = true;
 						}
 						else 
 						{
 							RoutineUtility.addToConfig(LogSetting.QUIET, 0, "No matching alias or material name \"" + itemString + "\"" + alias, true);
 							matchedValues.clear();
-							addedAlias = false;
+							validAlias = false;
 						}
 					}
-					if(addedAlias)
+					if(validAlias)
 					{
-						RoutineUtility.addToConfig(LogSetting.NORMAL, 0, "Found alias " + alias, false);
+						addedSomething = true;
+						itemAliases.put("_" + alias, aliasValues);
+						RoutineUtility.addToConfig(LogSetting.NORMAL, 0, "Created alias \"" + alias + "\"", false);
 						for(Material material : aliasValues)
 							RoutineUtility.addToConfig(LogSetting.VERBOSE, 0, "Adding " + material.name(), false);
 					}
-					else
-					{
-						RoutineUtility.addToConfig(LogSetting.QUIET, 0, "Failed to create alias " + alias, true);
-					}
+					else RoutineUtility.addToConfig(LogSetting.QUIET, 0, "Failed to create alias " + alias, true);
 				}
 			}
 		}
-		return false;
+		return addedSomething;
 	}
+	//public boolean addAlias(ConfigurationNode node, String targetNodeName, 
+	//public <T> List<T> getItems(List<Class<T>> 
 	
 	public boolean addItemAlias(String key, List<String> values)
 	{
