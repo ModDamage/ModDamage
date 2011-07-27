@@ -9,7 +9,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class ArmorSetSwitch extends EntitySwitchRoutine<ArmorSet>
@@ -29,9 +29,9 @@ public class ArmorSetSwitch extends EntitySwitchRoutine<ArmorSet>
 		return (armorSet.isEmpty()?null:armorSet);
 	}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, ArmorSetSwitch.class, Pattern.compile(RoutineUtility.entityPart + "environment", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, ArmorSetSwitch.class, Pattern.compile(ModDamage.entityPart + "environment", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static ArmorSetSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

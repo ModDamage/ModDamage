@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 
@@ -94,8 +95,8 @@ abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine
 		return null;
 	}
 	
-	public static void registerStatement(RoutineUtility routineUtility, Class<? extends CalculatedEffectRoutine<?>> statementClass, Pattern syntax)
+	public static void registerStatement(ModDamage routineUtility, Class<? extends CalculatedEffectRoutine<?>> statementClass, Pattern syntax)
 	{
-		RoutineUtility.registerEffect(statementClass, syntax);
+		ModDamage.registerEffect(statementClass, syntax);
 	}
 }

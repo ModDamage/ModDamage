@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 
 public class ServerPlayerCount extends ServerComparison
@@ -19,8 +19,8 @@ public class ServerPlayerCount extends ServerComparison
 	@Override
 	protected int getRelevantInfo(DamageEventInfo eventInfo){ return server.getOnlinePlayers().length;}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, ServerPlayerCount.class, Pattern.compile("server\\.playercount" + RoutineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, ServerPlayerCount.class, Pattern.compile("server\\.playercount" + ModDamage.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

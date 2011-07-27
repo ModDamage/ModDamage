@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityHurt extends EntityCalculatedEffectRoutine
@@ -22,8 +22,8 @@ public class EntityHurt extends EntityCalculatedEffectRoutine
 	@Override
 	protected LivingEntity getAffectedObject(SpawnEventInfo eventInfo){ return null;}
 
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(EntityHurt.class, Pattern.compile(RoutineUtility.entityPart + "effect\\.hurt", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(EntityHurt.class, Pattern.compile(ModDamage.entityPart + "effect\\.hurt", Pattern.CASE_INSENSITIVE));
 	}
 }

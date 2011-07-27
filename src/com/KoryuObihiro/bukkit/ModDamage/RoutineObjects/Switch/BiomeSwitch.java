@@ -10,7 +10,7 @@ import org.bukkit.block.Biome;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class BiomeSwitch extends EntitySwitchRoutine<Biome>
@@ -27,11 +27,11 @@ public class BiomeSwitch extends EntitySwitchRoutine<Biome>
 	protected Biome getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.entity.getLocation().getBlock().getBiome();}
 	
 	@Override
-	protected Biome matchCase(String switchCase){ return RoutineUtility.matchBiome(switchCase);}
+	protected Biome matchCase(String switchCase){ return ModDamage.matchBiome(switchCase);}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, BiomeSwitch.class, Pattern.compile(RoutineUtility.entityPart + "environment", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, BiomeSwitch.class, Pattern.compile(ModDamage.entityPart + "environment", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static BiomeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

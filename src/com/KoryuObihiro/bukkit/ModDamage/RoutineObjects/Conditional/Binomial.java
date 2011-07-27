@@ -8,7 +8,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 public class Binomial extends ConditionalStatement
 {
@@ -31,7 +31,7 @@ public class Binomial extends ConditionalStatement
 		return null;
 	}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
 		ConditionalRoutine.registerStatement(routineUtility, Binomial.class, Pattern.compile("binom\\.([0-9]{1,2})", Pattern.CASE_INSENSITIVE));
 	}

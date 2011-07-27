@@ -9,7 +9,7 @@ import org.bukkit.World.Environment;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class WorldEnvironment extends WorldConditionalStatement 
@@ -30,8 +30,8 @@ public class WorldEnvironment extends WorldConditionalStatement
 	@Override
 	public boolean condition(SpawnEventInfo eventInfo){ return (useEventWorld?eventInfo.world:world).getEnvironment().equals(environment);}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, WorldEnvironment.class, Pattern.compile("world\\.environment\\." + RoutineUtility.environmentRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, WorldEnvironment.class, Pattern.compile("world\\.environment\\." + ModDamage.environmentRegex, Pattern.CASE_INSENSITIVE));
 	}
 }

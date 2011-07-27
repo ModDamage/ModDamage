@@ -6,7 +6,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 public class PlayerWearing extends EntityConditionalStatement<ArmorSet>
 {
@@ -19,8 +19,8 @@ public class PlayerWearing extends EntityConditionalStatement<ArmorSet>
 	@Override
 	public ArmorSet getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWearing.class, Pattern.compile(RoutineUtility.entityPart + "wearing\\." + RoutineUtility.armorRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerWearing.class, Pattern.compile(ModDamage.entityPart + "wearing\\." + ModDamage.armorRegex, Pattern.CASE_INSENSITIVE));
 	}
 }

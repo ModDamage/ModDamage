@@ -9,7 +9,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class SlimeSetSize extends CalculatedEffectRoutine<Slime>
@@ -30,7 +30,7 @@ public class SlimeSetSize extends CalculatedEffectRoutine<Slime>
 	@Override
 	protected Slime getAffectedObject(SpawnEventInfo eventInfo){ return (eventInfo.element.matchesType(ModDamageElement.MOB_SLIME))?((Slime)eventInfo.entity):null;}	
 
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
 		routineUtility.registerBase(PlayerSetItem.class, Pattern.compile("(entity|attacker|target)effect\\.setSlimeSize\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}

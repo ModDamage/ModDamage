@@ -8,7 +8,7 @@ import org.bukkit.entity.LivingEntity;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 public class EntityTargetedByOther extends EntityConditionalStatement<LivingEntity>
 {
@@ -30,8 +30,8 @@ public class EntityTargetedByOther extends EntityConditionalStatement<LivingEnti
 	@Override
 	protected LivingEntity getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityTargetedByOther.class, Pattern.compile(RoutineUtility.entityPart + "targetedbyother", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityTargetedByOther.class, Pattern.compile(ModDamage.entityPart + "targetedbyother", Pattern.CASE_INSENSITIVE));
 	}
 }

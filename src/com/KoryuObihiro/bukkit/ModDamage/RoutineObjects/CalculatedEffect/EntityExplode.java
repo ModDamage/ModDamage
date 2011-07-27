@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
 
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityExplode extends EntityCalculatedEffectRoutine
@@ -18,8 +18,8 @@ public class EntityExplode extends EntityCalculatedEffectRoutine
 		affectedObject.getWorld().createExplosion(affectedObject.getLocation(), input);
 	}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(EntityExplode.class, Pattern.compile(RoutineUtility.entityPart + "effect\\.explode", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(EntityExplode.class, Pattern.compile(ModDamage.entityPart + "effect\\.explode", Pattern.CASE_INSENSITIVE));
 	}
 }

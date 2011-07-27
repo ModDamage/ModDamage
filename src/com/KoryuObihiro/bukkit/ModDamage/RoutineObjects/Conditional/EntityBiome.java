@@ -7,7 +7,7 @@ import org.bukkit.block.Biome;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 public class EntityBiome extends EntityConditionalStatement<Biome>
 {
@@ -21,8 +21,8 @@ public class EntityBiome extends EntityConditionalStatement<Biome>
 	@Override
 	protected Biome getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.entity.getLocation().getBlock().getBiome();}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityBiome.class, Pattern.compile(RoutineUtility.entityPart + "biome\\." + RoutineUtility.biomeRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityBiome.class, Pattern.compile(ModDamage.entityPart + "biome\\." + ModDamage.biomeRegex, Pattern.CASE_INSENSITIVE));
 	}
 }

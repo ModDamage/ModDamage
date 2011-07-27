@@ -8,7 +8,7 @@ import org.bukkit.entity.LivingEntity;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 public class EntityExposedToSky extends EntityConditionalStatement<Boolean>
 {
@@ -41,9 +41,9 @@ public class EntityExposedToSky extends EntityConditionalStatement<Boolean>
 		return true;
 	}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityExposedToSky.class, Pattern.compile(RoutineUtility.entityPart + "exposedtosky", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityExposedToSky.class, Pattern.compile(ModDamage.entityPart + "exposedtosky", Pattern.CASE_INSENSITIVE));
 	}
 
 }

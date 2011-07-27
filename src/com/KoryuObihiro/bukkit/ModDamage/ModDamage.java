@@ -1,15 +1,22 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
+import org.bukkit.World.Environment;
+import org.bukkit.block.Biome;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.LivingEntity;
@@ -28,9 +35,13 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.LogicalOperation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility.LogSetting;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRoll;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRollAddition;
@@ -46,6 +57,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EnvironmentSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
+import com.mysql.jdbc.AssertionFailedException;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
@@ -58,7 +70,18 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 public class ModDamage extends JavaPlugin
 {
 	//TODO
-	//--ModDamage Main
+//--ModDamage Main
+	// -revamp check to show list of loaded elements, use keyword to check specific config
+	//  Should be like this:
+	//    Damage
+	//    Health
+	//    Aliases
+	//      armor
+	//      elements
+	//      entities
+	//      items
+	//      groups
+	// -persistence for debug type
 	// -count characters in config for message length
 	// -get Dispenser attackers
 	// -Fishing rod implementation
@@ -69,7 +92,7 @@ public class ModDamage extends JavaPlugin
 	// -Deregister when Bukkit supports!
 	// -Client-sided mod for displaying health?
 	
-	//--API
+//--API
 	// -Write tut, code requirements, and regex guidelines for using this library
 	// -Print plugin name at fault when calculation registry fails
 	// Ideas
@@ -77,7 +100,7 @@ public class ModDamage extends JavaPlugin
 	//--ModDamageElement
 	// -Make ModDamageElement do some parsing with Material.name()? (update ArmorSet and CalculationUtility accordingly if this is done)
 	
-	//--RoutineUtility
+//--RoutineUtility
 	// 0.9.5
 	// -Refactor config to contain errors and display classes allocated - add to config strings regardless
 	// -Use warnings inside constructors (pass routineUtility)
@@ -124,28 +147,112 @@ public class ModDamage extends JavaPlugin
 	// -External: tag entities with an alias ($)
 	// -External: check entity tags
 	
-	//plugin-related
+//Typical plugin stuff...for the most part. :P
 	private static boolean isEnabled = false;
 	public static Server server;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	private final static Logger log = Logger.getLogger("Minecraft");
-	private RoutineUtility routineUtility;
-	public static PermissionHandler Permissions = null;
-	//private static elRegionsPlugin elRegions = null;
+	public static LogSetting logSetting = LogSetting.NORMAL;
+	public static enum LogSetting
+	{ 
+		QUIET, NORMAL, VERBOSE;
+		public static LogSetting matchSetting(String key)
+		{
+			for(LogSetting setting : LogSetting.values())
+				if(key.equalsIgnoreCase(setting.name()))
+						return setting;
+				return null;
+		}
+		private boolean shouldOutput(LogSetting setting)
+		{
+			if(setting.ordinal() <= this.ordinal())
+				return true;
+			return false;
+		}
+	}	
 	private static Configuration config;
 	private static String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
+
+	protected static int configPages = 0;
+	protected static List<String> configStrings = new ArrayList<String>();
+	protected static int additionalConfigChecks = 0;
 	
-	//External Configuration
+//External-plugin variables
+	public static PermissionHandler Permissions = null;
+	//private static elRegionsPlugin elRegions = null;
 	public static boolean multigroupPermissions = true;	
 	public static boolean using_Permissions = false;
 	public static boolean using_elRegions = false;
+	
+//General mechanics options
 	public static boolean negative_Heal;
+	
+//Predefined pattern strings	
+	public static final String numberPart = "(?:[0-9]+)";
+	public static final String alphanumericPart = "(?:[a-z0-9]+)";
+	public static final String potentialAliasPart = "(?:_?[a-z0-9]+)";
+	public static final String statementPart = "((?:" + alphanumericPart + ")(?:\\." + alphanumericPart +")*)";
+	public static final String entityPart = "(attacker|target)";
+	public static String comparisonRegex;
+	public static String biomeRegex;
+	public static String environmentRegex;
+	public static String elementRegex;
+	public static String materialRegex;
+	public static String armorRegex;
+	public static String logicalRegex;
+	
+	static
+	{
+		biomeRegex = "(";
+		for(Biome biome : Biome.values())
+			biomeRegex += biome.name() + "|";
+		biomeRegex += potentialAliasPart + ")";
+		
+		environmentRegex = "(";
+		for(Environment environment : Environment.values())
+			environmentRegex += environment.name() + "|";
+		environmentRegex += potentialAliasPart + ")";
 
+		elementRegex = "(";
+		for(ModDamageElement element : ModDamageElement.values())
+			elementRegex += element.getReference() + "|";
+		elementRegex += potentialAliasPart + ")";
+		
+		String[] armorParts = {"HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS" };
+		materialRegex = armorRegex = "(";
+		for(Material material : Material.values())
+		{
+			materialRegex += material.name() + "|";
+			for(String part : armorParts)
+				if(material.name().endsWith(part))
+					armorRegex += material.name() + "|";
+					
+		}
+		materialRegex += potentialAliasPart + ")";
+		armorRegex += potentialAliasPart + "){1,4}";
+		
+		logicalRegex = "(";
+		for(LogicalOperation operation : LogicalOperation.values())
+			logicalRegex += operation.name() + "|" + operation.getShortHand() + "|";
+		logicalRegex += potentialAliasPart + ")";		
+		
+		comparisonRegex = "(";
+		for(ComparisonType type : ComparisonType.values())
+			comparisonRegex += type.name() + "|" + type.getShortHand() + "|";
+		comparisonRegex += ")\\.";
+		
+		conditionalPattern = Pattern.compile("(if|if_not|if!)\\s+(!)?" + statementPart + "(?:\\s*" + logicalRegex + "\\s*" + statementPart + ")*", Pattern.CASE_INSENSITIVE);
+		switchPattern = Pattern.compile("switch\\." + statementPart, Pattern.CASE_INSENSITIVE);
+		effectPattern = Pattern.compile(entityPart + "effect\\." + statementPart);
+	}
+
+//Routine objects
 	private static boolean damageRoutinesLoaded = false;
 	private static boolean spawnRoutinesLoaded = false;
 	private final List<Routine> damageRoutines = new ArrayList<Routine>();
 	private final List<Routine> spawnRoutines = new ArrayList<Routine>();
 	
+//Alias objects
 	///public static HashMap<String, List<ArmorSet>> armorAliases = new HashMap<String, List<ArmorSet>>();
 	public static HashMap<String, List<Material>> itemAliases = new HashMap<String, List<Material>>();
 	//public static HashMap<String, List<String>> groupAliases = new HashMap<String, List<String>>();
@@ -160,7 +267,6 @@ public class ModDamage extends JavaPlugin
 	public void onEnable() 
 	{
 		ModDamage.server = getServer();
-		routineUtility = new RoutineUtility(log);
 	//PERMISSIONS
 		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
 		if (permissionsPlugin != null)
@@ -174,7 +280,8 @@ public class ModDamage extends JavaPlugin
 		}
 		else log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions not found]");
 		
-		/*
+	//ELREGIONS
+		/*TODO
 		elRegions = (elRegionsPlugin) this.getServer().getPluginManager().getPlugin("elRegions");
 		if (elRegions != null) 
 		{
@@ -183,22 +290,23 @@ public class ModDamage extends JavaPlugin
 		}
 		*/
 		
+	//Event registration
 		//register plugin-related stuff with the server's plugin manager
 		server.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
 		server.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
 		
 		//register MD routines
 //Base Calculations
-		Addition.register(routineUtility);
-		DiceRoll.register(routineUtility);
-		DiceRollAddition.register(routineUtility);
-		Division.register(routineUtility);
-		DivisionAddition.register(routineUtility);
-		IntervalRange.register(routineUtility);
-		LiteralRange.register(routineUtility);
-		Multiplication.register(routineUtility);
-		Set.register(routineUtility);	
-		Message.register(routineUtility);
+		Addition.register(this);
+		DiceRoll.register(this);
+		DiceRollAddition.register(this);
+		Division.register(this);
+		DivisionAddition.register(this);
+		IntervalRange.register(this);
+		LiteralRange.register(this);
+		Multiplication.register(this);
+		Set.register(this);	
+		Message.register(this);
 		/*
 //Nestable Calculations
 	//Conditionals
@@ -241,11 +349,12 @@ public class ModDamage extends JavaPlugin
 		SlimeSetSize.register(routineUtility);
 		*/
 	//Switches
-		ArmorSetSwitch.register(routineUtility);
-		BiomeSwitch.register(routineUtility);
-		EntityTypeSwitch.register(routineUtility);
-		EnvironmentSwitch.register(routineUtility);
-		PlayerWieldSwitch.register(routineUtility);
+		ArmorSetSwitch.register(this);
+		BiomeSwitch.register(this);
+		EntityTypeSwitch.register(this);
+		EnvironmentSwitch.register(this);
+		PlayerWieldSwitch.register(this);
+		
 		config = this.getConfiguration();
 		reload();
 		isEnabled = isLoaded();
@@ -274,16 +383,16 @@ public class ModDamage extends JavaPlugin
 						{
 							if(fromConsole || hasPermission(player, "moddamage.debug"))
 							{
-								if(args.length == 1) RoutineUtility.toggleLogging(player);
+								if(args.length == 1) toggleLogging(player);
 								else if(args.length == 2)
 								{
 									LogSetting matchedSetting = LogSetting.matchSetting(args[1]);
 									if(matchedSetting != null)
 									{
-										String sendThis = "Changed debug mode from " + RoutineUtility.logSetting.name().toLowerCase() + " to " + matchedSetting.name().toLowerCase();
+										String sendThis = "Changed debugging from " + logSetting.name().toLowerCase() + " to " + matchedSetting.name().toLowerCase();
 										log.info("[" + getDescription().getName() + "] " + sendThis);
 										if(!fromConsole) player.sendMessage(ChatColor.GREEN + sendThis);
-										RoutineUtility.logSetting = matchedSetting;
+										logSetting = matchedSetting;
 									}
 									else
 									{
@@ -331,8 +440,7 @@ public class ModDamage extends JavaPlugin
 							//md check
 							if(fromConsole)
 							{
-								log.info("[" + getDescription().getName() + "] Sending server config info...");
-								RoutineUtility.sendConfig(null, 9001);
+								sendConfig(null, 9001);
 								log.info("[" + getDescription().getName() + "] Done.");
 							}
 							else if(args.length == 1)
@@ -341,7 +449,7 @@ public class ModDamage extends JavaPlugin
 								//Send list of loaded worlds
 								if(hasPermission(player, "moddamage.check"))
 								{
-									RoutineUtility.sendConfig(player, 1);
+									sendConfig(player, 1);
 								}
 								else player.sendMessage(errorString_Permissions);
 								return true;
@@ -351,7 +459,7 @@ public class ModDamage extends JavaPlugin
 							{
 								try
 								{
-									RoutineUtility.sendConfig(player, Integer.parseInt(args[1]));
+									sendConfig(player, Integer.parseInt(args[1]));
 								} 
 								catch(NumberFormatException e)
 								{
@@ -440,6 +548,7 @@ public class ModDamage extends JavaPlugin
 		spawnRoutines.clear();
 		itemAliases.clear();
 		damageRoutinesLoaded = spawnRoutinesLoaded = false;
+		configStrings.clear();
 	}
 	
 //// PLUGIN CONFIGURATION ////
@@ -507,7 +616,7 @@ public class ModDamage extends JavaPlugin
 	{
 		damageRoutines.clear();
 		spawnRoutines.clear();
-		RoutineUtility.clear();
+		clear();
 		config.load();
 	//get plugin config.yml...if it doesn't exist, create it.
 		if(!(new File(this.getDataFolder(), "config.yml")).exists()) writeDefaults();
@@ -520,19 +629,19 @@ public class ModDamage extends JavaPlugin
 			{
 				case QUIET: 
 					log.info("[" + getDescription().getName()+ "] \"Quiet\" mode active - suppressing debug messages and warnings.");
-					RoutineUtility.setLogging(logSetting);
+					setLogging(logSetting);
 					break;
 				case NORMAL: 
 					log.info("[" + getDescription().getName()+ "] Debugging active.");
-					RoutineUtility.setLogging(logSetting);
+					setLogging(logSetting);
 					break;
 				case VERBOSE: 
 					log.info("[" + getDescription().getName()+ "] Verbose debugging active.");
-					RoutineUtility.setLogging(logSetting);
+					setLogging(logSetting);
 					break;
 				default: 
 					log.info("[" + getDescription().getName()+ "] Debug string not recognized - defaulting to \"normal\" settings.");
-					RoutineUtility.setLogging(LogSetting.NORMAL);
+					setLogging(LogSetting.NORMAL);
 					break;
 			}
 		}
@@ -541,13 +650,13 @@ public class ModDamage extends JavaPlugin
 		spawnRoutinesLoaded = loadRoutines("MobHealth", spawnRoutines);
 	//single-property config
 		negative_Heal = config.getBoolean("negativeHeal", false);
-		if(RoutineUtility.shouldOutput(LogSetting.VERBOSE))
+		if(logSetting.shouldOutput(LogSetting.VERBOSE))
 			log.info("[" + getDescription().getName()+ "] Negative-damage healing " + (negative_Heal?"en":"dis") + "abled.");
 		
 		aliasesLoaded = loadAliases();
 		if(aliasesLoaded)
 		{
-			if(RoutineUtility.shouldOutput(LogSetting.VERBOSE)) log.info("Aliases loaded!");
+			if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("Aliases loaded!");
 		}
 		else log.warning("No aliases loaded! Are any aliases defined?");
 		
@@ -575,14 +684,20 @@ public class ModDamage extends JavaPlugin
 		log.severe("[" + getDescription().getName() + "] Defaults written to config.yml!");
 	}
 
+/////////////////// ROUTINE LOADING
+	private static HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
+	private static Pattern conditionalPattern;
+	private static Pattern effectPattern;
+	private static Pattern switchPattern;
+	
 	protected boolean loadRoutines(String loadType, List<Routine> routineList)
 	{
 		boolean loadedSomething = false;
 		List<Object> routineObjects = config.getList(loadType);
 		if(routineObjects != null)
 		{
-			if(RoutineUtility.shouldOutput(LogSetting.VERBOSE)) log.info(loadType + " configuration found, parsing...");
-			List<Routine> calculations = RoutineUtility.parse(routineObjects, loadType);
+			if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(loadType + " configuration found, parsing...");
+			List<Routine> calculations = parse(routineObjects, loadType);
 			if(!calculations.isEmpty())
 			{
 				routineList.addAll(calculations);
@@ -617,7 +732,7 @@ public class ModDamage extends JavaPlugin
 						}
 						else 
 						{
-							RoutineUtility.addToConfig(LogSetting.QUIET, 0, "No matching alias or material name \"" + itemString + "\"" + alias, true);
+							addToConfig(LogSetting.QUIET, 0, "No matching alias or material name \"" + itemString + "\"" + alias, true);
 							matchedValues.clear();
 							validAlias = false;
 						}
@@ -626,11 +741,11 @@ public class ModDamage extends JavaPlugin
 					{
 						addedSomething = true;
 						itemAliases.put("_" + alias, aliasValues);
-						RoutineUtility.addToConfig(LogSetting.NORMAL, 0, "Created alias \"" + alias + "\"", false);
+						addToConfig(LogSetting.NORMAL, 0, "Created alias \"" + alias + "\"", false);
 						for(Material material : aliasValues)
-							RoutineUtility.addToConfig(LogSetting.VERBOSE, 0, "Adding " + material.name(), false);
+							addToConfig(LogSetting.VERBOSE, 0, "Adding " + material.name(), false);
 					}
-					else RoutineUtility.addToConfig(LogSetting.QUIET, 0, "Failed to create alias " + alias, true);
+					else addToConfig(LogSetting.QUIET, 0, "Failed to create alias " + alias, true);
 				}
 			}
 		}
@@ -661,5 +776,307 @@ public class ModDamage extends JavaPlugin
 		Material material = Material.matchMaterial(key);
 		if(material != null) return Arrays.asList(material);
 		return new ArrayList<Material>();
+	}
+	
+	//Parse commands recursively for different command strings the handlers pass
+	public static List<Routine> parse(List<Object> routineStrings, String loadType){ return parse(routineStrings, loadType, 0);}
+	@SuppressWarnings("unchecked")
+	private static List<Routine> parse(Object object, String loadType, int nestCount)
+	{
+		List<Routine> routines = new ArrayList<Routine>();
+		if(object instanceof String)
+		{
+			Routine routine = null;
+			for(Pattern pattern : registeredBaseRoutines.keySet())
+			{
+				Matcher matcher = pattern.matcher((String)object);
+				if(matcher.matches())
+				{
+					try
+					{
+						routine = (Routine)registeredBaseRoutines.get(pattern).invoke(null, matcher);
+						break;
+					}
+					catch(Exception e){ e.printStackTrace();}
+				}
+			}
+			if(routine != null)
+			{
+				addToConfig(LogSetting.NORMAL, nestCount, "Routine: \"" + (String)object + "\"", false);
+				routines.add(routine);
+			}
+			else addToConfig(LogSetting.QUIET, nestCount, "Couldn't match base routine string \"" + (String)object +"\"", true);
+			
+		}
+		else if(object instanceof LinkedHashMap)
+		{
+			HashMap<String, Object> someHashMap = (HashMap<String, Object>)object;//A properly-formatted nested routine is a LinkedHashMap with only one key.
+			if(someHashMap.keySet().size() == 1)
+				for(String key : someHashMap.keySet())
+				{
+					Matcher conditionalMatcher = conditionalPattern.matcher(key);
+					Matcher switchMatcher = switchPattern.matcher(key);
+					Matcher effectMatcher = effectPattern.matcher(key);
+					if(conditionalMatcher.matches())
+					{
+						addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+						addToConfig(LogSetting.NORMAL, nestCount, "Conditional: \"" + key + "\"", false);
+						ConditionalRoutine routine = ConditionalRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
+						if(routine != null)
+						{
+							routines.add(routine);
+							addToConfig(LogSetting.VERBOSE, nestCount, "End conditional statement \"" + key + "\"\n", false);
+						}
+						else addToConfig(LogSetting.QUIET, nestCount, "Invalid Conditional " + key, true);
+					}
+					else if(effectMatcher.matches())
+					{
+						CalculatedEffectRoutine<?> routine = CalculatedEffectRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
+						if(routine != null)
+						{
+							addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+							addToConfig(LogSetting.NORMAL, nestCount, "CalculatedEffect: \"" + key + "\"", false);
+							routines.add(routine);
+							addToConfig(LogSetting.VERBOSE, nestCount, "End effect routine \"" + key + "\"\n", false);
+						}
+						else addToConfig(LogSetting.QUIET, nestCount, "Error: Invalid CalculatedEffect " + key, true);
+					}
+					else if(switchMatcher.matches())
+					{
+						addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+						addToConfig(LogSetting.NORMAL, nestCount, "Switch: \"" + key + "\"", false);
+						
+						LinkedHashMap<String, Object> anotherHashMap = (someHashMap.get(key) instanceof LinkedHashMap?(LinkedHashMap<String, Object>)someHashMap.get(key):null);
+						if(anotherHashMap != null)
+						{
+							LinkedHashMap<String, List<Routine>> routineHashMap = new LinkedHashMap<String, List<Routine>>();
+							for(String anotherKey : anotherHashMap.keySet())
+							{
+								addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+								addToConfig(LogSetting.NORMAL, nestCount, " case: \"" + anotherKey + "\"", false);
+								routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1));
+								SwitchRoutine<?> routine = SwitchRoutine.getNew(switchMatcher, routineHashMap);
+								if(routine != null)
+								{
+									if(routine.isLoaded)
+									{
+										routines.add(routine);
+										addToConfig(LogSetting.VERBOSE, nestCount, "End case \"" + anotherKey + "\"\n", false);
+									}
+									else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid case " + routine.failedCase, true);
+								}
+								else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid Switch " + key, true);
+							}
+						}
+						addToConfig(LogSetting.VERBOSE, nestCount, "End switch \"" + key + "\"", false);
+					}
+					else addToConfig(LogSetting.QUIET, nestCount, " No match found for nested node \"" + key + "\"", true);
+				}
+			else addToConfig(LogSetting.QUIET, nestCount, "Parse error: bad nested routine.", true);
+		}
+		else if(object instanceof List)
+		{
+			for(Object nestedObject : (List<Object>)object)
+				routines.addAll(parse(nestedObject, loadType, nestCount));
+		}
+		else addToConfig(LogSetting.QUIET, nestCount, "Parse error: object " + object.toString() + " of type " + object.getClass().getName(), true);
+		return routines;
+	}
+	
+	public void registerBase(Class<? extends Routine> routineClass, Pattern syntax)
+	{
+		try
+		{
+			Method method = routineClass.getMethod("getNew", Matcher.class);
+			if(method != null)
+			{
+				assert(method.getReturnType().equals(routineClass));
+				method.invoke(null, (Matcher)null);
+				register(registeredBaseRoutines, method, syntax);
+			}
+			else log.severe("Method getNew not found for statement " + routineClass.getName());
+		}
+		catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return class " + routineClass.getName() + "!");}
+		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + routineClass.getName() + "!");}
+		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + routineClass.getName() + " is not static!");}
+		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have a getNew() method!");} 
+		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
+		catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
+		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");}
+	}
+
+	public static void registerConditional(Class<? extends ConditionalStatement> statementClass, Pattern syntax)
+	{
+		try
+		{
+			Method method = statementClass.getMethod("getNew", Matcher.class, List.class);
+			if(method != null)
+			{
+				assert(method.getReturnType().equals(statementClass));
+				method.invoke(null, (Matcher)null);
+				register(ConditionalRoutine.registeredStatements, method, syntax);
+			}
+			else log.severe("Method getNew not found for statement " + statementClass.getName());
+		}
+		catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return class " + statementClass.getName() + "!");}
+		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + statementClass.getName() + "!");}
+		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + statementClass.getName() + " is not static!");}
+		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have a getNew() method!");} 
+		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
+		catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
+		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
+	}
+
+	public static void registerSwitch(Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)
+	{
+		try
+		{
+			Method method = statementClass.getMethod("getNew", Matcher.class, LinkedHashMap.class);
+			if(method != null)
+			{
+				assert(method.getReturnType().equals(statementClass));
+				method.invoke(null, (Matcher)null, (LinkedHashMap<String, List<Routine>>)null);
+				register(SwitchRoutine.registeredStatements, method, syntax);
+			}
+			else log.severe("Method getNew not found for statement " + statementClass.getName());
+		}
+		catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return class " + statementClass.getName() + "!");}
+		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + statementClass.getName() + "!");}
+		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + statementClass.getName() + " is not static!");}
+		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have a getNew() method!");} 
+		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have matching method getNew(Matcher, LinkedHashMap)!");} 
+		catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
+		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
+	}
+	
+	public static void registerEffect(Class<? extends CalculatedEffectRoutine<?>> routineClass, Pattern syntax)
+	{
+		try
+		{
+			Method method = routineClass.getMethod("getNew", Matcher.class, List.class);
+			if(method != null)//XXX Is this necessary?
+			{
+				assert(method.getReturnType().equals(routineClass));
+				method.invoke(null, (Matcher)null);
+				register(CalculatedEffectRoutine.registeredStatements, method, syntax);
+			}
+			else log.severe("Method getNew not found for statement " + routineClass.getName());
+		}
+		catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return class " + routineClass.getName() + "!");}
+		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + routineClass.getName() + "!");}
+		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + routineClass.getName() + " is not static!");}
+		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have a getNew() method!");} 
+		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
+		catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
+		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
+	
+		
+	}
+	
+	public static void register(HashMap<Pattern, Method> registry, Method method, Pattern syntax)
+	{
+		boolean successfullyRegistered = false;
+		if(syntax != null)
+		{
+			registry.put(syntax, method);	
+			successfullyRegistered = true;
+		}
+		else log.severe("[ModDamage] Error: Bad regex for registering class \"" + method.getClass().getName() + "\"!");
+		if(successfullyRegistered)
+		{
+			if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("[ModDamage] Registering class " + method.getClass().getName() + " with pattern " + syntax.pattern());
+		}
+	}
+		
+//// LOGGING ////
+	public static void setLogging(LogSetting setting)
+	{ 
+		if(setting != null) 
+			logSetting = setting;
+		else log.severe("[ModDamage] Error: bad debug setting. Valid settings: normal, quiet, verbose");
+	}
+	
+	public static void toggleLogging(Player player) 
+	{
+		LogSetting nextSetting = null; //shouldn't stay like this.
+		switch(logSetting)
+		{
+			case QUIET: 
+				nextSetting = LogSetting.NORMAL;
+				break;
+				
+			case NORMAL:
+				nextSetting = LogSetting.VERBOSE;
+				break;
+				
+			case VERBOSE:
+				nextSetting = LogSetting.QUIET;
+				break;
+		}
+		String sendThis = "Changed debug from " + logSetting.name().toLowerCase() + " to " + nextSetting.name().toLowerCase();
+		log.info("[ModDamage] " + sendThis);
+		if(player != null) player.sendMessage(ChatColor.GREEN + sendThis);
+		logSetting = nextSetting;
+	}
+	
+	public static void addToConfig(LogSetting outputSetting, int nestCount, String string, boolean severe)
+	{
+		configStrings.add(nestCount + "] " + (severe?ChatColor.RED:ChatColor.AQUA) + string);
+		if(logSetting.shouldOutput(outputSetting))
+		{
+			if(severe) log.severe(string);
+			else 
+			{
+				String nestIndentation = "";
+				for(int i = 0; i < nestCount; i++)
+					nestIndentation += "    ";
+				log.info(nestIndentation + string);
+			}
+		}
+	}
+
+	public static boolean sendConfig(Player player, int pageNumber)
+	{
+		if(player == null)
+		{
+			String printString = "[ModDamage] Complete configuration for this server:";
+			for(String configString : configStrings)
+				printString += "\n" + configString;
+			
+			log.info(printString);
+			
+			return true;
+		}
+		else if(pageNumber > 0)
+		{
+			if(pageNumber <= configPages)
+			{
+				player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Configuration: (" + pageNumber + "/" + (configPages + additionalConfigChecks) + ")");
+				for(int i = (9 * (pageNumber - 1)); i < (configStrings.size() < (9 * pageNumber)
+															?configStrings.size()
+															:(9 * pageNumber)); i++)
+					player.sendMessage(ChatColor.DARK_AQUA + configStrings.get(i));
+				return true;
+			}
+		}
+		return false;
+	}
+	
+//// INGAME MATCHING ////	
+	//Frankly, most of the stuff below should be considered for implementation into Bukkit. :<
+	public static Biome matchBiome(String biomeName)
+	{
+		for(Biome biome : Biome.values())
+			if(biomeName.equalsIgnoreCase(biome.name()))
+				return biome;
+		return null;
+	}
+	
+	public static Environment matchEnvironment(String environmentName)
+	{
+		for(Environment environment : Environment.values())
+			if(environmentName.equalsIgnoreCase(environment.name()))
+				return environment;
+		return null;
 	}
 }

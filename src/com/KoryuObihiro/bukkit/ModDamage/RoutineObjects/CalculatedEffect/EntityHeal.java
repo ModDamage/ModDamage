@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
 
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityHeal extends EntityCalculatedEffectRoutine
@@ -18,8 +18,8 @@ public class EntityHeal extends EntityCalculatedEffectRoutine
 		affectedObject.setHealth(affectedObject.getHealth() + input);
 	}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(EntityHeal.class, Pattern.compile(RoutineUtility.entityPart + "effect\\.heal", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(EntityHeal.class, Pattern.compile(ModDamage.entityPart + "effect\\.heal", Pattern.CASE_INSENSITIVE));
 	}
 }

@@ -7,7 +7,7 @@ import org.bukkit.Material;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 public class EntityUnderwater extends EntityConditionalStatement<Material[]>
 {
@@ -29,8 +29,8 @@ public class EntityUnderwater extends EntityConditionalStatement<Material[]>
 		return entityBlocks;
 	}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityUnderwater.class, Pattern.compile(RoutineUtility.entityPart + "underwater", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityUnderwater.class, Pattern.compile(ModDamage.entityPart + "underwater", Pattern.CASE_INSENSITIVE));
 	}
 }

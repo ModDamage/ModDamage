@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 
@@ -93,9 +94,9 @@ public class ConditionalRoutine extends Routine
 		return null;
 	}
 	
-	public static void registerStatement(RoutineUtility routineUtility, Class<? extends ConditionalStatement> statementClass, Pattern syntax)
+	public static void registerStatement(ModDamage routineUtility, Class<? extends ConditionalStatement> statementClass, Pattern syntax)
 	{
-		RoutineUtility.registerConditional(statementClass, syntax);
+		ModDamage.registerConditional(statementClass, syntax);
 	}
 	
 	private static class FalseStatement extends ConditionalStatement

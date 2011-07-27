@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
 
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntitySetFireTicks extends EntityCalculatedEffectRoutine
@@ -18,8 +18,8 @@ public class EntitySetFireTicks extends EntityCalculatedEffectRoutine
 		affectedObject.setFireTicks(input);
 	}
 
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(EntitySetFireTicks.class, Pattern.compile(RoutineUtility.entityPart + "effect\\.setfireticks", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(EntitySetFireTicks.class, Pattern.compile(ModDamage.entityPart + "effect\\.setfireticks", Pattern.CASE_INSENSITIVE));
 	}
 }

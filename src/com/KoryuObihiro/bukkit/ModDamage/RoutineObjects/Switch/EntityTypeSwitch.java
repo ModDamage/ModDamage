@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class EntityTypeSwitch extends EntitySwitchRoutine<ModDamageElement>
@@ -31,9 +31,9 @@ public class EntityTypeSwitch extends EntitySwitchRoutine<ModDamageElement>
 	@Override
 	protected boolean compare(ModDamageElement info_1, ModDamageElement info_2){ return info_1.matchesType(info_2);}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, EntityTypeSwitch.class, Pattern.compile(RoutineUtility.entityPart + "type(?:\\.(" + RoutineUtility.elementRegex + "))?", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, EntityTypeSwitch.class, Pattern.compile(ModDamage.entityPart + "type(?:\\.(" + ModDamage.elementRegex + "))?", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityTypeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

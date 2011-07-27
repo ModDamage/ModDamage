@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 
 public class EntityHealthComparison extends EntityComparison
@@ -20,8 +20,8 @@ public class EntityHealthComparison extends EntityComparison
 	@Override
 	protected Integer getRelevantInfo(SpawnEventInfo eventInfo){ return getRelevantEntity(eventInfo).getHealth();}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityHealthComparison.class, Pattern.compile(RoutineUtility.entityPart + "health" + RoutineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityHealthComparison.class, Pattern.compile(ModDamage.entityPart + "health" + ModDamage.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

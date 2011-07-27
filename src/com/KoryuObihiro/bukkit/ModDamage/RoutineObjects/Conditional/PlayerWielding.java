@@ -7,7 +7,7 @@ import org.bukkit.Material;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 public class PlayerWielding extends EntityConditionalStatement<Material> 
 {
@@ -20,8 +20,8 @@ public class PlayerWielding extends EntityConditionalStatement<Material>
 	@Override
 	public Material getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWielding.class, Pattern.compile(RoutineUtility.entityPart + "wielding\\." + RoutineUtility.materialRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerWielding.class, Pattern.compile(ModDamage.entityPart + "wielding\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
 	}	
 }

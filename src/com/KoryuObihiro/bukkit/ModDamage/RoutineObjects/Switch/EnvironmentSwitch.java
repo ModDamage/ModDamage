@@ -10,7 +10,7 @@ import org.bukkit.World.Environment;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class EnvironmentSwitch extends SwitchRoutine<Environment>
@@ -24,11 +24,11 @@ public class EnvironmentSwitch extends SwitchRoutine<Environment>
 	protected Environment getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.environment;}	
 
 	@Override
-	protected Environment matchCase(String switchCase){ return RoutineUtility.matchEnvironment(switchCase);}
+	protected Environment matchCase(String switchCase){ return ModDamage.matchEnvironment(switchCase);}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, EnvironmentSwitch.class, Pattern.compile(RoutineUtility.entityPart + "environment", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, EnvironmentSwitch.class, Pattern.compile(ModDamage.entityPart + "environment", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EnvironmentSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

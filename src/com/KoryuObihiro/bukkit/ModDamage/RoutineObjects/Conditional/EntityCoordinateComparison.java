@@ -7,7 +7,7 @@ import org.bukkit.Location;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 
 public class EntityCoordinateComparison extends EntityComparison
@@ -43,9 +43,9 @@ public class EntityCoordinateComparison extends EntityComparison
 		}
 	}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityCoordinateComparison.class, Pattern.compile(RoutineUtility.entityPart + "(X|Y|Z)\\." + RoutineUtility.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityCoordinateComparison.class, Pattern.compile(ModDamage.entityPart + "(X|Y|Z)\\." + ModDamage.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static final byte COORDINATE_X = 0;

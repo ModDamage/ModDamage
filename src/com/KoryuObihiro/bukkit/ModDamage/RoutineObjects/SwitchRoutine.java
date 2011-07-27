@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 
@@ -14,7 +15,7 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 {
 	public static HashMap<Pattern, Method> registeredStatements = new HashMap<Pattern, Method>();
 	final protected LinkedHashMap<InfoType, List<Routine>> switchStatements;
-	protected final boolean isLoaded;
+	public final boolean isLoaded;
 	public String failedCase = "";
 	
 	//TODO Definitely not as efficient as it could be. Refactor?
@@ -104,8 +105,8 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 		return statement;
 	}
 	
-	public static void registerStatement(RoutineUtility routineUtility, Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)
+	public static void registerStatement(ModDamage routineUtility, Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)
 	{
-		RoutineUtility.registerSwitch(statementClass, syntax);
+		ModDamage.registerSwitch(statementClass, syntax);
 	}
 }

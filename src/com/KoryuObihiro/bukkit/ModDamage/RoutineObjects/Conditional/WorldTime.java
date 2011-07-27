@@ -7,7 +7,7 @@ import org.bukkit.World;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 public class WorldTime extends WorldConditionalStatement 
 {
@@ -30,7 +30,7 @@ public class WorldTime extends WorldConditionalStatement
 	@Override
 	public boolean condition(SpawnEventInfo eventInfo){ return (world.getTime() > beginningTime && world.getTime() < endTime);}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
 		ConditionalRoutine.registerStatement(routineUtility, WorldTime.class, Pattern.compile("world\\.time\\.([0-9]+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}

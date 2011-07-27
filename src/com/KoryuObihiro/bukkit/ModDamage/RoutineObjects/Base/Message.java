@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.RoutineUtility;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 public class Message extends Chanceroutine 
 {
@@ -30,7 +30,7 @@ public class Message extends Chanceroutine
 		return null;
 	}
 	
-	public static void register(RoutineUtility routineUtility)
+	public static void register(ModDamage routineUtility)
 	{
 		routineUtility.registerBase(Message.class, Pattern.compile("debug", Pattern.CASE_INSENSITIVE));
 	}
