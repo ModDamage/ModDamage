@@ -38,14 +38,13 @@ public class EntityTypeSwitch extends EntitySwitchRoutine<ModDamageElement>
 	
 	public static EntityTypeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
-		EntityTypeSwitch routine = null;
 		if(matcher != null && switchStatements != null)
 		{
 			boolean forAttacker = matcher.group(1).equalsIgnoreCase("attacker");
 			String typeString = matcher.group(2);
 			ModDamageElement element = (typeString != null?ModDamageElement.matchElement(typeString):ModDamageElement.GENERIC);
-			if(element != null) routine = new EntityTypeSwitch(forAttacker, switchStatements);
+			if(element != null) return new EntityTypeSwitch(forAttacker, switchStatements);
 		}
-		return routine;
+		return null;
 	}
 }

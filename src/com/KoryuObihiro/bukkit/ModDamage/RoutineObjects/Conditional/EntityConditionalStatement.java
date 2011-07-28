@@ -26,8 +26,8 @@ public abstract class EntityConditionalStatement<InputType> extends ConditionalS
 	protected LivingEntity getRelevantEntity(SpawnEventInfo eventInfo){ return eventInfo.entity;}
 	
 	@Override
-	public boolean condition(DamageEventInfo eventInfo){ return getRelevantInfo(eventInfo).equals(value);}
+	protected boolean condition(DamageEventInfo eventInfo){ return getRelevantInfo(eventInfo).equals(value);}
 	@Override
-	public boolean condition(SpawnEventInfo eventInfo){ return getRelevantInfo(eventInfo).equals(value);}
+	protected boolean condition(SpawnEventInfo eventInfo){ return getRelevantInfo(eventInfo).equals(value);}
 	
 }

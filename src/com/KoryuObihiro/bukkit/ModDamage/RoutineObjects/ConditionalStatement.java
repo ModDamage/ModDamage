@@ -11,6 +11,6 @@ abstract public class ConditionalStatement
 		this.inverted = inverted;
 	}
 	
-	abstract public boolean condition(DamageEventInfo eventInfo);
-	abstract public boolean condition(SpawnEventInfo eventInfo);
+	protected abstract boolean condition(DamageEventInfo eventInfo);
+	protected abstract boolean condition(SpawnEventInfo eventInfo);
 }

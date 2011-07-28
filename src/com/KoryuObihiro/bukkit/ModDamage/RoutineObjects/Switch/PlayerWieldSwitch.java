@@ -28,7 +28,11 @@ public class PlayerWieldSwitch extends EntitySwitchRoutine<List<Material>>
 	@Override
 	protected boolean compare(List<Material> info_1, List<Material> info_2){ return info_2.contains(info_1.get(0));}
 	@Override
-	protected List<Material> matchCase(String switchCase){ return ModDamage.matchItemAlias(switchCase);}
+	protected List<Material> matchCase(String switchCase)
+	{
+		List<Material> items = ModDamage.matchItemAlias(switchCase);
+		return items.isEmpty()?null:items;
+	}
 	
 	public static void register(ModDamage routineUtility)
 	{
@@ -37,12 +41,10 @@ public class PlayerWieldSwitch extends EntitySwitchRoutine<List<Material>>
 	
 	public static PlayerWieldSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
-		PlayerWieldSwitch routine = null;
 		if(matcher != null && switchStatements != null)
 		{
 			boolean forAttacker = matcher.group(1).equalsIgnoreCase("attacker");
-			routine = new PlayerWieldSwitch(forAttacker, switchStatements);
-			return (routine.isLoaded?routine:null);
+			return new PlayerWieldSwitch(forAttacker, switchStatements);
 		}
 		return null;
 	}

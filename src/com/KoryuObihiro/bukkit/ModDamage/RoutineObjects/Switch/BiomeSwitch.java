@@ -36,12 +36,10 @@ public class BiomeSwitch extends EntitySwitchRoutine<Biome>
 	
 	public static BiomeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
-		BiomeSwitch routine = null;
 		if(matcher != null && switchStatements != null)
 		{
 			boolean forAttacker = matcher.group(1).equalsIgnoreCase("attacker");
-			routine = new BiomeSwitch(forAttacker, switchStatements);
-			return (routine.isLoaded?routine:null);
+			return new BiomeSwitch(forAttacker, switchStatements);
 		}
 		return null;
 	}

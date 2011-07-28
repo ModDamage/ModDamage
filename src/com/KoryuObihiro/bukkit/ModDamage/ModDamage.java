@@ -467,6 +467,17 @@ public class ModDamage extends JavaPlugin
 								}
 								return true;
 							}
+							else if(args.length == 3)
+							{
+								if(args[1].equalsIgnoreCase("alias")) //TODO Polish me.
+									for(String alias : itemAliases.keySet())
+										if(args[2].equalsIgnoreCase(alias))
+										{
+											for(Material material : itemAliases.get(alias))
+												log.info(material.name());// Don't just make this log.
+											break;
+										}
+							}
 						}
 						else
 						{
@@ -645,14 +656,8 @@ public class ModDamage extends JavaPlugin
 					break;
 			}
 		}
-	//routines
-		damageRoutinesLoaded = loadRoutines("Damage", damageRoutines);
-		spawnRoutinesLoaded = loadRoutines("MobHealth", spawnRoutines);
-	//single-property config
-		negative_Heal = config.getBoolean("negativeHeal", false);
-		if(logSetting.shouldOutput(LogSetting.VERBOSE))
-			log.info("[" + getDescription().getName()+ "] Negative-damage healing " + (negative_Heal?"en":"dis") + "abled.");
-		
+
+	//Item aliasing
 		aliasesLoaded = loadAliases();
 		if(aliasesLoaded)
 		{
@@ -660,8 +665,17 @@ public class ModDamage extends JavaPlugin
 		}
 		else log.warning("No aliases loaded! Are any aliases defined?");
 		
+	//routines
+		damageRoutinesLoaded = loadRoutines("Damage", damageRoutines);
+		spawnRoutinesLoaded = loadRoutines("MobHealth", spawnRoutines);
+		
+	//single-property config
+		negative_Heal = config.getBoolean("negativeHeal", false);
+		if(logSetting.shouldOutput(LogSetting.VERBOSE))
+			log.info("[" + getDescription().getName()+ "] Negative-damage healing " + (negative_Heal?"en":"dis") + "abled.");
+		
 		config.load(); //Discard any changes made to the file by the above reads.
-		log.info("[" + getDescription().getName() + "] " + (isLoaded()?"Finished loading configuration.":"Error loading configuration."));
+		log.info("[" + getDescription().getName() + "] " + (isLoaded()?"Finished loading configuration.":"No configuration defined! Is this on purpose?"));
 	}
 
 	private void writeDefaults() 
@@ -732,7 +746,7 @@ public class ModDamage extends JavaPlugin
 						}
 						else 
 						{
-							addToConfig(LogSetting.QUIET, 0, "No matching alias or material name \"" + itemString + "\"" + alias, true);
+							addToConfig(LogSetting.QUIET, 0, "No matching alias or material name \"" + itemString + "\"", true);
 							matchedValues.clear();
 							validAlias = false;
 						}
@@ -745,7 +759,7 @@ public class ModDamage extends JavaPlugin
 						for(Material material : aliasValues)
 							addToConfig(LogSetting.VERBOSE, 0, "Adding " + material.name(), false);
 					}
-					else addToConfig(LogSetting.QUIET, 0, "Failed to create alias " + alias, true);
+					else addToConfig(LogSetting.QUIET, 0, "Failed to create alias \"" + alias + "\"", true);
 				}
 			}
 		}
@@ -779,107 +793,109 @@ public class ModDamage extends JavaPlugin
 	}
 	
 	//Parse commands recursively for different command strings the handlers pass
+	//TODO To use null-passing, check before/after nulls to determine whether nothing was there to begin with, use a pointer to the same set of routines. Implement this in 0.9.6
 	public static List<Routine> parse(List<Object> routineStrings, String loadType){ return parse(routineStrings, loadType, 0);}
 	@SuppressWarnings("unchecked")
 	private static List<Routine> parse(Object object, String loadType, int nestCount)
 	{
 		List<Routine> routines = new ArrayList<Routine>();
-		if(object instanceof String)
-		{
-			Routine routine = null;
-			for(Pattern pattern : registeredBaseRoutines.keySet())
+		if(object != null)
 			{
-				Matcher matcher = pattern.matcher((String)object);
-				if(matcher.matches())
-				{
-					try
-					{
-						routine = (Routine)registeredBaseRoutines.get(pattern).invoke(null, matcher);
-						break;
-					}
-					catch(Exception e){ e.printStackTrace();}
-				}
-			}
-			if(routine != null)
+			if(object instanceof String)
 			{
-				addToConfig(LogSetting.NORMAL, nestCount, "Routine: \"" + (String)object + "\"", false);
-				routines.add(routine);
-			}
-			else addToConfig(LogSetting.QUIET, nestCount, "Couldn't match base routine string \"" + (String)object +"\"", true);
-			
-		}
-		else if(object instanceof LinkedHashMap)
-		{
-			HashMap<String, Object> someHashMap = (HashMap<String, Object>)object;//A properly-formatted nested routine is a LinkedHashMap with only one key.
-			if(someHashMap.keySet().size() == 1)
-				for(String key : someHashMap.keySet())
+				Routine routine = null;
+				for(Pattern pattern : registeredBaseRoutines.keySet())
 				{
-					Matcher conditionalMatcher = conditionalPattern.matcher(key);
-					Matcher switchMatcher = switchPattern.matcher(key);
-					Matcher effectMatcher = effectPattern.matcher(key);
-					if(conditionalMatcher.matches())
+					Matcher matcher = pattern.matcher((String)object);
+					if(matcher.matches())
 					{
-						addToConfig(LogSetting.VERBOSE, nestCount, "", false);
-						addToConfig(LogSetting.NORMAL, nestCount, "Conditional: \"" + key + "\"", false);
-						ConditionalRoutine routine = ConditionalRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
-						if(routine != null)
+						try
 						{
-							routines.add(routine);
-							addToConfig(LogSetting.VERBOSE, nestCount, "End conditional statement \"" + key + "\"\n", false);
+							routine = (Routine)registeredBaseRoutines.get(pattern).invoke(null, matcher);
+							break;
 						}
-						else addToConfig(LogSetting.QUIET, nestCount, "Invalid Conditional " + key, true);
+						catch(Exception e){ e.printStackTrace();}
 					}
-					else if(effectMatcher.matches())
+				}
+				if(routine != null)
+				{
+					addToConfig(LogSetting.NORMAL, nestCount, "Routine: \"" + (String)object + "\"", false);
+					routines.add(routine);
+				}
+				else addToConfig(LogSetting.QUIET, nestCount, "Couldn't match base routine string \"" + (String)object +"\"", true);
+				
+			}
+			else if(object instanceof LinkedHashMap)
+			{
+				HashMap<String, Object> someHashMap = (HashMap<String, Object>)object;//A properly-formatted nested routine is a LinkedHashMap with only one key.
+				if(someHashMap.keySet().size() == 1)
+					for(String key : someHashMap.keySet())
 					{
-						CalculatedEffectRoutine<?> routine = CalculatedEffectRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
-						if(routine != null)
+						Matcher conditionalMatcher = conditionalPattern.matcher(key);
+						Matcher switchMatcher = switchPattern.matcher(key);
+						Matcher effectMatcher = effectPattern.matcher(key);
+						if(conditionalMatcher.matches())
 						{
 							addToConfig(LogSetting.VERBOSE, nestCount, "", false);
-							addToConfig(LogSetting.NORMAL, nestCount, "CalculatedEffect: \"" + key + "\"", false);
-							routines.add(routine);
-							addToConfig(LogSetting.VERBOSE, nestCount, "End effect routine \"" + key + "\"\n", false);
+							addToConfig(LogSetting.NORMAL, nestCount, "Conditional: \"" + key + "\"", false);
+							ConditionalRoutine routine = ConditionalRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
+							if(routine != null)
+							{
+								routines.add(routine);
+								addToConfig(LogSetting.VERBOSE, nestCount, "End Conditional \"" + key + "\"\n", false);
+							}
+							else addToConfig(LogSetting.QUIET, nestCount, "Invalid Conditional \"" + key + "\"", true); //TODO Debug for individual statements, similar to bad switch cases
 						}
-						else addToConfig(LogSetting.QUIET, nestCount, "Error: Invalid CalculatedEffect " + key, true);
-					}
-					else if(switchMatcher.matches())
-					{
-						addToConfig(LogSetting.VERBOSE, nestCount, "", false);
-						addToConfig(LogSetting.NORMAL, nestCount, "Switch: \"" + key + "\"", false);
-						
-						LinkedHashMap<String, Object> anotherHashMap = (someHashMap.get(key) instanceof LinkedHashMap?(LinkedHashMap<String, Object>)someHashMap.get(key):null);
-						if(anotherHashMap != null)
+						else if(effectMatcher.matches())
 						{
-							LinkedHashMap<String, List<Routine>> routineHashMap = new LinkedHashMap<String, List<Routine>>();
-							for(String anotherKey : anotherHashMap.keySet())
+							CalculatedEffectRoutine<?> routine = CalculatedEffectRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
+							if(routine != null)
 							{
 								addToConfig(LogSetting.VERBOSE, nestCount, "", false);
-								addToConfig(LogSetting.NORMAL, nestCount, " case: \"" + anotherKey + "\"", false);
-								routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1));
-								SwitchRoutine<?> routine = SwitchRoutine.getNew(switchMatcher, routineHashMap);
+								addToConfig(LogSetting.NORMAL, nestCount, "CalculatedEffect: \"" + key + "\"", false);
+								routines.add(routine);
+								addToConfig(LogSetting.VERBOSE, nestCount, "End CalculatedEffect \"" + key + "\"\n", false);
+							}
+							else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid CalculatedEffect \"" + key + "\"", true);
+						}
+						else if(switchMatcher.matches())
+						{					
+							LinkedHashMap<String, Object> anotherHashMap = (someHashMap.get(key) instanceof LinkedHashMap?(LinkedHashMap<String, Object>)someHashMap.get(key):null);
+							if(anotherHashMap != null)
+							{
+								addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+								addToConfig(LogSetting.NORMAL, nestCount, "Switch: \"" + key + "\"", false);
+								LinkedHashMap<String, List<Routine>> routineHashMap = new LinkedHashMap<String, List<Routine>>();
+								SwitchRoutine<?> routine = null;
+								for(String anotherKey : anotherHashMap.keySet())
+								{
+									addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+									addToConfig(LogSetting.NORMAL, nestCount, " case: \"" + anotherKey + "\"", false);
+									routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1));
+									addToConfig(LogSetting.VERBOSE, nestCount, "End case \"" + anotherKey + "\"\n", false);
+								}
+								routine = SwitchRoutine.getNew(switchMatcher, routineHashMap);
 								if(routine != null)
 								{
-									if(routine.isLoaded)
-									{
-										routines.add(routine);
-										addToConfig(LogSetting.VERBOSE, nestCount, "End case \"" + anotherKey + "\"\n", false);
-									}
-									else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid case " + routine.failedCase, true);
+									if(routine.isLoaded) routines.add(routine);
+									else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid case \"" + routine.failedCase + "\"", true);
 								}
-								else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid Switch " + key, true);
+								else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid Switch \"" + key + "\"", true);
 							}
+							addToConfig(LogSetting.VERBOSE, nestCount, "End Switch \"" + key + "\"", false);
 						}
-						addToConfig(LogSetting.VERBOSE, nestCount, "End switch \"" + key + "\"", false);
+						else addToConfig(LogSetting.QUIET, nestCount, " No match found for nested node \"" + key + "\"", true);
 					}
-					else addToConfig(LogSetting.QUIET, nestCount, " No match found for nested node \"" + key + "\"", true);
-				}
-			else addToConfig(LogSetting.QUIET, nestCount, "Parse error: bad nested routine.", true);
+				else addToConfig(LogSetting.QUIET, nestCount, "Parse error: bad nested routine.", true);
+			}
+			else if(object instanceof List)
+			{
+				for(Object nestedObject : (List<Object>)object)
+					routines.addAll(parse(nestedObject, loadType, nestCount));
+			}
+			else addToConfig(LogSetting.QUIET, nestCount, "Parse error: object " + object.toString() + " of type " + object.getClass().getName(), true);
 		}
-		else if(object instanceof List)
-		{
-			for(Object nestedObject : (List<Object>)object)
-				routines.addAll(parse(nestedObject, loadType, nestCount));
-		}
-		else addToConfig(LogSetting.QUIET, nestCount, "Parse error: object " + object.toString() + " of type " + object.getClass().getName(), true);
+		else addToConfig(LogSetting.QUIET, nestCount, "Parse error: null", true);
 		return routines;
 	}
 	
