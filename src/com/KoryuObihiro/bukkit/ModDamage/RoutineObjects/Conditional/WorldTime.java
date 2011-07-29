@@ -1,18 +1,20 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.World;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
-public class WorldTime extends WorldConditionalStatement 
+public class WorldTime extends WorldConditionalStatement
 {
-	private long beginningTime;
-	private long endTime;
+	private final int beginningTime;
+	private final int endTime;
+
 	public WorldTime(boolean inverted, World world, int beginningTime, int endTime)
 	{
 		super(beginningTime > endTime | inverted, world);
@@ -25,6 +27,7 @@ public class WorldTime extends WorldConditionalStatement
 		this.beginningTime = beginningTime;
 		this.endTime = endTime;
 	}
+	
 	@Override
 	public boolean condition(DamageEventInfo eventInfo){ return (world.getTime() > beginningTime && world.getTime() < endTime);}
 	@Override
@@ -33,5 +36,14 @@ public class WorldTime extends WorldConditionalStatement
 	public static void register(ModDamage routineUtility)
 	{
 		ConditionalRoutine.registerStatement(routineUtility, WorldTime.class, Pattern.compile("world\\.time\\.([0-9]+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static WorldTime getNew(Matcher matcher)
+	{
+		if(matcher != null)
+		{
+			
+		}
+		return null;
 	}
 }

@@ -52,6 +52,37 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Message;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityExplode;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityHeal;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityHurt;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntitySetAirTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntitySetFireTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntitySetHealth;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.PlayerSetItem;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.SlimeSetSize;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.WorldTime;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Binomial;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityAirTicksComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBiome;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityCoordinateComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityDrowning;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityExposedToSky;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityFallComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityFalling;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityFireTicksComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityHealthComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityLightComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnBlock;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnFire;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTargetedByOther;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityUnderwater;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventValueComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearing;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearingOnly;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerPlayerCount;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
@@ -148,10 +179,10 @@ public class ModDamage extends JavaPlugin
 	// -External: check entity tags
 	
 //Typical plugin stuff...for the most part. :P
-	private static boolean isEnabled = false;
+	static boolean isEnabled = false;
 	public static Server server;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
-	private final static Logger log = Logger.getLogger("Minecraft");
+	final static Logger log = Logger.getLogger("Minecraft");
 	public static LogSetting logSetting = LogSetting.NORMAL;
 	public static enum LogSetting
 	{ 
@@ -180,12 +211,12 @@ public class ModDamage extends JavaPlugin
 //External-plugin variables
 	public static PermissionHandler Permissions = null;
 	//private static elRegionsPlugin elRegions = null;
-	public static boolean multigroupPermissions = true;	
-	public static boolean using_Permissions = false;
-	public static boolean using_elRegions = false;
+	static boolean multigroupPermissions = true;	
+	static boolean using_Permissions = false;
+	static boolean using_elRegions = false;
 	
 //General mechanics options
-	public static boolean negative_Heal;
+	static boolean negative_Heal;
 	
 //Predefined pattern strings	
 	public static final String numberPart = "(?:[0-9]+)";
@@ -247,10 +278,11 @@ public class ModDamage extends JavaPlugin
 	}
 
 //Routine objects
-	private static boolean damageRoutinesLoaded = false;
-	private static boolean spawnRoutinesLoaded = false;
+	public static boolean damageRoutinesLoaded = false;
+	public static boolean spawnRoutinesLoaded = false;
 	private final List<Routine> damageRoutines = new ArrayList<Routine>();
 	private final List<Routine> spawnRoutines = new ArrayList<Routine>();
+	
 	
 //Alias objects
 	///public static HashMap<String, List<ArmorSet>> armorAliases = new HashMap<String, List<ArmorSet>>();
@@ -307,47 +339,45 @@ public class ModDamage extends JavaPlugin
 		Multiplication.register(this);
 		Set.register(this);	
 		Message.register(this);
-		/*
 //Nestable Calculations
 	//Conditionals
-		Binomial.register(routineUtility);
+		Binomial.register(this);
 		//Entity
-		EntityAirTicksComparison.register(routineUtility);
-		EntityBiome.register(routineUtility);
-		EntityCoordinateComparison.register(routineUtility);
-		EntityDrowning.register(routineUtility);
-		EntityExposedToSky.register(routineUtility);
-		EntityFallComparison.register(routineUtility);
-		EntityFalling.register(routineUtility);
-		EntityFireTicksComparison.register(routineUtility);
-		EntityHealthComparison.register(routineUtility);
-		EntityLightComparison.register(routineUtility);
-		EntityOnBlock.register(routineUtility);
-		EntityOnFire.register(routineUtility);
-		EntityTargetedByOther.register(routineUtility);
-		EntityUnderwater.register(routineUtility);
-		EventValueComparison.register(routineUtility);
-		PlayerWearing.register(routineUtility);
-		PlayerWearingOnly.register(routineUtility);
-		PlayerWielding.register(routineUtility);
+		EntityAirTicksComparison.register(this);
+		EntityBiome.register(this);
+		EntityCoordinateComparison.register(this);
+		EntityDrowning.register(this);
+		EntityExposedToSky.register(this);
+		EntityFallComparison.register(this);
+		EntityFalling.register(this);
+		EntityFireTicksComparison.register(this);
+		EntityHealthComparison.register(this);
+		EntityLightComparison.register(this);
+		EntityOnBlock.register(this);
+		EntityOnFire.register(this);
+		EntityTargetedByOther.register(this);
+		EntityUnderwater.register(this);
+		EventValueComparison.register(this);
+		PlayerWearing.register(this);
+		PlayerWearingOnly.register(this);
+		PlayerWielding.register(this);
 		//World
-		WorldTime.register(routineUtility);
-		WorldEnvironment.register(routineUtility);
+		WorldTime.register(this);
+		WorldEnvironment.register(this);
 		//Server
-		ServerOnlineMode.register(routineUtility);
-		ServerPlayerCount.register(routineUtility);
+		ServerOnlineMode.register(this);
+		ServerPlayerCount.register(this);
 		//Event
-		EventValueComparison.register(routineUtility);
+		EventValueComparison.register(this);
 	//Effects
-		EntityExplode.register(routineUtility);
-		EntityHeal.register(routineUtility);
-		EntityReflect.register(routineUtility);
-		EntitySetAirTicks.register(routineUtility);
-		EntitySetFireTicks.register(routineUtility);
-		EntitySetHealth.register(routineUtility);
-		PlayerSetItem.register(routineUtility);
-		SlimeSetSize.register(routineUtility);
-		*/
+		EntityExplode.register(this);
+		EntityHeal.register(this);
+		EntityHurt.register(this);
+		EntitySetAirTicks.register(this);
+		EntitySetFireTicks.register(this);
+		EntitySetHealth.register(this);
+		PlayerSetItem.register(this);
+		SlimeSetSize.register(this);
 	//Switches
 		ArmorSetSwitch.register(this);
 		BiomeSwitch.register(this);
@@ -357,7 +387,7 @@ public class ModDamage extends JavaPlugin
 		
 		config = this.getConfiguration();
 		reload();
-		isEnabled = isLoaded();
+		isEnabled = loadedSomething();
 	}
 
 	@Override
@@ -412,7 +442,7 @@ public class ModDamage extends JavaPlugin
 							{
 								log.info("[" + getDescription().getName() + "] Reload initiated by user " + player.getName() + "...");
 								reload();
-								if(isLoaded()) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Reloaded!");
+								if(loadedSomething()) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Reloaded!");
 								else player.sendMessage(ModDamageString(ChatColor.RED) + " No configurations loaded! Are any calculation strings defined?");
 								log.info("[" + getDescription().getName() + "] Reload complete.");
 							}
@@ -496,49 +526,20 @@ public class ModDamage extends JavaPlugin
 	}
 
 //// EVENT FUNCTIONS ////
-	public void handleDamageEvent(EntityDamageEvent event) 
+	public void executeRoutines_Damage(DamageEventInfo eventInfo) 
 	{
-		LivingEntity ent_damaged = (LivingEntity)event.getEntity();
-		if(isLoaded() && ent_damaged.getNoDamageTicks() <= 40)
-		{
-			DamageEventInfo eventInfo = null;
-			if(ModDamageElement.matchNonlivingElement(event.getCause()) != null)
-				eventInfo = new DamageEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.matchNonlivingElement(event.getCause()), null, event.getDamage());
-			else if(event instanceof EntityDamageByEntityEvent)
-			{
-				EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
-				//TODO Make this compatible with dispensers!
-				LivingEntity ent_damager = (LivingEntity)event_EE.getDamager();
-				RangedElement rangedElement = (event instanceof EntityDamageByProjectileEvent?RangedElement.matchElement(((EntityDamageByProjectileEvent)event).getProjectile()):null);
-				eventInfo = new DamageEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), ent_damager, ModDamageElement.matchMobType(ent_damager), rangedElement, event.getDamage());
-			}
-			else{ log.severe("[" + getDescription().getName() + "] Error! Unhandled damage event. Is this plugin up-to-date?");}
-			for(Routine routine : damageRoutines)
-				routine.run(eventInfo);
-			if(eventInfo.eventDamage < 0 && !ModDamage.negative_Heal) 
-				eventInfo.eventDamage = 0;
-			event.setDamage(eventInfo.eventDamage);
-		}
-	} 
+		for(Routine routine : damageRoutines)
+			routine.run(eventInfo);
+	}
 
-	public void handleSpawnEvent(CreatureSpawnEvent event)
+	public void executeRoutines_Spawn(SpawnEventInfo eventInfo)
 	{
-		if(event.getEntity() != null)
-		{
-			LivingEntity entity = (LivingEntity)event.getEntity();
-			SpawnEventInfo eventInfo = new SpawnEventInfo(entity);
-
-			if(eventInfo.element != null)
-				for(Routine routine : spawnRoutines)
-					routine.run(eventInfo);
-			
-			entity.setHealth(eventInfo.eventHealth);
-			event.setCancelled(entity.getHealth() <= 0);
-		}
+		for(Routine routine : spawnRoutines)
+			routine.run(eventInfo);
 	}
 	
 ///// HELPER FUNCTIONS ////
-	private boolean isLoaded(){ return damageRoutinesLoaded || spawnRoutinesLoaded || aliasesLoaded;}
+	private boolean loadedSomething(){ return damageRoutinesLoaded || spawnRoutinesLoaded || aliasesLoaded;}
 	
 	public static boolean hasPermission(Player player, String permission)
 	{
@@ -675,7 +676,7 @@ public class ModDamage extends JavaPlugin
 			log.info("[" + getDescription().getName()+ "] Negative-damage healing " + (negative_Heal?"en":"dis") + "abled.");
 		
 		config.load(); //Discard any changes made to the file by the above reads.
-		log.info("[" + getDescription().getName() + "] " + (isLoaded()?"Finished loading configuration.":"No configuration defined! Is this on purpose?"));
+		log.info("[" + getDescription().getName() + "] " + (loadedSomething()?"Finished loading configuration.":"No configuration defined! Is this on purpose?"));
 	}
 
 	private void writeDefaults() 

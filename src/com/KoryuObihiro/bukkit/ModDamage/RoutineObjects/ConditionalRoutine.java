@@ -32,7 +32,9 @@ public class ConditionalRoutine extends Routine
 		boolean result = statements.get(0).condition(eventInfo);
 		for(int i = 1; i < statements.size(); i++)
 			 result = logicalOperations.get(i).operate(result, statements.get(i).condition(eventInfo));
-		if(inverted?!result:result) executeNested(eventInfo);
+		if(result | inverted)
+			for(Routine routine : routines)
+				routine.run(eventInfo);
 	}
 	
 	@Override
@@ -41,19 +43,9 @@ public class ConditionalRoutine extends Routine
 		boolean result = statements.get(0).condition(eventInfo);
 		for(int i = 1; i < statements.size(); i++)
 			 result = logicalOperations.get(i).operate(result, statements.get(i).condition(eventInfo));
-		if(inverted?!result:result) executeNested(eventInfo);
-	}
-	
-
-	protected void executeNested(DamageEventInfo eventInfo)
-	{
-		for(Routine routine : routines)
-			routine.run(eventInfo);
-	}
-	protected void executeNested(SpawnEventInfo eventInfo)
-	{
-		for(Routine routine : routines)
-			routine.run(eventInfo);
+		if(result | inverted) 
+			for(Routine routine : routines)
+				routine.run(eventInfo);
 	}
 	
 	public static ConditionalRoutine getNew(Matcher matcher, List<Routine> routines)
