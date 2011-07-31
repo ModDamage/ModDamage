@@ -17,15 +17,15 @@ public class Addition extends Routine
 	@Override
 	public void run(SpawnEventInfo eventInfo){ eventInfo.eventHealth += addValue;}
 	
+	public static void register(ModDamage routineUtility)
+	{
+		routineUtility.registerBase(Addition.class, Pattern.compile("([0-9]+)", Pattern.CASE_INSENSITIVE));
+	}
+	
 	public static Addition getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
 			return new Addition(Integer.parseInt(matcher.group(1)));
 		return null;
-	}
-	
-	public static void register(ModDamage routineUtility)
-	{
-		routineUtility.registerBase(Addition.class, Pattern.compile("([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

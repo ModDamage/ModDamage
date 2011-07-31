@@ -1,6 +1,8 @@
+
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Material;
@@ -17,7 +19,7 @@ public class PlayerWielding extends EntityConditionalStatement<List<Material>>
 		super(inverted, forAttacker, materials);
 	}
 	@Override
-	protected boolean condition(DamageEventInfo eventInfo){ return value.contains(forAttacker?eventInfo.materialInHand_attacker:eventInfo.materialInHand_target);}
+   	protected boolean condition(DamageEventInfo eventInfo){ return value.contains(forAttacker?eventInfo.materialInHand_attacker:eventInfo.materialInHand_target);}
 	@Override
 	protected boolean condition(SpawnEventInfo eventInfo){ return false;}
 	@Override
@@ -27,6 +29,17 @@ public class PlayerWielding extends EntityConditionalStatement<List<Material>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWielding.class, Pattern.compile(ModDamage.entityPart + "wielding\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerWielding.class, Pattern.compile("(!)?" + ModDamage.entityPart + "wielding\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
 	}	
+	
+	public static PlayerWielding getNew(Matcher matcher)
+	{
+		if(matcher != null)
+		{
+			List<Material> matchedItems = ModDamage.matchItemAlias(matcher.group(3));
+			if(!matchedItems.isEmpty())
+				return new PlayerWielding(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), matchedItems);
+		}
+		return null;
+	}
 }

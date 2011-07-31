@@ -1,12 +1,13 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 public class PlayerWearing extends EntityConditionalStatement<ArmorSet>
 {
@@ -21,6 +22,17 @@ public class PlayerWearing extends EntityConditionalStatement<ArmorSet>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWearing.class, Pattern.compile(ModDamage.entityPart + "wearing\\." + ModDamage.armorRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerWearing.class, Pattern.compile("(!)?" + ModDamage.entityPart + "wearing\\." + ModDamage.armorRegex, Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static PlayerWearing getNew(Matcher matcher)
+	{
+		if(matcher != null)
+		{
+			ArmorSet armorSet = new ArmorSet(matcher.group(3));
+			if(armorSet.isEmpty())
+			return new PlayerWearing(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), armorSet);
+		}
+		return null;
 	}
 }

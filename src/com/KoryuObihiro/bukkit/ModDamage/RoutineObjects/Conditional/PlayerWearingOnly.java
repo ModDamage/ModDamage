@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
@@ -26,5 +27,16 @@ public class PlayerWearingOnly extends EntityConditionalStatement<ArmorSet>
 	public static void register(ModDamage routineUtility)
 	{
 		ConditionalRoutine.registerStatement(routineUtility, PlayerWearingOnly.class, Pattern.compile(ModDamage.entityPart + "wearingonly\\." + ModDamage.armorRegex, Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static PlayerWearingOnly getNew(Matcher matcher)
+	{
+		if(matcher != null)
+		{
+			ArmorSet armorSet = new ArmorSet(matcher.group(3));
+			if(armorSet.isEmpty())
+			return new PlayerWearingOnly(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), armorSet);
+		}
+		return null;
 	}
 }

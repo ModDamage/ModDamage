@@ -19,13 +19,8 @@ import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageByProjectileEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
@@ -33,7 +28,6 @@ import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
@@ -52,15 +46,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Message;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityExplode;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityHeal;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityHurt;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntitySetAirTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntitySetFireTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntitySetHealth;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.PlayerSetItem;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.SlimeSetSize;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.WorldTime;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Binomial;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityAirTicksComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBiome;
@@ -77,12 +62,13 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnFire
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTargetedByOther;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityUnderwater;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventValueComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerCountComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearing;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearingOnly;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerPlayerCount;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldTimeRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
@@ -123,15 +109,12 @@ public class ModDamage extends JavaPlugin
 	// -Deregister when Bukkit supports!
 	// -Client-sided mod for displaying health?
 	
-//--API
-	// -Write tut, code requirements, and regex guidelines for using this library
-	// -Print plugin name at fault when calculation registry fails
 	// Ideas
 	// -External calls to aliased sets of routines? But...EventInfo would be screwed up. :P
 	//--ModDamageElement
 	// -Make ModDamageElement do some parsing with Material.name()? (update ArmorSet and CalculationUtility accordingly if this is done)
 	
-//--RoutineUtility
+//--Routine utilities
 	// 0.9.5
 	// -Refactor config to contain errors and display classes allocated - add to config strings regardless
 	// -Use warnings inside constructors (pass routineUtility)
@@ -182,7 +165,7 @@ public class ModDamage extends JavaPlugin
 	static boolean isEnabled = false;
 	public static Server server;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
-	final static Logger log = Logger.getLogger("Minecraft");
+	public final static Logger log = Logger.getLogger("Minecraft");
 	public static LogSetting logSetting = LogSetting.NORMAL;
 	public static enum LogSetting
 	{ 
@@ -211,8 +194,8 @@ public class ModDamage extends JavaPlugin
 //External-plugin variables
 	public static PermissionHandler Permissions = null;
 	//private static elRegionsPlugin elRegions = null;
-	static boolean multigroupPermissions = true;	
-	static boolean using_Permissions = false;
+	public static boolean multigroupPermissions = true;	
+	public static boolean using_Permissions = false;
 	static boolean using_elRegions = false;
 	
 //General mechanics options
@@ -242,29 +225,32 @@ public class ModDamage extends JavaPlugin
 		environmentRegex = "(";
 		for(Environment environment : Environment.values())
 			environmentRegex += environment.name() + "|";
-		environmentRegex += potentialAliasPart + ")";
+		environmentRegex = environmentRegex.substring(0, environmentRegex.length() - 2) + ")";
 
 		elementRegex = "(";
 		for(ModDamageElement element : ModDamageElement.values())
 			elementRegex += element.getReference() + "|";
-		elementRegex += potentialAliasPart + ")";
+		//elementRegex += potentialAliasPart + ")"; (TODO: For element aliasing)
+		elementRegex = elementRegex.substring(0, elementRegex.length() - 2) + ")";
 		
 		String[] armorParts = {"HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS" };
 		materialRegex = armorRegex = "(";
+		String tempRegex = "";
 		for(Material material : Material.values())
 		{
 			materialRegex += material.name() + "|";
 			for(String part : armorParts)
 				if(material.name().endsWith(part))
-					armorRegex += material.name() + "|";
-					
+					tempRegex += material.name() + "|";			
 		}
+		tempRegex = tempRegex.substring(0, tempRegex.length() - 2);//TODO CHECK THIS
+		//"((?:(?:ARMOR)(?:\\*ARMOR))|aliasPart)"
+		armorRegex = "((?:(?:" + tempRegex + ")(?:\\*" + tempRegex + ")))";//|" + potentialAliasPart + ")"; (TODO: For armor aliasing.)
 		materialRegex += potentialAliasPart + ")";
-		armorRegex += potentialAliasPart + "){1,4}";
 		
 		logicalRegex = "(";
 		for(LogicalOperation operation : LogicalOperation.values())
-			logicalRegex += operation.name() + "|" + operation.getShortHand() + "|";
+			logicalRegex += operation.name() + "|";
 		logicalRegex += potentialAliasPart + ")";		
 		
 		comparisonRegex = "(";
@@ -272,7 +258,7 @@ public class ModDamage extends JavaPlugin
 			comparisonRegex += type.name() + "|" + type.getShortHand() + "|";
 		comparisonRegex += ")\\.";
 		
-		conditionalPattern = Pattern.compile("(if|if_not|if!)\\s+(!)?" + statementPart + "(?:\\s*" + logicalRegex + "\\s*" + statementPart + ")*", Pattern.CASE_INSENSITIVE);
+		conditionalPattern = Pattern.compile("(if|if_not)\\s+" + statementPart + "(?:\\s+" + logicalRegex + "\\s+" + statementPart + ")*", Pattern.CASE_INSENSITIVE);
 		switchPattern = Pattern.compile("switch\\." + statementPart, Pattern.CASE_INSENSITIVE);
 		effectPattern = Pattern.compile(entityPart + "effect\\." + statementPart);
 	}
@@ -362,14 +348,15 @@ public class ModDamage extends JavaPlugin
 		PlayerWearingOnly.register(this);
 		PlayerWielding.register(this);
 		//World
-		WorldTime.register(this);
+		WorldTimeRange.register(this);
 		WorldEnvironment.register(this);
 		//Server
 		ServerOnlineMode.register(this);
-		ServerPlayerCount.register(this);
+		PlayerCountComparison.register(this);
 		//Event
 		EventValueComparison.register(this);
 	//Effects
+		/*
 		EntityExplode.register(this);
 		EntityHeal.register(this);
 		EntityHurt.register(this);
@@ -378,6 +365,7 @@ public class ModDamage extends JavaPlugin
 		EntitySetHealth.register(this);
 		PlayerSetItem.register(this);
 		SlimeSetSize.register(this);
+		*/
 	//Switches
 		ArmorSetSwitch.register(this);
 		BiomeSwitch.register(this);
@@ -926,7 +914,7 @@ public class ModDamage extends JavaPlugin
 	{
 		try
 		{
-			Method method = statementClass.getMethod("getNew", Matcher.class, List.class);
+			Method method = statementClass.getMethod("getNew", Matcher.class);
 			if(method != null)
 			{
 				assert(method.getReturnType().equals(statementClass));

@@ -2,19 +2,12 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
 public enum LogicalOperation
 { 
-	AND("&&"),
-	OR("||"),
-	NOR("!||"),
-	NAND("!&&"),
-	XOR("|");
+	AND, OR, NOR, NAND, XOR;
 
-	private final String shorthand;
-	private LogicalOperation(String shorthand){ this.shorthand = shorthand;}
-	
 	public static LogicalOperation matchType(String key)
 	{
 		for(LogicalOperation operation : LogicalOperation.values())
-			if(key.equalsIgnoreCase(operation.name()) || key.equalsIgnoreCase(operation.shorthand))
+			if(key.equalsIgnoreCase(operation.name()))
 				return operation;
 		return null;
 	}
@@ -30,6 +23,4 @@ public enum LogicalOperation
 			default:	return false;
 		}
 	}
-	
-	public String getShortHand(){ return this.shorthand;}
 }

@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.World;
@@ -43,7 +44,14 @@ public class EntityExposedToSky extends EntityConditionalStatement<Boolean>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityExposedToSky.class, Pattern.compile(ModDamage.entityPart + "exposedtosky", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityExposedToSky.class, Pattern.compile("(!)?" + ModDamage.entityPart + "exposedtosky", Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static EntityExposedToSky getNew(Matcher matcher)
+	{
+		if(matcher != null)
+			return new EntityExposedToSky(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"));
+		return null;
 	}
 
 }

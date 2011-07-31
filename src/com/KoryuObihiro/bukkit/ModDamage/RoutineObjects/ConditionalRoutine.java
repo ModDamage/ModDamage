@@ -14,7 +14,6 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 public class ConditionalRoutine extends Routine
 {
 	public static HashMap<Pattern, Method> registeredStatements = new HashMap<Pattern, Method>();
-	//For every statement, there must be a relation after it. Merely cap the last one with AND(asdf, true);
 	final protected boolean inverted;
 	final protected List<Routine> routines;
 	final List<ConditionalStatement> statements;
@@ -31,7 +30,7 @@ public class ConditionalRoutine extends Routine
 	{
 		boolean result = statements.get(0).condition(eventInfo);
 		for(int i = 1; i < statements.size(); i++)
-			 result = logicalOperations.get(i).operate(result, statements.get(i).condition(eventInfo));
+			 result = logicalOperations.get(i - 1).operate(result, statements.get(i).condition(eventInfo));
 		if(result | inverted)
 			for(Routine routine : routines)
 				routine.run(eventInfo);
@@ -42,7 +41,7 @@ public class ConditionalRoutine extends Routine
 	{
 		boolean result = statements.get(0).condition(eventInfo);
 		for(int i = 1; i < statements.size(); i++)
-			 result = logicalOperations.get(i).operate(result, statements.get(i).condition(eventInfo));
+			 result = logicalOperations.get(i - 1).operate(result, statements.get(i).condition(eventInfo));
 		if(result | inverted) 
 			for(Routine routine : routines)
 				routine.run(eventInfo);
@@ -50,39 +49,58 @@ public class ConditionalRoutine extends Routine
 	
 	public static ConditionalRoutine getNew(Matcher matcher, List<Routine> routines)
 	{
-		//start with a programmatic "false ||" ... because of how this routine is executed.
 		List<ConditionalStatement> statements = new ArrayList<ConditionalStatement>();
 		List<LogicalOperation> operations = new ArrayList<LogicalOperation>();
-		statements.add(new FalseStatement());
-		operations.add(LogicalOperation.OR);
+		//start with a programmatic "false ||" ... because of how this routine is executed.
 		
 		//parse all of the conditionals
-		for(int i = 0; i < matcher.groupCount(); i += 2)
+		
+		//DEBUG FIXME
+		ModDamage.log.info("CONDITIONAL MATCHER CONTENTS:");
+		int j = matcher.groupCount();
+		ModDamage.log.info(j + ")");
+		for(int i = 0; i <= matcher.groupCount(); i++)
+			ModDamage.log.info(i + "] " + matcher.group(i));
+		//END DEBUG
+		
+		for(int i = 2; i <= matcher.groupCount(); i += 2)
+		{
+			ModDamage.log.info("Attempting to match statement " + matcher.group(i));//TODO CHANGE FOR DEBUG
 			for(Pattern pattern : registeredStatements.keySet())
 			{
 				Matcher statementMatcher = pattern.matcher(matcher.group(i));
 				if(statementMatcher.matches())
 				{
+					ModDamage.log.info("Success!");//TODO CHANGE FOR DEBUG
 					Method method = registeredStatements.get(pattern);
 					//get next statement
 					ConditionalStatement statement = null;
 					try 
 					{
-						statement = (ConditionalStatement)method.invoke(null, statementMatcher, routines);
+						statement = (ConditionalStatement)method.invoke(null, statementMatcher);
 					}
 					catch (Exception e){ e.printStackTrace();}
 					
 					if(statement == null) return null;
 					//get its relation to the previous statement
-					if(i > 1)
+					if(i > 2)
 					{
+						ModDamage.log.info("Attempting to match logical operator " + matcher.group(i - 1));//TODO CHANGE FOR DEBUG
 						LogicalOperation operation = LogicalOperation.matchType(matcher.group(i - 1));
 						if(operation == null) return null;//shouldn't ever happen
 						operations.add(operation);
 					}
 					statements.add(statement);
+					break;
 				}
 			}
+		}
+		if(!statements.isEmpty())
+		{
+			statements.add(0, new FalseStatement());
+			operations.add(0, LogicalOperation.OR);
+			return new ConditionalRoutine(!matcher.group(1).equalsIgnoreCase("if"), statements, operations, routines);
+		}
 		return null;
 	}
 	

@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Material;
@@ -31,6 +32,13 @@ public class EntityUnderwater extends EntityConditionalStatement<Material[]>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityUnderwater.class, Pattern.compile(ModDamage.entityPart + "underwater", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityUnderwater.class, Pattern.compile("(!)?" + ModDamage.entityPart + "underwater", Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static EntityUnderwater getNew(Matcher matcher)
+	{
+		if(matcher != null)
+			return new EntityUnderwater(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"));
+		return null;
 	}
 }

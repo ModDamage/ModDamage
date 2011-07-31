@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Creature;
@@ -32,6 +33,13 @@ public class EntityTargetedByOther extends EntityConditionalStatement<LivingEnti
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityTargetedByOther.class, Pattern.compile(ModDamage.entityPart + "targetedbyother", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityTargetedByOther.class, Pattern.compile("(!)?" + ModDamage.entityPart + "targetedbyother", Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static EntityTargetedByOther getNew(Matcher matcher)
+	{
+		if(matcher != null)
+			return new EntityTargetedByOther(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"));
+		return null;
 	}
 }

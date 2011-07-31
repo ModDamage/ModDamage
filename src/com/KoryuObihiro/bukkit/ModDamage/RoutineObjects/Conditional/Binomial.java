@@ -24,15 +24,15 @@ public class Binomial extends ConditionalStatement
 	@Override
 	public boolean condition(SpawnEventInfo eventInfo){ return Math.abs(random.nextInt()%101) <= chance;}
 	
+	public static void register(ModDamage routineUtility)
+	{
+		ConditionalRoutine.registerStatement(routineUtility, Binomial.class, Pattern.compile("binom\\.([0-9]{1,2})", Pattern.CASE_INSENSITIVE));
+	}
+	
 	public static Binomial getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
 			return new Binomial(Integer.parseInt(matcher.group(1)));
 		return null;
-	}
-	
-	public static void register(ModDamage routineUtility)
-	{
-		ConditionalRoutine.registerStatement(routineUtility, Binomial.class, Pattern.compile("binom\\.([0-9]{1,2})", Pattern.CASE_INSENSITIVE));
 	}
 }

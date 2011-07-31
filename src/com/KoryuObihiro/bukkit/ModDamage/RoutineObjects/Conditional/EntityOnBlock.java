@@ -1,29 +1,50 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Material;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
-public class EntityOnBlock extends EntityConditionalStatement<Material>
+public class EntityOnBlock extends EntityConditionalStatement<List<Material>>
 {
-	final Material material;
-	public EntityOnBlock(boolean inverted, boolean forAttacker, Material material)
+	public EntityOnBlock(boolean inverted, boolean forAttacker, List<Material> materials)
 	{ 
-		super(inverted, forAttacker, material);
-		this.material = material;
+		super(inverted, forAttacker, materials);
 	}
 	@Override
-	protected Material getRelevantInfo(DamageEventInfo eventInfo){ return getRelevantEntity(eventInfo).getLocation().add(0, -1, 0).getBlock().getType();}
+	protected boolean condition(DamageEventInfo eventInfo)
+	{
+		return value.contains(getRelevantEntity(eventInfo).getLocation().add(0, -1, 0).getBlock().getType());
+	}
 	@Override
-	protected Material getRelevantInfo(SpawnEventInfo eventInfo){ return getRelevantEntity(eventInfo).getLocation().add(0, -1, 0).getBlock().getType();}
+	protected boolean condition(SpawnEventInfo eventInfo)
+	{
+		return value.contains(getRelevantEntity(eventInfo).getLocation().add(0, -1, 0).getBlock().getType());
+	}
+	@Override
+	protected List<Material> getRelevantInfo(DamageEventInfo eventInfo){ return null;}
+	@Override
+	protected List<Material> getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityOnBlock.class, Pattern.compile(ModDamage.entityPart + "onblock\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityOnBlock.class, Pattern.compile("(!)?" + ModDamage.entityPart + "onblock\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static EntityOnBlock getNew(Matcher matcher)
+	{
+		if(matcher != null)
+		{
+			List<Material> matchedItems = ModDamage.matchItemAlias(matcher.group(3));
+			if(!matchedItems.isEmpty())
+				return new EntityOnBlock(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), matchedItems);
+		}
+		return null;
 	}
 }

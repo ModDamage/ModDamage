@@ -18,15 +18,15 @@ public class Set extends Routine
 	@Override
 	public void run(SpawnEventInfo eventInfo){ eventInfo.eventHealth = setValue;}
 	
+	public static void register(ModDamage routineUtility)
+	{
+		routineUtility.registerBase(Set.class, Pattern.compile("set\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+	}
+	
 	public static Set getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
 			return new Set(Integer.parseInt(matcher.group(1)));
 		return null;
-	}
-	
-	public static void register(ModDamage routineUtility)
-	{
-		routineUtility.registerBase(Set.class, Pattern.compile("set\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }

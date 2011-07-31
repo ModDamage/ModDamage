@@ -1,19 +1,20 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Location;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class EntityCoordinateComparison extends EntityComparison
 {
-	protected final byte coordinateToCompare;
-	public EntityCoordinateComparison(boolean inverted, boolean forAttacker, byte coordinateToCompare, int value, ComparisonType comparisonType)
+	protected final Coordinate coordinateToCompare;
+	public EntityCoordinateComparison(boolean inverted, boolean forAttacker, Coordinate coordinateToCompare, int value, ComparisonType comparisonType)
 	{
 		super(inverted, forAttacker, value, comparisonType);
 		this.coordinateToCompare = coordinateToCompare;
@@ -24,10 +25,10 @@ public class EntityCoordinateComparison extends EntityComparison
 		Location location = (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation();
 		switch(coordinateToCompare)
 		{
-			case COORDINATE_X:	return location.getBlockX();
-			case COORDINATE_Y:	return location.getBlockY();
-			case COORDINATE_Z:	return location.getBlockZ();
-			default:			return 0; //shouldn't happen
+			case X:	return location.getBlockX();
+			case Y:	return location.getBlockY();
+			case Z:	return location.getBlockZ();
+			default:return 0; //shouldn't happen
 		}
 	}
 	@Override
@@ -36,19 +37,34 @@ public class EntityCoordinateComparison extends EntityComparison
 		Location location = eventInfo.entity.getLocation();
 		switch(coordinateToCompare)
 		{
-			case COORDINATE_X:	return location.getBlockX();
-			case COORDINATE_Y:	return location.getBlockY();
-			case COORDINATE_Z:	return location.getBlockZ();
-			default:			return 0; //shouldn't happen
+			case X:	return location.getBlockX();
+			case Y:	return location.getBlockY();
+			case Z:	return location.getBlockZ();
+			default:return 0; //shouldn't happen
+		}
+	}
+	
+	private enum Coordinate
+	{
+		X, Y, Z;
+		private static Coordinate matchType(String string)
+		{
+			for(Coordinate type : Coordinate.values())
+				if(string.equalsIgnoreCase(type.name()))
+					return type;
+			return null;
 		}
 	}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityCoordinateComparison.class, Pattern.compile(ModDamage.entityPart + "(X|Y|Z)\\." + ModDamage.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityCoordinateComparison.class, Pattern.compile("(!)?" + ModDamage.entityPart + "(X|Y|Z)\\." + ModDamage.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
-	
-	public static final byte COORDINATE_X = 0;
-	public static final byte COORDINATE_Y = 1;
-	public static final byte COORDINATE_Z = 2;
+
+	public static EntityCoordinateComparison getNew(Matcher matcher)
+	{
+		if(matcher != null)
+			return new EntityCoordinateComparison(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), Coordinate.matchType(matcher.group(3)), Integer.parseInt(matcher.group(5)), ComparisonType.matchType(matcher.group(4)));
+		return null;
+	}
 }

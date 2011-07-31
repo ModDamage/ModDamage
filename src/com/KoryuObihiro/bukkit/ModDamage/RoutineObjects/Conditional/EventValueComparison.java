@@ -1,13 +1,14 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 
 public class EventValueComparison extends ConditionalStatement
 {
@@ -26,7 +27,14 @@ public class EventValueComparison extends ConditionalStatement
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EventValueComparison.class, Pattern.compile("eventvalue" + ModDamage.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EventValueComparison.class, Pattern.compile("(!)?eventvalue" + ModDamage.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static EventValueComparison getNew(Matcher matcher)
+	{
+		if(matcher != null)
+			return new EventValueComparison(matcher.group(1) != null, ComparisonType.matchType(matcher.group(3)), Integer.parseInt(matcher.group(4)));
+		return null;
 	}
 
 }

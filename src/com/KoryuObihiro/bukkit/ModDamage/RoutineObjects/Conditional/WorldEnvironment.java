@@ -1,25 +1,18 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
-import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.World;
 import org.bukkit.World.Environment;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class WorldEnvironment extends WorldConditionalStatement 
 {
 	protected final Environment environment;
-	public WorldEnvironment(boolean inverted, World world, Environment environment, List<Routine> routines)
-	{
-		super(inverted, world);
-		this.environment = environment;
-	}
 	public WorldEnvironment(boolean inverted, Environment environment)
 	{
 		super(inverted);
@@ -32,6 +25,13 @@ public class WorldEnvironment extends WorldConditionalStatement
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, WorldEnvironment.class, Pattern.compile("world\\.environment\\." + ModDamage.environmentRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, WorldEnvironment.class, Pattern.compile("(!)?world\\.environment\\." + ModDamage.environmentRegex, Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static WorldEnvironment getNew(Matcher matcher)
+	{
+		if(matcher != null)
+			return new WorldEnvironment(matcher.group(1) != null, ModDamage.matchEnvironment(matcher.group(3)));
+		return null;
 	}
 }
