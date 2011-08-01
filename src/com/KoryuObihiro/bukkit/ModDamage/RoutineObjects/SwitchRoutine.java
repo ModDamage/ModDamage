@@ -8,8 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 abstract public class SwitchRoutine<InfoType> extends Routine 
 {
@@ -40,21 +39,7 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 	}
 	
 	@Override
-	public void run(DamageEventInfo eventInfo) 
-	{
-		InfoType info = getRelevantInfo(eventInfo);
-		if(info != null)
-			for(InfoType infoKey : switchStatements.keySet())
-				if(compare(info, infoKey))
-				{
-					for(Routine routine : switchStatements.get(infoKey))
-						routine.run(eventInfo);
-					break;
-				}
-	}
-
-	@Override
-	public void run(SpawnEventInfo eventInfo) 
+	public void run(TargetEventInfo eventInfo) 
 	{
 		InfoType info = getRelevantInfo(eventInfo);
 		if(info != null)
@@ -69,9 +54,7 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 	
 	protected boolean compare(InfoType info_1, InfoType info_2){ return info_1.equals(info_2);}
 	
-	abstract protected InfoType getRelevantInfo(DamageEventInfo eventInfo);
-	
-	abstract protected InfoType getRelevantInfo(SpawnEventInfo eventInfo);
+	abstract protected InfoType getRelevantInfo(TargetEventInfo eventInfo);
 
 	abstract protected InfoType matchCase(String switchCase);
 	

@@ -5,10 +5,9 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Material;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class EntityUnderwater extends EntityConditionalStatement<Material[]>
 {
@@ -18,13 +17,7 @@ public class EntityUnderwater extends EntityConditionalStatement<Material[]>
 		super(forAttacker, forAttacker, materialSet);
 	}
 	@Override
-	protected Material[] getRelevantInfo(DamageEventInfo eventInfo)
-	{
-		Material[] entityBlocks = { getRelevantEntity(eventInfo).getLocation().getBlock().getType(), getRelevantEntity(eventInfo).getEyeLocation().getBlock().getType() };
-		return entityBlocks;
-	}
-	@Override
-	protected Material[] getRelevantInfo(SpawnEventInfo eventInfo)
+	protected Material[] getRelevantInfo(TargetEventInfo eventInfo)
 	{
 		Material[] entityBlocks = { getRelevantEntity(eventInfo).getLocation().getBlock().getType(), getRelevantEntity(eventInfo).getEyeLocation().getBlock().getType() };
 		return entityBlocks;

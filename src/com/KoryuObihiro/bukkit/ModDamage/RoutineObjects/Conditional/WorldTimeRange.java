@@ -4,8 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class WorldTimeRange extends WorldConditionalStatement
@@ -19,11 +18,8 @@ public class WorldTimeRange extends WorldConditionalStatement
 		this.beginningTime = beginningTime;
 		this.endTime = endTime;
 	}
-	
 	@Override
-	public boolean condition(DamageEventInfo eventInfo){ return (world.getTime() > beginningTime && world.getTime() < endTime);}
-	@Override
-	public boolean condition(SpawnEventInfo eventInfo){ return (world.getTime() > beginningTime && world.getTime() < endTime);}
+	public boolean condition(TargetEventInfo eventInfo){ return (world.getTime() > beginningTime && world.getTime() < endTime);}
 	
 	public static void register(ModDamage routineUtility)
 	{

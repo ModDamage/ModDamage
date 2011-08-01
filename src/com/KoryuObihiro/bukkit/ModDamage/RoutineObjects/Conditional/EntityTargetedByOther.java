@@ -3,13 +3,11 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class EntityTargetedByOther extends EntityConditionalStatement<LivingEntity>
 {
@@ -19,17 +17,9 @@ public class EntityTargetedByOther extends EntityConditionalStatement<LivingEnti
 		super(inverted, forAttacker, null);
 	}
 	@Override
-	public boolean condition(DamageEventInfo eventInfo)
-	{ 
-		value = (forAttacker?eventInfo.entity_target:eventInfo.entity_attacker);
-		return ((Creature)getRelevantEntity(eventInfo)).getTarget().equals(value);
-	}
-	public boolean condition(SpawnEventInfo eventInfo){ return false;}
-	
+	public boolean condition(TargetEventInfo eventInfo){ return false;}
 	@Override
-	protected LivingEntity getRelevantInfo(DamageEventInfo eventInfo){ return null;}
-	@Override
-	protected LivingEntity getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
+	protected LivingEntity getRelevantInfo(TargetEventInfo eventInfo){ return null;}
 	
 	public static void register(ModDamage routineUtility)
 	{

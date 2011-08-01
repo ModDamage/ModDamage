@@ -2,8 +2,8 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
 import org.bukkit.entity.LivingEntity;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
 public abstract class EntityConditionalStatement<InputType> extends ConditionalStatement
@@ -17,17 +17,10 @@ public abstract class EntityConditionalStatement<InputType> extends ConditionalS
 		this.value = value;
 	}
 	
-	abstract protected InputType getRelevantInfo(DamageEventInfo eventInfo);
+	abstract protected InputType getRelevantInfo(TargetEventInfo eventInfo);
 	
-	abstract protected InputType getRelevantInfo(SpawnEventInfo eventInfo);
-	
-	protected LivingEntity getRelevantEntity(DamageEventInfo eventInfo){ return forAttacker?eventInfo.entity_attacker:eventInfo.entity_target;}
-	
-	protected LivingEntity getRelevantEntity(SpawnEventInfo eventInfo){ return eventInfo.entity;}
+	protected LivingEntity getRelevantEntity(TargetEventInfo eventInfo){ return (forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).entity_attacker:eventInfo.entity_target;}
 	
 	@Override
-	protected boolean condition(DamageEventInfo eventInfo){ return getRelevantInfo(eventInfo).equals(value);}
-	@Override
-	protected boolean condition(SpawnEventInfo eventInfo){ return getRelevantInfo(eventInfo).equals(value);}
-	
+	protected boolean condition(TargetEventInfo eventInfo){ return getRelevantInfo(eventInfo).equals(value);}	
 }

@@ -7,8 +7,7 @@ import java.util.regex.Pattern;
 import org.bukkit.Material;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class EntityOnBlock extends EntityConditionalStatement<List<Material>>
@@ -18,19 +17,12 @@ public class EntityOnBlock extends EntityConditionalStatement<List<Material>>
 		super(inverted, forAttacker, materials);
 	}
 	@Override
-	protected boolean condition(DamageEventInfo eventInfo)
+	protected boolean condition(TargetEventInfo eventInfo)
 	{
 		return value.contains(getRelevantEntity(eventInfo).getLocation().add(0, -1, 0).getBlock().getType());
 	}
 	@Override
-	protected boolean condition(SpawnEventInfo eventInfo)
-	{
-		return value.contains(getRelevantEntity(eventInfo).getLocation().add(0, -1, 0).getBlock().getType());
-	}
-	@Override
-	protected List<Material> getRelevantInfo(DamageEventInfo eventInfo){ return null;}
-	@Override
-	protected List<Material> getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
+	protected List<Material> getRelevantInfo(TargetEventInfo eventInfo){ return null;}
 	
 	public static void register(ModDamage routineUtility)
 	{

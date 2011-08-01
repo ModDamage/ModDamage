@@ -3,9 +3,8 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class IntervalRange extends Chanceroutine 
 {
@@ -17,9 +16,7 @@ public class IntervalRange extends Chanceroutine
 		rangeValue = interval_range;
 	}
 	@Override
-	public void run(DamageEventInfo eventInfo){ eventInfo.eventDamage = baseValue + (intervalValue * (Math.abs(random.nextInt()%(rangeValue + 1))));}
-	@Override
-	public void run(SpawnEventInfo eventInfo){ eventInfo.eventHealth = baseValue + (intervalValue * (Math.abs(random.nextInt()%(rangeValue + 1))));}
+	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = baseValue + (intervalValue * (Math.abs(random.nextInt()%(rangeValue + 1))));}
 	
 	public static IntervalRange getNew(Matcher matcher)
 	{ 

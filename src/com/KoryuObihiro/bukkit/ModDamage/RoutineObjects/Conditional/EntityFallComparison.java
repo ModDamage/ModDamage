@@ -4,8 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
@@ -15,11 +14,8 @@ public class EntityFallComparison extends EntityComparison
 	{ 
 		super(inverted, forAttacker, fallDistance, comparisonType);
 	}
-
 	@Override
-	protected Integer getRelevantInfo(DamageEventInfo eventInfo){ return (int)getRelevantEntity(eventInfo).getFallDistance();}
-	@Override
-	protected Integer getRelevantInfo(SpawnEventInfo eventInfo){ return (int)getRelevantEntity(eventInfo).getFallDistance();}
+	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return (int)getRelevantEntity(eventInfo).getFallDistance();}
 	
 	public static void register(ModDamage routineUtility)
 	{

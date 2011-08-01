@@ -4,18 +4,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class DiceRollAddition extends Chanceroutine 
 {
 	private int maxValue;
 	public DiceRollAddition(int value){ maxValue = value;}
 	@Override
-	public void run(DamageEventInfo eventInfo){ eventInfo.eventDamage += Math.abs(random.nextInt()%(maxValue + 1));}
-	@Override
-	public void run(SpawnEventInfo eventInfo){ eventInfo.eventHealth += Math.abs(random.nextInt()%(maxValue + 1));}
+	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue += Math.abs(random.nextInt()%(maxValue + 1));}
 	
 	public static DiceRollAddition getNew(Matcher matcher)
 	{ 

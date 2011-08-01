@@ -3,9 +3,8 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class LiteralRange extends Chanceroutine 
 {
@@ -16,9 +15,7 @@ public class LiteralRange extends Chanceroutine
 		upperBound = upper;
 	}
 	@Override
-	public void run(DamageEventInfo eventInfo){ eventInfo.eventDamage = lowerBound + Math.abs(random.nextInt()%(upperBound - lowerBound + 1));}
-	@Override
-	public void run(SpawnEventInfo eventInfo){ eventInfo.eventHealth = lowerBound + Math.abs(random.nextInt()%(upperBound - lowerBound + 1));}
+	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = lowerBound + Math.abs(random.nextInt()%(upperBound - lowerBound + 1));}
 	
 	public static LiteralRange getNew(Matcher matcher)
 	{ 

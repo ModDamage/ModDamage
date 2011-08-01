@@ -4,8 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
@@ -15,9 +14,8 @@ public class EntityAirTicksComparison extends EntityComparison
 	{ 
 		super(inverted, forAttacker, ticks, comparisonType);
 	}
-	protected Integer getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getRemainingAir();}
 	@Override
-	protected Integer getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.entity.getRemainingAir();}
+	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return getRelevantEntity(eventInfo).getRemainingAir();}
 	
 	public static void register(ModDamage routineUtility)
 	{

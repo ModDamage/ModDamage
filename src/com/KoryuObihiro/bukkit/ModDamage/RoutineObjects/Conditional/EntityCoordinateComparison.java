@@ -6,8 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.Location;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
@@ -20,21 +19,9 @@ public class EntityCoordinateComparison extends EntityComparison
 		this.coordinateToCompare = coordinateToCompare;
 	}
 	@Override
-	protected Integer getRelevantInfo(DamageEventInfo eventInfo)
+	protected Integer getRelevantInfo(TargetEventInfo eventInfo)
 	{
-		Location location = (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation();
-		switch(coordinateToCompare)
-		{
-			case X:	return location.getBlockX();
-			case Y:	return location.getBlockY();
-			case Z:	return location.getBlockZ();
-			default:return 0; //shouldn't happen
-		}
-	}
-	@Override
-	protected Integer getRelevantInfo(SpawnEventInfo eventInfo)
-	{
-		Location location = eventInfo.entity.getLocation();
+		Location location = getRelevantEntity(eventInfo).getLocation();
 		switch(coordinateToCompare)
 		{
 			case X:	return location.getBlockX();

@@ -9,8 +9,8 @@ import java.util.regex.Pattern;
 import org.bukkit.Material;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
@@ -20,11 +20,8 @@ public class PlayerWieldSwitch extends EntitySwitchRoutine<List<Material>>
 	{
 		super(forAttacker, switchStatements);
 	}
-
 	@Override
-	protected List<Material> getRelevantInfo(DamageEventInfo eventInfo){ return Arrays.asList((forAttacker?eventInfo.materialInHand_attacker:eventInfo.materialInHand_target));}
-	@Override
-	protected List<Material> getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
+	protected List<Material> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList((forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).materialInHand_attacker:eventInfo.materialInHand_target);}
 	@Override
 	protected boolean compare(List<Material> info_1, List<Material> info_2){ return info_2.contains(info_1.get(0));}
 	@Override

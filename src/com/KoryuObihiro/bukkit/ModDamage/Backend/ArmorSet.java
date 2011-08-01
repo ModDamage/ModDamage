@@ -103,6 +103,7 @@ public class ArmorSet
 	
 	public boolean isEmpty(){ return !hasSomething;}
 	
+	@Override
 	public String toString()//TODO Format better, mebbe?
 	{
 		if(hasSomething)

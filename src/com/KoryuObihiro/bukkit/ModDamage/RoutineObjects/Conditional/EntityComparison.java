@@ -1,7 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 
 abstract public class EntityComparison extends EntityConditionalStatement<Integer>
@@ -14,7 +13,5 @@ abstract public class EntityComparison extends EntityConditionalStatement<Intege
 	}
 
 	@Override
-	public boolean condition(DamageEventInfo eventInfo){ return comparisonType.compare(getRelevantInfo(eventInfo), value);}
-	@Override
-	public boolean condition(SpawnEventInfo eventInfo){ return comparisonType.compare(getRelevantInfo(eventInfo), value);}
+	public boolean condition(TargetEventInfo eventInfo){ return comparisonType.compare(getRelevantInfo(eventInfo), value);}
 }

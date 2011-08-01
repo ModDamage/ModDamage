@@ -33,68 +33,65 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public enum ModDamageElement 
 {
-GENERIC ("generic", null, true),
-	GENERIC_ANIMAL 	("animal", GENERIC, true),
-		ANIMAL_CHICKEN ("Chicken", GENERIC_ANIMAL, false),
-		ANIMAL_COW ("Cow", GENERIC_ANIMAL, false),
-		ANIMAL_PIG ("Pig", GENERIC_ANIMAL, false),
-		ANIMAL_SHEEP ("Sheep", GENERIC_ANIMAL, false),
-		ANIMAL_SQUID ("Squid", GENERIC_ANIMAL, false),
-		ANIMAL_WOLF ("Wolf", GENERIC_ANIMAL, false),
-			ANIMAL_WOLF_WILD ("Wolf_Wild", ANIMAL_WOLF, false),
-			ANIMAL_WOLF_ANGRY ("Wolf_Hostile", ANIMAL_WOLF, false),
-			ANIMAL_WOLF_TAME ("Wolf_Tame", ANIMAL_WOLF, false),
+GENERIC ("generic", null),
+	GENERIC_ANIMAL 	("animal", GENERIC),
+		ANIMAL_CHICKEN ("Chicken", GENERIC_ANIMAL),
+		ANIMAL_COW ("Cow", GENERIC_ANIMAL),
+		ANIMAL_PIG ("Pig", GENERIC_ANIMAL),
+		ANIMAL_SHEEP ("Sheep", GENERIC_ANIMAL),
+		ANIMAL_SQUID ("Squid", GENERIC_ANIMAL),
+		ANIMAL_WOLF ("Wolf", GENERIC_ANIMAL),
+			ANIMAL_WOLF_WILD ("Wolf_Wild", ANIMAL_WOLF),
+			ANIMAL_WOLF_ANGRY ("Wolf_Hostile", ANIMAL_WOLF),
+			ANIMAL_WOLF_TAME ("Wolf_Tame", ANIMAL_WOLF),
 		
-	GENERIC_HUMAN 	("human", GENERIC, false),
-		HUMAN_PLAYER ("Player", GENERIC_HUMAN, false),
-		HUMAN_NPC ("NPC", GENERIC_HUMAN, false),
+	GENERIC_HUMAN 	("human", GENERIC),
+		HUMAN_PLAYER ("Player", GENERIC_HUMAN),
+		HUMAN_NPC ("NPC", GENERIC_HUMAN),
 	
-	GENERIC_MOB 	("mob", GENERIC, true),
-		MOB_CREEPER ("Creeper", GENERIC_MOB, false),
-			MOB_CREEPER_CHARGED("Creeper_Charged", GENERIC_MOB, false),
-			MOB_CREEPER_NORMAL ("Creeper_Normal", GENERIC_MOB, false),
-		MOB_GHAST ("Ghast", GENERIC_MOB, false),
-		MOB_GIANT ("Giant", GENERIC_MOB, false),
-		MOB_PIGZOMBIE ("ZombiePigman", GENERIC_MOB, false),
-		MOB_SKELETON ("Skeleton", GENERIC_MOB, false),
-		MOB_SLIME ("Slime", GENERIC_MOB, true),
-			MOB_SLIME_HUGE ("Slime_Huge", MOB_SLIME, false),
-			MOB_SLIME_LARGE ("Slime_Large", MOB_SLIME, false),
-			MOB_SLIME_MEDIUM("Slime_Medium", MOB_SLIME, false),
-			MOB_SLIME_OTHER("Slime_Other", MOB_SLIME, false),
-			MOB_SLIME_SMALL("Slime_Small", MOB_SLIME, false),
-		MOB_SPIDER ("Spider", GENERIC_MOB, false),
-		MOB_ZOMBIE ("Zombie", GENERIC_MOB, false),
+	GENERIC_MOB 	("mob", GENERIC),
+		MOB_CREEPER ("Creeper", GENERIC_MOB),
+			MOB_CREEPER_CHARGED("Creeper_Charged", GENERIC_MOB),
+			MOB_CREEPER_NORMAL ("Creeper_Normal", GENERIC_MOB),
+		MOB_GHAST ("Ghast", GENERIC_MOB),
+		MOB_GIANT ("Giant", GENERIC_MOB),
+		MOB_PIGZOMBIE ("ZombiePigman", GENERIC_MOB),
+		MOB_SKELETON ("Skeleton", GENERIC_MOB),
+		MOB_SLIME ("Slime", GENERIC_MOB),
+			MOB_SLIME_HUGE ("Slime_Huge", MOB_SLIME),
+			MOB_SLIME_LARGE ("Slime_Large", MOB_SLIME),
+			MOB_SLIME_MEDIUM("Slime_Medium", MOB_SLIME),
+			MOB_SLIME_OTHER("Slime_Other", MOB_SLIME),
+			MOB_SLIME_SMALL("Slime_Small", MOB_SLIME),
+		MOB_SPIDER ("Spider", GENERIC_MOB),
+		MOB_ZOMBIE ("Zombie", GENERIC_MOB),
 	
-	GENERIC_NATURE 	("nature", GENERIC, true),
-		NATURE_BLOCK_EXPLOSION ("blockexplosion", GENERIC_NATURE, false),
-		NATURE_CONTACT("cactus", GENERIC_NATURE, false),
-		NATURE_DROWNING ("drowning", GENERIC_NATURE, false),
-		NATURE_EXPLOSION ("explosion", GENERIC_NATURE, false),
-		NATURE_FALL ("fall", GENERIC_NATURE, false),
-		NATURE_FIRE ("fire", GENERIC_NATURE, false),
-		NATURE_FIRE_TICK ("burn", GENERIC_NATURE, false),
-		NATURE_LAVA ("lava", GENERIC_NATURE, false),
-		NATURE_LIGHTNING ("lightning", GENERIC_NATURE, false),
-		NATURE_SUFFOCATION ("suffocation", GENERIC_NATURE, false),
-		NATURE_VOID ("void", GENERIC_NATURE, false),
+	GENERIC_NATURE 	("nature", GENERIC),
+		NATURE_BLOCK_EXPLOSION ("blockexplosion", GENERIC_NATURE),
+		NATURE_CONTACT("cactus", GENERIC_NATURE),
+		NATURE_DROWNING ("drowning", GENERIC_NATURE),
+		NATURE_EXPLOSION ("explosion", GENERIC_NATURE),
+		NATURE_FALL ("fall", GENERIC_NATURE),
+		NATURE_FIRE ("fire", GENERIC_NATURE),
+		NATURE_FIRE_TICK ("burn", GENERIC_NATURE),
+		NATURE_LAVA ("lava", GENERIC_NATURE),
+		NATURE_LIGHTNING ("lightning", GENERIC_NATURE),
+		NATURE_SUFFOCATION ("suffocation", GENERIC_NATURE),
+		NATURE_VOID ("void", GENERIC_NATURE),
 	
-	GENERIC_TRAP	("trap", GENERIC, true),
-		TRAP_DISPENSER("dispenser", GENERIC_TRAP, false);
+	GENERIC_TRAP("trap", GENERIC),
+		TRAP_DISPENSER("dispenser", GENERIC_TRAP);
 
 	private final String stringReference;
 	private final ModDamageElement genericElement;
-	private final boolean hasSubConfig;
-	ModDamageElement(String stringReference, ModDamageElement genericElement, boolean hasSubConfig) 
+	ModDamageElement(String stringReference, ModDamageElement genericElement) 
 	{
 		this.stringReference = stringReference;
 		this.genericElement = genericElement;
-		this.hasSubConfig = hasSubConfig;
 	}
 	
 	public String getReference(){ return this.stringReference;}
 	public ModDamageElement getType(){ return genericElement;}
-	public boolean hasSubConfiguration(){ return hasSubConfig;}
 
 	public boolean isElementReference(String string)
 	{
@@ -121,13 +118,6 @@ GENERIC ("generic", null, true),
 			case VOID: 				return NATURE_VOID;
 			default: 				return null;//shouldn't happen
 		}
-	}
-	public static ModDamageElement matchElement(ModDamageElement genericElement, String elementReference)
-	{
-		if(genericElement.hasSubConfig)
-			for(ModDamageElement element : getElementsOf(genericElement))
-				if(elementReference.equalsIgnoreCase(element.getReference())) return element;
-		return null;
 	}
 	
 	//Returns true if this is equals or a subtype of the inputted element

@@ -7,10 +7,9 @@ import java.util.regex.Pattern;
 
 import org.bukkit.block.Biome;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class BiomeSwitch extends EntitySwitchRoutine<Biome>
@@ -19,13 +18,8 @@ public class BiomeSwitch extends EntitySwitchRoutine<Biome>
 	{
 		super(forAttacker, switchLabels);
 	}
-
 	@Override
-	protected Biome getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.entity_attacker:eventInfo.entity_target).getLocation().getBlock().getBiome();}
-
-	@Override
-	protected Biome getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.entity.getLocation().getBlock().getBiome();}
-	
+	protected Biome getRelevantInfo(TargetEventInfo eventInfo){ return getRelevantEntity(eventInfo).getLocation().getBlock().getBiome();}
 	@Override
 	protected Biome matchCase(String switchCase){ return ModDamage.matchBiome(switchCase);}
 	

@@ -3,11 +3,10 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class PlayerWearingOnly extends EntityConditionalStatement<ArmorSet>
 {
@@ -15,14 +14,10 @@ public class PlayerWearingOnly extends EntityConditionalStatement<ArmorSet>
 	{  
 		super(forAttacker, forAttacker, armorSet);
 	}
-	
 	@Override
-	public boolean condition(SpawnEventInfo eventInfo){ return false;}
-	
+	public boolean condition(TargetEventInfo eventInfo){ return false;}
 	@Override
-	protected ArmorSet getRelevantInfo(DamageEventInfo eventInfo){ return(forAttacker?eventInfo.armorSet_attacker:eventInfo.armorSet_target);}
-	@Override
-	protected ArmorSet getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
+	protected ArmorSet getRelevantInfo(TargetEventInfo eventInfo){ return null;}
 	
 	public static void register(ModDamage routineUtility)
 	{

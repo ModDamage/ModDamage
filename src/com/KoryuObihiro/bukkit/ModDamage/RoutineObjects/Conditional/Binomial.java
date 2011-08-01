@@ -4,11 +4,10 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 public class Binomial extends ConditionalStatement
 {
@@ -20,9 +19,7 @@ public class Binomial extends ConditionalStatement
 		chance = (value <= 0?100:value);
 	}
 	@Override
-	public boolean condition(DamageEventInfo eventInfo){ return Math.abs(random.nextInt()%101) <= chance;}
-	@Override
-	public boolean condition(SpawnEventInfo eventInfo){ return Math.abs(random.nextInt()%101) <= chance;}
+	public boolean condition(TargetEventInfo eventInfo){ return Math.abs(random.nextInt()%101) <= chance;}
 	
 	public static void register(ModDamage routineUtility)
 	{

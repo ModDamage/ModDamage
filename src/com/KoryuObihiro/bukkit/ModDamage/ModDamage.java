@@ -26,9 +26,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
@@ -188,7 +188,9 @@ public class ModDamage extends JavaPlugin
 	private static String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
 
 	protected static int configPages = 0;
-	protected static List<String> configStrings = new ArrayList<String>();
+	protected static List<String> configStrings_ingame = new ArrayList<String>();
+	protected static List<String> configStrings_console = new ArrayList<String>();
+	private static boolean hadErrors;
 	protected static int additionalConfigChecks = 0;
 	
 //External-plugin variables
@@ -258,7 +260,7 @@ public class ModDamage extends JavaPlugin
 			comparisonRegex += type.name() + "|" + type.getShortHand() + "|";
 		comparisonRegex += ")\\.";
 		
-		conditionalPattern = Pattern.compile("(if|if_not)\\s+" + statementPart + "(?:\\s+" + logicalRegex + "\\s+" + statementPart + ")*", Pattern.CASE_INSENSITIVE);
+		conditionalPattern = Pattern.compile("(if|if_not)\\s+(?:!)?" + statementPart + "(?:\\s+" + logicalRegex + "\\s+" + statementPart + ")*", Pattern.CASE_INSENSITIVE);
 		switchPattern = Pattern.compile("switch\\." + statementPart, Pattern.CASE_INSENSITIVE);
 		effectPattern = Pattern.compile(entityPart + "effect\\." + statementPart);
 	}
@@ -266,8 +268,14 @@ public class ModDamage extends JavaPlugin
 //Routine objects
 	public static boolean damageRoutinesLoaded = false;
 	public static boolean spawnRoutinesLoaded = false;
-	private final List<Routine> damageRoutines = new ArrayList<Routine>();
-	private final List<Routine> spawnRoutines = new ArrayList<Routine>();
+	public static boolean deathRoutinesLoaded = false;
+	public static boolean foodRoutinesLoaded = false;
+	public static boolean targetRoutinesLoaded = false;
+	private static final List<Routine> damageRoutines = new ArrayList<Routine>();
+	private static final List<Routine> spawnRoutines = new ArrayList<Routine>();
+	private static final List<Routine> deathRoutines = new ArrayList<Routine>();
+	private static final List<Routine> foodRoutines = new ArrayList<Routine>();
+	private static final List<Routine> targetRoutines = new ArrayList<Routine>();
 	
 	
 //Alias objects
@@ -277,6 +285,8 @@ public class ModDamage extends JavaPlugin
 	//public static HashMap<String, List<String>> messageAliases = new HashMap<String, List<String>>();
 	//public static HashMap<String, List<ModDamageElement>> mobAliases = new HashMap<String, List<ModDamageElement>>();
 
+	public static boolean itemAliasesLoaded = false;
+	public static boolean messageAliasesLoaded = false;
 	private static boolean aliasesLoaded = false;
 	
 	
@@ -310,8 +320,12 @@ public class ModDamage extends JavaPlugin
 		
 	//Event registration
 		//register plugin-related stuff with the server's plugin manager
-		server.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
 		server.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
+		server.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
+		//TODO INTEGRATE THESE
+		//server.getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Highest, this);
+		//server.getPluginManager().registerEvent(Event.Type.ENTITY_REGAIN_HEALTH, entityListener, Event.Priority.Highest, this);
+		//server.getPluginManager().registerEvent(Event.Type.ENTITY_TARGET, entityListener, Event.Priority.Highest, this);
 		
 		//register MD routines
 //Base Calculations
@@ -375,7 +389,7 @@ public class ModDamage extends JavaPlugin
 		
 		config = this.getConfiguration();
 		reload();
-		isEnabled = loadedSomething();
+		isEnabled = loadedRoutines();
 	}
 
 	@Override
@@ -430,7 +444,7 @@ public class ModDamage extends JavaPlugin
 							{
 								log.info("[" + getDescription().getName() + "] Reload initiated by user " + player.getName() + "...");
 								reload();
-								if(loadedSomething()) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Reloaded!");
+								if(loadedRoutines()) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Reloaded!");
 								else player.sendMessage(ModDamageString(ChatColor.RED) + " No configurations loaded! Are any calculation strings defined?");
 								log.info("[" + getDescription().getName() + "] Reload complete.");
 							}
@@ -463,16 +477,12 @@ public class ModDamage extends JavaPlugin
 							}
 							else if(args.length == 1)
 							{
-								//Send everything if from console
-								//Send list of loaded worlds
 								if(hasPermission(player, "moddamage.check"))
-								{
-									sendConfig(player, 1);
-								}
+									sendConfig(player, 0);
 								else player.sendMessage(errorString_Permissions);
 								return true;
 							}
-							//md check worldname || md check int
+							//md check int
 							else if(args.length == 2)
 							{
 								try
@@ -514,20 +524,33 @@ public class ModDamage extends JavaPlugin
 	}
 
 //// EVENT FUNCTIONS ////
-	public void executeRoutines_Damage(DamageEventInfo eventInfo) 
+	//FIXME Gotta be a more dynamic way to do this...but it hardly matters at this level.
+	public void executeRoutines_Damage(AttackerEventInfo eventInfo) 
 	{
 		for(Routine routine : damageRoutines)
 			routine.run(eventInfo);
 	}
 
-	public void executeRoutines_Spawn(SpawnEventInfo eventInfo)
+	public void executeRoutines_Death(TargetEventInfo eventInfo)
+	{
+		for(Routine routine : deathRoutines)
+			routine.run(eventInfo);
+	}
+
+	public void executeRoutines_Food(TargetEventInfo eventInfo)
+	{
+		for(Routine routine : foodRoutines)
+			routine.run(eventInfo);
+	}
+
+	public void executeRoutines_Spawn(TargetEventInfo eventInfo)
 	{
 		for(Routine routine : spawnRoutines)
 			routine.run(eventInfo);
 	}
 	
 ///// HELPER FUNCTIONS ////
-	private boolean loadedSomething(){ return damageRoutinesLoaded || spawnRoutinesLoaded || aliasesLoaded;}
+	private boolean loadedRoutines(){ return damageRoutinesLoaded || deathRoutinesLoaded || foodRoutinesLoaded || spawnRoutinesLoaded;}
 	
 	public static boolean hasPermission(Player player, String permission)
 	{
@@ -547,8 +570,8 @@ public class ModDamage extends JavaPlugin
 		damageRoutines.clear();
 		spawnRoutines.clear();
 		itemAliases.clear();
-		damageRoutinesLoaded = spawnRoutinesLoaded = false;
-		configStrings.clear();
+		hadErrors = damageRoutinesLoaded = spawnRoutinesLoaded = false;
+		configStrings_ingame.clear();
 	}
 	
 //// PLUGIN CONFIGURATION ////
@@ -614,8 +637,6 @@ public class ModDamage extends JavaPlugin
 /////////////////// MECHANICS CONFIGURATION 
 	private void reload()
 	{
-		damageRoutines.clear();
-		spawnRoutines.clear();
 		clear();
 		config.load();
 	//get plugin config.yml...if it doesn't exist, create it.
@@ -664,7 +685,7 @@ public class ModDamage extends JavaPlugin
 			log.info("[" + getDescription().getName()+ "] Negative-damage healing " + (negative_Heal?"en":"dis") + "abled.");
 		
 		config.load(); //Discard any changes made to the file by the above reads.
-		log.info("[" + getDescription().getName() + "] " + (loadedSomething()?"Finished loading configuration.":"No configuration defined! Is this on purpose?"));
+		log.info("[" + getDescription().getName() + "] " + (loadedRoutines()?"Finished loading configuration.":"No configuration defined! Is this on purpose?"));
 	}
 
 	private void writeDefaults() 
@@ -1026,7 +1047,8 @@ public class ModDamage extends JavaPlugin
 	
 	public static void addToConfig(LogSetting outputSetting, int nestCount, String string, boolean severe)
 	{
-		configStrings.add(nestCount + "] " + (severe?ChatColor.RED:ChatColor.AQUA) + string);
+		if(severe) hadErrors = true;
+		configStrings_ingame.add(nestCount + "] " + (severe?ChatColor.RED:ChatColor.AQUA) + string);
 		if(logSetting.shouldOutput(outputSetting))
 		{
 			if(severe) log.severe(string);
@@ -1035,9 +1057,11 @@ public class ModDamage extends JavaPlugin
 				String nestIndentation = "";
 				for(int i = 0; i < nestCount; i++)
 					nestIndentation += "    ";
+				configStrings_console.add(nestIndentation + string);
 				log.info(nestIndentation + string);
 			}
 		}
+		configPages = configStrings_ingame.size()/9 + (configStrings_ingame.size()%9 > 0?1:0);
 	}
 
 	public static boolean sendConfig(Player player, int pageNumber)
@@ -1045,11 +1069,9 @@ public class ModDamage extends JavaPlugin
 		if(player == null)
 		{
 			String printString = "[ModDamage] Complete configuration for this server:";
-			for(String configString : configStrings)
+			for(String configString : configStrings_console)
 				printString += "\n" + configString;
-			
 			log.info(printString);
-			
 			return true;
 		}
 		else if(pageNumber > 0)
@@ -1057,15 +1079,26 @@ public class ModDamage extends JavaPlugin
 			if(pageNumber <= configPages)
 			{
 				player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Configuration: (" + pageNumber + "/" + (configPages + additionalConfigChecks) + ")");
-				for(int i = (9 * (pageNumber - 1)); i < (configStrings.size() < (9 * pageNumber)
-															?configStrings.size()
-															:(9 * pageNumber)); i++)
-					player.sendMessage(ChatColor.DARK_AQUA + configStrings.get(i));
+				for(int i = (9 * (pageNumber - 1)); i < (configStrings_ingame.size() < (9 * pageNumber)?configStrings_ingame.size():(9 * pageNumber)); i++)
+					player.sendMessage(ChatColor.DARK_AQUA + configStrings_ingame.get(i));
 				return true;
 			}
 		}
+		else
+		{
+			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Configuration: Overview (Pages: " + configPages + ")");
+			player.sendMessage(ChatColor.DARK_AQUA + "Aliases:" + "\t\t" + "Routines:");
+			player.sendMessage(ChatColor.DARK_AQUA + "Item aliases:" + activationString(itemAliasesLoaded) + "\t" + ChatColor.DARK_AQUA + "Damage Routines:" + activationString(damageRoutinesLoaded));
+			player.sendMessage(ChatColor.DARK_AQUA + "Message aliases:" + activationString(messageAliasesLoaded) + "\t" + ChatColor.DARK_AQUA + "Spawn Routines:" + activationString(damageRoutinesLoaded));
+			//player.sendMessage(ChatColor.DARK_AQUA + "Armor aliases:" + activationString(armorAliasesLoaded) + "\t" + ChatColor.DARK_AQUA + "Food Routines:" + activationString(damageRoutinesLoaded));
+			player.sendMessage(hadErrors?ChatColor.DARK_RED + "There were one or more read errors in config.":"No errors loading configuration!");	
+		}
+		//TODO: Else for configured aliases/routine types.
+		//TODO: Yellow for the failed, but active, loads. :D
 		return false;
 	}
+	
+	private static String activationString(boolean state){ return (state?ChatColor.GREEN + "YES":ChatColor.RED + "NO");}
 	
 //// INGAME MATCHING ////	
 	//Frankly, most of the stuff below should be considered for implementation into Bukkit. :<

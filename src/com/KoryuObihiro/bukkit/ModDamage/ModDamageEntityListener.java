@@ -5,18 +5,23 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByProjectileEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityListener;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
+import org.bukkit.event.entity.EntityTargetEvent;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class ModDamageEntityListener extends EntityListener
 {
 	ModDamage plugin;
 	public ModDamageEntityListener(ModDamage plugin){ this.plugin = plugin;}
-	
+
+//// DAMAGE ////
 	@Override
 	public void onEntityDamage(EntityDamageEvent event)
 	{
@@ -25,41 +30,76 @@ public class ModDamageEntityListener extends EntityListener
 			LivingEntity ent_damaged = (LivingEntity)event.getEntity();
 			if(ModDamage.damageRoutinesLoaded && ent_damaged.getNoDamageTicks() <= 40)
 			{
-				DamageEventInfo eventInfo = null;
+				AttackerEventInfo eventInfo = null;
 				if(ModDamageElement.matchNonlivingElement(event.getCause()) != null)
-					eventInfo = new DamageEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.matchNonlivingElement(event.getCause()), null, event.getDamage());
+					eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.matchNonlivingElement(event.getCause()), null, event.getDamage());
 				else if(event instanceof EntityDamageByEntityEvent)
 				{
 					EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
 					//TODO Make this compatible with dispensers!
 					LivingEntity ent_damager = (LivingEntity)event_EE.getDamager();
 					RangedElement rangedElement = (event instanceof EntityDamageByProjectileEvent?RangedElement.matchElement(((EntityDamageByProjectileEvent)event).getProjectile()):null);
-					eventInfo = new DamageEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), ent_damager, ModDamageElement.matchMobType(ent_damager), rangedElement, event.getDamage());
+					eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), ent_damager, ModDamageElement.matchMobType(ent_damager), rangedElement, event.getDamage());
 				}
 				else{ ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled damage event. Is this plugin up-to-date?");}
 				
 				plugin.executeRoutines_Damage(eventInfo);
 					
-				if(eventInfo.eventDamage < 0 && !ModDamage.negative_Heal) 
-					eventInfo.eventDamage = 0;
-				event.setDamage(eventInfo.eventDamage);
+				if(eventInfo.eventValue < 0 && !ModDamage.negative_Heal) 
+					eventInfo.eventValue = 0;
+				event.setDamage(eventInfo.eventValue);
 			}		
 		}
 	}
 	
+//// SPAWN ////
 	@Override
 	public void onCreatureSpawn(CreatureSpawnEvent event)
 	{ 
 		if(!event.isCancelled() && event.getEntity() != null && ModDamage.spawnRoutinesLoaded)
 		{
 			LivingEntity entity = (LivingEntity)event.getEntity();
-			SpawnEventInfo eventInfo = new SpawnEventInfo(entity);
+			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), entity.getHealth());
 
-			if(eventInfo.element != null)
-				plugin.executeRoutines_Spawn(eventInfo);
+			plugin.executeRoutines_Spawn(eventInfo);
 			
-			entity.setHealth(eventInfo.eventHealth);
+			entity.setHealth(eventInfo.eventValue);
 			event.setCancelled(entity.getHealth() <= 0);
+		}
+	}
+	
+	//TODO
+	//----
+//// DEATH ////
+	@Override
+	public void onEntityDeath(EntityDeathEvent event)
+	{
+		if(event.getEntity() instanceof LivingEntity)
+		{
+			LivingEntity entity = (LivingEntity)event.getEntity();
+			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), 0);
+			
+			plugin.executeRoutines_Death(eventInfo);
+		}
+	}
+	
+//// TARGET ////
+	@Override
+	public void onEntityTarget(EntityTargetEvent event)
+	{
+		
+	}
+	
+//// FOOD ////
+	@Override
+	public void onEntityRegainHealth(EntityRegainHealthEvent event)
+	{
+		if(!event.isCancelled() && event.getRegainReason().equals(RegainReason.EATING))
+		{
+			LivingEntity entity = (LivingEntity)event.getEntity();
+			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), entity.getHealth());
+				
+			plugin.executeRoutines_Food(eventInfo);
 		}
 	}
 }

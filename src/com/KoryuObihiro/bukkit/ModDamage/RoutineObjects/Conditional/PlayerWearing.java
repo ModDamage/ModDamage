@@ -5,8 +5,7 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class PlayerWearing extends EntityConditionalStatement<ArmorSet>
@@ -16,9 +15,7 @@ public class PlayerWearing extends EntityConditionalStatement<ArmorSet>
 		super(inverted, forAttacker, armorSet);
 	}
 	@Override
-	public ArmorSet getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.armorSet_attacker:eventInfo.armorSet_target);}
-	@Override
-	public ArmorSet getRelevantInfo(SpawnEventInfo eventInfo){ return null;}
+	public ArmorSet getRelevantInfo(TargetEventInfo eventInfo){ return null;}
 	
 	public static void register(ModDamage routineUtility)
 	{

@@ -7,22 +7,16 @@ import java.util.regex.Pattern;
 
 import org.bukkit.World.Environment;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class EnvironmentSwitch extends SwitchRoutine<Environment>
 {	
 	public EnvironmentSwitch(LinkedHashMap<String, List<Routine>> switchStatements){ super(switchStatements);}
-
 	@Override
-	protected Environment getRelevantInfo(DamageEventInfo eventInfo){ return eventInfo.environment;}
-
-	@Override
-	protected Environment getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.environment;}	
-
+	protected Environment getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.environment;}
 	@Override
 	protected Environment matchCase(String switchCase){ return ModDamage.matchEnvironment(switchCase);}
 	

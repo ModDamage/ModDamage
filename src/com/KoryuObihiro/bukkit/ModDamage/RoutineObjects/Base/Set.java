@@ -1,12 +1,10 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class Set extends Routine 
@@ -14,9 +12,7 @@ public class Set extends Routine
 	private int setValue;
 	public Set(int value){ setValue = value;}
 	@Override
-	public void run(DamageEventInfo eventInfo){ eventInfo.eventDamage = setValue;}
-	@Override
-	public void run(SpawnEventInfo eventInfo){ eventInfo.eventHealth = setValue;}
+	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = setValue;}
 	
 	public static void register(ModDamage routineUtility)
 	{

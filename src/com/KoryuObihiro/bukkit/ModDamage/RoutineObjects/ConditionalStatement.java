@@ -1,7 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 abstract public class ConditionalStatement
 {
@@ -11,6 +10,5 @@ abstract public class ConditionalStatement
 		this.inverted = inverted;
 	}
 	
-	protected abstract boolean condition(DamageEventInfo eventInfo);
-	protected abstract boolean condition(SpawnEventInfo eventInfo);
+	protected abstract boolean condition(TargetEventInfo eventInfo);
 }

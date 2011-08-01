@@ -4,8 +4,7 @@ import java.util.List;
 
 import org.bukkit.World;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
@@ -15,9 +14,6 @@ abstract public class WorldCalculatedEffectRoutine extends CalculatedEffectRouti
 	{
 		super(routines);
 	}
-
 	@Override
-	protected World getAffectedObject(DamageEventInfo eventInfo){ return eventInfo.world;}
-	@Override
-	protected World getAffectedObject(SpawnEventInfo eventInfo){ return eventInfo.world;}
+	protected World getAffectedObject(TargetEventInfo eventInfo){ return eventInfo.world;}
 }

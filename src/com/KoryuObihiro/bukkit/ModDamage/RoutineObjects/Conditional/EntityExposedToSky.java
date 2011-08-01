@@ -6,10 +6,9 @@ import java.util.regex.Pattern;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class EntityExposedToSky extends EntityConditionalStatement<Boolean>
 {
@@ -19,9 +18,10 @@ public class EntityExposedToSky extends EntityConditionalStatement<Boolean>
 	}
 	
 	@Override
-	protected Boolean getRelevantInfo(DamageEventInfo eventInfo){ return isExposedToSky(getRelevantEntity(eventInfo), eventInfo.world);}
+	protected boolean condition(TargetEventInfo eventInfo){ return isExposedToSky(getRelevantEntity(eventInfo), eventInfo.world);}
+
 	@Override
-	protected Boolean getRelevantInfo(SpawnEventInfo eventInfo){ return isExposedToSky(getRelevantEntity(eventInfo), eventInfo.world);}
+	protected Boolean getRelevantInfo(TargetEventInfo eventInfo){ return false;}
 
 	private boolean isExposedToSky(LivingEntity entity, World world)
 	{

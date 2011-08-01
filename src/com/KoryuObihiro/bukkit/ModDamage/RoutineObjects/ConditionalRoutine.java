@@ -8,8 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class ConditionalRoutine extends Routine
 {
@@ -25,19 +24,9 @@ public class ConditionalRoutine extends Routine
 		this.logicalOperations = logicalOperations;
 		this.routines = routines;
 	}
-	@Override
-	public void run(DamageEventInfo eventInfo)
-	{
-		boolean result = statements.get(0).condition(eventInfo);
-		for(int i = 1; i < statements.size(); i++)
-			 result = logicalOperations.get(i - 1).operate(result, statements.get(i).condition(eventInfo));
-		if(result | inverted)
-			for(Routine routine : routines)
-				routine.run(eventInfo);
-	}
 	
 	@Override
-	public void run(SpawnEventInfo eventInfo)
+	public void run(TargetEventInfo eventInfo)
 	{
 		boolean result = statements.get(0).condition(eventInfo);
 		for(int i = 1; i < statements.size(); i++)
@@ -113,8 +102,6 @@ public class ConditionalRoutine extends Routine
 	{
 		FalseStatement(){ super(false);}
 		@Override
-		public boolean condition(DamageEventInfo eventInfo){ return false;}
-		@Override
-		public boolean condition(SpawnEventInfo eventInfo){ return false;}
+		public boolean condition(TargetEventInfo eventInfo){ return false;}
 	}
 }

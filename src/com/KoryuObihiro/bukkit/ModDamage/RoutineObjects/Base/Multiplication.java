@@ -1,12 +1,10 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class Multiplication extends Routine 
@@ -14,8 +12,7 @@ public class Multiplication extends Routine
 	private int multiplicationValue;
 	public Multiplication(int value){ multiplicationValue = value;}
 	@Override
-	public void run(DamageEventInfo eventInfo){ eventInfo.eventDamage *= multiplicationValue;}
-	public void run(SpawnEventInfo eventInfo){ eventInfo.eventHealth *= multiplicationValue;}
+	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue *= multiplicationValue;}
 	
 	public static Multiplication getNew(Matcher matcher)
 	{ 

@@ -6,8 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.World.Environment;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class WorldEnvironment extends WorldConditionalStatement 
@@ -19,9 +18,7 @@ public class WorldEnvironment extends WorldConditionalStatement
 		this.environment = environment;
 	}
 	@Override
-	public boolean condition(DamageEventInfo eventInfo){ return (useEventWorld?eventInfo.world:world).getEnvironment().equals(environment);}
-	@Override
-	public boolean condition(SpawnEventInfo eventInfo){ return (useEventWorld?eventInfo.world:world).getEnvironment().equals(environment);}
+	public boolean condition(TargetEventInfo eventInfo){ return (useEventWorld?eventInfo.world:world).getEnvironment().equals(environment);}
 	
 	public static void register(ModDamage routineUtility)
 	{

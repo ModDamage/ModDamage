@@ -1,12 +1,10 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class Division extends Routine 
@@ -14,9 +12,7 @@ public class Division extends Routine
 	private int divideValue;
 	public Division(int value){ divideValue = value;}
 	@Override
-	public void run(DamageEventInfo eventInfo){ eventInfo.eventDamage = eventInfo.eventDamage/divideValue;}
-	@Override
-	public void run(SpawnEventInfo eventInfo){ eventInfo.eventHealth = eventInfo.eventHealth/divideValue;}
+	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = eventInfo.eventValue/divideValue;}
 	
 	public static Division getNew(Matcher matcher)
 	{ 

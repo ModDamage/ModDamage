@@ -6,9 +6,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.SpawnEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
@@ -18,13 +18,8 @@ public class EntityTypeSwitch extends EntitySwitchRoutine<ModDamageElement>
 	{
 		super(forAttacker, switchStatements);
 	}
-
 	@Override
-	protected ModDamageElement getRelevantInfo(DamageEventInfo eventInfo){ return (forAttacker?eventInfo.element_attacker:eventInfo.element_target);}
-
-	@Override
-	protected ModDamageElement getRelevantInfo(SpawnEventInfo eventInfo){ return eventInfo.element;}
-
+	protected ModDamageElement getRelevantInfo(TargetEventInfo eventInfo){ return (forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).element_attacker:eventInfo.element_target;}
 	@Override
 	protected ModDamageElement matchCase(String switchCase){ return ModDamageElement.matchElement(switchCase);}
 	
