@@ -32,6 +32,6 @@ public class Message extends Chanceroutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(Message.class, Pattern.compile("debug\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(Message.class, Pattern.compile("debug\\.(.+)", Pattern.CASE_INSENSITIVE));
 	}
 }

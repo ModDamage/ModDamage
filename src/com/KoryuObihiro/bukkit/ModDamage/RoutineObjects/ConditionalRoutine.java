@@ -45,19 +45,18 @@ public class ConditionalRoutine extends Routine
 		//parse all of the conditionals
 		
 		//DEBUG FIXME
+		String[] statementStrings = matcher.group(1).split("\\s");
 		ModDamage.log.info("CONDITIONAL MATCHER CONTENTS:");
-		int j = matcher.groupCount();
-		ModDamage.log.info(j + ")");
-		for(int i = 0; i <= matcher.groupCount(); i++)
-			ModDamage.log.info(i + "] " + matcher.group(i));
+		for(String string : statementStrings)
+			ModDamage.log.info("] " + string);
 		//END DEBUG
 		
-		for(int i = 2; i <= matcher.groupCount(); i += 2)
+		for(int i = 0; i <= statementStrings.length; i += 2)
 		{
-			ModDamage.log.info("Attempting to match statement " + matcher.group(i));//TODO CHANGE FOR DEBUG
+			ModDamage.log.info("Attempting to match statement " + statementStrings[i]);//TODO CHANGE FOR DEBUG
 			for(Pattern pattern : registeredStatements.keySet())
 			{
-				Matcher statementMatcher = pattern.matcher(matcher.group(i));
+				Matcher statementMatcher = pattern.matcher(statementStrings[i]);
 				if(statementMatcher.matches())
 				{
 					ModDamage.log.info("Success!");//TODO CHANGE FOR DEBUG
@@ -74,8 +73,8 @@ public class ConditionalRoutine extends Routine
 					//get its relation to the previous statement
 					if(i > 2)
 					{
-						ModDamage.log.info("Attempting to match logical operator " + matcher.group(i - 1));//TODO CHANGE FOR DEBUG
-						LogicalOperation operation = LogicalOperation.matchType(matcher.group(i - 1));
+						ModDamage.log.info("Attempting to match logical operator " + statementStrings[i - 1]);//TODO CHANGE FOR DEBUG
+						LogicalOperation operation = LogicalOperation.matchType(statementStrings[i - 1]);
 						if(operation == null) return null;//shouldn't ever happen
 						operations.add(operation);
 					}

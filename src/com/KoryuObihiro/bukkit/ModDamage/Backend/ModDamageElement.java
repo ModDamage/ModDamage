@@ -67,10 +67,11 @@ GENERIC ("generic", null),
 		MOB_ZOMBIE ("Zombie", GENERIC_MOB),
 	
 	GENERIC_NATURE 	("nature", GENERIC),
-		NATURE_BLOCK_EXPLOSION ("blockexplosion", GENERIC_NATURE),
+		NATURE_EXPLOSION ("explosion", GENERIC_NATURE),
+			NATURE_EXPLOSION_ENTITY ("entityexplosion", GENERIC_NATURE),
+			NATURE_EXPLOSION_BLOCK ("blockexplosion", GENERIC_NATURE),
 		NATURE_CONTACT("cactus", GENERIC_NATURE),
 		NATURE_DROWNING ("drowning", GENERIC_NATURE),
-		NATURE_EXPLOSION ("explosion", GENERIC_NATURE),
 		NATURE_FALL ("fall", GENERIC_NATURE),
 		NATURE_FIRE ("fire", GENERIC_NATURE),
 		NATURE_FIRE_TICK ("burn", GENERIC_NATURE),
@@ -105,10 +106,10 @@ GENERIC ("generic", null),
 	{
 		switch(cause) 
 		{
-			case BLOCK_EXPLOSION:   return NATURE_BLOCK_EXPLOSION;
+			case BLOCK_EXPLOSION:   return NATURE_EXPLOSION_BLOCK;
 			case CONTACT: 			return NATURE_CONTACT;
 			case DROWNING: 			return NATURE_DROWNING;
-			case ENTITY_EXPLOSION: 	return NATURE_EXPLOSION;
+			case ENTITY_EXPLOSION: 	return NATURE_EXPLOSION_ENTITY;
 			case FALL: 				return NATURE_FALL;
 			case FIRE: 				return NATURE_FIRE;
 			case FIRE_TICK:			return NATURE_FIRE_TICK;

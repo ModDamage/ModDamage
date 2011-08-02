@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
@@ -20,6 +21,13 @@ public class EntityExplode extends EntityCalculatedEffectRoutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(EntityExplode.class, Pattern.compile(ModDamage.entityPart + "effect\\.explode", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntityExplode.class, Pattern.compile(ModDamage.entityPart + "effect\\.explode", Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static EntityExplode getNew(Matcher matcher, List<Routine> routines)
+	{
+		if(matcher != null && routines != null)
+			return new EntityExplode(matcher.group(1).equalsIgnoreCase("attacker"), routines);
+		return null;
 	}
 }

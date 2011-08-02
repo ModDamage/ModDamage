@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Material;
@@ -12,8 +13,12 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class PlayerAddItem extends PlayerCalculatedEffectRoutine
 {
-	protected Material material;
-	public PlayerAddItem(boolean forAttacker, List<Routine> routines){ super(forAttacker, routines);}
+	protected final Material material;
+	public PlayerAddItem(boolean forAttacker, Material material, List<Routine> routines)
+	{ 
+		super(forAttacker, routines);
+		this.material = material;
+	}
 	
 	@Override
 	protected void applyEffect(Player affectedObject, int input) 
@@ -23,6 +28,13 @@ public class PlayerAddItem extends PlayerCalculatedEffectRoutine
 
 	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(PlayerAddItem.class, Pattern.compile(ModDamage.entityPart + "effect\\.addItem\\." + ModDamage.materialRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(PlayerAddItem.class, Pattern.compile(ModDamage.entityPart + "effect\\.addItem\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static PlayerAddItem getNew(Matcher matcher, List<Routine> routines)
+	{
+		if(matcher != null && routines != null)
+			return new PlayerAddItem(matcher.group(1).equalsIgnoreCase("attacker"), Material.matchMaterial(matcher.group(2)), routines);
+		return null;
 	}
 }

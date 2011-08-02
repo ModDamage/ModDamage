@@ -16,7 +16,7 @@ public class Addition extends Routine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(Addition.class, Pattern.compile("([0-9]+)", Pattern.CASE_INSENSITIVE));
+		routineUtility.registerBase(Addition.class, Pattern.compile("(-?[0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Addition getNew(Matcher matcher)

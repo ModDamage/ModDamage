@@ -28,7 +28,7 @@ public class ModDamageEntityListener extends EntityListener
 		if(!event.isCancelled() && (event.getEntity() instanceof LivingEntity)) 
 		{
 			LivingEntity ent_damaged = (LivingEntity)event.getEntity();
-			if(ModDamage.damageRoutinesLoaded && ent_damaged.getNoDamageTicks() <= 40)
+			if(ModDamage.isEnabled && ent_damaged.getNoDamageTicks() <= 40)
 			{
 				AttackerEventInfo eventInfo = null;
 				if(ModDamageElement.matchNonlivingElement(event.getCause()) != null)
@@ -56,7 +56,7 @@ public class ModDamageEntityListener extends EntityListener
 	@Override
 	public void onCreatureSpawn(CreatureSpawnEvent event)
 	{ 
-		if(!event.isCancelled() && event.getEntity() != null && ModDamage.spawnRoutinesLoaded)
+		if(ModDamage.isEnabled && !event.isCancelled() && event.getEntity() != null)
 		{
 			LivingEntity entity = (LivingEntity)event.getEntity();
 			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), entity.getHealth());
@@ -74,7 +74,7 @@ public class ModDamageEntityListener extends EntityListener
 	@Override
 	public void onEntityDeath(EntityDeathEvent event)
 	{
-		if(event.getEntity() instanceof LivingEntity)
+		if(ModDamage.isEnabled && event.getEntity() instanceof LivingEntity)
 		{
 			LivingEntity entity = (LivingEntity)event.getEntity();
 			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), 0);
@@ -83,18 +83,11 @@ public class ModDamageEntityListener extends EntityListener
 		}
 	}
 	
-//// TARGET ////
-	@Override
-	public void onEntityTarget(EntityTargetEvent event)
-	{
-		
-	}
-	
 //// FOOD ////
 	@Override
 	public void onEntityRegainHealth(EntityRegainHealthEvent event)
 	{
-		if(!event.isCancelled() && event.getRegainReason().equals(RegainReason.EATING))
+		if(ModDamage.isEnabled && !event.isCancelled() && event.getRegainReason().equals(RegainReason.EATING))
 		{
 			LivingEntity entity = (LivingEntity)event.getEntity();
 			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), entity.getHealth());

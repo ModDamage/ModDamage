@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Material;
@@ -27,6 +28,13 @@ public class PlayerSetItem extends PlayerCalculatedEffectRoutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(PlayerSetItem.class, Pattern.compile(ModDamage.entityPart + "effect\\.addItem" + ModDamage.materialRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(PlayerSetItem.class, Pattern.compile(ModDamage.entityPart + "effect\\.addItem" + ModDamage.materialRegex + "\\)", Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static PlayerSetItem getNew(Matcher matcher, List<Routine> routines)
+	{
+		if(matcher != null && routines != null)
+			return new PlayerSetItem(matcher.group(1).equalsIgnoreCase("attacker"), Material.matchMaterial(matcher.group(2)), routines);
+		return null;
 	}
 }

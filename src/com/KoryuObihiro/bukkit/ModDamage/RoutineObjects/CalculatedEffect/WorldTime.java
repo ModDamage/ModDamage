@@ -21,15 +21,13 @@ public class WorldTime extends WorldCalculatedEffectRoutine
 
 	public static void register(ModDamage modDamage) 
 	{
-		CalculatedEffectRoutine.registerStatement(modDamage, WorldTime.class, Pattern.compile("setWorldTime\\." + ModDamage.numberPart, Pattern.CASE_INSENSITIVE));
+		CalculatedEffectRoutine.registerStatement(modDamage, WorldTime.class, Pattern.compile("setWorldTime", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static WorldTime getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-		{
 			return new WorldTime(routines);
-		}
 		return null;
 	}
 }

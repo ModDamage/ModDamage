@@ -274,7 +274,11 @@ public class ModDamage extends JavaPlugin
 		
 		conditionalPattern = Pattern.compile("(if|if_not)\\s+(?:!)?(" + statementPart + "(?:\\s+" + logicalRegex + "\\s+" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
 		switchPattern = Pattern.compile("switch\\." + statementPart, Pattern.CASE_INSENSITIVE);
+<<<<<<< Updated upstream
+		effectPattern = Pattern.compile("(?:attacker|target)?effect\\." + statementPart);
+=======
 		effectPattern = Pattern.compile("((?:attacker|target)?effect\\." + statementPart + ")");
+>>>>>>> Stashed changes
 	}
 
 //Routine objects
@@ -497,7 +501,7 @@ public class ModDamage extends JavaPlugin
 							else player.sendMessage(errorString_Permissions);
 							return true;
 						}
-					if(!isEnabled)
+					if(!state_plugin.equals(LoadState.NOT_LOADED))
 					{
 						if(args[0].equalsIgnoreCase("check") || args[0].equalsIgnoreCase("c"))
 						{
@@ -698,10 +702,12 @@ public class ModDamage extends JavaPlugin
 		}
 
 	//Item aliasing
-		loadAliases();
+		state_aliases = loadAliases();
 		if(!state_aliases.equals(LoadState.NOT_LOADED))
-			addToConfig(state_aliases.equals(LoadState.SUCCESS)?LogSetting.VERBOSE:LogSetting.QUIET, 0, state_aliases.equals(LoadState.SUCCESS)?"Aliases loaded!":"One or more errors occured while loading aliases.", state_aliases);
-		else addToConfig(LogSetting.VERBOSE,  0, "No aliases loaded! Are any aliases defined?", LoadState.NOT_LOADED);
+		{
+			if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("Aliases loaded!");
+		}
+		else log.warning("No aliases loaded! Are any aliases defined?");
 		
 	//routines
 		loadRoutines("Damage", damageRoutines, state_damageRoutines);
@@ -737,7 +743,11 @@ public class ModDamage extends JavaPlugin
 	}
 
 /////////////////// ROUTINE LOADING	
+<<<<<<< Updated upstream
 	protected void loadRoutines(String loadType, List<Routine> routineList, LoadState relevantState)
+=======
+	protected boolean loadRoutines(String loadType, List<Routine> routineList)
+>>>>>>> Stashed changes
 	{
 		List<Object> routineObjects = config.getList(loadType);
 		if(routineObjects != null)
@@ -753,31 +763,33 @@ public class ModDamage extends JavaPlugin
 	}
 	
 //// ALIASING ////
-	protected void loadAliases()
+	protected LoadState loadAliases()
 	{
 		ConfigurationNode aliasNode = config.getNode("Aliases");
+		LoadState state = LoadState.NOT_LOADED;
 		if(aliasNode != null)
 		{
 			ConfigurationNode itemNode = aliasNode.getNode("Item");
 			if(itemNode != null)
 			{
 				List<String> aliasKeys = aliasNode.getKeys("Item");
-				if(!aliasKeys.isEmpty()) state_aliases = LoadState.SUCCESS;
 				for(String alias : aliasKeys)
 				{
 					boolean validAlias = addItemAlias("_" + alias, itemNode.getStringList(alias, new ArrayList<String>()));
 					if(validAlias)
 					{
-						addToConfig(LogSetting.NORMAL, 0, "Created alias \"" + alias + "\"", LoadState.SUCCESS);
+						if(!state.equals(LoadState.FAILURE)) state = LoadState.SUCCESS;
+						addToConfig(LogSetting.NORMAL, 0, "Created alias \"" + alias + "\"", false);
 					}
 					else
 					{
-						state_aliases = LoadState.FAILURE;
-						addToConfig(LogSetting.QUIET, 0, "Failed to create alias \"" + alias + "\"", state_aliases);
+						state = LoadState.FAILURE;
+						addToConfig(LogSetting.QUIET, 0, "Failed to create alias \"" + alias + "\"", true);
 					}
 				}
 			}
 		}
+		return state;
 	}
 	//public boolean addAlias(ConfigurationNode node, String targetNodeName, 
 	//public <T> List<T> getItems(List<Class<T>> 
@@ -794,15 +806,17 @@ public class ModDamage extends JavaPlugin
 				{
 					if(!matchedItems.contains(material))
 					{
-						addToConfig(LogSetting.VERBOSE, 1, "Adding " + material.name(), LoadState.SUCCESS);
+						addToConfig(LogSetting.VERBOSE, 1, "Adding " + material.name(), false);
 						matchedItems.add(material);
 					}
-					else addToConfig(LogSetting.NORMAL, 1, "Error: material " + material.name() + " already in alias", LoadState.NOT_LOADED);
+					else
+					{
+						addToConfig(LogSetting.NORMAL, 1, "Error: " + material.name(), true);
+					}
 				}
 			else
 			{
-				state_itemAliases = LoadState.FAILURE;
-				addToConfig(LogSetting.QUIET, 1, "No matching alias or material name \"" + value + "\"", state_itemAliases);
+				addToConfig(LogSetting.QUIET, 1, "No matching alias or material name \"" + value + "\"", true);
 				return false;
 			}
 		}
@@ -821,14 +835,13 @@ public class ModDamage extends JavaPlugin
 //// ROUTINE PARSING ////
 	//Parse commands recursively for different command strings the handlers pass
 	//TODO To use null-passing, check before/after nulls to determine whether nothing was there to begin with, use a pointer to the same set of routines. Implement this in 0.9.6
-	public static List<Routine> parse(List<Object> routineStrings, String loadType, LoadState currentState){ return parse(routineStrings, loadType, 0, currentState);}
+	public static List<Routine> parse(List<Object> routineStrings, String loadType){ return parse(routineStrings, loadType, 0);}
 	@SuppressWarnings("unchecked")
-	private static List<Routine> parse(Object object, String loadType, int nestCount, LoadState resultingState)
+	private static List<Routine> parse(Object object, String loadType, int nestCount)
 	{
-		LoadState currentState = LoadState.SUCCESS;
 		List<Routine> routines = new ArrayList<Routine>();
 		if(object != null)
-		{
+			{
 			if(object instanceof String)
 			{
 				Routine routine = null;
@@ -845,9 +858,13 @@ public class ModDamage extends JavaPlugin
 						catch(Exception e){ e.printStackTrace();}
 					}
 				}
-				if(routine != null) routines.add(routine);
-				currentState = (routine != null)?currentState:LoadState.FAILURE;
-				addToConfig((routine != null)?LogSetting.NORMAL:LogSetting.QUIET, nestCount, (routine != null?"Routine:":"Couldn't match base routine string") + " \"" + (String)object + "\"", currentState);
+				if(routine != null)
+				{
+					addToConfig(LogSetting.NORMAL, nestCount, "Routine: \"" + (String)object + "\"", false);
+					routines.add(routine);
+				}
+				else addToConfig(LogSetting.QUIET, nestCount, "Couldn't match base routine string \"" + (String)object +"\"", true);
+				
 			}
 			else if(object instanceof LinkedHashMap)
 			{
@@ -860,90 +877,68 @@ public class ModDamage extends JavaPlugin
 						Matcher effectMatcher = effectPattern.matcher(key);
 						if(conditionalMatcher.matches())
 						{
-							addToConfig(LogSetting.VERBOSE, nestCount, "", LoadState.SUCCESS);
-							addToConfig(LogSetting.NORMAL, nestCount, "Conditional: \"" + key + "\"", LoadState.SUCCESS);
-							ConditionalRoutine routine = ConditionalRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1, resultingState));
-							if(routine != null) routines.add(routine);
-							currentState = (routine != null)?currentState:LoadState.FAILURE;
-							addToConfig((routine != null)?LogSetting.VERBOSE:LogSetting.QUIET, nestCount, (routine != null?"End Conditional \"" + key + "\"\n":"Invalid Conditional"+ " \"" + key + "\"") , currentState);
+							addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+							addToConfig(LogSetting.NORMAL, nestCount, "Conditional: \"" + key + "\"", false);
+							ConditionalRoutine routine = ConditionalRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
+							if(routine != null)
+							{
+								routines.add(routine);
+								addToConfig(LogSetting.VERBOSE, nestCount, "End Conditional \"" + key + "\"\n", false);
+							}
+							else addToConfig(LogSetting.QUIET, nestCount, "Invalid Conditional \"" + key + "\"", true); //TODO Debug for individual statements, similar to bad switch cases
 						}
 						else if(effectMatcher.matches())
 						{
-							addToConfig(LogSetting.VERBOSE, nestCount, "", LoadState.SUCCESS);
-							addToConfig(LogSetting.NORMAL, nestCount, "CalculatedEffect: \"" + key + "\"", LoadState.SUCCESS);
-							CalculatedEffectRoutine<?> routine = CalculatedEffectRoutine.getNew(effectMatcher, parse(someHashMap.get(key), loadType, nestCount + 1, resultingState));
-							if(routine != null) routines.add(routine);
-							currentState = (routine != null)?currentState:LoadState.FAILURE;
-							addToConfig((routine != null)?LogSetting.VERBOSE:LogSetting.QUIET, nestCount, (routine != null?"End CalculatedEffect \"" + key + "\"\n":"Invalid CalculatedEffect \"" + key + "\"") , currentState);
+							addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+							addToConfig(LogSetting.NORMAL, nestCount, "CalculatedEffect: \"" + key + "\"", false);
+							CalculatedEffectRoutine<?> routine = CalculatedEffectRoutine.getNew(effectMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
+							if(routine != null)
+							{
+								routines.add(routine);
+								addToConfig(LogSetting.VERBOSE, nestCount, "End CalculatedEffect \"" + key + "\"\n", false);
+							}
+							else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid CalculatedEffect \"" + key + "\"", true);
 						}
 						else if(switchMatcher.matches())
 						{					
 							LinkedHashMap<String, Object> anotherHashMap = (someHashMap.get(key) instanceof LinkedHashMap?(LinkedHashMap<String, Object>)someHashMap.get(key):null);
 							if(anotherHashMap != null)
 							{
-								addToConfig(LogSetting.VERBOSE, nestCount, "", LoadState.SUCCESS);
-								addToConfig(LogSetting.NORMAL, nestCount, "Switch: \"" + key + "\"", LoadState.SUCCESS);
+								addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+								addToConfig(LogSetting.NORMAL, nestCount, "Switch: \"" + key + "\"", false);
 								LinkedHashMap<String, List<Routine>> routineHashMap = new LinkedHashMap<String, List<Routine>>();
 								SwitchRoutine<?> routine = null;
 								for(String anotherKey : anotherHashMap.keySet())
 								{
-									addToConfig(LogSetting.VERBOSE, nestCount, "", LoadState.SUCCESS);
-									addToConfig(LogSetting.NORMAL, nestCount, " case: \"" + anotherKey + "\"", LoadState.SUCCESS);
-									routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1, resultingState));
-									addToConfig(LogSetting.VERBOSE, nestCount, "End case \"" + anotherKey + "\"\n", LoadState.SUCCESS);
+									addToConfig(LogSetting.VERBOSE, nestCount, "", false);
+									addToConfig(LogSetting.NORMAL, nestCount, " case: \"" + anotherKey + "\"", false);
+									routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1));
+									addToConfig(LogSetting.VERBOSE, nestCount, "End case \"" + anotherKey + "\"\n", false);
 								}
 								routine = SwitchRoutine.getNew(switchMatcher, routineHashMap);
 								if(routine != null)
 								{
 									if(routine.isLoaded) routines.add(routine);
-									else 
-									{
-										currentState = LoadState.FAILURE;
-										for(String caseName : routine.failedCases)
-											addToConfig(LogSetting.QUIET, nestCount, "Error: invalid case \"" + caseName + "\"", currentState);
-									}
-									addToConfig(LogSetting.VERBOSE, nestCount, "End Switch \"" + key + "\"", LoadState.SUCCESS);
+									else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid case \"" + routine.failedCase + "\"", true);
 								}
-								else
-								{
-									currentState = LoadState.FAILURE;
-									addToConfig(LogSetting.QUIET, nestCount, "Error: invalid Switch \"" + key + "\"", currentState);
-								}
+								else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid Switch \"" + key + "\"", true);
 							}
+							addToConfig(LogSetting.VERBOSE, nestCount, "End Switch \"" + key + "\"", false);
 						}
-						else 
-						{
-							currentState = LoadState.FAILURE;
-							addToConfig(LogSetting.QUIET, nestCount, " No match found for nested node \"" + key + "\"", currentState);							
-						}
+						else addToConfig(LogSetting.QUIET, nestCount, " No match found for nested node \"" + key + "\"", true);
 					}
-				else
-				{
-					currentState = LoadState.FAILURE;
-					addToConfig(LogSetting.QUIET, nestCount, "Parse error: bad nested routine.", currentState);				
-				} 
+				else addToConfig(LogSetting.QUIET, nestCount, "Parse error: bad nested routine.", true);
 			}
 			else if(object instanceof List)
 			{
 				for(Object nestedObject : (List<Object>)object)
-					routines.addAll(parse(nestedObject, loadType, nestCount, resultingState));
+					routines.addAll(parse(nestedObject, loadType, nestCount));
 			}
-			else
-			{
-				currentState = LoadState.FAILURE;
-				addToConfig(LogSetting.QUIET, nestCount, "Parse error: object " + object.toString() + " of type " + object.getClass().getName(), currentState);
-			}
+			else addToConfig(LogSetting.QUIET, nestCount, "Parse error: object " + object.toString() + " of type " + object.getClass().getName(), true);
 		}
-		else 
-		{
-			currentState = LoadState.FAILURE;
-			addToConfig(LogSetting.QUIET, nestCount, "Parse error: null", currentState);
-		}
-		if(currentState.equals(LoadState.FAILURE))
-			resultingState = LoadState.FAILURE;
+		else addToConfig(LogSetting.QUIET, nestCount, "Parse error: null", true);
 		return routines;
 	}
-		
 	
 	public void registerBase(Class<? extends Routine> routineClass, Pattern syntax)
 	{
@@ -1079,42 +1074,20 @@ public class ModDamage extends JavaPlugin
 		logSetting = nextSetting;
 	}
 	
-	public static void addToConfig(LogSetting outputSetting, int nestCount, String string, LoadState loadState)
+	public static void addToConfig(LogSetting outputSetting, int nestCount, String string, boolean severe)
 	{
-		if(loadState.equals(LoadState.FAILURE)) state_plugin = LoadState.FAILURE;
+		if(severe) hadErrors = true;
 		if(logSetting.shouldOutput(outputSetting))
 		{
-			ChatColor color = null;
-			switch(loadState)
+			configStrings_ingame.add(nestCount + "] " + (severe?ChatColor.RED:ChatColor.AQUA) + string);
+			if(severe) log.severe(string);
+			else 
 			{
-				case NOT_LOADED:
-					color = ChatColor.BLACK;
-					break;
-				case FAILURE:
-					color = ChatColor.RED;
-					break;
-				case SUCCESS:
-					color = ChatColor.AQUA;
-					break;
-			}
-			configStrings_ingame.add(nestCount + "] " + color + string); //TODO Add character counting/wrapping here.
-
-			String nestIndentation = "";
-			for(int i = 0; i < nestCount; i++)
-				nestIndentation += "    ";
-			configStrings_console.add(nestIndentation + string);
-			
-			switch(loadState)
-			{
-				case NOT_LOADED:
-					log.warning(nestIndentation + string);
-					break;
-				case SUCCESS:
-					log.info(nestIndentation + string);
-					break;
-				case FAILURE:
-					log.severe(string);
-					break;
+				String nestIndentation = "";
+				for(int i = 0; i < nestCount; i++)
+					nestIndentation += "    ";
+				configStrings_console.add(nestIndentation + string);
+				log.info(nestIndentation + string);
 			}
 		}
 		configPages = configStrings_ingame.size()/9 + (configStrings_ingame.size()%9 > 0?1:0);
@@ -1142,7 +1115,7 @@ public class ModDamage extends JavaPlugin
 		}
 		else
 		{
-			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + "Config Overview: " + state_plugin.statusString() + " (Pages: " + configPages + ")");
+			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Configuration: Overview (Pages: " + configPages + ")");
 			player.sendMessage(ChatColor.DARK_AQUA + "Aliases:" + "\t\t" + "Routines:");
 			player.sendMessage(ChatColor.DARK_AQUA + "Item aliases:" + state_itemAliases.statusString() + "     " + ChatColor.DARK_AQUA + "Damage Routines:" + state_damageRoutines.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "Message aliases:" + state_messageAliases.statusString() + "    " + ChatColor.DARK_AQUA + "Spawn Routines:" + state_spawnRoutines.statusString());
@@ -1150,6 +1123,7 @@ public class ModDamage extends JavaPlugin
 			player.sendMessage(hadErrors?ChatColor.DARK_RED + "There were one or more read errors in config.":ChatColor.GREEN + "No errors loading configuration!");	
 		}
 		//TODO: Else for configured aliases/routine types.
+		//TODO: Yellow for the failed, but active, loads. :D
 		return false;
 	}
 	
