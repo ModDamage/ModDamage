@@ -95,38 +95,21 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 public class ModDamage extends JavaPlugin
 {
 	//TODO
-//--ModDamage Main
-	// -revamp check to show list of loaded elements, use keyword to check specific config
-	//  Should be like this:
-	//    Damage
-	//    Health
-	//    Aliases
-	//      armor
-	//      elements
-	//      entities
-	//      items
-	//      groups
-	// -persistence for debug type
+	// 0.9.5
 	// -count characters in config for message length
 	// -get Dispenser attackers
 	// -Fishing rod implementation
-	// -Autogen world/entitytype switches?
-	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
-
-	// -find a way to give players ownership of an explosion
-	// -Deregister when Bukkit supports!
-	// -Client-sided mod for displaying health?
-	
-	// Ideas
-	// -External calls to aliased sets of routines? But...EventInfo would be screwed up. :P
-	//--ModDamageElement
-	// -Make ModDamageElement do some parsing with Material.name()? (update ArmorSet and CalculationUtility accordingly if this is done)
-	
-//--Routine utilities
-	// 0.9.5
-	// -Refactor config to contain errors and display classes allocated - add to config strings regardless
-	// -Use warnings inside constructors (pass routineUtility)
+	// -Command for autogen world/entitytype switches?
+	// -Command to check aliases
+	// -Make sure that Slimes work for EntityTargetedByOther[ - they failed in a previous RB.
+	// -switch and comparison for wieldquantity
+	// -switch.conditional
+	// -switch and conditional for region
+	// -if.server.onlineenabled
+	// -check against an itemstack in the player's inventory
 	// FIXME Why aren't the patternParts all final? o_o
+	
+	// 0.9.6
 	// TODO message routines (force aliasing here), don't forget this nasty thing:
 	/*
 	if(eventInfo.shouldScan)
@@ -137,26 +120,23 @@ public class ModDamage extends JavaPlugin
 				+ "): " + Integer.toString((displayHealth < 0)?0:displayHealth));
 	}
 	*/
-	// -Make sure that Slimes work for EntityTargetedByOther[ - they failed in a previous RB.
-	// 0.9.6
+	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
 	// -AoE clearance, block search nearby for Material?
 	
 	// Ideas
-	// -check against an itemstack in the player's inventory
 	// -if.entityis.inRegion
-	// -if.server.onlineenabled
 	// -if.server.port.#port
-	// -switch.region
 	// -switch.spawnreason
-	// -switch.wieldquantity
-	// -
-	// -for.#
-	// -for.eventvalue
-	// -foreach
-	// -Area pieces too!
+
+	// -for.eventvalue iterations?
+	// -foreach (probably want dynamic tags here)
+	//    -region
+	//    -item in inventory?
+	//    -item in hand?
+	//    -item by slot?
+	//    -health tick?
 	
 	//--Yet-to-be-plausible:
-	// -switch.conditional
 	// -tag.$aliasName
 	// -ability to clear non-static tags
 	// -aliases (dynamic: $ and static: _): //Check in config allocation for existing static!
@@ -168,6 +148,15 @@ public class ModDamage extends JavaPlugin
 	// -event keyword (_event)
 	// -External: tag entities with an alias ($)
 	// -External: check entity tags
+	// -find a way to give players ownership of an explosion
+	// -Deregister when Bukkit supports!
+	// -Client-sided mod for displaying health?
+	
+	// Ideas
+	// -External calls to aliased sets of routines? But...EventInfo would be screwed up. :P
+	//--ModDamageElement
+	// -Make ModDamageElement do some parsing with Material.name()? (update ArmorSet and CalculationUtility accordingly if this is done)
+
 	
 //Typical plugin stuff...for the most part. :P
 	public static Server server;
@@ -300,6 +289,18 @@ public class ModDamage extends JavaPlugin
 		private String string;
 		private LoadState(String string){ this.string = string;}
 		private String statusString(){ return string;}
+		private static LoadState combineStates(LoadState...loadStates)
+		{
+			LoadState returnState = LoadState.NOT_LOADED;
+			for(LoadState state : loadStates)
+			{
+				if(state.equals(LoadState.FAILURE))
+					return LoadState.FAILURE;
+				else if(state.equals(LoadState.SUCCESS))
+					returnState = SUCCESS;
+			}
+			return returnState;
+		}
 	}
 	public static LoadState state_damageRoutines = LoadState.NOT_LOADED;
 	public static LoadState state_spawnRoutines = LoadState.NOT_LOADED;
@@ -600,8 +601,10 @@ public class ModDamage extends JavaPlugin
 		damageRoutines.clear();
 		spawnRoutines.clear();
 		itemAliases.clear();
-		state_damageRoutines = state_spawnRoutines = LoadState.NOT_LOADED;
+		
+		state_routines = state_damageRoutines = state_spawnRoutines = state_aliases = state_itemAliases = state_messageAliases = LoadState.NOT_LOADED; //TODO UPDATE
 		configStrings_ingame.clear();
+		configStrings_console.clear();
 	}
 	
 //// PLUGIN CONFIGURATION ////
@@ -704,8 +707,10 @@ public class ModDamage extends JavaPlugin
 		else addToConfig(LogSetting.VERBOSE,  0, "No aliases loaded! Are any aliases defined?", LoadState.NOT_LOADED);
 		
 	//routines
-		loadRoutines("Damage", damageRoutines, state_damageRoutines);
-		loadRoutines("MobHealth", spawnRoutines, state_spawnRoutines);
+		state_damageRoutines = loadRoutines("Damage", damageRoutines);
+		state_spawnRoutines = loadRoutines("MobHealth", spawnRoutines);
+		
+		state_routines = LoadState.combineStates(state_damageRoutines, state_spawnRoutines);
 		
 	//single-property config
 		negative_Heal = config.getBoolean("negativeHeal", false);
@@ -737,8 +742,9 @@ public class ModDamage extends JavaPlugin
 	}
 
 /////////////////// ROUTINE LOADING	
-	protected void loadRoutines(String loadType, List<Routine> routineList, LoadState relevantState)
+	protected LoadState loadRoutines(String loadType, List<Routine> routineList)
 	{
+		LoadState relevantState = LoadState.SUCCESS;
 		List<Object> routineObjects = config.getList(loadType);
 		if(routineObjects != null)
 		{
@@ -750,6 +756,7 @@ public class ModDamage extends JavaPlugin
 				relevantState = LoadState.SUCCESS;
 			}
 		}
+		return relevantState;
 	}
 	
 //// ALIASING ////
@@ -1052,8 +1059,11 @@ public class ModDamage extends JavaPlugin
 	public static void setLogging(LogSetting setting)
 	{ 
 		if(setting != null) 
+		{
 			logSetting = setting;
-		else log.severe("[ModDamage] Error: bad debug setting. Valid settings: normal, quiet, verbose");
+			config.setProperty("debugging", logSetting.name().toLowerCase());
+		}
+		else log.severe("[ModDamage] Error: bad debug setting. Valid settings: normal, quiet, verbose");//shouldn't happen
 	}
 	
 	public static void toggleLogging(Player player) 
