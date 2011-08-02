@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
@@ -24,6 +25,13 @@ public class EntityHurt extends EntityCalculatedEffectRoutine
 
 	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(EntityHurt.class, Pattern.compile(ModDamage.entityPart + "effect\\.hurt", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntityHurt.class, Pattern.compile(ModDamage.entityPart + "effect\\.hurt", Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static EntityHurt getNew(Matcher matcher, List<Routine> routines)
+	{
+		if(matcher != null && routines != null)
+			return new EntityHurt(matcher.group(1).equalsIgnoreCase("attacker"), routines);
+		return null;
 	}
 }

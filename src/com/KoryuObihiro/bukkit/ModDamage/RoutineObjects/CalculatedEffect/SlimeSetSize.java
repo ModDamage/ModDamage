@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Slime;
@@ -25,6 +26,13 @@ public class SlimeSetSize extends CalculatedEffectRoutine<Slime>
 
 	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(PlayerSetItem.class, Pattern.compile(ModDamage.entityPart + "effect\\.setSlimeSize\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(SlimeSetSize.class, Pattern.compile(ModDamage.entityPart + "effect\\.setSlimeSize", Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static SlimeSetSize getNew(Matcher matcher, List<Routine> routines)
+	{
+		if(matcher != null && routines != null)
+			return new SlimeSetSize(matcher.group(1).equalsIgnoreCase("attacker"), routines);
+		return null;
 	}
 }

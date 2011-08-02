@@ -42,24 +42,22 @@ abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine
 
 	public static CalculatedEffectRoutine<?> getNew(Matcher matcher, List<Routine> routines)
 	{
-		//parse all of the conditionals
-		for(int i = 0; i < matcher.groupCount(); i += 2)
-			for(Pattern pattern : registeredStatements.keySet())
+		for(Pattern pattern : registeredStatements.keySet())
+		{
+			Matcher statementMatcher = pattern.matcher(matcher.group(1));
+			if(statementMatcher.matches())
 			{
-				Matcher statementMatcher = pattern.matcher(matcher.group(i));
-				if(statementMatcher.matches())
+				Method method = registeredStatements.get(pattern);
+				//get next statement
+				CalculatedEffectRoutine<?> statement = null;
+				try 
 				{
-					Method method = registeredStatements.get(pattern);
-					//get next statement
-					CalculatedEffectRoutine<?> statement = null;
-					try 
-					{
-						statement = (CalculatedEffectRoutine<?>)method.invoke(null, statementMatcher, routines);
-					}
-					catch (Exception e){ e.printStackTrace();}
-					return statement;
+					statement = (CalculatedEffectRoutine<?>)method.invoke(null, statementMatcher, routines);
 				}
+				catch (Exception e){ e.printStackTrace();}
+				return statement;
 			}
+		}
 		return null;
 	}
 	

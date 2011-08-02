@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,13 +16,13 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 	public static HashMap<Pattern, Method> registeredStatements = new HashMap<Pattern, Method>();
 	final protected LinkedHashMap<InfoType, List<Routine>> switchStatements;
 	public final boolean isLoaded;
-	public String failedCase = "";
+	public List<String> failedCases = new ArrayList<String>();
 	
 	//TODO Definitely not as efficient as it could be. Refactor?
 	public SwitchRoutine(LinkedHashMap<String, List<Routine>> switchStatements)
 	{
 		LinkedHashMap<InfoType, List<Routine>> container = new LinkedHashMap<InfoType, List<Routine>>();
-		boolean failedMatch = false;
+		boolean caseFailed = false;
 		for(String switchCase : switchStatements.keySet())
 		{
 			InfoType matchedCase = matchCase(switchCase);
@@ -29,12 +30,11 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 				container.put(matchCase(switchCase), switchStatements.get(switchCase));
 			else
 			{
-				failedCase = switchCase;
-				failedMatch = true;
-				break;
+				failedCases.add(switchCase);
+				caseFailed = true;
 			}
 		}
-		isLoaded = !failedMatch;
+		isLoaded = !caseFailed;
 		this.switchStatements = container;
 	}
 	

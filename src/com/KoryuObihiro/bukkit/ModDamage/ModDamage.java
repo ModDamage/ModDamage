@@ -95,38 +95,21 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 public class ModDamage extends JavaPlugin
 {
 	//TODO
-//--ModDamage Main
-	// -revamp check to show list of loaded elements, use keyword to check specific config
-	//  Should be like this:
-	//    Damage
-	//    Health
-	//    Aliases
-	//      armor
-	//      elements
-	//      entities
-	//      items
-	//      groups
-	// -persistence for debug type
+	// 0.9.5
 	// -count characters in config for message length
 	// -get Dispenser attackers
 	// -Fishing rod implementation
-	// -Autogen world/entitytype switches?
-	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
-
-	// -find a way to give players ownership of an explosion
-	// -Deregister when Bukkit supports!
-	// -Client-sided mod for displaying health?
-	
-	// Ideas
-	// -External calls to aliased sets of routines? But...EventInfo would be screwed up. :P
-	//--ModDamageElement
-	// -Make ModDamageElement do some parsing with Material.name()? (update ArmorSet and CalculationUtility accordingly if this is done)
-	
-//--Routine utilities
-	// 0.9.5
-	// -Refactor config to contain errors and display classes allocated - add to config strings regardless
-	// -Use warnings inside constructors (pass routineUtility)
+	// -Command for autogen world/entitytype switches?
+	// -Command to check aliases
+	// -Make sure that Slimes work for EntityTargetedByOther[ - they failed in a previous RB.
+	// -switch and comparison for wieldquantity
+	// -switch.conditional
+	// -switch and conditional for region
+	// -if.server.onlineenabled
+	// -check against an itemstack in the player's inventory
 	// FIXME Why aren't the patternParts all final? o_o
+	
+	// 0.9.6
 	// TODO message routines (force aliasing here), don't forget this nasty thing:
 	/*
 	if(eventInfo.shouldScan)
@@ -137,26 +120,23 @@ public class ModDamage extends JavaPlugin
 				+ "): " + Integer.toString((displayHealth < 0)?0:displayHealth));
 	}
 	*/
-	// -Make sure that Slimes work for EntityTargetedByOther[ - they failed in a previous RB.
-	// 0.9.6
+	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
 	// -AoE clearance, block search nearby for Material?
 	
 	// Ideas
-	// -check against an itemstack in the player's inventory
 	// -if.entityis.inRegion
-	// -if.server.onlineenabled
 	// -if.server.port.#port
-	// -switch.region
 	// -switch.spawnreason
-	// -switch.wieldquantity
-	// -
-	// -for.#
-	// -for.eventvalue
-	// -foreach
-	// -Area pieces too!
+
+	// -for.eventvalue iterations?
+	// -foreach (probably want dynamic tags here)
+	//    -region
+	//    -item in inventory?
+	//    -item in hand?
+	//    -item by slot?
+	//    -health tick?
 	
 	//--Yet-to-be-plausible:
-	// -switch.conditional
 	// -tag.$aliasName
 	// -ability to clear non-static tags
 	// -aliases (dynamic: $ and static: _): //Check in config allocation for existing static!
@@ -168,6 +148,15 @@ public class ModDamage extends JavaPlugin
 	// -event keyword (_event)
 	// -External: tag entities with an alias ($)
 	// -External: check entity tags
+	// -find a way to give players ownership of an explosion
+	// -Deregister when Bukkit supports!
+	// -Client-sided mod for displaying health?
+	
+	// Ideas
+	// -External calls to aliased sets of routines? But...EventInfo would be screwed up. :P
+	//--ModDamageElement
+	// -Make ModDamageElement do some parsing with Material.name()? (update ArmorSet and CalculationUtility accordingly if this is done)
+
 	
 //Typical plugin stuff...for the most part. :P
 	public static Server server;
@@ -223,6 +212,11 @@ public class ModDamage extends JavaPlugin
 	public static String materialRegex;
 	public static String armorRegex;
 	public static String logicalRegex;
+	private static Pattern conditionalPattern;
+	private static Pattern effectPattern;
+	private static Pattern switchPattern;
+	
+	private static HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
 	
 	static
 	{
@@ -269,7 +263,7 @@ public class ModDamage extends JavaPlugin
 		
 		conditionalPattern = Pattern.compile("(if|if_not)\\s+(?:!)?(" + statementPart + "(?:\\s+" + logicalRegex + "\\s+" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
 		switchPattern = Pattern.compile("switch\\." + statementPart, Pattern.CASE_INSENSITIVE);
-		effectPattern = Pattern.compile("(?:attacker|target)?effect\\." + statementPart);
+		effectPattern = Pattern.compile("((?:attacker|target)?effect\\." + statementPart + ")");
 	}
 
 //Routine objects
@@ -295,6 +289,18 @@ public class ModDamage extends JavaPlugin
 		private String string;
 		private LoadState(String string){ this.string = string;}
 		private String statusString(){ return string;}
+		private static LoadState combineStates(LoadState...loadStates)
+		{
+			LoadState returnState = LoadState.NOT_LOADED;
+			for(LoadState state : loadStates)
+			{
+				if(state.equals(LoadState.FAILURE))
+					return LoadState.FAILURE;
+				else if(state.equals(LoadState.SUCCESS))
+					returnState = SUCCESS;
+			}
+			return returnState;
+		}
 	}
 	public static LoadState state_damageRoutines = LoadState.NOT_LOADED;
 	public static LoadState state_spawnRoutines = LoadState.NOT_LOADED;
@@ -492,7 +498,7 @@ public class ModDamage extends JavaPlugin
 							else player.sendMessage(errorString_Permissions);
 							return true;
 						}
-					if(!state_plugin.equals(LoadState.NOT_LOADED))
+					if(!isEnabled)
 					{
 						if(args[0].equalsIgnoreCase("check") || args[0].equalsIgnoreCase("c"))
 						{
@@ -595,8 +601,10 @@ public class ModDamage extends JavaPlugin
 		damageRoutines.clear();
 		spawnRoutines.clear();
 		itemAliases.clear();
-		state_damageRoutines = state_spawnRoutines = LoadState.NOT_LOADED;
+		
+		state_routines = state_damageRoutines = state_spawnRoutines = state_aliases = state_itemAliases = state_messageAliases = LoadState.NOT_LOADED; //TODO UPDATE
 		configStrings_ingame.clear();
+		configStrings_console.clear();
 	}
 	
 //// PLUGIN CONFIGURATION ////
@@ -693,16 +701,16 @@ public class ModDamage extends JavaPlugin
 		}
 
 	//Item aliasing
-		state_aliases = loadAliases();
+		loadAliases();
 		if(!state_aliases.equals(LoadState.NOT_LOADED))
-		{
-			if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info("Aliases loaded!");
-		}
-		else log.warning("No aliases loaded! Are any aliases defined?");
+			addToConfig(state_aliases.equals(LoadState.SUCCESS)?LogSetting.VERBOSE:LogSetting.QUIET, 0, state_aliases.equals(LoadState.SUCCESS)?"Aliases loaded!":"One or more errors occured while loading aliases.", state_aliases);
+		else addToConfig(LogSetting.VERBOSE,  0, "No aliases loaded! Are any aliases defined?", LoadState.NOT_LOADED);
 		
 	//routines
-		loadRoutines("Damage", damageRoutines, state_damageRoutines);
-		loadRoutines("MobHealth", spawnRoutines, state_spawnRoutines);
+		state_damageRoutines = loadRoutines("Damage", damageRoutines);
+		state_spawnRoutines = loadRoutines("MobHealth", spawnRoutines);
+		
+		state_routines = LoadState.combineStates(state_damageRoutines, state_spawnRoutines);
 		
 	//single-property config
 		negative_Heal = config.getBoolean("negativeHeal", false);
@@ -733,14 +741,10 @@ public class ModDamage extends JavaPlugin
 		log.severe("[" + getDescription().getName() + "] Defaults written to config.yml!");
 	}
 
-/////////////////// ROUTINE LOADING
-	private static HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
-	private static Pattern conditionalPattern;
-	private static Pattern effectPattern;
-	private static Pattern switchPattern;
-	
-	protected void loadRoutines(String loadType, List<Routine> routineList, LoadState relevantState)
+/////////////////// ROUTINE LOADING	
+	protected LoadState loadRoutines(String loadType, List<Routine> routineList)
 	{
+		LoadState relevantState = LoadState.SUCCESS;
 		List<Object> routineObjects = config.getList(loadType);
 		if(routineObjects != null)
 		{
@@ -752,36 +756,35 @@ public class ModDamage extends JavaPlugin
 				relevantState = LoadState.SUCCESS;
 			}
 		}
+		return relevantState;
 	}
 	
 //// ALIASING ////
-	protected LoadState loadAliases()
+	protected void loadAliases()
 	{
 		ConfigurationNode aliasNode = config.getNode("Aliases");
-		LoadState state = LoadState.NOT_LOADED;
 		if(aliasNode != null)
 		{
 			ConfigurationNode itemNode = aliasNode.getNode("Item");
 			if(itemNode != null)
 			{
 				List<String> aliasKeys = aliasNode.getKeys("Item");
+				if(!aliasKeys.isEmpty()) state_aliases = LoadState.SUCCESS;
 				for(String alias : aliasKeys)
 				{
 					boolean validAlias = addItemAlias("_" + alias, itemNode.getStringList(alias, new ArrayList<String>()));
 					if(validAlias)
 					{
-						if(!state.equals(LoadState.FAILURE)) state = LoadState.SUCCESS;
-						addToConfig(LogSetting.NORMAL, 0, "Created alias \"" + alias + "\"", false);
+						addToConfig(LogSetting.NORMAL, 0, "Created alias \"" + alias + "\"", LoadState.SUCCESS);
 					}
 					else
 					{
-						state = LoadState.FAILURE;
-						addToConfig(LogSetting.QUIET, 0, "Failed to create alias \"" + alias + "\"", true);
+						state_aliases = LoadState.FAILURE;
+						addToConfig(LogSetting.QUIET, 0, "Failed to create alias \"" + alias + "\"", state_aliases);
 					}
 				}
 			}
 		}
-		return state;
 	}
 	//public boolean addAlias(ConfigurationNode node, String targetNodeName, 
 	//public <T> List<T> getItems(List<Class<T>> 
@@ -798,17 +801,15 @@ public class ModDamage extends JavaPlugin
 				{
 					if(!matchedItems.contains(material))
 					{
-						addToConfig(LogSetting.VERBOSE, 1, "Adding " + material.name(), false);
+						addToConfig(LogSetting.VERBOSE, 1, "Adding " + material.name(), LoadState.SUCCESS);
 						matchedItems.add(material);
 					}
-					else
-					{
-						addToConfig(LogSetting.NORMAL, 1, "Error: " + material.name(), true);
-					}
+					else addToConfig(LogSetting.NORMAL, 1, "Error: material " + material.name() + " already in alias", LoadState.NOT_LOADED);
 				}
 			else
 			{
-				addToConfig(LogSetting.QUIET, 1, "No matching alias or material name \"" + value + "\"", true);
+				state_itemAliases = LoadState.FAILURE;
+				addToConfig(LogSetting.QUIET, 1, "No matching alias or material name \"" + value + "\"", state_itemAliases);
 				return false;
 			}
 		}
@@ -824,15 +825,17 @@ public class ModDamage extends JavaPlugin
 		return new ArrayList<Material>();
 	}
 	
+//// ROUTINE PARSING ////
 	//Parse commands recursively for different command strings the handlers pass
 	//TODO To use null-passing, check before/after nulls to determine whether nothing was there to begin with, use a pointer to the same set of routines. Implement this in 0.9.6
-	public static List<Routine> parse(List<Object> routineStrings, String loadType){ return parse(routineStrings, loadType, 0);}
+	public static List<Routine> parse(List<Object> routineStrings, String loadType, LoadState currentState){ return parse(routineStrings, loadType, 0, currentState);}
 	@SuppressWarnings("unchecked")
-	private static List<Routine> parse(Object object, String loadType, int nestCount)
+	private static List<Routine> parse(Object object, String loadType, int nestCount, LoadState resultingState)
 	{
+		LoadState currentState = LoadState.SUCCESS;
 		List<Routine> routines = new ArrayList<Routine>();
 		if(object != null)
-			{
+		{
 			if(object instanceof String)
 			{
 				Routine routine = null;
@@ -849,13 +852,9 @@ public class ModDamage extends JavaPlugin
 						catch(Exception e){ e.printStackTrace();}
 					}
 				}
-				if(routine != null)
-				{
-					addToConfig(LogSetting.NORMAL, nestCount, "Routine: \"" + (String)object + "\"", false);
-					routines.add(routine);
-				}
-				else addToConfig(LogSetting.QUIET, nestCount, "Couldn't match base routine string \"" + (String)object +"\"", true);
-				
+				if(routine != null) routines.add(routine);
+				currentState = (routine != null)?currentState:LoadState.FAILURE;
+				addToConfig((routine != null)?LogSetting.NORMAL:LogSetting.QUIET, nestCount, (routine != null?"Routine:":"Couldn't match base routine string") + " \"" + (String)object + "\"", currentState);
 			}
 			else if(object instanceof LinkedHashMap)
 			{
@@ -868,68 +867,90 @@ public class ModDamage extends JavaPlugin
 						Matcher effectMatcher = effectPattern.matcher(key);
 						if(conditionalMatcher.matches())
 						{
-							addToConfig(LogSetting.VERBOSE, nestCount, "", false);
-							addToConfig(LogSetting.NORMAL, nestCount, "Conditional: \"" + key + "\"", false);
-							ConditionalRoutine routine = ConditionalRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
-							if(routine != null)
-							{
-								routines.add(routine);
-								addToConfig(LogSetting.VERBOSE, nestCount, "End Conditional \"" + key + "\"\n", false);
-							}
-							else addToConfig(LogSetting.QUIET, nestCount, "Invalid Conditional \"" + key + "\"", true); //TODO Debug for individual statements, similar to bad switch cases
+							addToConfig(LogSetting.VERBOSE, nestCount, "", LoadState.SUCCESS);
+							addToConfig(LogSetting.NORMAL, nestCount, "Conditional: \"" + key + "\"", LoadState.SUCCESS);
+							ConditionalRoutine routine = ConditionalRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1, resultingState));
+							if(routine != null) routines.add(routine);
+							currentState = (routine != null)?currentState:LoadState.FAILURE;
+							addToConfig((routine != null)?LogSetting.VERBOSE:LogSetting.QUIET, nestCount, (routine != null?"End Conditional \"" + key + "\"\n":"Invalid Conditional"+ " \"" + key + "\"") , currentState);
 						}
 						else if(effectMatcher.matches())
 						{
-							addToConfig(LogSetting.VERBOSE, nestCount, "", false);
-							addToConfig(LogSetting.NORMAL, nestCount, "CalculatedEffect: \"" + key + "\"", false);
-							CalculatedEffectRoutine<?> routine = CalculatedEffectRoutine.getNew(effectMatcher, parse(someHashMap.get(key), loadType, nestCount + 1));
-							if(routine != null)
-							{
-								routines.add(routine);
-								addToConfig(LogSetting.VERBOSE, nestCount, "End CalculatedEffect \"" + key + "\"\n", false);
-							}
-							else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid CalculatedEffect \"" + key + "\"", true);
+							addToConfig(LogSetting.VERBOSE, nestCount, "", LoadState.SUCCESS);
+							addToConfig(LogSetting.NORMAL, nestCount, "CalculatedEffect: \"" + key + "\"", LoadState.SUCCESS);
+							CalculatedEffectRoutine<?> routine = CalculatedEffectRoutine.getNew(effectMatcher, parse(someHashMap.get(key), loadType, nestCount + 1, resultingState));
+							if(routine != null) routines.add(routine);
+							currentState = (routine != null)?currentState:LoadState.FAILURE;
+							addToConfig((routine != null)?LogSetting.VERBOSE:LogSetting.QUIET, nestCount, (routine != null?"End CalculatedEffect \"" + key + "\"\n":"Invalid CalculatedEffect \"" + key + "\"") , currentState);
 						}
 						else if(switchMatcher.matches())
 						{					
 							LinkedHashMap<String, Object> anotherHashMap = (someHashMap.get(key) instanceof LinkedHashMap?(LinkedHashMap<String, Object>)someHashMap.get(key):null);
 							if(anotherHashMap != null)
 							{
-								addToConfig(LogSetting.VERBOSE, nestCount, "", false);
-								addToConfig(LogSetting.NORMAL, nestCount, "Switch: \"" + key + "\"", false);
+								addToConfig(LogSetting.VERBOSE, nestCount, "", LoadState.SUCCESS);
+								addToConfig(LogSetting.NORMAL, nestCount, "Switch: \"" + key + "\"", LoadState.SUCCESS);
 								LinkedHashMap<String, List<Routine>> routineHashMap = new LinkedHashMap<String, List<Routine>>();
 								SwitchRoutine<?> routine = null;
 								for(String anotherKey : anotherHashMap.keySet())
 								{
-									addToConfig(LogSetting.VERBOSE, nestCount, "", false);
-									addToConfig(LogSetting.NORMAL, nestCount, " case: \"" + anotherKey + "\"", false);
-									routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1));
-									addToConfig(LogSetting.VERBOSE, nestCount, "End case \"" + anotherKey + "\"\n", false);
+									addToConfig(LogSetting.VERBOSE, nestCount, "", LoadState.SUCCESS);
+									addToConfig(LogSetting.NORMAL, nestCount, " case: \"" + anotherKey + "\"", LoadState.SUCCESS);
+									routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1, resultingState));
+									addToConfig(LogSetting.VERBOSE, nestCount, "End case \"" + anotherKey + "\"\n", LoadState.SUCCESS);
 								}
 								routine = SwitchRoutine.getNew(switchMatcher, routineHashMap);
 								if(routine != null)
 								{
 									if(routine.isLoaded) routines.add(routine);
-									else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid case \"" + routine.failedCase + "\"", true);
+									else 
+									{
+										currentState = LoadState.FAILURE;
+										for(String caseName : routine.failedCases)
+											addToConfig(LogSetting.QUIET, nestCount, "Error: invalid case \"" + caseName + "\"", currentState);
+									}
+									addToConfig(LogSetting.VERBOSE, nestCount, "End Switch \"" + key + "\"", LoadState.SUCCESS);
 								}
-								else addToConfig(LogSetting.QUIET, nestCount, "Error: invalid Switch \"" + key + "\"", true);
+								else
+								{
+									currentState = LoadState.FAILURE;
+									addToConfig(LogSetting.QUIET, nestCount, "Error: invalid Switch \"" + key + "\"", currentState);
+								}
 							}
-							addToConfig(LogSetting.VERBOSE, nestCount, "End Switch \"" + key + "\"", false);
 						}
-						else addToConfig(LogSetting.QUIET, nestCount, " No match found for nested node \"" + key + "\"", true);
+						else 
+						{
+							currentState = LoadState.FAILURE;
+							addToConfig(LogSetting.QUIET, nestCount, " No match found for nested node \"" + key + "\"", currentState);							
+						}
 					}
-				else addToConfig(LogSetting.QUIET, nestCount, "Parse error: bad nested routine.", true);
+				else
+				{
+					currentState = LoadState.FAILURE;
+					addToConfig(LogSetting.QUIET, nestCount, "Parse error: bad nested routine.", currentState);				
+				} 
 			}
 			else if(object instanceof List)
 			{
 				for(Object nestedObject : (List<Object>)object)
-					routines.addAll(parse(nestedObject, loadType, nestCount));
+					routines.addAll(parse(nestedObject, loadType, nestCount, resultingState));
 			}
-			else addToConfig(LogSetting.QUIET, nestCount, "Parse error: object " + object.toString() + " of type " + object.getClass().getName(), true);
+			else
+			{
+				currentState = LoadState.FAILURE;
+				addToConfig(LogSetting.QUIET, nestCount, "Parse error: object " + object.toString() + " of type " + object.getClass().getName(), currentState);
+			}
 		}
-		else addToConfig(LogSetting.QUIET, nestCount, "Parse error: null", true);
+		else 
+		{
+			currentState = LoadState.FAILURE;
+			addToConfig(LogSetting.QUIET, nestCount, "Parse error: null", currentState);
+		}
+		if(currentState.equals(LoadState.FAILURE))
+			resultingState = LoadState.FAILURE;
 		return routines;
 	}
+		
 	
 	public void registerBase(Class<? extends Routine> routineClass, Pattern syntax)
 	{
@@ -1005,7 +1026,7 @@ public class ModDamage extends JavaPlugin
 			if(method != null)//XXX Is this necessary?
 			{
 				assert(method.getReturnType().equals(routineClass));
-				method.invoke(null, (Matcher)null);
+				method.invoke(null, (Matcher)null, (List<Routine>)null);
 				register(CalculatedEffectRoutine.registeredStatements, method, syntax);
 			}
 			else log.severe("Method getNew not found for statement " + routineClass.getName());
@@ -1014,7 +1035,7 @@ public class ModDamage extends JavaPlugin
 		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + routineClass.getName() + "!");}
 		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + routineClass.getName() + " is not static!");}
 		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have a getNew() method!");} 
-		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
+		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have matching method getNew(Matcher, List)!");} 
 		catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
 		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
 	}
@@ -1038,8 +1059,11 @@ public class ModDamage extends JavaPlugin
 	public static void setLogging(LogSetting setting)
 	{ 
 		if(setting != null) 
+		{
 			logSetting = setting;
-		else log.severe("[ModDamage] Error: bad debug setting. Valid settings: normal, quiet, verbose");
+			config.setProperty("debugging", logSetting.name().toLowerCase());
+		}
+		else log.severe("[ModDamage] Error: bad debug setting. Valid settings: normal, quiet, verbose");//shouldn't happen
 	}
 	
 	public static void toggleLogging(Player player) 
@@ -1065,20 +1089,42 @@ public class ModDamage extends JavaPlugin
 		logSetting = nextSetting;
 	}
 	
-	public static void addToConfig(LogSetting outputSetting, int nestCount, String string, boolean severe)
+	public static void addToConfig(LogSetting outputSetting, int nestCount, String string, LoadState loadState)
 	{
-		if(severe) hadErrors = true;
+		if(loadState.equals(LoadState.FAILURE)) state_plugin = LoadState.FAILURE;
 		if(logSetting.shouldOutput(outputSetting))
 		{
-			configStrings_ingame.add(nestCount + "] " + (severe?ChatColor.RED:ChatColor.AQUA) + string);
-			if(severe) log.severe(string);
-			else 
+			ChatColor color = null;
+			switch(loadState)
 			{
-				String nestIndentation = "";
-				for(int i = 0; i < nestCount; i++)
-					nestIndentation += "    ";
-				configStrings_console.add(nestIndentation + string);
-				log.info(nestIndentation + string);
+				case NOT_LOADED:
+					color = ChatColor.BLACK;
+					break;
+				case FAILURE:
+					color = ChatColor.RED;
+					break;
+				case SUCCESS:
+					color = ChatColor.AQUA;
+					break;
+			}
+			configStrings_ingame.add(nestCount + "] " + color + string); //TODO Add character counting/wrapping here.
+
+			String nestIndentation = "";
+			for(int i = 0; i < nestCount; i++)
+				nestIndentation += "    ";
+			configStrings_console.add(nestIndentation + string);
+			
+			switch(loadState)
+			{
+				case NOT_LOADED:
+					log.warning(nestIndentation + string);
+					break;
+				case SUCCESS:
+					log.info(nestIndentation + string);
+					break;
+				case FAILURE:
+					log.severe(string);
+					break;
 			}
 		}
 		configPages = configStrings_ingame.size()/9 + (configStrings_ingame.size()%9 > 0?1:0);
@@ -1106,7 +1152,7 @@ public class ModDamage extends JavaPlugin
 		}
 		else
 		{
-			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Configuration: Overview (Pages: " + configPages + ")");
+			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + "Config Overview: " + state_plugin.statusString() + " (Pages: " + configPages + ")");
 			player.sendMessage(ChatColor.DARK_AQUA + "Aliases:" + "\t\t" + "Routines:");
 			player.sendMessage(ChatColor.DARK_AQUA + "Item aliases:" + state_itemAliases.statusString() + "     " + ChatColor.DARK_AQUA + "Damage Routines:" + state_damageRoutines.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "Message aliases:" + state_messageAliases.statusString() + "    " + ChatColor.DARK_AQUA + "Spawn Routines:" + state_spawnRoutines.statusString());
@@ -1114,7 +1160,6 @@ public class ModDamage extends JavaPlugin
 			player.sendMessage(hadErrors?ChatColor.DARK_RED + "There were one or more read errors in config.":ChatColor.GREEN + "No errors loading configuration!");	
 		}
 		//TODO: Else for configured aliases/routine types.
-		//TODO: Yellow for the failed, but active, loads. :D
 		return false;
 	}
 	

@@ -14,15 +14,15 @@ public class Division extends Routine
 	@Override
 	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = eventInfo.eventValue/divideValue;}
 	
+	public static void register(ModDamage routineUtility)
+	{
+		routineUtility.registerBase(Division.class, Pattern.compile("div\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+	}
+	
 	public static Division getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
 			return new Division(Integer.parseInt(matcher.group(1)));
 		return null;
-	}
-	
-	public static void register(ModDamage routineUtility)
-	{
-		routineUtility.registerBase(Division.class, Pattern.compile("div\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 }
