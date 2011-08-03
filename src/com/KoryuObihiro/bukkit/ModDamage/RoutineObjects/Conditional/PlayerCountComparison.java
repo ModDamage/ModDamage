@@ -22,7 +22,7 @@ public class PlayerCountComparison extends ServerComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerCountComparison.class, Pattern.compile("(!)?server\\.playercount" + ModDamage.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerCountComparison.class, Pattern.compile("(!)?server\\.playercount" + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerCountComparison getNew(Matcher matcher)

@@ -16,7 +16,7 @@ public class EntityOnFire extends EntityFireTicksComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityOnFire.class, Pattern.compile("(!)?" + ModDamage.entityPart + "onfire", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityOnFire.class, Pattern.compile("(!)?" + ModDamage.entityPart + "\\.onfire", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityOnFire getNew(Matcher matcher)

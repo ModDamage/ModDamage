@@ -22,6 +22,7 @@ public class TargetEventInfo
 	public int eventValue;
 	public final World world;
 	public final Environment environment;
+	public final RangedElement rangedElement;
 	
 	public final ModDamageElement element_target;
 	public final LivingEntity entity_target;
@@ -31,8 +32,9 @@ public class TargetEventInfo
 	public final String[] groups_target;
 	
 //CONSTRUCTORS	
-	public TargetEventInfo(LivingEntity entity, ModDamageElement eventElement_target, int eventValue) 
+	public TargetEventInfo(LivingEntity entity, ModDamageElement eventElement_target, int eventValue, RangedElement rangedElement) 
 	{
+		this.rangedElement = rangedElement;
 		this.eventValue = eventValue;
 		this.entity_target = entity;
 		this.element_target = eventElement_target;

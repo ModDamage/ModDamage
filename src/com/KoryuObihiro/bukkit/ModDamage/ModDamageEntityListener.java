@@ -47,7 +47,7 @@ public class ModDamageEntityListener extends EntityListener
 				if(eventInfo.eventValue < 0 && !ModDamage.negative_Heal) 
 					eventInfo.eventValue = 0;
 				event.setDamage(eventInfo.eventValue);
-			}		
+			}
 		}
 	}
 	
@@ -58,12 +58,25 @@ public class ModDamageEntityListener extends EntityListener
 		if(ModDamage.isEnabled && !event.isCancelled() && event.getEntity() != null)
 		{
 			LivingEntity entity = (LivingEntity)event.getEntity();
-			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), entity.getHealth());
+			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), entity.getHealth(), null);
 
 			plugin.executeRoutines_Spawn(eventInfo);
 			
 			entity.setHealth(eventInfo.eventValue);
 			event.setCancelled(entity.getHealth() <= 0);
+		}
+	}
+	
+////FOOD ////
+	@Override
+	public void onEntityRegainHealth(EntityRegainHealthEvent event)
+	{
+		if(ModDamage.isEnabled && !event.isCancelled() && event.getRegainReason().equals(RegainReason.EATING))
+		{
+			LivingEntity entity = (LivingEntity)event.getEntity();
+			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), event.getAmount(), null);
+				
+			plugin.executeRoutines_Food(eventInfo);
 		}
 	}
 	
@@ -76,22 +89,9 @@ public class ModDamageEntityListener extends EntityListener
 		if(ModDamage.isEnabled && event.getEntity() instanceof LivingEntity)
 		{
 			LivingEntity entity = (LivingEntity)event.getEntity();
-			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), 0);
+			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), 0, null);
 			
 			plugin.executeRoutines_Death(eventInfo);
-		}
-	}
-	
-//// FOOD ////
-	@Override
-	public void onEntityRegainHealth(EntityRegainHealthEvent event)
-	{
-		if(ModDamage.isEnabled && !event.isCancelled() && event.getRegainReason().equals(RegainReason.EATING))
-		{
-			LivingEntity entity = (LivingEntity)event.getEntity();
-			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), entity.getHealth());
-				
-			plugin.executeRoutines_Food(eventInfo);
 		}
 	}
 }

@@ -24,7 +24,7 @@ public class EventValueComparison extends ConditionalStatement
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EventValueComparison.class, Pattern.compile("(!)?eventvalue" + ModDamage.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EventValueComparison.class, Pattern.compile("(!)?eventvalue" + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EventValueComparison getNew(Matcher matcher)

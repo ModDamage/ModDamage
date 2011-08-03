@@ -9,8 +9,6 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 @SuppressWarnings("deprecation")
 public class AttackerEventInfo extends TargetEventInfo
 {	
-	public final RangedElement rangedElement;
-
 	public final ModDamageElement element_attacker;
 	public final LivingEntity entity_attacker;
 	public final Material materialInHand_attacker;
@@ -21,8 +19,7 @@ public class AttackerEventInfo extends TargetEventInfo
 //CONSTRUCTORS
 	public AttackerEventInfo(LivingEntity eventEntity_target, ModDamageElement eventElement_target, LivingEntity eventEntity_attacker, ModDamageElement eventElement_attacker, RangedElement rangedElement, int eventDamage) 
 	{
-		super(eventEntity_target, eventElement_target, eventDamage);
-		this.rangedElement = rangedElement;
+		super(eventEntity_target, eventElement_target, eventDamage, rangedElement);
 
 		entity_attacker = eventEntity_attacker;
 		element_attacker = eventElement_attacker;

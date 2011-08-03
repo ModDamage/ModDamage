@@ -19,7 +19,7 @@ public class PlayerWearing extends EntityConditionalStatement<ArmorSet>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWearing.class, Pattern.compile("(!)?" + ModDamage.entityPart + "wearing\\." + ModDamage.armorRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerWearing.class, Pattern.compile("(!)?" + ModDamage.entityPart + "\\.wearing\\." + ModDamage.armorRegex, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerWearing getNew(Matcher matcher)

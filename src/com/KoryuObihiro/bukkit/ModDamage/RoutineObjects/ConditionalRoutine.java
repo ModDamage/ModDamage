@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LogSetting;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class ConditionalRoutine extends Routine
@@ -66,7 +66,7 @@ public class ConditionalRoutine extends Routine
 					
 					if(statement == null)
 					{
-						ModDamage.addToConfig(LogSetting.QUIET, 0, "Error: bad statement \"" + statementStrings[i] + "\"", LoadState.FAILURE);
+						ModDamage.addToConfig(DebugSetting.QUIET, 0, "Error: bad statement \"" + statementStrings[i] + "\"", LoadState.FAILURE);
 						return null;
 					}
 					//get its relation to the previous statement
@@ -75,7 +75,7 @@ public class ConditionalRoutine extends Routine
 						LogicalOperation operation = LogicalOperation.matchType(statementStrings[i - 1]);
 						if(operation == null)
 						{
-							ModDamage.addToConfig(LogSetting.QUIET, 0, "Error: bad operator \"" + statementStrings[i - 1] + "\"", LoadState.FAILURE);
+							ModDamage.addToConfig(DebugSetting.QUIET, 0, "Error: bad operator \"" + statementStrings[i - 1] + "\"", LoadState.FAILURE);
 							return null;//shouldn't ever happen
 						}
 						operations.add(operation);

@@ -26,7 +26,7 @@ public class EntityOnBlock extends EntityConditionalStatement<List<Material>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityOnBlock.class, Pattern.compile("(!)?" + ModDamage.entityPart + "onblock\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityOnBlock.class, Pattern.compile("(!)?" + ModDamage.entityPart + "\\.onblock\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityOnBlock getNew(Matcher matcher)

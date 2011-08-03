@@ -19,7 +19,7 @@ public class EntityHealthComparison extends EntityComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityHealthComparison.class, Pattern.compile("(!)?" + ModDamage.entityPart + "health" + ModDamage.comparisonRegex + "([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityHealthComparison.class, Pattern.compile("(!)?" + ModDamage.entityPart + "\\.health" + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityHealthComparison getNew(Matcher matcher)

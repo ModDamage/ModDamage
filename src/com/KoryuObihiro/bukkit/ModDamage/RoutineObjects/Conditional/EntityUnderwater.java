@@ -25,7 +25,7 @@ public class EntityUnderwater extends EntityConditionalStatement<Material[]>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityUnderwater.class, Pattern.compile("(!)?" + ModDamage.entityPart + "underwater", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityUnderwater.class, Pattern.compile("(!)?" + ModDamage.entityPart + "\\.underwater", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityUnderwater getNew(Matcher matcher)

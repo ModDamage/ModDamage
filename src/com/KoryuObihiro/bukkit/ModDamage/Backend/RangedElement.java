@@ -20,4 +20,11 @@ public enum RangedElement
 		if(entity instanceof CraftFish)		return FISHINGROD; 
 		return null;
 	}
+	public static RangedElement matchElement(String key)
+	{
+		for(RangedElement element : RangedElement.values())
+			if(element.name().equalsIgnoreCase(key))
+				return element;
+		return null;
+	}
 }
