@@ -8,6 +8,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LogSetting;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class ConditionalRoutine extends Routine
@@ -43,14 +45,7 @@ public class ConditionalRoutine extends Routine
 		//start with a programmatic "false ||" ... because of how this routine is executed.
 		
 		//parse all of the conditionals
-		
-		//DEBUG FIXME
-		String[] statementStrings = matcher.group(1).split("\\s");
-		ModDamage.log.info("CONDITIONAL MATCHER CONTENTS:");
-		for(String string : statementStrings)
-			ModDamage.log.info("] " + string);
-		//END DEBUG
-		
+		String[] statementStrings = matcher.group(2).split("\\s+");
 		for(int i = 0; i <= statementStrings.length; i += 2)
 		{
 			ModDamage.log.info("Attempting to match statement " + statementStrings[i]);//TODO CHANGE FOR DEBUG
@@ -69,13 +64,20 @@ public class ConditionalRoutine extends Routine
 					}
 					catch (Exception e){ e.printStackTrace();}
 					
-					if(statement == null) return null;
-					//get its relation to the previous statement
-					if(i > 2)
+					if(statement == null)
 					{
-						ModDamage.log.info("Attempting to match logical operator " + statementStrings[i - 1]);//TODO CHANGE FOR DEBUG
+						ModDamage.addToConfig(LogSetting.QUIET, 0, "Error: bad statement \"" + statementStrings[i] + "\"", LoadState.FAILURE);
+						return null;
+					}
+					//get its relation to the previous statement
+					if(i >= 2)
+					{
 						LogicalOperation operation = LogicalOperation.matchType(statementStrings[i - 1]);
-						if(operation == null) return null;//shouldn't ever happen
+						if(operation == null)
+						{
+							ModDamage.addToConfig(LogSetting.QUIET, 0, "Error: bad operator \"" + statementStrings[i - 1] + "\"", LoadState.FAILURE);
+							return null;//shouldn't ever happen
+						}
 						operations.add(operation);
 					}
 					statements.add(statement);
