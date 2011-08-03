@@ -96,7 +96,6 @@ public class ModDamage extends JavaPlugin
 {
 	//TODO
 	// 0.9.5
-	// -count characters in config for message length
 	// -get Dispenser attackers
 	// -Fishing rod implementation
 	// -Command for autogen world/entitytype switches?
@@ -110,7 +109,7 @@ public class ModDamage extends JavaPlugin
 	// FIXME Why aren't the patternParts all final? o_o
 	
 	// 0.9.6
-	// TODO message routines (force aliasing here), don't forget this nasty thing:
+	// TODO message routines (force aliasing here), end goal is to make this possible:
 	/*
 	if(eventInfo.shouldScan)
 	{
@@ -186,7 +185,6 @@ public class ModDamage extends JavaPlugin
 	protected static int configPages = 0;
 	protected static List<String> configStrings_ingame = new ArrayList<String>();
 	protected static List<String> configStrings_console = new ArrayList<String>();
-	private static boolean hadErrors;
 	protected static int additionalConfigChecks = 0;
 	
 //External-plugin variables
@@ -280,11 +278,11 @@ public class ModDamage extends JavaPlugin
 	//public static HashMap<String, List<ModDamageElement>> mobAliases = new HashMap<String, List<ModDamageElement>>();
 
 //LoadStates
-	private enum LoadState
+	public enum LoadState
 	{
-		NOT_LOADED(ChatColor.BLACK + "NO"), 
+		NOT_LOADED(ChatColor.GRAY + "NO  "), 
 		FAILURE(ChatColor.RED + "FAIL"), 
-		SUCCESS(ChatColor.GREEN + "YES");
+		SUCCESS(ChatColor.GREEN + "YES ");
 		
 		private String string;
 		private LoadState(String string){ this.string = string;}
@@ -319,6 +317,10 @@ public class ModDamage extends JavaPlugin
 	@Override
 	public void onEnable() 
 	{
+		//XXX REMOVE UPON 0.9.5 RELEASE
+		log.warning("WARNING: This is an experimental build of ModDamage 0.9.5. Do not use this JAR if you value server stability or are not a tester.");
+		//END REMOVE
+		
 		ModDamage.server = getServer();
 	//PERMISSIONS
 		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
@@ -476,7 +478,7 @@ public class ModDamage extends JavaPlugin
 										player.sendMessage(ModDamageString(ChatColor.YELLOW) + " Reloaded with errors.");
 										break;
 									case NOT_LOADED: 
-										player.sendMessage(ModDamageString(ChatColor.BLACK) + " No configuration loaded! Are any routines defined?");
+										player.sendMessage(ModDamageString(ChatColor.GRAY) + " No configuration loaded! Are any routines defined?");
 										break;
 								}
 								log.info("[" + getDescription().getName() + "] Reload complete.");
@@ -498,7 +500,7 @@ public class ModDamage extends JavaPlugin
 							else player.sendMessage(errorString_Permissions);
 							return true;
 						}
-					if(!isEnabled)
+					if( isEnabled)
 					{
 						if(args[0].equalsIgnoreCase("check") || args[0].equalsIgnoreCase("c"))
 						{
@@ -719,6 +721,8 @@ public class ModDamage extends JavaPlugin
 		
 		config.load(); //Discard any changes made to the file by the above reads.
 		log.info("[" + getDescription().getName() + "] " + (!state_routines.equals(LoadState.NOT_LOADED)?"Finished loading configuration.":"No configuration defined! Is this on purpose?"));
+		
+		state_plugin = LoadState.combineStates(state_aliases, state_routines);
 	}
 
 	private void writeDefaults() 
@@ -749,7 +753,10 @@ public class ModDamage extends JavaPlugin
 		if(routineObjects != null)
 		{
 			if(logSetting.shouldOutput(LogSetting.VERBOSE)) log.info(loadType + " configuration found, parsing...");
-			List<Routine> calculations = parse(routineObjects, loadType, relevantState);
+			LoadState[] stateMachine = {relevantState};
+			List<Routine> calculations = parse(routineObjects, loadType, stateMachine);
+			relevantState = stateMachine[0];
+			
 			if(!calculations.isEmpty() && !relevantState.equals(LoadState.FAILURE))
 			{
 				routineList.addAll(calculations);
@@ -769,22 +776,21 @@ public class ModDamage extends JavaPlugin
 			if(itemNode != null)
 			{
 				List<String> aliasKeys = aliasNode.getKeys("Item");
-				if(!aliasKeys.isEmpty()) state_aliases = LoadState.SUCCESS;
+				if(!aliasKeys.isEmpty()) state_itemAliases = LoadState.SUCCESS;
 				for(String alias : aliasKeys)
 				{
 					boolean validAlias = addItemAlias("_" + alias, itemNode.getStringList(alias, new ArrayList<String>()));
-					if(validAlias)
-					{
-						addToConfig(LogSetting.NORMAL, 0, "Created alias \"" + alias + "\"", LoadState.SUCCESS);
-					}
+					if(validAlias) addToConfig(LogSetting.NORMAL, 0, "Created alias \"" + alias + "\"", LoadState.SUCCESS);
 					else
 					{
-						state_aliases = LoadState.FAILURE;
+						state_itemAliases = LoadState.FAILURE;
 						addToConfig(LogSetting.QUIET, 0, "Failed to create alias \"" + alias + "\"", state_aliases);
 					}
 				}
 			}
 		}
+		
+		state_aliases = LoadState.combineStates(state_itemAliases);//TODO Add to me when there's more aliases
 	}
 	//public boolean addAlias(ConfigurationNode node, String targetNodeName, 
 	//public <T> List<T> getItems(List<Class<T>> 
@@ -828,9 +834,9 @@ public class ModDamage extends JavaPlugin
 //// ROUTINE PARSING ////
 	//Parse commands recursively for different command strings the handlers pass
 	//TODO To use null-passing, check before/after nulls to determine whether nothing was there to begin with, use a pointer to the same set of routines. Implement this in 0.9.6
-	public static List<Routine> parse(List<Object> routineStrings, String loadType, LoadState currentState){ return parse(routineStrings, loadType, 0, currentState);}
+	public static List<Routine> parse(List<Object> routineStrings, String loadType, LoadState[] currentState){ return parse(routineStrings, loadType, 0, currentState);}
 	@SuppressWarnings("unchecked")
-	private static List<Routine> parse(Object object, String loadType, int nestCount, LoadState resultingState)
+	private static List<Routine> parse(Object object, String loadType, int nestCount, LoadState[] resultingState)
 	{
 		LoadState currentState = LoadState.SUCCESS;
 		List<Routine> routines = new ArrayList<Routine>();
@@ -947,11 +953,10 @@ public class ModDamage extends JavaPlugin
 			addToConfig(LogSetting.QUIET, nestCount, "Parse error: null", currentState);
 		}
 		if(currentState.equals(LoadState.FAILURE))
-			resultingState = LoadState.FAILURE;
+			resultingState[0] = LoadState.FAILURE;
 		return routines;
 	}
 		
-	
 	public void registerBase(Class<? extends Routine> routineClass, Pattern syntax)
 	{
 		try
@@ -1098,7 +1103,7 @@ public class ModDamage extends JavaPlugin
 			switch(loadState)
 			{
 				case NOT_LOADED:
-					color = ChatColor.BLACK;
+					color = ChatColor.GRAY;
 					break;
 				case FAILURE:
 					color = ChatColor.RED;
@@ -1107,7 +1112,18 @@ public class ModDamage extends JavaPlugin
 					color = ChatColor.AQUA;
 					break;
 			}
-			configStrings_ingame.add(nestCount + "] " + color + string); //TODO Add character counting/wrapping here.
+			if(string.length() > 50)
+			{
+				String ingameString = string;
+				configStrings_ingame.add(nestCount + "] " + color + ingameString.substring(0, 49));
+				ingameString = ingameString.substring(50);
+				while(ingameString.length() > 50)
+				{
+					configStrings_ingame.add("   " + ingameString.substring(0, 49));
+					ingameString = ingameString.substring(50);
+				}
+			}
+			else configStrings_ingame.add(nestCount + "] " + color + string);
 
 			String nestIndentation = "";
 			for(int i = 0; i < nestCount; i++)
@@ -1152,12 +1168,26 @@ public class ModDamage extends JavaPlugin
 		}
 		else
 		{
-			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + "Config Overview: " + state_plugin.statusString() + " (Pages: " + configPages + ")");
-			player.sendMessage(ChatColor.DARK_AQUA + "Aliases:" + "\t\t" + "Routines:");
-			player.sendMessage(ChatColor.DARK_AQUA + "Item aliases:" + state_itemAliases.statusString() + "     " + ChatColor.DARK_AQUA + "Damage Routines:" + state_damageRoutines.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "Message aliases:" + state_messageAliases.statusString() + "    " + ChatColor.DARK_AQUA + "Spawn Routines:" + state_spawnRoutines.statusString());
+			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Config Overview: " + state_plugin.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
+			player.sendMessage(ChatColor.DARK_AQUA + "Aliases:    " + state_aliases.statusString() + "        " + ChatColor.DARK_AQUA + "Routines: " + state_routines.statusString());
+			player.sendMessage(ChatColor.GOLD + "-----------------------------------------------------");
+			player.sendMessage(ChatColor.DARK_AQUA + "Item:        " + state_itemAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Damage: " + state_damageRoutines.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "Message:   " + state_messageAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Spawn:  " + state_spawnRoutines.statusString());
 			//player.sendMessage(ChatColor.DARK_AQUA + "Armor aliases:" + activationString(armorAliasesLoaded) + "\t" + ChatColor.DARK_AQUA + "Food Routines:" + activationString(loaded_damageRoutines));
-			player.sendMessage(hadErrors?ChatColor.DARK_RED + "There were one or more read errors in config.":ChatColor.GREEN + "No errors loading configuration!");	
+			String bottomString = null;
+			switch(state_plugin)
+			{
+				case NOT_LOADED:
+					bottomString = ChatColor.GRAY + "No configuration found.";
+					break;
+				case FAILURE:
+					bottomString = ChatColor.DARK_RED + "There were one or more read errors in config.";
+					break;
+				case SUCCESS:
+					bottomString = ChatColor.GREEN + "No errors loading configuration!";
+					break;
+			}
+			player.sendMessage(bottomString);	
 		}
 		//TODO: Else for configured aliases/routine types.
 		return false;
