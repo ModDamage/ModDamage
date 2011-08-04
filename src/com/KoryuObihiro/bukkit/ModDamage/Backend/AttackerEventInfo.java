@@ -1,5 +1,8 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -16,7 +19,7 @@ public class AttackerEventInfo extends TargetEventInfo
 	public final Material materialInHand_attacker;
 	public final ArmorSet armorSet_attacker;
 	public final String name_attacker;
-	public final String[] groups_attacker;
+	public final List<String> groups_attacker;
 	
 //CONSTRUCTORS
 	public AttackerEventInfo(LivingEntity eventEntity_target, ModDamageElement eventElement_target, LivingEntity eventEntity_attacker, ModDamageElement eventElement_attacker, RangedElement rangedElement, int eventDamage) 
@@ -32,7 +35,7 @@ public class AttackerEventInfo extends TargetEventInfo
 			materialInHand_attacker = player_attacker.getItemInHand().getType();
 			armorSet_attacker = new ArmorSet(player_attacker);
 			name_attacker = player_attacker.getName();
-			groups_attacker = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
+			groups_attacker = Arrays.asList(ModDamage.using_Permissions?ModDamage.multigroupPermissions
 								?ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName())
 								:ModDamage.Permissions.getGroup(player_attacker.getWorld().getName(), player_attacker.getName()).split(" "):emptyStringArray);
 		}
