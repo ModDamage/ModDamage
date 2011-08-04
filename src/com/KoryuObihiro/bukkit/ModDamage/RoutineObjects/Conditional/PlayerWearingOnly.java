@@ -1,36 +1,44 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
-public class PlayerWearingOnly extends EntityConditionalStatement<ArmorSet>
+public class PlayerWearingOnly extends EntityConditionalStatement<List<ArmorSet>>
 {
-	public PlayerWearingOnly(boolean inverted, boolean forAttacker, ArmorSet armorSet)
+	public PlayerWearingOnly(boolean inverted, boolean forAttacker, List<ArmorSet> armorSetList)
 	{  
-		super(forAttacker, forAttacker, armorSet);
+		super(forAttacker, forAttacker, armorSetList);
 	}
 	@Override
-	public boolean condition(TargetEventInfo eventInfo){ return false;}
+	public boolean condition(TargetEventInfo eventInfo)
+	{
+		for(ArmorSet armorSet : value)
+			if(shouldGetAttacker(eventInfo)?armorSet.equals(((AttackerEventInfo)eventInfo).armorSet_attacker):(armorSet.equals(eventInfo.armorSet_target)))
+				return true;
+		return false;
+	}
 	@Override
-	protected ArmorSet getRelevantInfo(TargetEventInfo eventInfo){ return null;}
+	protected List<ArmorSet> getRelevantInfo(TargetEventInfo eventInfo){ return null;}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWearingOnly.class, Pattern.compile(ModDamage.entityPart + "\\.wearingonly\\." + ModDamage.armorRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerWearingOnly.class, Pattern.compile(ModDamage.entityRegex + "\\.wearingonly\\." + ModDamage.armorRegex, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerWearingOnly getNew(Matcher matcher)
 	{
 		if(matcher != null)
 		{
-			ArmorSet armorSet = new ArmorSet(matcher.group(3));
-			if(armorSet.isEmpty())
-			return new PlayerWearingOnly(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), armorSet);
+			List<ArmorSet> armorSetList = ModDamage.matchArmorAlias(matcher.group(3));
+			if(armorSetList.isEmpty())
+				return new PlayerWearingOnly(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), armorSetList);
 		}
 		return null;
 	}

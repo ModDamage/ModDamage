@@ -21,7 +21,7 @@ public class EntityExplode extends EntityCalculatedEffectRoutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntityExplode.class, Pattern.compile(ModDamage.entityPart + "effect\\.explode", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntityExplode.class, Pattern.compile(ModDamage.entityRegex + "effect\\.explode", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityExplode getNew(Matcher matcher, List<Routine> routines)

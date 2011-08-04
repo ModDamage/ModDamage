@@ -5,17 +5,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.Material;
-
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-public class GroupSwitch extends EntitySwitchRoutine<List<String>>
+public class PlayerGroupSwitch extends EntitySwitchRoutine<List<String>>
 {
-	public GroupSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchLabels)
+	public PlayerGroupSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchLabels)
 	{
 		super(forAttacker, switchLabels);
 	}
@@ -28,15 +26,15 @@ public class GroupSwitch extends EntitySwitchRoutine<List<String>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, GroupSwitch.class, Pattern.compile(ModDamage.entityPart + "group", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, PlayerGroupSwitch.class, Pattern.compile(ModDamage.entityRegex + "group", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static GroupSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
+	public static PlayerGroupSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
 		if(matcher != null && switchStatements != null)
 		{
 			boolean forAttacker = matcher.group(1).equalsIgnoreCase("attacker");
-			return new GroupSwitch(forAttacker, switchStatements);
+			return new PlayerGroupSwitch(forAttacker, switchStatements);
 		}
 		return null;
 	}

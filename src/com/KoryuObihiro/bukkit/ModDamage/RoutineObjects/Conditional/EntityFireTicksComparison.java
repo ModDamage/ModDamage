@@ -19,7 +19,7 @@ public class EntityFireTicksComparison extends EntityComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityFireTicksComparison.class, Pattern.compile("(!)?" + ModDamage.entityPart + "\\.fireticks" + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityFireTicksComparison.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.fireticks" + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityFireTicksComparison getNew(Matcher matcher)

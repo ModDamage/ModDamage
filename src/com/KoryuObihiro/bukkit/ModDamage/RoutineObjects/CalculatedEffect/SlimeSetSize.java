@@ -26,7 +26,7 @@ public class SlimeSetSize extends CalculatedEffectRoutine<Slime>
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(SlimeSetSize.class, Pattern.compile(ModDamage.entityPart + "effect\\.setSlimeSize", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(SlimeSetSize.class, Pattern.compile(ModDamage.entityRegex + "effect\\.setSlimeSize", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static SlimeSetSize getNew(Matcher matcher, List<Routine> routines)

@@ -24,7 +24,7 @@ public class PlayerWielding extends EntityConditionalStatement<List<Material>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWielding.class, Pattern.compile("(!)?" + ModDamage.entityPart + "\\.wielding\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerWielding.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.wielding\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
 	}	
 	
 	public static PlayerWielding getNew(Matcher matcher)

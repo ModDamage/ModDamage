@@ -21,7 +21,7 @@ public class EntitySetAirTicks extends EntityCalculatedEffectRoutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntitySetAirTicks.class, Pattern.compile(ModDamage.entityPart + "effect\\.setairticks", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntitySetAirTicks.class, Pattern.compile(ModDamage.entityRegex + "effect\\.setairticks", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntitySetAirTicks getNew(Matcher matcher, List<Routine> routines)

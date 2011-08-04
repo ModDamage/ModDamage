@@ -21,7 +21,7 @@ public class EntitySetFireTicks extends EntityCalculatedEffectRoutine
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntitySetFireTicks.class, Pattern.compile(ModDamage.entityPart + "effect\\.setfireticks", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntitySetFireTicks.class, Pattern.compile(ModDamage.entityRegex + "effect\\.setfireticks", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntitySetFireTicks getNew(Matcher matcher, List<Routine> routines)

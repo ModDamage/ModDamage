@@ -16,7 +16,7 @@ public class EntityFalling extends EntityFallComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityFalling.class, Pattern.compile("(!)?" + ModDamage.entityPart + "\\.falling", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityFalling.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.falling", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityFalling getNew(Matcher matcher)

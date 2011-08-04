@@ -4,7 +4,6 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,12 +23,17 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ArmorAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.BiomeAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.EntityElementAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.GroupAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ItemAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
@@ -72,9 +76,11 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTarget
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityUnderwater;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventValueComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerCountComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerGroup;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearing;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearingOnly;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.RangedElementEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldTimeRange;
@@ -82,7 +88,10 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EnvironmentSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerGroupSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.RangedElementSwitch;
+import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.mysql.jdbc.AssertionFailedException;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
@@ -97,17 +106,19 @@ public class ModDamage extends JavaPlugin
 {
 	//TODO
 	// 0.9.5
-	// -RangedElement evaluations
+	// -Empty armorSet & material
 	// -get Dispenser attackers
 	// -Command for autogen world/entitytype switches?
 	// -Command to check aliases
-	// -Make sure that Slimes work for EntityTargetedByOther[ - they failed in a previous RB.
+	// -Make sure that Slimes work for EntityTargetedByOther - they failed in a previous RB.
 	// -switch and comparison for wieldquantity
 	// -switch.conditional
 	// -switch and conditional for region
 	// -if.server.onlineenabled
+	// -getAverageLight (area)
 	// -check against an itemstack in the player's inventory
 	// FIXME Why aren't the patternParts all final? o_o
+	// -spawnitems
 	
 	// 0.9.6
 	// TODO message routines (force aliasing here), end goal is to make this possible:
@@ -190,7 +201,7 @@ public class ModDamage extends JavaPlugin
 	
 //External-plugin variables
 	public static PermissionHandler Permissions = null;
-	//private static elRegionsPlugin elRegions = null;
+	private static elRegionsPlugin elRegions = null;
 	public static boolean multigroupPermissions = true;	
 	public static boolean using_Permissions = false;
 	static boolean using_elRegions = false;
@@ -203,7 +214,7 @@ public class ModDamage extends JavaPlugin
 	public static final String alphanumericPart = "(?:[a-z0-9]+)";
 	public static final String potentialAliasPart = "(?:_?[a-z0-9]+)";
 	public static final String statementPart = "((?:" + alphanumericPart + ")(?:\\." + alphanumericPart +")*)";
-	public static final String entityPart = "(attacker|target)";
+	public static final String entityRegex = "(attacker|target)";
 	public static String comparisonRegex;
 	public static String biomeRegex;
 	public static String environmentRegex;
@@ -271,19 +282,6 @@ public class ModDamage extends JavaPlugin
 		effectPattern = Pattern.compile("((?:attacker|target)?effect\\." + statementPart + ")");
 	}
 
-//Routine objects
-	private static final List<Routine> damageRoutines = new ArrayList<Routine>();
-	private static final List<Routine> spawnRoutines = new ArrayList<Routine>();
-	private static final List<Routine> deathRoutines = new ArrayList<Routine>();
-	private static final List<Routine> foodRoutines = new ArrayList<Routine>();
-
-//Alias objects
-	///public static HashMap<String, List<ArmorSet>> armorAliases = new HashMap<String, List<ArmorSet>>();
-	public static HashMap<String, List<Material>> itemAliases = new HashMap<String, List<Material>>();
-	public static HashMap<String, List<String>> messageAliases = new HashMap<String, List<String>>();
-	//public static HashMap<String, List<String>> groupAliases = new HashMap<String, List<String>>();
-	//public static HashMap<String, List<ModDamageElement>> mobAliases = new HashMap<String, List<ModDamageElement>>();
-
 //LoadStates
 	public enum LoadState
 	{
@@ -307,17 +305,34 @@ public class ModDamage extends JavaPlugin
 			return returnState;
 		}
 	}
-	public static LoadState state_damageRoutines = LoadState.NOT_LOADED;
-	public static LoadState state_spawnRoutines = LoadState.NOT_LOADED;
-	public static LoadState state_deathRoutines = LoadState.NOT_LOADED;
-	public static LoadState state_foodRoutines = LoadState.NOT_LOADED;
-	public static LoadState state_routines = LoadState.NOT_LOADED;
+
+//Routine objects
+	static final List<Routine> damageRoutines = new ArrayList<Routine>();
+	static final List<Routine> spawnRoutines = new ArrayList<Routine>();
+	static final List<Routine> deathRoutines = new ArrayList<Routine>();
+	static final List<Routine> foodRoutines = new ArrayList<Routine>();
+	private static LoadState state_damageRoutines = LoadState.NOT_LOADED;
+	private static LoadState state_spawnRoutines = LoadState.NOT_LOADED;
+	private static LoadState state_deathRoutines = LoadState.NOT_LOADED;
+	private static LoadState state_foodRoutines = LoadState.NOT_LOADED;
+	private static LoadState state_routines = LoadState.NOT_LOADED;
 	
-	public static LoadState state_itemAliases = LoadState.NOT_LOADED;
-	public static LoadState state_messageAliases = LoadState.NOT_LOADED;
-	public static LoadState state_aliases = LoadState.NOT_LOADED;
+//Alias objects
+	private static ArmorAliaser armorAliaser = new ArmorAliaser();
+	private static BiomeAliaser biomeAliaser = new BiomeAliaser();
+	private static ItemAliaser itemAliaser = new ItemAliaser();
+	private static GroupAliaser groupAliaser = new GroupAliaser();
+	private static MessageAliaser messageAliaser = new MessageAliaser();
+	private static EntityElementAliaser elementAliaser = new EntityElementAliaser();
+	private static LoadState state_armorAliases = LoadState.NOT_LOADED;
+	private static LoadState state_biomeAliases = LoadState.NOT_LOADED;
+	private static LoadState state_elementAliases = LoadState.NOT_LOADED;
+	private static LoadState state_itemAliases = LoadState.NOT_LOADED;
+	private static LoadState state_groupAliases = LoadState.NOT_LOADED;
+	private static LoadState state_messageAliases = LoadState.NOT_LOADED;
+	private static LoadState state_aliases = LoadState.NOT_LOADED;
 	
-	public static LoadState state_plugin = LoadState.NOT_LOADED;
+	private static LoadState state_plugin = LoadState.NOT_LOADED;
 	public static boolean isEnabled = false;
 	
 ////////////////////////// INITIALIZATION
@@ -343,22 +358,19 @@ public class ModDamage extends JavaPlugin
 		else log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions not found]");
 		
 	//ELREGIONS
-		/*TODO
 		elRegions = (elRegionsPlugin) this.getServer().getPluginManager().getPlugin("elRegions");
 		if (elRegions != null) 
 		{
 			using_elRegions = true;
 		    log.info("[" + getDescription().getName() + "] Found elRegions v" + elRegions.getDescription().getVersion());
 		}
-		*/
 		
 	//Event registration
 		//register plugin-related stuff with the server's plugin manager
 		server.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
 		server.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
-		//TODO INTEGRATE THESE
-		//server.getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Highest, this);
-		//server.getPluginManager().registerEvent(Event.Type.ENTITY_REGAIN_HEALTH, entityListener, Event.Priority.Highest, this);
+		server.getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Highest, this);
+		server.getPluginManager().registerEvent(Event.Type.ENTITY_REGAIN_HEALTH, entityListener, Event.Priority.Highest, this);
 		//server.getPluginManager().registerEvent(Event.Type.ENTITY_TARGET, entityListener, Event.Priority.Highest, this);
 		
 		//register MD routines
@@ -376,6 +388,7 @@ public class ModDamage extends JavaPlugin
 //Nestable Calculations
 	//Conditionals
 		Binomial.register(this);
+		RangedElementEvaluation.register(this);
 		//Entity
 		EntityAirTicksComparison.register(this);
 		EntityBiome.register(this);
@@ -392,6 +405,7 @@ public class ModDamage extends JavaPlugin
 		EntityTargetedByOther.register(this);
 		EntityUnderwater.register(this);
 		EventValueComparison.register(this);
+		PlayerGroup.register(this);
 		PlayerWearing.register(this);
 		PlayerWearingOnly.register(this);
 		PlayerWielding.register(this);
@@ -417,7 +431,9 @@ public class ModDamage extends JavaPlugin
 		BiomeSwitch.register(this);
 		EntityTypeSwitch.register(this);
 		EnvironmentSwitch.register(this);
+		PlayerGroupSwitch.register(this);
 		PlayerWieldSwitch.register(this);
+		RangedElementSwitch.register(this);
 		
 		config = this.getConfiguration();
 		reload();
@@ -537,17 +553,6 @@ public class ModDamage extends JavaPlugin
 								}
 								return true;
 							}
-							else if(args.length == 3)
-							{
-								if(args[1].equalsIgnoreCase("alias")) //TODO Polish me.
-									for(String alias : itemAliases.keySet())
-										if(args[2].equalsIgnoreCase(alias))
-										{
-											for(Material material : itemAliases.get(alias))
-												log.info(material.name());// Don't just make this log.
-											break;
-										}
-							}
 						}
 						else
 						{
@@ -563,32 +568,6 @@ public class ModDamage extends JavaPlugin
 			}
 		sendCommandUsage(player, true);
 		return true;
-	}
-
-//// EVENT FUNCTIONS ////
-	//FIXME Gotta be a more dynamic way to do this...but it hardly matters at this level.
-	public void executeRoutines_Damage(AttackerEventInfo eventInfo) 
-	{
-		for(Routine routine : damageRoutines)
-			routine.run(eventInfo);
-	}
-
-	public void executeRoutines_Death(TargetEventInfo eventInfo)
-	{
-		for(Routine routine : deathRoutines)
-			routine.run(eventInfo);
-	}
-
-	public void executeRoutines_Food(TargetEventInfo eventInfo)
-	{
-		for(Routine routine : foodRoutines)
-			routine.run(eventInfo);
-	}
-
-	public void executeRoutines_Spawn(TargetEventInfo eventInfo)
-	{
-		for(Routine routine : spawnRoutines)
-			routine.run(eventInfo);
 	}
 	
 ///// HELPER FUNCTIONS ////
@@ -609,7 +588,7 @@ public class ModDamage extends JavaPlugin
 	{
 		damageRoutines.clear();
 		spawnRoutines.clear();
-		itemAliases.clear();
+		itemAliaser.clear();
 		
 		state_routines = state_damageRoutines = state_spawnRoutines = state_aliases = state_itemAliases = state_messageAliases = LoadState.NOT_LOADED; //TODO UPDATE
 		configStrings_ingame.clear();
@@ -710,7 +689,13 @@ public class ModDamage extends JavaPlugin
 		}
 
 	//Item aliasing
-		loadAliases();
+		state_armorAliases = loadAliases("Aliases.Armor", armorAliaser);
+		state_biomeAliases = loadAliases("Aliases.Biome", biomeAliaser);
+		state_elementAliases = loadAliases("Aliases.Element", elementAliaser);
+		state_itemAliases = loadAliases("Aliases.Item", itemAliaser);
+		state_groupAliases = loadAliases("Aliases.Group", groupAliaser);
+		state_messageAliases = loadAliases("Aliases.Message", messageAliaser);
+		state_aliases = LoadState.combineStates(state_armorAliases, state_elementAliases, state_groupAliases, state_itemAliases, state_messageAliases);
 		if(!state_aliases.equals(LoadState.NOT_LOADED))
 			addToConfig(state_aliases.equals(LoadState.SUCCESS)?DebugSetting.VERBOSE:DebugSetting.QUIET, 0, state_aliases.equals(LoadState.SUCCESS)?"Aliases loaded!":"One or more errors occured while loading aliases.", state_aliases);
 		else addToConfig(DebugSetting.VERBOSE,  0, "No aliases loaded! Are any aliases defined?", LoadState.NOT_LOADED);
@@ -718,8 +703,8 @@ public class ModDamage extends JavaPlugin
 	//routines
 		state_damageRoutines = loadRoutines("Damage", damageRoutines);
 		state_spawnRoutines = loadRoutines("MobHealth", spawnRoutines);
-		
-		state_routines = LoadState.combineStates(state_damageRoutines, state_spawnRoutines);
+		state_foodRoutines = loadRoutines("Food", foodRoutines);
+		state_routines = LoadState.combineStates(state_damageRoutines, state_foodRoutines, state_spawnRoutines);
 		
 	//single-property config
 		negative_Heal = config.getBoolean("negativeHeal", false);
@@ -751,16 +736,16 @@ public class ModDamage extends JavaPlugin
 		config.save();
 		log.severe("[" + getDescription().getName() + "] Defaults written to config.yml!");
 	}
-
-/////////////////// ROUTINE LOADING	
-	protected LoadState loadRoutines(String loadType, List<Routine> routineList)
+	
+	private LoadState loadRoutines(String loadType, List<Routine> routineList)
 	{
-		LoadState relevantState = LoadState.SUCCESS;
+		LoadState relevantState = LoadState.NOT_LOADED;
 		List<Object> routineObjects = config.getList(loadType);
 		if(routineObjects != null)
 		{
-			if(debugSetting.shouldOutput(DebugSetting.VERBOSE)) log.info(loadType + " configuration found, parsing...");
-			LoadState[] stateMachine = {relevantState};
+			relevantState = LoadState.SUCCESS;
+			addToConfig(DebugSetting.VERBOSE, 0, loadType + " configuration found, parsing...", LoadState.NOT_LOADED);
+			LoadState[] stateMachine = {relevantState};//We use a single-cell array here because the enum is ASSIGNED later - this doesn't work if we want to operate by reference.
 			List<Routine> calculations = parse(routineObjects, loadType, stateMachine);
 			relevantState = stateMachine[0];
 			
@@ -773,51 +758,25 @@ public class ModDamage extends JavaPlugin
 		return relevantState;
 	}
 	
-//// ALIASING ////
-	protected void loadAliases()
+	private LoadState loadAliases(String loadType, Aliaser<?> aliaser)
 	{
-		ConfigurationNode aliasNode = config.getNode("Aliases");
-		if(aliasNode != null)
+		LoadState relevantState = LoadState.NOT_LOADED;
+		List<String> aliases = config.getKeys(loadType);
+		if(!aliases.isEmpty())
 		{
-			ConfigurationNode itemNode = aliasNode.getNode("Item");
-			if(itemNode != null)
+			relevantState = LoadState.SUCCESS;
+			addToConfig(DebugSetting.VERBOSE, 0, loadType + " aliases found, parsing...", LoadState.NOT_LOADED);
+			for(String alias : aliases)
 			{
-				List<String> aliasKeys = aliasNode.getKeys("Item");
-				if(!aliasKeys.isEmpty()) state_itemAliases = LoadState.SUCCESS;
-				for(String alias : aliasKeys)
-				{
-					boolean validAlias = addAlias("_" + alias, itemNode.getStringList(alias, new ArrayList<String>()));
-					if(validAlias) addToConfig(DebugSetting.NORMAL, 0, "Created alias \"" + alias + "\"", LoadState.SUCCESS);
-					else
-					{
-						state_itemAliases = LoadState.FAILURE;
-						addToConfig(DebugSetting.QUIET, 0, "Failed to create alias \"" + alias + "\"", state_aliases);
-					}
-				}
+				List<String> values = config.getStringList(loadType + "." + alias, new ArrayList<String>());
+				if(values.isEmpty())
+					addToConfig(DebugSetting.VERBOSE, 0, "Found empty " + loadType.toLowerCase() + " alias \"" + alias + "\", ignoring...", LoadState.NOT_LOADED);
+				else if(!aliaser.addAlias(alias, values))
+					relevantState = LoadState.FAILURE;
 			}
 		}
-		
-		state_aliases = LoadState.combineStates(state_itemAliases);//TODO Add to me when there's more aliases
+		return relevantState;
 	}
-	//public boolean addAlias(ConfigurationNode node, String targetNodeName, 
-	//public <T> List<T> getItems(List<Class<T>> 
-	/*
-	private enum AliasType
-	{
-		ITEM(Material.class), 
-		MESSAGE(String.class);
-		
-		final Class<?> aliasClass;
-		private AliasType(Class<?> aliasClass)
-		{
-			this.aliasClass = aliasClass;
-		}
-		private this.aliasClass makeMatch(String key)
-		{
-			return this.aliasClass.cast(null);
-		}
-	}
-	*/
 	
 //// ROUTINE PARSING ////
 	//Parse commands recursively for different command strings the handlers pass
@@ -1159,8 +1118,11 @@ public class ModDamage extends JavaPlugin
 			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Config Overview: " + state_plugin.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
 			player.sendMessage(ChatColor.DARK_AQUA + "Aliases:    " + state_aliases.statusString() + "        " + ChatColor.DARK_AQUA + "Routines: " + state_routines.statusString());
 			player.sendMessage(ChatColor.GOLD + "-----------------------------------------------------");
-			player.sendMessage(ChatColor.DARK_AQUA + "Item:        " + state_itemAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Damage: " + state_damageRoutines.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "Message:   " + state_messageAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Spawn:  " + state_spawnRoutines.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "Armor:        " + state_armorAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Damage: " + state_damageRoutines.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "Element:     " + state_elementAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Death:  " + state_deathRoutines.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "Group:        " + state_groupAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Food:  " + state_foodRoutines.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "Item:        " + state_itemAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Spawn:  " + state_spawnRoutines.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "Message:   " + state_messageAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Biome:  " + state_biomeAliases.statusString());
 			//player.sendMessage(ChatColor.DARK_AQUA + "Armor aliases:" + activationString(armorAliasesLoaded) + "\t" + ChatColor.DARK_AQUA + "Food Routines:" + activationString(loaded_damageRoutines));
 			String bottomString = null;
 			switch(state_plugin)
@@ -1181,8 +1143,7 @@ public class ModDamage extends JavaPlugin
 		return false;
 	}
 	
-//// INGAME MATCHING ////	
-	//Frankly, most of the stuff below should be considered for implementation into Bukkit. :<
+//// INGAME MATCHING ////
 	public static Biome matchBiome(String biomeName)
 	{
 		for(Biome biome : Biome.values())
@@ -1198,4 +1159,11 @@ public class ModDamage extends JavaPlugin
 				return environment;
 		return null;
 	}
+
+	public static List<ArmorSet> matchArmorAlias(String key){ return armorAliaser.get(key);}
+	public static List<Biome> matchBiomeAlias(String key){ return biomeAliaser.get(key);}
+	public static List<ModDamageElement> matchElementAlias(String key){ return elementAliaser.get(key);}
+	public static List<Material> matchItemAlias(String key){ return itemAliaser.get(key);}
+	public static List<String> matchGroupAlias(String key){ return groupAliaser.get(key);}
+	public static List<String> matchMessageAlias(String key){ return messageAliaser.get(key);}
 }

@@ -19,7 +19,8 @@ public abstract class EntityConditionalStatement<InputType> extends ConditionalS
 	
 	abstract protected InputType getRelevantInfo(TargetEventInfo eventInfo);
 	
-	protected LivingEntity getRelevantEntity(TargetEventInfo eventInfo){ return (forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).entity_attacker:eventInfo.entity_target;}
+	protected final boolean shouldGetAttacker(TargetEventInfo eventInfo){ return (forAttacker && eventInfo instanceof AttackerEventInfo);}
+	protected LivingEntity getRelevantEntity(TargetEventInfo eventInfo){ return shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).entity_attacker:eventInfo.entity_target;}
 	
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo){ return getRelevantInfo(eventInfo).equals(value);}	

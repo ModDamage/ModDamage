@@ -20,4 +20,6 @@ abstract public class EntitySwitchRoutine<InfoType> extends SwitchRoutine<InfoTy
 	}
 
 	protected LivingEntity getRelevantEntity(TargetEventInfo eventInfo){ return (forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).entity_attacker:eventInfo.entity_target;}
+
+	protected final boolean shouldGetAttacker(TargetEventInfo eventInfo){ return (forAttacker && eventInfo instanceof AttackerEventInfo);}
 }

@@ -25,7 +25,7 @@ public class EntityHurt extends EntityCalculatedEffectRoutine
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntityHurt.class, Pattern.compile(ModDamage.entityPart + "effect\\.hurt", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntityHurt.class, Pattern.compile(ModDamage.entityRegex + "effect\\.hurt", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityHurt getNew(Matcher matcher, List<Routine> routines)

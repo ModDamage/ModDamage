@@ -19,7 +19,7 @@ public class EntityLightComparison extends EntityComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityLightComparison.class, Pattern.compile("(!)?" + ModDamage.entityPart + "\\.light" + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityLightComparison.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.light" + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityLightComparison getNew(Matcher matcher)

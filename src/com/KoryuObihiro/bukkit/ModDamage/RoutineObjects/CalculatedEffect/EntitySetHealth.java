@@ -21,7 +21,7 @@ public class EntitySetHealth extends EntityCalculatedEffectRoutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntitySetHealth.class, Pattern.compile(ModDamage.entityPart + "effect\\.heal", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntitySetHealth.class, Pattern.compile(ModDamage.entityRegex + "effect\\.heal", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntitySetHealth getNew(Matcher matcher, List<Routine> routines)

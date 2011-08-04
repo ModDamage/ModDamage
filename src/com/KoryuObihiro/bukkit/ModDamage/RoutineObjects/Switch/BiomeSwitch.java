@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -12,20 +13,22 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-public class BiomeSwitch extends EntitySwitchRoutine<Biome>
+public class BiomeSwitch extends EntitySwitchRoutine<List<Biome>>
 {
 	public BiomeSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchLabels)
 	{
 		super(forAttacker, switchLabels);
 	}
 	@Override
-	protected Biome getRelevantInfo(TargetEventInfo eventInfo){ return getRelevantEntity(eventInfo).getLocation().getBlock().getBiome();}
+	protected List<Biome> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList(getRelevantEntity(eventInfo).getLocation().getBlock().getBiome());}
 	@Override
-	protected Biome matchCase(String switchCase){ return ModDamage.matchBiome(switchCase);}
+	protected boolean compare(List<Biome> info_1, List<Biome> info_2){ return info_2.contains(info_1.get(0));}
+	@Override
+	protected List<Biome> matchCase(String switchCase){ return ModDamage.matchBiomeAlias(switchCase);}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, BiomeSwitch.class, Pattern.compile(ModDamage.entityPart + "environment", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, BiomeSwitch.class, Pattern.compile(ModDamage.entityRegex + "environment", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static BiomeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

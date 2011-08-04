@@ -45,7 +45,7 @@ public class EntityCoordinateComparison extends EntityComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityCoordinateComparison.class, Pattern.compile("(!)?" + ModDamage.entityPart + "\\.(X|Y|Z)\\." + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityCoordinateComparison.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.(X|Y|Z)\\." + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 
 	public static EntityCoordinateComparison getNew(Matcher matcher)

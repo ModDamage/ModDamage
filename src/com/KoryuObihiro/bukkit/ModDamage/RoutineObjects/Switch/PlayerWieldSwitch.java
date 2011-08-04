@@ -33,7 +33,7 @@ public class PlayerWieldSwitch extends EntitySwitchRoutine<List<Material>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, PlayerWieldSwitch.class, Pattern.compile(ModDamage.entityPart + "wielding", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, PlayerWieldSwitch.class, Pattern.compile(ModDamage.entityRegex + "wielding", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerWieldSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

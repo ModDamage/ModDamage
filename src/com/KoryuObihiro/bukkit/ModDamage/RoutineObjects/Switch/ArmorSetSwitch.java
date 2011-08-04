@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -12,23 +13,30 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-public class ArmorSetSwitch extends EntitySwitchRoutine<ArmorSet>
+public class ArmorSetSwitch extends EntitySwitchRoutine<List<ArmorSet>>
 {
 	public ArmorSetSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements){ super(forAttacker, switchStatements);}
 
 	@Override
-	protected ArmorSet getRelevantInfo(TargetEventInfo eventInfo){ return (forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).armorSet_attacker:eventInfo.armorSet_target;}
-	
+	protected List<ArmorSet> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList((forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).armorSet_attacker:eventInfo.armorSet_target);}
 	@Override
-	protected ArmorSet matchCase(String switchCase)
+	protected boolean compare(List<ArmorSet> info_1, List<ArmorSet> info_2)
 	{ 
-		ArmorSet armorSet = new ArmorSet(switchCase);
+		for(ArmorSet armorSet : info_2)
+			if(armorSet.equals(info_1.get(0)))
+				return true;
+		return false;
+	}
+	@Override
+	protected List<ArmorSet> matchCase(String switchCase)
+	{ 
+		List<ArmorSet> armorSet = ModDamage.matchArmorAlias(switchCase);
 		return (armorSet.isEmpty()?null:armorSet);
 	}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, ArmorSetSwitch.class, Pattern.compile(ModDamage.entityPart + "environment", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, ArmorSetSwitch.class, Pattern.compile(ModDamage.entityRegex + "environment", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static ArmorSetSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

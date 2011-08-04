@@ -28,7 +28,7 @@ public class PlayerAddItem extends PlayerCalculatedEffectRoutine
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(PlayerAddItem.class, Pattern.compile(ModDamage.entityPart + "effect\\.addItem\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(PlayerAddItem.class, Pattern.compile(ModDamage.entityRegex + "effect\\.addItem\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerAddItem getNew(Matcher matcher, List<Routine> routines)

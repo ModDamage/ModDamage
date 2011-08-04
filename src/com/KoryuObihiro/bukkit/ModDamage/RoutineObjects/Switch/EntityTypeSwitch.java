@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -12,23 +13,28 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-public class EntityTypeSwitch extends EntitySwitchRoutine<ModDamageElement>
+public class EntityTypeSwitch extends EntitySwitchRoutine<List<ModDamageElement>>
 {
 	public EntityTypeSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
 		super(forAttacker, switchStatements);
 	}
 	@Override
-	protected ModDamageElement getRelevantInfo(TargetEventInfo eventInfo){ return (forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).element_attacker:eventInfo.element_target;}
+	protected List<ModDamageElement> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList(shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).element_attacker:eventInfo.element_target);}
 	@Override
-	protected ModDamageElement matchCase(String switchCase){ return ModDamageElement.matchElement(switchCase);}
-	
+	protected boolean compare(List<ModDamageElement> info_1, List<ModDamageElement> info_2)
+	{ 
+		for(ModDamageElement element : info_2)
+			if(info_1.get(0).matchesType(element))
+				return true;
+		return false;
+	}
 	@Override
-	protected boolean compare(ModDamageElement info_1, ModDamageElement info_2){ return info_1.matchesType(info_2);}
+	protected List<ModDamageElement> matchCase(String switchCase){ return ModDamage.matchElementAlias(switchCase);}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, EntityTypeSwitch.class, Pattern.compile(ModDamage.entityPart + "type(?:\\.(" + ModDamage.elementRegex + "))?", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, EntityTypeSwitch.class, Pattern.compile(ModDamage.entityRegex + "type(?:\\.(" + ModDamage.elementRegex + "))?", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityTypeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

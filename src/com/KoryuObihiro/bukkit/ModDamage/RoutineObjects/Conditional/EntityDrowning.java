@@ -16,7 +16,7 @@ public class EntityDrowning extends EntityAirTicksComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityDrowning.class, Pattern.compile("(!)?" + ModDamage.entityPart + "\\.drowning", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityDrowning.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.drowning", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityDrowning getNew(Matcher matcher)

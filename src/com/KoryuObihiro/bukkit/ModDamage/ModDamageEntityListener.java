@@ -14,6 +14,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class ModDamageEntityListener extends EntityListener
 {
@@ -42,7 +43,8 @@ public class ModDamageEntityListener extends EntityListener
 				}
 				else{ ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled damage event. Is this plugin up-to-date?");}
 				
-				plugin.executeRoutines_Damage(eventInfo);
+				for(Routine routine : ModDamage.damageRoutines)
+					routine.run(null);
 					
 				if(eventInfo.eventValue < 0 && !ModDamage.negative_Heal) 
 					eventInfo.eventValue = 0;
@@ -51,19 +53,17 @@ public class ModDamageEntityListener extends EntityListener
 		}
 	}
 	
-//// SPAWN ////
+////DEATH ////
 	@Override
-	public void onCreatureSpawn(CreatureSpawnEvent event)
-	{ 
-		if(ModDamage.isEnabled && !event.isCancelled() && event.getEntity() != null)
+	public void onEntityDeath(EntityDeathEvent event)
+	{
+		if(ModDamage.isEnabled && event.getEntity() instanceof LivingEntity)
 		{
 			LivingEntity entity = (LivingEntity)event.getEntity();
-			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), entity.getHealth(), null);
-
-			plugin.executeRoutines_Spawn(eventInfo);
+			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), 0, null);
 			
-			entity.setHealth(eventInfo.eventValue);
-			event.setCancelled(entity.getHealth() <= 0);
+			for(Routine routine : ModDamage.deathRoutines)
+				routine.run(eventInfo);
 		}
 	}
 	
@@ -76,22 +76,25 @@ public class ModDamageEntityListener extends EntityListener
 			LivingEntity entity = (LivingEntity)event.getEntity();
 			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), event.getAmount(), null);
 				
-			plugin.executeRoutines_Food(eventInfo);
+			for(Routine routine : ModDamage.foodRoutines)
+				routine.run(eventInfo);
 		}
 	}
 	
-	//TODO
-	//----
-//// DEATH ////
+//// SPAWN ////
 	@Override
-	public void onEntityDeath(EntityDeathEvent event)
-	{
-		if(ModDamage.isEnabled && event.getEntity() instanceof LivingEntity)
+	public void onCreatureSpawn(CreatureSpawnEvent event)
+	{ 
+		if(ModDamage.isEnabled && !event.isCancelled() && event.getEntity() != null)
 		{
 			LivingEntity entity = (LivingEntity)event.getEntity();
-			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), 0, null);
+			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), entity.getHealth(), null);
+
+			for(Routine routine : ModDamage.spawnRoutines)
+				routine.run(eventInfo);
 			
-			plugin.executeRoutines_Death(eventInfo);
+			entity.setHealth(eventInfo.eventValue);
+			event.setCancelled(entity.getHealth() <= 0);
 		}
 	}
 }
