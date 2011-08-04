@@ -1,5 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
@@ -29,7 +31,7 @@ public class TargetEventInfo
 	public final Material materialInHand_target;
 	public final ArmorSet armorSet_target;
 	public final String name_target;
-	public final String[] groups_target;
+	public final List<String> groups_target;
 	
 //CONSTRUCTORS	
 	public TargetEventInfo(LivingEntity entity, ModDamageElement eventElement_target, int eventValue, RangedElement rangedElement) 
@@ -44,7 +46,7 @@ public class TargetEventInfo
 			materialInHand_target = player_target.getItemInHand().getType();
 			armorSet_target = new ArmorSet(player_target);
 			name_target = player_target.getName();
-			groups_target = (ModDamage.using_Permissions?ModDamage.multigroupPermissions
+			groups_target = Arrays.asList(ModDamage.using_Permissions?ModDamage.multigroupPermissions
 					?ModDamage.Permissions.getGroups(entity.getWorld().getName(), player_target.getName())
 					:ModDamage.Permissions.getGroup(entity.getWorld().getName(), player_target.getName()).split(" "):emptyStringArray);
 		}

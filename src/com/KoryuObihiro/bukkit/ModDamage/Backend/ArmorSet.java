@@ -8,7 +8,6 @@ public class ArmorSet
 {
 	//private boolean inclusive = true;
 	private boolean hasSomething = false;
-	private byte slotsOccupied = 0;
 	protected Material armorSet[] = new Material[4];
 	
 	public ArmorSet(Player player)
@@ -31,7 +30,6 @@ public class ArmorSet
 				clear();
 				break;
 			}
-			else slotsOccupied++;
 		}
 	}
 	
