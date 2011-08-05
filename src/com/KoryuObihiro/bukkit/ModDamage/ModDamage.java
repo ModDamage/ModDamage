@@ -244,8 +244,7 @@ public class ModDamage extends JavaPlugin
 		elementRegex = "(";
 		for(ModDamageElement element : ModDamageElement.values())
 			elementRegex += element.getReference() + "|";
-		//elementRegex += potentialAliasPart + ")"; (TODO: For element aliasing)
-		elementRegex = elementRegex.substring(0, elementRegex.length() - 2) + ")";
+		elementRegex += potentialAliasPart + ")";
 		
 		String[] armorParts = {"HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS" };
 		materialRegex = armorRegex = "(";
@@ -259,7 +258,7 @@ public class ModDamage extends JavaPlugin
 		}
 		tempRegex = tempRegex.substring(0, tempRegex.length() - 2);//TODO CHECK THIS
 		//"((?:(?:ARMOR)(?:\\*ARMOR))|aliasPart)"
-		armorRegex = "((?:(?:" + tempRegex + ")(?:\\*" + tempRegex + ")))";//|" + potentialAliasPart + ")"; (TODO: For armor aliasing.)
+		armorRegex = "((?:(?:" + tempRegex + ")(?:\\*" + tempRegex + "){0,3})|" + potentialAliasPart + ")";
 		materialRegex += potentialAliasPart + ")";
 		
 		logicalRegex = "(";
@@ -666,26 +665,24 @@ public class ModDamage extends JavaPlugin
 		String debugString = config.getString("debugging");
 		if(debugString != null)
 		{
-			DebugSetting logSetting = DebugSetting.matchSetting(debugString);
-			switch(logSetting)
+			DebugSetting debugSetting = DebugSetting.matchSetting(debugString);
+			switch(debugSetting)
 			{
 				case QUIET: 
 					log.info("[" + getDescription().getName()+ "] \"Quiet\" mode active - suppressing debug messages and warnings.");
-					setDebugging(logSetting);
 					break;
 				case NORMAL: 
 					log.info("[" + getDescription().getName()+ "] Debugging active.");
-					setDebugging(logSetting);
 					break;
 				case VERBOSE: 
 					log.info("[" + getDescription().getName()+ "] Verbose debugging active.");
-					setDebugging(logSetting);
 					break;
 				default: 
 					log.info("[" + getDescription().getName()+ "] Debug string not recognized - defaulting to \"normal\" settings.");
-					setDebugging(DebugSetting.NORMAL);
+					debugSetting = DebugSetting.NORMAL;
 					break;
 			}
+			ModDamage.debugSetting = debugSetting;
 		}
 
 	//Item aliasing
@@ -705,6 +702,8 @@ public class ModDamage extends JavaPlugin
 		state_spawnRoutines = loadRoutines("MobHealth", spawnRoutines);
 		state_foodRoutines = loadRoutines("Food", foodRoutines);
 		state_routines = LoadState.combineStates(state_damageRoutines, state_foodRoutines, state_spawnRoutines);
+
+		state_plugin = LoadState.combineStates(state_aliases, state_routines);
 		
 	//single-property config
 		negative_Heal = config.getBoolean("negativeHeal", false);
@@ -712,9 +711,22 @@ public class ModDamage extends JavaPlugin
 			log.info("[" + getDescription().getName()+ "] Negative-damage healing " + (negative_Heal?"en":"dis") + "abled.");
 		
 		config.load(); //Discard any changes made to the file by the above reads.
-		log.info("[" + getDescription().getName() + "] " + (!state_routines.equals(LoadState.NOT_LOADED)?"Finished loading configuration.":"No configuration defined! Is this on purpose?"));
 		
-		state_plugin = LoadState.combineStates(state_aliases, state_routines);
+		String sendThis = null;
+		switch(state_plugin)
+		{
+			case NOT_LOADED:
+				sendThis = "No configuration loaded.";
+				break;
+			case FAILURE:
+				sendThis = "Loaded configuration with one or more errors.";
+				break;
+			case SUCCESS:
+				sendThis = "Finished loading configuration.";
+				break;
+		}
+		log.info("[" + getDescription().getName() + "] " + sendThis);
+		
 	}
 
 	private void writeDefaults() 
@@ -762,7 +774,7 @@ public class ModDamage extends JavaPlugin
 	{
 		LoadState relevantState = LoadState.NOT_LOADED;
 		List<String> aliases = config.getKeys(loadType);
-		if(!aliases.isEmpty())
+		if(aliases != null)
 		{
 			relevantState = LoadState.SUCCESS;
 			addToConfig(DebugSetting.VERBOSE, 0, loadType + " aliases found, parsing...", LoadState.NOT_LOADED);
@@ -992,7 +1004,7 @@ public class ModDamage extends JavaPlugin
 		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
 	}
 	
-	public static void register(HashMap<Pattern, Method> registry, Method method, Pattern syntax)
+	private static void register(HashMap<Pattern, Method> registry, Method method, Pattern syntax)
 	{
 		boolean successfullyRegistered = false;
 		if(syntax != null)
@@ -1008,37 +1020,44 @@ public class ModDamage extends JavaPlugin
 	}
 		
 //// LOGGING ////
-	public static void setDebugging(DebugSetting setting)
+	private static void setDebugging(Player player, DebugSetting setting)
 	{ 
 		if(setting != null) 
 		{
-			debugSetting = setting;
-			config.setProperty("debugging", debugSetting.name().toLowerCase());
+			if(!ModDamage.debugSetting.equals(setting))
+			{
+				String sendThis = "Changed debug from " + debugSetting.name().toLowerCase() + " to " + setting.name().toLowerCase();
+				log.info("[ModDamage] " + sendThis);
+				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + sendThis);
+				debugSetting = setting;
+				config.setProperty("debugging", debugSetting.name().toLowerCase());
+				config.save();
+			}
+			else
+			{
+				log.info("[ModDamage] Debug already set to " + setting.name().toLowerCase() + "!");
+				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Debug already set to " + setting.name().toLowerCase() + "!");
+			}
 		}
 		else log.severe("[ModDamage] Error: bad debug setting. Valid settings: normal, quiet, verbose");//shouldn't happen
 	}
 	
-	public static void toggleDebugging(Player player) 
+	private static void toggleDebugging(Player player) 
 	{
-		DebugSetting nextSetting = null; //shouldn't stay like this.
 		switch(debugSetting)
 		{
 			case QUIET: 
-				nextSetting = DebugSetting.NORMAL;
+				setDebugging(player, DebugSetting.NORMAL);
 				break;
 				
 			case NORMAL:
-				nextSetting = DebugSetting.VERBOSE;
+				setDebugging(player, DebugSetting.VERBOSE);
 				break;
 				
 			case VERBOSE:
-				nextSetting = DebugSetting.QUIET;
+				setDebugging(player, DebugSetting.QUIET);
 				break;
 		}
-		String sendThis = "Changed debug from " + debugSetting.name().toLowerCase() + " to " + nextSetting.name().toLowerCase();
-		log.info("[ModDamage] " + sendThis);
-		if(player != null) player.sendMessage(ChatColor.GREEN + sendThis);
-		debugSetting = nextSetting;
 	}
 	
 	public static void addToConfig(DebugSetting outputSetting, int nestCount, String string, LoadState loadState)
@@ -1093,7 +1112,7 @@ public class ModDamage extends JavaPlugin
 		configPages = configStrings_ingame.size()/9 + (configStrings_ingame.size()%9 > 0?1:0);
 	}
 
-	public static boolean sendConfig(Player player, int pageNumber)
+	private static boolean sendConfig(Player player, int pageNumber)
 	{
 		if(player == null)
 		{
@@ -1116,13 +1135,13 @@ public class ModDamage extends JavaPlugin
 		else
 		{
 			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Config Overview: " + state_plugin.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
-			player.sendMessage(ChatColor.DARK_AQUA + "Aliases:    " + state_aliases.statusString() + "        " + ChatColor.DARK_AQUA + "Routines: " + state_routines.statusString());
-			player.sendMessage(ChatColor.GOLD + "-----------------------------------------------------");
-			player.sendMessage(ChatColor.DARK_AQUA + "Armor:        " + state_armorAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Damage: " + state_damageRoutines.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "Element:     " + state_elementAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Death:  " + state_deathRoutines.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "Group:        " + state_groupAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Food:  " + state_foodRoutines.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "Item:        " + state_itemAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Spawn:  " + state_spawnRoutines.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "Message:   " + state_messageAliases.statusString() + "         " + ChatColor.DARK_AQUA + "Biome:  " + state_biomeAliases.statusString());
+			player.sendMessage(ChatColor.AQUA + "Aliases:    " + state_aliases.statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + state_routines.statusString());
+			//53 is the total character count of a single line in MC.
+			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:        " + state_armorAliases.statusString() + "     " + ChatColor.DARK_GREEN + "Damage: " + state_damageRoutines.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Element:     " + state_elementAliases.statusString() + "       " + ChatColor.DARK_GREEN + "Death:  " + state_deathRoutines.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Group:        " + state_groupAliases.statusString() + "     " + ChatColor.DARK_GREEN + "Food:  " + state_foodRoutines.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Item:        " + state_itemAliases.statusString() + "      " + ChatColor.DARK_GREEN + "Spawn:  " + state_spawnRoutines.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Message:   " + state_messageAliases.statusString() + "        " + ChatColor.DARK_AQUA + "Biome:  " + state_biomeAliases.statusString());
 			//player.sendMessage(ChatColor.DARK_AQUA + "Armor aliases:" + activationString(armorAliasesLoaded) + "\t" + ChatColor.DARK_AQUA + "Food Routines:" + activationString(loaded_damageRoutines));
 			String bottomString = null;
 			switch(state_plugin)
@@ -1160,10 +1179,10 @@ public class ModDamage extends JavaPlugin
 		return null;
 	}
 
-	public static List<ArmorSet> matchArmorAlias(String key){ return armorAliaser.get(key);}
-	public static List<Biome> matchBiomeAlias(String key){ return biomeAliaser.get(key);}
-	public static List<ModDamageElement> matchElementAlias(String key){ return elementAliaser.get(key);}
-	public static List<Material> matchItemAlias(String key){ return itemAliaser.get(key);}
-	public static List<String> matchGroupAlias(String key){ return groupAliaser.get(key);}
-	public static List<String> matchMessageAlias(String key){ return messageAliaser.get(key);}
+	public static List<ArmorSet> matchArmorAlias(String key){ return armorAliaser.matchAlias(key);}
+	public static List<Biome> matchBiomeAlias(String key){ return biomeAliaser.matchAlias(key);}
+	public static List<ModDamageElement> matchElementAlias(String key){ return elementAliaser.matchAlias(key);}
+	public static List<Material> matchItemAlias(String key){ return itemAliaser.matchAlias(key);}
+	public static List<String> matchGroupAlias(String key){ return groupAliaser.matchAlias(key);}
+	public static List<String> matchMessageAlias(String key){ return messageAliaser.matchAlias(key);}
 }

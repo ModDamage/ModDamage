@@ -41,7 +41,7 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 				}
 			else return false;
 		}
-		this.put(key, matchedItems);
+		this.put("_" + key, matchedItems);
 		return true;
 	}
 	
