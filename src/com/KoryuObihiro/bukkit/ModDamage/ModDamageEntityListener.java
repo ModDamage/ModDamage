@@ -5,6 +5,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByProjectileEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -36,15 +37,17 @@ public class ModDamageEntityListener extends EntityListener
 				else if(event instanceof EntityDamageByEntityEvent)
 				{
 					EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
+					RangedElement rangedElement = (event instanceof EntityDamageByProjectileEvent?RangedElement.matchElement(((EntityDamageByProjectileEvent)event).getProjectile()):null);
 					//TODO Make this compatible with dispensers!
 					LivingEntity ent_damager = (LivingEntity)event_EE.getDamager();
-					RangedElement rangedElement = (event instanceof EntityDamageByProjectileEvent?RangedElement.matchElement(((EntityDamageByProjectileEvent)event).getProjectile()):null);
-					eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), ent_damager, ModDamageElement.matchMobType(ent_damager), rangedElement, event.getDamage());
+					if(ent_damager != null) eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), ent_damager, ModDamageElement.matchMobType(ent_damager), rangedElement, event.getDamage());
+					else if(rangedElement != null && event.getCause().equals(DamageCause.ENTITY_ATTACK))
+						eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.TRAP_DISPENSER, rangedElement, event.getDamage());
 				}
 				else{ ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled damage event. Is this plugin up-to-date?");}
 				
 				for(Routine routine : ModDamage.damageRoutines)
-					routine.run(null);
+					routine.run(eventInfo);
 					
 				if(eventInfo.eventValue < 0 && !ModDamage.negative_Heal) 
 					eventInfo.eventValue = 0;
@@ -97,4 +100,6 @@ public class ModDamageEntityListener extends EntityListener
 			event.setCancelled(entity.getHealth() <= 0);
 		}
 	}
+	
+	//TODO onProjectileHit when next RB comes out (currently 1000)
 }

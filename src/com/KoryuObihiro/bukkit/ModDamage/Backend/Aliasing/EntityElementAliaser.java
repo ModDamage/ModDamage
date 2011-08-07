@@ -12,6 +12,6 @@ public class EntityElementAliaser extends Aliaser<ModDamageElement>
 	protected ModDamageElement matchNonAlias(String key){ return ModDamageElement.matchElement(key);}
 
 	@Override
-	protected String getName(ModDamageElement object){ return object.getReference();}
+	protected String getObjectName(ModDamageElement object){ return object.getReference();}
 
 }

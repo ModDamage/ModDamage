@@ -25,20 +25,22 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 	{
 		if(this.containsKey(key)) return false;
 		List<Type> matchedItems = new ArrayList<Type>();
+		ModDamage.addToConfig(DebugSetting.NORMAL, 0, "Adding alias \"" + key + "\"", LoadState.SUCCESS);
 		for(String listedValue : values)
 		{
 			List<Type> matchedList = matchAlias(listedValue);
 			if(!matchedList.isEmpty())
+			{
 				for(Type value : matchedList)
 				{
 					if(!matchedItems.contains(value))
-						matchedItems.add(value);
-					else
 					{
-						ModDamage.addToConfig(DebugSetting.NORMAL, 1, "Error: duplicate value " + getName(value), LoadState.NOT_LOADED);
-						return false;
+						ModDamage.addToConfig(DebugSetting.VERBOSE, 1, "Adding value \"" + getObjectName(value) + "\"", LoadState.SUCCESS);
+						matchedItems.add(value);
 					}
+					else ModDamage.addToConfig(DebugSetting.NORMAL, 1, "Error: duplicate value \"" + getObjectName(value) + "\" - ignoring.", LoadState.NOT_LOADED);
 				}
+			}
 			else return false;
 		}
 		this.put("_" + key, matchedItems);
@@ -48,7 +50,7 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 	@SuppressWarnings("unchecked")
 	public List<Type> matchAlias(String key)
 	{
-		if(this.containsKey(key.toLowerCase())) 
+		if(this.containsKey(key))
 			return this.get(key);
 		Type value = matchNonAlias(key);
 		if(value != null) return Arrays.asList(value);
@@ -58,5 +60,7 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 	
 	abstract protected Type matchNonAlias(String key);
 	
-	abstract protected String getName(Type object);
+	abstract protected String getObjectName(Type object);
+	
+	public String getName(){ return name;}
 }

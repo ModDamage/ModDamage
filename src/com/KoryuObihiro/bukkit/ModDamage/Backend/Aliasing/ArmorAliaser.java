@@ -16,5 +16,5 @@ public class ArmorAliaser extends Aliaser<ArmorSet>
 	}
 
 	@Override
-	protected String getName(ArmorSet object){ return object.toString();}
+	protected String getObjectName(ArmorSet object){ return object.toString();}
 }

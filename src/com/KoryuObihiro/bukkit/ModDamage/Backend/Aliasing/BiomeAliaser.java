@@ -12,5 +12,5 @@ public class BiomeAliaser extends Aliaser<Biome>
 	@Override
 	protected Biome matchNonAlias(String key){ return ModDamage.matchBiome(key);}
 	@Override
-	protected String getName(Biome object){ return object.name();}
+	protected String getObjectName(Biome object){ return object.name();}
 }

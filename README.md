@@ -7,7 +7,7 @@ ModDamage offers a very granulated approached to damage-mechanic configuration, 
 
 New to MD, and not sure where to start? Read the [Bukkit thread](http://forums.bukkit.org/threads/18043) for an introduction, or jump right into the [wiki](https://www.github.com/KoryuObihiro/ModDamage/wiki) to begin!
 
-[Planned features, bugs, etc.](https://github.com/KoryuObihiro/ModDamage/wiki/Changelog)
+[Planned features, bugs, etc.](https://github.com/KoryuObihiro/ModDamage/issues)
 
 [Changelog](http://www.github.com/KoryuObihiro/ModDamage/wiki/Changelog)
 

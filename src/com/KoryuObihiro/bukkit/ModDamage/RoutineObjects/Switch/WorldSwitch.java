@@ -1,0 +1,37 @@
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
+
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
+
+public class WorldSwitch extends SwitchRoutine<List<String>>
+{	
+	public WorldSwitch(LinkedHashMap<String, List<Routine>> switchStatements){ super(switchStatements);}
+	@Override
+	protected List<String> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList(eventInfo.world.getName());}
+	@Override
+	protected List<String> matchCase(String switchCase){ return ModDamage.matchWorldAlias(switchCase);}
+	
+	public static void register(ModDamage routineUtility)
+	{
+		SwitchRoutine.registerStatement(routineUtility, WorldSwitch.class, Pattern.compile("world", Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static WorldSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
+	{
+		WorldSwitch routine = null;
+		if(matcher != null && switchStatements != null)
+		{
+			routine = new WorldSwitch(switchStatements);
+			return (routine.isLoaded?routine:null);
+		}
+		return null;
+	}
+}

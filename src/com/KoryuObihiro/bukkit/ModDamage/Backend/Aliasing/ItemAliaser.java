@@ -12,5 +12,5 @@ public class ItemAliaser extends Aliaser<Material>
 	protected Material matchNonAlias(String key){ return Material.matchMaterial(key);}
 
 	@Override
-	protected String getName(Material object){ return object.name();}
+	protected String getObjectName(Material object){ return object.name();}
 }

@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
@@ -55,10 +56,17 @@ public class TargetEventInfo
 			materialInHand_target = null;
 			armorSet_target = null;
 			name_target = null;
-			groups_target = null;
+			groups_target = new ArrayList<String>();
 		}
 		
 		world = entity.getWorld();	
 		environment = world.getEnvironment();
+	}
+	
+	public enum InfoString //TODO Finish me.
+	{
+		ARMORSET, BIOME, ELEMENT, ENVIRONMENT, GROUPS, MATERIAL, NAME, RANGEDELEMENT, WORLD;
+		
+		
 	}
 }

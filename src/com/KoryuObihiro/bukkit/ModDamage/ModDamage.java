@@ -34,6 +34,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.EntityElementAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.GroupAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ItemAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.WorldAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
@@ -72,7 +73,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityHealth
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityLightComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnBlock;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnFire;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTargetedByOther;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTypeEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityUnderwater;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventValueComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerCountComparison;
@@ -83,7 +84,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWieldi
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.RangedElementEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldTimeRange;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldTimeComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
@@ -104,13 +105,10 @@ import com.nijikokun.bukkit.Permissions.Permissions;
  */
 public class ModDamage extends JavaPlugin
 {
-	//TODO
 	// 0.9.5
 	// -Empty armorSet & material
-	// -get Dispenser attackers
 	// -Command for autogen world/entitytype switches?
 	// -Command to check aliases
-	// -Make sure that Slimes work for EntityTargetedByOther - they failed in a previous RB.
 	// -switch and comparison for wieldquantity
 	// -switch.conditional
 	// -switch and conditional for region
@@ -175,8 +173,8 @@ public class ModDamage extends JavaPlugin
 	public final static Logger log = Logger.getLogger("Minecraft");
 	public static DebugSetting debugSetting = DebugSetting.NORMAL;
 	public static enum DebugSetting
-	{ 
-		QUIET, NORMAL, VERBOSE;
+	{
+		QUIET, NORMAL, CONSOLE, VERBOSE;
 		public static DebugSetting matchSetting(String key)
 		{
 			for(DebugSetting setting : DebugSetting.values())
@@ -239,7 +237,7 @@ public class ModDamage extends JavaPlugin
 		environmentRegex = "(";
 		for(Environment environment : Environment.values())
 			environmentRegex += environment.name() + "|";
-		environmentRegex = environmentRegex.substring(0, environmentRegex.length() - 2) + ")";
+		environmentRegex = environmentRegex.substring(0, environmentRegex.length() - 1) + ")";
 
 		elementRegex = "(";
 		for(ModDamageElement element : ModDamageElement.values())
@@ -256,7 +254,7 @@ public class ModDamage extends JavaPlugin
 				if(material.name().endsWith(part))
 					tempRegex += material.name() + "|";			
 		}
-		tempRegex = tempRegex.substring(0, tempRegex.length() - 2);//TODO CHECK THIS
+		tempRegex = tempRegex.substring(0, tempRegex.length() - 1);
 		//"((?:(?:ARMOR)(?:\\*ARMOR))|aliasPart)"
 		armorRegex = "((?:(?:" + tempRegex + ")(?:\\*" + tempRegex + "){0,3})|" + potentialAliasPart + ")";
 		materialRegex += potentialAliasPart + ")";
@@ -268,8 +266,8 @@ public class ModDamage extends JavaPlugin
 		
 		comparisonRegex = "(";
 		for(ComparisonType type : ComparisonType.values())
-			comparisonRegex += type.name() + "|" + type.getShortHand() + "|";
-		comparisonRegex += ")";
+			comparisonRegex += type.name() + "|";
+		comparisonRegex = comparisonRegex.substring(0, comparisonRegex.length() - 1) + ")";
 		
 		rangedElementRegex = "(";
 		for(RangedElement type : RangedElement.values())
@@ -319,16 +317,18 @@ public class ModDamage extends JavaPlugin
 //Alias objects
 	private static ArmorAliaser armorAliaser = new ArmorAliaser();
 	private static BiomeAliaser biomeAliaser = new BiomeAliaser();
-	private static ItemAliaser itemAliaser = new ItemAliaser();
-	private static GroupAliaser groupAliaser = new GroupAliaser();
-	private static MessageAliaser messageAliaser = new MessageAliaser();
 	private static EntityElementAliaser elementAliaser = new EntityElementAliaser();
+	private static GroupAliaser groupAliaser = new GroupAliaser();
+	private static ItemAliaser itemAliaser = new ItemAliaser();
+	private static MessageAliaser messageAliaser = new MessageAliaser();
+	private static WorldAliaser worldAliaser = new WorldAliaser();
 	private static LoadState state_armorAliases = LoadState.NOT_LOADED;
 	private static LoadState state_biomeAliases = LoadState.NOT_LOADED;
 	private static LoadState state_elementAliases = LoadState.NOT_LOADED;
 	private static LoadState state_itemAliases = LoadState.NOT_LOADED;
 	private static LoadState state_groupAliases = LoadState.NOT_LOADED;
 	private static LoadState state_messageAliases = LoadState.NOT_LOADED;
+	private static LoadState state_worldAliases = LoadState.NOT_LOADED;
 	private static LoadState state_aliases = LoadState.NOT_LOADED;
 	
 	private static LoadState state_plugin = LoadState.NOT_LOADED;
@@ -393,6 +393,7 @@ public class ModDamage extends JavaPlugin
 		EntityBiome.register(this);
 		EntityCoordinateComparison.register(this);
 		EntityDrowning.register(this);
+		
 		EntityExposedToSky.register(this);
 		EntityFallComparison.register(this);
 		EntityFalling.register(this);
@@ -401,7 +402,7 @@ public class ModDamage extends JavaPlugin
 		EntityLightComparison.register(this);
 		EntityOnBlock.register(this);
 		EntityOnFire.register(this);
-		EntityTargetedByOther.register(this);
+		EntityTypeEvaluation.register(this);
 		EntityUnderwater.register(this);
 		EventValueComparison.register(this);
 		PlayerGroup.register(this);
@@ -409,7 +410,7 @@ public class ModDamage extends JavaPlugin
 		PlayerWearingOnly.register(this);
 		PlayerWielding.register(this);
 		//World
-		WorldTimeRange.register(this);
+		WorldTimeComparison.register(this);
 		WorldEnvironment.register(this);
 		//Server
 		ServerOnlineMode.register(this);
@@ -467,12 +468,7 @@ public class ModDamage extends JavaPlugin
 								{
 									DebugSetting matchedSetting = DebugSetting.matchSetting(args[1]);
 									if(matchedSetting != null)
-									{
-										String sendThis = "Changed debugging from " + debugSetting.name().toLowerCase() + " to " + matchedSetting.name().toLowerCase();
-										log.info("[" + getDescription().getName() + "] " + sendThis);
-										if(!fromConsole) player.sendMessage(ChatColor.GREEN + sendThis);
-										debugSetting = matchedSetting;
-									}
+										setDebugging(player, matchedSetting);
 									else
 									{
 										sendCommandUsage(player, true);
@@ -503,7 +499,6 @@ public class ModDamage extends JavaPlugin
 										player.sendMessage(ModDamageString(ChatColor.GRAY) + " No configuration loaded! Are any routines defined?");
 										break;
 								}
-								log.info("[" + getDescription().getName() + "] Reload complete.");
 							}
 							else player.sendMessage(errorString_Permissions);
 							return true;
@@ -692,7 +687,8 @@ public class ModDamage extends JavaPlugin
 		state_itemAliases = loadAliases("Aliases.Item", itemAliaser);
 		state_groupAliases = loadAliases("Aliases.Group", groupAliaser);
 		state_messageAliases = loadAliases("Aliases.Message", messageAliaser);
-		state_aliases = LoadState.combineStates(state_armorAliases, state_elementAliases, state_groupAliases, state_itemAliases, state_messageAliases);
+		state_worldAliases = loadAliases("Aliases.World", worldAliaser);
+		state_aliases = LoadState.combineStates(state_armorAliases, state_elementAliases, state_groupAliases, state_itemAliases, state_messageAliases, state_worldAliases);
 		if(!state_aliases.equals(LoadState.NOT_LOADED))
 			addToConfig(state_aliases.equals(LoadState.SUCCESS)?DebugSetting.VERBOSE:DebugSetting.QUIET, 0, state_aliases.equals(LoadState.SUCCESS)?"Aliases loaded!":"One or more errors occured while loading aliases.", state_aliases);
 		else addToConfig(DebugSetting.VERBOSE,  0, "No aliases loaded! Are any aliases defined?", LoadState.NOT_LOADED);
@@ -756,7 +752,7 @@ public class ModDamage extends JavaPlugin
 		if(routineObjects != null)
 		{
 			relevantState = LoadState.SUCCESS;
-			addToConfig(DebugSetting.VERBOSE, 0, loadType + " configuration found, parsing...", LoadState.NOT_LOADED);
+			addToConfig(DebugSetting.VERBOSE, 0, loadType + " configuration found, parsing...", LoadState.SUCCESS);
 			LoadState[] stateMachine = {relevantState};//We use a single-cell array here because the enum is ASSIGNED later - this doesn't work if we want to operate by reference.
 			List<Routine> calculations = parse(routineObjects, loadType, stateMachine);
 			relevantState = stateMachine[0];
@@ -777,7 +773,7 @@ public class ModDamage extends JavaPlugin
 		if(aliases != null)
 		{
 			relevantState = LoadState.SUCCESS;
-			addToConfig(DebugSetting.VERBOSE, 0, loadType + " aliases found, parsing...", LoadState.NOT_LOADED);
+			addToConfig(DebugSetting.VERBOSE, 0, aliaser.getName() + " aliases found, parsing...", LoadState.SUCCESS);
 			for(String alias : aliases)
 			{
 				List<String> values = config.getStringList(loadType + "." + alias, new ArrayList<String>());
@@ -832,34 +828,48 @@ public class ModDamage extends JavaPlugin
 						Matcher effectMatcher = effectPattern.matcher(key);
 						if(conditionalMatcher.matches())
 						{
-							addToConfig(DebugSetting.VERBOSE, nestCount, "", LoadState.SUCCESS);
+							addToConfig(DebugSetting.CONSOLE, nestCount, "", LoadState.SUCCESS);
 							addToConfig(DebugSetting.NORMAL, nestCount, "Conditional: \"" + key + "\"", LoadState.SUCCESS);
 							ConditionalRoutine routine = ConditionalRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1, resultingState));
-							if(routine != null) routines.add(routine);
-							currentState = (routine != null)?currentState:LoadState.FAILURE;
-							addToConfig((routine != null)?DebugSetting.VERBOSE:DebugSetting.QUIET, nestCount, (routine != null?"End Conditional \"" + key + "\"\n":"Invalid Conditional"+ " \"" + key + "\"") , currentState);
+							if(routine != null)
+							{
+								routines.add(routine);
+								addToConfig(DebugSetting.VERBOSE, nestCount, "End Conditional \"" + key + "\"\n", currentState);
+							}
+							else
+							{
+								currentState = LoadState.FAILURE;
+								addToConfig(DebugSetting.QUIET, 0, "Invalid Conditional"+ " \"" + key + "\"", currentState);
+							}
 						}
 						else if(effectMatcher.matches())
 						{
-							addToConfig(DebugSetting.VERBOSE, nestCount, "", LoadState.SUCCESS);
+							addToConfig(DebugSetting.CONSOLE, nestCount, "", LoadState.SUCCESS);
 							addToConfig(DebugSetting.NORMAL, nestCount, "CalculatedEffect: \"" + key + "\"", LoadState.SUCCESS);
 							CalculatedEffectRoutine<?> routine = CalculatedEffectRoutine.getNew(effectMatcher, parse(someHashMap.get(key), loadType, nestCount + 1, resultingState));
-							if(routine != null) routines.add(routine);
-							currentState = (routine != null)?currentState:LoadState.FAILURE;
-							addToConfig((routine != null)?DebugSetting.VERBOSE:DebugSetting.QUIET, nestCount, (routine != null?"End CalculatedEffect \"" + key + "\"\n":"Invalid CalculatedEffect \"" + key + "\"") , currentState);
+							if(routine != null)
+							{
+								routines.add(routine);
+								addToConfig(DebugSetting.VERBOSE, nestCount, "End CalculatedEffect \"" + key + "\"\n", currentState);
+							}
+							else
+							{
+								currentState = LoadState.FAILURE;
+								addToConfig(DebugSetting.QUIET, 0, "Invalid CalculatedEffect \"" + key + "\"", currentState);
+							}
 						}
 						else if(switchMatcher.matches())
 						{					
 							LinkedHashMap<String, Object> anotherHashMap = (someHashMap.get(key) instanceof LinkedHashMap?(LinkedHashMap<String, Object>)someHashMap.get(key):null);
 							if(anotherHashMap != null)
 							{
-								addToConfig(DebugSetting.VERBOSE, nestCount, "", LoadState.SUCCESS);
+								addToConfig(DebugSetting.CONSOLE, nestCount, "", LoadState.SUCCESS);
 								addToConfig(DebugSetting.NORMAL, nestCount, "Switch: \"" + key + "\"", LoadState.SUCCESS);
 								LinkedHashMap<String, List<Routine>> routineHashMap = new LinkedHashMap<String, List<Routine>>();
 								SwitchRoutine<?> routine = null;
 								for(String anotherKey : anotherHashMap.keySet())
 								{
-									addToConfig(DebugSetting.VERBOSE, nestCount, "", LoadState.SUCCESS);
+									addToConfig(DebugSetting.CONSOLE, nestCount, "", LoadState.SUCCESS);
 									addToConfig(DebugSetting.NORMAL, nestCount, " case: \"" + anotherKey + "\"", LoadState.SUCCESS);
 									routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1, resultingState));
 									addToConfig(DebugSetting.VERBOSE, nestCount, "End case \"" + anotherKey + "\"\n", LoadState.SUCCESS);
@@ -872,21 +882,21 @@ public class ModDamage extends JavaPlugin
 									{
 										currentState = LoadState.FAILURE;
 										for(String caseName : routine.failedCases)
-											addToConfig(DebugSetting.QUIET, nestCount, "Error: invalid case \"" + caseName + "\"", currentState);
+											addToConfig(DebugSetting.QUIET, 0, "Error: invalid case \"" + caseName + "\"", currentState);
 									}
 									addToConfig(DebugSetting.VERBOSE, nestCount, "End Switch \"" + key + "\"", LoadState.SUCCESS);
 								}
 								else
 								{
 									currentState = LoadState.FAILURE;
-									addToConfig(DebugSetting.QUIET, nestCount, "Error: invalid Switch \"" + key + "\"", currentState);
+									addToConfig(DebugSetting.QUIET, 0, "Error: invalid Switch \"" + key + "\"", currentState);
 								}
 							}
 						}
 						else 
 						{
 							currentState = LoadState.FAILURE;
-							addToConfig(DebugSetting.QUIET, nestCount, " No match found for nested node \"" + key + "\"", currentState);							
+							addToConfig(DebugSetting.QUIET, 0, " No match found for nested node \"" + key + "\"", currentState);							
 						}
 					}
 				else
@@ -1024,11 +1034,11 @@ public class ModDamage extends JavaPlugin
 	{ 
 		if(setting != null) 
 		{
-			if(!ModDamage.debugSetting.equals(setting))
+			if(!debugSetting.equals(setting))
 			{
 				String sendThis = "Changed debug from " + debugSetting.name().toLowerCase() + " to " + setting.name().toLowerCase();
 				log.info("[ModDamage] " + sendThis);
-				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + sendThis);
+				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " " + sendThis);
 				debugSetting = setting;
 				config.setProperty("debugging", debugSetting.name().toLowerCase());
 				config.save();
@@ -1078,18 +1088,22 @@ public class ModDamage extends JavaPlugin
 					color = ChatColor.AQUA;
 					break;
 			}
-			if(string.length() > 50)
+			if(!outputSetting.equals(DebugSetting.CONSOLE))
 			{
-				String ingameString = string;
-				configStrings_ingame.add(nestCount + "] " + color + ingameString.substring(0, 49));
-				ingameString = ingameString.substring(50);
-				while(ingameString.length() > 50)
+				if(string.length() > 50)
 				{
-					configStrings_ingame.add("   " + ingameString.substring(0, 49));
-					ingameString = ingameString.substring(50);
+					String ingameString = string;
+					configStrings_ingame.add(nestCount + "] " + color + ingameString.substring(0, 49));
+					ingameString = ingameString.substring(49);
+					while(ingameString.length() > 50)
+					{
+						configStrings_ingame.add("     " + color + ingameString.substring(0, 49));
+						ingameString = ingameString.substring(49);
+					}
+					configStrings_ingame.add("     " + color + ingameString);
 				}
+				else configStrings_ingame.add(nestCount + "] " + color + string);
 			}
-			else configStrings_ingame.add(nestCount + "] " + color + string);
 
 			String nestIndentation = "";
 			for(int i = 0; i < nestCount; i++)
@@ -1136,13 +1150,11 @@ public class ModDamage extends JavaPlugin
 		{
 			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Config Overview: " + state_plugin.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
 			player.sendMessage(ChatColor.AQUA + "Aliases:    " + state_aliases.statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + state_routines.statusString());
-			//53 is the total character count of a single line in MC.
 			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:        " + state_armorAliases.statusString() + "     " + ChatColor.DARK_GREEN + "Damage: " + state_damageRoutines.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Element:     " + state_elementAliases.statusString() + "       " + ChatColor.DARK_GREEN + "Death:  " + state_deathRoutines.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Group:        " + state_groupAliases.statusString() + "     " + ChatColor.DARK_GREEN + "Food:  " + state_foodRoutines.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Item:        " + state_itemAliases.statusString() + "      " + ChatColor.DARK_GREEN + "Spawn:  " + state_spawnRoutines.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Message:   " + state_messageAliases.statusString() + "        " + ChatColor.DARK_AQUA + "Biome:  " + state_biomeAliases.statusString());
-			//player.sendMessage(ChatColor.DARK_AQUA + "Armor aliases:" + activationString(armorAliasesLoaded) + "\t" + ChatColor.DARK_AQUA + "Food Routines:" + activationString(loaded_damageRoutines));
 			String bottomString = null;
 			switch(state_plugin)
 			{
@@ -1185,4 +1197,5 @@ public class ModDamage extends JavaPlugin
 	public static List<Material> matchItemAlias(String key){ return itemAliaser.matchAlias(key);}
 	public static List<String> matchGroupAlias(String key){ return groupAliaser.matchAlias(key);}
 	public static List<String> matchMessageAlias(String key){ return messageAliaser.matchAlias(key);}
+	public static List<String> matchWorldAlias(String key){ return worldAliaser.matchAlias(key);}
 }

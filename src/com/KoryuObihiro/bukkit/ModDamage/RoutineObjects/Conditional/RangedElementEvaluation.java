@@ -18,11 +18,11 @@ public class RangedElementEvaluation extends ConditionalStatement
 		this.rangedElement = rangedElement;
 	}
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo){ return eventInfo.rangedElement.equals(rangedElement);}
+	protected boolean condition(TargetEventInfo eventInfo){ return (eventInfo.rangedElement != null)?eventInfo.rangedElement.equals(rangedElement):false;}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, RangedElementEvaluation.class, Pattern.compile("(!)?rangedElement\\." + ModDamage.rangedElementRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, RangedElementEvaluation.class, Pattern.compile("(!)?rangedelement\\." + ModDamage.rangedElementRegex, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static RangedElementEvaluation getNew(Matcher matcher)

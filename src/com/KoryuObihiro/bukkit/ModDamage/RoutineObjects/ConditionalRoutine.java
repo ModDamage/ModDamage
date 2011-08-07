@@ -48,13 +48,11 @@ public class ConditionalRoutine extends Routine
 		String[] statementStrings = matcher.group(2).split("\\s+");
 		for(int i = 0; i <= statementStrings.length; i += 2)
 		{
-			ModDamage.log.info("Attempting to match statement " + statementStrings[i]);//TODO CHANGE FOR DEBUG
 			for(Pattern pattern : registeredStatements.keySet())
 			{
 				Matcher statementMatcher = pattern.matcher(statementStrings[i]);
 				if(statementMatcher.matches())
 				{
-					ModDamage.log.info("Success!");//TODO CHANGE FOR DEBUG
 					Method method = registeredStatements.get(pattern);
 					//get next statement
 					ConditionalStatement statement = null;

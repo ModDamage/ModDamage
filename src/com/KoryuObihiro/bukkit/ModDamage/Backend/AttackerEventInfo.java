@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class AttackerEventInfo extends TargetEventInfo
 			materialInHand_attacker = null;
 			armorSet_attacker = null;
 			name_attacker = null;
-			groups_attacker = null;
+			groups_attacker = new ArrayList<String>();
 		}
 	}
 }

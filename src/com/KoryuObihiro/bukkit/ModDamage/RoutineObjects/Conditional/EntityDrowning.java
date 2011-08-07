@@ -11,7 +11,7 @@ public class EntityDrowning extends EntityAirTicksComparison
 {
 	public EntityDrowning(boolean inverted, boolean forAttacker)
 	{  
-		super(inverted, forAttacker, 0, ComparisonType.LESS_THAN_EQUALS);
+		super(inverted, forAttacker, 0, ComparisonType.LESSTHANEQUALS);
 	}
 	
 	public static void register(ModDamage routineUtility)

@@ -11,7 +11,7 @@ public class EntityOnFire extends EntityFireTicksComparison
 {
 	public EntityOnFire(boolean inverted, boolean forAttacker)
 	{  
-		super(inverted, forAttacker, 3, ComparisonType.GREATER_THAN_EQUALS);
+		super(inverted, forAttacker, 3, ComparisonType.GREATERTHANEQUALS);
 	}
 	
 	public static void register(ModDamage routineUtility)

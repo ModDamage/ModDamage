@@ -23,7 +23,7 @@ public class EntityTypeSwitch extends EntitySwitchRoutine<List<ModDamageElement>
 	protected List<ModDamageElement> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList(shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).element_attacker:eventInfo.element_target);}
 	@Override
 	protected boolean compare(List<ModDamageElement> info_1, List<ModDamageElement> info_2)
-	{ 
+	{ //FIXME Not working with an alias?
 		for(ModDamageElement element : info_2)
 			if(info_1.get(0).matchesType(element))
 				return true;
