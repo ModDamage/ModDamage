@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Slime;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
@@ -20,13 +22,18 @@ public class SlimeSetSize extends CalculatedEffectRoutine<Slime>
 		this.forAttacker = forAttacker;
 	}
 	@Override
-	protected void applyEffect(Slime affectedObject, int input){ affectedObject.setSize(input);}
+	protected void applyEffect(Slime affectedObject, int input){ if(affectedObject != null) affectedObject.setSize(input);}
 	@Override
-	protected Slime getAffectedObject(TargetEventInfo eventInfo){ return (getAffectedObject(eventInfo) instanceof Slime)?((Slime)getAffectedObject(eventInfo)):null;}	
+	protected Slime getAffectedObject(TargetEventInfo eventInfo)
+	{ 
+		LivingEntity entity = (forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).entity_attacker:eventInfo.entity_target;
+		return (entity instanceof Slime)?((Slime)entity):null;
+	}
+
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(SlimeSetSize.class, Pattern.compile(ModDamage.entityRegex + "effect\\.setSlimeSize", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(SlimeSetSize.class, Pattern.compile(ModDamage.entityRegex + "effect\\.setSize", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static SlimeSetSize getNew(Matcher matcher, List<Routine> routines)

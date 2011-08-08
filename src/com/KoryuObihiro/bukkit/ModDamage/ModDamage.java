@@ -30,7 +30,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ArmorAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.BiomeAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.EntityElementAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ElementAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.GroupAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ItemAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
@@ -92,6 +92,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EnvironmentSwitch
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerGroupSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.RangedElementSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.mysql.jdbc.AssertionFailedException;
 import com.nijiko.permissions.PermissionHandler;
@@ -106,19 +107,16 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 public class ModDamage extends JavaPlugin
 {
 	// 0.9.5
-	// -Empty armorSet & material
+	//FIXME World conditional
+	//TODO Empty armorSet & material
 	// -Command for autogen world/entitytype switches?
-	// -Command to check aliases
-	// -switch and comparison for wieldquantity
-	// -switch.conditional
-	// -switch and conditional for region
+	//TODO switch and comparison for wieldquantity
+	//TODO switch.conditional
+	//TODO switch and conditional for region
 	// -if.server.onlineenabled
 	// -getAverageLight (area)
 	// -check against an itemstack in the player's inventory
 	// FIXME Why aren't the patternParts all final? o_o
-	// -spawnitems
-	
-	// 0.9.6
 	// TODO message routines (force aliasing here), end goal is to make this possible:
 	/*
 	if(eventInfo.shouldScan)
@@ -169,6 +167,7 @@ public class ModDamage extends JavaPlugin
 	
 //Typical plugin stuff...for the most part. :P
 	public static Server server;
+	public final int oldestSupportedBuild = 953;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	public final static Logger log = Logger.getLogger("Minecraft");
 	public static DebugSetting debugSetting = DebugSetting.NORMAL;
@@ -317,7 +316,7 @@ public class ModDamage extends JavaPlugin
 //Alias objects
 	private static ArmorAliaser armorAliaser = new ArmorAliaser();
 	private static BiomeAliaser biomeAliaser = new BiomeAliaser();
-	private static EntityElementAliaser elementAliaser = new EntityElementAliaser();
+	private static ElementAliaser elementAliaser = new ElementAliaser();
 	private static GroupAliaser groupAliaser = new GroupAliaser();
 	private static ItemAliaser itemAliaser = new ItemAliaser();
 	private static MessageAliaser messageAliaser = new MessageAliaser();
@@ -363,6 +362,13 @@ public class ModDamage extends JavaPlugin
 			using_elRegions = true;
 		    log.info("[" + getDescription().getName() + "] Found elRegions v" + elRegions.getDescription().getVersion());
 		}
+		
+	//Build check
+		Matcher matcher = Pattern.compile("b([0-9]+)jnks", Pattern.CASE_INSENSITIVE).matcher(getServer().getVersion());
+		if(matcher.matches() && Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
+			log.warning("Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.");
+		//System.console().readLine();
+		
 		
 	//Event registration
 		//register plugin-related stuff with the server's plugin manager
@@ -434,6 +440,7 @@ public class ModDamage extends JavaPlugin
 		PlayerGroupSwitch.register(this);
 		PlayerWieldSwitch.register(this);
 		RangedElementSwitch.register(this);
+		WorldSwitch.register(this);
 		
 		config = this.getConfiguration();
 		reload();
@@ -532,7 +539,6 @@ public class ModDamage extends JavaPlugin
 								if(hasPermission(player, "moddamage.check"))
 									sendConfig(player, 0);
 								else player.sendMessage(errorString_Permissions);
-								return true;
 							}
 							//md check int
 							else if(args.length == 2)
@@ -545,13 +551,11 @@ public class ModDamage extends JavaPlugin
 								{
 									sendCommandUsage(player, true);
 								}
-								return true;
 							}
 						}
 						else
 						{
 							sendCommandUsage(player, true);
-							return true;
 						}
 					}
 					else if(player == null)
