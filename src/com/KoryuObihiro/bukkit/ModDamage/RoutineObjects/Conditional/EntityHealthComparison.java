@@ -15,7 +15,7 @@ public class EntityHealthComparison extends EntityComparison
 		super(inverted, forAttacker, health, comparisonType);
 	}
 	@Override
-	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return getRelevantEntity(eventInfo).getHealth();}
+	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.getRelevantEntity(forAttacker).getHealth();}
 	
 	public static void register(ModDamage routineUtility)
 	{

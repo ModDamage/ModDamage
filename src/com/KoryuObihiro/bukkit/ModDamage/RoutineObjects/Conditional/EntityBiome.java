@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.block.Biome;
+import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
@@ -18,9 +19,13 @@ public class EntityBiome extends EntityConditionalStatement<List<Biome>>
 		super(inverted, forAttacker, value);
 	}
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo){ return value.contains(getRelevantEntity(eventInfo).getLocation().getBlock().getBiome());}
+	protected boolean condition(TargetEventInfo eventInfo){ return value.contains(getRelevantInfo(eventInfo));}
 	@Override
-	protected List<Biome> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList(getRelevantEntity(eventInfo).getLocation().getBlock().getBiome());}
+	protected List<Biome> getRelevantInfo(TargetEventInfo eventInfo)
+	{
+		Player koryu = TargetEventInfo.server.getPlayer("KoryuObihiro");//FIXME REMOVE ME
+		if(koryu != null) koryu.chat("I'M IN BIOME " + koryu.getLocation().getBlock().getBiome().name());
+		return Arrays.asList((eventInfo.getRelevantEntity(forAttacker) != null)?eventInfo.getRelevantEntity(forAttacker).getLocation().getBlock().getBiome():null);}
 	
 	public static void register(ModDamage routineUtility)
 	{

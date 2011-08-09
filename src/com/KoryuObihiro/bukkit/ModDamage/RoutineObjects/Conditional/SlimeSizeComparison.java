@@ -17,7 +17,7 @@ public class SlimeSizeComparison extends EntityComparison
 		super(inverted, forAttacker, value, comparisonType);
 	}
 	@Override
-	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return (getRelevantEntity(eventInfo) instanceof Slime)?((Slime)getRelevantEntity(eventInfo)).getSize():0;}
+	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return (eventInfo.getRelevantEntity(forAttacker) instanceof Slime)?((Slime)eventInfo.getRelevantEntity(forAttacker)).getSize():0;}
 	
 	public static void register(ModDamage routineUtility)
 	{

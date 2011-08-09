@@ -19,7 +19,7 @@ public class EntityOnBlock extends EntityConditionalStatement<List<Material>>
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo)
 	{
-		return value.contains(getRelevantEntity(eventInfo).getLocation().add(0, -1, 0).getBlock().getType());
+		return value.contains(eventInfo.getRelevantEntity(forAttacker).getLocation().add(0, -1, 0).getBlock().getType());
 	}
 	@Override
 	protected List<Material> getRelevantInfo(TargetEventInfo eventInfo){ return null;}

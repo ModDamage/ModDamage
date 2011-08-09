@@ -15,7 +15,7 @@ public class EntityLightComparison extends EntityComparison
 		super(inverted, forAttacker, lightLevel, comparisonType);
 	}
 	@Override
-	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return (int)getRelevantEntity(eventInfo).getLocation().getBlock().getLightLevel();}
+	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return (int)eventInfo.getRelevantEntity(forAttacker).getLocation().getBlock().getLightLevel();}
 	
 	public static void register(ModDamage routineUtility)
 	{

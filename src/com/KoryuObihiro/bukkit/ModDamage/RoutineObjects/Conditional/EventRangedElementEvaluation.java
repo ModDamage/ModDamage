@@ -9,10 +9,10 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
-public class RangedElementEvaluation extends ConditionalStatement 
+public class EventRangedElementEvaluation extends ConditionalStatement 
 {
 	final RangedElement rangedElement;
-	protected RangedElementEvaluation(boolean inverted, RangedElement rangedElement)
+	protected EventRangedElementEvaluation(boolean inverted, RangedElement rangedElement)
 	{
 		super(inverted);
 		this.rangedElement = rangedElement;
@@ -22,15 +22,15 @@ public class RangedElementEvaluation extends ConditionalStatement
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, RangedElementEvaluation.class, Pattern.compile("(!)?rangedelement\\." + ModDamage.rangedElementRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EventRangedElementEvaluation.class, Pattern.compile("(!)?rangedelement\\." + ModDamage.rangedElementRegex, Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static RangedElementEvaluation getNew(Matcher matcher)
+	public static EventRangedElementEvaluation getNew(Matcher matcher)
 	{
 		if(matcher != null)
 		{
 			RangedElement element = RangedElement.matchElement(matcher.group(2));
-			return new RangedElementEvaluation(matcher.group(1) != null, element);
+			return new EventRangedElementEvaluation(matcher.group(1) != null, element);
 		}
 		return null;
 	}

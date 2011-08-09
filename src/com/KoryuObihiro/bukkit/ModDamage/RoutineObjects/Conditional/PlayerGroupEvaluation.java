@@ -9,9 +9,9 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
-public class PlayerGroup extends EntityConditionalStatement<List<String>>
+public class PlayerGroupEvaluation extends EntityConditionalStatement<List<String>>
 {
-	public PlayerGroup(boolean inverted, boolean forAttacker, List<String> value)
+	public PlayerGroupEvaluation(boolean inverted, boolean forAttacker, List<String> value)
 	{  
 		super(inverted, forAttacker, value);
 	}
@@ -28,16 +28,16 @@ public class PlayerGroup extends EntityConditionalStatement<List<String>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerGroup.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "group\\.(" + ModDamage.alphanumericPart + ")", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerGroupEvaluation.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "group\\.(" + ModDamage.nonAliasPart + ")", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static PlayerGroup getNew(Matcher matcher)
+	public static PlayerGroupEvaluation getNew(Matcher matcher)
 	{
 		if(matcher != null)
 		{
 			List<String> matchedGroups = ModDamage.matchGroupAlias(matcher.group(3));
 			if(!matchedGroups.isEmpty())
-				return new PlayerGroup(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), matchedGroups);
+				return new PlayerGroupEvaluation(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), matchedGroups);
 		}
 		return null;
 	}

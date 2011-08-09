@@ -21,7 +21,7 @@ public class EntityCoordinateComparison extends EntityComparison
 	@Override
 	protected Integer getRelevantInfo(TargetEventInfo eventInfo)
 	{
-		Location location = getRelevantEntity(eventInfo).getLocation();
+		Location location = eventInfo.getRelevantEntity(forAttacker).getLocation();
 		switch(coordinateToCompare)
 		{
 			case X:	return location.getBlockX();
