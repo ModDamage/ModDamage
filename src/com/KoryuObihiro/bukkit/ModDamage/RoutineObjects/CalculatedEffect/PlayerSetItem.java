@@ -28,7 +28,7 @@ public class PlayerSetItem extends PlayerCalculatedEffectRoutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(PlayerSetItem.class, Pattern.compile(ModDamage.entityRegex + "effect\\.addItem" + ModDamage.materialRegex + "\\)", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(PlayerSetItem.class, Pattern.compile(ModDamage.entityRegex + "effect\\.setItem\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerSetItem getNew(Matcher matcher, List<Routine> routines)

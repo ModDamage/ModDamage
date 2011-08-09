@@ -5,25 +5,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class DropItem extends PlayerCalculatedEffectRoutine
+public class DropItem extends EntityCalculatedEffectRoutine
 {
-	protected final Material material;
-	public DropItem(boolean forAttacker, Material material, List<Routine> routines)
+	protected final List<Material> materials;
+	public DropItem(boolean forAttacker, List<Material> materials, List<Routine> routines)
 	{ 
 		super(forAttacker, routines);
-		this.material = material;
+		this.materials = materials;
 	}
 	
 	@Override
-	protected void applyEffect(Player affectedObject, int input) 
+	protected void applyEffect(LivingEntity affectedObject, int input) 
 	{
-		affectedObject.getWorld().dropItem(affectedObject.getLocation(), new ItemStack(material, input));//TODO Just override run(), ter summat.
+		for(Material material : materials)
+			affectedObject.getWorld().dropItem(affectedObject.getLocation(), new ItemStack(material, input));//TODO Just override run(), ter summat.
 	}
 
 	public static void register(ModDamage routineUtility)
@@ -34,7 +35,11 @@ public class DropItem extends PlayerCalculatedEffectRoutine
 	public static DropItem getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new DropItem(matcher.group(1).equalsIgnoreCase("attacker"), Material.matchMaterial(matcher.group(2)), routines);
+		{
+			List<Material> materials =  ModDamage.matchItemAlias(matcher.group(2));
+			if(!materials.isEmpty())
+				return new DropItem(matcher.group(1).equalsIgnoreCase("attacker"), materials, routines);
+		}
 		return null;
 	}
 }

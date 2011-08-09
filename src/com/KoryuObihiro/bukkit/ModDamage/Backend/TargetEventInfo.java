@@ -69,4 +69,11 @@ public class TargetEventInfo
 		
 		
 	}
+	
+	public boolean shouldGetAttacker(boolean forAttacker){ return (forAttacker && this instanceof AttackerEventInfo);}
+	
+	public LivingEntity getRelevantEntity(boolean forAttacker)
+	{
+		return (shouldGetAttacker(forAttacker)?((AttackerEventInfo)this).entity_attacker:this.entity_target);
+	}
 }

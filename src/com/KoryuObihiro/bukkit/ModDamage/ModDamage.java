@@ -52,14 +52,17 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Message;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.DropItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityExplode;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityHeal;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityHurt;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntitySetAirTicks;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntitySetFireTicks;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntitySetHealth;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.PlayerAddItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.PlayerSetItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.SlimeSetSize;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.WorldTime;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Binomial;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityAirTicksComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBiome;
@@ -209,8 +212,8 @@ public class ModDamage extends JavaPlugin
 //Predefined pattern strings	
 	public static final String numberPart = "(?:[0-9]+)";
 	public static final String alphanumericPart = "(?:[a-z0-9]+)";
-	public static final String potentialAliasPart = "(?:_?[a-z0-9]+)";
-	public static final String statementPart = "((?:" + alphanumericPart + ")(?:\\." + alphanumericPart +")*)";
+	public static final String potentialAliasPart = "(?:_[a-z0-9]+)";
+	public static final String statementPart = "(?:(?:" + alphanumericPart + ")(?:\\." + alphanumericPart +")*)";
 	public static final String entityRegex = "(attacker|target)";
 	public static String comparisonRegex;
 	public static String biomeRegex;
@@ -275,7 +278,7 @@ public class ModDamage extends JavaPlugin
 		
 		conditionalPattern = Pattern.compile("(if|if_not)\\s+(?:!)?(" + statementPart + "(?:\\s+" + logicalRegex + "\\s+" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
 		switchPattern = Pattern.compile("switch\\." + statementPart, Pattern.CASE_INSENSITIVE);
-		effectPattern = Pattern.compile("((?:attacker|target)?effect\\." + statementPart + ")");
+		effectPattern = Pattern.compile("((attacker|target|world)effect\\." + statementPart + ")", Pattern.CASE_INSENSITIVE);
 	}
 
 //LoadStates
@@ -411,6 +414,8 @@ public class ModDamage extends JavaPlugin
 		EntityTypeEvaluation.register(this);
 		EntityUnderwater.register(this);
 		EventValueComparison.register(this);
+		PlayerAddItem.register(this);
+		PlayerSetItem.register(this);
 		PlayerGroup.register(this);
 		PlayerWearing.register(this);
 		PlayerWearingOnly.register(this);
@@ -424,6 +429,7 @@ public class ModDamage extends JavaPlugin
 		//Event
 		EventValueComparison.register(this);
 	//Effects
+		DropItem.register(this);
 		EntityExplode.register(this);
 		EntityHeal.register(this);
 		EntityHurt.register(this);
@@ -432,6 +438,7 @@ public class ModDamage extends JavaPlugin
 		EntitySetHealth.register(this);
 		PlayerSetItem.register(this);
 		SlimeSetSize.register(this);
+		WorldTime.register(this);
 	//Switches
 		ArmorSetSwitch.register(this);
 		BiomeSwitch.register(this);

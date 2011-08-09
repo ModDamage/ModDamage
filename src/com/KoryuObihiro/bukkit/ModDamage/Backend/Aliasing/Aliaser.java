@@ -25,7 +25,7 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 	{
 		if(this.containsKey(key)) return false;
 		List<Type> matchedItems = new ArrayList<Type>();
-		ModDamage.addToConfig(DebugSetting.NORMAL, 0, "Adding alias \"" + key + "\"", LoadState.SUCCESS);
+		ModDamage.addToConfig(DebugSetting.NORMAL, 0, "Adding " + name + " alias \"" + key + "\"", LoadState.SUCCESS);
 		for(String listedValue : values)
 		{
 			List<Type> matchedList = matchAlias(listedValue);

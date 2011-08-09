@@ -13,17 +13,18 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class PlayerAddItem extends PlayerCalculatedEffectRoutine
 {
-	protected final Material material;
-	public PlayerAddItem(boolean forAttacker, Material material, List<Routine> routines)
+	protected final List<Material> materials;
+	public PlayerAddItem(boolean forAttacker, List<Material> materials, List<Routine> routines)
 	{ 
 		super(forAttacker, routines);
-		this.material = material;
+		this.materials = materials;
 	}
 	
 	@Override
 	protected void applyEffect(Player affectedObject, int input) 
 	{
-		affectedObject.getInventory().addItem(new ItemStack(affectedObject.getItemInHand().getType(), affectedObject.getItemInHand().getAmount() + input));
+		for(Material material : materials)
+			affectedObject.getInventory().addItem(new ItemStack(material, input));
 	}
 
 	public static void register(ModDamage routineUtility)
@@ -34,7 +35,11 @@ public class PlayerAddItem extends PlayerCalculatedEffectRoutine
 	public static PlayerAddItem getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new PlayerAddItem(matcher.group(1).equalsIgnoreCase("attacker"), Material.matchMaterial(matcher.group(2)), routines);
+		{
+			List<Material> materials = ModDamage.matchItemAlias(matcher.group(2));
+			if(!materials.isEmpty())
+				return new PlayerAddItem(matcher.group(1).equalsIgnoreCase("attacker"), materials, routines);
+		}
 		return null;
 	}
 }

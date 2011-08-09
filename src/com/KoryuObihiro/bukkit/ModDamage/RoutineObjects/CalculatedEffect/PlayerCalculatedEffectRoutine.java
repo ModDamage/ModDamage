@@ -18,5 +18,5 @@ abstract public class PlayerCalculatedEffectRoutine extends CalculatedEffectRout
 		this.forAttacker = forAttacker;
 	}
 	@Override
-	protected Player getAffectedObject(TargetEventInfo eventInfo){ return (getAffectedObject(eventInfo) instanceof Player)?((Player)getAffectedObject(eventInfo)):null;}
+	protected Player getAffectedObject(TargetEventInfo eventInfo){ return (eventInfo.getRelevantEntity(forAttacker) instanceof Player?(Player)eventInfo.getRelevantEntity(forAttacker):null);}
 }
