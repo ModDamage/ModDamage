@@ -9,10 +9,10 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
-public class EventWorld extends ConditionalStatement
+public class EventWorldEvaluation extends ConditionalStatement
 {
 	protected final List<String> worlds;
-	public EventWorld(boolean inverted, List<String> worlds)
+	public EventWorldEvaluation(boolean inverted, List<String> worlds)
 	{ 
 		super(inverted);
 		this.worlds = worlds;
@@ -22,16 +22,16 @@ public class EventWorld extends ConditionalStatement
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EventWorld.class, Pattern.compile("(!)?world\\.(" + ModDamage.potentialAliasPart + ")", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EventWorldEvaluation.class, Pattern.compile("(!)?world\\.(" + ModDamage.potentialAliasPart + ")", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static EventWorld getNew(Matcher matcher)
+	public static EventWorldEvaluation getNew(Matcher matcher)
 	{
 		if(matcher != null)
 		{
 			List<String> worlds = ModDamage.matchWorldAlias(matcher.group(2));
 			if(!worlds.isEmpty())
-				return new EventWorld(matcher.group(1) != null, worlds);
+				return new EventWorldEvaluation(matcher.group(1) != null, worlds);
 		}
 		return null;
 	}

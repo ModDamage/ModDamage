@@ -52,7 +52,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Message;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.DropItem;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityAddAirTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityAddFireTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityDropItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityExplode;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityHeal;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityHurt;
@@ -78,13 +80,16 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnBloc
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnFire;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTypeEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityUnderwater;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventRangedElementEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventValueComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerCountComparison;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerGroup;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerGroupEvaluation;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSleeping;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSneaking;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearing;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearingOnly;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.RangedElementEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldTimeComparison;
@@ -396,13 +401,11 @@ public class ModDamage extends JavaPlugin
 //Nestable Calculations
 	//Conditionals
 		Binomial.register(this);
-		RangedElementEvaluation.register(this);
 		//Entity
 		EntityAirTicksComparison.register(this);
 		EntityBiome.register(this);
 		EntityCoordinateComparison.register(this);
 		EntityDrowning.register(this);
-		
 		EntityExposedToSky.register(this);
 		EntityFallComparison.register(this);
 		EntityFalling.register(this);
@@ -415,8 +418,10 @@ public class ModDamage extends JavaPlugin
 		EntityUnderwater.register(this);
 		EventValueComparison.register(this);
 		PlayerAddItem.register(this);
+		PlayerGroupEvaluation.register(this);
 		PlayerSetItem.register(this);
-		PlayerGroup.register(this);
+		PlayerSleeping.register(this);
+		PlayerSneaking.register(this);
 		PlayerWearing.register(this);
 		PlayerWearingOnly.register(this);
 		PlayerWielding.register(this);
@@ -427,9 +432,13 @@ public class ModDamage extends JavaPlugin
 		ServerOnlineMode.register(this);
 		PlayerCountComparison.register(this);
 		//Event
+		EventRangedElementEvaluation.register(this);
 		EventValueComparison.register(this);
+		EventWorldEvaluation.register(this);
 	//Effects
-		DropItem.register(this);
+		EntityDropItem.register(this);
+		EntityAddAirTicks.register(this);
+		EntityAddFireTicks.register(this);
 		EntityExplode.register(this);
 		EntityHeal.register(this);
 		EntityHurt.register(this);

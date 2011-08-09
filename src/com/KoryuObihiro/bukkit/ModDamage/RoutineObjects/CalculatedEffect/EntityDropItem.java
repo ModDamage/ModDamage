@@ -11,10 +11,10 @@ import org.bukkit.inventory.ItemStack;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class DropItem extends EntityCalculatedEffectRoutine
+public class EntityDropItem extends EntityCalculatedEffectRoutine
 {
 	protected final List<Material> materials;
-	public DropItem(boolean forAttacker, List<Material> materials, List<Routine> routines)
+	public EntityDropItem(boolean forAttacker, List<Material> materials, List<Routine> routines)
 	{ 
 		super(forAttacker, routines);
 		this.materials = materials;
@@ -29,16 +29,16 @@ public class DropItem extends EntityCalculatedEffectRoutine
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(DropItem.class, Pattern.compile(ModDamage.entityRegex + "effect\\.dropItem\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntityDropItem.class, Pattern.compile(ModDamage.entityRegex + "effect\\.dropItem\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static DropItem getNew(Matcher matcher, List<Routine> routines)
+	public static EntityDropItem getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
 		{
 			List<Material> materials =  ModDamage.matchItemAlias(matcher.group(2));
 			if(!materials.isEmpty())
-				return new DropItem(matcher.group(1).equalsIgnoreCase("attacker"), materials, routines);
+				return new EntityDropItem(matcher.group(1).equalsIgnoreCase("attacker"), materials, routines);
 		}
 		return null;
 	}
