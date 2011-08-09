@@ -404,10 +404,10 @@ public abstract class Handler
 				calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(DamageElement.GENERIC_MELEE));
 
 			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(eventInfo.elementInHand_attacker))
-				calculateDamage(eventInfo, (isOffensive?offensiveRoutines.get(eventInfo.elementInHand_attacker):defensiveRoutines.get(eventInfo.elementInHand_target)));
+				calculateDamage(eventInfo, (isOffensive?offensiveRoutines.get(eventInfo.elementInHand_attacker):defensiveRoutines.get(eventInfo.elementInHand_attacker)));
 
 			if((isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).containsKey(eventInfo.materialInHand_attacker))
-				calculateDamage(eventInfo, (isOffensive?meleeOffensiveRoutines.get(eventInfo.materialInHand_attacker):meleeDefensiveRoutines.get(eventInfo.materialInHand_target)));
+				calculateDamage(eventInfo, (isOffensive?meleeOffensiveRoutines.get(eventInfo.materialInHand_attacker):meleeDefensiveRoutines.get(eventInfo.materialInHand_attacker)));
 		}
 		if((isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).containsKey(eventInfo.armorSetString_target))
 			calculateDamage(eventInfo, (isOffensive?armorOffensiveRoutines.get(eventInfo.armorSetString_attacker):armorDefensiveRoutines.get(eventInfo.armorSetString_target)));

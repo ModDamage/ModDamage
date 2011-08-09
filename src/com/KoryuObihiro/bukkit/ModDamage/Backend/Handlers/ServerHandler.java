@@ -89,30 +89,42 @@ public class ServerHandler extends WorldHandler
 	@Override
 	protected String getCalculationHeader(){ return "server";}
 
-	private String getWorldMatch(String name, boolean searchSubstrings)
+	private String getWorldMatch(String name)
 	{
 		for(World world : plugin.getServer().getWorlds())
 			if(name.equalsIgnoreCase(world.getName()))
 				return world.getName();
-		
-		if(searchSubstrings)
-			for(World world : plugin.getServer().getWorlds())
-				for(int i = 0; i < (world.getName().length() - name.length() - 1); i++)
-					if(name.equalsIgnoreCase(world.getName().substring(i, i + name.length())))
-						return world.getName();
+		for(World world : plugin.getServer().getWorlds())
+			for(int i = 0; i < (world.getName().length() - name.length() - 1); i++)
+				if(name.equalsIgnoreCase(world.getName().substring(i, i + name.length())))
+					return world.getName();
 		return null;
 	}
 	
-	private String getGroupMatch(String worldName, String name, boolean searchSubstrings)
+	private String getGroupMatch(String name)
 	{
-		for(GroupHandler groupHandler : worldHandlers.get(worldName).getGroupHandlers())
+		for(GroupHandler groupHandler : this.getGroupHandlers())
 			if(name.equalsIgnoreCase(groupHandler.getGroupName()))
 				return groupHandler.getGroupName();
-		if(searchSubstrings)
+				for(GroupHandler groupHandler : this.getGroupHandlers())
+			for(int i = 0; i < (groupHandler.getGroupName().length() - name.length() - 1); i++)
+				if(name.equalsIgnoreCase(groupHandler.getGroupName().substring(i, i + name.length())))
+					return groupHandler.getGroupName();
+		return null;
+	}
+	
+	private String getGroupMatch(String worldName, String name)
+	{
+		if(worldHandlers.get(worldName) != null)
+		{
+			for(GroupHandler groupHandler : worldHandlers.get(worldName).getGroupHandlers())
+				if(name.equalsIgnoreCase(groupHandler.getGroupName()))
+					return groupHandler.getGroupName();
 			for(GroupHandler groupHandler : worldHandlers.get(worldName).getGroupHandlers())
 				for(int i = 0; i < (groupHandler.getGroupName().length() - name.length() - 1); i++)
 					if(name.equalsIgnoreCase(groupHandler.getGroupName().substring(i, i + name.length())))
 						return groupHandler.getGroupName();
+		}
 		return null;
 	}
 
@@ -131,7 +143,7 @@ public class ServerHandler extends WorldHandler
 			{
 				for(GroupHandler groupHandler : groupHandlers.values())
 						player.sendMessage(ChatColor.GREEN + groupHandler.getGroupName());
-				player.sendMessage(ChatColor.BLUE + "Use /md check [groupname] or /md check [groupname] [page] for more info.");
+				player.sendMessage(ChatColor.BLUE + "Use /md checkgroup [groupname] or /md checkgroup [groupname] [page] for more info.");
 			}
 			else player.sendMessage(ChatColor.RED + "No groups configured!");
 			return true;
@@ -156,13 +168,17 @@ public class ServerHandler extends WorldHandler
 	public void sendConfig(Player player, String worldSearchTerm, int pageNumber)
 	{
 		//TODO Refactor for a single function?
-		String worldMatch = getWorldMatch(worldSearchTerm, true);
+		String worldMatch = getWorldMatch(worldSearchTerm);
 		if(worldMatch != null)
 		{
 			if(ModDamage.hasPermission(player, "moddamage.check." + worldMatch))
 			{
-				if(!worldHandlers.get(worldMatch).sendConfig(player, pageNumber))
-					player.sendMessage(ModDamage.ModDamageString(ChatColor.RED) + " Invalid page number for world \"" + worldMatch + "\".");
+				if(worldHandlers.get(worldMatch) != null)
+				{
+					if(!worldHandlers.get(worldMatch).sendConfig(player, pageNumber))
+						player.sendMessage(ModDamage.ModDamageString(ChatColor.RED) + " Invalid page number for world \"" + worldMatch + "\".");
+				}
+				else player.sendMessage(ModDamage.ModDamageString(ChatColor.RED) + " World \"" + worldMatch + "\" not configured in ModDamage.");
 			}
 			else player.sendMessage(ModDamage.ModDamageString(ChatColor.RED) 
 					+ " You don't have permission to check world \"" + worldMatch + "\"");
@@ -172,10 +188,10 @@ public class ServerHandler extends WorldHandler
 	public void sendConfig(Player player, String worldSearchTerm, String groupSearchTerm){ sendConfig(player, worldSearchTerm, groupSearchTerm, 1);}
 	public void sendConfig(Player player, String worldSearchTerm, String groupSearchTerm, int pageNumber) 
 	{
-		String worldMatch = getWorldMatch(worldSearchTerm, true);
+		String worldMatch = getWorldMatch(worldSearchTerm);
 		if(worldMatch != null)
 		{
-			String groupMatch = getGroupMatch(worldMatch, groupSearchTerm, true);
+			String groupMatch = getGroupMatch(worldMatch, groupSearchTerm);
 			if(groupMatch != null)
 			{
 				if(ModDamage.hasPermission(player, "moddamage.check." + worldMatch + "." + groupMatch))
@@ -193,5 +209,26 @@ public class ServerHandler extends WorldHandler
 			if(player == null) log.info("Error: Couldn't find matching world substring.");
 			else player.sendMessage(ModDamage.errorString_findWorld);
 		}
+	}
+	
+	public void sendGroupConfig(Player player, String groupSearchTerm){ sendGroupConfig(player, groupSearchTerm, 1);}
+	public void sendGroupConfig(Player player, String groupSearchTerm, int pageNumber) 
+	{
+
+		String groupMatch = getGroupMatch(groupSearchTerm);
+		if(groupMatch != null)
+		{
+			if(ModDamage.hasPermission(player, "moddamage.check." + groupMatch))
+			{
+				if(!this.getGroupHandler(groupMatch).sendConfig(player, pageNumber))
+					player.sendMessage(ModDamage.ModDamageString(ChatColor.RED) + " You don't have permission to check group \"" 
+							+ groupMatch + "\" for the server.");
+			}
+			else player.sendMessage(ModDamage.ModDamageString(ChatColor.RED) + " You don't have permission to check group \"" + groupMatch + "\".");
+		}
+		else player.sendMessage(ModDamage.ModDamageString(ChatColor.RED) + " Couldn't find matching group name.");
+		
 	}	
+	
+	
 }

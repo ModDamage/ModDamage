@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.DamageEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.CalculationObjects.DamageCalculationAllocator;
 
@@ -85,14 +86,45 @@ public class GroupHandler extends Handler
 				runRoutines(eventInfo, false);//defense buff
 				runEquipmentRoutines(eventInfo, false);
 			return;
-			
-			default: 
-				log.severe("[ModDamage] Oops...THAT wasn't supposed to happen. (Def)");//TODO REMOVE ME...MEBBE
-			return;
 		}
 	}
 
 ///////////////////// ROUTINE-SPECIFIC CALLS	
+	@Override
+	protected void runRoutines(DamageEventInfo eventInfo, boolean isOffensive)
+	{ 
+		DamageElement damageElement = (isOffensive?eventInfo.damageElement_target:eventInfo.damageElement_attacker);
+		if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement.getType()))
+			calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(damageElement.getType()));
+		if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(damageElement))
+			calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(damageElement));
+	}
+
+	@Override
+	protected void runEquipmentRoutines(DamageEventInfo eventInfo, boolean isOffensive)
+	{
+		if(eventInfo.rangedElement != null)
+		{
+			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(DamageElement.GENERIC_RANGED))
+				calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(DamageElement.GENERIC_RANGED));
+			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(eventInfo.rangedElement))
+				calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(eventInfo.rangedElement));
+		}
+		else
+		{
+			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(DamageElement.GENERIC_MELEE))
+				calculateDamage(eventInfo, (isOffensive?offensiveRoutines:defensiveRoutines).get(DamageElement.GENERIC_MELEE));
+
+			if((isOffensive?offensiveRoutines:defensiveRoutines).containsKey(eventInfo.elementInHand_attacker))
+				calculateDamage(eventInfo, (isOffensive?offensiveRoutines.get(eventInfo.elementInHand_attacker):defensiveRoutines.get(eventInfo.elementInHand_attacker)));
+
+			if((isOffensive?meleeOffensiveRoutines:meleeDefensiveRoutines).containsKey(eventInfo.materialInHand_attacker))
+				calculateDamage(eventInfo, (isOffensive?meleeOffensiveRoutines.get(eventInfo.materialInHand_attacker):meleeDefensiveRoutines.get(eventInfo.materialInHand_attacker)));
+		}
+		if((isOffensive?armorOffensiveRoutines:armorDefensiveRoutines).containsKey(eventInfo.armorSetString_target))
+			calculateDamage(eventInfo, (isOffensive?armorOffensiveRoutines.get(eventInfo.armorSetString_target):armorDefensiveRoutines.get(eventInfo.armorSetString_target)));
+	}
+	
 	protected void runGroupRoutines(DamageEventInfo eventInfo, boolean isOffensive)
 	{
 		if((isOffensive?eventInfo.groups_target:eventInfo.groups_attacker) != null)

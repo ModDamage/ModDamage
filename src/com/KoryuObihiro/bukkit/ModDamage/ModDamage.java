@@ -257,6 +257,12 @@ public class ModDamage extends JavaPlugin
 								return true;
 							}
 						}
+						else if(args[0].equalsIgnoreCase("checkgroup") || args[0].equalsIgnoreCase("cg"))
+						{
+							//md checkgroup worldname groupname
+							if(args.length == 2)
+								serverHandler.sendGroupConfig(player, args[1]);
+						}
 						else
 						{
 							sendUsage(player, true);
@@ -531,7 +537,7 @@ public class ModDamage extends JavaPlugin
 		{
 			String configPath = "worlds." + world.getName();
 			writeDamageElements(configPath + ".global");
-			writeMobHealthElements(configPath + ".global");
+			writeMobHealthElements(configPath);
 			config.setProperty("Scan." + configPath, emptyList);
 			config.setProperty("Scan." + configPath + ".groups", emptyList);
 		}
