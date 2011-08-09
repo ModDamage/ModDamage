@@ -167,6 +167,7 @@ public class ModDamage extends JavaPlugin
 	
 //Typical plugin stuff...for the most part. :P
 	public static Server server;
+	public final int oldestSupportedBuild = 953;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	public final static Logger log = Logger.getLogger("Minecraft");
 	public static DebugSetting debugSetting = DebugSetting.NORMAL;
@@ -362,6 +363,13 @@ public class ModDamage extends JavaPlugin
 		    log.info("[" + getDescription().getName() + "] Found elRegions v" + elRegions.getDescription().getVersion());
 		}
 		
+	//Build check
+		Matcher matcher = Pattern.compile("b([0-9]+)jnks", Pattern.CASE_INSENSITIVE).matcher(getServer().getVersion());
+		if(matcher.matches() && Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
+			log.warning("Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.");
+		//System.console().readLine();
+		
+		
 	//Event registration
 		//register plugin-related stuff with the server's plugin manager
 		server.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
@@ -531,7 +539,6 @@ public class ModDamage extends JavaPlugin
 								if(hasPermission(player, "moddamage.check"))
 									sendConfig(player, 0);
 								else player.sendMessage(errorString_Permissions);
-								return true;
 							}
 							//md check int
 							else if(args.length == 2)
@@ -544,13 +551,11 @@ public class ModDamage extends JavaPlugin
 								{
 									sendCommandUsage(player, true);
 								}
-								return true;
 							}
 						}
 						else
 						{
 							sendCommandUsage(player, true);
-							return true;
 						}
 					}
 					else if(player == null)
