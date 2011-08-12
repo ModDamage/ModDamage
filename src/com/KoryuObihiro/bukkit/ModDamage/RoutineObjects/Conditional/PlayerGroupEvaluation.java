@@ -28,7 +28,7 @@ public class PlayerGroupEvaluation extends EntityConditionalStatement<List<Strin
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerGroupEvaluation.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "group\\.(" + ModDamage.alphanumericPart + ")", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerGroupEvaluation.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "group\\.(" + ModDamage.nonAliasPart + ")", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerGroupEvaluation getNew(Matcher matcher)

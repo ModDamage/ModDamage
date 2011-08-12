@@ -15,11 +15,11 @@ public class EntityAirTicksComparison extends EntityComparison
 		super(inverted, forAttacker, ticks, comparisonType);
 	}
 	@Override
-	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return getRelevantEntity(eventInfo).getRemainingAir();}
+	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return (eventInfo.getRelevantEntity(forAttacker) != null)?eventInfo.getRelevantEntity(forAttacker).getRemainingAir():-9001;}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityAirTicksComparison.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.airticks" + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityAirTicksComparison.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.airticks\\." + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityAirTicksComparison getNew(Matcher matcher)

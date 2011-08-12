@@ -18,7 +18,7 @@ public class EntityExposedToSky extends EntityConditionalStatement<Boolean>
 	}
 	
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo){ return isExposedToSky(getRelevantEntity(eventInfo), eventInfo.world);}
+	protected boolean condition(TargetEventInfo eventInfo){ return isExposedToSky(eventInfo.getRelevantEntity(forAttacker), eventInfo.world);}
 
 	@Override
 	protected Boolean getRelevantInfo(TargetEventInfo eventInfo){ return false;}

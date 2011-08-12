@@ -19,7 +19,7 @@ public class EntityUnderwater extends EntityConditionalStatement<Material[]>
 	@Override
 	protected Material[] getRelevantInfo(TargetEventInfo eventInfo)
 	{
-		Material[] entityBlocks = { getRelevantEntity(eventInfo).getLocation().getBlock().getType(), getRelevantEntity(eventInfo).getEyeLocation().getBlock().getType() };
+		Material[] entityBlocks = { eventInfo.getRelevantEntity(forAttacker).getLocation().getBlock().getType(), eventInfo.getRelevantEntity(forAttacker).getEyeLocation().getBlock().getType() };
 		return entityBlocks;
 	}
 	

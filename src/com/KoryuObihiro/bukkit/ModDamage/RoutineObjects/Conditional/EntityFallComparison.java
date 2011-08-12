@@ -15,7 +15,7 @@ public class EntityFallComparison extends EntityComparison
 		super(inverted, forAttacker, fallDistance, comparisonType);
 	}
 	@Override
-	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return (int)getRelevantEntity(eventInfo).getFallDistance();}
+	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return (int)eventInfo.getRelevantEntity(forAttacker).getFallDistance();}
 	
 	public static void register(ModDamage routineUtility)
 	{

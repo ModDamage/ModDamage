@@ -216,9 +216,9 @@ public class ModDamage extends JavaPlugin
 	
 //Predefined pattern strings	
 	public static final String numberPart = "(?:[0-9]+)";
-	public static final String alphanumericPart = "(?:[a-z0-9]+)";
+	public static final String nonAliasPart = "(?:[a-z0-9][_a-z0-9]*)";
 	public static final String potentialAliasPart = "(?:_[a-z0-9]+)";
-	public static final String statementPart = "(?:(?:" + alphanumericPart + ")(?:\\." + alphanumericPart +")*)";
+	public static final String statementPart = "(?:(?:" + nonAliasPart + ")(?:\\." + nonAliasPart +")*)";
 	public static final String entityRegex = "(attacker|target)";
 	public static String comparisonRegex;
 	public static String biomeRegex;
@@ -259,7 +259,7 @@ public class ModDamage extends JavaPlugin
 			materialRegex += material.name() + "|";
 			for(String part : armorParts)
 				if(material.name().endsWith(part))
-					tempRegex += material.name() + "|";			
+					tempRegex += material.name() + "|";
 		}
 		tempRegex = tempRegex.substring(0, tempRegex.length() - 1);
 		//"((?:(?:ARMOR)(?:\\*ARMOR))|aliasPart)"
@@ -742,7 +742,6 @@ public class ModDamage extends JavaPlugin
 				break;
 		}
 		log.info("[" + getDescription().getName() + "] " + sendThis);
-		
 	}
 
 	private void writeDefaults() 

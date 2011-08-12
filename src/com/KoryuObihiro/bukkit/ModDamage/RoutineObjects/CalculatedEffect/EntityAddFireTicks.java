@@ -3,7 +3,6 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 
