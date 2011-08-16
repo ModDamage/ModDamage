@@ -13,7 +13,7 @@ public class EventWorldEvaluation extends ConditionalStatement
 {
 	protected final List<String> worlds;
 	public EventWorldEvaluation(boolean inverted, List<String> worlds)
-	{ 
+	{
 		super(inverted);
 		this.worlds = worlds;
 	}
@@ -22,7 +22,7 @@ public class EventWorldEvaluation extends ConditionalStatement
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EventWorldEvaluation.class, Pattern.compile("(!)?world\\.(" + ModDamage.aliasPart + ")", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EventWorldEvaluation.class, Pattern.compile("(!)?event\\.world\\.(" + ModDamage.aliasPart + ")", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EventWorldEvaluation getNew(Matcher matcher)

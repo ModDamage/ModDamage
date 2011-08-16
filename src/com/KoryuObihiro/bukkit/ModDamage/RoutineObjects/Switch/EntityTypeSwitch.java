@@ -34,13 +34,13 @@ public class EntityTypeSwitch extends EntitySwitchRoutine<List<ModDamageElement>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, EntityTypeSwitch.class, Pattern.compile(ModDamage.entityRegex + "\\.type", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, EntityTypeSwitch.class, Pattern.compile("(\\w+)\\.type", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityTypeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
 		if(matcher != null && switchStatements != null)
-			return new EntityTypeSwitch(matcher.group(1).equalsIgnoreCase("attacker"), switchStatements);
+			return new EntityTypeSwitch((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, switchStatements);
 		return null;
 	}
 }

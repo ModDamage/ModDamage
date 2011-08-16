@@ -28,13 +28,17 @@ public class PlayerSetItem extends PlayerCalculatedEffectRoutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(PlayerSetItem.class, Pattern.compile(ModDamage.entityRegex + "effect\\.setItem\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(PlayerSetItem.class, Pattern.compile("(\\w+)effect\\.setItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerSetItem getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new PlayerSetItem(matcher.group(1).equalsIgnoreCase("attacker"), Material.matchMaterial(matcher.group(2)), routines);
+		{
+			Material material = Material.matchMaterial(matcher.group(2));
+			if(material != null)
+				return new PlayerSetItem((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, material, routines);
+		}
 		return null;
 	}
 }

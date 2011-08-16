@@ -16,13 +16,13 @@ public class EntityDrowning extends EntityAirTicksComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityDrowning.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.drowning", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityDrowning.class, Pattern.compile("(!)?(\\w+)\\.drowning", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityDrowning getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new EntityDrowning(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"));
+			return new EntityDrowning(matcher.group(1) != null, (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false);
 		return null;
 	}
 }

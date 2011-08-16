@@ -26,14 +26,14 @@ public class PlayerGroupSwitch extends EntitySwitchRoutine<List<String>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, PlayerGroupSwitch.class, Pattern.compile(ModDamage.entityRegex + "\\.group", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, PlayerGroupSwitch.class, Pattern.compile("(\\w+)\\.group", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerGroupSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
 		if(matcher != null && switchStatements != null)
 		{
-			boolean forAttacker = matcher.group(1).equalsIgnoreCase("attacker");
+			boolean forAttacker = (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false;
 			return new PlayerGroupSwitch(forAttacker, switchStatements);
 		}
 		return null;

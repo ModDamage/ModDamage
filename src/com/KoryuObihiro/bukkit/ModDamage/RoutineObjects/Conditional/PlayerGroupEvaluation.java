@@ -28,7 +28,7 @@ public class PlayerGroupEvaluation extends EntityConditionalStatement<List<Strin
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerGroupEvaluation.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "group\\.(" + ModDamage.nonAliasPart + ")", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerGroupEvaluation.class, Pattern.compile("(!)?(\\w+)\\.group\\.(" + ModDamage.nonAliasPart + ")", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerGroupEvaluation getNew(Matcher matcher)
@@ -37,7 +37,7 @@ public class PlayerGroupEvaluation extends EntityConditionalStatement<List<Strin
 		{
 			List<String> matchedGroups = ModDamage.matchGroupAlias(matcher.group(3));
 			if(!matchedGroups.isEmpty())
-				return new PlayerGroupEvaluation(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), matchedGroups);
+				return new PlayerGroupEvaluation(matcher.group(1) != null, (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, matchedGroups);
 		}
 		return null;
 	}

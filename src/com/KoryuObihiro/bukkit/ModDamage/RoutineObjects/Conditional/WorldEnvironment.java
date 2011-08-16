@@ -22,7 +22,7 @@ public class WorldEnvironment extends WorldConditionalStatement
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, WorldEnvironment.class, Pattern.compile("(!)?world\\.environment\\." + ModDamage.environmentRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, WorldEnvironment.class, Pattern.compile("(!)?event\\.environment\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static WorldEnvironment getNew(Matcher matcher)

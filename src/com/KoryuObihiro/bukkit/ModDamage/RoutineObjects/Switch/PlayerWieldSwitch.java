@@ -29,14 +29,14 @@ public class PlayerWieldSwitch extends EntitySwitchRoutine<List<Material>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, PlayerWieldSwitch.class, Pattern.compile(ModDamage.entityRegex + "\\.wielding", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, PlayerWieldSwitch.class, Pattern.compile("(\\w+)\\.wielding", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerWieldSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
 		if(matcher != null && switchStatements != null)
 		{
-			boolean forAttacker = matcher.group(1).equalsIgnoreCase("attacker");
+			boolean forAttacker = (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false;
 			return new PlayerWieldSwitch(forAttacker, switchStatements);
 		}
 		return null;

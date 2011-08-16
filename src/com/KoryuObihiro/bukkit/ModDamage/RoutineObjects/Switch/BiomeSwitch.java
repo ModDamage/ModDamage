@@ -28,14 +28,14 @@ public class BiomeSwitch extends EntitySwitchRoutine<List<Biome>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, BiomeSwitch.class, Pattern.compile(ModDamage.entityRegex + "\\.biome", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, BiomeSwitch.class, Pattern.compile("(\\w+)\\.biome", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static BiomeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
 		if(matcher != null && switchStatements != null)
 		{
-			boolean forAttacker = matcher.group(1).equalsIgnoreCase("attacker");
+			boolean forAttacker = (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false;
 			return new BiomeSwitch(forAttacker, switchStatements);
 		}
 		return null;

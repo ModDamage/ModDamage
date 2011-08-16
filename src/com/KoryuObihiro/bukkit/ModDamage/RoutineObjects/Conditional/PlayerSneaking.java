@@ -21,13 +21,13 @@ public class PlayerSneaking extends EntityConditionalStatement<Boolean>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerSneaking.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.sneaking", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerSneaking.class, Pattern.compile("(!)?(\\w+)\\.sneaking", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerSneaking getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new PlayerSneaking(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"));
+			return new PlayerSneaking(matcher.group(1) != null, (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false);
 		return null;
 	}
 }

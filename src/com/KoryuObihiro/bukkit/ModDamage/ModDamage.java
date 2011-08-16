@@ -26,7 +26,6 @@ import org.bukkit.util.config.Configuration;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ArmorAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.BiomeAliaser;
@@ -36,10 +35,8 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ItemAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.WorldAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.LogicalOperation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
@@ -101,7 +98,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerGroupSwitch
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.RangedElementSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
-import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.mysql.jdbc.AssertionFailedException;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
@@ -114,13 +110,11 @@ import com.nijikokun.bukkit.Permissions.Permissions;
  */
 public class ModDamage extends JavaPlugin
 {
-	// 0.9.5
-	//FIXME World conditional
-	//TODO Empty armorSet & material
-	// -Command for autogen world/entitytype switches?
-	//TODO switch and comparison for wieldquantity
-	//TODO switch.conditional
-	//TODO switch and conditional for region
+	//FIXME 0.9.5 Empty armorSet & material
+	//TODO 0.9.5 Command for autogen world/entitytype switches?
+	//TODO 0.9.5 switch and comparison for wieldquantity
+	//TODO 0.9.5 switch.conditional
+	//TODO 0.9.5 switch and conditional for region
 	// -if.server.onlineenabled
 	// -getAverageLight (area)
 	// -check against an itemstack in the player's inventory
@@ -206,7 +200,7 @@ public class ModDamage extends JavaPlugin
 	
 //External-plugin variables
 	public static PermissionHandler Permissions = null;
-	private static elRegionsPlugin elRegions = null;
+	//private static elRegionsPlugin elRegions = null;
 	public static boolean multigroupPermissions = true;	
 	public static boolean using_Permissions = false;
 	static boolean using_elRegions = false;
@@ -214,77 +208,15 @@ public class ModDamage extends JavaPlugin
 //General mechanics options
 	static boolean negative_Heal;
 	
-//Predefined pattern strings	
-	public static final String numberPart = "(?:[0-9]+)";
+//Predefined pattern strings
 	public static final String nonAliasPart = "(?:[a-z0-9][_a-z0-9]*)";
 	public static final String aliasPart = "(?:_" + nonAliasPart + ")";
 	public static final String statementPart = "(?:(?:\\w+)(?:\\.\\w+)*)";
-	public static final String entityRegex = "(attacker|target)";
-	public static String comparisonRegex;
-	public static String biomeRegex;
-	public static String environmentRegex;
-	public static String elementRegex;
-	public static String materialRegex;
-	public static String armorRegex;
-	public static String rangedElementRegex;
-	public static String logicalRegex;
-	private static Pattern conditionalPattern;
-	private static Pattern effectPattern;
-	private static Pattern switchPattern;
+	private static Pattern conditionalPattern = Pattern.compile("(if|if_not)\\s+(?:!)?(" + statementPart + "(?:\\s+(\\w+)\\s+(?:!)?" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
+	private static Pattern effectPattern = Pattern.compile("((\\w+)effect\\." + statementPart + ")", Pattern.CASE_INSENSITIVE);
+	private static Pattern switchPattern = Pattern.compile("switch\\.(" + statementPart + ")", Pattern.CASE_INSENSITIVE);
 	
 	private static HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
-	
-	static
-	{
-		biomeRegex = "(";
-		for(Biome biome : Biome.values())
-			biomeRegex += biome.name() + "|";
-		biomeRegex += aliasPart + ")";
-		
-		environmentRegex = "(";
-		for(Environment environment : Environment.values())
-			environmentRegex += environment.name() + "|";
-		environmentRegex = environmentRegex.substring(0, environmentRegex.length() - 1) + ")";
-
-		elementRegex = "(";
-		for(ModDamageElement element : ModDamageElement.values())
-			elementRegex += element.getReference() + "|";
-		elementRegex += aliasPart + ")";
-		
-		String[] armorParts = {"HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS" };
-		materialRegex = armorRegex = "(";
-		String tempRegex = "";
-		for(Material material : Material.values())
-		{
-			materialRegex += material.name() + "|";
-			for(String part : armorParts)
-				if(material.name().endsWith(part))
-					tempRegex += material.name() + "|";
-		}
-		tempRegex = tempRegex.substring(0, tempRegex.length() - 1);
-		//"((?:(?:ARMOR)(?:\\*ARMOR))|aliasPart)"
-		armorRegex = "((?:(?:" + tempRegex + ")(?:\\*" + tempRegex + "){0,3})|" + aliasPart + ")";
-		materialRegex += aliasPart + ")";
-		
-		logicalRegex = "(";
-		for(LogicalOperation operation : LogicalOperation.values())
-			logicalRegex += operation.name() + "|";
-		logicalRegex += aliasPart + ")";		
-		
-		comparisonRegex = "(";
-		for(ComparisonType type : ComparisonType.values())
-			comparisonRegex += type.name() + "|";
-		comparisonRegex = comparisonRegex.substring(0, comparisonRegex.length() - 1) + ")";
-		
-		rangedElementRegex = "(";
-		for(RangedElement type : RangedElement.values())
-			rangedElementRegex += type.name() + "|";
-		rangedElementRegex += ")";
-		
-		conditionalPattern = Pattern.compile("(if|if_not)\\s+(?:!)?(" + statementPart + "(?:\\s+" + logicalRegex + "\\s+(?:!)?" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
-		switchPattern = Pattern.compile("switch\\." + statementPart, Pattern.CASE_INSENSITIVE);
-		effectPattern = Pattern.compile("((attacker|target|world)effect\\." + statementPart + ")", Pattern.CASE_INSENSITIVE);
-	}
 
 //LoadStates
 	public enum LoadState
@@ -345,9 +277,8 @@ public class ModDamage extends JavaPlugin
 	@Override
 	public void onEnable() 
 	{
-		//XXX REMOVE UPON 0.9.5 RELEASE
+		//FIXME 0.9.5 REMOVE ME
 		log.warning("WARNING: This is an experimental build of ModDamage 0.9.5. Do not use this JAR if you value server stability or are not a tester.");
-		//END REMOVE
 		
 		ModDamage.server = getServer();
 	//PERMISSIONS
@@ -363,13 +294,14 @@ public class ModDamage extends JavaPlugin
 		}
 		else log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions not found]");
 		
-	//ELREGIONS
+	//TODO 0.9.6 ELREGIONS
+		/*
 		elRegions = (elRegionsPlugin) this.getServer().getPluginManager().getPlugin("elRegions");
 		if (elRegions != null) 
 		{
 			using_elRegions = true;
 		    log.info("[" + getDescription().getName() + "] Found elRegions v" + elRegions.getDescription().getVersion());
-		}
+		}*/
 		
 	//Build check
 		Matcher matcher = Pattern.compile("b([0-9]+)jnks", Pattern.CASE_INSENSITIVE).matcher(getServer().getVersion());
@@ -434,9 +366,9 @@ public class ModDamage extends JavaPlugin
 		EventValueComparison.register(this);
 		EventWorldEvaluation.register(this);
 	//Effects
-		EntityDropItem.register(this);
 		EntityAddAirTicks.register(this);
 		EntityAddFireTicks.register(this);
+		EntityDropItem.register(this);
 		EntityExplode.register(this);
 		EntityHeal.register(this);
 		EntityHurt.register(this);
@@ -825,14 +757,26 @@ public class ModDamage extends JavaPlugin
 						try
 						{
 							routine = (Routine)registeredBaseRoutines.get(pattern).invoke(null, matcher);
+							if(routine != null)
+							{
+								routines.add(routine);
+								addToConfig(DebugSetting.NORMAL, nestCount, "Routine: \"" + (String)object + "\"", currentState);
+							}
+							else
+							{//TODO: Catch what routine matched, if/when it failed.
+								currentState = LoadState.FAILURE;
+								addToConfig(DebugSetting.VERBOSE, 0, "Bad parameters for new " + registeredBaseRoutines.get(pattern).getClass().getSimpleName() + " \"" + (String)object + "\"", currentState);
+							}
 							break;
 						}
 						catch(Exception e){ e.printStackTrace();}
 					}
 				}
-				if(routine != null) routines.add(routine);
-				currentState = (routine != null)?currentState:LoadState.FAILURE;
-				addToConfig((routine != null)?DebugSetting.NORMAL:DebugSetting.QUIET, nestCount, (routine != null?"Routine:":"Couldn't match base routine string") + " \"" + (String)object + "\"", currentState);
+				if(routine == null)
+				{
+					currentState = LoadState.FAILURE;
+					addToConfig(DebugSetting.QUIET, 0, "Couldn't match base routine string" + " \"" + (String)object + "\"", currentState);
+				}
 			}
 			else if(object instanceof LinkedHashMap)
 			{
@@ -1191,7 +1135,20 @@ public class ModDamage extends JavaPlugin
 		return false;
 	}
 	
-//// INGAME MATCHING ////
+//// CONFIG MATCHING ////
+	//FIXME Do validation in the routines - there's a lot of stuff to replace. :<
+	public static boolean matchesValidEntity(String string)
+	{
+		if(string.equalsIgnoreCase("target") || string.equalsIgnoreCase("attacker"))
+			return true;
+		else
+		{
+			addToConfig(DebugSetting.QUIET, 0, "Invalid entity identifier \"" + string + "\" - defaulting to \"target\"", LoadState.FAILURE);
+			return false;
+		}
+	}
+	public static boolean matchEntity(String string){ return string.equalsIgnoreCase("attacker");}
+	
 	public static Biome matchBiome(String biomeName)
 	{
 		for(Biome biome : Biome.values())

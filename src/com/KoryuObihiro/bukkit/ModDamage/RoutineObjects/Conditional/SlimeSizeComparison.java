@@ -21,13 +21,13 @@ public class SlimeSizeComparison extends EntityComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, SlimeSizeComparison.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "size\\." + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, SlimeSizeComparison.class, Pattern.compile("(!)?(\\w+)size\\.(\\w+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static SlimeSizeComparison getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new SlimeSizeComparison(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), Integer.parseInt(matcher.group(4)), ComparisonType.matchType(matcher.group(3)));
+			return new SlimeSizeComparison(matcher.group(1) != null, (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, Integer.parseInt(matcher.group(4)), ComparisonType.matchType(matcher.group(3)));
 		return null;
 	}
 }

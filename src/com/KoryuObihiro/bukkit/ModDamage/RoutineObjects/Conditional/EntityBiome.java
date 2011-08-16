@@ -27,7 +27,7 @@ public class EntityBiome extends EntityConditionalStatement<List<Biome>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityBiome.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.biome\\." + ModDamage.biomeRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityBiome.class, Pattern.compile("(!)?(\\w+)\\.biome\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityBiome getNew(Matcher matcher)
@@ -36,7 +36,7 @@ public class EntityBiome extends EntityConditionalStatement<List<Biome>>
 		{
 			List<Biome> biomes = ModDamage.matchBiomeAlias(matcher.group(3));
 			if(!biomes.isEmpty())
-				return new EntityBiome(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), biomes);
+				return new EntityBiome(matcher.group(1) != null, (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, biomes);
 		}
 		return null;
 	}

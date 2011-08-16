@@ -21,13 +21,13 @@ public class EntitySetFireTicks extends EntityCalculatedEffectRoutine
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntitySetFireTicks.class, Pattern.compile(ModDamage.entityRegex + "effect\\.setfireticks", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntitySetFireTicks.class, Pattern.compile("(\\w+)effect\\.setfireticks", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntitySetFireTicks getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new EntitySetFireTicks(matcher.group(1).equalsIgnoreCase("attacker"), routines);
+			return new EntitySetFireTicks((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
 		return null;
 	}
 }

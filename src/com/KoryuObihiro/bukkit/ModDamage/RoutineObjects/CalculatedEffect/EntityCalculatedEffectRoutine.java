@@ -12,7 +12,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 abstract public class EntityCalculatedEffectRoutine extends CalculatedEffectRoutine<LivingEntity>
 {
 	protected final boolean forAttacker;
-	protected static final String entityPart = "(entity|attacker|target)";
 	public EntityCalculatedEffectRoutine(boolean forAttacker, List<Routine> routines)
 	{
 		super(routines);

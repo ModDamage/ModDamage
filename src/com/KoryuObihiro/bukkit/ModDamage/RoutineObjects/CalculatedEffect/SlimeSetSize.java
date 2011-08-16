@@ -33,13 +33,13 @@ public class SlimeSetSize extends CalculatedEffectRoutine<Slime>
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(SlimeSetSize.class, Pattern.compile(ModDamage.entityRegex + "effect\\.setSize", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(SlimeSetSize.class, Pattern.compile("(\\w+)effect\\.setSize", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static SlimeSetSize getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new SlimeSetSize(matcher.group(1).equalsIgnoreCase("attacker"), routines);
+			return new SlimeSetSize((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
 		return null;
 	}
 }

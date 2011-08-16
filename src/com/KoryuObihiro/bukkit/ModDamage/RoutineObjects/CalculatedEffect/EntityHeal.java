@@ -21,13 +21,13 @@ public class EntityHeal extends EntityCalculatedEffectRoutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntityHeal.class, Pattern.compile(ModDamage.entityRegex + "effect\\.heal", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntityHeal.class, Pattern.compile("(\\w+)effect\\.heal", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityHeal getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new EntityHeal(matcher.group(1).equalsIgnoreCase("attacker"), routines);
+			return new EntityHeal((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
 		return null;
 	}
 }

@@ -29,7 +29,7 @@ public class PlayerWearingOnly extends EntityConditionalStatement<List<ArmorSet>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWearingOnly.class, Pattern.compile(ModDamage.entityRegex + "\\.wearingonly\\." + ModDamage.armorRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerWearingOnly.class, Pattern.compile("(\\w+)\\.wearingonly\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerWearingOnly getNew(Matcher matcher)
@@ -38,7 +38,7 @@ public class PlayerWearingOnly extends EntityConditionalStatement<List<ArmorSet>
 		{
 			List<ArmorSet> armorSetList = ModDamage.matchArmorAlias(matcher.group(3));
 			if(armorSetList.isEmpty())
-				return new PlayerWearingOnly(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), armorSetList);
+				return new PlayerWearingOnly((ModDamage.matchesValidEntity(matcher.group(2))?ModDamage.matchEntity(matcher.group(2)):false), matcher.group(2).equalsIgnoreCase("attacker"), armorSetList);
 		}
 		return null;
 	}

@@ -15,17 +15,21 @@ public class EntityFireTicksComparison extends EntityComparison
 		super(inverted, forAttacker, ticks, comparisonType);
 	}
 	@Override
-	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.entity_target.getFireTicks();}
+	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.getRelevantEntity(forAttacker).getFireTicks();}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityFireTicksComparison.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.fireticks" + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityFireTicksComparison.class, Pattern.compile("(!)?(\\w+)\\.fireticks\\.(\\w+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityFireTicksComparison getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new EntityFireTicksComparison(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), Integer.parseInt(matcher.group(4)), ComparisonType.matchType(matcher.group(3)));
+		{
+			ComparisonType comparisonType = ComparisonType.matchType(matcher.group(3));
+			if(comparisonType != null)
+				return new EntityFireTicksComparison(matcher.group(1) != null, (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, Integer.parseInt(matcher.group(4)), comparisonType);
+		}
 		return null;
 	}
 }
