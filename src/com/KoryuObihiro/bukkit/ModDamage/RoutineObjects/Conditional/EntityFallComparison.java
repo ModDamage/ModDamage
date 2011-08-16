@@ -19,7 +19,7 @@ public class EntityFallComparison extends EntityComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityFallComparison.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.falldistance" + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityFallComparison.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.falldistance\\." + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityFallComparison getNew(Matcher matcher)

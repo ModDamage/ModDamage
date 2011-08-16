@@ -217,8 +217,8 @@ public class ModDamage extends JavaPlugin
 //Predefined pattern strings	
 	public static final String numberPart = "(?:[0-9]+)";
 	public static final String nonAliasPart = "(?:[a-z0-9][_a-z0-9]*)";
-	public static final String potentialAliasPart = "(?:_[a-z0-9]+)";
-	public static final String statementPart = "(?:(?:" + nonAliasPart + ")(?:\\." + nonAliasPart +")*)";
+	public static final String aliasPart = "(?:_" + nonAliasPart + ")";
+	public static final String statementPart = "(?:(?:\\w+)(?:\\.\\w+)*)";
 	public static final String entityRegex = "(attacker|target)";
 	public static String comparisonRegex;
 	public static String biomeRegex;
@@ -239,7 +239,7 @@ public class ModDamage extends JavaPlugin
 		biomeRegex = "(";
 		for(Biome biome : Biome.values())
 			biomeRegex += biome.name() + "|";
-		biomeRegex += potentialAliasPart + ")";
+		biomeRegex += aliasPart + ")";
 		
 		environmentRegex = "(";
 		for(Environment environment : Environment.values())
@@ -249,7 +249,7 @@ public class ModDamage extends JavaPlugin
 		elementRegex = "(";
 		for(ModDamageElement element : ModDamageElement.values())
 			elementRegex += element.getReference() + "|";
-		elementRegex += potentialAliasPart + ")";
+		elementRegex += aliasPart + ")";
 		
 		String[] armorParts = {"HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS" };
 		materialRegex = armorRegex = "(";
@@ -263,13 +263,13 @@ public class ModDamage extends JavaPlugin
 		}
 		tempRegex = tempRegex.substring(0, tempRegex.length() - 1);
 		//"((?:(?:ARMOR)(?:\\*ARMOR))|aliasPart)"
-		armorRegex = "((?:(?:" + tempRegex + ")(?:\\*" + tempRegex + "){0,3})|" + potentialAliasPart + ")";
-		materialRegex += potentialAliasPart + ")";
+		armorRegex = "((?:(?:" + tempRegex + ")(?:\\*" + tempRegex + "){0,3})|" + aliasPart + ")";
+		materialRegex += aliasPart + ")";
 		
 		logicalRegex = "(";
 		for(LogicalOperation operation : LogicalOperation.values())
 			logicalRegex += operation.name() + "|";
-		logicalRegex += potentialAliasPart + ")";		
+		logicalRegex += aliasPart + ")";		
 		
 		comparisonRegex = "(";
 		for(ComparisonType type : ComparisonType.values())
@@ -281,7 +281,7 @@ public class ModDamage extends JavaPlugin
 			rangedElementRegex += type.name() + "|";
 		rangedElementRegex += ")";
 		
-		conditionalPattern = Pattern.compile("(if|if_not)\\s+(?:!)?(" + statementPart + "(?:\\s+" + logicalRegex + "\\s+" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
+		conditionalPattern = Pattern.compile("(if|if_not)\\s+(?:!)?(" + statementPart + "(?:\\s+" + logicalRegex + "\\s+(?:!)?" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
 		switchPattern = Pattern.compile("switch\\." + statementPart, Pattern.CASE_INSENSITIVE);
 		effectPattern = Pattern.compile("((attacker|target|world)effect\\." + statementPart + ")", Pattern.CASE_INSENSITIVE);
 	}
@@ -374,9 +374,7 @@ public class ModDamage extends JavaPlugin
 	//Build check
 		Matcher matcher = Pattern.compile("b([0-9]+)jnks", Pattern.CASE_INSENSITIVE).matcher(getServer().getVersion());
 		if(matcher.matches() && Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
-			log.warning("Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.");
-		//System.console().readLine();
-		
+			log.warning("Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.");		
 		
 	//Event registration
 		//register plugin-related stuff with the server's plugin manager

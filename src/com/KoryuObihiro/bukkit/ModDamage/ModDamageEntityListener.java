@@ -1,9 +1,9 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageByProjectileEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -37,14 +37,13 @@ public class ModDamageEntityListener extends EntityListener
 				else if(event instanceof EntityDamageByEntityEvent)
 				{
 					EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
-					RangedElement rangedElement = (event instanceof EntityDamageByProjectileEvent?RangedElement.matchElement(((EntityDamageByProjectileEvent)event).getProjectile()):null);
-					//TODO Make this compatible with dispensers!
-					LivingEntity ent_damager = (LivingEntity)event_EE.getDamager();
+					RangedElement rangedElement = RangedElement.matchElement(event_EE.getDamager());
+					LivingEntity ent_damager = (rangedElement != null?((Projectile)event_EE.getDamager()).getShooter():(LivingEntity)event_EE.getDamager());
 					if(ent_damager != null) eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), ent_damager, ModDamageElement.matchMobType(ent_damager), rangedElement, event.getDamage());
 					else if(rangedElement != null && event.getCause().equals(DamageCause.ENTITY_ATTACK))
 						eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.TRAP_DISPENSER, rangedElement, event.getDamage());
 				}
-				else{ ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled damage event. Is this plugin up-to-date?");}
+				else{ ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");}
 				
 				for(Routine routine : ModDamage.damageRoutines)
 					routine.run(eventInfo);

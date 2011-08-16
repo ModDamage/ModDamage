@@ -36,7 +36,7 @@ public class ArmorSetSwitch extends EntitySwitchRoutine<List<ArmorSet>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, ArmorSetSwitch.class, Pattern.compile(ModDamage.entityRegex + "environment", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, ArmorSetSwitch.class, Pattern.compile(ModDamage.entityRegex + "\\.armorset", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static ArmorSetSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

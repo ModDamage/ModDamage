@@ -26,7 +26,7 @@ public class PlayerGroupSwitch extends EntitySwitchRoutine<List<String>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, PlayerGroupSwitch.class, Pattern.compile(ModDamage.entityRegex + "group", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, PlayerGroupSwitch.class, Pattern.compile(ModDamage.entityRegex + "\\.group", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerGroupSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

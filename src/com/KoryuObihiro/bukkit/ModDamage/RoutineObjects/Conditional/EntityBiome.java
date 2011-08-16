@@ -6,7 +6,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.block.Biome;
-import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
@@ -23,9 +22,8 @@ public class EntityBiome extends EntityConditionalStatement<List<Biome>>
 	@Override
 	protected List<Biome> getRelevantInfo(TargetEventInfo eventInfo)
 	{
-		Player koryu = TargetEventInfo.server.getPlayer("KoryuObihiro");//FIXME REMOVE ME
-		if(koryu != null) koryu.chat("I'M IN BIOME " + koryu.getLocation().getBlock().getBiome().name());
-		return Arrays.asList((eventInfo.getRelevantEntity(forAttacker) != null)?eventInfo.getRelevantEntity(forAttacker).getLocation().getBlock().getBiome():null);}
+		return Arrays.asList((eventInfo.getRelevantEntity(forAttacker) != null)?eventInfo.getRelevantEntity(forAttacker).getLocation().getBlock().getBiome():null);
+	}
 	
 	public static void register(ModDamage routineUtility)
 	{
@@ -35,7 +33,11 @@ public class EntityBiome extends EntityConditionalStatement<List<Biome>>
 	public static EntityBiome getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new EntityBiome(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), ModDamage.matchBiomeAlias(matcher.group(3)));
+		{
+			List<Biome> biomes = ModDamage.matchBiomeAlias(matcher.group(3));
+			if(!biomes.isEmpty())
+				return new EntityBiome(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), biomes);
+		}
 		return null;
 	}
 }

@@ -29,7 +29,7 @@ public class EntityTypeEvaluation extends EntityConditionalStatement<List<ModDam
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityTypeEvaluation.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "type\\." + ModDamage.elementRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityTypeEvaluation.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.type\\." + ModDamage.elementRegex, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityTypeEvaluation getNew(Matcher matcher)
