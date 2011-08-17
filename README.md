@@ -14,4 +14,4 @@ for an introduction, or jump right into the [wiki](https://www.github.com/KoryuO
 
 [Changelog](http://www.github.com/KoryuObihiro/ModDamage/wiki/Changelog)
 
--[Erich Gubler] (http://koryuobihiro.github.com), creator of ModDamage
+-[Erich Gubler (AKA KoryuObihiro)] (http://koryuobihiro.github.com), creator of ModDamage
