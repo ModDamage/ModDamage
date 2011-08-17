@@ -45,7 +45,7 @@ public class EntityCoordinateComparison extends EntityComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityCoordinateComparison.class, Pattern.compile("(!)?(\\w+)\\.(X|Y|Z)\\.(\\w+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityCoordinateComparison.class, Pattern.compile("(!?)(\\w+)\\.(X|Y|Z)\\.(\\w+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 
 	public static EntityCoordinateComparison getNew(Matcher matcher)
@@ -54,7 +54,7 @@ public class EntityCoordinateComparison extends EntityComparison
 		{
 			ComparisonType comparisonType = ComparisonType.matchType(matcher.group(4));
 			if(comparisonType != null)
-				return new EntityCoordinateComparison(matcher.group(1) != null, (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, Coordinate.matchType(matcher.group(3)), Integer.parseInt(matcher.group(5)), comparisonType);
+				return new EntityCoordinateComparison(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, Coordinate.matchType(matcher.group(3)), Integer.parseInt(matcher.group(5)), comparisonType);
 		}
 		return null;
 	}

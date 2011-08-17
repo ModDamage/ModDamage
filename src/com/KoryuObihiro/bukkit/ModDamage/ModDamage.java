@@ -77,10 +77,11 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnBloc
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnFire;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTypeEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityUnderwater;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventHasRangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventRangedElementEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventValueComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerCountComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerPlayerCountComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerGroupEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSleeping;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSneaking;
@@ -169,7 +170,7 @@ public class ModDamage extends JavaPlugin
 	
 //Typical plugin stuff...for the most part. :P
 	public static Server server;
-	public final int oldestSupportedBuild = 953;
+	public final int oldestSupportedBuild = 1060;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	public final static Logger log = Logger.getLogger("Minecraft");
 	public static DebugSetting debugSetting = DebugSetting.NORMAL;
@@ -209,10 +210,8 @@ public class ModDamage extends JavaPlugin
 	static boolean negative_Heal;
 	
 //Predefined pattern strings
-	public static final String nonAliasPart = "(?:[a-z0-9][_a-z0-9]*)";
-	public static final String aliasPart = "(?:_" + nonAliasPart + ")";
-	public static final String statementPart = "(?:(?:\\w+)(?:\\.\\w+)*)";
-	private static Pattern conditionalPattern = Pattern.compile("(if|if_not)\\s+(?:!)?(" + statementPart + "(?:\\s+(\\w+)\\s+(?:!)?" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
+	public static final String statementPart = "(?:!?(?:\\w+)(?:\\.\\w+)*)";
+	private static Pattern conditionalPattern = Pattern.compile("(if|if_not)\\s+(" + statementPart + "(?:\\s+(\\w+)\\s+" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
 	private static Pattern effectPattern = Pattern.compile("((\\w+)effect\\." + statementPart + ")", Pattern.CASE_INSENSITIVE);
 	private static Pattern switchPattern = Pattern.compile("switch\\.(" + statementPart + ")", Pattern.CASE_INSENSITIVE);
 	
@@ -304,9 +303,14 @@ public class ModDamage extends JavaPlugin
 		}*/
 		
 	//Build check
-		Matcher matcher = Pattern.compile("b([0-9]+)jnks", Pattern.CASE_INSENSITIVE).matcher(getServer().getVersion());
-		if(matcher.matches() && Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
-			log.warning("Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.");		
+		String string = getServer().getVersion();
+		Matcher matcher = Pattern.compile(".*b([0-9]+)jnks.*", Pattern.CASE_INSENSITIVE).matcher(string);
+		if(matcher.matches())
+		{
+			if(Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
+				log.warning("Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.");
+		}
+		else log.severe("[" + getDescription().getName() + "] Oh crap. The Bukkit builds system has changed - bug KoryuObihiro about it.");
 		
 	//Event registration
 		//register plugin-related stuff with the server's plugin manager
@@ -326,7 +330,7 @@ public class ModDamage extends JavaPlugin
 		IntervalRange.register(this);
 		LiteralRange.register(this);
 		Multiplication.register(this);
-		Set.register(this);	
+		Set.register(this);
 		Message.register(this);
 //Nestable Calculations
 	//Conditionals
@@ -346,10 +350,8 @@ public class ModDamage extends JavaPlugin
 		EntityOnFire.register(this);
 		EntityTypeEvaluation.register(this);
 		EntityUnderwater.register(this);
-		EventValueComparison.register(this);
-		PlayerAddItem.register(this);
+		EventWorldEvaluation.register(this);
 		PlayerGroupEvaluation.register(this);
-		PlayerSetItem.register(this);
 		PlayerSleeping.register(this);
 		PlayerSneaking.register(this);
 		PlayerWearing.register(this);
@@ -360,8 +362,9 @@ public class ModDamage extends JavaPlugin
 		WorldEnvironment.register(this);
 		//Server
 		ServerOnlineMode.register(this);
-		PlayerCountComparison.register(this);
+		ServerPlayerCountComparison.register(this);
 		//Event
+		EventHasRangedElement.register(this);
 		EventRangedElementEvaluation.register(this);
 		EventValueComparison.register(this);
 		EventWorldEvaluation.register(this);
@@ -375,6 +378,7 @@ public class ModDamage extends JavaPlugin
 		EntitySetAirTicks.register(this);
 		EntitySetFireTicks.register(this);
 		EntitySetHealth.register(this);
+		PlayerAddItem.register(this);
 		PlayerSetItem.register(this);
 		SlimeSetSize.register(this);
 		WorldTime.register(this);

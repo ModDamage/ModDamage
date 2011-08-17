@@ -19,7 +19,7 @@ public class EntityLightComparison extends EntityComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityLightComparison.class, Pattern.compile("(!)?(\\w+)\\.light\\.(\\w+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityLightComparison.class, Pattern.compile("(!?)(\\w+)\\.light\\.(\\w+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityLightComparison getNew(Matcher matcher)
@@ -28,7 +28,7 @@ public class EntityLightComparison extends EntityComparison
 		{
 			ComparisonType comparisonType = ComparisonType.matchType(matcher.group(3));
 			if(comparisonType != null)
-				return new EntityLightComparison(matcher.group(1) != null, (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, Integer.parseInt(matcher.group(4)), comparisonType);
+				return new EntityLightComparison(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, Integer.parseInt(matcher.group(4)), comparisonType);
 		}
 		return null;
 	}

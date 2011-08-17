@@ -29,7 +29,7 @@ public class EntityTypeEvaluation extends EntityConditionalStatement<List<ModDam
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityTypeEvaluation.class, Pattern.compile("(!)?(\\w+)\\.type\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityTypeEvaluation.class, Pattern.compile("(!?)(\\w+)\\.type\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityTypeEvaluation getNew(Matcher matcher)
@@ -38,7 +38,7 @@ public class EntityTypeEvaluation extends EntityConditionalStatement<List<ModDam
 		{
 			List<ModDamageElement> elements = ModDamage.matchElementAlias(matcher.group(3));
 			if(!elements.isEmpty())
-				return new EntityTypeEvaluation(matcher.group(1) != null, (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, elements);
+				return new EntityTypeEvaluation(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, elements);
 		}
 		return null;
 	}

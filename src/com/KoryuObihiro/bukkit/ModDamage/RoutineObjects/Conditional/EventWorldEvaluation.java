@@ -22,7 +22,7 @@ public class EventWorldEvaluation extends ConditionalStatement
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EventWorldEvaluation.class, Pattern.compile("(!)?event\\.world\\.(" + ModDamage.aliasPart + ")", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EventWorldEvaluation.class, Pattern.compile("(!?)event\\.world\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EventWorldEvaluation getNew(Matcher matcher)
@@ -31,7 +31,7 @@ public class EventWorldEvaluation extends ConditionalStatement
 		{
 			List<String> worlds = ModDamage.matchWorldAlias(matcher.group(2));
 			if(!worlds.isEmpty())
-				return new EventWorldEvaluation(matcher.group(1) != null, worlds);
+				return new EventWorldEvaluation(matcher.group(1).equalsIgnoreCase("!"), worlds);
 		}
 		return null;
 	}

@@ -45,13 +45,13 @@ public class EntityExposedToSky extends EntityConditionalStatement<Boolean>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityExposedToSky.class, Pattern.compile("(!)?(\\w+)\\.exposedtosky", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityExposedToSky.class, Pattern.compile("(!?)(\\w+)\\.exposedtosky", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityExposedToSky getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new EntityExposedToSky(matcher.group(1) != null, (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false);
+			return new EntityExposedToSky(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false);
 		return null;
 	}
 

@@ -19,7 +19,7 @@ public class EntityFireTicksComparison extends EntityComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityFireTicksComparison.class, Pattern.compile("(!)?(\\w+)\\.fireticks\\.(\\w+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityFireTicksComparison.class, Pattern.compile("(!?)(\\w+)\\.fireticks\\.(\\w+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityFireTicksComparison getNew(Matcher matcher)
@@ -28,7 +28,7 @@ public class EntityFireTicksComparison extends EntityComparison
 		{
 			ComparisonType comparisonType = ComparisonType.matchType(matcher.group(3));
 			if(comparisonType != null)
-				return new EntityFireTicksComparison(matcher.group(1) != null, (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, Integer.parseInt(matcher.group(4)), comparisonType);
+				return new EntityFireTicksComparison(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, Integer.parseInt(matcher.group(4)), comparisonType);
 		}
 		return null;
 	}

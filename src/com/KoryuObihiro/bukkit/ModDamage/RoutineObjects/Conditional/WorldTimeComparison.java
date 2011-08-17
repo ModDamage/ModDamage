@@ -29,7 +29,7 @@ public class WorldTimeComparison extends WorldConditionalStatement
 	public static WorldTimeComparison getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new WorldTimeComparison(matcher.group(1) != null, ComparisonType.matchType(matcher.group(2)), Integer.parseInt(matcher.group(3)));
+			return new WorldTimeComparison(matcher.group(1).equalsIgnoreCase("!"), ComparisonType.matchType(matcher.group(2)), Integer.parseInt(matcher.group(3)));
 		return null;
 	}
 }

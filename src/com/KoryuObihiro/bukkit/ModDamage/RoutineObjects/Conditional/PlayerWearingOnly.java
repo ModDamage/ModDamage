@@ -19,9 +19,13 @@ public class PlayerWearingOnly extends EntityConditionalStatement<List<ArmorSet>
 	@Override
 	public boolean condition(TargetEventInfo eventInfo)
 	{
-		for(ArmorSet armorSet : value)
-			if(shouldGetAttacker(eventInfo)?armorSet.equals(((AttackerEventInfo)eventInfo).armorSet_attacker):(armorSet.equals(eventInfo.armorSet_target)))
-				return true;
+		if((shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).armorSet_attacker:eventInfo.armorSet_target) != null)
+		{
+			ArmorSet playerSet = (shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).armorSet_attacker:eventInfo.armorSet_target);
+			for(ArmorSet armorSet : value)
+				if(armorSet.equals(playerSet))
+					return true;
+		}
 		return false;
 	}
 	@Override
@@ -29,7 +33,7 @@ public class PlayerWearingOnly extends EntityConditionalStatement<List<ArmorSet>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWearingOnly.class, Pattern.compile("(\\w+)\\.wearingonly\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerWearingOnly.class, Pattern.compile("(!?)(\\w+)\\.wearingonly\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerWearingOnly getNew(Matcher matcher)
@@ -37,7 +41,7 @@ public class PlayerWearingOnly extends EntityConditionalStatement<List<ArmorSet>
 		if(matcher != null)
 		{
 			List<ArmorSet> armorSetList = ModDamage.matchArmorAlias(matcher.group(3));
-			if(armorSetList.isEmpty())
+			if(!armorSetList.isEmpty())
 				return new PlayerWearingOnly((ModDamage.matchesValidEntity(matcher.group(2))?ModDamage.matchEntity(matcher.group(2)):false), matcher.group(2).equalsIgnoreCase("attacker"), armorSetList);
 		}
 		return null;

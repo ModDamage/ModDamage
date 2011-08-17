@@ -21,7 +21,7 @@ public class WorldSwitch extends SwitchRoutine<List<String>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, WorldSwitch.class, Pattern.compile("world", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, WorldSwitch.class, Pattern.compile("event\\.world", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static WorldSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

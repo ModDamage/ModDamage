@@ -26,7 +26,7 @@ public class EntityOnBlock extends EntityConditionalStatement<List<Material>>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityOnBlock.class, Pattern.compile("(!)?(\\w+)\\.onblock\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityOnBlock.class, Pattern.compile("(!?)(\\w+)\\.onblock\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityOnBlock getNew(Matcher matcher)
@@ -35,7 +35,7 @@ public class EntityOnBlock extends EntityConditionalStatement<List<Material>>
 		{
 			List<Material> matchedItems = ModDamage.matchItemAlias(matcher.group(3));
 			if(!matchedItems.isEmpty())
-				return new EntityOnBlock(matcher.group(1) != null, (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, matchedItems);
+				return new EntityOnBlock(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, matchedItems);
 		}
 		return null;
 	}

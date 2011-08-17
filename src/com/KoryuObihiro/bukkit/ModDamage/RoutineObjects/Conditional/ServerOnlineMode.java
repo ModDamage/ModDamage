@@ -14,17 +14,17 @@ public class ServerOnlineMode extends ServerConditionalStatement<Boolean>
 		super(inverted, true);
 	}
 	@Override
-	public boolean condition(TargetEventInfo eventInfo){ return (inverted?!server.getOnlineMode():server.getOnlineMode());}
+	public boolean condition(TargetEventInfo eventInfo){ return server.getOnlineMode();}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, ServerOnlineMode.class, Pattern.compile("(!)?server\\.onlineModeEnabled", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, ServerOnlineMode.class, Pattern.compile("(!?)server\\.onlineModeEnabled", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static ServerOnlineMode getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new ServerOnlineMode(matcher.group(1) != null);
+			return new ServerOnlineMode(matcher.group(1).equalsIgnoreCase("!"));
 		return null;
 	}
 }

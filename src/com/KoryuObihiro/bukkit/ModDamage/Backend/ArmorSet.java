@@ -12,12 +12,12 @@ public class ArmorSet
 	
 	public ArmorSet(Player player)
 	{
-		for(ItemStack stack : player.getInventory().getArmorContents())
-			if(!this.put(stack.getType()))
-			{
-				clear();
-				break;
-			}
+		ItemStack[] equipment = player.getInventory().getArmorContents();
+		for(int i = 0; i < equipment.length; i++)
+		{
+			Material material = equipment[i].getType();
+			this.put(material);
+		}
 	}
 	
 	public ArmorSet(String armorConfigString)
@@ -39,6 +39,7 @@ public class ArmorSet
 		if(armorType != null)
 			switch(armorType)
 			{
+				case EMPTY: return true;
 				case HELMET:
 					if(armorSet[0] == null) armorSet[0] = material;
 					else return false;
@@ -74,21 +75,25 @@ public class ArmorSet
 		if(this.isEmpty()) return true;
 		if(someArmorSet.isEmpty()) return false;		
 		for(int i = 0; i < 4; i++)
-			if(armorSet[i] != null && !armorSet[i].equals(someArmorSet.get(i)))
-				return false;
+			if(armorSet[i] != null)
+				if(!armorSet[i].equals(someArmorSet.get(i)))
+					return false;
 		return true;
 	}
 	
 	public boolean equals(ArmorSet someArmorSet)
 	{
-		if(hasSomething)
+		for(int i = 0; i < 4; i++)
 		{
-			for(int i = 0; i < 4; i++)
+			if(armorSet != null)
+			{
 				if(!armorSet[i].equals(someArmorSet.get(i)))
 					return false;
-			return true;
+			}
+			else if(someArmorSet.get(i) != null)
+				return false;
 		}
-		return false;
+		return true;
 	}
 	
 	public void clear()
@@ -96,64 +101,62 @@ public class ArmorSet
 		for(int i = 0; i < armorSet.length; i++)
 			armorSet[i] = null;
 		hasSomething = false;
-		//inclusive = true;
 	}
 	
 	public boolean isEmpty(){ return !hasSomething;}
 	
 	@Override
-	public String toString()//TODO Format better, mebbe?
+	public String toString()
 	{
+		String output = "[";
 		if(hasSomething)
 		{
-			String output = "[";
 			for(Material material : armorSet)
 				if(material != null)
 					output += material.name() + " ";
-			return output + "]";
 		}
-		return "";
+		return output + "]";
 	}
 	
 	public Material[] toMaterialArray(){ return armorSet;}
 	
 	private enum ArmorElement
 	{
-		HELMET, CHESTPLATE, LEGGINGS, BOOTS;
+		EMPTY, HELMET, CHESTPLATE, LEGGINGS, BOOTS;
 		
 		private static ArmorElement matchElement(Material material)
 		{
-			if(material != null)
-				switch(material)
-				{
-				//Headwear
-					case LEATHER_HELMET:
-					case IRON_HELMET:
-					case GOLD_HELMET:
-					case DIAMOND_HELMET:
-					case CHAINMAIL_HELMET:		return HELMET;
-				//Chest
-					case LEATHER_CHESTPLATE:
-					case IRON_CHESTPLATE:
-					case GOLD_CHESTPLATE:
-					case DIAMOND_CHESTPLATE:
-					case CHAINMAIL_CHESTPLATE:	return CHESTPLATE;
-				//Legs
-					case LEATHER_LEGGINGS:
-					case IRON_LEGGINGS:
-					case GOLD_LEGGINGS:
-					case DIAMOND_LEGGINGS:
-					case CHAINMAIL_LEGGINGS:	return LEGGINGS;
-				//Boots
-					case LEATHER_BOOTS:
-					case IRON_BOOTS:
-					case GOLD_BOOTS:
-					case DIAMOND_BOOTS:
-					case CHAINMAIL_BOOTS:		return BOOTS;
-					
-					default:					return null;
-				}
-			return null;
+			switch(material)
+			{
+			//Headwear
+				case LEATHER_HELMET:
+				case IRON_HELMET:
+				case GOLD_HELMET:
+				case DIAMOND_HELMET:
+				case CHAINMAIL_HELMET:		return HELMET;
+			//Chest
+				case LEATHER_CHESTPLATE:
+				case IRON_CHESTPLATE:
+				case GOLD_CHESTPLATE:
+				case DIAMOND_CHESTPLATE:
+				case CHAINMAIL_CHESTPLATE:	return CHESTPLATE;
+			//Legs
+				case LEATHER_LEGGINGS:
+				case IRON_LEGGINGS:
+				case GOLD_LEGGINGS:
+				case DIAMOND_LEGGINGS:
+				case CHAINMAIL_LEGGINGS:	return LEGGINGS;
+			//Boots
+				case LEATHER_BOOTS:
+				case IRON_BOOTS:
+				case GOLD_BOOTS:
+				case DIAMOND_BOOTS:
+				case CHAINMAIL_BOOTS:		return BOOTS;
+				
+				default:
+					if(material != null) return null;
+					return EMPTY;
+			}
 		}
 	}
 }

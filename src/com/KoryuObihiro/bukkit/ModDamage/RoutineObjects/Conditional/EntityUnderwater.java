@@ -32,13 +32,13 @@ public class EntityUnderwater extends EntityConditionalStatement<Material[]>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityUnderwater.class, Pattern.compile("(!)?(\\w+)\\.underwater", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityUnderwater.class, Pattern.compile("(!?)(\\w+)\\.underwater", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityUnderwater getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new EntityUnderwater(matcher.group(1) != null, (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false);
+			return new EntityUnderwater(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false);
 		return null;
 	}
 }

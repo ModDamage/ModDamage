@@ -2,7 +2,6 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.bukkit.craftbukkit.entity.CraftCreeper;
 import org.bukkit.craftbukkit.entity.CraftSlime;
@@ -64,6 +63,8 @@ GENERIC ("generic", null),
 			MOB_SLIME_OTHER("Slime_Other", MOB_SLIME),
 			MOB_SLIME_SMALL("Slime_Small", MOB_SLIME),
 		MOB_SPIDER ("Spider", GENERIC_MOB),
+			MOB_SPIDER_JOCKEY("Spider_Jockey", MOB_SPIDER),
+			MOB_SPIDER_RIDERLESS("Spider_Riderless", MOB_SPIDER),
 		MOB_ZOMBIE ("Zombie", GENERIC_MOB),
 	
 	GENERIC_NATURE 	("Nature", GENERIC),
@@ -173,8 +174,7 @@ GENERIC ("generic", null),
 				if(entity instanceof Skeleton)	return MOB_SKELETON;
 				if(entity instanceof Spider)
 				{
-					if(entity.getPassenger() != null)
-						Logger.getLogger("Minecraft").info("Found a SPIDER JOCKAY :D");//TODO REMOVE ME
+					if(entity.getPassenger() != null) return MOB_SPIDER_JOCKEY;
 					return MOB_SPIDER; 
 				}
 			}
