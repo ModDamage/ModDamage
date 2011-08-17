@@ -28,7 +28,11 @@ public class WorldEnvironment extends WorldConditionalStatement
 	public static WorldEnvironment getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new WorldEnvironment(matcher.group(1).equalsIgnoreCase("!"), ModDamage.matchEnvironment(matcher.group(3)));
+		{
+			Environment environment = ModDamage.matchEnvironment(matcher.group(2));
+			if(environment != null)
+				return new WorldEnvironment(matcher.group(1).equalsIgnoreCase("!"), environment);
+		}
 		return null;
 	}
 }

@@ -4,9 +4,14 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+
 public class ArmorSet 
 {
 	//private boolean inclusive = true;
+	private boolean isValid = true;
 	private boolean hasSomething = false;
 	protected Material armorSet[] = new Material[4];
 	
@@ -16,18 +21,21 @@ public class ArmorSet
 		for(int i = 0; i < equipment.length; i++)
 		{
 			Material material = equipment[i].getType();
-			this.put(material);
+			if(!this.put(material))
+				ModDamage.log.severe("Invalid ArmorSet loaded from player \"" + player.getName() + "\" while attempting to add material of type " + material.name() + "!");
 		}
 	}
 	
-	public ArmorSet(String armorConfigString)
+	public ArmorSet(String armorSetString)
 	{
-		String parts[] = armorConfigString.split("\\*");
+		String parts[] = armorSetString.split("\\*");
 		for(String part : parts)
 		{
-			if(!this.put(Material.matchMaterial(part)))
+			Material material = Material.matchMaterial(part);
+			if(material == null || !this.put(material))
 			{
-				clear();
+				isValid = false;
+				ModDamage.addToConfig(DebugSetting.QUIET, 0, "Invalid ArmorSet \"" + armorSetString + "\"", LoadState.FAILURE);
 				break;
 			}
 		}
@@ -68,7 +76,7 @@ public class ArmorSet
 		
 	}
 	
-	public Material get(int i){ return armorSet[i];}
+	private Material get(int i){ return armorSet[i];}
 	
 	public boolean contains(ArmorSet someArmorSet)
 	{
@@ -85,7 +93,7 @@ public class ArmorSet
 	{
 		for(int i = 0; i < 4; i++)
 		{
-			if(armorSet != null)
+			if(armorSet[i] != null)
 			{
 				if(!armorSet[i].equals(someArmorSet.get(i)))
 					return false;
@@ -96,14 +104,9 @@ public class ArmorSet
 		return true;
 	}
 	
-	public void clear()
-	{
-		for(int i = 0; i < armorSet.length; i++)
-			armorSet[i] = null;
-		hasSomething = false;
-	}
+	public boolean isValid(){ return isValid;}
 	
-	public boolean isEmpty(){ return !hasSomething;}
+	private boolean isEmpty(){ return !hasSomething;}
 	
 	@Override
 	public String toString()
@@ -153,9 +156,7 @@ public class ArmorSet
 				case DIAMOND_BOOTS:
 				case CHAINMAIL_BOOTS:		return BOOTS;
 				
-				default:
-					if(material != null) return null;
-					return EMPTY;
+				default:					return EMPTY;
 			}
 		}
 	}

@@ -42,10 +42,7 @@ public class ArmorSetSwitch extends EntitySwitchRoutine<List<ArmorSet>>
 	public static ArmorSetSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
 		if(matcher != null && switchStatements != null)
-		{
-			boolean forAttacker = (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false;
-			return new ArmorSetSwitch(forAttacker, switchStatements);
-		}
+			return new ArmorSetSwitch((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, switchStatements);
 		return null;
 	}
 

@@ -1,10 +1,10 @@
 name: ModDamage
 main: com.KoryuObihiro.bukkit.ModDamage.ModDamage
-version: 0.9.5 RC1
+version: 0.9.5 RC2
 authors: [KoryuObihiro]
 description: |
-    Completely configure damage in your worlds with ModDamage
+    Completely customize damage in Bukkit with ModDamage!
 commands:
   moddamage: 
-    aliases: [md, mda]
+    aliases: [md]
     description:

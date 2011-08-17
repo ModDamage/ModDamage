@@ -18,7 +18,7 @@ public class ServerOnlineMode extends ServerConditionalStatement<Boolean>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, ServerOnlineMode.class, Pattern.compile("(!?)server\\.onlineModeEnabled", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, ServerOnlineMode.class, Pattern.compile("(!?)server\\.onlineMode", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static ServerOnlineMode getNew(Matcher matcher)

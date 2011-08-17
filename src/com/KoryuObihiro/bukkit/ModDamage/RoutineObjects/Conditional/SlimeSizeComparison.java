@@ -21,7 +21,7 @@ public class SlimeSizeComparison extends EntityComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, SlimeSizeComparison.class, Pattern.compile("(!?)(\\w+)size\\.(\\w+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, SlimeSizeComparison.class, Pattern.compile("(!?)(\\w+)\\.size\\.(\\w+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static SlimeSizeComparison getNew(Matcher matcher)

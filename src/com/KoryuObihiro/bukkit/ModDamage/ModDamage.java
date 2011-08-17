@@ -89,6 +89,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearin
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearingOnly;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.SlimeSizeComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldTimeComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
@@ -210,9 +211,9 @@ public class ModDamage extends JavaPlugin
 	static boolean negative_Heal;
 	
 //Predefined pattern strings
-	public static final String statementPart = "(?:!?(?:\\w+)(?:\\.\\w+)*)";
-	private static Pattern conditionalPattern = Pattern.compile("(if|if_not)\\s+(" + statementPart + "(?:\\s+(\\w+)\\s+" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
-	private static Pattern effectPattern = Pattern.compile("((\\w+)effect\\." + statementPart + ")", Pattern.CASE_INSENSITIVE);
+	public static final String statementPart = "(?:!?(?:[\\*\\w]+)(?:\\.[\\*\\w]+)*)";
+	private static Pattern conditionalPattern = Pattern.compile("(if|if_not)\\s+(" + statementPart + "(?:\\s+([\\*\\w]+)\\s+" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
+	private static Pattern effectPattern = Pattern.compile("(([\\*\\w]+)effect\\." + statementPart + ")", Pattern.CASE_INSENSITIVE);
 	private static Pattern switchPattern = Pattern.compile("switch\\.(" + statementPart + ")", Pattern.CASE_INSENSITIVE);
 	
 	private static HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
@@ -357,6 +358,7 @@ public class ModDamage extends JavaPlugin
 		PlayerWearing.register(this);
 		PlayerWearingOnly.register(this);
 		PlayerWielding.register(this);
+		SlimeSizeComparison.register(this);
 		//World
 		WorldTimeComparison.register(this);
 		WorldEnvironment.register(this);
