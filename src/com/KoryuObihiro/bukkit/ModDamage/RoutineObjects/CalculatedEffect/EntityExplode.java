@@ -16,7 +16,7 @@ public class EntityExplode extends EntityCalculatedEffectRoutine
 	@Override
 	protected void applyEffect(LivingEntity affectedObject, int input) 
 	{
-		affectedObject.getWorld().createExplosion(affectedObject.getLocation(), input);
+		affectedObject.getWorld().createExplosion(affectedObject.getLocation(), (float)input/10);
 	}
 	
 	public static void register(ModDamage routineUtility)

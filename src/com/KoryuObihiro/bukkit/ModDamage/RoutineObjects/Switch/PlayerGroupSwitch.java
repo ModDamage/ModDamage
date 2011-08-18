@@ -20,7 +20,13 @@ public class PlayerGroupSwitch extends EntitySwitchRoutine<List<String>>
 	@Override
 	protected List<String> getRelevantInfo(TargetEventInfo eventInfo){ return (forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).groups_attacker:eventInfo.groups_target;}
 	@Override
-	protected boolean compare(List<String> info_1, List<String> info_2){ return info_2.contains(info_1.get(0));}
+	protected boolean compare(List<String> playerGroups, List<String> caseGroups)
+	{ 
+		for(String group : playerGroups)
+			if(caseGroups.contains(group))
+				return true;
+		return false;
+	}
 	@Override
 	protected List<String> matchCase(String switchCase){ return ModDamage.matchGroupAlias(switchCase);}
 	

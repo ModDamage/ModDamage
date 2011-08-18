@@ -537,10 +537,17 @@ public class ModDamage extends JavaPlugin
 	protected void clear() 
 	{
 		damageRoutines.clear();
+		deathRoutines.clear();
+		foodRoutines.clear();
 		spawnRoutines.clear();
+		armorAliaser.clear();
+		biomeAliaser.clear();
+		elementAliaser.clear();
+		groupAliaser.clear();
 		itemAliaser.clear();
-		
-		state_routines = state_damageRoutines = state_spawnRoutines = state_aliases = state_itemAliases = state_messageAliases = LoadState.NOT_LOADED; //TODO UPDATE
+		messageAliaser.clear();
+		worldAliaser.clear();
+		state_routines = state_damageRoutines = state_deathRoutines = state_foodRoutines = state_spawnRoutines = state_aliases = state_armorAliases = state_biomeAliases = state_elementAliases = state_groupAliases = state_itemAliases = state_messageAliases = state_worldAliases = LoadState.NOT_LOADED;
 		configStrings_ingame.clear();
 		configStrings_console.clear();
 	}
@@ -651,9 +658,10 @@ public class ModDamage extends JavaPlugin
 		
 	//routines
 		state_damageRoutines = loadRoutines("Damage", damageRoutines);
-		state_spawnRoutines = loadRoutines("MobHealth", spawnRoutines);
+		state_deathRoutines = loadRoutines("Death", deathRoutines);
 		state_foodRoutines = loadRoutines("Food", foodRoutines);
-		state_routines = LoadState.combineStates(state_damageRoutines, state_foodRoutines, state_spawnRoutines);
+		state_spawnRoutines = loadRoutines("Spawn", spawnRoutines);
+		state_routines = LoadState.combineStates(state_damageRoutines, state_deathRoutines, state_foodRoutines, state_spawnRoutines);
 
 		state_plugin = LoadState.combineStates(state_aliases, state_routines);
 		
@@ -707,7 +715,7 @@ public class ModDamage extends JavaPlugin
 		if(routineObjects != null)
 		{
 			relevantState = LoadState.SUCCESS;
-			addToConfig(DebugSetting.VERBOSE, 0, loadType + " configuration found, parsing...", LoadState.SUCCESS);
+			addToConfig(DebugSetting.NORMAL, 0, loadType.toUpperCase() + " configuration:", LoadState.SUCCESS);
 			LoadState[] stateMachine = {relevantState};//We use a single-cell array here because the enum is ASSIGNED later - this doesn't work if we want to operate by reference.
 			List<Routine> calculations = parse(routineObjects, loadType, stateMachine);
 			relevantState = stateMachine[0];
@@ -715,8 +723,9 @@ public class ModDamage extends JavaPlugin
 			if(!calculations.isEmpty() && !relevantState.equals(LoadState.FAILURE))
 			{
 				routineList.addAll(calculations);
-				relevantState = LoadState.SUCCESS;
+				addToConfig(DebugSetting.NORMAL, 0, "End " + loadType.toUpperCase() + " configuration.", LoadState.SUCCESS);
 			}
+			else addToConfig(DebugSetting.QUIET, 0, "Error in " + loadType.toUpperCase() + " configuration.", LoadState.FAILURE);
 		}
 		return relevantState;
 	}

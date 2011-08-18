@@ -61,8 +61,21 @@ public class ModDamageEntityListener extends EntityListener
 	{
 		if(ModDamage.isEnabled && event.getEntity() instanceof LivingEntity)
 		{
-			LivingEntity entity = (LivingEntity)event.getEntity();
-			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), 0, null);
+			LivingEntity ent_damaged = (LivingEntity)event.getEntity();
+		    EntityDamageEvent nEvent = ent_damaged.getLastDamageCause();
+		    AttackerEventInfo eventInfo = null;
+	    	if(ModDamageElement.matchNonlivingElement(nEvent.getCause()) != null)
+	    		eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.matchNonlivingElement(nEvent.getCause()), null, 0);
+	    	else if(nEvent instanceof EntityDamageByEntityEvent)
+	    	{
+	    		EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)nEvent;
+	    		RangedElement rangedElement = RangedElement.matchElement(event_EE.getDamager());
+	    		LivingEntity ent_damager = (rangedElement != null?((Projectile)event_EE.getDamager()).getShooter():(LivingEntity)event_EE.getDamager());
+	    		if(ent_damager != null) eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), ent_damager, ModDamageElement.matchMobType(ent_damager), rangedElement, 0);
+	    		else if(rangedElement != null && nEvent.getCause().equals(DamageCause.ENTITY_ATTACK))
+    			eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.TRAP_DISPENSER, rangedElement, 0);
+	    	}
+	    	else{ ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled death event. Is Bukkit and ModDamage up-to-date?");}
 			
 			for(Routine routine : ModDamage.deathRoutines)
 				routine.run(eventInfo);
@@ -77,7 +90,7 @@ public class ModDamageEntityListener extends EntityListener
 		{
 			LivingEntity entity = (LivingEntity)event.getEntity();
 			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), event.getAmount(), null);
-				
+
 			for(Routine routine : ModDamage.foodRoutines)
 				routine.run(eventInfo);
 		}
@@ -100,5 +113,5 @@ public class ModDamageEntityListener extends EntityListener
 		}
 	}
 	
-	//TODO onProjectileHit when next RB comes out (currently 1000)
+	//TODO onProjectileHit when next RB comes out (currently 1060)
 }

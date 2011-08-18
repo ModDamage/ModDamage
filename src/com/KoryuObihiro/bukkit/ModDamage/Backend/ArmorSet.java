@@ -91,6 +91,7 @@ public class ArmorSet
 	
 	public boolean equals(ArmorSet someArmorSet)
 	{
+		if(someArmorSet == null) return false;
 		for(int i = 0; i < 4; i++)
 		{
 			if(armorSet[i] != null)
