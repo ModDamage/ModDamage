@@ -24,7 +24,7 @@ public enum LogicalOperation
 			case OR:	return operand_1 || operand_2;
 			case NOR:	return !operand_1 && !operand_2;
 			case NAND:	return !operand_1 || !operand_2;
-			case XOR:	return operand_1 | operand_2;
+			case XOR:	return operand_1 ^ operand_2;
 			default:return false;
 		}
 	}
