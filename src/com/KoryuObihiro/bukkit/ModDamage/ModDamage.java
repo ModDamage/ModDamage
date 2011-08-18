@@ -693,6 +693,8 @@ public class ModDamage extends JavaPlugin
 		log.severe("[" + getDescription().getName() + "] No configuration file found! Writing a blank config...");
 		config.setProperty("debugging", "normal");
 		config.setProperty("Damage", null);
+		config.setProperty("Death", null);
+		config.setProperty("Food", null);
 		config.setProperty("Spawn", null);
 		
 		String[][] toolAliases = { {"axe", "hoe", "pickaxe", "spade", "sword"}, {"WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_"}};
