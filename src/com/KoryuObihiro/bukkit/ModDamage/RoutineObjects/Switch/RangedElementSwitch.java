@@ -20,12 +20,11 @@ public class RangedElementSwitch extends SwitchRoutine<RangedElement>
 	@Override
 	protected RangedElement getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.rangedElement;}
 	@Override
-	protected RangedElement
-	matchCase(String switchCase){ return RangedElement.matchElement(switchCase);}
+	protected RangedElement matchCase(String switchCase){ return RangedElement.matchElement(switchCase);}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		SwitchRoutine.registerStatement(routineUtility, RangedElementSwitch.class, Pattern.compile("rangedElement", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(routineUtility, RangedElementSwitch.class, Pattern.compile("event\\.rangedElement", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static RangedElementSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

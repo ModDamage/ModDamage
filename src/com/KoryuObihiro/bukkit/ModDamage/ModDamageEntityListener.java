@@ -43,7 +43,7 @@ public class ModDamageEntityListener extends EntityListener
 					else if(rangedElement != null && event.getCause().equals(DamageCause.ENTITY_ATTACK))
 						eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.TRAP_DISPENSER, rangedElement, event.getDamage());
 				}
-				else{ ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");}
+				else ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
 				
 				for(Routine routine : ModDamage.damageRoutines)
 					routine.run(eventInfo);
@@ -75,7 +75,7 @@ public class ModDamageEntityListener extends EntityListener
 	    		else if(rangedElement != null && nEvent.getCause().equals(DamageCause.ENTITY_ATTACK))
     			eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.TRAP_DISPENSER, rangedElement, 0);
 	    	}
-	    	else{ ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled death event. Is Bukkit and ModDamage up-to-date?");}
+	    	else ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled death event. Is Bukkit and ModDamage up-to-date?");
 			
 			for(Routine routine : ModDamage.deathRoutines)
 				routine.run(eventInfo);

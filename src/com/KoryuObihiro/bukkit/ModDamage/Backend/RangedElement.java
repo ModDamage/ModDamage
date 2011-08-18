@@ -15,9 +15,9 @@ public enum RangedElement
 	{
 		if(entity instanceof CraftArrow)	return BOW;
 		if(entity instanceof CraftEgg)		return EGG;
-		if(entity instanceof CraftSnowball)	return SNOWBALL;
 		if(entity instanceof CraftFireball)	return FIREBALL;
 		if(entity instanceof CraftFish)		return FISHINGROD; 
+		if(entity instanceof CraftSnowball)	return SNOWBALL;
 		return null;
 	}
 	public static RangedElement matchElement(String key)
