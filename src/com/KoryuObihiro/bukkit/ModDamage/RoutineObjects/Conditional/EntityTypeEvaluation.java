@@ -18,7 +18,7 @@ public class EntityTypeEvaluation extends EntityConditionalStatement<List<ModDam
 	}
 	@Override
 	public boolean condition(TargetEventInfo eventInfo)
-	{ 
+	{
 		for(ModDamageElement element : value)
 			if((shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).element_attacker:eventInfo.element_target).matchesType(element))
 				return true;
@@ -29,7 +29,7 @@ public class EntityTypeEvaluation extends EntityConditionalStatement<List<ModDam
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityTypeEvaluation.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "type\\." + ModDamage.elementRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityTypeEvaluation.class, Pattern.compile("(!?)(\\w+)\\.type\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityTypeEvaluation getNew(Matcher matcher)
@@ -38,7 +38,7 @@ public class EntityTypeEvaluation extends EntityConditionalStatement<List<ModDam
 		{
 			List<ModDamageElement> elements = ModDamage.matchElementAlias(matcher.group(3));
 			if(!elements.isEmpty())
-				return new EntityTypeEvaluation(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), elements);
+				return new EntityTypeEvaluation(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, elements);
 		}
 		return null;
 	}

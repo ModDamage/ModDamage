@@ -7,7 +7,7 @@ public class MessageAliaser extends Aliaser<String>
 	public MessageAliaser() {super("Message");}
 
 	@Override
-	protected String matchNonAlias(String key){ return key;}
+	protected String matchNonAlias(String key){ return key;} //TODO 0.9.5 Add color.
 
 	@Override
 	protected String getObjectName(String object){ return object;}

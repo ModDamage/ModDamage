@@ -29,7 +29,7 @@ public class EntityDropItem extends EntityCalculatedEffectRoutine
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntityDropItem.class, Pattern.compile(ModDamage.entityRegex + "effect\\.dropItem\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntityDropItem.class, Pattern.compile("(\\w+)effect\\.dropItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityDropItem getNew(Matcher matcher, List<Routine> routines)
@@ -38,7 +38,7 @@ public class EntityDropItem extends EntityCalculatedEffectRoutine
 		{
 			List<Material> materials =  ModDamage.matchItemAlias(matcher.group(2));
 			if(!materials.isEmpty())
-				return new EntityDropItem(matcher.group(1).equalsIgnoreCase("attacker"), materials, routines);
+				return new EntityDropItem((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, materials, routines);
 		}
 		return null;
 	}

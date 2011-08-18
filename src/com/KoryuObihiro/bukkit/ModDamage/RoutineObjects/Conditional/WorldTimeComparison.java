@@ -23,13 +23,17 @@ public class WorldTimeComparison extends WorldConditionalStatement
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, WorldTimeComparison.class, Pattern.compile("(!?)worldtime\\." + ModDamage.comparisonRegex + "\\.([0-9]{1,5})", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, WorldTimeComparison.class, Pattern.compile("(!?)event\\.time\\.(\\w+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static WorldTimeComparison getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new WorldTimeComparison(matcher.group(1) != null, ComparisonType.matchType(matcher.group(2)), Integer.parseInt(matcher.group(3)));
+		{
+			ComparisonType comparisonType = ComparisonType.matchType(matcher.group(2));
+			if(comparisonType != null)
+				return new WorldTimeComparison(matcher.group(1).equalsIgnoreCase("!"), comparisonType, Integer.parseInt(matcher.group(3)));
+		}
 		return null;
 	}
 }

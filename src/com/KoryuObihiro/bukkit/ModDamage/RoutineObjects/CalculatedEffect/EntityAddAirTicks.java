@@ -24,13 +24,13 @@ public class EntityAddAirTicks extends EntityCalculatedEffectRoutine
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntityAddAirTicks.class, Pattern.compile(ModDamage.entityRegex + "effect\\.addAirTicks", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntityAddAirTicks.class, Pattern.compile("(\\w+)effect\\.addAirTicks", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityAddAirTicks getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new EntityAddAirTicks(matcher.group(1).equalsIgnoreCase("attacker"), routines);
+			return new EntityAddAirTicks((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
 		return null;
 	}
 

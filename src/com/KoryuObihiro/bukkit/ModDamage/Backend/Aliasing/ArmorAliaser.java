@@ -12,7 +12,7 @@ public class ArmorAliaser extends Aliaser<ArmorSet>
 	protected ArmorSet matchNonAlias(String key)
 	{ 
 		ArmorSet armorSet = new ArmorSet(key);
-		return (armorSet.isEmpty()?null:armorSet);
+		return (armorSet.isValid()?armorSet:null);
 	}
 
 	@Override

@@ -21,13 +21,13 @@ public class EntitySetHealth extends EntityCalculatedEffectRoutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntitySetHealth.class, Pattern.compile(ModDamage.entityRegex + "effect\\.sethealth", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntitySetHealth.class, Pattern.compile("(\\w+)effect\\.sethealth", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntitySetHealth getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new EntitySetHealth(matcher.group(1).equalsIgnoreCase("attacker"), routines);
+			return new EntitySetHealth((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
 		return null;
 	}
 }

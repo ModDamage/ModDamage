@@ -14,14 +14,18 @@ public class PlayerWearingOnly extends EntityConditionalStatement<List<ArmorSet>
 {
 	public PlayerWearingOnly(boolean inverted, boolean forAttacker, List<ArmorSet> armorSetList)
 	{  
-		super(forAttacker, forAttacker, armorSetList);
+		super(inverted, forAttacker, armorSetList);
 	}
 	@Override
 	public boolean condition(TargetEventInfo eventInfo)
 	{
-		for(ArmorSet armorSet : value)
-			if(shouldGetAttacker(eventInfo)?armorSet.equals(((AttackerEventInfo)eventInfo).armorSet_attacker):(armorSet.equals(eventInfo.armorSet_target)))
-				return true;
+		if((shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).armorSet_attacker:eventInfo.armorSet_target) != null)
+		{
+			ArmorSet playerSet = (shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).armorSet_attacker:eventInfo.armorSet_target);
+			for(ArmorSet armorSet : value)
+				if(armorSet.equals(playerSet))
+					return true;
+		}
 		return false;
 	}
 	@Override
@@ -29,7 +33,7 @@ public class PlayerWearingOnly extends EntityConditionalStatement<List<ArmorSet>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWearingOnly.class, Pattern.compile(ModDamage.entityRegex + "\\.wearingonly\\." + ModDamage.armorRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, PlayerWearingOnly.class, Pattern.compile("(!?)(\\w+)\\.wearingonly\\.([\\*\\w]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerWearingOnly getNew(Matcher matcher)
@@ -37,8 +41,8 @@ public class PlayerWearingOnly extends EntityConditionalStatement<List<ArmorSet>
 		if(matcher != null)
 		{
 			List<ArmorSet> armorSetList = ModDamage.matchArmorAlias(matcher.group(3));
-			if(armorSetList.isEmpty())
-				return new PlayerWearingOnly(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), armorSetList);
+			if(!armorSetList.isEmpty())
+				return new PlayerWearingOnly(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2))?ModDamage.matchEntity(matcher.group(2)):false), armorSetList);
 		}
 		return null;
 	}

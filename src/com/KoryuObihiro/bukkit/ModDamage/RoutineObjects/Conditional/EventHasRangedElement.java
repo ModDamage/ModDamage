@@ -19,14 +19,15 @@ public class EventHasRangedElement extends ConditionalStatement
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EventHasRangedElement.class, Pattern.compile("(!)?hasrangedelement" + ModDamage.rangedElementRegex, Pattern.CASE_INSENSITIVE));
+		//FIXME TESTING Furthest point of integration right now.
+		ConditionalRoutine.registerStatement(routineUtility, EventHasRangedElement.class, Pattern.compile("(!?)event\\.hasrangedelement", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EventHasRangedElement getNew(Matcher matcher)
 	{
 		if(matcher != null)
 		{
-			return new EventHasRangedElement(matcher.group(1) != null);
+			return new EventHasRangedElement(matcher.group(1).equalsIgnoreCase("!"));
 		}
 		return null;
 	}

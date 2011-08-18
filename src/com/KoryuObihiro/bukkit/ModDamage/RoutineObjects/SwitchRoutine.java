@@ -26,7 +26,7 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 		for(String switchCase : switchStatements.keySet())
 		{
 			InfoType matchedCase = matchCase(switchCase);
-			if(matchedCase != null)
+			if(matchedCase != null && (matchedCase instanceof List?!((List<?>)matchedCase).isEmpty():true))
 				container.put(matchCase(switchCase), switchStatements.get(switchCase));
 			else
 			{

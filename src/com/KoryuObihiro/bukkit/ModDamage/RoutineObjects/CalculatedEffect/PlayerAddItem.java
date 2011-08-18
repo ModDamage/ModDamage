@@ -29,7 +29,7 @@ public class PlayerAddItem extends PlayerCalculatedEffectRoutine
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(PlayerAddItem.class, Pattern.compile(ModDamage.entityRegex + "effect\\.addItem\\." + ModDamage.materialRegex, Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(PlayerAddItem.class, Pattern.compile("(\\w+)effect\\.addItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerAddItem getNew(Matcher matcher, List<Routine> routines)
@@ -38,7 +38,7 @@ public class PlayerAddItem extends PlayerCalculatedEffectRoutine
 		{
 			List<Material> materials = ModDamage.matchItemAlias(matcher.group(2));
 			if(!materials.isEmpty())
-				return new PlayerAddItem(matcher.group(1).equalsIgnoreCase("attacker"), materials, routines);
+				return new PlayerAddItem((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, materials, routines);
 		}
 		return null;
 	}

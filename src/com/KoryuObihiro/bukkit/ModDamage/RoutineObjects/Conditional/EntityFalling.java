@@ -16,13 +16,13 @@ public class EntityFalling extends EntityFallComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityFalling.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.falling", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityFalling.class, Pattern.compile("(!?)(\\w+)\\.falling", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityFalling getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new EntityFalling(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"));
+			return new EntityFalling(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false);
 		return null;
 	}
 }

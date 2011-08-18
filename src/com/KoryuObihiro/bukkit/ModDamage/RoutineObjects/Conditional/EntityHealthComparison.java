@@ -3,6 +3,8 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.LivingEntity;
+
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
@@ -15,17 +17,21 @@ public class EntityHealthComparison extends EntityComparison
 		super(inverted, forAttacker, health, comparisonType);
 	}
 	@Override
-	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.getRelevantEntity(forAttacker).getHealth();}
+	protected Integer getRelevantInfo(TargetEventInfo eventInfo){ return (eventInfo.getRelevantEntity(forAttacker) instanceof LivingEntity)?eventInfo.getRelevantEntity(forAttacker).getHealth():null;}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityHealthComparison.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.health" + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityHealthComparison.class, Pattern.compile("(!?)(\\w+)\\.health\\.(\\w+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityHealthComparison getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new EntityHealthComparison(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), Integer.parseInt(matcher.group(4)), ComparisonType.matchType(matcher.group(3)));
+		{
+			ComparisonType comparisonType = ComparisonType.matchType(matcher.group(3));
+			if(comparisonType != null)
+				return new EntityHealthComparison(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, Integer.parseInt(matcher.group(4)), comparisonType);
+		}
 		return null;
 	}
 }

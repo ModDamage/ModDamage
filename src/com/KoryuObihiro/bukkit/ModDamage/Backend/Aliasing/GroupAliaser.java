@@ -10,5 +10,5 @@ public class GroupAliaser extends Aliaser<String>
 	protected String matchNonAlias(String key){ return key;}
 
 	@Override
-	protected String getObjectName(String object){ return "\"" + object.substring(0, 8) + "\"";}
+	protected String getObjectName(String groupName){ return "\"" + (groupName.length() > 8?groupName.substring(0, 8):groupName) + "\"";}
 }

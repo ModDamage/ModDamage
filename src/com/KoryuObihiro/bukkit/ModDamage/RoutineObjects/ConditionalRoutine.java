@@ -32,8 +32,8 @@ public class ConditionalRoutine extends Routine
 	{
 		boolean result = statements.get(0).condition(eventInfo);
 		for(int i = 1; i < statements.size(); i++)
-			 result = logicalOperations.get(i - 1).operate(result, statements.get(i).condition(eventInfo));
-		if(result | inverted) 
+			 result = logicalOperations.get(i - 1).operate(result, statements.get(i).condition(eventInfo) ^ statements.get(i).inverted);
+		if(result ^ inverted) 
 			for(Routine routine : routines)
 				routine.run(eventInfo);
 	}

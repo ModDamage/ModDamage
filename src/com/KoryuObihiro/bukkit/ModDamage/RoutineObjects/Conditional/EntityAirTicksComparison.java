@@ -19,13 +19,17 @@ public class EntityAirTicksComparison extends EntityComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityAirTicksComparison.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.airticks\\." + ModDamage.comparisonRegex + "\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityAirTicksComparison.class, Pattern.compile("(!?)(\\w+)\\.airticks\\.(\\w+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityAirTicksComparison getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new EntityAirTicksComparison(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"), Integer.parseInt(matcher.group(4)), ComparisonType.matchType(matcher.group(3)));
+		{
+			ComparisonType comparisonType = ComparisonType.matchType(matcher.group(3));
+			if(comparisonType != null)
+				return new EntityAirTicksComparison(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, Integer.parseInt(matcher.group(4)), comparisonType);
+		}
 		return null;
 	}
 }

@@ -27,7 +27,7 @@ public class EntityExposedToSky extends EntityConditionalStatement<Boolean>
 	{
 		int i = entity.getLocation().getBlockX();
 		int k = entity.getLocation().getBlockZ();
-		for(int j = entity.getLocation().getBlockY(); j < 128; j++)
+		for(int j = entity.getEyeLocation().getBlockY(); j < 128; j++)
 			switch(world.getBlockAt(i, j, k).getType())
 			{
 				case AIR: 
@@ -37,20 +37,21 @@ public class EntityExposedToSky extends EntityConditionalStatement<Boolean>
 				case LEVER:
 				case STONE_BUTTON:
 				case WALL_SIGN:
-				case GLASS: return false;
+				case GLASS: continue;
+				default: return false;
 			}
 		return true;
 	}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityExposedToSky.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.exposedtosky", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityExposedToSky.class, Pattern.compile("(!?)(\\w+)\\.exposedtosky", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityExposedToSky getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new EntityExposedToSky(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"));
+			return new EntityExposedToSky(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false);
 		return null;
 	}
 

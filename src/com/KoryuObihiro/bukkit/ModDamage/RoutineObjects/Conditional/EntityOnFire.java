@@ -16,13 +16,13 @@ public class EntityOnFire extends EntityFireTicksComparison
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityOnFire.class, Pattern.compile("(!)?" + ModDamage.entityRegex + "\\.onfire", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EntityOnFire.class, Pattern.compile("(!?)(\\w+)\\.onfire", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityOnFire getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new EntityOnFire(matcher.group(1) != null, matcher.group(2).equalsIgnoreCase("attacker"));
+			return new EntityOnFire(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false);
 		return null;
 	}
 }

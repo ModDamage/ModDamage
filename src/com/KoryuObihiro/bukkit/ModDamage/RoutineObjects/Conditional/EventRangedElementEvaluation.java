@@ -22,7 +22,7 @@ public class EventRangedElementEvaluation extends ConditionalStatement
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EventRangedElementEvaluation.class, Pattern.compile("(!)?rangedelement\\." + ModDamage.rangedElementRegex, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(routineUtility, EventRangedElementEvaluation.class, Pattern.compile("(!?)event\\.rangedelement\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EventRangedElementEvaluation getNew(Matcher matcher)
@@ -30,7 +30,7 @@ public class EventRangedElementEvaluation extends ConditionalStatement
 		if(matcher != null)
 		{
 			RangedElement element = RangedElement.matchElement(matcher.group(2));
-			return new EventRangedElementEvaluation(matcher.group(1) != null, element);
+			return new EventRangedElementEvaluation(matcher.group(1).equalsIgnoreCase("!"), element);
 		}
 		return null;
 	}

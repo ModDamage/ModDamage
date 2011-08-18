@@ -26,7 +26,6 @@ import org.bukkit.util.config.Configuration;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ArmorAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.BiomeAliaser;
@@ -36,10 +35,8 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ItemAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.WorldAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.LogicalOperation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
@@ -80,10 +77,11 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnBloc
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnFire;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTypeEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityUnderwater;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventHasRangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventRangedElementEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventValueComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerCountComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerPlayerCountComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerGroupEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSleeping;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSneaking;
@@ -91,6 +89,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearin
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearingOnly;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.SlimeSizeComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldTimeComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
@@ -101,7 +100,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerGroupSwitch
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.RangedElementSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
-import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.mysql.jdbc.AssertionFailedException;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
@@ -114,13 +112,11 @@ import com.nijikokun.bukkit.Permissions.Permissions;
  */
 public class ModDamage extends JavaPlugin
 {
-	// 0.9.5
-	//FIXME World conditional
-	//TODO Empty armorSet & material
-	// -Command for autogen world/entitytype switches?
-	//TODO switch and comparison for wieldquantity
-	//TODO switch.conditional
-	//TODO switch and conditional for region
+	//FIXME 0.9.5 Empty armorSet & material
+	//TODO 0.9.5 Command for autogen world/entitytype switches?
+	//TODO 0.9.5 switch and comparison for wieldquantity
+	//TODO 0.9.5 switch.conditional
+	//TODO 0.9.5 switch and conditional for region
 	// -if.server.onlineenabled
 	// -getAverageLight (area)
 	// -check against an itemstack in the player's inventory
@@ -175,7 +171,7 @@ public class ModDamage extends JavaPlugin
 	
 //Typical plugin stuff...for the most part. :P
 	public static Server server;
-	public final int oldestSupportedBuild = 953;
+	public final int oldestSupportedBuild = 1060;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	public final static Logger log = Logger.getLogger("Minecraft");
 	public static DebugSetting debugSetting = DebugSetting.NORMAL;
@@ -206,7 +202,7 @@ public class ModDamage extends JavaPlugin
 	
 //External-plugin variables
 	public static PermissionHandler Permissions = null;
-	private static elRegionsPlugin elRegions = null;
+	//private static elRegionsPlugin elRegions = null;
 	public static boolean multigroupPermissions = true;	
 	public static boolean using_Permissions = false;
 	static boolean using_elRegions = false;
@@ -214,77 +210,13 @@ public class ModDamage extends JavaPlugin
 //General mechanics options
 	static boolean negative_Heal;
 	
-//Predefined pattern strings	
-	public static final String numberPart = "(?:[0-9]+)";
-	public static final String nonAliasPart = "(?:[a-z0-9][_a-z0-9]*)";
-	public static final String potentialAliasPart = "(?:_[a-z0-9]+)";
-	public static final String statementPart = "(?:(?:" + nonAliasPart + ")(?:\\." + nonAliasPart +")*)";
-	public static final String entityRegex = "(attacker|target)";
-	public static String comparisonRegex;
-	public static String biomeRegex;
-	public static String environmentRegex;
-	public static String elementRegex;
-	public static String materialRegex;
-	public static String armorRegex;
-	public static String rangedElementRegex;
-	public static String logicalRegex;
-	private static Pattern conditionalPattern;
-	private static Pattern effectPattern;
-	private static Pattern switchPattern;
+//Predefined pattern strings
+	public static final String statementPart = "(?:!?(?:[\\*\\w]+)(?:\\.[\\*\\w]+)*)";
+	private static Pattern conditionalPattern = Pattern.compile("(if|if_not)\\s+(" + statementPart + "(?:\\s+([\\*\\w]+)\\s+" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
+	private static Pattern effectPattern = Pattern.compile("(([\\*\\w]+)effect\\." + statementPart + ")", Pattern.CASE_INSENSITIVE);
+	private static Pattern switchPattern = Pattern.compile("switch\\.(" + statementPart + ")", Pattern.CASE_INSENSITIVE);
 	
 	private static HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
-	
-	static
-	{
-		biomeRegex = "(";
-		for(Biome biome : Biome.values())
-			biomeRegex += biome.name() + "|";
-		biomeRegex += potentialAliasPart + ")";
-		
-		environmentRegex = "(";
-		for(Environment environment : Environment.values())
-			environmentRegex += environment.name() + "|";
-		environmentRegex = environmentRegex.substring(0, environmentRegex.length() - 1) + ")";
-
-		elementRegex = "(";
-		for(ModDamageElement element : ModDamageElement.values())
-			elementRegex += element.getReference() + "|";
-		elementRegex += potentialAliasPart + ")";
-		
-		String[] armorParts = {"HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS" };
-		materialRegex = armorRegex = "(";
-		String tempRegex = "";
-		for(Material material : Material.values())
-		{
-			materialRegex += material.name() + "|";
-			for(String part : armorParts)
-				if(material.name().endsWith(part))
-					tempRegex += material.name() + "|";
-		}
-		tempRegex = tempRegex.substring(0, tempRegex.length() - 1);
-		//"((?:(?:ARMOR)(?:\\*ARMOR))|aliasPart)"
-		armorRegex = "((?:(?:" + tempRegex + ")(?:\\*" + tempRegex + "){0,3})|" + potentialAliasPart + ")";
-		materialRegex += potentialAliasPart + ")";
-		
-		logicalRegex = "(";
-		for(LogicalOperation operation : LogicalOperation.values())
-			logicalRegex += operation.name() + "|";
-		logicalRegex += potentialAliasPart + ")";		
-		
-		comparisonRegex = "(";
-		for(ComparisonType type : ComparisonType.values())
-			comparisonRegex += type.name() + "|";
-		comparisonRegex = comparisonRegex.substring(0, comparisonRegex.length() - 1) + ")";
-		
-		rangedElementRegex = "(";
-		for(RangedElement type : RangedElement.values())
-			rangedElementRegex += type.name() + "|";
-		rangedElementRegex += ")";
-		
-		conditionalPattern = Pattern.compile("(if|if_not)\\s+(?:!)?(" + statementPart + "(?:\\s+" + logicalRegex + "\\s+" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
-		switchPattern = Pattern.compile("switch\\." + statementPart, Pattern.CASE_INSENSITIVE);
-		effectPattern = Pattern.compile("((attacker|target|world)effect\\." + statementPart + ")", Pattern.CASE_INSENSITIVE);
-	}
 
 //LoadStates
 	public enum LoadState
@@ -345,9 +277,8 @@ public class ModDamage extends JavaPlugin
 	@Override
 	public void onEnable() 
 	{
-		//XXX REMOVE UPON 0.9.5 RELEASE
+		//FIXME 0.9.5 REMOVE ME
 		log.warning("WARNING: This is an experimental build of ModDamage 0.9.5. Do not use this JAR if you value server stability or are not a tester.");
-		//END REMOVE
 		
 		ModDamage.server = getServer();
 	//PERMISSIONS
@@ -363,20 +294,24 @@ public class ModDamage extends JavaPlugin
 		}
 		else log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions not found]");
 		
-	//ELREGIONS
+	//TODO 0.9.6 ELREGIONS
+		/*
 		elRegions = (elRegionsPlugin) this.getServer().getPluginManager().getPlugin("elRegions");
 		if (elRegions != null) 
 		{
 			using_elRegions = true;
 		    log.info("[" + getDescription().getName() + "] Found elRegions v" + elRegions.getDescription().getVersion());
-		}
+		}*/
 		
 	//Build check
-		Matcher matcher = Pattern.compile("b([0-9]+)jnks", Pattern.CASE_INSENSITIVE).matcher(getServer().getVersion());
-		if(matcher.matches() && Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
-			log.warning("Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.");
-		//System.console().readLine();
-		
+		String string = getServer().getVersion();
+		Matcher matcher = Pattern.compile(".*b([0-9]+)jnks.*", Pattern.CASE_INSENSITIVE).matcher(string);
+		if(matcher.matches())
+		{
+			if(Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
+				log.warning("Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.");
+		}
+		else log.severe("[" + getDescription().getName() + "] Oh crap. The Bukkit builds system has changed - bug KoryuObihiro about it.");
 		
 	//Event registration
 		//register plugin-related stuff with the server's plugin manager
@@ -396,7 +331,7 @@ public class ModDamage extends JavaPlugin
 		IntervalRange.register(this);
 		LiteralRange.register(this);
 		Multiplication.register(this);
-		Set.register(this);	
+		Set.register(this);
 		Message.register(this);
 //Nestable Calculations
 	//Conditionals
@@ -416,35 +351,36 @@ public class ModDamage extends JavaPlugin
 		EntityOnFire.register(this);
 		EntityTypeEvaluation.register(this);
 		EntityUnderwater.register(this);
-		EventValueComparison.register(this);
-		PlayerAddItem.register(this);
+		EventWorldEvaluation.register(this);
 		PlayerGroupEvaluation.register(this);
-		PlayerSetItem.register(this);
 		PlayerSleeping.register(this);
 		PlayerSneaking.register(this);
 		PlayerWearing.register(this);
 		PlayerWearingOnly.register(this);
 		PlayerWielding.register(this);
+		SlimeSizeComparison.register(this);
 		//World
 		WorldTimeComparison.register(this);
 		WorldEnvironment.register(this);
 		//Server
 		ServerOnlineMode.register(this);
-		PlayerCountComparison.register(this);
+		ServerPlayerCountComparison.register(this);
 		//Event
+		EventHasRangedElement.register(this);
 		EventRangedElementEvaluation.register(this);
 		EventValueComparison.register(this);
 		EventWorldEvaluation.register(this);
 	//Effects
-		EntityDropItem.register(this);
 		EntityAddAirTicks.register(this);
 		EntityAddFireTicks.register(this);
+		EntityDropItem.register(this);
 		EntityExplode.register(this);
 		EntityHeal.register(this);
 		EntityHurt.register(this);
 		EntitySetAirTicks.register(this);
 		EntitySetFireTicks.register(this);
 		EntitySetHealth.register(this);
+		PlayerAddItem.register(this);
 		PlayerSetItem.register(this);
 		SlimeSetSize.register(this);
 		WorldTime.register(this);
@@ -601,10 +537,17 @@ public class ModDamage extends JavaPlugin
 	protected void clear() 
 	{
 		damageRoutines.clear();
+		deathRoutines.clear();
+		foodRoutines.clear();
 		spawnRoutines.clear();
+		armorAliaser.clear();
+		biomeAliaser.clear();
+		elementAliaser.clear();
+		groupAliaser.clear();
 		itemAliaser.clear();
-		
-		state_routines = state_damageRoutines = state_spawnRoutines = state_aliases = state_itemAliases = state_messageAliases = LoadState.NOT_LOADED; //TODO UPDATE
+		messageAliaser.clear();
+		worldAliaser.clear();
+		state_routines = state_damageRoutines = state_deathRoutines = state_foodRoutines = state_spawnRoutines = state_aliases = state_armorAliases = state_biomeAliases = state_elementAliases = state_groupAliases = state_itemAliases = state_messageAliases = state_worldAliases = LoadState.NOT_LOADED;
 		configStrings_ingame.clear();
 		configStrings_console.clear();
 	}
@@ -715,9 +658,10 @@ public class ModDamage extends JavaPlugin
 		
 	//routines
 		state_damageRoutines = loadRoutines("Damage", damageRoutines);
-		state_spawnRoutines = loadRoutines("MobHealth", spawnRoutines);
+		state_deathRoutines = loadRoutines("Death", deathRoutines);
 		state_foodRoutines = loadRoutines("Food", foodRoutines);
-		state_routines = LoadState.combineStates(state_damageRoutines, state_foodRoutines, state_spawnRoutines);
+		state_spawnRoutines = loadRoutines("Spawn", spawnRoutines);
+		state_routines = LoadState.combineStates(state_damageRoutines, state_deathRoutines, state_foodRoutines, state_spawnRoutines);
 
 		state_plugin = LoadState.combineStates(state_aliases, state_routines);
 		
@@ -771,7 +715,7 @@ public class ModDamage extends JavaPlugin
 		if(routineObjects != null)
 		{
 			relevantState = LoadState.SUCCESS;
-			addToConfig(DebugSetting.VERBOSE, 0, loadType + " configuration found, parsing...", LoadState.SUCCESS);
+			addToConfig(DebugSetting.NORMAL, 0, loadType.toUpperCase() + " configuration:", LoadState.SUCCESS);
 			LoadState[] stateMachine = {relevantState};//We use a single-cell array here because the enum is ASSIGNED later - this doesn't work if we want to operate by reference.
 			List<Routine> calculations = parse(routineObjects, loadType, stateMachine);
 			relevantState = stateMachine[0];
@@ -779,8 +723,9 @@ public class ModDamage extends JavaPlugin
 			if(!calculations.isEmpty() && !relevantState.equals(LoadState.FAILURE))
 			{
 				routineList.addAll(calculations);
-				relevantState = LoadState.SUCCESS;
+				addToConfig(DebugSetting.NORMAL, 0, "End " + loadType.toUpperCase() + " configuration.", LoadState.SUCCESS);
 			}
+			else addToConfig(DebugSetting.QUIET, 0, "Error in " + loadType.toUpperCase() + " configuration.", LoadState.FAILURE);
 		}
 		return relevantState;
 	}
@@ -827,14 +772,26 @@ public class ModDamage extends JavaPlugin
 						try
 						{
 							routine = (Routine)registeredBaseRoutines.get(pattern).invoke(null, matcher);
+							if(routine != null)
+							{
+								routines.add(routine);
+								addToConfig(DebugSetting.NORMAL, nestCount, "Routine: \"" + (String)object + "\"", currentState);
+							}
+							else
+							{//TODO: Catch what routine matched, if/when it failed.
+								currentState = LoadState.FAILURE;
+								addToConfig(DebugSetting.VERBOSE, 0, "Bad parameters for new " + registeredBaseRoutines.get(pattern).getClass().getSimpleName() + " \"" + (String)object + "\"", currentState);
+							}
 							break;
 						}
 						catch(Exception e){ e.printStackTrace();}
 					}
 				}
-				if(routine != null) routines.add(routine);
-				currentState = (routine != null)?currentState:LoadState.FAILURE;
-				addToConfig((routine != null)?DebugSetting.NORMAL:DebugSetting.QUIET, nestCount, (routine != null?"Routine:":"Couldn't match base routine string") + " \"" + (String)object + "\"", currentState);
+				if(routine == null)
+				{
+					currentState = LoadState.FAILURE;
+					addToConfig(DebugSetting.QUIET, 0, "Couldn't match base routine string" + " \"" + (String)object + "\"", currentState);
+				}
 			}
 			else if(object instanceof LinkedHashMap)
 			{
@@ -1193,7 +1150,20 @@ public class ModDamage extends JavaPlugin
 		return false;
 	}
 	
-//// INGAME MATCHING ////
+//// CONFIG MATCHING ////
+	//FIXME Do validation in the routines - there's a lot of stuff to replace. :<
+	public static boolean matchesValidEntity(String string)
+	{
+		if(string.equalsIgnoreCase("target") || string.equalsIgnoreCase("attacker"))
+			return true;
+		else
+		{
+			addToConfig(DebugSetting.QUIET, 0, "Invalid entity identifier \"" + string + "\" - defaulting to \"target\"", LoadState.FAILURE);
+			return false;
+		}
+	}
+	public static boolean matchEntity(String string){ return string.equalsIgnoreCase("attacker");}
+	
 	public static Biome matchBiome(String biomeName)
 	{
 		for(Biome biome : Biome.values())

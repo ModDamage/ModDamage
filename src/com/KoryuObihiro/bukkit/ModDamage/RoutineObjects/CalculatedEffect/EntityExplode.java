@@ -16,18 +16,18 @@ public class EntityExplode extends EntityCalculatedEffectRoutine
 	@Override
 	protected void applyEffect(LivingEntity affectedObject, int input) 
 	{
-		affectedObject.getWorld().createExplosion(affectedObject.getLocation(), input);
+		affectedObject.getWorld().createExplosion(affectedObject.getLocation(), (float)input/10);
 	}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntityExplode.class, Pattern.compile(ModDamage.entityRegex + "effect\\.explode", Pattern.CASE_INSENSITIVE));
+		ModDamage.registerEffect(EntityExplode.class, Pattern.compile("(\\w+)effect\\.explode", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityExplode getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new EntityExplode(matcher.group(1).equalsIgnoreCase("attacker"), routines);
+			return new EntityExplode((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
 		return null;
 	}
 }
