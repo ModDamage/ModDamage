@@ -10,14 +10,18 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class DivisionAddition extends Routine 
 {
 	private int divideValue;
-	public DivisionAddition(int value){ divideValue = (value != 0?value:1);}
+	public DivisionAddition(String configString, int value)
+	{
+		super(configString);
+		divideValue = (value != 0?value:1);
+	}
 	@Override
 	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue += eventInfo.eventValue/divideValue;}
 	
 	public static DivisionAddition getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
-			return new DivisionAddition(Integer.parseInt(matcher.group(1)));
+			return new DivisionAddition(matcher.group(), Integer.parseInt(matcher.group(1)));
 		return null;
 	}
 	

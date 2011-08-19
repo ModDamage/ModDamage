@@ -17,8 +17,8 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 	
 	Aliaser(String name)
 	{
-		super();
 		this.name = name;
+		((Type)null).getClass();
 	}
 
 	public boolean addAlias(String key, List<String> values)

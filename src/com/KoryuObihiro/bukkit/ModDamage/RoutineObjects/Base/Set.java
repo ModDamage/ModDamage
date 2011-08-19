@@ -10,7 +10,11 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class Set extends Routine 
 {
 	private int setValue;
-	public Set(int value){ setValue = value;}
+	public Set(String configString, int value)
+	{
+		super(configString);
+		setValue = value;
+	}
 	@Override
 	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = setValue;}
 	
@@ -22,7 +26,7 @@ public class Set extends Routine
 	public static Set getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
-			return new Set(Integer.parseInt(matcher.group(1)));
+			return new Set(matcher.group(), Integer.parseInt(matcher.group(1)));
 		return null;
 	}
 }

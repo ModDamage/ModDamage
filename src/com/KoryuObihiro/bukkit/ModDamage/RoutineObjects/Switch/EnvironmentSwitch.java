@@ -14,7 +14,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class EnvironmentSwitch extends SwitchRoutine<Environment>
 {	
-	public EnvironmentSwitch(LinkedHashMap<String, List<Routine>> switchStatements){ super(switchStatements);}
+	public EnvironmentSwitch(String configString, LinkedHashMap<String, List<Routine>> switchStatements){ super(configString, switchStatements);}
 	@Override
 	protected Environment getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.environment;}
 	@Override
@@ -30,7 +30,7 @@ public class EnvironmentSwitch extends SwitchRoutine<Environment>
 		EnvironmentSwitch routine = null;
 		if(matcher != null && switchStatements != null)
 		{
-			routine = new EnvironmentSwitch(switchStatements);
+			routine = new EnvironmentSwitch(matcher.group(), switchStatements);
 			return (routine.isLoaded?routine:null);
 		}
 		return null;

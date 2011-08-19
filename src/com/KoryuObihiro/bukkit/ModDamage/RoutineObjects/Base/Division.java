@@ -10,7 +10,11 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class Division extends Routine 
 {
 	private int divideValue;
-	public Division(int value){ divideValue = value;}
+	public Division(String configString, int value)
+	{
+		super(configString);
+		divideValue = value;
+		}
 	@Override
 	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = eventInfo.eventValue/divideValue;}
 	
@@ -22,7 +26,7 @@ public class Division extends Routine
 	public static Division getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
-			return new Division(Integer.parseInt(matcher.group(1)));
+			return new Division(matcher.group(), Integer.parseInt(matcher.group(1)));
 		return null;
 	}
 }

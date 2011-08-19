@@ -15,9 +15,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class EntityTypeSwitch extends EntitySwitchRoutine<List<ModDamageElement>>
 {
-	public EntityTypeSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements)
+	public EntityTypeSwitch(String configString, boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
-		super(forAttacker, switchStatements);
+		super(configString, forAttacker, switchStatements);
 	}
 	@Override
 	protected List<ModDamageElement> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList(shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).element_attacker:eventInfo.element_target);}
@@ -40,7 +40,7 @@ public class EntityTypeSwitch extends EntitySwitchRoutine<List<ModDamageElement>
 	public static EntityTypeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
 		if(matcher != null && switchStatements != null)
-			return new EntityTypeSwitch((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, switchStatements);
+			return new EntityTypeSwitch(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, switchStatements);
 		return null;
 	}
 }

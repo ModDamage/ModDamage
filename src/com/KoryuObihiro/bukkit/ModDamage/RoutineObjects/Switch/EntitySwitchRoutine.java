@@ -13,9 +13,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 abstract public class EntitySwitchRoutine<InfoType> extends SwitchRoutine<InfoType>
 {
 	protected final boolean forAttacker;
-	public EntitySwitchRoutine(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements) 
+	public EntitySwitchRoutine(String configString, boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements) 
 	{
-		super(switchStatements);
+		super(configString, switchStatements);
 		this.forAttacker = forAttacker;
 	}
 

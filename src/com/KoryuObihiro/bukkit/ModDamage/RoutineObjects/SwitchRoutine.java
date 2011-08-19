@@ -19,8 +19,9 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 	public List<String> failedCases = new ArrayList<String>();
 	
 	//TODO Definitely not as efficient as it could be. Refactor?
-	public SwitchRoutine(LinkedHashMap<String, List<Routine>> switchStatements)
+	public SwitchRoutine(String configString, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
+		super(configString);
 		LinkedHashMap<InfoType, List<Routine>> container = new LinkedHashMap<InfoType, List<Routine>>();
 		boolean caseFailed = false;
 		for(String switchCase : switchStatements.keySet())

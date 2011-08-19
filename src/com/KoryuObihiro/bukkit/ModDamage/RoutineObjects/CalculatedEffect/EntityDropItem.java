@@ -14,9 +14,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class EntityDropItem extends EntityCalculatedEffectRoutine
 {
 	protected final List<Material> materials;
-	public EntityDropItem(boolean forAttacker, List<Material> materials, List<Routine> routines)
-	{ 
-		super(forAttacker, routines);
+	public EntityDropItem(String configString, boolean forAttacker, List<Material> materials, List<Routine> routines)
+	{
+		super(configString, forAttacker, routines);
 		this.materials = materials;
 	}
 	
@@ -38,7 +38,7 @@ public class EntityDropItem extends EntityCalculatedEffectRoutine
 		{
 			List<Material> materials =  ModDamage.matchItemAlias(matcher.group(2));
 			if(!materials.isEmpty())
-				return new EntityDropItem((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, materials, routines);
+				return new EntityDropItem(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, materials, routines);
 		}
 		return null;
 	}

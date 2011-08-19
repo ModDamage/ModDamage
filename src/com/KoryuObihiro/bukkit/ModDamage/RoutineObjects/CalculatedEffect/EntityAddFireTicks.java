@@ -11,9 +11,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityAddFireTicks extends EntityCalculatedEffectRoutine 
 {
-	public EntityAddFireTicks(boolean forAttacker, List<Routine> routines) 
+	public EntityAddFireTicks(String configString, boolean forAttacker, List<Routine> routines) 
 	{
-		super(forAttacker, routines);
+		super(configString, forAttacker, routines);
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class EntityAddFireTicks extends EntityCalculatedEffectRoutine
 	public static EntityAddFireTicks getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new EntityAddFireTicks((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
+			return new EntityAddFireTicks(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
 		return null;
 	}
 

@@ -33,6 +33,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ElementAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.GroupAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ItemAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.WorldAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
@@ -81,7 +82,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventHasRang
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventRangedElementEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventValueComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerPlayerCountComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerGroupEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSleeping;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSneaking;
@@ -89,6 +89,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearin
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearingOnly;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerPlayerCountComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.SlimeSizeComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldTimeComparison;
@@ -216,7 +217,7 @@ public class ModDamage extends JavaPlugin
 	private static Pattern effectPattern = Pattern.compile("(([\\*\\w]+)effect\\." + statementPart + ")", Pattern.CASE_INSENSITIVE);
 	private static Pattern switchPattern = Pattern.compile("switch\\.(" + statementPart + ")", Pattern.CASE_INSENSITIVE);
 	
-	private static HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
+	public static HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
 
 //LoadStates
 	public enum LoadState
@@ -242,6 +243,7 @@ public class ModDamage extends JavaPlugin
 		}
 	}
 
+	//TODO All this repetitious crap has gotta be handled better.
 //Routine objects
 	static final List<Routine> damageRoutines = new ArrayList<Routine>();
 	static final List<Routine> spawnRoutines = new ArrayList<Routine>();
@@ -260,6 +262,7 @@ public class ModDamage extends JavaPlugin
 	private static GroupAliaser groupAliaser = new GroupAliaser();
 	private static ItemAliaser itemAliaser = new ItemAliaser();
 	private static MessageAliaser messageAliaser = new MessageAliaser();
+	private static RoutineAliaser routineAliaser = new RoutineAliaser();
 	private static WorldAliaser worldAliaser = new WorldAliaser();
 	private static LoadState state_armorAliases = LoadState.NOT_LOADED;
 	private static LoadState state_biomeAliases = LoadState.NOT_LOADED;
@@ -267,6 +270,7 @@ public class ModDamage extends JavaPlugin
 	private static LoadState state_itemAliases = LoadState.NOT_LOADED;
 	private static LoadState state_groupAliases = LoadState.NOT_LOADED;
 	private static LoadState state_messageAliases = LoadState.NOT_LOADED;
+	private static LoadState state_routineAliases = LoadState.NOT_LOADED;
 	private static LoadState state_worldAliases = LoadState.NOT_LOADED;
 	private static LoadState state_aliases = LoadState.NOT_LOADED;
 	
@@ -765,35 +769,15 @@ public class ModDamage extends JavaPlugin
 		{
 			if(object instanceof String)
 			{
-				Routine routine = null;
-				for(Pattern pattern : registeredBaseRoutines.keySet())
-				{
-					Matcher matcher = pattern.matcher((String)object);
-					if(matcher.matches())
-					{
-						try
-						{
-							routine = (Routine)registeredBaseRoutines.get(pattern).invoke(null, matcher);
-							if(routine != null)
-							{
-								routines.add(routine);
-								addToConfig(DebugSetting.NORMAL, nestCount, "Routine: \"" + (String)object + "\"", currentState);
-							}
-							else
-							{//TODO: Catch what routine matched, if/when it failed.
-								currentState = LoadState.FAILURE;
-								addToConfig(DebugSetting.VERBOSE, 0, "Bad parameters for new " + registeredBaseRoutines.get(pattern).getClass().getSimpleName() + " \"" + (String)object + "\"", currentState);
-							}
-							break;
-						}
-						catch(Exception e){ e.printStackTrace();}
-					}
-				}
-				if(routine == null)
+				routines = routineAliaser.matchAlias((String)object);
+				if(!routines.isEmpty())
 				{
 					currentState = LoadState.FAILURE;
 					addToConfig(DebugSetting.QUIET, 0, "Couldn't match base routine string" + " \"" + (String)object + "\"", currentState);
 				}
+				else
+					for(Routine routine : routines)
+						addToConfig(DebugSetting.NORMAL, nestCount, "Routine: \"" + routine.getConfigString() + "\"", currentState);
 			}
 			else if(object instanceof LinkedHashMap)
 			{
@@ -812,7 +796,7 @@ public class ModDamage extends JavaPlugin
 							if(routine != null)
 							{
 								routines.add(routine);
-								addToConfig(DebugSetting.VERBOSE, nestCount, "End Conditional \"" + key + "\"\n", currentState);
+								addToConfig(DebugSetting.VERBOSE, nestCount, "End Conditional \"" + key + "\"", currentState);
 							}
 							else
 							{
@@ -828,7 +812,7 @@ public class ModDamage extends JavaPlugin
 							if(routine != null)
 							{
 								routines.add(routine);
-								addToConfig(DebugSetting.VERBOSE, nestCount, "End CalculatedEffect \"" + key + "\"\n", currentState);
+								addToConfig(DebugSetting.VERBOSE, nestCount, "End CalculatedEffect \"" + key + "\"", currentState);
 							}
 							else
 							{
@@ -850,7 +834,7 @@ public class ModDamage extends JavaPlugin
 									addToConfig(DebugSetting.CONSOLE, nestCount, "", LoadState.SUCCESS);
 									addToConfig(DebugSetting.NORMAL, nestCount, " case: \"" + anotherKey + "\"", LoadState.SUCCESS);
 									routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1, resultingState));
-									addToConfig(DebugSetting.VERBOSE, nestCount, "End case \"" + anotherKey + "\"\n", LoadState.SUCCESS);
+									addToConfig(DebugSetting.VERBOSE, nestCount, "End case \"" + anotherKey + "\"", LoadState.SUCCESS);
 								}
 								routine = SwitchRoutine.getNew(switchMatcher, routineHashMap);
 								if(routine != null)
