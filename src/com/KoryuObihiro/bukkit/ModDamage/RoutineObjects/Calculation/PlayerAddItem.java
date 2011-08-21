@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
 import java.util.List;
 import java.util.regex.Matcher;

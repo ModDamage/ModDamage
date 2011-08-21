@@ -63,13 +63,6 @@ public class TargetEventInfo
 		environment = world.getEnvironment();
 	}
 	
-	public enum InfoString //TODO Finish me.
-	{
-		ARMORSET, BIOME, ELEMENT, ENVIRONMENT, GROUPS, MATERIAL, NAME, RANGEDELEMENT, WORLD;
-		
-		
-	}
-	
 	public boolean shouldGetAttacker(boolean forAttacker){ return (forAttacker && this instanceof AttackerEventInfo);}
 	
 	public LivingEntity getRelevantEntity(boolean forAttacker)

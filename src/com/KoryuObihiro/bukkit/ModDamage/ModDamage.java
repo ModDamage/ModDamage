@@ -34,7 +34,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.GroupAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ItemAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.WorldAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
@@ -48,20 +48,20 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.IntervalRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Message;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityAddAirTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityAddFireTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityDropItem;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityExplode;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityHeal;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntityHurt;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntitySetAirTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntitySetFireTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.EntitySetHealth;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.PlayerAddItem;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.PlayerSetItem;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.SlimeSetSize;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect.WorldTime;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityAddAirTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityAddFireTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityDropItem;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityExplode;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHeal;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHurt;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetAirTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetFireTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetHealth;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerAddItem;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerSetItem;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.Set;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.SlimeSetSize;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.WorldTime;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Binomial;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityAirTicksComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBiome;
@@ -112,16 +112,11 @@ import com.nijikokun.bukkit.Permissions.Permissions;
  */
 public class ModDamage extends JavaPlugin
 {
-	//FIXME 0.9.5 Empty armorSet & material
 	//TODO 0.9.5 Command for autogen world/entitytype switches?
 	//TODO 0.9.5 switch and comparison for wieldquantity
 	//TODO 0.9.5 switch.conditional
 	//TODO 0.9.5 switch and conditional for region
-	// -if.server.onlineenabled
-	// -getAverageLight (area)
-	// -check against an itemstack in the player's inventory
-	// FIXME Why aren't the patternParts all final? o_o
-	// TODO message routines (force aliasing here), end goal is to make this possible:
+	// TODO 0.9.6 Make the Scan message possible.
 	/*
 	if(eventInfo.shouldScan)
 	{
@@ -149,19 +144,11 @@ public class ModDamage extends JavaPlugin
 	
 	//--Yet-to-be-plausible:
 	// -tag.$aliasName
-	// -ability to clear non-static tags
-	// -aliases (dynamic: $ and static: _): //Check in config allocation for existing static!
-	//   -armor
-	//   -elements
-	//   -entities
-	//   -items
-	//   -groups
-	// -event keyword (_event)
+	// -ability to clear non-static tag
 	// -External: tag entities with an alias ($)
 	// -External: check entity tags
 	// -find a way to give players ownership of an explosion
 	// -Deregister when Bukkit supports!
-	// -Client-sided mod for displaying health?
 	
 	// Ideas
 	// -External calls to aliased sets of routines? But...EventInfo would be screwed up. :P
@@ -276,10 +263,7 @@ public class ModDamage extends JavaPlugin
 ////////////////////////// INITIALIZATION
 	@Override
 	public void onEnable() 
-	{
-		//FIXME 0.9.5 REMOVE ME
-		log.warning("WARNING: This is an experimental build of ModDamage 0.9.5. Do not use this JAR if you value server stability or are not a tester.");
-		
+	{		
 		ModDamage.server = getServer();
 	//PERMISSIONS
 		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
@@ -753,11 +737,10 @@ public class ModDamage extends JavaPlugin
 	}
 	
 //// ROUTINE PARSING ////
-	//Parse commands recursively for different command strings the handlers pass
-	//TODO To use null-passing, check before/after nulls to determine whether nothing was there to begin with, use a pointer to the same set of routines. Implement this in 0.9.6
-	public static List<Routine> parse(List<Object> routineStrings, String loadType, LoadState[] currentState){ return parse(routineStrings, loadType, 0, currentState);}
+	//Parse routine strings recursively
+	private List<Routine> parse(List<Object> routineStrings, String loadType, LoadState[] currentState){ return parse(routineStrings, loadType, 0, currentState);}
 	@SuppressWarnings("unchecked")
-	private static List<Routine> parse(Object object, String loadType, int nestCount, LoadState[] resultingState)
+	private List<Routine> parse(Object object, String loadType, int nestCount, LoadState[] resultingState)
 	{
 		LoadState currentState = LoadState.SUCCESS;
 		List<Routine> routines = new ArrayList<Routine>();
@@ -780,7 +763,8 @@ public class ModDamage extends JavaPlugin
 								addToConfig(DebugSetting.NORMAL, nestCount, "Routine: \"" + (String)object + "\"", currentState);
 							}
 							else
-							{//TODO: Catch what routine matched, if/when it failed.
+							{
+								//TODO: Catch what routine matched, if/when it failed.
 								currentState = LoadState.FAILURE;
 								addToConfig(DebugSetting.VERBOSE, 0, "Bad parameters for new " + registeredBaseRoutines.get(pattern).getClass().getSimpleName() + " \"" + (String)object + "\"", currentState);
 							}
@@ -824,7 +808,7 @@ public class ModDamage extends JavaPlugin
 						{
 							addToConfig(DebugSetting.CONSOLE, nestCount, "", LoadState.SUCCESS);
 							addToConfig(DebugSetting.NORMAL, nestCount, "CalculatedEffect: \"" + key + "\"", LoadState.SUCCESS);
-							CalculatedEffectRoutine<?> routine = CalculatedEffectRoutine.getNew(effectMatcher, parse(someHashMap.get(key), loadType, nestCount + 1, resultingState));
+							CalculationRoutine<?> routine = CalculationRoutine.getNew(effectMatcher, parse(someHashMap.get(key), loadType, nestCount + 1, resultingState));
 							if(routine != null)
 							{
 								routines.add(routine);
@@ -970,7 +954,7 @@ public class ModDamage extends JavaPlugin
 		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
 	}
 	
-	public static void registerEffect(Class<? extends CalculatedEffectRoutine<?>> routineClass, Pattern syntax)
+	public static void registerEffect(Class<? extends CalculationRoutine<?>> routineClass, Pattern syntax)
 	{
 		try
 		{
@@ -979,7 +963,7 @@ public class ModDamage extends JavaPlugin
 			{
 				assert(method.getReturnType().equals(routineClass));
 				method.invoke(null, (Matcher)null, (List<Routine>)null);
-				register(CalculatedEffectRoutine.registeredStatements, method, syntax);
+				register(CalculationRoutine.registeredStatements, method, syntax);
 			}
 			else log.severe("Method getNew not found for statement " + routineClass.getName());
 		}
@@ -992,6 +976,7 @@ public class ModDamage extends JavaPlugin
 		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
 	}
 	
+	//TODO 0.9.6 Implement a reload hook for other plugins, make /md r reload routines.
 	private static void register(HashMap<Pattern, Method> registry, Method method, Pattern syntax)
 	{
 		boolean successfullyRegistered = false;
@@ -1126,6 +1111,7 @@ public class ModDamage extends JavaPlugin
 		}
 		else
 		{
+			//XXX Tighten up the formatting here - unify the placement.
 			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Config Overview: " + state_plugin.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
 			player.sendMessage(ChatColor.AQUA + "Aliases:    " + state_aliases.statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + state_routines.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:        " + state_armorAliases.statusString() + "     " + ChatColor.DARK_GREEN + "Damage: " + state_damageRoutines.statusString());
@@ -1148,12 +1134,11 @@ public class ModDamage extends JavaPlugin
 			}
 			player.sendMessage(bottomString);	
 		}
-		//TODO: Else for configured aliases/routine types.
 		return false;
 	}
 	
 //// CONFIG MATCHING ////
-	//FIXME Do validation in the routines - there's a lot of stuff to replace. :<
+	//XXX matchesValidEntity - currently defaults to "target". Change to reject?
 	public static boolean matchesValidEntity(String string)
 	{
 		if(string.equalsIgnoreCase("target") || string.equalsIgnoreCase("attacker"))

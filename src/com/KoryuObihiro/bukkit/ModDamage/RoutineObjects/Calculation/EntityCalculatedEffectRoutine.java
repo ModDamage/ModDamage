@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
 import java.util.List;
 
@@ -6,10 +6,10 @@ import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-abstract public class EntityCalculatedEffectRoutine extends CalculatedEffectRoutine<LivingEntity>
+abstract public class EntityCalculatedEffectRoutine extends CalculationRoutine<LivingEntity>
 {
 	protected final boolean forAttacker;
 	public EntityCalculatedEffectRoutine(boolean forAttacker, List<Routine> routines)

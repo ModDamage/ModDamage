@@ -1,14 +1,14 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
 import java.util.List;
 
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-abstract public class PlayerCalculatedEffectRoutine extends CalculatedEffectRoutine<Player>
+abstract public class PlayerCalculatedEffectRoutine extends CalculationRoutine<Player>
 {
 	protected final boolean forAttacker;
 	protected static final String entityPart = "(entity|attacker|target)";

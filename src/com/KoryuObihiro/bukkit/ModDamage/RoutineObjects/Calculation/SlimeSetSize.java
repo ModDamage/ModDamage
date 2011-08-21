@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -10,10 +10,10 @@ import org.bukkit.entity.Slime;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class SlimeSetSize extends CalculatedEffectRoutine<Slime>
+public class SlimeSetSize extends CalculationRoutine<Slime>
 {
 	final boolean forAttacker;
 	public SlimeSetSize(boolean forAttacker, List<Routine> routines)

@@ -9,11 +9,11 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
-abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine 
+abstract public class CalculationRoutine<AffectedClass> extends Routine 
 {
 	public static HashMap<Pattern, Method> registeredStatements = new HashMap<Pattern, Method>();
 	final List<Routine> routines;
-	protected CalculatedEffectRoutine(List<Routine> routines)
+	protected CalculationRoutine(List<Routine> routines)
 	{
 		this.routines = routines;
 	}
@@ -40,7 +40,7 @@ abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine
 		return temp2;
 	}
 
-	public static CalculatedEffectRoutine<?> getNew(Matcher matcher, List<Routine> routines)
+	public static CalculationRoutine<?> getNew(Matcher matcher, List<Routine> routines)
 	{
 		for(Pattern pattern : registeredStatements.keySet())
 		{
@@ -49,10 +49,10 @@ abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine
 			{
 				Method method = registeredStatements.get(pattern);
 				//get next statement
-				CalculatedEffectRoutine<?> statement = null;
+				CalculationRoutine<?> statement = null;
 				try 
 				{
-					statement = (CalculatedEffectRoutine<?>)method.invoke(null, statementMatcher, routines);
+					statement = (CalculationRoutine<?>)method.invoke(null, statementMatcher, routines);
 				}
 				catch (Exception e){ e.printStackTrace();}
 				return statement;
@@ -61,7 +61,7 @@ abstract public class CalculatedEffectRoutine<AffectedClass> extends Routine
 		return null;
 	}
 	
-	public static void registerStatement(ModDamage routineUtility, Class<? extends CalculatedEffectRoutine<?>> statementClass, Pattern syntax)
+	public static void registerStatement(ModDamage routineUtility, Class<? extends CalculationRoutine<?>> statementClass, Pattern syntax)
 	{
 		ModDamage.registerEffect(statementClass, syntax);
 	}

@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffect;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -8,7 +8,7 @@ import org.bukkit.World;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculatedEffectRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class WorldTime extends WorldCalculatedEffectRoutine
@@ -21,7 +21,7 @@ public class WorldTime extends WorldCalculatedEffectRoutine
 
 	public static void register(ModDamage modDamage) 
 	{
-		CalculatedEffectRoutine.registerStatement(modDamage, WorldTime.class, Pattern.compile("worldeffect\\.setTime", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerStatement(modDamage, WorldTime.class, Pattern.compile("worldeffect\\.setTime", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static WorldTime getNew(Matcher matcher, List<Routine> routines)
