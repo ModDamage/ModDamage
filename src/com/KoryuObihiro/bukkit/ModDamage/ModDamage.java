@@ -23,6 +23,7 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
+import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
@@ -57,6 +58,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHurt;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetAirTicks;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetFireTicks;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetHealth;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySpawn;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerAddItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerSetItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.Set;
@@ -81,7 +83,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventHasRang
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventRangedElementEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventValueComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerPlayerCountComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerGroupEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSleeping;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSneaking;
@@ -89,6 +90,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearin
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearingOnly;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerPlayerCountComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.SlimeSizeComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldTimeComparison;
@@ -112,10 +114,10 @@ import com.nijikokun.bukkit.Permissions.Permissions;
  */
 public class ModDamage extends JavaPlugin
 {
-	//TODO 0.9.5 Command for autogen world/entitytype switches?
-	//TODO 0.9.5 switch and comparison for wieldquantity
-	//TODO 0.9.5 switch.conditional
-	//TODO 0.9.5 switch and conditional for region
+	//TODO 0.9.6 Command for autogen world/entitytype switches?
+	//TODO 0.9.6 switch and comparison for wieldquantity
+	//TODO 0.9.6 switch.conditional
+	//TODO 0.9.6 switch and conditional for region
 	// TODO 0.9.6 Make the Scan message possible.
 	/*
 	if(eventInfo.shouldScan)
@@ -364,6 +366,7 @@ public class ModDamage extends JavaPlugin
 		EntitySetAirTicks.register(this);
 		EntitySetFireTicks.register(this);
 		EntitySetHealth.register(this);
+		EntitySpawn.register(this);
 		PlayerAddItem.register(this);
 		PlayerSetItem.register(this);
 		SlimeSetSize.register(this);
@@ -600,7 +603,21 @@ public class ModDamage extends JavaPlugin
 	private void reload()
 	{
 		clear();
-		config.load();
+		
+		try
+		{
+			config.load();
+		}
+		catch(Exception e)
+		{//FIXME 0.9.5 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not auto-load config.
+			log.severe("Error in YAML configuration. Type /md check for more information.");
+			for(StackTraceElement element : e.getStackTrace())
+			{
+			    addToConfig(DebugSetting.QUIET, 0, element.toString(), LoadState.FAILURE);
+			}
+		    return;
+		}
+		
 	//get plugin config.yml...if it doesn't exist, create it.
 		if(!(new File(this.getDataFolder(), "config.yml")).exists()) writeDefaults();
 	//load debug settings
@@ -628,17 +645,36 @@ public class ModDamage extends JavaPlugin
 		}
 
 	//Item aliasing
-		state_armorAliases = loadAliases("Aliases.Armor", armorAliaser);
-		state_biomeAliases = loadAliases("Aliases.Biome", biomeAliaser);
-		state_elementAliases = loadAliases("Aliases.Element", elementAliaser);
-		state_itemAliases = loadAliases("Aliases.Item", itemAliaser);
-		state_groupAliases = loadAliases("Aliases.Group", groupAliaser);
-		state_messageAliases = loadAliases("Aliases.Message", messageAliaser);
-		state_worldAliases = loadAliases("Aliases.World", worldAliaser);
-		state_aliases = LoadState.combineStates(state_armorAliases, state_elementAliases, state_groupAliases, state_itemAliases, state_messageAliases, state_worldAliases);
-		if(!state_aliases.equals(LoadState.NOT_LOADED))
-			addToConfig(state_aliases.equals(LoadState.SUCCESS)?DebugSetting.VERBOSE:DebugSetting.QUIET, 0, state_aliases.equals(LoadState.SUCCESS)?"Aliases loaded!":"One or more errors occured while loading aliases.", state_aliases);
-		else addToConfig(DebugSetting.VERBOSE,  0, "No aliases loaded! Are any aliases defined?", LoadState.NOT_LOADED);
+		for(String key : config.getKeys())
+			if(key.equalsIgnoreCase("Aliases"))
+			{
+				ConfigurationNode aliasesNode = config.getNode(key);
+				if(!aliasesNode.getKeys().isEmpty())
+				{
+					state_armorAliases = loadAliases(aliasesNode, "Armor", armorAliaser);
+					state_biomeAliases = loadAliases(aliasesNode, "Biome", biomeAliaser);
+					state_elementAliases = loadAliases(aliasesNode, "Element", elementAliaser);
+					state_itemAliases = loadAliases(aliasesNode, "Item", itemAliaser);
+					state_groupAliases = loadAliases(aliasesNode, "Group", groupAliaser);
+					state_messageAliases = loadAliases(aliasesNode, "Message", messageAliaser);
+					state_worldAliases = loadAliases(aliasesNode, "World", worldAliaser);
+					state_aliases = LoadState.combineStates(state_armorAliases, state_elementAliases, state_groupAliases, state_itemAliases, state_messageAliases, state_worldAliases);
+					switch(state_aliases)//XXX Could be a more dynamic way of using the same switch, but meh.
+					{
+						case NOT_LOADED:
+							addToConfig(DebugSetting.VERBOSE,  0, "No aliases loaded! Are any aliases defined?", state_aliases);
+							break;
+						case FAILURE:
+							addToConfig(DebugSetting.QUIET,  0, "One or more errors occured while loading aliases.", state_aliases);
+							break;
+						case SUCCESS:
+							addToConfig(DebugSetting.VERBOSE,  0, "Aliases loaded!", state_aliases);
+							break;
+					}
+					break;
+				}
+				else addToConfig(DebugSetting.VERBOSE,  0, "No Aliases node found.", LoadState.NOT_LOADED);
+			}
 		
 	//routines
 		state_damageRoutines = loadRoutines("Damage", damageRoutines);
@@ -646,6 +682,18 @@ public class ModDamage extends JavaPlugin
 		state_foodRoutines = loadRoutines("Food", foodRoutines);
 		state_spawnRoutines = loadRoutines("Spawn", spawnRoutines);
 		state_routines = LoadState.combineStates(state_damageRoutines, state_deathRoutines, state_foodRoutines, state_spawnRoutines);
+		switch(state_aliases)
+		{
+			case NOT_LOADED:
+				addToConfig(DebugSetting.VERBOSE,  0, "No routines loaded! Are any routines defined?", state_aliases);
+				break;
+			case FAILURE:
+				addToConfig(DebugSetting.QUIET,  0, "One or more errors occured while loading routines.", state_aliases);
+				break;
+			case SUCCESS:
+				addToConfig(DebugSetting.VERBOSE,  0, "Routines loaded!", state_aliases);
+				break;
+		}
 
 		state_plugin = LoadState.combineStates(state_aliases, state_routines);
 		
@@ -697,7 +745,14 @@ public class ModDamage extends JavaPlugin
 	private LoadState loadRoutines(String loadType, List<Routine> routineList)
 	{
 		LoadState relevantState = LoadState.NOT_LOADED;
-		List<Object> routineObjects = config.getList(loadType);
+
+		List<Object> routineObjects = null;
+			for(String key : config.getKeys())
+				if(key.equalsIgnoreCase(loadType))
+				{
+					routineObjects =  config.getList(key);
+					break;
+				}
 		if(routineObjects != null)
 		{
 			relevantState = LoadState.SUCCESS;
@@ -716,23 +771,35 @@ public class ModDamage extends JavaPlugin
 		return relevantState;
 	}
 	
-	private LoadState loadAliases(String loadType, Aliaser<?> aliaser)
+	private LoadState loadAliases(ConfigurationNode aliasesNode, String loadType, Aliaser<?> aliaser)
 	{
+		//TODO 0.9.6 Add debugging in reload() to check if Aliases is present or not.
 		LoadState relevantState = LoadState.NOT_LOADED;
-		List<String> aliases = config.getKeys(loadType);
-		if(aliases != null)
-		{
-			relevantState = LoadState.SUCCESS;
-			addToConfig(DebugSetting.VERBOSE, 0, aliaser.getName() + " aliases found, parsing...", LoadState.SUCCESS);
-			for(String alias : aliases)
+		ConfigurationNode specificAliasesNode = null;
+			for(String key : aliasesNode.getKeys())
+				if(key.equalsIgnoreCase(loadType))
+				{
+					specificAliasesNode = aliasesNode.getNode(key);
+					break;
+				}
+			if(specificAliasesNode != null)
 			{
-				List<String> values = config.getStringList(loadType + "." + alias, new ArrayList<String>());
-				if(values.isEmpty())
-					addToConfig(DebugSetting.VERBOSE, 0, "Found empty " + loadType.toLowerCase() + " alias \"" + alias + "\", ignoring...", LoadState.NOT_LOADED);
-				else if(!aliaser.addAlias(alias, values))
-					relevantState = LoadState.FAILURE;
+				if(!specificAliasesNode.getKeys().isEmpty())
+				{
+					relevantState = LoadState.SUCCESS;
+					addToConfig(DebugSetting.VERBOSE, 0, aliaser.getName() + " aliases found, parsing...", LoadState.SUCCESS);
+					for(String alias : specificAliasesNode.getKeys())
+					{
+						List<String> values = specificAliasesNode.getStringList(alias, new ArrayList<String>());
+						if(values.isEmpty())
+							addToConfig(DebugSetting.VERBOSE, 0, "Found empty " + loadType.toLowerCase() + " alias \"" + alias + "\", ignoring...", LoadState.NOT_LOADED);
+						else if(!aliaser.addAlias(alias, values))
+							relevantState = LoadState.FAILURE;
+					}
+				}
 			}
-		}
+			else addToConfig(DebugSetting.VERBOSE, 0, "No " + loadType + " aliases node found.", LoadState.NOT_LOADED);
+			
 		return relevantState;
 	}
 	
@@ -976,7 +1043,7 @@ public class ModDamage extends JavaPlugin
 		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
 	}
 	
-	//TODO 0.9.6 Implement a reload hook for other plugins, make /md r reload routines.
+	//TODO 0.9.6 Implement a reload hook for other plugins, make /md r reload routine library.
 	private static void register(HashMap<Pattern, Method> registry, Method method, Pattern syntax)
 	{
 		boolean successfullyRegistered = false;
@@ -1173,5 +1240,6 @@ public class ModDamage extends JavaPlugin
 	public static List<Material> matchItemAlias(String key){ return itemAliaser.matchAlias(key);}
 	public static List<String> matchGroupAlias(String key){ return groupAliaser.matchAlias(key);}
 	public static List<String> matchMessageAlias(String key){ return messageAliaser.matchAlias(key);}
+	//TODO 0.9.6 ADD routine aliaser
 	public static List<String> matchWorldAlias(String key){ return worldAliaser.matchAlias(key);}
 }

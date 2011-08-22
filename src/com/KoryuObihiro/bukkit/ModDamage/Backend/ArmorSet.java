@@ -13,7 +13,7 @@ public class ArmorSet
 	//private boolean inclusive = true;
 	private boolean isValid = true;
 	private boolean hasSomething = false;
-	protected Material armorSet[] = new Material[4];
+	protected final Material armorSet[] = new Material[4];
 	
 	public ArmorSet(Player player)
 	{
@@ -28,6 +28,7 @@ public class ArmorSet
 	
 	public ArmorSet(String armorSetString)
 	{
+		if(armorSetString.equalsIgnoreCase("EMPTY")) return;
 		String parts[] = armorSetString.split("\\*");
 		for(String part : parts)
 		{
@@ -35,10 +36,11 @@ public class ArmorSet
 			if(material == null || !this.put(material))
 			{
 				isValid = false;
-				ModDamage.addToConfig(DebugSetting.QUIET, 0, "Invalid ArmorSet \"" + armorSetString + "\"", LoadState.FAILURE);
+				ModDamage.addToConfig(DebugSetting.QUIET, 0, "Unrecognized armor part \"" + part + "\"", LoadState.FAILURE);
 				break;
 			}
 		}
+		if(!isValid) ModDamage.addToConfig(DebugSetting.QUIET, 0, "Invalid ArmorSet \"" + armorSetString + "\"", LoadState.FAILURE);
 	}
 	
 	private boolean put(Material material)
@@ -157,7 +159,9 @@ public class ArmorSet
 				case DIAMOND_BOOTS:
 				case CHAINMAIL_BOOTS:		return BOOTS;
 				
-				default:					return EMPTY;
+				case AIR:					return EMPTY;
+				
+				default:					return null;
 			}
 		}
 	}
