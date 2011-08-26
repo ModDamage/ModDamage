@@ -3,8 +3,6 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.Location;
-
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ComparisonType;
@@ -18,17 +16,18 @@ public class EntityCoordinateComparison extends EntityComparison
 		super(inverted, forAttacker, value, comparisonType);
 		this.coordinateToCompare = coordinateToCompare;
 	}
+	
 	@Override
 	protected Integer getRelevantInfo(TargetEventInfo eventInfo)
 	{
-		Location location = eventInfo.getRelevantEntity(forAttacker).getLocation();
-		switch(coordinateToCompare)
-		{
-			case X:	return location.getBlockX();
-			case Y:	return location.getBlockY();
-			case Z:	return location.getBlockZ();
-			default:return 0; //shouldn't happen
-		}
+		if(eventInfo.getRelevantEntity(forAttacker) != null)	
+			switch(coordinateToCompare)
+			{
+				case X:	return eventInfo.getRelevantEntity(forAttacker).getLocation().getBlockX();
+				case Y:	return eventInfo.getRelevantEntity(forAttacker).getLocation().getBlockY();
+				case Z:	return eventInfo.getRelevantEntity(forAttacker).getLocation().getBlockZ();
+			}
+		return 0; //shouldn't happen
 	}
 	
 	private enum Coordinate

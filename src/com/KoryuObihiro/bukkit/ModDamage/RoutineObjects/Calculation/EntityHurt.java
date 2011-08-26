@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityHurt extends EntityCalculatedEffectRoutine
@@ -14,10 +15,14 @@ public class EntityHurt extends EntityCalculatedEffectRoutine
 	public EntityHurt(boolean forAttacker, List<Routine> routines){ super(forAttacker, routines);}
 	
 	@Override
-	protected void applyEffect(LivingEntity affectedObject, int input) 
+	public void run(TargetEventInfo eventInfo)
 	{
-		affectedObject.damage(input);
+		if(eventInfo.getRelevantEntity(forAttacker) != null)
+			eventInfo.getRelevantEntity(forAttacker).damage(calculateInputValue(eventInfo), eventInfo.getRelevantEntity(!forAttacker));
 	}
+	
+	@Override
+	protected void applyEffect(LivingEntity affectedObject, int input){}
 
 	public static void register(ModDamage routineUtility)
 	{

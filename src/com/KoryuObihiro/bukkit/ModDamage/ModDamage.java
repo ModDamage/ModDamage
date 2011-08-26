@@ -102,7 +102,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerGroupSwitch
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.RangedElementSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
-import com.mysql.jdbc.AssertionFailedException;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
@@ -968,7 +967,7 @@ public class ModDamage extends JavaPlugin
 			}
 			else log.severe("Method getNew not found for statement " + routineClass.getName());
 		}
-		catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return class " + routineClass.getName() + "!");}
+		catch(AssertionError e){ log.severe("[ModDamage] Error: getNew doesn't return class " + routineClass.getName() + "!");}
 		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + routineClass.getName() + "!");}
 		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + routineClass.getName() + " is not static!");}
 		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have a getNew() method!");} 
@@ -990,7 +989,7 @@ public class ModDamage extends JavaPlugin
 			}
 			else log.severe("Method getNew not found for statement " + statementClass.getName());
 		}
-		catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return class " + statementClass.getName() + "!");}
+		catch(AssertionError e){ log.severe("[ModDamage] Error: getNew doesn't return class " + statementClass.getName() + "!");}
 		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + statementClass.getName() + "!");}
 		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + statementClass.getName() + " is not static!");}
 		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have a getNew() method!");} 
@@ -1012,7 +1011,7 @@ public class ModDamage extends JavaPlugin
 			}
 			else log.severe("Method getNew not found for statement " + statementClass.getName());
 		}
-		catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return class " + statementClass.getName() + "!");}
+		catch(AssertionError e){ log.severe("[ModDamage] Error: getNew doesn't return class " + statementClass.getName() + "!");}
 		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + statementClass.getName() + "!");}
 		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + statementClass.getName() + " is not static!");}
 		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have a getNew() method!");} 
@@ -1034,7 +1033,7 @@ public class ModDamage extends JavaPlugin
 			}
 			else log.severe("Method getNew not found for statement " + routineClass.getName());
 		}
-		catch(AssertionFailedException e){ log.severe("[ModDamage] Error: getNew doesn't return class " + routineClass.getName() + "!");}
+		catch(AssertionError e){ log.severe("[ModDamage] Error: getNew doesn't return class " + routineClass.getName() + "!");}
 		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + routineClass.getName() + "!");}
 		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + routineClass.getName() + " is not static!");}
 		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have a getNew() method!");} 
