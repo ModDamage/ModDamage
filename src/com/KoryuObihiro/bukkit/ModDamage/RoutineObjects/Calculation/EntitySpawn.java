@@ -15,7 +15,7 @@ public class EntitySpawn extends EntityCalculatedEffectRoutine
 {
 	final CreatureType creatureType;
 	public EntitySpawn(boolean forAttacker, CreatureType creatureType, List<Routine> routines)
-	{ 
+	{
 		super(forAttacker, routines);
 		this.creatureType = creatureType;
 	}

@@ -49,6 +49,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.IntervalRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Message;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityAddAirTicks;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityAddFireTicks;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityDropItem;
@@ -61,7 +62,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetHea
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySpawn;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerAddItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerSetItem;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.Set;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.SlimeSetSize;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.WorldTime;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Binomial;
@@ -104,6 +104,8 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.RangedElementSwit
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
+import com.platymuus.bukkit.permissions.PermissionInfo;
+import com.platymuus.bukkit.permissions.PermissionsPlugin;
 
 /**
  * "ModDamage" for Bukkit
@@ -162,7 +164,7 @@ public class ModDamage extends JavaPlugin
 	public final int oldestSupportedBuild = 1060;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	public final static Logger log = Logger.getLogger("Minecraft");
-	public static DebugSetting debugSetting = DebugSetting.NORMAL;
+	private static DebugSetting debugSetting = DebugSetting.NORMAL;
 	public static enum DebugSetting
 	{
 		QUIET, NORMAL, CONSOLE, VERBOSE;
@@ -183,10 +185,10 @@ public class ModDamage extends JavaPlugin
 	private static Configuration config;
 	private static String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
 
-	protected static int configPages = 0;
-	protected static List<String> configStrings_ingame = new ArrayList<String>();
-	protected static List<String> configStrings_console = new ArrayList<String>();
-	protected static int additionalConfigChecks = 0;
+	private static int configPages = 0;
+	private static List<String> configStrings_ingame = new ArrayList<String>();
+	private static List<String> configStrings_console = new ArrayList<String>();
+	private static int additionalConfigChecks = 0;
 	
 //External-plugin variables
 	public static PermissionHandler Permissions = null;
@@ -267,17 +269,32 @@ public class ModDamage extends JavaPlugin
 	{		
 		ModDamage.server = getServer();
 	//PERMISSIONS
-		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
+		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("PermissionsBukkit");
 		if (permissionsPlugin != null)
 		{
+			PermissionsPlugin plugin = null;
+			
 			using_Permissions = true;
-			ModDamage.Permissions = ((Permissions)permissionsPlugin).getHandler();
+			//TODO 0.9.5 - Assign plugin.
 			log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions v" + permissionsPlugin.getDescription().getVersion() + " active]");
 			
 			//This is necessary for backwards-compatibility.
 			multigroupPermissions = permissionsPlugin.getDescription().getVersion().startsWith("3.");
 		}
-		else log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions not found]");
+		else
+		{
+			permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
+			if (permissionsPlugin != null)
+			{
+				using_Permissions = true;
+				ModDamage.Permissions = ((Permissions)permissionsPlugin).getHandler();
+				log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions v" + permissionsPlugin.getDescription().getVersion() + " active]");
+				
+				//This is necessary for backwards-compatibility.
+				multigroupPermissions = permissionsPlugin.getDescription().getVersion().startsWith("3.");
+			}
+			else log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions not found]");
+		}
 		
 	//TODO 0.9.6 ELREGIONS
 		/*
@@ -520,7 +537,7 @@ public class ModDamage extends JavaPlugin
 
 	public static String ModDamageString(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "]";}
 	
-	protected void clear() 
+	private void clear() 
 	{
 		damageRoutines.clear();
 		deathRoutines.clear();

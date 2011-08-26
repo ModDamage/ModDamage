@@ -18,7 +18,11 @@ public class EntityHurt extends EntityCalculatedEffectRoutine
 	public void run(TargetEventInfo eventInfo)
 	{
 		if(eventInfo.getRelevantEntity(forAttacker) != null)
-			eventInfo.getRelevantEntity(forAttacker).damage(calculateInputValue(eventInfo), eventInfo.getRelevantEntity(!forAttacker));
+		{
+			if(eventInfo.getRelevantEntity(!forAttacker) != null)
+				eventInfo.getRelevantEntity(forAttacker).damage(calculateInputValue(eventInfo), eventInfo.getRelevantEntity(!forAttacker));
+			else eventInfo.getRelevantEntity(forAttacker).damage(calculateInputValue(eventInfo));
+		}
 	}
 	
 	@Override
