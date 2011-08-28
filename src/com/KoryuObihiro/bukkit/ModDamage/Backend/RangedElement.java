@@ -9,11 +9,11 @@ import org.bukkit.entity.Entity;
 
 public enum RangedElement 
 {
-	BOW, EGG, FIREBALL, FISHINGROD, SNOWBALL;
+	ARROW, EGG, FIREBALL, FISHINGROD, SNOWBALL;
 	
 	public static RangedElement matchElement(Entity entity)
 	{
-		if(entity instanceof CraftArrow)	return BOW;
+		if(entity instanceof CraftArrow)	return ARROW;
 		if(entity instanceof CraftEgg)		return EGG;
 		if(entity instanceof CraftFireball)	return FIREBALL;
 		if(entity instanceof CraftFish)		return FISHINGROD; 

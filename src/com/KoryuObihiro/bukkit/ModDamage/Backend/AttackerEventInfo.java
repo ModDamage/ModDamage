@@ -1,16 +1,11 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-
-@SuppressWarnings("deprecation")
 public class AttackerEventInfo extends TargetEventInfo
 {	
 	public final ModDamageElement element_attacker;
@@ -33,16 +28,14 @@ public class AttackerEventInfo extends TargetEventInfo
 			materialInHand_attacker = player_attacker.getItemInHand().getType();
 			armorSet_attacker = new ArmorSet(player_attacker);
 			name_attacker = player_attacker.getName();
-			groups_attacker = Arrays.asList(ModDamage.using_Permissions?ModDamage.multigroupPermissions
-								?ModDamage.Permissions.getGroups(player_attacker.getWorld().getName(), player_attacker.getName())
-								:ModDamage.Permissions.getGroup(player_attacker.getWorld().getName(), player_attacker.getName()).split(" "):emptyStringArray);
+			groups_attacker = TargetEventInfo.getGroups(player_attacker);
 		}
 		else
 		{
 			materialInHand_attacker = null;
 			armorSet_attacker = null;
 			name_attacker = null;
-			groups_attacker = new ArrayList<String>();
+			groups_attacker = emptyList;
 		}
 	}
 }

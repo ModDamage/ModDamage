@@ -30,7 +30,8 @@ public class EventRangedElementEvaluation extends ConditionalStatement
 		if(matcher != null)
 		{
 			RangedElement element = RangedElement.matchElement(matcher.group(2));
-			return new EventRangedElementEvaluation(matcher.group(1).equalsIgnoreCase("!"), element);
+			if(element != null)
+				return new EventRangedElementEvaluation(matcher.group(1).equalsIgnoreCase("!"), element);
 		}
 		return null;
 	}

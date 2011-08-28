@@ -13,14 +13,14 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.platymuus.bukkit.permissions.Group;
 
 @SuppressWarnings("deprecation")
 public class TargetEventInfo
-{
-	String[] emptyStringArray = {};
-	
+{	
 	public static final Logger log = ModDamage.log;
 	public static final Server server = ModDamage.server;
+	protected static final List<String> emptyList = new ArrayList<String>();
 	
 	public int eventValue;
 	public final World world;
@@ -47,26 +47,43 @@ public class TargetEventInfo
 			materialInHand_target = player_target.getItemInHand().getType();
 			armorSet_target = new ArmorSet(player_target);
 			name_target = player_target.getName();
-			groups_target = Arrays.asList(ModDamage.using_Permissions?ModDamage.multigroupPermissions
-					?ModDamage.Permissions.getGroups(entity.getWorld().getName(), player_target.getName())
-					:ModDamage.Permissions.getGroup(entity.getWorld().getName(), player_target.getName()).split(" "):emptyStringArray);
+			groups_target = TargetEventInfo.getGroups(player_target);
 		}
 		else
 		{
 			materialInHand_target = null;
 			armorSet_target = null;
 			name_target = null;
-			groups_target = new ArrayList<String>();
+			groups_target = emptyList;
 		}
 		
 		world = entity.getWorld();	
 		environment = world.getEnvironment();
 	}
-	
+
 	public boolean shouldGetAttacker(boolean forAttacker){ return (forAttacker && this instanceof AttackerEventInfo);}
 	
 	public LivingEntity getRelevantEntity(boolean forAttacker)
 	{
 		return (shouldGetAttacker(forAttacker)?((AttackerEventInfo)this).entity_attacker:this.entity_target);
+	}
+	
+	protected static List<String> getGroups(Player player)
+	{
+		if(ModDamage.using_Permissions)
+		{
+			if(ModDamage.using_SuperPerms)
+			{
+				List<String> groupNames = new ArrayList<String>();
+				for(Group group : ModDamage.permissionsBukkit.getGroups(player.getName()))
+					groupNames.add(group.getName());
+				return groupNames;
+			}
+			else Arrays.asList(ModDamage.multigroupPermissions
+						?ModDamage.Permissions.getGroups(player.getWorld().getName(), player.getName())
+						:ModDamage.Permissions.getGroup(player.getWorld().getName(), player.getName()).split(" "));
+		}
+		
+		return emptyList;
 	}
 }
