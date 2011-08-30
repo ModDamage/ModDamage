@@ -34,6 +34,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ElementAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.GroupAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ItemAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.WorldAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
@@ -206,7 +207,7 @@ public class ModDamage extends JavaPlugin
 	private static Pattern conditionalPattern = Pattern.compile("(if|if_not)\\s+(" + statementPart + "(?:\\s+([\\*\\w]+)\\s+" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
 	private static Pattern switchPattern = Pattern.compile("switch\\.(" + statementPart + ")", Pattern.CASE_INSENSITIVE);
 	
-	private static HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
+	public static HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
 
 //LoadStates
 	public enum LoadState
@@ -232,6 +233,7 @@ public class ModDamage extends JavaPlugin
 		}
 	}
 
+	//TODO All this repetitious crap has gotta be handled better.
 //Routine objects
 	static final List<Routine> damageRoutines = new ArrayList<Routine>();
 	static final List<Routine> spawnRoutines = new ArrayList<Routine>();
@@ -250,6 +252,7 @@ public class ModDamage extends JavaPlugin
 	private static GroupAliaser groupAliaser = new GroupAliaser();
 	private static ItemAliaser itemAliaser = new ItemAliaser();
 	private static MessageAliaser messageAliaser = new MessageAliaser();
+	private static RoutineAliaser routineAliaser = new RoutineAliaser();
 	private static WorldAliaser worldAliaser = new WorldAliaser();
 	private static LoadState state_armorAliases = LoadState.NOT_LOADED;
 	private static LoadState state_biomeAliases = LoadState.NOT_LOADED;
@@ -257,6 +260,7 @@ public class ModDamage extends JavaPlugin
 	private static LoadState state_itemAliases = LoadState.NOT_LOADED;
 	private static LoadState state_groupAliases = LoadState.NOT_LOADED;
 	private static LoadState state_messageAliases = LoadState.NOT_LOADED;
+	private static LoadState state_routineAliases = LoadState.NOT_LOADED;
 	private static LoadState state_worldAliases = LoadState.NOT_LOADED;
 	private static LoadState state_aliases = LoadState.NOT_LOADED;
 	
@@ -829,6 +833,8 @@ public class ModDamage extends JavaPlugin
 	}
 	
 //// ROUTINE PARSING ////
+	//Parse routine strings recursively
+////ROUTINE PARSING ////
 	//Parse routine strings recursively
 	private List<Routine> parse(List<Object> routineStrings, String loadType, LoadState[] currentState){ return parse(routineStrings, loadType, 0, currentState);}
 	@SuppressWarnings("unchecked")

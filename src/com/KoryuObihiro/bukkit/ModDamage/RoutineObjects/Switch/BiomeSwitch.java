@@ -15,9 +15,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class BiomeSwitch extends EntitySwitchRoutine<List<Biome>>
 {
-	public BiomeSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchLabels)
+	public BiomeSwitch(String configString, boolean forAttacker, LinkedHashMap<String, List<Routine>> switchLabels)
 	{
-		super(forAttacker, switchLabels);
+		super(configString, forAttacker, switchLabels);
 	}
 	@Override
 	protected List<Biome> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList(getRelevantEntity(eventInfo).getLocation().getBlock().getBiome());}
@@ -36,7 +36,7 @@ public class BiomeSwitch extends EntitySwitchRoutine<List<Biome>>
 		if(matcher != null && switchStatements != null)
 		{
 			boolean forAttacker = (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false;
-			return new BiomeSwitch(forAttacker, switchStatements);
+			return new BiomeSwitch(matcher.group(), forAttacker, switchStatements);
 		}
 		return null;
 	}

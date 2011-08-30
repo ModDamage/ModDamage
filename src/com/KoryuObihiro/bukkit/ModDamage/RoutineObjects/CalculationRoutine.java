@@ -13,8 +13,9 @@ abstract public class CalculationRoutine<AffectedClass> extends Routine
 {
 	public static HashMap<Pattern, Method> registeredStatements = new HashMap<Pattern, Method>();
 	final List<Routine> routines;
-	protected CalculationRoutine(List<Routine> routines)
+	protected CalculationRoutine(String configString, List<Routine> routines)
 	{
+		super(configString);
 		this.routines = routines;
 	}
 	@Override

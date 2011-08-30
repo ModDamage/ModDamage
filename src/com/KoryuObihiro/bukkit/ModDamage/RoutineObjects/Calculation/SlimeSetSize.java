@@ -16,9 +16,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class SlimeSetSize extends CalculationRoutine<Slime>
 {
 	final boolean forAttacker;
-	public SlimeSetSize(boolean forAttacker, List<Routine> routines)
+	public SlimeSetSize(String configString, boolean forAttacker, List<Routine> routines)
 	{
-		super(routines);
+		super(configString, routines);
 		this.forAttacker = forAttacker;
 	}
 	@Override
@@ -39,7 +39,7 @@ public class SlimeSetSize extends CalculationRoutine<Slime>
 	public static SlimeSetSize getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new SlimeSetSize((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
+			return new SlimeSetSize(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
 		return null;
 	}
 }

@@ -8,14 +8,18 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class DiceRoll extends Chanceroutine 
 {
-	public DiceRoll(){}
+	protected DiceRoll(String configString) {
+		super(configString);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = Math.abs(random.nextInt()%(eventInfo.eventValue + 1));}
 	
 	public static DiceRoll getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
-			return new DiceRoll();
+			return new DiceRoll(matcher.group());
 		return null;
 	}
 	

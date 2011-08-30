@@ -11,7 +11,10 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityExplode extends EntityCalculatedEffectRoutine
 {
-	public EntityExplode(boolean forAttacker, List<Routine> routines){ super(forAttacker, routines);}
+	public EntityExplode(String configString, boolean forAttacker, List<Routine> routines)
+	{
+		super(configString, forAttacker, routines);
+	}
 	
 	@Override
 	protected void applyEffect(LivingEntity affectedObject, int input) 
@@ -27,7 +30,7 @@ public class EntityExplode extends EntityCalculatedEffectRoutine
 	public static EntityExplode getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new EntityExplode((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
+			return new EntityExplode(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
 		return null;
 	}
 }

@@ -12,9 +12,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 abstract public class EntityCalculatedEffectRoutine extends CalculationRoutine<LivingEntity>
 {
 	protected final boolean forAttacker;
-	public EntityCalculatedEffectRoutine(boolean forAttacker, List<Routine> routines)
+	public EntityCalculatedEffectRoutine(String configString, boolean forAttacker, List<Routine> routines)
 	{
-		super(routines);
+		super(configString, routines);
 		this.forAttacker = forAttacker;
 	}
 	@Override

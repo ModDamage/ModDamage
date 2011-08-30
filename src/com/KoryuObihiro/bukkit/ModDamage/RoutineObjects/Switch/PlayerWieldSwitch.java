@@ -16,9 +16,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class PlayerWieldSwitch extends EntitySwitchRoutine<List<Material>>
 {
-	public PlayerWieldSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements) 
+	public PlayerWieldSwitch(String configString, boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements) 
 	{
-		super(forAttacker, switchStatements);
+		super(configString, forAttacker, switchStatements);
 	}
 	@Override
 	protected List<Material> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList((forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).materialInHand_attacker:eventInfo.materialInHand_target);}
@@ -37,7 +37,7 @@ public class PlayerWieldSwitch extends EntitySwitchRoutine<List<Material>>
 		if(matcher != null && switchStatements != null)
 		{
 			boolean forAttacker = (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false;
-			return new PlayerWieldSwitch(forAttacker, switchStatements);
+			return new PlayerWieldSwitch(matcher.group(), forAttacker, switchStatements);
 		}
 		return null;
 	}

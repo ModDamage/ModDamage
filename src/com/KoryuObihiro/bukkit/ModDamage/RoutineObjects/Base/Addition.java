@@ -10,7 +10,11 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class Addition extends Routine 
 {	
 	private int addValue;
-	public Addition(int value){ addValue = value;}
+	public Addition(String configString, int value)
+	{
+		super(configString);
+		addValue = value;
+		}
 	@Override
 	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue += addValue;}
 	
@@ -22,7 +26,7 @@ public class Addition extends Routine
 	public static Addition getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
-			return new Addition(Integer.parseInt(matcher.group(1)));
+			return new Addition(matcher.group(), Integer.parseInt(matcher.group(1)));
 		return null;
 	}
 }

@@ -15,7 +15,10 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class ArmorSetSwitch extends EntitySwitchRoutine<List<ArmorSet>>
 {
-	public ArmorSetSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements){ super(forAttacker, switchStatements);}
+	public ArmorSetSwitch(String configString, boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements)
+	{ 
+		super(configString, forAttacker, switchStatements);
+	}
 
 	@Override
 	protected List<ArmorSet> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList((forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).armorSet_attacker:eventInfo.armorSet_target);}
@@ -42,7 +45,7 @@ public class ArmorSetSwitch extends EntitySwitchRoutine<List<ArmorSet>>
 	public static ArmorSetSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
 		if(matcher != null && switchStatements != null)
-			return new ArmorSetSwitch((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, switchStatements);
+			return new ArmorSetSwitch(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, switchStatements);
 		return null;
 	}
 

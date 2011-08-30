@@ -13,9 +13,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class RangedElementSwitch extends SwitchRoutine<RangedElement>
 {
-	public RangedElementSwitch(LinkedHashMap<String, List<Routine>> switchLabels)
+	public RangedElementSwitch(String configString, LinkedHashMap<String, List<Routine>> switchLabels)
 	{
-		super(switchLabels);
+		super(configString, switchLabels);
 	}
 	@Override
 	protected RangedElement getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.rangedElement;}
@@ -31,7 +31,7 @@ public class RangedElementSwitch extends SwitchRoutine<RangedElement>
 	{
 		if(matcher != null && switchStatements != null)
 		{
-			return new RangedElementSwitch(switchStatements);
+			return new RangedElementSwitch(matcher.group(), switchStatements);
 		}
 		return null;
 	}

@@ -10,14 +10,18 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class Multiplication extends Routine 
 {
 	private int multiplicationValue;
-	public Multiplication(int value){ multiplicationValue = value;}
+	public Multiplication(String configString, int value)
+	{ 
+		super(configString);
+		multiplicationValue = value;
+	}
 	@Override
 	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue *= multiplicationValue;}
 	
 	public static Multiplication getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
-			return new Multiplication(Integer.parseInt(matcher.group(1)));
+			return new Multiplication(matcher.group(), Integer.parseInt(matcher.group(1)));
 		return null;
 	}
 	

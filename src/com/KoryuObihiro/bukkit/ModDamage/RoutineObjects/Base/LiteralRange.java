@@ -9,8 +9,9 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 public class LiteralRange extends Chanceroutine 
 {
 	private int lowerBound, upperBound;
-	public LiteralRange(int lower, int upper)
+	public LiteralRange(String configString, int lower, int upper)
 	{ 
+		super(configString);
 		lowerBound = lower;
 		upperBound = upper;
 	}
@@ -20,7 +21,7 @@ public class LiteralRange extends Chanceroutine
 	public static LiteralRange getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
-			return new LiteralRange(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)));
+			return new LiteralRange(matcher.group(), Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)));
 		return null;
 	}
 	

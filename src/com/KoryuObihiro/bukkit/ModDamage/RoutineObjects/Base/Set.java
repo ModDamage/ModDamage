@@ -13,15 +13,15 @@ public class Set extends CalculationRoutine<Integer>
 {
 	protected final boolean usingStaticValue;
 	protected int setValue;
-	public Set(int value)
+	public Set(String configString, int value)
 	{ 
-		super(null);
+		super(configString, null);
 		usingStaticValue = true;
 		setValue = value;
 	}
-	public Set(List<Routine> routines)
+	public Set(String configString, List<Routine> routines)
 	{ 
-		super(routines);
+		super(configString, routines);
 		usingStaticValue = false;
 		setValue = 0;
 	}
@@ -42,14 +42,14 @@ public class Set extends CalculationRoutine<Integer>
 	public static Set getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new Set(Integer.parseInt(matcher.group(1)));
+			return new Set(matcher.group(), Integer.parseInt(matcher.group(1)));
 		return null;
 	}
 	
 	public static Set getNew(Matcher matcher, List<Routine> routines)
 	{ 
 		if(matcher != null && routines != null)
-			return new Set(routines);
+			return new Set(matcher.group(), routines);
 		return null;
 	}
 	@Override

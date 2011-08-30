@@ -12,9 +12,9 @@ abstract public class PlayerCalculatedEffectRoutine extends CalculationRoutine<P
 {
 	protected final boolean forAttacker;
 	protected static final String entityPart = "(entity|attacker|target)";
-	public PlayerCalculatedEffectRoutine(boolean forAttacker, List<Routine> routines)
+	public PlayerCalculatedEffectRoutine(String configString, boolean forAttacker, List<Routine> routines)
 	{
-		super(routines);
+		super(configString, routines);
 		this.forAttacker = forAttacker;
 	}
 	@Override

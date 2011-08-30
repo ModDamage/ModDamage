@@ -10,9 +10,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 abstract public class WorldCalculatedEffectRoutine extends CalculationRoutine<World>
 {
-	public WorldCalculatedEffectRoutine(List<Routine> routines)
+	public WorldCalculatedEffectRoutine(String configString, List<Routine> routines)
 	{
-		super(routines);
+		super(configString, routines);
 	}
 	@Override
 	protected World getAffectedObject(TargetEventInfo eventInfo){ return eventInfo.world;}

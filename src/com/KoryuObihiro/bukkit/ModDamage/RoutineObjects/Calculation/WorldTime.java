@@ -13,7 +13,10 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class WorldTime extends WorldCalculatedEffectRoutine
 {
-	public WorldTime(List<Routine> routines){ super(routines);}
+	public WorldTime(String configString, List<Routine> routines)
+	{
+		super(configString, routines);
+	}
 	@Override
 	protected World getAffectedObject(TargetEventInfo eventInfo){ return eventInfo.world;}
 	@Override
@@ -27,7 +30,7 @@ public class WorldTime extends WorldCalculatedEffectRoutine
 	public static WorldTime getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new WorldTime(routines);
+			return new WorldTime(matcher.group(), routines);
 		return null;
 	}
 }

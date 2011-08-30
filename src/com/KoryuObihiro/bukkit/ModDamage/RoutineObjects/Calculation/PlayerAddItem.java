@@ -14,9 +14,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class PlayerAddItem extends PlayerCalculatedEffectRoutine
 {
 	protected final List<Material> materials;
-	public PlayerAddItem(boolean forAttacker, List<Material> materials, List<Routine> routines)
-	{ 
-		super(forAttacker, routines);
+	public PlayerAddItem(String configString, boolean forAttacker, List<Material> materials, List<Routine> routines)
+	{
+		super(configString, forAttacker, routines);
 		this.materials = materials;
 	}
 	
@@ -38,7 +38,7 @@ public class PlayerAddItem extends PlayerCalculatedEffectRoutine
 		{
 			List<Material> materials = ModDamage.matchItemAlias(matcher.group(2));
 			if(!materials.isEmpty())
-				return new PlayerAddItem((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, materials, routines);
+				return new PlayerAddItem(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, materials, routines);
 		}
 		return null;
 	}

@@ -16,14 +16,16 @@ public class Message extends Chanceroutine
 	protected final boolean forAttacker;
 	protected final List<String> messages;
 	protected final MessageType messageType;
-	public Message(boolean forAttacker, List<String> message)
+	public Message(String configString, boolean forAttacker, List<String> message)
 	{
+		super(configString);
 		this.messageType = MessageType.ENTITY;
 		this.forAttacker = forAttacker;
 		this.messages = message;
 	}
-	public Message(MessageType messageType, List<String> message)
+	public Message(String configString, MessageType messageType, List<String> message)
 	{
+		super(configString);
 		this.messageType = messageType;
 		this.forAttacker = false;
 		this.messages = message;
@@ -45,7 +47,14 @@ public class Message extends Chanceroutine
 		{
 			List<String> matchedMessage = ModDamage.matchMessageAlias(matcher.group(2));
 			if(!matchedMessage.isEmpty())
-				return MessageType.getRoutine(matcher.group(1), matchedMessage);
+			{
+				String key = matcher.group(1);
+				if(key.equalsIgnoreCase("target") || key.equalsIgnoreCase("attacker"))
+					return new Message(matcher.group(), key.equalsIgnoreCase("attacker"), matchedMessage);
+				else if(MessageType.match(key) != null)
+					return new Message(matcher.group(), MessageType.match(key), matchedMessage);
+				ModDamage.addToConfig(DebugSetting.QUIET, 0, "Unrecognized message recipient \"" + key + "\"", LoadState.FAILURE);
+			}
 		}
 		return null;
 	}
@@ -89,15 +98,6 @@ public class Message extends Chanceroutine
 						}
 					break;
 			}
-		}
-		private static Message getRoutine(String key, List<String> messages)
-		{
-			if(key.equalsIgnoreCase("target") || key.equalsIgnoreCase("attacker"))
-				return new Message(key.equalsIgnoreCase("attacker"), messages);
-			else if(MessageType.match(key) != null)
-				return new Message(MessageType.match(key), messages);
-			ModDamage.addToConfig(DebugSetting.QUIET, 0, "Unrecognized message recipient \"" + key + "\"", LoadState.FAILURE);
-			return null;
 		}
 	}
 }

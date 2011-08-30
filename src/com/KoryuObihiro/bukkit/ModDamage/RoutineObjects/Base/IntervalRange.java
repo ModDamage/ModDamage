@@ -9,8 +9,9 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 public class IntervalRange extends Chanceroutine 
 {
 	private int baseValue, intervalValue, rangeValue;
-	public IntervalRange(int base, int interval, int interval_range)
+	public IntervalRange(String configString, int base, int interval, int interval_range)
 	{ 
+		super(configString);
 		baseValue = base;
 		intervalValue = interval;
 		rangeValue = interval_range;
@@ -21,7 +22,7 @@ public class IntervalRange extends Chanceroutine
 	public static IntervalRange getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
-			return new IntervalRange(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(3)));
+			return new IntervalRange(matcher.group(), Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(3)));
 		return null;
 	}
 	

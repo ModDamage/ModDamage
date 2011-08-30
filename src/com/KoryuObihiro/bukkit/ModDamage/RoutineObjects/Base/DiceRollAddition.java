@@ -9,14 +9,18 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 public class DiceRollAddition extends Chanceroutine 
 {
 	private int maxValue;
-	public DiceRollAddition(int value){ maxValue = value;}
+	public DiceRollAddition(String configString, int value)
+	{
+		super(configString);
+		maxValue = value;
+	}
 	@Override
 	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue += Math.abs(random.nextInt()%(maxValue + 1));}
 	
 	public static DiceRollAddition getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
-			return new DiceRollAddition(Integer.parseInt(matcher.group(1)));
+			return new DiceRollAddition(matcher.group(), Integer.parseInt(matcher.group(1)));
 		return null;
 	}
 	

@@ -19,8 +19,9 @@ public class ConditionalRoutine extends Routine
 	final protected List<Routine> routines;
 	final List<ConditionalStatement> statements;
 	final List<LogicalOperation> logicalOperations;
-	public ConditionalRoutine(boolean inverted, List<ConditionalStatement> statements, List<LogicalOperation> logicalOperations, List<Routine> routines)
+	public ConditionalRoutine(String configString, boolean inverted, List<ConditionalStatement> statements, List<LogicalOperation> logicalOperations, List<Routine> routines)
 	{
+		super(configString);
 		this.inverted = inverted;
 		this.statements = statements;
 		this.logicalOperations = logicalOperations;
@@ -87,7 +88,7 @@ public class ConditionalRoutine extends Routine
 		{
 			statements.add(0, new FalseStatement());
 			operations.add(0, LogicalOperation.OR);
-			return new ConditionalRoutine(!matcher.group(1).equalsIgnoreCase("if"), statements, operations, routines);
+			return new ConditionalRoutine(matcher.group(), !matcher.group(1).equalsIgnoreCase("if"), statements, operations, routines);
 		}
 		return null;
 	}

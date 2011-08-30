@@ -11,9 +11,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityAddAirTicks extends EntityCalculatedEffectRoutine 
 {
-	public EntityAddAirTicks(boolean forAttacker, List<Routine> routines) 
+	public EntityAddAirTicks(String configString, boolean forAttacker, List<Routine> routines)
 	{
-		super(forAttacker, routines);
+		super(configString, forAttacker, routines);
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class EntityAddAirTicks extends EntityCalculatedEffectRoutine
 	public static EntityAddAirTicks getNew(Matcher matcher, List<Routine> routines)
 	{
 		if(matcher != null && routines != null)
-			return new EntityAddAirTicks((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
+			return new EntityAddAirTicks(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
 		return null;
 	}
 

@@ -13,9 +13,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class PlayerGroupSwitch extends EntitySwitchRoutine<List<String>>
 {
-	public PlayerGroupSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchLabels)
+	public PlayerGroupSwitch(String configString, boolean forAttacker, LinkedHashMap<String, List<Routine>> switchLabels)
 	{
-		super(forAttacker, switchLabels);
+		super(configString, forAttacker, switchLabels);
 	}
 	@Override
 	protected List<String> getRelevantInfo(TargetEventInfo eventInfo){ return (forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).groups_attacker:eventInfo.groups_target;}
@@ -40,7 +40,7 @@ public class PlayerGroupSwitch extends EntitySwitchRoutine<List<String>>
 		if(matcher != null && switchStatements != null)
 		{
 			boolean forAttacker = (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false;
-			return new PlayerGroupSwitch(forAttacker, switchStatements);
+			return new PlayerGroupSwitch(matcher.group(), forAttacker, switchStatements);
 		}
 		return null;
 	}

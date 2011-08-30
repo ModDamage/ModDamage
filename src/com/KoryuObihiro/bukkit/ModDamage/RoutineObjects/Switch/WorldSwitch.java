@@ -13,7 +13,10 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class WorldSwitch extends SwitchRoutine<List<String>>
 {	
-	public WorldSwitch(LinkedHashMap<String, List<Routine>> switchStatements){ super(switchStatements);}
+	public WorldSwitch(String configString, LinkedHashMap<String, List<Routine>> switchStatements)
+	{ 
+		super(configString, switchStatements);
+	}
 	@Override
 	protected List<String> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList(eventInfo.world.getName());}
 	@Override
@@ -29,7 +32,7 @@ public class WorldSwitch extends SwitchRoutine<List<String>>
 		WorldSwitch routine = null;
 		if(matcher != null && switchStatements != null)
 		{
-			routine = new WorldSwitch(switchStatements);
+			routine = new WorldSwitch(matcher.group(), switchStatements);
 			return (routine.isLoaded?routine:null);
 		}
 		return null;

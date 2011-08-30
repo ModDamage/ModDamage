@@ -14,9 +14,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class EntitySpawn extends EntityCalculatedEffectRoutine
 {
 	final CreatureType creatureType;
-	public EntitySpawn(boolean forAttacker, CreatureType creatureType, List<Routine> routines)
+	public EntitySpawn(String configString, boolean forAttacker, CreatureType creatureType, List<Routine> routines)
 	{
-		super(forAttacker, routines);
+		super(configString, forAttacker, routines);
 		this.creatureType = creatureType;
 	}
 
@@ -39,7 +39,7 @@ public class EntitySpawn extends EntityCalculatedEffectRoutine
 		{
 			ModDamageElement element = ModDamageElement.matchElement(matcher.group(2));
 			CreatureType creatureType = (element != null)?element.getCreatureType():null;
-			return new EntitySpawn((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, creatureType, routines);
+			return new EntitySpawn(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, creatureType, routines);
 		}
 		return null;
 	}
