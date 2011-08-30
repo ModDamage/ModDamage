@@ -43,14 +43,16 @@ public class ModDamageEntityListener extends EntityListener
 					else if(rangedElement != null && event.getCause().equals(DamageCause.ENTITY_ATTACK))
 						eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.TRAP_DISPENSER, rangedElement, event.getDamage());
 				}
-				else ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
-				
-				for(Routine routine : ModDamage.damageRoutines)
-					routine.run(eventInfo);
-					
-				if(eventInfo.eventValue < 0 && !ModDamage.negative_Heal) 
-					eventInfo.eventValue = 0;
-				event.setDamage(eventInfo.eventValue);
+				if(eventInfo != null)
+				{
+					for(Routine routine : ModDamage.damageRoutines)
+						routine.run(eventInfo);
+						
+					if(eventInfo.eventValue < 0 && !ModDamage.negative_Heal) 
+						eventInfo.eventValue = 0;
+					event.setDamage(eventInfo.eventValue);
+				}
+				else  ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
 			}
 		}
 	}
@@ -75,10 +77,10 @@ public class ModDamageEntityListener extends EntityListener
 	    		else if(rangedElement != null && nEvent.getCause().equals(DamageCause.ENTITY_ATTACK))
     			eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.TRAP_DISPENSER, rangedElement, 0);
 	    	}
-	    	else ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled death event. Is Bukkit and ModDamage up-to-date?");
-			
-			for(Routine routine : ModDamage.deathRoutines)
-				routine.run(eventInfo);
+	    	if(eventInfo != null)
+				for(Routine routine : ModDamage.deathRoutines)
+					routine.run(eventInfo);
+			else ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled death event. Is Bukkit and ModDamage up-to-date?");			
 		}
 	}
 	
@@ -112,6 +114,4 @@ public class ModDamageEntityListener extends EntityListener
 			event.setCancelled(entity.getHealth() <= 0);
 		}
 	}
-	
-	//TODO onProjectileHit when next RB comes out (currently 1060)
 }

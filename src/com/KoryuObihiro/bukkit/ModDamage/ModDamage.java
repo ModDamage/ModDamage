@@ -456,7 +456,7 @@ public class ModDamage extends JavaPlugin
 		else if(ModDamage.permissionsBukkit != null)
 		{
 			PermissionInfo info =  ModDamage.permissionsBukkit.getPlayerInfo(player.getName());
-			return info.getPermissions().containsKey(permission);
+			return info != null && info.getPermissions() != null && info.getPermissions().containsKey(permission);
 		}
 		else return player.isOp();
 	}
