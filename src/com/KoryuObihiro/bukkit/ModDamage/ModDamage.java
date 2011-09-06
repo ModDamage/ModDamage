@@ -4,6 +4,7 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -105,7 +107,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.RangedElementSwit
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
-import com.platymuus.bukkit.permissions.PermissionInfo;
+import com.platymuus.bukkit.permissions.Group;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 
 /**
@@ -120,7 +122,7 @@ public class ModDamage extends JavaPlugin
 	//TODO 0.9.6 switch and comparison for wieldquantity
 	//TODO 0.9.6 switch.conditional
 	//TODO 0.9.6 switch and conditional for region
-	// TODO 0.9.6 Make the Scan message possible.
+	//TODO 0.9.6 Make the Scan message possible.
 	/*
 	if(eventInfo.shouldScan)
 	{
@@ -190,13 +192,57 @@ public class ModDamage extends JavaPlugin
 	private static int additionalConfigChecks = 0;
 	
 //External-plugin variables
-	public static PermissionHandler Permissions = null;
-	public static PermissionsPlugin permissionsBukkit = null;
-	//private static elRegionsPlugin elRegions = null;
-	public static boolean multigroupPermissions = true;
-	public static boolean using_Permissions = false;
-	public static boolean using_SuperPerms = false;//TODO 0.9.6 - DEPRECATE ME
+//Permissions
+	public static final List<String> emptyList = new ArrayList<String>();
+	public static Plugin permissionsPlugin = null;
+	public static PermissionsType permissionsPluginType = PermissionsType.SuperPerms;
+	public enum PermissionsType
+	{
+		SuperPerms,
+		Perms2,
+		Perms3,
+		//PERMISSIONSEX,
+		//BPERMISSIONS,
+		PermissionsBukkit;
+		public List<String> getGroups(Player player)
+		{
+			if(player == null) return ModDamage.emptyList;
+			switch(this)
+			{
+				case Perms2:
+					return Arrays.asList(((PermissionHandler)ModDamage.permissionsPlugin).getGroups(player.getWorld().getName(), player.getName()));
+				case Perms3:
+					return Arrays.asList(((PermissionHandler)ModDamage.permissionsPlugin).getGroup(player.getWorld().getName(), player.getName()).split(" "));
+				case PermissionsBukkit:
+					List<String> groupNames = new ArrayList<String>();
+					for(Group group : ((PermissionsPlugin)ModDamage.permissionsPlugin).getGroups(player.getName()))
+						groupNames.add(group.getName());
+					return groupNames;
+				default: return emptyList;
+			}
+		}
+		public boolean hasPermission(Player player, String permission)
+		{
+			if(player == null) return false;
+			switch(this)
+			{
+				case SuperPerms:		return player.hasPermission(permission);
+				case Perms2:
+				case Perms3:			return ((PermissionHandler)ModDamage.permissionsPlugin).has(player, permission);
+				//TODO 0.9.6 - Does PB permschecking work?
+				case PermissionsBukkit:	return ((PermissionsPlugin)ModDamage.permissionsPlugin).getPlayerInfo(player.getName()).getPermissions().containsKey(permission);
+				default:				return player.isOp();
+			}
+		}
+	}
+	
+//Regional
+	//elRegions
+	//public static elRegionsPlugin elRegions = null;
 	static boolean using_elRegions = false;
+	
+	//WorldGuard
+	static boolean using_WorldGuard = false;
 	
 //General mechanics options
 	static boolean negative_Heal;
@@ -272,48 +318,6 @@ public class ModDamage extends JavaPlugin
 	public void onEnable() 
 	{		
 		ModDamage.server = getServer();
-	//PERMISSIONS
-		Plugin permissionsPlugin = getServer().getPluginManager().getPlugin("PermissionsBukkit");
-		if (permissionsPlugin != null)
-		{
-			ModDamage.permissionsBukkit = (PermissionsPlugin)permissionsPlugin;
-				using_Permissions = true;
-				using_SuperPerms = true;
-				log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [PermissionsBukkit v" + permissionsPlugin.getDescription().getVersion() + " active]");
-		}
-		else
-		{
-			permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
-			if (permissionsPlugin != null)
-			{
-				using_Permissions = true;
-				ModDamage.Permissions = ((Permissions)permissionsPlugin).getHandler();
-				log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions v" + permissionsPlugin.getDescription().getVersion() + " active]");
-				
-				//This is necessary for backwards-compatibility.
-				multigroupPermissions = permissionsPlugin.getDescription().getVersion().startsWith("3.");
-			}
-			else log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions not found]");
-		}
-		
-	//TODO 0.9.6 ELREGIONS
-		/*
-		elRegions = (elRegionsPlugin) this.getServer().getPluginManager().getPlugin("elRegions");
-		if (elRegions != null) 
-		{
-			using_elRegions = true;
-		    log.info("[" + getDescription().getName() + "] Found elRegions v" + elRegions.getDescription().getVersion());
-		}*/
-		
-	//Build check
-		String string = getServer().getVersion();
-		Matcher matcher = Pattern.compile(".*b([0-9]+)jnks.*", Pattern.CASE_INSENSITIVE).matcher(string);
-		if(matcher.matches())
-		{
-			if(Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
-				log.warning("Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.");
-		}
-		else log.severe("[" + getDescription().getName() + "] Either this is a nonstandard build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.");
 		
 	//Event registration
 		//register plugin-related stuff with the server's plugin manager
@@ -348,7 +352,7 @@ public class ModDamage extends JavaPlugin
 				{
 					if(args[0].equalsIgnoreCase("debug") || args[0].equalsIgnoreCase("d"))
 						{
-							if(fromConsole || hasPermission(player, "moddamage.debug"))
+							if(fromConsole || ModDamage.permissionsPluginType.hasPermission(player, "moddamage.debug"))
 							{
 								if(args.length == 1) toggleDebugging(player);
 								else if(args.length == 2)
@@ -373,7 +377,7 @@ public class ModDamage extends JavaPlugin
 							{
 								boolean reloadingAll = args.length == 2 && args[1].equalsIgnoreCase("all");
 								if(fromConsole) reload(reloadingAll);
-								else if(hasPermission(player, "moddamage.reload")) 
+								else if(permissionsPluginType.hasPermission(player, "moddamage.reload")) 
 								{
 									log.info("[" + getDescription().getName() + "] Reload initiated by user " + player.getName() + "...");
 									reload(reloadingAll);
@@ -396,14 +400,14 @@ public class ModDamage extends JavaPlugin
 						}
 						else if(args[0].equalsIgnoreCase("enable"))
 						{
-							if(fromConsole || hasPermission(player, "moddamage.enable"))
+							if(fromConsole || permissionsPluginType.hasPermission(player, "moddamage.enable"))
 								setPluginStatus(player, true);
 							else player.sendMessage(errorString_Permissions);
 							return true;
 						}
 						else if(args[0].equalsIgnoreCase("disable"))
 						{
-							if(fromConsole || hasPermission(player, "moddamage.disable"))
+							if(fromConsole || permissionsPluginType.hasPermission(player, "moddamage.disable"))
 									setPluginStatus(player, false);
 							else player.sendMessage(errorString_Permissions);
 							return true;
@@ -420,7 +424,7 @@ public class ModDamage extends JavaPlugin
 							}
 							else if(args.length == 1)
 							{
-								if(hasPermission(player, "moddamage.check"))
+								if(permissionsPluginType.hasPermission(player, "moddamage.check"))
 									sendConfig(player, 0);
 								else player.sendMessage(errorString_Permissions);
 							}
@@ -453,18 +457,6 @@ public class ModDamage extends JavaPlugin
 	}
 	
 ///// HELPER FUNCTIONS ////
-	public static boolean hasPermission(Player player, String permission)
-	{
-		if (ModDamage.Permissions != null)
-			return ModDamage.Permissions.has(player, permission);
-		else if(ModDamage.permissionsBukkit != null)
-		{
-			PermissionInfo info =  ModDamage.permissionsBukkit.getPlayerInfo(player.getName());
-			return info != null && info.getPermissions() != null && info.getPermissions().containsKey(permission);
-		}
-		else return player.isOp();
-	}
-
 	public static String ModDamageString(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "]";}
 
 	
@@ -534,6 +526,43 @@ public class ModDamage extends JavaPlugin
 		//clear and reregister MD routines, if true
 		if(reloadingAll)
 		{
+		//PERMISSIONS
+			ModDamage.permissionsPluginType = PermissionsType.SuperPerms;
+			//FIXME Use the enum to find the right plugin?
+			ModDamage.permissionsPlugin = getServer().getPluginManager().getPlugin("PermissionsBukkit");
+			if (permissionsPlugin != null)
+				ModDamage.permissionsPluginType = PermissionsType.PermissionsBukkit;
+			else
+			{
+				ModDamage.permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
+				if (permissionsPlugin != null)
+					//TODO 0.9.6 - Deprecate Perms 2/3.
+					ModDamage.permissionsPluginType = permissionsPlugin.getDescription().getVersion().startsWith("3.")?PermissionsType.Perms3:PermissionsType.Perms2;
+			}
+			if(permissionsPlugin != null)
+				log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [" + ModDamage.permissionsPlugin.getDescription().getName() + " v" + permissionsPlugin.getDescription().getVersion() + " active]");
+			else log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions plugin not found]");
+		
+		//TODO 0.9.6 -  ELREGIONS
+			/*
+			elRegions = (elRegionsPlugin) this.getServer().getPluginManager().getPlugin("elRegions");
+			if (elRegions != null) 
+			{
+				using_elRegions = true;
+			    log.info("[" + getDescription().getName() + "] Found elRegions v" + elRegions.getDescription().getVersion());
+			}*/
+			
+		//Build check
+			String string = getServer().getVersion();
+			Matcher matcher = Pattern.compile(".*b([0-9]+)jnks.*", Pattern.CASE_INSENSITIVE).matcher(string);
+			if(matcher.matches())
+			{
+				if(Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
+					log.warning("Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.");
+			}
+			else log.severe("[" + getDescription().getName() + "] Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.");
+			
+	//Routines
 			ModDamage.registeredBaseRoutines.clear();
 			CalculationRoutine.registeredStatements.clear();
 			ConditionalRoutine.registeredStatements.clear();
@@ -686,8 +715,9 @@ public class ModDamage extends JavaPlugin
 					state_itemAliases = loadAliases(aliasesNode, "Item", itemAliaser);
 					state_groupAliases = loadAliases(aliasesNode, "Group", groupAliaser);
 					state_messageAliases = loadAliases(aliasesNode, "Message", messageAliaser);
+					state_routineAliases = loadAliases(aliasesNode, "Routine", routineAliaser);
 					state_worldAliases = loadAliases(aliasesNode, "World", worldAliaser);
-					state_aliases = LoadState.combineStates(state_armorAliases, state_elementAliases, state_groupAliases, state_itemAliases, state_messageAliases, state_worldAliases);
+					state_aliases = LoadState.combineStates(state_armorAliases, state_elementAliases, state_groupAliases, state_itemAliases, state_messageAliases, state_routineAliases, state_worldAliases);
 					switch(state_aliases)//XXX Could be a more dynamic way of using the same switch, but meh.
 					{
 						case NOT_LOADED:
@@ -1217,6 +1247,7 @@ public class ModDamage extends JavaPlugin
 			player.sendMessage(ChatColor.DARK_AQUA + "   Group:        " + state_groupAliases.statusString() + "     " + ChatColor.DARK_GREEN + "Food:  " + state_foodRoutines.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Item:        " + state_itemAliases.statusString() + "      " + ChatColor.DARK_GREEN + "Spawn:  " + state_spawnRoutines.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Message:   " + state_messageAliases.statusString() + "        " + ChatColor.DARK_AQUA + "Biome:  " + state_biomeAliases.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:   " + state_routineAliases.statusString());
 			String bottomString = null;
 			switch(state_plugin)
 			{
