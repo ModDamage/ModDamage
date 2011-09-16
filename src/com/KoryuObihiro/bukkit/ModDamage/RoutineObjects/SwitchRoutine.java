@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +14,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 abstract public class SwitchRoutine<InfoType> extends Routine 
 {
-	public static HashMap<Pattern, Method> registeredStatements = new HashMap<Pattern, Method>();
+	public static HashMap<Pattern, Method> registeredRoutines = new HashMap<Pattern, Method>();
 	final protected LinkedHashMap<InfoType, List<Routine>> switchStatements;
 	public final boolean isLoaded;
 	public List<String> failedCases = new ArrayList<String>();
@@ -62,12 +63,12 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 	public static SwitchRoutine<?> getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchBlock)
 	{
 		SwitchRoutine<?> statement = null;
-		for(Pattern pattern : registeredStatements.keySet())
+		for(Pattern pattern : registeredRoutines.keySet())
 		{
 			Matcher switchMatcher = pattern.matcher(matcher.group(1));
 			if(switchMatcher.matches())
 			{
-				Method method = registeredStatements.get(pattern);
+				Method method = registeredRoutines.get(pattern);
 				try 
 				{
 					statement = (SwitchRoutine<?>)method.invoke(null, switchMatcher, switchBlock);
@@ -81,6 +82,23 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 	
 	public static void registerStatement(ModDamage routineUtility, Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)
 	{
-		ModDamage.registerSwitch(statementClass, syntax);
+		try
+		{
+			Method method = statementClass.getMethod("getNew", Matcher.class, LinkedHashMap.class);
+			if(method != null)
+			{
+				assert(method.getReturnType().equals(statementClass));
+				method.invoke(null, (Matcher)null, (LinkedHashMap<String, List<Routine>>)null);
+				ModDamage.register(SwitchRoutine.registeredRoutines, method, syntax);
+			}
+			else ModDamage.log.severe("Method getNew not found for statement " + statementClass.getName());
+		}
+		catch(AssertionError e){ ModDamage.log.severe("[ModDamage] Error: getNew doesn't return class " + statementClass.getName() + "!");}
+		catch(SecurityException e){ ModDamage.log.severe("[ModDamage] Error: getNew isn't public for class " + statementClass.getName() + "!");}
+		catch(NullPointerException e){ ModDamage.log.severe("[ModDamage] Error: getNew for class " + statementClass.getName() + " is not static!");}
+		catch(NoSuchMethodException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have a getNew() method!");} 
+		catch (IllegalArgumentException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have matching method getNew(Matcher, LinkedHashMap)!");} 
+		catch (IllegalAccessException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
+		catch (InvocationTargetException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
 	}
 }

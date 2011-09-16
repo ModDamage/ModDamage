@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
@@ -18,7 +19,12 @@ public class EventRangedElementEvaluation extends ConditionalStatement
 		this.rangedElement = rangedElement;
 	}
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo){ return (eventInfo.rangedElement != null)?eventInfo.rangedElement.equals(rangedElement):false;}
+	protected boolean condition(TargetEventInfo eventInfo)
+	{ 
+		return (eventInfo instanceof ProjectileEventInfo && ((ProjectileEventInfo)eventInfo).rangedElement != null)
+				?((ProjectileEventInfo)eventInfo).rangedElement.equals(rangedElement)
+				:false;
+		}
 	
 	public static void register(ModDamage routineUtility)
 	{

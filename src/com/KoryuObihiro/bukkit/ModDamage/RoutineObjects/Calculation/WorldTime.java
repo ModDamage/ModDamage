@@ -11,7 +11,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class WorldTime extends WorldCalculatedEffectRoutine
+public class WorldTime extends WorldCalculationRoutine
 {
 	public WorldTime(String configString, List<Routine> routines)
 	{
@@ -24,7 +24,7 @@ public class WorldTime extends WorldCalculatedEffectRoutine
 
 	public static void register(ModDamage modDamage) 
 	{
-		CalculationRoutine.registerStatement(modDamage, WorldTime.class, Pattern.compile("worldeffect\\.setTime", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerStatement(WorldTime.class, Pattern.compile("worldeffect\\.setTime", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static WorldTime getNew(Matcher matcher, List<Routine> routines)

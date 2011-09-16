@@ -7,24 +7,25 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
-public class PlayerGroupEvaluation extends EntityConditionalStatement<List<String>>
+public class PlayerGroupEvaluation extends EntityConditionalStatement
 {
-	public PlayerGroupEvaluation(boolean inverted, boolean forAttacker, List<String> value)
+	final List<String> groups;
+	public PlayerGroupEvaluation(boolean inverted, EntityReference entityReference, List<String> groups)
 	{  
-		super(inverted, forAttacker, value);
+		super(inverted, entityReference);
+		this.groups = groups;
 	}
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo) 
 	{
 		for(String group : getRelevantInfo(eventInfo))
-			if(value.contains(group))
+			if(groups.contains(group))
 				return true;
 		return false;
 	}
-	@Override
-	protected List<String> getRelevantInfo(TargetEventInfo eventInfo){ return shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).groups_attacker:eventInfo.groups_target;}
 	
 	public static void register(ModDamage routineUtility)
 	{
@@ -37,7 +38,7 @@ public class PlayerGroupEvaluation extends EntityConditionalStatement<List<Strin
 		{
 			List<String> matchedGroups = ModDamage.matchGroupAlias(matcher.group(3));
 			if(!matchedGroups.isEmpty())
-				return new PlayerGroupEvaluation(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, matchedGroups);
+				return new PlayerGroupEvaluation(matcher.group(1).equalsIgnoreCase("!"), TargetEventInfo.EntityReference.match(matcher.group(2)), matchedGroups);
 		}
 		return null;
 	}

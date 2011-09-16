@@ -7,30 +7,32 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class EntityAddAirTicks extends EntityCalculatedEffectRoutine 
+public class EntityAddAirTicks extends LivingEntityCalculationRoutine
 {
-	public EntityAddAirTicks(String configString, boolean forAttacker, List<Routine> routines)
+	public EntityAddAirTicks(String configString, EntityReference entityReference, List<Routine> routines)
 	{
-		super(configString, forAttacker, routines);
+		super(configString, entityReference, routines);
 	}
 
 	@Override
-	protected void applyEffect(LivingEntity affectedObject, int input) 
+	protected void applyEffect(LivingEntity entity, int input) 
 	{
-		affectedObject.setRemainingAir(affectedObject.getRemainingAir() + input);
+		entity.setRemainingAir(entity.getRemainingAir() + input);
 	}
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntityAddAirTicks.class, Pattern.compile("(\\w+)effect\\.addAirTicks", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerStatement(EntityAddAirTicks.class, Pattern.compile("(\\w+)effect\\.addAirTicks", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityAddAirTicks getNew(Matcher matcher, List<Routine> routines)
 	{
-		if(matcher != null && routines != null)
-			return new EntityAddAirTicks(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
+		if(matcher != null && routines != null && EntityReference.isValid(matcher.group(1)))
+			return new EntityAddAirTicks(matcher.group(), EntityReference.match(matcher.group(1)), routines);
 		return null;
 	}
 

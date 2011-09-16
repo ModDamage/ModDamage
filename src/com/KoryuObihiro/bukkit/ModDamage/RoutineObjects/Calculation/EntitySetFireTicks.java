@@ -7,13 +7,15 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class EntitySetFireTicks extends EntityCalculatedEffectRoutine
+public class EntitySetFireTicks extends LivingEntityCalculationRoutine
 {
-	public EntitySetFireTicks(String configString, boolean forAttacker, List<Routine> routines)
+	public EntitySetFireTicks(String configString, EntityReference entityReference, List<Routine> routines)
 	{
-		super(configString, forAttacker, routines);
+		super(configString, entityReference, routines);
 	}
 
 	@Override
@@ -24,13 +26,13 @@ public class EntitySetFireTicks extends EntityCalculatedEffectRoutine
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntitySetFireTicks.class, Pattern.compile("(\\w+)effect\\.setfireticks", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerStatement(EntitySetFireTicks.class, Pattern.compile("(\\w+)effect\\.setfireticks", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntitySetFireTicks getNew(Matcher matcher, List<Routine> routines)
 	{
-		if(matcher != null && routines != null)
-			return new EntitySetFireTicks(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
+		if(matcher != null && routines != null && EntityReference.isValid(matcher.group(1)))
+			return new EntitySetFireTicks(matcher.group(), EntityReference.match(matcher.group(1)), routines);
 		return null;
 	}
 }

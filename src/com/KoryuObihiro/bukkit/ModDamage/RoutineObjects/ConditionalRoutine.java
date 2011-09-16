@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,13 +19,13 @@ public class ConditionalRoutine extends Routine
 	final protected boolean inverted;
 	final protected List<Routine> routines;
 	final List<ConditionalStatement> statements;
-	final List<LogicalOperation> logicalOperations;
-	public ConditionalRoutine(String configString, boolean inverted, List<ConditionalStatement> statements, List<LogicalOperation> logicalOperations, List<Routine> routines)
+	final List<LogicalOperation> LogicalOperations;
+	public ConditionalRoutine(String configString, boolean inverted, List<ConditionalStatement> statements, List<LogicalOperation> LogicalOperations, List<Routine> routines)
 	{
 		super(configString);
 		this.inverted = inverted;
 		this.statements = statements;
-		this.logicalOperations = logicalOperations;
+		this.LogicalOperations = LogicalOperations;
 		this.routines = routines;
 	}
 	
@@ -33,7 +34,7 @@ public class ConditionalRoutine extends Routine
 	{
 		boolean result = statements.get(0).condition(eventInfo);
 		for(int i = 1; i < statements.size(); i++)
-			 result = logicalOperations.get(i - 1).operate(result, statements.get(i).condition(eventInfo) ^ statements.get(i).inverted);
+			 result = LogicalOperations.get(i - 1).operate(result, statements.get(i).condition(eventInfo) ^ statements.get(i).inverted);
 		if(result ^ inverted) 
 			for(Routine routine : routines)
 				routine.run(eventInfo);
@@ -65,7 +66,7 @@ public class ConditionalRoutine extends Routine
 					
 					if(statement == null)
 					{
-						ModDamage.addToConfig(DebugSetting.QUIET, 0, "Error: bad statement \"" + statementStrings[i] + "\"", LoadState.FAILURE);
+						ModDamage.addToLogRecord(DebugSetting.QUIET, 0, "Error: bad statement \"" + statementStrings[i] + "\"", LoadState.FAILURE);
 						return null;
 					}
 					//get its relation to the previous statement
@@ -74,7 +75,7 @@ public class ConditionalRoutine extends Routine
 						LogicalOperation operation = LogicalOperation.matchType(statementStrings[i - 1]);
 						if(operation == null)
 						{
-							ModDamage.addToConfig(DebugSetting.QUIET, 0, "Error: bad operator \"" + statementStrings[i - 1] + "\"", LoadState.FAILURE);
+							ModDamage.addToLogRecord(DebugSetting.QUIET, 0, "Error: bad operator \"" + statementStrings[i - 1] + "\"", LoadState.FAILURE);
 							return null;//shouldn't ever happen
 						}
 						operations.add(operation);
@@ -95,7 +96,24 @@ public class ConditionalRoutine extends Routine
 	
 	public static void registerStatement(ModDamage routineUtility, Class<? extends ConditionalStatement> statementClass, Pattern syntax)
 	{
-		ModDamage.registerConditional(statementClass, syntax);
+		try
+		{
+			Method method = statementClass.getMethod("getNew", Matcher.class);
+			if(method != null)
+			{
+				assert(method.getReturnType().equals(statementClass));
+				method.invoke(null, (Matcher)null);
+				ModDamage.register(ConditionalRoutine.registeredStatements, method, syntax);
+			}
+			else ModDamage.log.severe("Method getNew not found for statement " + statementClass.getName());
+		}
+		catch(AssertionError e){ ModDamage.log.severe("[ModDamage] Error: getNew doesn't return class " + statementClass.getName() + "!");}
+		catch(SecurityException e){ ModDamage.log.severe("[ModDamage] Error: getNew isn't public for class " + statementClass.getName() + "!");}
+		catch(NullPointerException e){ ModDamage.log.severe("[ModDamage] Error: getNew for class " + statementClass.getName() + " is not static!");}
+		catch(NoSuchMethodException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have a getNew() method!");} 
+		catch (IllegalArgumentException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
+		catch (IllegalAccessException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
+		catch (InvocationTargetException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
 	}
 	
 	private static class FalseStatement extends ConditionalStatement

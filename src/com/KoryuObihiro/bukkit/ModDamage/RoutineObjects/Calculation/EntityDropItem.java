@@ -5,31 +5,33 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Material;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class EntityDropItem extends EntityCalculatedEffectRoutine
+public class EntityDropItem extends EntityCalculationRoutine<Entity>
 {
 	protected final List<Material> materials;
-	public EntityDropItem(String configString, boolean forAttacker, List<Material> materials, List<Routine> routines)
+	public EntityDropItem(String configString, EntityReference entityReference, List<Material> materials, List<Routine> routines)
 	{
-		super(configString, forAttacker, routines);
+		super(configString, entityReference, routines);
 		this.materials = materials;
 	}
 	
 	@Override
-	protected void applyEffect(LivingEntity affectedObject, int input) 
+	protected void applyEffect(Entity emtity, int input) 
 	{
 		for(Material material : materials)
-			affectedObject.getWorld().dropItem(affectedObject.getLocation(), new ItemStack(material, input));//TODO Just override run(), ter summat.
+			emtity.getWorld().dropItem(emtity.getLocation(), new ItemStack(material, input));
 	}
 
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntityDropItem.class, Pattern.compile("(\\w+)effect\\.dropItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerStatement(EntityDropItem.class, Pattern.compile("(\\w+)effect\\.dropItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityDropItem getNew(Matcher matcher, List<Routine> routines)
@@ -37,8 +39,8 @@ public class EntityDropItem extends EntityCalculatedEffectRoutine
 		if(matcher != null && routines != null)
 		{
 			List<Material> materials =  ModDamage.matchItemAlias(matcher.group(2));
-			if(!materials.isEmpty())
-				return new EntityDropItem(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, materials, routines);
+			if(!materials.isEmpty() && EntityReference.isValid(matcher.group(1)))
+				return new EntityDropItem(matcher.group(), EntityReference.match(matcher.group(1)), materials, routines);
 		}
 		return null;
 	}

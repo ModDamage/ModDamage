@@ -1,24 +1,14 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
-public abstract class EntityConditionalStatement<InputType> extends ConditionalStatement
+public abstract class EntityConditionalStatement extends ConditionalStatement
 {
-	protected final boolean forAttacker;
-	protected final InputType value;
-	public EntityConditionalStatement(boolean inverted, boolean forAttacker, InputType value)
+	protected final EntityReference entityReference;
+	public EntityConditionalStatement(boolean inverted, EntityReference entityReference)
 	{ 
 		super(inverted);
-		this.forAttacker = forAttacker; 
-		this.value = value;
+		this.entityReference = entityReference;
 	}
-	
-	abstract protected InputType getRelevantInfo(TargetEventInfo eventInfo);
-	
-	protected final boolean shouldGetAttacker(TargetEventInfo eventInfo){ return (forAttacker && eventInfo instanceof AttackerEventInfo);}
-	
-	@Override
-	protected boolean condition(TargetEventInfo eventInfo){ return getRelevantInfo(eventInfo).equals(value);}	
 }

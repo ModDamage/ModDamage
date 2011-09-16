@@ -4,30 +4,30 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
-public class EntityExposedToSky extends EntityConditionalStatement<Boolean>
+public class EntityExposedToSky extends EntityConditionalStatement
 {
-	public EntityExposedToSky(boolean inverted, boolean forAttacker) 
+	public EntityExposedToSky(boolean inverted, EntityReference entityReference) 
 	{
-		super(inverted, forAttacker, true);
+		super(inverted, entityReference);
 	}
 	
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo){ return isExposedToSky(eventInfo.getRelevantEntity(forAttacker), eventInfo.world);}
+	protected boolean condition(TargetEventInfo eventInfo){ return isExposedToSky(entityReference.getEntity(eventInfo), eventInfo.world);}
 
-	@Override
-	protected Boolean getRelevantInfo(TargetEventInfo eventInfo){ return false;}
 
-	private boolean isExposedToSky(LivingEntity entity, World world)
+	private boolean isExposedToSky(Entity entity, World world)
 	{
 		int i = entity.getLocation().getBlockX();
 		int k = entity.getLocation().getBlockZ();
-		for(int j = entity.getEyeLocation().getBlockY(); j < 128; j++)
+		for(int j = ((entity instanceof LivingEntity)?((LivingEntity)entity).getEyeLocation():entity.getLocation()).getBlockY(); j < 128; j++)
 			switch(world.getBlockAt(i, j, k).getType())
 			{
 				case AIR: 
@@ -51,7 +51,8 @@ public class EntityExposedToSky extends EntityConditionalStatement<Boolean>
 	public static EntityExposedToSky getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new EntityExposedToSky(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false);
+			if(EntityReference.isValid(matcher.group(2)))
+				return new EntityExposedToSky(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)));
 		return null;
 	}
 

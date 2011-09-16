@@ -9,14 +9,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class PlayerSetItem extends PlayerCalculatedEffectRoutine
+public class PlayerSetItem extends PlayerCalculationRoutine
 {
 	protected final Material material;
-	public PlayerSetItem(String configString, boolean forAttacker, Material material, List<Routine> routines)
+	public PlayerSetItem(String configString, EntityReference entityReference, Material material, List<Routine> routines)
 	{
-		super(configString, forAttacker, routines);
+		super(configString, entityReference, routines);
 		this.material = material;
 	}
 	
@@ -28,7 +30,7 @@ public class PlayerSetItem extends PlayerCalculatedEffectRoutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(PlayerSetItem.class, Pattern.compile("(\\w+)effect\\.setItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerStatement(PlayerSetItem.class, Pattern.compile("(\\w+)effect\\.setItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerSetItem getNew(Matcher matcher, List<Routine> routines)
@@ -36,8 +38,8 @@ public class PlayerSetItem extends PlayerCalculatedEffectRoutine
 		if(matcher != null && routines != null)
 		{
 			Material material = Material.matchMaterial(matcher.group(2));
-			if(material != null)
-				return new PlayerSetItem(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, material, routines);
+			if(material != null && EntityReference.isValid(matcher.group(1)))
+				return new PlayerSetItem(matcher.group(), EntityReference.match(matcher.group(1)), material, routines);
 		}
 		return null;
 	}

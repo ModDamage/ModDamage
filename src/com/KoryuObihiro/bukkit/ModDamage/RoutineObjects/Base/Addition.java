@@ -5,28 +5,32 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class Addition extends Routine 
 {	
-	private int addValue;
-	public Addition(String configString, int value)
+	private IntegerMatch number;
+	public Addition(String configString, IntegerMatch number)
 	{
 		super(configString);
-		addValue = value;
-		}
+		this.number = number;
+	}
 	@Override
-	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue += addValue;}
+	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue += number.getValue(eventInfo);}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(Addition.class, Pattern.compile("(-?[0-9]+)", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(Addition.class, Pattern.compile("(-?[0-9]+|(\\w+\\.\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Addition getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
-			return new Addition(matcher.group(), Integer.parseInt(matcher.group(1)));
+		{
+			IntegerMatch match = IntegerMatch.getNew(matcher.group(1));
+			return new Addition(matcher.group(), match);
+		}
 		return null;
 	}
 }

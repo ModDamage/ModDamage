@@ -7,20 +7,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-public class EntityTypeSwitch extends EntitySwitchRoutine<List<ModDamageElement>>
+public class EntityTypeSwitch extends LivingEntitySwitchRoutine<List<ModDamageElement>>
 {
-	public EntityTypeSwitch(String configString, boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements)
+	public EntityTypeSwitch(String configString, EntityReference entityReference, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
-		super(configString, forAttacker, switchStatements);
+		super(configString, entityReference, switchStatements);
 	}
 	@Override
-	protected List<ModDamageElement> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList(shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).element_attacker:eventInfo.element_target);}
+	protected List<ModDamageElement> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList(entityReference.getElement(eventInfo));}
 	@Override
 	protected boolean compare(List<ModDamageElement> info_1, List<ModDamageElement> info_2)
 	{ //FIXME Not working with an alias?
@@ -39,8 +39,8 @@ public class EntityTypeSwitch extends EntitySwitchRoutine<List<ModDamageElement>
 	
 	public static EntityTypeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
-		if(matcher != null && switchStatements != null)
-			return new EntityTypeSwitch(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, switchStatements);
+		if(matcher != null && switchStatements != null && EntityReference.isValid(matcher.group(1)))
+			return new EntityTypeSwitch(matcher.group(),  EntityReference.match(matcher.group(1)), switchStatements);
 		return null;
 	}
 }

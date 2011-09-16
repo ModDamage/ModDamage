@@ -7,13 +7,15 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class EntityHeal extends EntityCalculatedEffectRoutine
+public class EntityHeal extends LivingEntityCalculationRoutine
 {
-	public EntityHeal(String configString, boolean forAttacker, List<Routine> routines)
+	public EntityHeal(String configString, EntityReference entityReference, List<Routine> routines)
 	{
-		super(configString, forAttacker, routines);
+		super(configString, entityReference, routines);
 	}
 
 	@Override
@@ -24,13 +26,13 @@ public class EntityHeal extends EntityCalculatedEffectRoutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntityHeal.class, Pattern.compile("(\\w+)effect\\.heal", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerStatement(EntityHeal.class, Pattern.compile("(\\w+)effect\\.heal", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityHeal getNew(Matcher matcher, List<Routine> routines)
 	{
-		if(matcher != null && routines != null)
-			return new EntityHeal(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
+		if(matcher != null && routines != null && EntityReference.isValid(matcher.group(1)))
+			return new EntityHeal(matcher.group(), EntityReference.match(matcher.group(1)), routines);
 		return null;
 	}
 }

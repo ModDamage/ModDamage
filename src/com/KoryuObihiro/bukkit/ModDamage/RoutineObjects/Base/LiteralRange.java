@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class LiteralRange extends Chanceroutine 
 {
@@ -27,6 +28,6 @@ public class LiteralRange extends Chanceroutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(LiteralRange.class, Pattern.compile("range\\.([0-9]+)\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(LiteralRange.class, Pattern.compile("range\\.(-?[0-9]+|(\\w+\\.\\w+)\\.(-?[0-9]+|(\\w+\\.\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 }

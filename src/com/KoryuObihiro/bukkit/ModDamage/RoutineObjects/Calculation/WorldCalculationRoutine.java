@@ -8,9 +8,9 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-abstract public class WorldCalculatedEffectRoutine extends CalculationRoutine<World>
+abstract public class WorldCalculationRoutine extends CalculationRoutine<World>
 {
-	public WorldCalculatedEffectRoutine(String configString, List<Routine> routines)
+	public WorldCalculationRoutine(String configString, List<Routine> routines)
 	{
 		super(configString, routines);
 	}

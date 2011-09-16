@@ -27,6 +27,6 @@ public class DivisionAddition extends Routine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(DivisionAddition.class, Pattern.compile("div_add\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(DivisionAddition.class, Pattern.compile("div_add\\.(-?[0-9]+|(\\w+\\.\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 }

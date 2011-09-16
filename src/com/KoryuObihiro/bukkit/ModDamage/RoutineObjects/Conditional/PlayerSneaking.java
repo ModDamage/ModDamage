@@ -7,17 +7,22 @@ import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
-public class PlayerSneaking extends EntityConditionalStatement<Boolean>
+public class PlayerSneaking extends PlayerConditionalStatement
 {
-	public PlayerSneaking(boolean inverted, boolean forAttacker)
+	public PlayerSneaking(boolean inverted, EntityReference entityReference)
 	{  
-		super(inverted, forAttacker, true);
+		super(inverted, entityReference);
 	}
 
 	@Override
-	protected Boolean getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.getRelevantEntity(forAttacker) instanceof Player && ((Player)eventInfo.getRelevantEntity(forAttacker)).isSneaking();}
+	protected boolean condition(TargetEventInfo eventInfo)
+	{ 
+		Player player = getRelevantPlayer(eventInfo);
+		return (player != null && player.isSneaking());
+	}
 	
 	public static void register(ModDamage routineUtility)
 	{
@@ -27,7 +32,8 @@ public class PlayerSneaking extends EntityConditionalStatement<Boolean>
 	public static PlayerSneaking getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new PlayerSneaking(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false);
+			if(EntityReference.isValid(matcher.group(2)))
+				return new PlayerSneaking(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)));
 		return null;
 	}
 }

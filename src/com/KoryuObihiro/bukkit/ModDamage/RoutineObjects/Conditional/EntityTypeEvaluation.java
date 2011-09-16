@@ -5,27 +5,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
-public class EntityTypeEvaluation extends EntityConditionalStatement<List<ModDamageElement>>
+public class EntityTypeEvaluation extends EntityConditionalStatement
 {
-	public EntityTypeEvaluation(boolean inverted, boolean forAttacker, List<ModDamageElement> value)
+	final List<ModDamageElement> elements;
+	public EntityTypeEvaluation(boolean inverted, EntityReference entityReference, List<ModDamageElement> elements)
 	{ 
-		super(inverted, forAttacker, value);
+		super(inverted, entityReference);
+		this.elements = elements;
 	}
 	@Override
 	public boolean condition(TargetEventInfo eventInfo)
 	{
-		for(ModDamageElement element : value)
-			if((shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).element_attacker:eventInfo.element_target).matchesType(element))
+		for(ModDamageElement element : elements)//TODO Reference for entity properties that aren't integers
+			if(entityReference.getElement(eventInfo).matchesType(element))
 				return true;
 		return false;
 	}
-	@Override
-	protected List<ModDamageElement> getRelevantInfo(TargetEventInfo eventInfo){ return null;}
 	
 	public static void register(ModDamage routineUtility)
 	{
@@ -38,7 +38,7 @@ public class EntityTypeEvaluation extends EntityConditionalStatement<List<ModDam
 		{
 			List<ModDamageElement> elements = ModDamage.matchElementAlias(matcher.group(3));
 			if(!elements.isEmpty())
-				return new EntityTypeEvaluation(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, elements);
+				return new EntityTypeEvaluation(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), elements);
 		}
 		return null;
 	}

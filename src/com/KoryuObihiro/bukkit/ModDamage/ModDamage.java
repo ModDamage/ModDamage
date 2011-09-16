@@ -1,18 +1,15 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -22,25 +19,24 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamageEntityListener.EventType;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ArmorAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.BiomeAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ElementAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.GroupAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ItemAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RegionAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.WorldAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
@@ -68,47 +64,33 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerSetIte
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.SlimeSetSize;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.WorldTime;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Binomial;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityAirTicksComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBiome;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityCoordinateComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityDrowning;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityExposedToSky;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityFallComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityFalling;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityFireTicksComparison;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityHealthComparison;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityLightComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnBlock;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnFire;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTypeEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityUnderwater;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventHasRangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventRangedElementEvaluation;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventValueComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerGroupEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSleeping;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSneaking;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearing;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearingOnly;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerPlayerCountComparison;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.SlimeSizeComparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldTimeComparison;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupEvaluation;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Regions.EntityRegion;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EnvironmentSwitch;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerGroupSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.RangedElementSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
-import com.nijiko.permissions.PermissionHandler;
-import com.nijikokun.bukkit.Permissions.Permissions;
-import com.platymuus.bukkit.permissions.Group;
-import com.platymuus.bukkit.permissions.PermissionsPlugin;
 
 /**
  * "ModDamage" for Bukkit
@@ -121,7 +103,6 @@ public class ModDamage extends JavaPlugin
 	//TODO 0.9.6 Command for autogen world/entitytype switches?
 	//TODO 0.9.6 switch and comparison for wieldquantity
 	//TODO 0.9.6 switch.conditional
-	//TODO 0.9.6 switch and conditional for region
 	//TODO 0.9.6 Make the Scan message possible.
 	/*
 	if(eventInfo.shouldScan)
@@ -135,8 +116,9 @@ public class ModDamage extends JavaPlugin
 	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
 	// -AoE clearance, block search nearby for Material?
 	
-	// Ideas
-	// -if.entityis.inRegion
+	// Crazy Ideas
+	// -----------
+	//
 	// -if.server.port.#port
 	// -switch.spawnreason
 
@@ -153,14 +135,11 @@ public class ModDamage extends JavaPlugin
 	// -ability to clear non-static tag
 	// -External: tag entities with an alias ($)
 	// -External: check entity tags
-	// -find a way to give players ownership of an explosion
+	// -find a way to give players ownership of an explosion?
 	// -Deregister when Bukkit supports!
 	
-	// Ideas
 	// -External calls to aliased sets of routines? But...EventInfo would be screwed up. :P
 
-	
-//Typical plugin stuff...for the most part. :P
 	public static Server server;
 	public final int oldestSupportedBuild = 1060;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
@@ -182,80 +161,7 @@ public class ModDamage extends JavaPlugin
 				return true;
 			return false;
 		}
-	}	
-	private static Configuration config;
-	private static String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
-
-	private static int configPages = 0;
-	private static List<String> configStrings_ingame = new ArrayList<String>();
-	private static List<String> configStrings_console = new ArrayList<String>();
-	private static int additionalConfigChecks = 0;
-	
-//External-plugin variables
-//Permissions
-	public static final List<String> emptyList = new ArrayList<String>();
-	public static Plugin permissionsPlugin = null;
-	public static PermissionsType permissionsPluginType = PermissionsType.SuperPerms;
-	public enum PermissionsType
-	{
-		SuperPerms,
-		Perms2,
-		Perms3,
-		//PERMISSIONSEX,
-		//BPERMISSIONS,
-		PermissionsBukkit;
-		public List<String> getGroups(Player player)
-		{
-			if(player == null) return ModDamage.emptyList;
-			switch(this)
-			{
-				case Perms2:
-					return Arrays.asList(((PermissionHandler)ModDamage.permissionsPlugin).getGroups(player.getWorld().getName(), player.getName()));
-				case Perms3:
-					return Arrays.asList(((PermissionHandler)ModDamage.permissionsPlugin).getGroup(player.getWorld().getName(), player.getName()).split(" "));
-				case PermissionsBukkit:
-					List<String> groupNames = new ArrayList<String>();
-					for(Group group : ((PermissionsPlugin)ModDamage.permissionsPlugin).getGroups(player.getName()))
-						groupNames.add(group.getName());
-					return groupNames;
-				default: return emptyList;
-			}
-		}
-		public boolean hasPermission(Player player, String permission)
-		{
-			if(player == null) return false;
-			switch(this)
-			{
-				case SuperPerms:		return player.hasPermission(permission);
-				case Perms2:
-				case Perms3:			return ((PermissionHandler)ModDamage.permissionsPlugin).has(player, permission);
-				//TODO 0.9.6 - Does PB permschecking work?
-				case PermissionsBukkit:	return ((PermissionsPlugin)ModDamage.permissionsPlugin).getPlayerInfo(player.getName()).getPermissions().containsKey(permission);
-				default:				return player.isOp();
-			}
-		}
 	}
-	
-//Regional
-	//elRegions
-	//public static elRegionsPlugin elRegions = null;
-	static boolean using_elRegions = false;
-	
-	//WorldGuard
-	static boolean using_WorldGuard = false;
-	
-//General mechanics options
-	static boolean negative_Heal;
-	
-//Predefined pattern strings
-	public static final String statementPart = "(?:!?(?:[\\*\\w]+)(?:\\.[\\*\\w]+)*)";
-	private static Pattern calculationPattern = Pattern.compile("((?:([\\*\\w]+)effect\\." + statementPart + ")|set)", Pattern.CASE_INSENSITIVE);//TODO 0.9.6 - Make a design decision here. Should Calculations only be "bleheffect"?
-	private static Pattern conditionalPattern = Pattern.compile("(if|if_not)\\s+(" + statementPart + "(?:\\s+([\\*\\w]+)\\s+" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
-	private static Pattern switchPattern = Pattern.compile("switch\\.(" + statementPart + ")", Pattern.CASE_INSENSITIVE);
-	
-	public static HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
-
-//LoadStates
 	public enum LoadState
 	{
 		NOT_LOADED(ChatColor.GRAY + "NO  "), 
@@ -265,10 +171,10 @@ public class ModDamage extends JavaPlugin
 		private String string;
 		private LoadState(String string){ this.string = string;}
 		private String statusString(){ return string;}
-		private static LoadState combineStates(LoadState...loadStates)
+		private static LoadState combineStates(List<LoadState> eventStates)
 		{
 			LoadState returnState = LoadState.NOT_LOADED;
-			for(LoadState state : loadStates)
+			for(LoadState state : eventStates)
 			{
 				if(state.equals(LoadState.FAILURE))
 					return LoadState.FAILURE;
@@ -278,19 +184,70 @@ public class ModDamage extends JavaPlugin
 			return returnState;
 		}
 	}
-
-	//TODO All this repetitious crap has gotta be handled better.
-//Routine objects
-	static final List<Routine> damageRoutines = new ArrayList<Routine>();
-	static final List<Routine> spawnRoutines = new ArrayList<Routine>();
-	static final List<Routine> deathRoutines = new ArrayList<Routine>();
-	static final List<Routine> foodRoutines = new ArrayList<Routine>();
-	private static LoadState state_damageRoutines = LoadState.NOT_LOADED;
-	private static LoadState state_spawnRoutines = LoadState.NOT_LOADED;
-	private static LoadState state_deathRoutines = LoadState.NOT_LOADED;
-	private static LoadState state_foodRoutines = LoadState.NOT_LOADED;
-	private static LoadState state_routines = LoadState.NOT_LOADED;
 	
+	private static Configuration config;
+	private static final String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
+	private static int configPages = 0;
+	private static List<String> configStrings_ingame = new ArrayList<String>();
+	private static List<String> configStrings_console = new ArrayList<String>();
+	private static int additionalConfigChecks = 0;
+	
+	//misc
+	public static final List<String> emptyList = new ArrayList<String>();
+	
+//General mechanics options
+	static boolean negative_Heal;
+
+	//TODO All this repetitious crap for routines has gotta be handled better.
+//Routine objects
+	public static final RoutineManager routineManager = new RoutineManager();
+	public static class RoutineManager
+	{
+		private final HashMap<EventType, List<Routine>> eventRoutines = new HashMap<EventType, List<Routine>>();
+		private final HashMap<EventType, LoadState> eventStates = new HashMap<EventType, LoadState>();
+		private LoadState state = LoadState.NOT_LOADED;
+	
+		public List<Routine> getRoutines(EventType eventType){ return eventRoutines.get(eventType);}
+		
+		private LoadState getState(EventType eventType){ return eventStates.get(eventType);}
+		
+		private void reload()
+		{
+			eventRoutines.clear();
+			eventStates.clear();
+			state = LoadState.NOT_LOADED;
+			for(EventType eventType : EventType.values())
+			{
+				List<Object> routineObjects = null;
+				for(String key : config.getKeys())
+					if(key.equalsIgnoreCase(eventType.name()))
+					{
+						routineObjects =  config.getList(key);
+						break;
+					}
+				if(routineObjects != null)
+				{
+					addToLogRecord(DebugSetting.NORMAL, 0, eventType.name() + " configuration:", LoadState.SUCCESS);
+					LoadState[] stateMachine = {LoadState.NOT_LOADED};//We use a single-cell array here because the enum is ASSIGNED later - this doesn't work if we want to operate by reference.
+					List<Routine> routines = routineAliaser.parse(routineObjects, 0, stateMachine);
+					eventStates.put(eventType, stateMachine[0]);
+					
+					if(!routines.isEmpty() && !eventStates.get(eventType).equals(LoadState.FAILURE))
+					{
+						eventRoutines.put(eventType, routines);
+						addToLogRecord(DebugSetting.NORMAL, 0, "End " + eventType.name() + " configuration.", LoadState.SUCCESS);
+					}
+					else 
+					{
+						eventRoutines.put(eventType, new ArrayList<Routine>());
+						addToLogRecord(DebugSetting.QUIET, 0, "Error in " + eventType.name() + " configuration.", LoadState.FAILURE);
+					}
+				}
+			}
+			state = LoadState.combineStates(new ArrayList<LoadState>(eventStates.values()));
+		}
+
+	}
 //Alias objects
 	private static ArmorAliaser armorAliaser = new ArmorAliaser();
 	private static BiomeAliaser biomeAliaser = new BiomeAliaser();
@@ -298,16 +255,9 @@ public class ModDamage extends JavaPlugin
 	private static GroupAliaser groupAliaser = new GroupAliaser();
 	private static ItemAliaser itemAliaser = new ItemAliaser();
 	private static MessageAliaser messageAliaser = new MessageAliaser();
+	private static RegionAliaser regionAliaser = new RegionAliaser();
 	private static RoutineAliaser routineAliaser = new RoutineAliaser();
 	private static WorldAliaser worldAliaser = new WorldAliaser();
-	private static LoadState state_armorAliases = LoadState.NOT_LOADED;
-	private static LoadState state_biomeAliases = LoadState.NOT_LOADED;
-	private static LoadState state_elementAliases = LoadState.NOT_LOADED;
-	private static LoadState state_itemAliases = LoadState.NOT_LOADED;
-	private static LoadState state_groupAliases = LoadState.NOT_LOADED;
-	private static LoadState state_messageAliases = LoadState.NOT_LOADED;
-	private static LoadState state_routineAliases = LoadState.NOT_LOADED;
-	private static LoadState state_worldAliases = LoadState.NOT_LOADED;
 	private static LoadState state_aliases = LoadState.NOT_LOADED;
 	
 	private static LoadState state_plugin = LoadState.NOT_LOADED;
@@ -329,6 +279,12 @@ public class ModDamage extends JavaPlugin
 		config = this.getConfiguration();
 		reload(true);
 		isEnabled = true;
+		
+		//FIXME DEBUGGING
+		log.info("WORLDS: ");
+		for(Object world : server.getWorlds())
+			log.info(world.toString());
+		//END DEBUGGING
 	}
 
 	@Override
@@ -352,7 +308,7 @@ public class ModDamage extends JavaPlugin
 				{
 					if(args[0].equalsIgnoreCase("debug") || args[0].equalsIgnoreCase("d"))
 						{
-							if(fromConsole || ModDamage.permissionsPluginType.hasPermission(player, "moddamage.debug"))
+							if(fromConsole || ExternalPluginManager.permissionsManager.hasPermission(player, "moddamage.debug"))
 							{
 								if(args.length == 1) toggleDebugging(player);
 								else if(args.length == 2)
@@ -377,7 +333,7 @@ public class ModDamage extends JavaPlugin
 							{
 								boolean reloadingAll = args.length == 2 && args[1].equalsIgnoreCase("all");
 								if(fromConsole) reload(reloadingAll);
-								else if(permissionsPluginType.hasPermission(player, "moddamage.reload")) 
+								else if(ExternalPluginManager.permissionsManager.hasPermission(player, "moddamage.reload")) 
 								{
 									log.info("[" + getDescription().getName() + "] Reload initiated by user " + player.getName() + "...");
 									reload(reloadingAll);
@@ -400,14 +356,14 @@ public class ModDamage extends JavaPlugin
 						}
 						else if(args[0].equalsIgnoreCase("enable"))
 						{
-							if(fromConsole || permissionsPluginType.hasPermission(player, "moddamage.enable"))
+							if(fromConsole || ExternalPluginManager.permissionsManager.hasPermission(player, "moddamage.enable"))
 								setPluginStatus(player, true);
 							else player.sendMessage(errorString_Permissions);
 							return true;
 						}
 						else if(args[0].equalsIgnoreCase("disable"))
 						{
-							if(fromConsole || permissionsPluginType.hasPermission(player, "moddamage.disable"))
+							if(fromConsole || ExternalPluginManager.permissionsManager.hasPermission(player, "moddamage.disable"))
 									setPluginStatus(player, false);
 							else player.sendMessage(errorString_Permissions);
 							return true;
@@ -419,13 +375,13 @@ public class ModDamage extends JavaPlugin
 							//md check
 							if(fromConsole)
 							{
-								sendConfig(null, 9001);
+								sendLogRecord(null, 9001);
 								log.info("[" + getDescription().getName() + "] Done.");
 							}
 							else if(args.length == 1)
 							{
-								if(permissionsPluginType.hasPermission(player, "moddamage.check"))
-									sendConfig(player, 0);
+								if(ExternalPluginManager.permissionsManager.hasPermission(player, "moddamage.check"))
+									sendLogRecord(player, 0);
 								else player.sendMessage(errorString_Permissions);
 							}
 							//md check int
@@ -433,7 +389,7 @@ public class ModDamage extends JavaPlugin
 							{
 								try
 								{
-									sendConfig(player, Integer.parseInt(args[1]));
+									sendLogRecord(player, Integer.parseInt(args[1]));
 								} 
 								catch(NumberFormatException e)
 								{
@@ -459,7 +415,6 @@ public class ModDamage extends JavaPlugin
 ///// HELPER FUNCTIONS ////
 	public static String ModDamageString(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "]";}
 
-	
 //// PLUGIN CONFIGURATION ////
 	private void setPluginStatus(Player player, boolean sentEnable) 
 	{
@@ -523,34 +478,27 @@ public class ModDamage extends JavaPlugin
 /////////////////// MECHANICS CONFIGURATION 
 	private void reload(boolean reloadingAll)
 	{
-		//clear and reregister MD routines, if true
+		armorAliaser.clear();
+		biomeAliaser.clear();
+		elementAliaser.clear();
+		groupAliaser.clear();
+		itemAliaser.clear();
+		messageAliaser.clear();
+		regionAliaser.clear();
+		routineAliaser.clear();
+		worldAliaser.clear();
+		state_plugin = state_aliases = LoadState.NOT_LOADED;
+		configStrings_ingame.clear();
+		configStrings_console.clear();
+		
 		if(reloadingAll)
 		{
-		//PERMISSIONS
-			ModDamage.permissionsPluginType = PermissionsType.SuperPerms;
-			//FIXME Use the enum to find the right plugin?
-			ModDamage.permissionsPlugin = getServer().getPluginManager().getPlugin("PermissionsBukkit");
-			if (permissionsPlugin != null)
-				ModDamage.permissionsPluginType = PermissionsType.PermissionsBukkit;
-			else
-			{
-				ModDamage.permissionsPlugin = getServer().getPluginManager().getPlugin("Permissions");
-				if (permissionsPlugin != null)
-					//TODO 0.9.6 - Deprecate Perms 2/3.
-					ModDamage.permissionsPluginType = permissionsPlugin.getDescription().getVersion().startsWith("3.")?PermissionsType.Perms3:PermissionsType.Perms2;
-			}
-			if(permissionsPlugin != null)
-				log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [" + ModDamage.permissionsPlugin.getDescription().getName() + " v" + permissionsPlugin.getDescription().getVersion() + " active]");
-			else log.info("[" + getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions plugin not found]");
-		
-		//TODO 0.9.6 -  ELREGIONS
-			/*
-			elRegions = (elRegionsPlugin) this.getServer().getPluginManager().getPlugin("elRegions");
-			if (elRegions != null) 
-			{
-				using_elRegions = true;
-			    log.info("[" + getDescription().getName() + "] Found elRegions v" + elRegions.getDescription().getVersion());
-			}*/
+			Routine.registeredBaseRoutines.clear();
+			CalculationRoutine.registeredRoutines.clear();
+			ConditionalRoutine.registeredStatements.clear();
+			SwitchRoutine.registeredRoutines.clear();
+			
+			ExternalPluginManager.reload(this);
 			
 		//Build check
 			String string = getServer().getVersion();
@@ -558,15 +506,9 @@ public class ModDamage extends JavaPlugin
 			if(matcher.matches())
 			{
 				if(Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
-					log.warning("Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.");
+					addToLogRecord(DebugSetting.QUIET, 0, "Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.", LoadState.FAILURE);
 			}
-			else log.severe("[" + getDescription().getName() + "] Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.");
-			
-	//Routines
-			ModDamage.registeredBaseRoutines.clear();
-			CalculationRoutine.registeredStatements.clear();
-			ConditionalRoutine.registeredStatements.clear();
-			SwitchRoutine.registeredStatements.clear();
+			else addToLogRecord(DebugSetting.QUIET, 0, "[" + getDescription().getName() + "] Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.", LoadState.FAILURE);
 			
 		//Base Calculations
 				Addition.register(this);
@@ -578,23 +520,18 @@ public class ModDamage extends JavaPlugin
 				LiteralRange.register(this);
 				Multiplication.register(this);
 				Set.register(this);
-				Message.register(this);
+				Message.register();
 		//Nestable Calculations
 			//Conditionals
 				Binomial.register(this);
 				//Entity
-				EntityAirTicksComparison.register(this);
 				EntityBiome.register(this);
-				EntityCoordinateComparison.register(this);
 				EntityDrowning.register(this);
 				EntityExposedToSky.register(this);
-				EntityFallComparison.register(this);
 				EntityFalling.register(this);
-				EntityFireTicksComparison.register(this);
-				EntityHealthComparison.register(this);
-				EntityLightComparison.register(this);
 				EntityOnBlock.register(this);
 				EntityOnFire.register(this);
+				EntityRegion.register(this);
 				EntityTypeEvaluation.register(this);
 				EntityUnderwater.register(this);
 				EventWorldEvaluation.register(this);
@@ -602,19 +539,14 @@ public class ModDamage extends JavaPlugin
 				PlayerSleeping.register(this);
 				PlayerSneaking.register(this);
 				PlayerWearing.register(this);
-				PlayerWearingOnly.register(this);
 				PlayerWielding.register(this);
-				SlimeSizeComparison.register(this);
 				//World
-				WorldTimeComparison.register(this);
 				WorldEnvironment.register(this);
 				//Server
 				ServerOnlineMode.register(this);
-				ServerPlayerCountComparison.register(this);
 				//Event
 				EventHasRangedElement.register(this);
 				EventRangedElementEvaluation.register(this);
-				EventValueComparison.register(this);
 				EventWorldEvaluation.register(this);
 			//Effects
 				EntityAddAirTicks.register(this);
@@ -641,29 +573,12 @@ public class ModDamage extends JavaPlugin
 				RangedElementSwitch.register(this);
 				WorldSwitch.register(this);
 		}
-		damageRoutines.clear();
-		deathRoutines.clear();
-		foodRoutines.clear();
-		spawnRoutines.clear();
-		armorAliaser.clear();
-		biomeAliaser.clear();
-		elementAliaser.clear();
-		groupAliaser.clear();
-		itemAliaser.clear();
-		messageAliaser.clear();
-		worldAliaser.clear();
-		state_routines = state_damageRoutines = state_deathRoutines = state_foodRoutines = state_spawnRoutines = state_aliases = state_armorAliases = state_biomeAliases = state_elementAliases = state_groupAliases = state_itemAliases = state_messageAliases = state_worldAliases = LoadState.NOT_LOADED;
-		configStrings_ingame.clear();
-		configStrings_console.clear();
 		
-		try
-		{
-			config.load();
-		}
+		try{ config.load();}
 		catch(Exception e)
 		{
 			//FIXME 0.9.6 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not auto-load config.
-			log.severe("Error in YAML configuration. Type /md check for more information.");
+			addToLogRecord(DebugSetting.QUIET, 0, "Error in YAML configuration. Type /md check for more information.", LoadState.FAILURE);
 			e.printStackTrace();
 			/*
 			for(StackTraceElement element : e.getStackTrace())
@@ -672,7 +587,6 @@ public class ModDamage extends JavaPlugin
 			}
 			*/
 			state_plugin = LoadState.FAILURE;
-		    addToConfig(DebugSetting.QUIET, 0, "Error in YAML configuration. See the console for more information.", LoadState.FAILURE);
 		    return;
 		}
 		
@@ -702,59 +616,48 @@ public class ModDamage extends JavaPlugin
 			ModDamage.debugSetting = debugSetting;
 		}
 
-	//Item aliasing
+	//Aliasing
 		for(String key : config.getKeys())
 			if(key.equalsIgnoreCase("Aliases"))
 			{
 				ConfigurationNode aliasesNode = config.getNode(key);
 				if(!aliasesNode.getKeys().isEmpty())
 				{
-					state_armorAliases = loadAliases(aliasesNode, "Armor", armorAliaser);
-					state_biomeAliases = loadAliases(aliasesNode, "Biome", biomeAliaser);
-					state_elementAliases = loadAliases(aliasesNode, "Element", elementAliaser);
-					state_itemAliases = loadAliases(aliasesNode, "Item", itemAliaser);
-					state_groupAliases = loadAliases(aliasesNode, "Group", groupAliaser);
-					state_messageAliases = loadAliases(aliasesNode, "Message", messageAliaser);
-					state_routineAliases = loadAliases(aliasesNode, "Routine", routineAliaser);
-					state_worldAliases = loadAliases(aliasesNode, "World", worldAliaser);
-					state_aliases = LoadState.combineStates(state_armorAliases, state_elementAliases, state_groupAliases, state_itemAliases, state_messageAliases, state_routineAliases, state_worldAliases);
-					switch(state_aliases)//XXX Could be a more dynamic way of using the same switch, but meh.
+					List<LoadState> list = Arrays.asList(armorAliaser.load(aliasesNode), biomeAliaser.load(aliasesNode), elementAliaser.load(aliasesNode), itemAliaser.load(aliasesNode), groupAliaser.load(aliasesNode), messageAliaser.load(aliasesNode), regionAliaser.load(aliasesNode), routineAliaser.load(aliasesNode), worldAliaser.load(aliasesNode));
+					state_aliases = LoadState.combineStates(list);
+					switch(state_aliases)
 					{
 						case NOT_LOADED:
-							addToConfig(DebugSetting.VERBOSE,  0, "No aliases loaded! Are any aliases defined?", state_aliases);
+							addToLogRecord(DebugSetting.VERBOSE,  0, "No aliases loaded! Are any aliases defined?", state_aliases);
 							break;
 						case FAILURE:
-							addToConfig(DebugSetting.QUIET,  0, "One or more errors occured while loading aliases.", state_aliases);
+							addToLogRecord(DebugSetting.QUIET,  0, "One or more errors occurred while loading aliases.", state_aliases);
 							break;
 						case SUCCESS:
-							addToConfig(DebugSetting.VERBOSE,  0, "Aliases loaded!", state_aliases);
+							addToLogRecord(DebugSetting.VERBOSE,  0, "Aliases loaded!", state_aliases);
 							break;
 					}
 					break;
 				}
-				else addToConfig(DebugSetting.VERBOSE,  0, "No Aliases node found.", LoadState.NOT_LOADED);
+				else addToLogRecord(DebugSetting.VERBOSE,  0, "No Aliases node found.", LoadState.NOT_LOADED);
 			}
 		
-	//routines
-		state_damageRoutines = loadRoutines("Damage", damageRoutines);
-		state_deathRoutines = loadRoutines("Death", deathRoutines);
-		state_foodRoutines = loadRoutines("Food", foodRoutines);
-		state_spawnRoutines = loadRoutines("Spawn", spawnRoutines);
-		state_routines = LoadState.combineStates(state_damageRoutines, state_deathRoutines, state_foodRoutines, state_spawnRoutines);
-		switch(state_aliases)
+	//Routines
+		routineManager.reload();
+		switch(routineManager.state)
 		{
 			case NOT_LOADED:
-				addToConfig(DebugSetting.VERBOSE,  0, "No routines loaded! Are any routines defined?", state_aliases);
+				addToLogRecord(DebugSetting.VERBOSE,  0, "No routines loaded! Are any routines defined?", state_aliases);
 				break;
 			case FAILURE:
-				addToConfig(DebugSetting.QUIET,  0, "One or more errors occured while loading routines.", state_aliases);
+				addToLogRecord(DebugSetting.QUIET,  0, "One or more errors occurred while loading routines.", state_aliases);
 				break;
 			case SUCCESS:
-				addToConfig(DebugSetting.VERBOSE,  0, "Routines loaded!", state_aliases);
+				addToLogRecord(DebugSetting.VERBOSE,  0, "Routines loaded!", state_aliases);
 				break;
 		}
 
-		state_plugin = LoadState.combineStates(state_aliases, state_routines);
+		state_plugin = LoadState.combineStates(Arrays.asList(state_aliases, routineManager.state));
 		
 	//single-property config
 		negative_Heal = config.getBoolean("negativeHeal", false);
@@ -801,311 +704,9 @@ public class ModDamage extends JavaPlugin
 		log.severe("[" + getDescription().getName() + "] Defaults written to config.yml!");
 	}
 	
-	private LoadState loadRoutines(String loadType, List<Routine> routineList)
-	{
-		LoadState relevantState = LoadState.NOT_LOADED;
-
-		List<Object> routineObjects = null;
-			for(String key : config.getKeys())
-				if(key.equalsIgnoreCase(loadType))
-				{
-					routineObjects =  config.getList(key);
-					break;
-				}
-		if(routineObjects != null)
-		{
-			relevantState = LoadState.SUCCESS;
-			addToConfig(DebugSetting.NORMAL, 0, loadType.toUpperCase() + " configuration:", LoadState.SUCCESS);
-			LoadState[] stateMachine = {relevantState};//We use a single-cell array here because the enum is ASSIGNED later - this doesn't work if we want to operate by reference.
-			List<Routine> calculations = parse(routineObjects, loadType, stateMachine);
-			relevantState = stateMachine[0];
-			
-			if(!calculations.isEmpty() && !relevantState.equals(LoadState.FAILURE))
-			{
-				routineList.addAll(calculations);
-				addToConfig(DebugSetting.NORMAL, 0, "End " + loadType.toUpperCase() + " configuration.", LoadState.SUCCESS);
-			}
-			else addToConfig(DebugSetting.QUIET, 0, "Error in " + loadType.toUpperCase() + " configuration.", LoadState.FAILURE);
-		}
-		return relevantState;
-	}
-	
-	private LoadState loadAliases(ConfigurationNode aliasesNode, String loadType, Aliaser<?> aliaser)
-	{
-		//TODO 0.9.6 Add debugging in reload() to check if Aliases is present or not.
-		LoadState relevantState = LoadState.NOT_LOADED;
-		ConfigurationNode specificAliasesNode = null;
-			for(String key : aliasesNode.getKeys())
-				if(key.equalsIgnoreCase(loadType))
-				{
-					specificAliasesNode = aliasesNode.getNode(key);
-					break;
-				}
-			if(specificAliasesNode != null)
-			{
-				if(!specificAliasesNode.getKeys().isEmpty())
-				{
-					relevantState = LoadState.SUCCESS;
-					addToConfig(DebugSetting.VERBOSE, 0, aliaser.getName() + " aliases found, parsing...", LoadState.SUCCESS);
-					for(String alias : specificAliasesNode.getKeys())
-					{
-						List<String> values = specificAliasesNode.getStringList(alias, new ArrayList<String>());
-						if(values.isEmpty())
-							addToConfig(DebugSetting.VERBOSE, 0, "Found empty " + loadType.toLowerCase() + " alias \"" + alias + "\", ignoring...", LoadState.NOT_LOADED);
-						else if(!aliaser.addAlias(alias, values))
-							relevantState = LoadState.FAILURE;
-					}
-				}
-			}
-			else addToConfig(DebugSetting.VERBOSE, 0, "No " + loadType + " aliases node found.", LoadState.NOT_LOADED);
-			
-		return relevantState;
-	}
-	
-//// ROUTINE PARSING ////
-	//Parse routine strings recursively
 ////ROUTINE PARSING ////
-	//Parse routine strings recursively
-	private List<Routine> parse(List<Object> routineStrings, String loadType, LoadState[] currentState){ return parse(routineStrings, loadType, 0, currentState);}
-	@SuppressWarnings("unchecked")
-	private List<Routine> parse(Object object, String loadType, int nestCount, LoadState[] resultingState)
-	{
-		LoadState currentState = LoadState.SUCCESS;
-		List<Routine> routines = new ArrayList<Routine>();
-		if(object != null)
-		{
-			if(object instanceof String)
-			{
-				Routine routine = null;
-				for(Pattern pattern : registeredBaseRoutines.keySet())
-				{
-					Matcher matcher = pattern.matcher((String)object);
-					if(matcher.matches())
-					{
-						try
-						{
-							routine = (Routine)registeredBaseRoutines.get(pattern).invoke(null, matcher);
-							if(routine != null)
-							{
-								routines.add(routine);
-								addToConfig(DebugSetting.NORMAL, nestCount, "Routine: \"" + (String)object + "\"", currentState);
-							}
-							else
-							{
-								//TODO: Catch what routine matched, if/when it failed.
-								currentState = LoadState.FAILURE;
-								addToConfig(DebugSetting.VERBOSE, 0, "Bad parameters for new " + registeredBaseRoutines.get(pattern).getClass().getSimpleName() + " \"" + (String)object + "\"", currentState);
-							}
-							break;
-						}
-						catch(Exception e){ e.printStackTrace();}
-					}
-				}
-				if(routine == null)
-				{
-					currentState = LoadState.FAILURE;
-					addToConfig(DebugSetting.QUIET, 0, "Couldn't match base routine string" + " \"" + (String)object + "\"", currentState);
-				}
-			}
-			else if(object instanceof LinkedHashMap)
-			{
-				HashMap<String, Object> someHashMap = (HashMap<String, Object>)object;//A properly-formatted nested routine is a LinkedHashMap with only one key.
-				if(someHashMap.keySet().size() == 1)
-					for(String key : someHashMap.keySet())
-					{
-						Matcher conditionalMatcher = conditionalPattern.matcher(key);
-						Matcher switchMatcher = switchPattern.matcher(key);
-						Matcher effectMatcher = calculationPattern.matcher(key);
-						if(conditionalMatcher.matches())
-						{
-							addToConfig(DebugSetting.CONSOLE, nestCount, "", LoadState.SUCCESS);
-							addToConfig(DebugSetting.NORMAL, nestCount, "Conditional: \"" + key + "\"", LoadState.SUCCESS);
-							ConditionalRoutine routine = ConditionalRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), loadType, nestCount + 1, resultingState));
-							if(routine != null)
-							{
-								routines.add(routine);
-								addToConfig(DebugSetting.VERBOSE, nestCount, "End Conditional \"" + key + "\"\n", currentState);
-							}
-							else
-							{
-								currentState = LoadState.FAILURE;
-								addToConfig(DebugSetting.QUIET, 0, "Invalid Conditional"+ " \"" + key + "\"", currentState);
-							}
-						}
-						else if(effectMatcher.matches())
-						{
-							addToConfig(DebugSetting.CONSOLE, nestCount, "", LoadState.SUCCESS);
-							addToConfig(DebugSetting.NORMAL, nestCount, "CalculatedEffect: \"" + key + "\"", LoadState.SUCCESS);
-							CalculationRoutine<?> routine = CalculationRoutine.getNew(effectMatcher, parse(someHashMap.get(key), loadType, nestCount + 1, resultingState));
-							if(routine != null)
-							{
-								routines.add(routine);
-								addToConfig(DebugSetting.VERBOSE, nestCount, "End CalculatedEffect \"" + key + "\"\n", currentState);
-							}
-							else
-							{
-								currentState = LoadState.FAILURE;
-								addToConfig(DebugSetting.QUIET, 0, "Invalid CalculatedEffect \"" + key + "\"", currentState);
-							}
-						}
-						else if(switchMatcher.matches())
-						{					
-							LinkedHashMap<String, Object> anotherHashMap = (someHashMap.get(key) instanceof LinkedHashMap?(LinkedHashMap<String, Object>)someHashMap.get(key):null);
-							if(anotherHashMap != null)
-							{
-								addToConfig(DebugSetting.CONSOLE, nestCount, "", LoadState.SUCCESS);
-								addToConfig(DebugSetting.NORMAL, nestCount, "Switch: \"" + key + "\"", LoadState.SUCCESS);
-								LinkedHashMap<String, List<Routine>> routineHashMap = new LinkedHashMap<String, List<Routine>>();
-								SwitchRoutine<?> routine = null;
-								for(String anotherKey : anotherHashMap.keySet())
-								{
-									addToConfig(DebugSetting.CONSOLE, nestCount, "", LoadState.SUCCESS);
-									addToConfig(DebugSetting.NORMAL, nestCount, " case: \"" + anotherKey + "\"", LoadState.SUCCESS);
-									routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), loadType, nestCount + 1, resultingState));
-									addToConfig(DebugSetting.VERBOSE, nestCount, "End case \"" + anotherKey + "\"\n", LoadState.SUCCESS);
-								}
-								routine = SwitchRoutine.getNew(switchMatcher, routineHashMap);
-								if(routine != null)
-								{
-									if(routine.isLoaded) routines.add(routine);
-									else 
-									{
-										currentState = LoadState.FAILURE;
-										for(String caseName : routine.failedCases)
-											addToConfig(DebugSetting.QUIET, 0, "Error: invalid case \"" + caseName + "\"", currentState);
-									}
-									addToConfig(DebugSetting.VERBOSE, nestCount, "End Switch \"" + key + "\"", LoadState.SUCCESS);
-								}
-								else
-								{
-									currentState = LoadState.FAILURE;
-									addToConfig(DebugSetting.QUIET, 0, "Error: invalid Switch \"" + key + "\"", currentState);
-								}
-							}
-						}
-						else 
-						{
-							currentState = LoadState.FAILURE;
-							addToConfig(DebugSetting.QUIET, 0, " No match found for nested node \"" + key + "\"", currentState);							
-						}
-					}
-				else
-				{
-					currentState = LoadState.FAILURE;
-					addToConfig(DebugSetting.QUIET, nestCount, "Parse error: bad nested routine.", currentState);				
-				} 
-			}
-			else if(object instanceof List)
-			{
-				for(Object nestedObject : (List<Object>)object)
-					routines.addAll(parse(nestedObject, loadType, nestCount, resultingState));
-			}
-			else
-			{
-				currentState = LoadState.FAILURE;
-				addToConfig(DebugSetting.QUIET, nestCount, "Parse error: object " + object.toString() + " of type " + object.getClass().getName(), currentState);
-			}
-		}
-		else 
-		{
-			currentState = LoadState.FAILURE;
-			addToConfig(DebugSetting.QUIET, nestCount, "Parse error: null", currentState);
-		}
-		if(currentState.equals(LoadState.FAILURE))
-			resultingState[0] = LoadState.FAILURE;
-		return routines;
-	}
-		
-	public void registerBase(Class<? extends Routine> routineClass, Pattern syntax)
-	{
-		try
-		{
-			Method method = routineClass.getMethod("getNew", Matcher.class);
-			if(method != null)
-			{
-				assert(method.getReturnType().equals(routineClass));
-				method.invoke(null, (Matcher)null);
-				register(registeredBaseRoutines, method, syntax);
-			}
-			else log.severe("Method getNew not found for statement " + routineClass.getName());
-		}
-		catch(AssertionError e){ log.severe("[ModDamage] Error: getNew doesn't return class " + routineClass.getName() + "!");}
-		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + routineClass.getName() + "!");}
-		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + routineClass.getName() + " is not static!");}
-		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have a getNew() method!");} 
-		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
-		catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
-		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");}
-	}
-
-	public static void registerConditional(Class<? extends ConditionalStatement> statementClass, Pattern syntax)
-	{
-		try
-		{
-			Method method = statementClass.getMethod("getNew", Matcher.class);
-			if(method != null)
-			{
-				assert(method.getReturnType().equals(statementClass));
-				method.invoke(null, (Matcher)null);
-				register(ConditionalRoutine.registeredStatements, method, syntax);
-			}
-			else log.severe("Method getNew not found for statement " + statementClass.getName());
-		}
-		catch(AssertionError e){ log.severe("[ModDamage] Error: getNew doesn't return class " + statementClass.getName() + "!");}
-		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + statementClass.getName() + "!");}
-		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + statementClass.getName() + " is not static!");}
-		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have a getNew() method!");} 
-		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
-		catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
-		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
-	}
-
-	public static void registerSwitch(Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)
-	{
-		try
-		{
-			Method method = statementClass.getMethod("getNew", Matcher.class, LinkedHashMap.class);
-			if(method != null)
-			{
-				assert(method.getReturnType().equals(statementClass));
-				method.invoke(null, (Matcher)null, (LinkedHashMap<String, List<Routine>>)null);
-				register(SwitchRoutine.registeredStatements, method, syntax);
-			}
-			else log.severe("Method getNew not found for statement " + statementClass.getName());
-		}
-		catch(AssertionError e){ log.severe("[ModDamage] Error: getNew doesn't return class " + statementClass.getName() + "!");}
-		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + statementClass.getName() + "!");}
-		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + statementClass.getName() + " is not static!");}
-		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have a getNew() method!");} 
-		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have matching method getNew(Matcher, LinkedHashMap)!");} 
-		catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
-		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
-	}
 	
-	public static void registerEffect(Class<? extends CalculationRoutine<?>> routineClass, Pattern syntax)
-	{
-		try
-		{
-			Method method = routineClass.getMethod("getNew", Matcher.class, List.class);
-			if(method != null)//XXX Is this necessary?
-			{
-				assert(method.getReturnType().equals(routineClass));
-				method.invoke(null, (Matcher)null, (List<Routine>)null);
-				register(CalculationRoutine.registeredStatements, method, syntax);
-			}
-			else log.severe("Method getNew not found for statement " + routineClass.getName());
-		}
-		catch(AssertionError e){ log.severe("[ModDamage] Error: getNew doesn't return class " + routineClass.getName() + "!");}
-		catch(SecurityException e){ log.severe("[ModDamage] Error: getNew isn't public for class " + routineClass.getName() + "!");}
-		catch(NullPointerException e){ log.severe("[ModDamage] Error: getNew for class " + routineClass.getName() + " is not static!");}
-		catch(NoSuchMethodException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have a getNew() method!");} 
-		catch (IllegalArgumentException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have matching method getNew(Matcher, List)!");} 
-		catch (IllegalAccessException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
-		catch (InvocationTargetException e){ log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
-	}
-	
-	//TODO 0.9.6 Implement a reload hook for other plugins, make /md r reload routine library.
-	private static void register(HashMap<Pattern, Method> registry, Method method, Pattern syntax)
+	public static void register(HashMap<Pattern, Method> registry, Method method, Pattern syntax)
 	{
 		boolean successfullyRegistered = false;
 		if(syntax != null)
@@ -1119,8 +720,11 @@ public class ModDamage extends JavaPlugin
 			if(debugSetting.shouldOutput(DebugSetting.VERBOSE)) log.info("[ModDamage] Registering class " + method.getClass().getName() + " with pattern " + syntax.pattern());
 		}
 	}
+	
+	//TODO 0.9.6 Implement a reload hook for other plugins, make /md r reload routine library.
 		
 //// LOGGING ////
+	
 	private static void setDebugging(Player player, DebugSetting setting)
 	{ 
 		if(setting != null) 
@@ -1161,7 +765,7 @@ public class ModDamage extends JavaPlugin
 		}
 	}
 	
-	public static void addToConfig(DebugSetting outputSetting, int nestCount, String string, LoadState loadState)
+	public static void addToLogRecord(DebugSetting outputSetting, int nestCount, String string, LoadState loadState)
 	{
 		if(loadState.equals(LoadState.FAILURE)) state_plugin = LoadState.FAILURE;
 		if(debugSetting.shouldOutput(outputSetting))
@@ -1217,11 +821,11 @@ public class ModDamage extends JavaPlugin
 		configPages = configStrings_ingame.size()/9 + (configStrings_ingame.size()%9 > 0?1:0);
 	}
 
-	private static boolean sendConfig(Player player, int pageNumber)
+	private static boolean sendLogRecord(Player player, int pageNumber)
 	{
 		if(player == null)
 		{
-			String printString = "[ModDamage] Complete configuration for this server:";
+			String printString = "[ModDamage] Complete log record for this server:";
 			for(String configString : configStrings_console)
 				printString += "\n" + configString;
 			log.info(printString);
@@ -1231,7 +835,7 @@ public class ModDamage extends JavaPlugin
 		{
 			if(pageNumber <= configPages)
 			{
-				player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Configuration: (" + pageNumber + "/" + (configPages + additionalConfigChecks) + ")");
+				player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Log Record: (" + pageNumber + "/" + (configPages + additionalConfigChecks) + ")");
 				for(int i = (9 * (pageNumber - 1)); i < (configStrings_ingame.size() < (9 * pageNumber)?configStrings_ingame.size():(9 * pageNumber)); i++)
 					player.sendMessage(ChatColor.DARK_AQUA + configStrings_ingame.get(i));
 				return true;
@@ -1239,15 +843,16 @@ public class ModDamage extends JavaPlugin
 		}
 		else
 		{
-			//XXX Tighten up the formatting here - unify the placement.
+			//TODO 0.9.6 - Unify the placement, output according to the RoutineManager and the AliasManager.z 
 			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Config Overview: " + state_plugin.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
-			player.sendMessage(ChatColor.AQUA + "Aliases:    " + state_aliases.statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + state_routines.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:        " + state_armorAliases.statusString() + "     " + ChatColor.DARK_GREEN + "Damage: " + state_damageRoutines.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Element:     " + state_elementAliases.statusString() + "       " + ChatColor.DARK_GREEN + "Death:  " + state_deathRoutines.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Group:        " + state_groupAliases.statusString() + "     " + ChatColor.DARK_GREEN + "Food:  " + state_foodRoutines.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Item:        " + state_itemAliases.statusString() + "      " + ChatColor.DARK_GREEN + "Spawn:  " + state_spawnRoutines.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Message:   " + state_messageAliases.statusString() + "        " + ChatColor.DARK_AQUA + "Biome:  " + state_biomeAliases.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:   " + state_routineAliases.statusString());
+			player.sendMessage(ChatColor.AQUA + "Aliases:    " + state_aliases.statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + routineManager.state.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:        " + armorAliaser.getLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Damage: " + routineManager.getState(EventType.Damage).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Element:     " + elementAliaser.getLoadState().statusString() + "       " + ChatColor.DARK_GREEN + "Death:  " + routineManager.getState(EventType.Death).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Group:        " + groupAliaser.getLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Food:  " + routineManager.getState(EventType.Food).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Item:        " + itemAliaser.getLoadState().statusString() + "      " + ChatColor.DARK_GREEN + "ProjectileHit:  " + routineManager.getState(EventType.ProjectileHit).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Message:   " + messageAliaser.getLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Spawn:  " + routineManager.getState(EventType.Spawn).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Region:   " + routineAliaser.getLoadState().statusString()+ "        " + ChatColor.DARK_GREEN + "Tame:  " + routineManager.getState(EventType.Tame).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:   " + messageAliaser.getLoadState().statusString());
 			String bottomString = null;
 			switch(state_plugin)
 			{
@@ -1268,13 +873,15 @@ public class ModDamage extends JavaPlugin
 	
 //// CONFIG MATCHING ////
 	//XXX matchesValidEntity - currently defaults to "target". Change to reject?
+	
+	//TODO Devise a better system for matching entity references.
 	public static boolean matchesValidEntity(String string)
 	{
-		if(string.equalsIgnoreCase("target") || string.equalsIgnoreCase("attacker"))
+		if(string.equalsIgnoreCase("target") || string.equalsIgnoreCase("attacker") || string.equalsIgnoreCase("projectile"))
 			return true;
 		else
 		{
-			addToConfig(DebugSetting.QUIET, 0, "Invalid entity identifier \"" + string + "\" - defaulting to \"target\"", LoadState.FAILURE);
+			addToLogRecord(DebugSetting.QUIET, 0, "Invalid entity identifier \"" + string + "\" - defaulting to \"target\"", LoadState.FAILURE);
 			return false;
 		}
 	}
@@ -1302,6 +909,6 @@ public class ModDamage extends JavaPlugin
 	public static List<Material> matchItemAlias(String key){ return itemAliaser.matchAlias(key);}
 	public static List<String> matchGroupAlias(String key){ return groupAliaser.matchAlias(key);}
 	public static List<String> matchMessageAlias(String key){ return messageAliaser.matchAlias(key);}
-	//TODO 0.9.6 ADD routine aliaser
+	public static List<String> matchRegionAlias(String key){ return regionAliaser.matchAlias(key);}
 	public static List<String> matchWorldAlias(String key){ return worldAliaser.matchAlias(key);}
 }

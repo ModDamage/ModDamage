@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +12,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 abstract public class CalculationRoutine<AffectedClass> extends Routine 
 {
-	public static HashMap<Pattern, Method> registeredStatements = new HashMap<Pattern, Method>();
+	public static HashMap<Pattern, Method> registeredRoutines = new HashMap<Pattern, Method>();
 	final List<Routine> routines;
 	protected CalculationRoutine(String configString, List<Routine> routines)
 	{
@@ -21,7 +22,7 @@ abstract public class CalculationRoutine<AffectedClass> extends Routine
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{
-		AffectedClass someObject = getAffectedObject(eventInfo);
+		AffectedClass someObject = (AffectedClass)getAffectedObject(eventInfo);
 		if(someObject != null)
 			applyEffect(someObject, calculateInputValue(eventInfo));
 	}
@@ -43,12 +44,12 @@ abstract public class CalculationRoutine<AffectedClass> extends Routine
 
 	public static CalculationRoutine<?> getNew(Matcher matcher, List<Routine> routines)
 	{
-		for(Pattern pattern : registeredStatements.keySet())
+		for(Pattern pattern : registeredRoutines.keySet())
 		{
 			Matcher statementMatcher = pattern.matcher(matcher.group(1));
 			if(statementMatcher.matches())
 			{
-				Method method = registeredStatements.get(pattern);
+				Method method = registeredRoutines.get(pattern);
 				//get next statement
 				CalculationRoutine<?> statement = null;
 				try 
@@ -62,8 +63,25 @@ abstract public class CalculationRoutine<AffectedClass> extends Routine
 		return null;
 	}
 	
-	public static void registerStatement(ModDamage routineUtility, Class<? extends CalculationRoutine<?>> statementClass, Pattern syntax)
+	public static void registerStatement(Class<? extends CalculationRoutine<?>> statementClass, Pattern syntax)
 	{
-		ModDamage.registerEffect(statementClass, syntax);
+		try
+		{
+			Method method = statementClass.getMethod("getNew", Matcher.class, List.class);
+			if(method != null)//XXX Is this necessary?
+			{
+				assert(method.getReturnType().equals(statementClass));
+				method.invoke(null, (Matcher)null, (List<Routine>)null);
+				ModDamage.register(CalculationRoutine.registeredRoutines, method, syntax);
+			}
+			else ModDamage.log.severe("Method getNew not found for statement " + statementClass.getName());
+		}
+		catch(AssertionError e){ ModDamage.log.severe("[ModDamage] Error: getNew doesn't return class " + statementClass.getName() + "!");}
+		catch(SecurityException e){ ModDamage.log.severe("[ModDamage] Error: getNew isn't public for class " + statementClass.getName() + "!");}
+		catch(NullPointerException e){ ModDamage.log.severe("[ModDamage] Error: getNew for class " + statementClass.getName() + " is not static!");}
+		catch(NoSuchMethodException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have a getNew() method!");} 
+		catch (IllegalArgumentException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have matching method getNew(Matcher, List)!");} 
+		catch (IllegalAccessException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
+		catch (InvocationTargetException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
 	}
 }

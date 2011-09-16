@@ -35,8 +35,8 @@ public class Set extends CalculationRoutine<Integer>
 	
 	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(Set.class, Pattern.compile("set\\.(\\w+)", Pattern.CASE_INSENSITIVE));
-		CalculationRoutine.registerStatement(routineUtility, Set.class, Pattern.compile("set", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(Set.class, Pattern.compile("set\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerStatement(Set.class, Pattern.compile("set", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Set getNew(Matcher matcher)

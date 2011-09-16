@@ -13,7 +13,7 @@ public enum LogicalOperation
 		for(LogicalOperation operation : LogicalOperation.values())
 			if(key.equalsIgnoreCase(operation.name()))
 				return operation;	
-		ModDamage.addToConfig(DebugSetting.QUIET, 0, "Invalid comparison operator \"" + key + "\"", LoadState.FAILURE);		
+		ModDamage.addToLogRecord(DebugSetting.QUIET, 0, "Invalid comparison operator \"" + key + "\"", LoadState.FAILURE);		
 		return null;
 	}
 	public boolean operate(boolean operand_1, boolean operand_2)

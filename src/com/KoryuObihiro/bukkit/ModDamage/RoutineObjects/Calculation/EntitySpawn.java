@@ -5,32 +5,34 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.CreatureType;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class EntitySpawn extends EntityCalculatedEffectRoutine
+public class EntitySpawn extends EntityCalculationRoutine<Entity>
 {
 	final CreatureType creatureType;
-	public EntitySpawn(String configString, boolean forAttacker, CreatureType creatureType, List<Routine> routines)
+	public EntitySpawn(String configString, EntityReference entityReference, CreatureType creatureType, List<Routine> routines)
 	{
-		super(configString, forAttacker, routines);
+		super(configString, entityReference, routines);
 		this.creatureType = creatureType;
 	}
 
 	@Override
-	protected void applyEffect(LivingEntity affectedObject, int input) 
+	protected void applyEffect(Entity entity, int input) 
 	{
 		if(input > 0)
 			for(int i = 0; i < input; i++)
-				affectedObject.getLocation().getWorld().spawnCreature(affectedObject.getLocation(), creatureType);
+				entity.getLocation().getWorld().spawnCreature(entity.getLocation(), creatureType);//FIXME 0.9.6 - What if I try to spawn a Wolf_Angry? :<
 	}
 	
 	public static void register(ModDamage routineUtility)
 	{
-		ModDamage.registerEffect(EntitySpawn.class, Pattern.compile("(\\w+)effect\\.spawn\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerStatement(EntitySpawn.class, Pattern.compile("(\\w+)effect\\.spawn\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntitySpawn getNew(Matcher matcher, List<Routine> routines)
@@ -39,7 +41,8 @@ public class EntitySpawn extends EntityCalculatedEffectRoutine
 		{
 			ModDamageElement element = ModDamageElement.matchElement(matcher.group(2));
 			CreatureType creatureType = (element != null)?element.getCreatureType():null;
-			return new EntitySpawn(matcher.group(), (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, creatureType, routines);
+			if(element != null && creatureType != null && EntityReference.isValid(matcher.group(1)))
+				return new EntitySpawn(matcher.group(), EntityReference.match(matcher.group(1)), creatureType, routines);
 		}
 		return null;
 	}

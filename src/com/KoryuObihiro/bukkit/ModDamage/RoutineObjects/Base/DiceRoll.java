@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class DiceRoll extends Chanceroutine 
 {
@@ -25,6 +26,6 @@ public class DiceRoll extends Chanceroutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(DiceRoll.class, Pattern.compile("roll", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(DiceRoll.class, Pattern.compile("roll", Pattern.CASE_INSENSITIVE));
 	}
 }

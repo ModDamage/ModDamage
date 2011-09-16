@@ -20,7 +20,7 @@ public class Division extends Routine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		routineUtility.registerBase(Division.class, Pattern.compile("div\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(Division.class, Pattern.compile("div\\.(-?[0-9]+|(\\w+\\.\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Division getNew(Matcher matcher)

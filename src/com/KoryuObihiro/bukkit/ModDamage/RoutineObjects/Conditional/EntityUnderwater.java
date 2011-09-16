@@ -1,5 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,34 +10,21 @@ import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
-public class EntityUnderwater extends EntityConditionalStatement<Material[]>
+public class EntityUnderwater extends EntityConditionalStatement
 {
-	public EntityUnderwater(boolean inverted, boolean forAttacker)
+	static final List<Material> waterList = Arrays.asList(Material.WATER, Material.STATIONARY_WATER);
+	public EntityUnderwater(boolean inverted, EntityReference entityReference)
 	{ 
-		super(inverted, forAttacker, null);
+		super(inverted, entityReference);
 	}
 	@Override 
 	protected boolean condition(TargetEventInfo eventInfo)
 	{
-		for(Material material : getRelevantInfo(eventInfo))
-			if(!material.equals(Material.WATER) && !material.equals(Material.STATIONARY_WATER))
-				return false;
-		return true;
-	}
-	@Override
-	protected Material[] getRelevantInfo(TargetEventInfo eventInfo)
-	{
-		LivingEntity entity = eventInfo.getRelevantEntity(forAttacker);
-		
-		Material[] entityBlocks = { Material.AIR, Material.AIR };
-		if(entity != null)
-		{
-			entityBlocks[0] = entity.getLocation().getBlock().getType();
-			entityBlocks[1] = entity.getEyeLocation().getBlock().getType();
-		}
-		return entityBlocks;
+		return waterList.contains(entityReference.getEntity(eventInfo).getLocation().getBlock().getType())
+				&& (entityReference.getEntity(eventInfo) instanceof LivingEntity)?waterList.contains(((LivingEntity)entityReference.getEntity(eventInfo)).getEyeLocation().getBlock().getType()):true;
 	}
 	
 	public static void register(ModDamage routineUtility)
@@ -47,7 +36,7 @@ public class EntityUnderwater extends EntityConditionalStatement<Material[]>
 	{
 		if(matcher != null)
 		{
-			return new EntityUnderwater(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false);
+			return new EntityUnderwater(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)));
 		}
 		return null;
 	}
