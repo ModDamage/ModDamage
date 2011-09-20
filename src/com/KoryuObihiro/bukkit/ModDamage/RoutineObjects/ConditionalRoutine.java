@@ -66,7 +66,7 @@ public class ConditionalRoutine extends Routine
 					
 					if(statement == null)
 					{
-						ModDamage.addToLogRecord(DebugSetting.QUIET, 0, "Error: bad statement \"" + statementStrings[i] + "\"", LoadState.FAILURE);
+						ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: bad statement \"" + statementStrings[i] + "\"", LoadState.FAILURE);
 						return null;
 					}
 					//get its relation to the previous statement
@@ -75,7 +75,7 @@ public class ConditionalRoutine extends Routine
 						LogicalOperation operation = LogicalOperation.matchType(statementStrings[i - 1]);
 						if(operation == null)
 						{
-							ModDamage.addToLogRecord(DebugSetting.QUIET, 0, "Error: bad operator \"" + statementStrings[i - 1] + "\"", LoadState.FAILURE);
+							ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: bad operator \"" + statementStrings[i - 1] + "\"", LoadState.FAILURE);
 							return null;//shouldn't ever happen
 						}
 						operations.add(operation);

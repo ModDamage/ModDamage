@@ -11,7 +11,7 @@ public class RegionAliaser extends Aliaser<String>
 	@Override
 	protected String matchNonAlias(String key)
 	{
-		if(ExternalPluginManager.regionsManager.getAllRegions().contains(key))
+		if(ExternalPluginManager.getRegionsManager().getAllRegions().contains(key))
 			return key;
 		return null;
 	}

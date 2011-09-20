@@ -32,7 +32,7 @@ public class AttackerEventInfo extends ProjectileEventInfo
 			materialInHand_attacker = player_attacker.getItemInHand().getType();
 			armorSet_attacker = new ArmorSet(player_attacker);
 			name_attacker = player_attacker.getName();
-			groups_attacker = ExternalPluginManager.permissionsManager.getGroups(player_attacker);
+			groups_attacker = ExternalPluginManager.getPermissionsManager().getGroups(player_attacker);
 		}
 		else
 		{

@@ -6,34 +6,36 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class DelayedRoutine extends Routine
 {	
-	private final long delayValue;
+	private final IntegerMatch delay;
 	private final List<Routine> routines;
-	public DelayedRoutine(String configString, long delayValue, List<Routine> routines)
+	public DelayedRoutine(String configString, IntegerMatch delayValue, List<Routine> routines)
 	{
 		super(configString);
-		this.delayValue = delayValue;
+		this.delay = delayValue;
 		this.routines = routines;
 	}
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{ 
-		TargetEventInfo.server.getScheduler().scheduleAsyncDelayedTask(TargetEventInfo.server.getPluginManager().getPlugin("ModDamage"), new DelayedRunnable(eventInfo, routines), delayValue);
+		TargetEventInfo.server.getScheduler().scheduleAsyncDelayedTask(TargetEventInfo.server.getPluginManager().getPlugin("ModDamage"), new DelayedRunnable(eventInfo, routines), delay.getValue(eventInfo));
 	}
 		
 	public static void register(ModDamage routineUtility)
 	{
-		Routine.registerBase(DelayedRoutine.class, Pattern.compile("delay\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(DelayedRoutine.class, Pattern.compile("delay\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static DelayedRoutine getNew(Matcher matcher, List<Routine> routines)
 	{ 
 		if(matcher != null)
 		{
-			return new DelayedRoutine(matcher.group(), Long.parseLong(matcher.group(1)), routines);
+			IntegerMatch numberMatch = IntegerMatch.getNew(matcher.group(1));
+			return new DelayedRoutine(matcher.group(), numberMatch, routines);
 		}
 		return null;
 	}

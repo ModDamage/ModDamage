@@ -190,7 +190,7 @@ public class ModDamage extends JavaPlugin
 	private static int configPages = 0;
 	private static List<String> configStrings_ingame = new ArrayList<String>();
 	private static List<String> configStrings_console = new ArrayList<String>();
-	private static int additionalConfigChecks = 0;
+	public static int indentation = 0;
 	
 	//misc
 	public static final List<String> emptyList = new ArrayList<String>();
@@ -209,9 +209,9 @@ public class ModDamage extends JavaPlugin
 	
 		public List<Routine> getRoutines(EventType eventType){ return eventRoutines.get(eventType);}
 		
-		private LoadState getState(EventType eventType){ return eventStates.get(eventType);}
+		protected LoadState getState(EventType eventType){ return eventStates.get(eventType);}
 		
-		private void reload()
+		protected void reload()
 		{
 			eventRoutines.clear();
 			eventStates.clear();
@@ -222,26 +222,36 @@ public class ModDamage extends JavaPlugin
 				for(String key : config.getKeys())
 					if(key.equalsIgnoreCase(eventType.name()))
 					{
-						routineObjects =  config.getList(key);
+						routineObjects = config.getList(key);
 						break;
 					}
 				if(routineObjects != null)
 				{
-					addToLogRecord(DebugSetting.NORMAL, 0, eventType.name() + " configuration:", LoadState.SUCCESS);
-					LoadState[] stateMachine = {LoadState.NOT_LOADED};//We use a single-cell array here because the enum is ASSIGNED later - this doesn't work if we want to operate by reference.
-					List<Routine> routines = routineAliaser.parse(routineObjects, 0, stateMachine);
+					addToLogRecord(DebugSetting.NORMAL, eventType.name() + " configuration:", LoadState.SUCCESS);
+					LoadState[] stateMachine = {LoadState.NOT_LOADED};//We use a single-cell array here because the enum is assigned later.
+					List<Routine> routines = routineAliaser.parse(routineObjects, stateMachine);
 					eventStates.put(eventType, stateMachine[0]);
 					
 					if(!routines.isEmpty() && !eventStates.get(eventType).equals(LoadState.FAILURE))
-					{
 						eventRoutines.put(eventType, routines);
-						addToLogRecord(DebugSetting.NORMAL, 0, "End " + eventType.name() + " configuration.", LoadState.SUCCESS);
-					}
-					else 
-					{
-						eventRoutines.put(eventType, new ArrayList<Routine>());
-						addToLogRecord(DebugSetting.QUIET, 0, "Error in " + eventType.name() + " configuration.", LoadState.FAILURE);
-					}
+					else  eventRoutines.put(eventType, new ArrayList<Routine>());
+				}
+				else
+				{
+					eventRoutines.put(eventType, new ArrayList<Routine>());
+					eventStates.put(eventType, LoadState.NOT_LOADED);
+				}
+				switch(eventStates.get(eventType))
+				{
+					case NOT_LOADED:
+						addToLogRecord(DebugSetting.VERBOSE, eventType.name() + " configuration not found.", LoadState.NOT_LOADED);
+						break;
+					case FAILURE:
+						addToLogRecord(DebugSetting.QUIET, "Error in " + eventType.name() + " configuration.", LoadState.FAILURE);
+						break;
+					case SUCCESS:
+						addToLogRecord(DebugSetting.NORMAL, "End " + eventType.name() + " configuration.", LoadState.SUCCESS);
+						break;
 				}
 			}
 			state = LoadState.combineStates(new ArrayList<LoadState>(eventStates.values()));
@@ -308,7 +318,7 @@ public class ModDamage extends JavaPlugin
 				{
 					if(args[0].equalsIgnoreCase("debug") || args[0].equalsIgnoreCase("d"))
 						{
-							if(fromConsole || ExternalPluginManager.permissionsManager.hasPermission(player, "moddamage.debug"))
+							if(fromConsole || ExternalPluginManager.getPermissionsManager().hasPermission(player, "moddamage.debug"))
 							{
 								if(args.length == 1) toggleDebugging(player);
 								else if(args.length == 2)
@@ -333,7 +343,7 @@ public class ModDamage extends JavaPlugin
 							{
 								boolean reloadingAll = args.length == 2 && args[1].equalsIgnoreCase("all");
 								if(fromConsole) reload(reloadingAll);
-								else if(ExternalPluginManager.permissionsManager.hasPermission(player, "moddamage.reload")) 
+								else if(ExternalPluginManager.getPermissionsManager().hasPermission(player, "moddamage.reload")) 
 								{
 									log.info("[" + getDescription().getName() + "] Reload initiated by user " + player.getName() + "...");
 									reload(reloadingAll);
@@ -356,14 +366,14 @@ public class ModDamage extends JavaPlugin
 						}
 						else if(args[0].equalsIgnoreCase("enable"))
 						{
-							if(fromConsole || ExternalPluginManager.permissionsManager.hasPermission(player, "moddamage.enable"))
+							if(fromConsole || ExternalPluginManager.getPermissionsManager().hasPermission(player, "moddamage.enable"))
 								setPluginStatus(player, true);
 							else player.sendMessage(errorString_Permissions);
 							return true;
 						}
 						else if(args[0].equalsIgnoreCase("disable"))
 						{
-							if(fromConsole || ExternalPluginManager.permissionsManager.hasPermission(player, "moddamage.disable"))
+							if(fromConsole || ExternalPluginManager.getPermissionsManager().hasPermission(player, "moddamage.disable"))
 									setPluginStatus(player, false);
 							else player.sendMessage(errorString_Permissions);
 							return true;
@@ -380,7 +390,7 @@ public class ModDamage extends JavaPlugin
 							}
 							else if(args.length == 1)
 							{
-								if(ExternalPluginManager.permissionsManager.hasPermission(player, "moddamage.check"))
+								if(ExternalPluginManager.getPermissionsManager().hasPermission(player, "moddamage.check"))
 									sendLogRecord(player, 0);
 								else player.sendMessage(errorString_Permissions);
 							}
@@ -499,6 +509,15 @@ public class ModDamage extends JavaPlugin
 			SwitchRoutine.registeredRoutines.clear();
 			
 			ExternalPluginManager.reload(this);
+		
+			if(ExternalPluginManager.getPermissionsPlugin() != null)
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [" + ExternalPluginManager.getPermissionsPlugin().getDescription().getName() + " v" + ExternalPluginManager.getPermissionsPlugin().getDescription().getVersion() + " active]", LoadState.SUCCESS);
+			else ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions plugin not found]", LoadState.NOT_LOADED);
+			if(ExternalPluginManager.getRegionsPlugin() != null)
+			{
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] Found " + ExternalPluginManager.getRegionsPlugin().getDescription().getName() + " v" + ExternalPluginManager.getRegionsPlugin().getDescription().getVersion(), LoadState.SUCCESS);
+			}
+			else ModDamage.addToLogRecord(DebugSetting.VERBOSE, "[" + this.getDescription().getName() + "] No regional plugins found.", LoadState.NOT_LOADED);
 			
 		//Build check
 			String string = getServer().getVersion();
@@ -506,9 +525,9 @@ public class ModDamage extends JavaPlugin
 			if(matcher.matches())
 			{
 				if(Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
-					addToLogRecord(DebugSetting.QUIET, 0, "Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.", LoadState.FAILURE);
+					addToLogRecord(DebugSetting.QUIET, "Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.", LoadState.FAILURE);
 			}
-			else addToLogRecord(DebugSetting.QUIET, 0, "[" + getDescription().getName() + "] Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.", LoadState.FAILURE);
+			else addToLogRecord(DebugSetting.QUIET, "[" + getDescription().getName() + "] Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.", LoadState.FAILURE);
 			
 		//Base Calculations
 				Addition.register(this);
@@ -578,7 +597,7 @@ public class ModDamage extends JavaPlugin
 		catch(Exception e)
 		{
 			//FIXME 0.9.6 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not auto-load config.
-			addToLogRecord(DebugSetting.QUIET, 0, "Error in YAML configuration. Type /md check for more information.", LoadState.FAILURE);
+			addToLogRecord(DebugSetting.QUIET, "Error in YAML configuration. Type /md check for more information.", LoadState.FAILURE);
 			e.printStackTrace();
 			/*
 			for(StackTraceElement element : e.getStackTrace())
@@ -628,18 +647,18 @@ public class ModDamage extends JavaPlugin
 					switch(state_aliases)
 					{
 						case NOT_LOADED:
-							addToLogRecord(DebugSetting.VERBOSE,  0, "No aliases loaded! Are any aliases defined?", state_aliases);
+							addToLogRecord(DebugSetting.VERBOSE, "No aliases loaded! Are any aliases defined?", state_aliases);
 							break;
 						case FAILURE:
-							addToLogRecord(DebugSetting.QUIET,  0, "One or more errors occurred while loading aliases.", state_aliases);
+							addToLogRecord(DebugSetting.QUIET, "One or more errors occurred while loading aliases.", state_aliases);
 							break;
 						case SUCCESS:
-							addToLogRecord(DebugSetting.VERBOSE,  0, "Aliases loaded!", state_aliases);
+							addToLogRecord(DebugSetting.VERBOSE, "Aliases loaded!", state_aliases);
 							break;
 					}
 					break;
 				}
-				else addToLogRecord(DebugSetting.VERBOSE,  0, "No Aliases node found.", LoadState.NOT_LOADED);
+				else addToLogRecord(DebugSetting.VERBOSE, "No Aliases node found.", LoadState.NOT_LOADED);
 			}
 		
 	//Routines
@@ -647,13 +666,13 @@ public class ModDamage extends JavaPlugin
 		switch(routineManager.state)
 		{
 			case NOT_LOADED:
-				addToLogRecord(DebugSetting.VERBOSE,  0, "No routines loaded! Are any routines defined?", state_aliases);
+				addToLogRecord(DebugSetting.VERBOSE, "No routines loaded! Are any routines defined?", state_aliases);
 				break;
 			case FAILURE:
-				addToLogRecord(DebugSetting.QUIET,  0, "One or more errors occurred while loading routines.", state_aliases);
+				addToLogRecord(DebugSetting.QUIET, "One or more errors occurred while loading routines.", state_aliases);
 				break;
 			case SUCCESS:
-				addToLogRecord(DebugSetting.VERBOSE,  0, "Routines loaded!", state_aliases);
+				addToLogRecord(DebugSetting.VERBOSE, "Routines loaded!", state_aliases);
 				break;
 		}
 
@@ -684,12 +703,11 @@ public class ModDamage extends JavaPlugin
 
 	private void writeDefaults() 
 	{
-		log.severe("[" + getDescription().getName() + "] No configuration file found! Writing a blank config...");
+		addToLogRecord(DebugSetting.QUIET, "[" + getDescription().getName() + "] No configuration file found! Writing a blank config...", LoadState.NOT_LOADED);
+		config.setHeader("#Auto-generated config");
 		config.setProperty("debugging", "normal");
-		config.setProperty("Damage", null);
-		config.setProperty("Death", null);
-		config.setProperty("Food", null);
-		config.setProperty("Spawn", null);
+		for(EventType eventType : EventType.values())
+			config.setProperty(eventType.name(), null);
 		
 		String[][] toolAliases = { {"axe", "hoe", "pickaxe", "spade", "sword"}, {"WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_"}};
 		for(String toolType : toolAliases[0])
@@ -699,7 +717,6 @@ public class ModDamage extends JavaPlugin
 				combinations.add(toolMaterial + toolType.toUpperCase());
 			config.setProperty("Aliases.Item." + toolType, combinations);
 		}
-
 		config.save();
 		log.severe("[" + getDescription().getName() + "] Defaults written to config.yml!");
 	}
@@ -765,7 +782,7 @@ public class ModDamage extends JavaPlugin
 		}
 	}
 	
-	public static void addToLogRecord(DebugSetting outputSetting, int nestCount, String string, LoadState loadState)
+	public static void addToLogRecord(DebugSetting outputSetting, String string, LoadState loadState)
 	{
 		if(loadState.equals(LoadState.FAILURE)) state_plugin = LoadState.FAILURE;
 		if(debugSetting.shouldOutput(outputSetting))
@@ -788,7 +805,7 @@ public class ModDamage extends JavaPlugin
 				if(string.length() > 50)
 				{
 					String ingameString = string;
-					configStrings_ingame.add(nestCount + "] " + color + ingameString.substring(0, 49));
+					configStrings_ingame.add(ModDamage.indentation + "] " + color + ingameString.substring(0, 49));
 					ingameString = ingameString.substring(49);
 					while(ingameString.length() > 50)
 					{
@@ -797,11 +814,11 @@ public class ModDamage extends JavaPlugin
 					}
 					configStrings_ingame.add("     " + color + ingameString);
 				}
-				else configStrings_ingame.add(nestCount + "] " + color + string);
+				else configStrings_ingame.add(ModDamage.indentation + "] " + color + string);
 			}
 
 			String nestIndentation = "";
-			for(int i = 0; i < nestCount; i++)
+			for(int i = 0; i < ModDamage.indentation; i++)
 				nestIndentation += "    ";
 			configStrings_console.add(nestIndentation + string);
 			
@@ -835,7 +852,7 @@ public class ModDamage extends JavaPlugin
 		{
 			if(pageNumber <= configPages)
 			{
-				player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Log Record: (" + pageNumber + "/" + (configPages + additionalConfigChecks) + ")");
+				player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Log Record: (" + pageNumber + "/" + configPages + ")");
 				for(int i = (9 * (pageNumber - 1)); i < (configStrings_ingame.size() < (9 * pageNumber)?configStrings_ingame.size():(9 * pageNumber)); i++)
 					player.sendMessage(ChatColor.DARK_AQUA + configStrings_ingame.get(i));
 				return true;
@@ -881,7 +898,7 @@ public class ModDamage extends JavaPlugin
 			return true;
 		else
 		{
-			addToLogRecord(DebugSetting.QUIET, 0, "Invalid entity identifier \"" + string + "\" - defaulting to \"target\"", LoadState.FAILURE);
+			addToLogRecord(DebugSetting.QUIET, "Invalid entity identifier \"" + string + "\" - defaulting to \"target\"", LoadState.FAILURE);
 			return false;
 		}
 	}

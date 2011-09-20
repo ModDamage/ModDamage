@@ -28,6 +28,6 @@ public class LiteralRange extends Chanceroutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		Routine.registerBase(LiteralRange.class, Pattern.compile("range\\.(-?[0-9]+|(\\w+\\.\\w+)\\.(-?[0-9]+|(\\w+\\.\\w+)", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(LiteralRange.class, Pattern.compile("range\\." + Routine.dynamicIntegerPart + "\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 }

@@ -34,7 +34,7 @@ public class EntityRegion extends EntityConditionalStatement
 	protected List<String> getRegions(TargetEventInfo eventInfo) 
 	{
 		if(entityReference.getEntity(eventInfo) != null)
-			return ExternalPluginManager.regionsManager.getRegions(entityReference.getEntity(eventInfo).getLocation());//XXX Use .addAll(getEyeLocation())?
+			return ExternalPluginManager.getRegionsManager().getRegions(entityReference.getEntity(eventInfo).getLocation());//XXX Use .addAll(getEyeLocation())?
 		return ModDamage.emptyList;
 	}
 	

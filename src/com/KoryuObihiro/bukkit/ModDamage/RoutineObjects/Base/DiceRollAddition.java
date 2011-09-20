@@ -27,6 +27,6 @@ public class DiceRollAddition extends Chanceroutine
 	
 	public static void register(ModDamage routineUtility) 
 	{
-		Routine.registerBase(DiceRollAddition.class, Pattern.compile("roll\\.(-?[0-9]+|(\\w+\\.\\w+)", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(DiceRollAddition.class, Pattern.compile("roll\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 }

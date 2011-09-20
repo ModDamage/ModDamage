@@ -24,7 +24,8 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 	{
 		if(this.containsKey(key)) return false;
 		List<Type> matchedItems = new ArrayList<Type>();
-		ModDamage.addToLogRecord(DebugSetting.NORMAL, 0, "Adding " + name + " alias \"" + key + "\"", LoadState.SUCCESS);
+		ModDamage.addToLogRecord(DebugSetting.NORMAL, "Adding " + name + " alias \"" + key + "\"", LoadState.SUCCESS);
+		ModDamage.indentation++;
 		for(Object listedValue : values)
 		{
 			if(listedValue instanceof String)
@@ -36,20 +37,21 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 					{
 						if(!matchedItems.contains(value))
 						{
-							ModDamage.addToLogRecord(DebugSetting.VERBOSE, 1, "Adding value \"" + getObjectName(value) + "\"", LoadState.SUCCESS);
+							ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Adding value \"" + getObjectName(value) + "\"", LoadState.SUCCESS);
 							matchedItems.add(value);
 						}
-						else ModDamage.addToLogRecord(DebugSetting.NORMAL, 1, "Error: duplicate value \"" + getObjectName(value) + "\" - ignoring.", LoadState.NOT_LOADED);
+						else ModDamage.addToLogRecord(DebugSetting.NORMAL, "Error: duplicate value \"" + getObjectName(value) + "\" - ignoring.", LoadState.NOT_LOADED);
 					}
 				}
 				else return false;//debug output already handled in failed matchAlias
 			}
 			else
 			{
-				ModDamage.addToLogRecord(DebugSetting.QUIET, 1, "Unrecognized object " + listedValue.toString(), LoadState.FAILURE);
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "Unrecognized object " + listedValue.toString(), LoadState.FAILURE);
 				return false;
 			}
 		}
+		ModDamage.indentation--;
 		this.put("_" + key, matchedItems);
 		return true;
 	}
@@ -61,7 +63,12 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 			return this.get(key);
 		Type value = matchNonAlias(key);
 		if(value != null) return Arrays.asList(value);
-		ModDamage.addToLogRecord(DebugSetting.QUIET, 1, "No matching " + name + " alias or value \"" + key + "\"", LoadState.FAILURE);
+		{
+			ModDamage.indentation++;
+			ModDamage.addToLogRecord(DebugSetting.QUIET, "No matching " + name + " alias or value \"" + key + "\"", LoadState.FAILURE);
+			ModDamage.indentation--;
+		}
+		
 		return new ArrayList<Type>();
 	}
 	
@@ -95,18 +102,18 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 			if(!specificAliasesNode.getKeys().isEmpty())
 			{
 				this.loadState = LoadState.SUCCESS;
-				ModDamage.addToLogRecord(DebugSetting.VERBOSE, 0, this.name + " aliases found, parsing...", LoadState.SUCCESS);
+				ModDamage.addToLogRecord(DebugSetting.VERBOSE, this.name + " aliases found, parsing...", LoadState.SUCCESS);
 				for(String alias : specificAliasesNode.getKeys())
 				{
 					List<Object> values = specificAliasesNode.getList(alias);
 					if(values.isEmpty())
-						ModDamage.addToLogRecord(DebugSetting.VERBOSE, 0, "Found empty " + this.name.toLowerCase() + " alias \"" + alias + "\", ignoring...", LoadState.NOT_LOADED);
+						ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Found empty " + this.name.toLowerCase() + " alias \"" + alias + "\", ignoring...", LoadState.NOT_LOADED);
 					else if(!this.addAlias(alias, values))
 						this.loadState = LoadState.FAILURE;
 				}
 			}
 		}
-		else ModDamage.addToLogRecord(DebugSetting.VERBOSE, 0, "No " + this.name + " aliases node found.", LoadState.NOT_LOADED);
+		else ModDamage.addToLogRecord(DebugSetting.VERBOSE, "No " + this.name + " aliases node found.", LoadState.NOT_LOADED);
 		return loadState;
 	}
 }

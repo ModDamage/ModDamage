@@ -41,7 +41,7 @@ public class TargetEventInfo
 			materialInHand_target = player_target.getItemInHand().getType();
 			armorSet_target = new ArmorSet(player_target);
 			name_target = player_target.getName();
-			groups_target = ExternalPluginManager.permissionsManager.getGroups(player_target);
+			groups_target = ExternalPluginManager.getPermissionsManager().getGroups(player_target);
 		}
 		else
 		{

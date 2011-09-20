@@ -33,62 +33,63 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public enum ModDamageElement 
 {
-GENERIC(null),
-	GENERIC_LIVING(GENERIC),
-	ANIMAL(GENERIC_LIVING),
-		CHICKEN(ANIMAL, CreatureType.CHICKEN),
-		COW(ANIMAL, CreatureType.COW),
-		PIG(ANIMAL, CreatureType.PIG),
-		SHEEP(ANIMAL, CreatureType.SHEEP),
-		SQUID(ANIMAL, CreatureType.SQUID),
-		WOLF(ANIMAL, CreatureType.WOLF),
-			WOLF_WILD(WOLF, CreatureType.WOLF),
-			WOLF_ANGRY(WOLF, CreatureType.WOLF),
-			WOLF_TAME(WOLF, CreatureType.WOLF),
+	UNKNOWN(null),
+	GENERIC(null),
+		LIVING(GENERIC),
+			ANIMAL(LIVING),
+				CHICKEN(ANIMAL, CreatureType.CHICKEN),
+				COW(ANIMAL, CreatureType.COW),
+				PIG(ANIMAL, CreatureType.PIG),
+				SHEEP(ANIMAL, CreatureType.SHEEP),
+				SQUID(ANIMAL, CreatureType.SQUID),
+				WOLF(ANIMAL, CreatureType.WOLF),
+					WOLF_WILD(WOLF, CreatureType.WOLF),
+					WOLF_ANGRY(WOLF, CreatureType.WOLF),
+					WOLF_TAME(WOLF, CreatureType.WOLF),
+				
+			HUMAN(LIVING),
+				PLAYER(HUMAN),
+				NPC(HUMAN),
+			
+			MOB (LIVING),
+				CAVESPIDER(MOB, CreatureType.CAVE_SPIDER),
+				CREEPER(MOB, CreatureType.CREEPER),
+					CREEPER_CHARGED(CREEPER, CreatureType.CREEPER),
+					CREEPER_NORMAL(CREEPER, CreatureType.CREEPER),
+				ENDERMAN(MOB, CreatureType.ENDERMAN),
+				GHAST(MOB, CreatureType.GHAST),
+				GIANT(MOB, CreatureType.GIANT),
+				PIGZOMBIE(MOB, CreatureType.PIG_ZOMBIE),
+				SILVERFISH(MOB, CreatureType.SILVERFISH),
+				SKELETON(MOB, CreatureType.SKELETON),
+				SLIME(MOB, CreatureType.SLIME),
+					SLIME_HUGE (SLIME, CreatureType.SLIME),
+					SLIME_LARGE (SLIME, CreatureType.SLIME),
+					SLIME_MEDIUM(SLIME, CreatureType.SLIME),
+					SLIME_OTHER(SLIME, CreatureType.SLIME),
+					SLIME_SMALL(SLIME, CreatureType.SLIME),
+				SPIDER(MOB, CreatureType.SPIDER),
+					SPIDER_JOCKEY(SPIDER, CreatureType.SPIDER),
+					SPIDER_RIDERLESS(SPIDER, CreatureType.SPIDER),
+				ZOMBIE(MOB, CreatureType.ZOMBIE),
 		
-	HUMAN(GENERIC_LIVING),
-		PLAYER(HUMAN),
-		NPC(HUMAN),
-	
-	MOB (GENERIC_LIVING),
-		CAVESPIDER(MOB, CreatureType.CAVE_SPIDER),
-		CREEPER(MOB, CreatureType.CREEPER),
-			CREEPER_CHARGED(CREEPER, CreatureType.CREEPER),
-			CREEPER_NORMAL(CREEPER, CreatureType.CREEPER),
-		ENDERMAN(MOB, CreatureType.ENDERMAN),
-		GHAST(MOB, CreatureType.GHAST),
-		GIANT(MOB, CreatureType.GIANT),
-		PIGZOMBIE(MOB, CreatureType.PIG_ZOMBIE),
-		SILVERFISH(MOB, CreatureType.SILVERFISH),
-		SKELETON(MOB, CreatureType.SKELETON),
-		SLIME(MOB, CreatureType.SLIME),
-			SLIME_HUGE (SLIME, CreatureType.SLIME),
-			SLIME_LARGE (SLIME, CreatureType.SLIME),
-			SLIME_MEDIUM(SLIME, CreatureType.SLIME),
-			SLIME_OTHER(SLIME, CreatureType.SLIME),
-			SLIME_SMALL(SLIME, CreatureType.SLIME),
-		SPIDER(MOB, CreatureType.SPIDER),
-			SPIDER_JOCKEY(SPIDER, CreatureType.SPIDER),
-			SPIDER_RIDERLESS(SPIDER, CreatureType.SPIDER),
-		ZOMBIE(MOB, CreatureType.ZOMBIE),
-	
-	NONLIVING(GENERIC),
-	NATURE(NONLIVING),
-		EXPLOSION(NATURE),
-			EXPLOSION_ENTITY(EXPLOSION),
-			EXPLOSION_BLOCK(EXPLOSION),
-		CACTUS(NATURE),
-		DROWNING (NATURE),
-		FALL(NATURE),
-		FIRE(NATURE),
-		BURN(NATURE),
-		LAVA(NATURE),
-		LIGHTNING(NATURE),
-		SUFFOCATION(NATURE),
-		VOID(NATURE),
-	
-	TRAP(NONLIVING),
-		DISPENSER(TRAP);
+		NONLIVING(GENERIC),
+			NATURE(NONLIVING),
+				EXPLOSION(NATURE),
+					EXPLOSION_ENTITY(EXPLOSION),
+					EXPLOSION_BLOCK(EXPLOSION),
+				CACTUS(NATURE),
+				DROWNING (NATURE),
+				FALL(NATURE),
+				FIRE(NATURE),
+				BURN(NATURE),
+				LAVA(NATURE),
+				LIGHTNING(NATURE),
+				SUFFOCATION(NATURE),
+				VOID(NATURE),
+			
+			TRAP(NONLIVING),
+				DISPENSER(TRAP);
 
 	private final ModDamageElement genericElement;
 	private final CreatureType creatureType;
@@ -129,7 +130,7 @@ GENERIC(null),
 			case LIGHTNING: 		return LIGHTNING;
 			case SUFFOCATION: 		return SUFFOCATION;
 			case VOID: 				return VOID;
-			default: 				return null;//shouldn't happen
+			default: 				return UNKNOWN;//shouldn't happen
 		}
 	}
 	
@@ -198,7 +199,7 @@ GENERIC(null),
 		if(entity instanceof Flying) 
 			if(entity instanceof Ghast)			return GHAST;
 		if(entity instanceof HumanEntity)		return (entity instanceof Player)?PLAYER:NPC;
-		return null;
+		return UNKNOWN;
 	}
 
 	public static List<ModDamageElement> getElementsOf(ModDamageElement element){ return getElementsOf(element.name());}
@@ -216,6 +217,6 @@ GENERIC(null),
 		for(ModDamageElement element : values())
 			if(element.name().equalsIgnoreCase(nodeName))
 				return element;
-		return null;
+		return UNKNOWN;
 	}
 }

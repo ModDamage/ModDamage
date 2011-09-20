@@ -21,7 +21,7 @@ public class Addition extends Routine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		Routine.registerBase(Addition.class, Pattern.compile("(-?[0-9]+|(\\w+\\.\\w+)", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(Addition.class, Pattern.compile(Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Addition getNew(Matcher matcher)
@@ -29,7 +29,8 @@ public class Addition extends Routine
 		if(matcher != null)
 		{
 			IntegerMatch match = IntegerMatch.getNew(matcher.group(1));
-			return new Addition(matcher.group(), match);
+			if(match != null)
+				return new Addition(matcher.group(), match);
 		}
 		return null;
 	}

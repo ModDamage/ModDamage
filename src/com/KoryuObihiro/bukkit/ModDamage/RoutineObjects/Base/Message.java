@@ -55,7 +55,7 @@ public class Message extends Chanceroutine
 					return new Message(matcher.group(), EntityReference.match(matcher.group(1)), matchedMessage);
 				else if(MessageType.match(matcher.group(1)) != null)
 					return new Message(matcher.group(), MessageType.match(matcher.group(1)), matchedMessage);
-				ModDamage.addToLogRecord(DebugSetting.QUIET, 0, "Unrecognized message recipient \"" + matcher.group(1) + "\"", LoadState.FAILURE);
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "Unrecognized message recipient \"" + matcher.group(1) + "\"", LoadState.FAILURE);
 				return null;
 			}
 		}

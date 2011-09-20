@@ -36,7 +36,7 @@ public class ComparisonStatement extends ConditionalStatement
 			for(ComparisonType type : ComparisonType.values())
 				if(key.equalsIgnoreCase(type.name()))
 					return type;
-			ModDamage.addToLogRecord(DebugSetting.QUIET, 0, "Invalid comparison \"" + key + "\"", LoadState.FAILURE);
+			ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid comparison \"" + key + "\"", LoadState.FAILURE);
 			return null;
 		}
 		public boolean compare(long operand1, long operand2)

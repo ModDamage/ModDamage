@@ -36,11 +36,11 @@ public class ArmorSet
 			if(material == null || !this.put(material))
 			{
 				isValid = false;
-				ModDamage.addToLogRecord(DebugSetting.QUIET, 0, "Unrecognized armor part \"" + part + "\"", LoadState.FAILURE);
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "Unrecognized armor part \"" + part + "\"", LoadState.FAILURE);
 				break;
 			}
 		}
-		if(!isValid) ModDamage.addToLogRecord(DebugSetting.QUIET, 0, "Invalid ArmorSet \"" + armorSetString + "\"", LoadState.FAILURE);
+		if(!isValid) ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid ArmorSet \"" + armorSetString + "\"", LoadState.FAILURE);
 	}
 	
 	private boolean put(Material material)

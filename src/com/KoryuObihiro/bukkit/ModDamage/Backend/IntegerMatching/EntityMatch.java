@@ -34,11 +34,10 @@ public class EntityMatch extends IntegerMatch
 			this.castsToLiving = castsToLiving;
 		}
 		
-		private int getProperty(TargetEventInfo eventInfo, EntityReference reference)
+		protected int getProperty(TargetEventInfo eventInfo, EntityReference reference)
 		{
 			Entity entity = reference.getEntity(eventInfo);
-			if(castsToLiving == entity instanceof LivingEntity)
-			{
+			if(!castsToLiving || (entity instanceof LivingEntity))
 				switch(this)
 				{
 					case AirTicks: return ((LivingEntity)entity).getRemainingAir();
@@ -51,7 +50,6 @@ public class EntityMatch extends IntegerMatch
 					case Y: return entity.getLocation().getBlockY();
 					case Z: return entity.getLocation().getBlockZ();
 				}
-			}
 			return 0;//TODO 0.9.6 - Do we really want this behavior?
 		}
 	}

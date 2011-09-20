@@ -12,6 +12,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 abstract public class Routine
 {	
 	public static final HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
+	public static final String dynamicIntegerPart = "(-?[0-9]+|\\w+\\.\\w+|_\\w+)";
 	
 	final String configString;
 	protected Routine(String configString)

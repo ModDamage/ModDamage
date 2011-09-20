@@ -1,5 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
+import static com.sk89q.worldguard.bukkit.BukkitUtil.toVector;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,8 +11,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.elbukkit.api.elregions.region.Region;
 import com.gmail.nossr50.mcMMO;
@@ -19,11 +19,16 @@ import com.platymuus.bukkit.permissions.Group;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
+import de.bananaco.permissions.Permissions;
+
 public class ExternalPluginManager
 {
+	private static final List<String> emptyList = new ArrayList<String>();
+	
 	private static mcMMO plugin_mcMMO;
 	public mcMMO getPlugin_mcMMO()
 	{
+		return plugin_mcMMO; //FIXME
 		/* TODO 0.9.6 - make routines outta these.
 		plugin_mcMMO.getPlayerProfile(null).addBleedTicks(0);
 		plugin_mcMMO.getPlayerProfile(null).addXP(null, 0);
@@ -49,30 +54,33 @@ public class ExternalPluginManager
 		mcMMO.inParty(null);
 		mcMMO.getPartyName(null);//aliases?
 		*/
-		return plugin_mcMMO; //FIXME
 	}
 	
 	private static Plugin permissionsPlugin = null;
-	public static PermissionsManager permissionsManager = PermissionsManager.SuperPerms;
+	public static Plugin getPermissionsPlugin(){ return permissionsPlugin;}
+	private static PermissionsManager permissionsManager = PermissionsManager.SUPERPERMS;
+	public static PermissionsManager getPermissionsManager(){ return permissionsManager;}
 	public enum PermissionsManager
 	{
-		SuperPerms,
+		SUPERPERMS,
 		PermissionsEx,
-		//bPermissions,
+		bPermissions,
 		PermissionsBukkit;
 		public List<String> getGroups(Player player)
 		{
-			if(player == null) return ModDamage.emptyList;
+			if(player == null) return emptyList;
 			switch(this)
 			{
 				case PermissionsEx:
 					return Arrays.asList(((PermissionHandler)permissionsPlugin).getGroups(player.getWorld().getName(), player.getName()));
+				case bPermissions:
+					return Permissions.getWorldPermissionsManager().getPermissionSet(player.getWorld()).getGroups(player);
 				case PermissionsBukkit:
 					List<String> groupNames = new ArrayList<String>();
 					for(Group group : ((PermissionsPlugin)permissionsPlugin).getGroups(player.getName()))
 						groupNames.add(group.getName());
 					return groupNames;
-				default: return ModDamage.emptyList;
+				default: return emptyList;
 			}
 		}
 		public boolean hasPermission(Player player, String permission)
@@ -80,20 +88,20 @@ public class ExternalPluginManager
 			if(player == null) return false;
 			switch(this)
 			{
-				case SuperPerms:		return player.hasPermission(permission);
 				case PermissionsEx:		return ((PermissionHandler)permissionsPlugin).has(player, permission);
-				//case bPermissions:		return ((de.bananaco.permissions.SuperPermissionHandler)ModDamage.permissionsPlugin)..
 				case PermissionsBukkit:	return ((PermissionsPlugin)permissionsPlugin).getPlayerInfo(player.getName()).getPermissions().containsKey(permission);
-				default:				return player.isOp();
 			}
+			return player.hasPermission(permission);
 		}
 	}
 	
 	private static Plugin regionsPlugin = null;
-	public static RegionsManager regionsManager = null;
+	public static Plugin getRegionsPlugin(){ return regionsPlugin;}
+	private static RegionsManager regionsManager = null;
+	public static RegionsManager getRegionsManager(){ return regionsManager;}
 	public enum RegionsManager
 	{
-		WorldGuard, elRegions;//TODO 0.9.6 - Override what sort of permissions/regions plugin to look for?
+		NONE, WorldGuard, elRegions;
 		public List<String> getRegions(Location location)
 		{
 			switch(this)
@@ -110,10 +118,10 @@ public class ExternalPluginManager
 				case WorldGuard:
 					com.sk89q.worldguard.protection.managers.RegionManager wgManager = ((WorldGuardPlugin)regionsPlugin).getGlobalRegionManager().get(location.getWorld());
 					if(wgManager != null)
-						return new ArrayList<String>(wgManager.getRegions().keySet());
+						return wgManager.getApplicableRegionsIDs(toVector(location));
 					break;
 			}
-			return ModDamage.emptyList;
+			return emptyList;
 		}
 
 		public List<String> getAllRegions() 
@@ -121,7 +129,7 @@ public class ExternalPluginManager
 			switch(this)
 			{
 				case elRegions:
-					for(World world : ModDamage.server.getWorlds())//TODO Potential refactor: store list of all regions and worlds temporarily for alias verification?
+					for(World world : regionsPlugin.getServer().getWorlds())
 					{
 						com.elbukkit.api.elregions.region.RegionManager erManager = ((elRegionsPlugin)regionsPlugin).getRegionManager(world);
 						if(erManager != null)
@@ -133,42 +141,42 @@ public class ExternalPluginManager
 						}
 					}
 				case WorldGuard:
-					for(World world : ModDamage.server.getWorlds())
+					for(World world : regionsPlugin.getServer().getWorlds())
 					{
 						com.sk89q.worldguard.protection.managers.RegionManager wgManager = ((WorldGuardPlugin)regionsPlugin).getGlobalRegionManager().get(world);
 						if(wgManager != null)
 							return new ArrayList<String>(wgManager.getRegions().keySet());
 					}
 			}
-			return ModDamage.emptyList;
+			return emptyList;
 		}
 	}
 	
-	public static void reload(ModDamage plugin) 
+	public static void reload(Plugin plugin)
 	{
-		permissionsManager = PermissionsManager.SuperPerms;
+		permissionsManager = PermissionsManager.SUPERPERMS;
 		for(PermissionsManager permsPlugin : PermissionsManager.values())
 		{
-			if(permsPlugin.equals(PermissionsManager.SuperPerms)) continue;
+			if(permsPlugin.equals(PermissionsManager.SUPERPERMS)) continue;
 			permissionsPlugin = plugin.getServer().getPluginManager().getPlugin(permsPlugin.name());
 			if (permissionsPlugin != null)
+			{
 				permissionsManager = permsPlugin;
+				break;
+			}
 		}
-		if(permissionsPlugin != null)
-			ModDamage.addToLogRecord(DebugSetting.QUIET, 0, "[" + plugin.getDescription().getName() + "] " + plugin.getDescription().getVersion() + " enabled [" + permissionsPlugin.getDescription().getName() + " v" + permissionsPlugin.getDescription().getVersion() + " active]", LoadState.SUCCESS);
-		else ModDamage.addToLogRecord(DebugSetting.QUIET, 0, "[" + plugin.getDescription().getName() + "] " + plugin.getDescription().getVersion() + " enabled [Permissions plugin not found]", LoadState.NOT_LOADED);
-	
+		regionsPlugin = null;
 		for(RegionsManager regionalPlugin : RegionsManager.values())
 		{
+			if(regionalPlugin.equals(RegionsManager.NONE)) continue;
 			regionsPlugin = plugin.getServer().getPluginManager().getPlugin(regionalPlugin.name());
 			if (regionsPlugin != null)
+			{
 				regionsManager = regionalPlugin;
+				break;
+			}
 		}
-		if(regionsPlugin != null)
-		{
-			ModDamage.addToLogRecord(DebugSetting.QUIET, 0, "[" + plugin.getDescription().getName() + "] Found " + regionsPlugin.getDescription().getName() + " v" + ExternalPluginManager.regionsPlugin.getDescription().getVersion(), LoadState.SUCCESS);
-		}
-		else ModDamage.addToLogRecord(DebugSetting.VERBOSE, 0, "[" + plugin.getDescription().getName() + "] No regional plugins found.", LoadState.NOT_LOADED);
-		
+		if(regionsPlugin == null)
+			regionsManager = RegionsManager.NONE;
 	}
 }

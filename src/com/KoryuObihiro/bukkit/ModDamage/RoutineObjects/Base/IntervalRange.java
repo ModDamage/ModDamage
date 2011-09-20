@@ -29,6 +29,6 @@ public class IntervalRange extends Chanceroutine
 	
 	public static void register(ModDamage routineUtility)
 	{
-		Routine.registerBase(DiceRoll.class, Pattern.compile("range_int\\.(-?[0-9]+|(\\w+\\.\\w+)\\.(-?[0-9]+|(\\w+\\.\\w+)\\.(-?[0-9]+|(\\w+\\.\\w+)", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(DiceRoll.class, Pattern.compile("range_int(?:\\." + Routine.dynamicIntegerPart + "){2}", Pattern.CASE_INSENSITIVE));
 	}
 }
