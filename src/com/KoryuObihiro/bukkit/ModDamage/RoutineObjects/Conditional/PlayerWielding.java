@@ -22,9 +22,9 @@ public class PlayerWielding extends PlayerConditionalStatement
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo){ return materials.contains(entityReference.getMaterial(eventInfo));}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWielding.class, Pattern.compile("(!?)(\\w+)\\.wielding\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(PlayerWielding.class, Pattern.compile("(!?)(\\w+)\\.wielding\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}	
 	
 	public static PlayerWielding getNew(Matcher matcher)

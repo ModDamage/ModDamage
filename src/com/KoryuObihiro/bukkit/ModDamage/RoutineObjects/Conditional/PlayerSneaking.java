@@ -5,9 +5,8 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class PlayerSneaking extends PlayerConditionalStatement
@@ -24,9 +23,9 @@ public class PlayerSneaking extends PlayerConditionalStatement
 		return (player != null && player.isSneaking());
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerSneaking.class, Pattern.compile("(!?)(\\w+)\\.sneaking", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(PlayerSneaking.class, Pattern.compile("(!?)(\\w+)\\.sneaking", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerSneaking getNew(Matcher matcher)

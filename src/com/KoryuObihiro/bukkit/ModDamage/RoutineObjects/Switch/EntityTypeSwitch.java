@@ -32,9 +32,9 @@ public class EntityTypeSwitch extends LivingEntitySwitchRoutine<List<ModDamageEl
 	@Override
 	protected List<ModDamageElement> matchCase(String switchCase){ return ModDamage.matchElementAlias(switchCase);}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		SwitchRoutine.registerStatement(routineUtility, EntityTypeSwitch.class, Pattern.compile("(\\w+)\\.type", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(EntityTypeSwitch.class, Pattern.compile("(\\w+)\\.type", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityTypeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

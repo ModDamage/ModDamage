@@ -27,9 +27,9 @@ public class PlayerWieldSwitch extends LivingEntitySwitchRoutine<List<Material>>
 	@Override
 	protected List<Material> matchCase(String switchCase){ return ModDamage.matchItemAlias(switchCase);}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		SwitchRoutine.registerStatement(routineUtility, PlayerWieldSwitch.class, Pattern.compile("(\\w+)\\.wielding", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(PlayerWieldSwitch.class, Pattern.compile("(\\w+)\\.wielding", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerWieldSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

@@ -3,7 +3,6 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
@@ -26,7 +25,7 @@ public class LiteralRange extends Chanceroutine
 		return null;
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
 		Routine.registerBase(LiteralRange.class, Pattern.compile("range\\." + Routine.dynamicIntegerPart + "\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}

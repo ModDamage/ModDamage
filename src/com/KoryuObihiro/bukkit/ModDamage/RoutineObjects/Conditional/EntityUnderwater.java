@@ -8,9 +8,8 @@ import java.util.regex.Pattern;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class EntityUnderwater extends EntityConditionalStatement
@@ -27,9 +26,9 @@ public class EntityUnderwater extends EntityConditionalStatement
 				&& (entityReference.getEntity(eventInfo) instanceof LivingEntity)?waterList.contains(((LivingEntity)entityReference.getEntity(eventInfo)).getEyeLocation().getBlock().getType()):true;
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityUnderwater.class, Pattern.compile("(!?)(\\w+)\\.underwater", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(EntityUnderwater.class, Pattern.compile("(!?)(\\w+)\\.underwater", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityUnderwater getNew(Matcher matcher)

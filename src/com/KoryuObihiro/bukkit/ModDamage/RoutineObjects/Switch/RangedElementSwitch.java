@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
@@ -26,9 +25,9 @@ public class RangedElementSwitch extends SwitchRoutine<RangedElement>
 	@Override
 	protected RangedElement matchCase(String switchCase){ return RangedElement.matchElement(switchCase);}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		SwitchRoutine.registerStatement(routineUtility, RangedElementSwitch.class, Pattern.compile("event\\.rangedElement", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(RangedElementSwitch.class, Pattern.compile("event\\.rangedElement", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static RangedElementSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

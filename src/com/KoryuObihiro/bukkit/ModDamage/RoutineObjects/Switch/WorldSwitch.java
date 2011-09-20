@@ -22,9 +22,9 @@ public class WorldSwitch extends SwitchRoutine<List<String>>
 	@Override
 	protected List<String> matchCase(String switchCase){ return ModDamage.matchWorldAlias(switchCase);}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		SwitchRoutine.registerStatement(routineUtility, WorldSwitch.class, Pattern.compile("event\\.world", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(WorldSwitch.class, Pattern.compile("event\\.world", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static WorldSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

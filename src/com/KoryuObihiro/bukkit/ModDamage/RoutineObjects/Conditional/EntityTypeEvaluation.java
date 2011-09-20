@@ -27,9 +27,9 @@ public class EntityTypeEvaluation extends EntityConditionalStatement
 		return false;
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityTypeEvaluation.class, Pattern.compile("(!?)(\\w+)\\.type\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(EntityTypeEvaluation.class, Pattern.compile("(!?)(\\w+)\\.type\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityTypeEvaluation getNew(Matcher matcher)

@@ -31,9 +31,9 @@ public class PlayerGroupSwitch extends LivingEntitySwitchRoutine<List<String>>
 	@Override
 	protected List<String> matchCase(String switchCase){ return ModDamage.matchGroupAlias(switchCase);}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		SwitchRoutine.registerStatement(routineUtility, PlayerGroupSwitch.class, Pattern.compile("(\\w+)\\.group", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(PlayerGroupSwitch.class, Pattern.compile("(\\w+)\\.group", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerGroupSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

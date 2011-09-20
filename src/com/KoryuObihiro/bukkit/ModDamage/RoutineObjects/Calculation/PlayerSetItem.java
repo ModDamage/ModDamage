@@ -8,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
@@ -28,7 +27,7 @@ public class PlayerSetItem extends PlayerCalculationRoutine
 		affectedObject.setItemInHand(new ItemStack(material, input));
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
 		CalculationRoutine.registerStatement(PlayerSetItem.class, Pattern.compile("(\\w+)effect\\.setItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}

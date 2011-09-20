@@ -4,7 +4,6 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
@@ -22,9 +21,9 @@ public class Binomial extends ConditionalStatement
 	@Override
 	public boolean condition(TargetEventInfo eventInfo){ return Math.abs(random.nextInt()%101) <= chance;}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, Binomial.class, Pattern.compile("binom\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(Binomial.class, Pattern.compile("binom\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Binomial getNew(Matcher matcher)

@@ -5,9 +5,8 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class EntityDrowning extends EntityConditionalStatement 
@@ -23,9 +22,9 @@ public class EntityDrowning extends EntityConditionalStatement
 		return entityReference.getEntity(eventInfo) instanceof LivingEntity && ((LivingEntity)entityReference.getEntity(eventInfo)).getRemainingAir() <= 0;
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityDrowning.class, Pattern.compile("(!?)(\\w+)\\.drowning", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(EntityDrowning.class, Pattern.compile("(!?)(\\w+)\\.drowning", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityDrowning getNew(Matcher matcher)

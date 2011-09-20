@@ -27,9 +27,9 @@ public class BiomeSwitch extends LivingEntitySwitchRoutine<List<Biome>>
 	@Override
 	protected List<Biome> matchCase(String switchCase){ return ModDamage.matchBiomeAlias(switchCase);}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		SwitchRoutine.registerStatement(routineUtility, BiomeSwitch.class, Pattern.compile("(\\w+)\\.biome", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(BiomeSwitch.class, Pattern.compile("(\\w+)\\.biome", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static BiomeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

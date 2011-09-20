@@ -37,9 +37,9 @@ public class EntityOverBlock extends EntityConditionalStatement
 		return false;
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityOverBlock.class, Pattern.compile("(!?)(\\w+)\\.overblock\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(EntityOverBlock.class, Pattern.compile("(!?)(\\w+)\\.overblock\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityOverBlock getNew(Matcher matcher)

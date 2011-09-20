@@ -3,7 +3,6 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
@@ -26,9 +25,9 @@ public class EventRangedElementEvaluation extends ConditionalStatement
 				:false;
 		}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EventRangedElementEvaluation.class, Pattern.compile("(!?)event\\.rangedelement\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(EventRangedElementEvaluation.class, Pattern.compile("(!?)event\\.rangedelement\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EventRangedElementEvaluation getNew(Matcher matcher)

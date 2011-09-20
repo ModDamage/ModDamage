@@ -40,6 +40,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DelayedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRoll;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRollAddition;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Division;
@@ -104,15 +105,6 @@ public class ModDamage extends JavaPlugin
 	//TODO 0.9.6 switch and comparison for wieldquantity
 	//TODO 0.9.6 switch.conditional
 	//TODO 0.9.6 Make the Scan message possible.
-	/*
-	if(eventInfo.shouldScan)
-	{
-		int displayHealth = (eventInfo.entity_target).getHealth() - ((!(eventInfo.eventDamage < 0 && ModDamage.negative_Heal))?eventInfo.eventDamage:0);
-		((Player)eventInfo.entity_attacker).sendMessage(ChatColor.DARK_PURPLE + eventInfo.element_target.getReference() 
-				+ "(" + (eventInfo.name_target != null?eventInfo.name_target:("id " + eventInfo.entity_target.getEntityId()))
-				+ "): " + Integer.toString((displayHealth < 0)?0:displayHealth));
-	}
-	*/
 	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
 	// -AoE clearance, block search nearby for Material?
 	
@@ -197,8 +189,7 @@ public class ModDamage extends JavaPlugin
 	
 //General mechanics options
 	static boolean negative_Heal;
-
-	//TODO All this repetitious crap for routines has gotta be handled better.
+	
 //Routine objects
 	public static final RoutineManager routineManager = new RoutineManager();
 	public static class RoutineManager
@@ -454,7 +445,6 @@ public class ModDamage extends JavaPlugin
 			{
 				if(player != null) player.sendMessage(ModDamageString(ChatColor.RED) + " Already disabled!");
 				else log.info("[" + getDescription().getName() + "] Already disabled!");
-					
 			}
 		}
 	}
@@ -468,8 +458,7 @@ public class ModDamage extends JavaPlugin
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/moddamage | /md - bring up this help message");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (check | c) - check configuration");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (debug | d) [debugType] - change debug type");
-			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md disable - disable ModDamage");
-			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md enable - enable ModDamage");
+			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (disable|enable) - disable/enable ModDamage");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (reload | r) - reload configuration");
 		}
 		else
@@ -515,7 +504,7 @@ public class ModDamage extends JavaPlugin
 			else ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions plugin not found]", LoadState.NOT_LOADED);
 			if(ExternalPluginManager.getRegionsPlugin() != null)
 			{
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] Found " + ExternalPluginManager.getRegionsPlugin().getDescription().getName() + " v" + ExternalPluginManager.getRegionsPlugin().getDescription().getVersion(), LoadState.SUCCESS);
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] Region conditionals enabled - using " + ExternalPluginManager.getRegionsPlugin().getDescription().getName() + " v" + ExternalPluginManager.getRegionsPlugin().getDescription().getVersion(), LoadState.SUCCESS);
 			}
 			else ModDamage.addToLogRecord(DebugSetting.VERBOSE, "[" + this.getDescription().getName() + "] No regional plugins found.", LoadState.NOT_LOADED);
 			
@@ -529,68 +518,69 @@ public class ModDamage extends JavaPlugin
 			}
 			else addToLogRecord(DebugSetting.QUIET, "[" + getDescription().getName() + "] Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.", LoadState.FAILURE);
 			
-		//Base Calculations
-				Addition.register(this);
-				DiceRoll.register(this);
-				DiceRollAddition.register(this);
-				Division.register(this);
-				DivisionAddition.register(this);
-				IntervalRange.register(this);
-				LiteralRange.register(this);
-				Multiplication.register(this);
-				Set.register(this);
-				Message.register();
-		//Nestable Calculations
-			//Conditionals
-				Binomial.register(this);
-				//Entity
-				EntityBiome.register(this);
-				EntityDrowning.register(this);
-				EntityExposedToSky.register(this);
-				EntityFalling.register(this);
-				EntityOnBlock.register(this);
-				EntityOnFire.register(this);
-				EntityRegion.register(this);
-				EntityTypeEvaluation.register(this);
-				EntityUnderwater.register(this);
-				EventWorldEvaluation.register(this);
-				PlayerGroupEvaluation.register(this);
-				PlayerSleeping.register(this);
-				PlayerSneaking.register(this);
-				PlayerWearing.register(this);
-				PlayerWielding.register(this);
-				//World
-				WorldEnvironment.register(this);
-				//Server
-				ServerOnlineMode.register(this);
-				//Event
-				EventHasRangedElement.register(this);
-				EventRangedElementEvaluation.register(this);
-				EventWorldEvaluation.register(this);
-			//Effects
-				EntityAddAirTicks.register(this);
-				EntityAddFireTicks.register(this);
-				EntityDropItem.register(this);
-				EntityExplode.register(this);
-				EntityHeal.register(this);
-				EntityHurt.register(this);
-				EntitySetAirTicks.register(this);
-				EntitySetFireTicks.register(this);
-				EntitySetHealth.register(this);
-				EntitySpawn.register(this);
-				PlayerAddItem.register(this);
-				PlayerSetItem.register(this);
-				SlimeSetSize.register(this);
-				WorldTime.register(this);
-			//Switches
-				ArmorSetSwitch.register(this);
-				BiomeSwitch.register(this);
-				EntityTypeSwitch.register(this);
-				EnvironmentSwitch.register(this);
-				PlayerGroupSwitch.register(this);
-				PlayerWieldSwitch.register(this);
-				RangedElementSwitch.register(this);
-				WorldSwitch.register(this);
+	//Base Calculations
+			Addition.register();
+			DelayedRoutine.register();
+			DiceRoll.register();
+			DiceRollAddition.register();
+			Division.register();
+			DivisionAddition.register();
+			IntervalRange.register();
+			LiteralRange.register();
+			Multiplication.register();
+			Set.register();
+			Message.register();
+	//Nestable Calculations
+		//Conditionals
+			Binomial.register();
+			//Entity
+			EntityBiome.register();
+			EntityDrowning.register();
+			EntityExposedToSky.register();
+			EntityFalling.register();
+			EntityOnBlock.register();
+			EntityOnFire.register();
+			EntityRegion.register();
+			EntityTypeEvaluation.register();
+			EntityUnderwater.register();
+			EventWorldEvaluation.register();
+			PlayerGroupEvaluation.register();
+			PlayerSleeping.register();
+			PlayerSneaking.register();
+			PlayerWearing.register();
+			PlayerWielding.register();
+			//World
+			WorldEnvironment.register();
+			//Server
+			ServerOnlineMode.register();
+			//Event
+			EventHasRangedElement.register();
+			EventRangedElementEvaluation.register();
+			EventWorldEvaluation.register();
+		//Effects
+			EntityAddAirTicks.register();
+			EntityAddFireTicks.register();
+			EntityDropItem.register();
+			EntityExplode.register();
+			EntityHeal.register();
+			EntityHurt.register();
+			EntitySetAirTicks.register();
+			EntitySetFireTicks.register();
+			EntitySetHealth.register();
+			EntitySpawn.register();
+			PlayerAddItem.register();
+			PlayerSetItem.register();
+			SlimeSetSize.register();
+			WorldTime.register();
+		//Switches
+			ArmorSetSwitch.register();
+			BiomeSwitch.register();
+			EntityTypeSwitch.register();
+			EnvironmentSwitch.register();
+			PlayerGroupSwitch.register();
+			PlayerWieldSwitch.register();
+			RangedElementSwitch.register();
+			WorldSwitch.register();
 		}
 		
 		try{ config.load();}
@@ -718,7 +708,7 @@ public class ModDamage extends JavaPlugin
 			config.setProperty("Aliases.Item." + toolType, combinations);
 		}
 		config.save();
-		log.severe("[" + getDescription().getName() + "] Defaults written to config.yml!");
+		log.severe("[" + getDescription().getName() + "] Auto-generated config.yml. :D");
 	}
 	
 ////ROUTINE PARSING ////
@@ -782,6 +772,7 @@ public class ModDamage extends JavaPlugin
 		}
 	}
 	
+	//TODO Make an object that stores everything, but still prints according to debug settings.
 	public static void addToLogRecord(DebugSetting outputSetting, String string, LoadState loadState)
 	{
 		if(loadState.equals(LoadState.FAILURE)) state_plugin = LoadState.FAILURE;
@@ -838,6 +829,7 @@ public class ModDamage extends JavaPlugin
 		configPages = configStrings_ingame.size()/9 + (configStrings_ingame.size()%9 > 0?1:0);
 	}
 
+	//Spout GUI?
 	private static boolean sendLogRecord(Player player, int pageNumber)
 	{
 		if(player == null)
@@ -888,22 +880,7 @@ public class ModDamage extends JavaPlugin
 		return false;
 	}
 	
-//// CONFIG MATCHING ////
-	//XXX matchesValidEntity - currently defaults to "target". Change to reject?
-	
-	//TODO Devise a better system for matching entity references.
-	public static boolean matchesValidEntity(String string)
-	{
-		if(string.equalsIgnoreCase("target") || string.equalsIgnoreCase("attacker") || string.equalsIgnoreCase("projectile"))
-			return true;
-		else
-		{
-			addToLogRecord(DebugSetting.QUIET, "Invalid entity identifier \"" + string + "\" - defaulting to \"target\"", LoadState.FAILURE);
-			return false;
-		}
-	}
-	public static boolean matchEntity(String string){ return string.equalsIgnoreCase("attacker");}
-	
+//// CONFIG MATCHING ////	
 	public static Biome matchBiome(String biomeName)
 	{
 		for(Biome biome : Biome.values())

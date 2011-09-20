@@ -5,9 +5,8 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class PlayerSleeping extends PlayerConditionalStatement
@@ -24,9 +23,9 @@ public class PlayerSleeping extends PlayerConditionalStatement
 		return (player != null && player.isSleeping());
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerSleeping.class, Pattern.compile("(!?)(\\w+)\\.sleeping", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(PlayerSleeping.class, Pattern.compile("(!?)(\\w+)\\.sleeping", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerSleeping getNew(Matcher matcher)

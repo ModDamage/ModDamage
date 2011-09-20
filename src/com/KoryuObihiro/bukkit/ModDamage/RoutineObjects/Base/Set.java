@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
@@ -33,7 +32,7 @@ public class Set extends CalculationRoutine<Integer>
 		else eventInfo.eventValue = calculateInputValue(eventInfo);
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
 		Routine.registerBase(Set.class, Pattern.compile("set\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 		CalculationRoutine.registerStatement(Set.class, Pattern.compile("set", Pattern.CASE_INSENSITIVE));

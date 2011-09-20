@@ -3,9 +3,8 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class EntityFalling extends EntityConditionalStatement 
@@ -18,9 +17,9 @@ public class EntityFalling extends EntityConditionalStatement
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo) { return entityReference.getEntity(eventInfo).getFallDistance() > 3;}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityFalling.class, Pattern.compile("(!?)(\\w+)\\.falling", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(EntityFalling.class, Pattern.compile("(!?)(\\w+)\\.falling", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityFalling getNew(Matcher matcher)

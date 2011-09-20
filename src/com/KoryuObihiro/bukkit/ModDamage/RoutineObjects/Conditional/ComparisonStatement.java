@@ -62,9 +62,9 @@ public class ComparisonStatement extends ConditionalStatement
 			comparisonPattern += comparisonType.name() + "|";
 		comparisonPattern = comparisonPattern.substring(0, comparisonPattern.length() - 1) + ")";//FIXME Make sure this works
 	}
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, ComparisonStatement.class, Pattern.compile("(!?)(\\w+)\\.(" + comparisonPattern + ")\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(ComparisonStatement.class, Pattern.compile("(!?)(\\w+)\\.(" + comparisonPattern + ")\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static ComparisonStatement getNew(Matcher matcher)

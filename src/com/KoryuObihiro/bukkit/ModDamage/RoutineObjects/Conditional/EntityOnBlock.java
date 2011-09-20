@@ -7,8 +7,8 @@ import java.util.regex.Pattern;
 import org.bukkit.Material;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class EntityOnBlock extends EntityConditionalStatement
@@ -25,9 +25,9 @@ public class EntityOnBlock extends EntityConditionalStatement
 		return materials.contains(entityReference.getEntity(eventInfo).getLocation().add(0, -1, 0).getBlock().getType());
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityOnBlock.class, Pattern.compile("(!?)(\\w+)\\.onblock\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(EntityOnBlock.class, Pattern.compile("(!?)(\\w+)\\.onblock\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityOnBlock getNew(Matcher matcher)

@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
@@ -24,7 +23,7 @@ public class EntitySetAirTicks extends LivingEntityCalculationRoutine
 		affectedObject.setRemainingAir(input);
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
 		CalculationRoutine.registerStatement(EntitySetAirTicks.class, Pattern.compile("(\\w+)effect\\.setairticks", Pattern.CASE_INSENSITIVE));
 	}

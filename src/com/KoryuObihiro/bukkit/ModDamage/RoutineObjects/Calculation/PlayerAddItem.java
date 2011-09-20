@@ -29,7 +29,7 @@ public class PlayerAddItem extends PlayerCalculationRoutine
 			affectedObject.getInventory().addItem(new ItemStack(material, input));
 	}
 
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
 		CalculationRoutine.registerStatement(PlayerAddItem.class, Pattern.compile("(\\w+)effect\\.addItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}

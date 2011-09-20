@@ -80,7 +80,7 @@ abstract public class SwitchRoutine<InfoType> extends Routine
 		return statement;
 	}
 	
-	public static void registerStatement(ModDamage routineUtility, Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)
+	public static void registerStatement(Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)
 	{
 		try
 		{

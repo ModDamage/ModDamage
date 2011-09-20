@@ -3,7 +3,6 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
@@ -18,10 +17,10 @@ public class EventHasRangedElement extends ConditionalStatement
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo){ return eventInfo instanceof ProjectileEventInfo && ((ProjectileEventInfo)eventInfo).rangedElement != null;}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
 		//FIXME TESTING Furthest point of integration right now.
-		ConditionalRoutine.registerStatement(routineUtility, EventHasRangedElement.class, Pattern.compile("(!?)event\\.hasrangedelement", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerStatement(EventHasRangedElement.class, Pattern.compile("(!?)event\\.hasrangedelement", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EventHasRangedElement getNew(Matcher matcher)

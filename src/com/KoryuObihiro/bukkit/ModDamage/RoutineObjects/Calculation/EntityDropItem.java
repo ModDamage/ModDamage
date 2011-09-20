@@ -29,7 +29,7 @@ public class EntityDropItem extends EntityCalculationRoutine<Entity>
 			emtity.getWorld().dropItem(emtity.getLocation(), new ItemStack(material, input));
 	}
 
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
 		CalculationRoutine.registerStatement(EntityDropItem.class, Pattern.compile("(\\w+)effect\\.dropItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}

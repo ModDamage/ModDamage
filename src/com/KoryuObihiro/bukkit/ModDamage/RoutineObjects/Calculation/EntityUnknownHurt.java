@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
@@ -21,7 +20,7 @@ public class EntityUnknownHurt extends LivingEntityCalculationRoutine
 	@Override
 	protected void applyEffect(LivingEntity entity, int input){ entity.damage(input);}
 
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
 		CalculationRoutine.registerStatement(EntityUnknownHurt.class, Pattern.compile("(\\w+)effect\\.unknownhurt", Pattern.CASE_INSENSITIVE));
 	}

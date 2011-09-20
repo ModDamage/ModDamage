@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Entity;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
@@ -30,7 +29,7 @@ public class EntitySpawn extends EntityCalculationRoutine<Entity>
 				entity.getLocation().getWorld().spawnCreature(entity.getLocation(), creatureType);//FIXME 0.9.6 - What if I try to spawn a Wolf_Angry? :<
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
 		CalculationRoutine.registerStatement(EntitySpawn.class, Pattern.compile("(\\w+)effect\\.spawn\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}

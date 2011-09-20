@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 import org.bukkit.World;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
@@ -22,7 +21,7 @@ public class WorldTime extends WorldCalculationRoutine
 	@Override
 	protected void applyEffect(World affectedObject, int input){ affectedObject.setFullTime(input);}
 
-	public static void register(ModDamage modDamage) 
+	public static void register() 
 	{
 		CalculationRoutine.registerStatement(WorldTime.class, Pattern.compile("worldeffect\\.setTime", Pattern.CASE_INSENSITIVE));
 	}
