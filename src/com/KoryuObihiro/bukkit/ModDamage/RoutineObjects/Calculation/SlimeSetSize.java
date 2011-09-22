@@ -8,7 +8,6 @@ import org.bukkit.entity.Slime;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class SlimeSetSize extends EntityCalculationRoutine<Slime>
@@ -28,7 +27,7 @@ public class SlimeSetSize extends EntityCalculationRoutine<Slime>
 
 	public static void register()
 	{
-		CalculationRoutine.registerStatement(SlimeSetSize.class, Pattern.compile("(\\w+)effect\\.setSize", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.register(SlimeSetSize.class, Pattern.compile("(\\w+)effect\\.setSize", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static SlimeSetSize getNew(Matcher matcher, List<Routine> routines)

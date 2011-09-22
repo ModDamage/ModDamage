@@ -7,7 +7,7 @@ import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class EntityDrowning extends EntityConditionalStatement 
 {
@@ -24,7 +24,7 @@ public class EntityDrowning extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(EntityDrowning.class, Pattern.compile("(!?)(\\w+)\\.drowning", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EntityDrowning.class, Pattern.compile("(!?)(\\w+)\\.drowning", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityDrowning getNew(Matcher matcher)

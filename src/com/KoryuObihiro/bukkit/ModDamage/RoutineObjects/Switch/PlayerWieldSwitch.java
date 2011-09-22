@@ -12,7 +12,6 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class PlayerWieldSwitch extends LivingEntitySwitchRoutine<List<Material>>
 {
@@ -29,7 +28,7 @@ public class PlayerWieldSwitch extends LivingEntitySwitchRoutine<List<Material>>
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(PlayerWieldSwitch.class, Pattern.compile("(\\w+)\\.wielding", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(PlayerWieldSwitch.class, Pattern.compile("switch\\.(\\w+)\\.wielding", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerWieldSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

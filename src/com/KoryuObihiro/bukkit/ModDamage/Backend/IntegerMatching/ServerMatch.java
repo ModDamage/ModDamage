@@ -24,5 +24,5 @@ public class ServerMatch extends IntegerMatch
 	ServerMatch(ServerPropertyMatch propertyMatch){ this.propertyMatch = propertyMatch;}
 	
 	@Override
-	public long getValue(TargetEventInfo eventInfo){ return propertyMatch.getProperty(eventInfo);}
+	public int getValue(TargetEventInfo eventInfo){ return propertyMatch.getProperty(eventInfo);}
 }

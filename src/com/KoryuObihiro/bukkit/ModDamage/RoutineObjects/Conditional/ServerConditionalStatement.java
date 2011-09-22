@@ -3,7 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 import org.bukkit.Server;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
 
 
 public abstract class ServerConditionalStatement<T> extends ConditionalStatement

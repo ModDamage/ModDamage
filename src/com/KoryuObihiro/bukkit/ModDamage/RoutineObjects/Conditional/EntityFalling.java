@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class EntityFalling extends EntityConditionalStatement 
 {
@@ -19,7 +19,7 @@ public class EntityFalling extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(EntityFalling.class, Pattern.compile("(!?)(\\w+)\\.falling", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EntityFalling.class, Pattern.compile("(!?)(\\w+)\\.falling", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityFalling getNew(Matcher matcher)

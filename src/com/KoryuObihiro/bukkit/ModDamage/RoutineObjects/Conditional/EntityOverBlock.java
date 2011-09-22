@@ -10,7 +10,7 @@ import org.bukkit.Material;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class EntityOverBlock extends EntityConditionalStatement
 {
@@ -39,7 +39,7 @@ public class EntityOverBlock extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(EntityOverBlock.class, Pattern.compile("(!?)(\\w+)\\.overblock\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EntityOverBlock.class, Pattern.compile("(!?)(\\w+)\\.overblock\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityOverBlock getNew(Matcher matcher)

@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class PlayerSetItem extends PlayerCalculationRoutine
@@ -29,7 +28,7 @@ public class PlayerSetItem extends PlayerCalculationRoutine
 	
 	public static void register()
 	{
-		CalculationRoutine.registerStatement(PlayerSetItem.class, Pattern.compile("(\\w+)effect\\.setItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.register(PlayerSetItem.class, Pattern.compile("(\\w+)effect\\.setItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerSetItem getNew(Matcher matcher, List<Routine> routines)

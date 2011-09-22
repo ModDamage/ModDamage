@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntitySetAirTicks extends LivingEntityCalculationRoutine
@@ -25,7 +24,7 @@ public class EntitySetAirTicks extends LivingEntityCalculationRoutine
 	
 	public static void register()
 	{
-		CalculationRoutine.registerStatement(EntitySetAirTicks.class, Pattern.compile("(\\w+)effect\\.setairticks", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.register(EntitySetAirTicks.class, Pattern.compile("(\\w+)effect\\.setairticks", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntitySetAirTicks getNew(Matcher matcher, List<Routine> routines)

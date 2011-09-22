@@ -35,63 +35,8 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RegionAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.WorldAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DelayedRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRoll;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRollAddition;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Division;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DivisionAddition;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.IntervalRange;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Message;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityAddAirTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityAddFireTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityDropItem;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityExplode;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHeal;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHurt;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetAirTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetFireTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetHealth;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySpawn;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerAddItem;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerSetItem;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.SlimeSetSize;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.WorldTime;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Binomial;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBiome;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityDrowning;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityExposedToSky;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityFalling;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnBlock;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnFire;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTypeEvaluation;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityUnderwater;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventHasRangedElement;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventRangedElementEvaluation;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSleeping;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSneaking;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearing;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupEvaluation;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupSwitch;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Regions.EntityRegion;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EnvironmentSwitch;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.RangedElementSwitch;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Message.DynamicMessage;
 
 /**
  * "ModDamage" for Bukkit
@@ -108,7 +53,7 @@ public class ModDamage extends JavaPlugin
 	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
 	// -AoE clearance, block search nearby for Material?
 	
-	// Crazy Ideas
+	// Crazy Ideas 
 	// -----------
 	//
 	// -if.server.port.#port
@@ -220,7 +165,7 @@ public class ModDamage extends JavaPlugin
 				{
 					addToLogRecord(DebugSetting.NORMAL, eventType.name() + " configuration:", LoadState.SUCCESS);
 					LoadState[] stateMachine = {LoadState.NOT_LOADED};//We use a single-cell array here because the enum is assigned later.
-					List<Routine> routines = routineAliaser.parse(routineObjects, stateMachine);
+					List<Routine> routines = RoutineAliaser.parse(routineObjects, stateMachine);
 					eventStates.put(eventType, stateMachine[0]);
 					
 					if(!routines.isEmpty() && !eventStates.get(eventType).equals(LoadState.FAILURE))
@@ -267,7 +212,7 @@ public class ModDamage extends JavaPlugin
 ////////////////////////// INITIALIZATION
 	@Override
 	public void onEnable() 
-	{		
+	{
 		ModDamage.server = getServer();
 		
 	//Event registration
@@ -491,14 +436,9 @@ public class ModDamage extends JavaPlugin
 		configStrings_console.clear();
 		
 		if(reloadingAll)
-		{
-			Routine.registeredBaseRoutines.clear();
-			CalculationRoutine.registeredRoutines.clear();
-			ConditionalRoutine.registeredStatements.clear();
-			SwitchRoutine.registeredRoutines.clear();
-			
+		{		
 			ExternalPluginManager.reload(this);
-		
+			
 			if(ExternalPluginManager.getPermissionsPlugin() != null)
 				ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [" + ExternalPluginManager.getPermissionsPlugin().getDescription().getName() + " v" + ExternalPluginManager.getPermissionsPlugin().getDescription().getVersion() + " active]", LoadState.SUCCESS);
 			else ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions plugin not found]", LoadState.NOT_LOADED);
@@ -517,70 +457,6 @@ public class ModDamage extends JavaPlugin
 					addToLogRecord(DebugSetting.QUIET, "Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.", LoadState.FAILURE);
 			}
 			else addToLogRecord(DebugSetting.QUIET, "[" + getDescription().getName() + "] Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.", LoadState.FAILURE);
-			
-	//Base Calculations
-			Addition.register();
-			DelayedRoutine.register();
-			DiceRoll.register();
-			DiceRollAddition.register();
-			Division.register();
-			DivisionAddition.register();
-			IntervalRange.register();
-			LiteralRange.register();
-			Multiplication.register();
-			Set.register();
-			Message.register();
-	//Nestable Calculations
-		//Conditionals
-			Binomial.register();
-			//Entity
-			EntityBiome.register();
-			EntityDrowning.register();
-			EntityExposedToSky.register();
-			EntityFalling.register();
-			EntityOnBlock.register();
-			EntityOnFire.register();
-			EntityRegion.register();
-			EntityTypeEvaluation.register();
-			EntityUnderwater.register();
-			EventWorldEvaluation.register();
-			PlayerGroupEvaluation.register();
-			PlayerSleeping.register();
-			PlayerSneaking.register();
-			PlayerWearing.register();
-			PlayerWielding.register();
-			//World
-			WorldEnvironment.register();
-			//Server
-			ServerOnlineMode.register();
-			//Event
-			EventHasRangedElement.register();
-			EventRangedElementEvaluation.register();
-			EventWorldEvaluation.register();
-		//Effects
-			EntityAddAirTicks.register();
-			EntityAddFireTicks.register();
-			EntityDropItem.register();
-			EntityExplode.register();
-			EntityHeal.register();
-			EntityHurt.register();
-			EntitySetAirTicks.register();
-			EntitySetFireTicks.register();
-			EntitySetHealth.register();
-			EntitySpawn.register();
-			PlayerAddItem.register();
-			PlayerSetItem.register();
-			SlimeSetSize.register();
-			WorldTime.register();
-		//Switches
-			ArmorSetSwitch.register();
-			BiomeSwitch.register();
-			EntityTypeSwitch.register();
-			EnvironmentSwitch.register();
-			PlayerGroupSwitch.register();
-			PlayerWieldSwitch.register();
-			RangedElementSwitch.register();
-			WorldSwitch.register();
 		}
 		
 		try{ config.load();}
@@ -609,7 +485,7 @@ public class ModDamage extends JavaPlugin
 			switch(debugSetting)
 			{
 				case QUIET: 
-					log.info("[" + getDescription().getName()+ "] \"Quiet\" mode active - suppressing debug messages and warnings.");
+					log.info("[" + getDescription().getName()+ "] \"Quiet\" mode active - suppressing noncritical debug messages and warnings.");
 					break;
 				case NORMAL: 
 					log.info("[" + getDescription().getName()+ "] Debugging active.");
@@ -902,7 +778,8 @@ public class ModDamage extends JavaPlugin
 	public static List<ModDamageElement> matchElementAlias(String key){ return elementAliaser.matchAlias(key);}
 	public static List<Material> matchItemAlias(String key){ return itemAliaser.matchAlias(key);}
 	public static List<String> matchGroupAlias(String key){ return groupAliaser.matchAlias(key);}
-	public static List<String> matchMessageAlias(String key){ return messageAliaser.matchAlias(key);}
+	public static List<DynamicMessage> matchMessageAlias(String key){ return messageAliaser.matchAlias(key);}
 	public static List<String> matchRegionAlias(String key){ return regionAliaser.matchAlias(key);}
+	public static List<Routine> matchRoutineAlias(String key){ return routineAliaser.matchAlias(key);}
 	public static List<String> matchWorldAlias(String key){ return worldAliaser.matchAlias(key);}
 }

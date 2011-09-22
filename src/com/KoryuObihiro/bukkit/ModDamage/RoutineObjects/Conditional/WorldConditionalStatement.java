@@ -2,7 +2,8 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
 import org.bukkit.World;
 
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
+
 
 public abstract class WorldConditionalStatement extends ConditionalStatement
 {

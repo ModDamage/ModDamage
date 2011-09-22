@@ -11,7 +11,6 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class EntityTypeSwitch extends LivingEntitySwitchRoutine<List<ModDamageElement>>
 {
@@ -34,7 +33,7 @@ public class EntityTypeSwitch extends LivingEntitySwitchRoutine<List<ModDamageEl
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(EntityTypeSwitch.class, Pattern.compile("(\\w+)\\.type", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(EntityTypeSwitch.class, Pattern.compile("switch\\.(\\w+)\\.type", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityTypeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

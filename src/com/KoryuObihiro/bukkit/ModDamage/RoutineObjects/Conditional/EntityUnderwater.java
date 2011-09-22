@@ -10,7 +10,7 @@ import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class EntityUnderwater extends EntityConditionalStatement
 {
@@ -28,7 +28,7 @@ public class EntityUnderwater extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(EntityUnderwater.class, Pattern.compile("(!?)(\\w+)\\.underwater", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EntityUnderwater.class, Pattern.compile("(!?)(\\w+)\\.underwater", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityUnderwater getNew(Matcher matcher)

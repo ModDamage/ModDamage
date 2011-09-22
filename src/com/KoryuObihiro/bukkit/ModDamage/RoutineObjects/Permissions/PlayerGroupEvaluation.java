@@ -7,8 +7,8 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class PlayerGroupEvaluation extends PlayerConditionalStatement
 {
@@ -29,7 +29,7 @@ public class PlayerGroupEvaluation extends PlayerConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(PlayerGroupEvaluation.class, Pattern.compile("(!?)(\\w+)\\.group\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(PlayerGroupEvaluation.class, Pattern.compile("(!?)(\\w+)\\.group\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerGroupEvaluation getNew(Matcher matcher)

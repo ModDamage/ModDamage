@@ -17,6 +17,9 @@ public class TargetEventInfo
 {
 	public static final Logger log = ModDamage.log;
 	public static final Server server = ModDamage.server;
+
+	protected ExecutionState executionState;
+	private enum ExecutionState{ GOTO_NEXT, GOTO_ELSE, STOP;}
 	
 	public int eventValue;
 	public final World world;

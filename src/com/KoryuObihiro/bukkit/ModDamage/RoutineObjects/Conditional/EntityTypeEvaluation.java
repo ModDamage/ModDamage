@@ -8,7 +8,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class EntityTypeEvaluation extends EntityConditionalStatement
 {
@@ -29,7 +29,7 @@ public class EntityTypeEvaluation extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(EntityTypeEvaluation.class, Pattern.compile("(!?)(\\w+)\\.type\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EntityTypeEvaluation.class, Pattern.compile("(!?)(\\w+)\\.type\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityTypeEvaluation getNew(Matcher matcher)

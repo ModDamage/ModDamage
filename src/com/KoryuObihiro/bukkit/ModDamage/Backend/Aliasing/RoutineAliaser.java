@@ -1,7 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -10,10 +9,8 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class RoutineAliaser extends Aliaser<Routine> 
 {
@@ -23,9 +20,6 @@ public class RoutineAliaser extends Aliaser<Routine>
 	//Predefined pattern strings
 	//TODO integrate these into their respective classes when the NestedRoutine stuff works out.
 	public static final String statementPart = "(?:!?(?:[\\*\\w]+)(?:\\.[\\*\\w]+)*)";
-	private static final Pattern calculationPattern = Pattern.compile("((?:([\\*\\w]+)effect\\." + statementPart + ")|set)", Pattern.CASE_INSENSITIVE);//TODO 0.9.6 - Make a design decision here. Should Calculations only be "bleheffect"?
-	private static final Pattern conditionalPattern = Pattern.compile("(if|if_not)\\s+(" + statementPart + "(?:\\s+([\\*\\w]+)\\s+" + statementPart + ")*)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern switchPattern = Pattern.compile("switch\\.(" + statementPart + ")", Pattern.CASE_INSENSITIVE);
 		
 	
 	public boolean addAlias(String key, List<Object> values)
@@ -75,7 +69,7 @@ public class RoutineAliaser extends Aliaser<Routine>
 	
 	//Parse routine strings recursively
 	@SuppressWarnings("unchecked")
-	public List<Routine> parse(Object object, LoadState[] resultingState)
+	public static List<Routine> parse(Object object, LoadState[] resultingState)
 	{
 		ModDamage.indentation++;
 		LoadState currentState = LoadState.SUCCESS;
@@ -84,7 +78,7 @@ public class RoutineAliaser extends Aliaser<Routine>
 		{
 			if(object instanceof String)
 			{
-				if(((String)object).startsWith("_")) routines.addAll(this.matchAlias((String)object));
+				if(((String)object).startsWith("_")) routines.addAll(ModDamage.matchRoutineAlias((String)object));
 				if(routines.isEmpty())
 				{
 					Routine routine = null;
@@ -116,97 +110,29 @@ public class RoutineAliaser extends Aliaser<Routine>
 				if(routines.isEmpty())
 				{
 					currentState = LoadState.FAILURE;
-					ModDamage.addToLogRecord(DebugSetting.QUIET, "Couldn't match base routine string" + " \"" + (String)object + "\"", currentState);
+					ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid base routine " + " \"" + (String)object + "\"", currentState);
 				}
 			}
 			else if(object instanceof LinkedHashMap)
 			{
-				HashMap<String, Object> someHashMap = (HashMap<String, Object>)object;//A properly-formatted nested routine is a LinkedHashMap with only one key.
+				LinkedHashMap<String, Object> someHashMap = (LinkedHashMap<String, Object>)object;
 				if(someHashMap.keySet().size() == 1)
-					for(String key : someHashMap.keySet())
+					for(String key : someHashMap.keySet())//A properly-formatted nested routine is a LinkedHashMap with only one key.
 					{
-						//TODO 0.9.6 - This is where the API comes in handy. :3
-						Matcher conditionalMatcher = conditionalPattern.matcher(key);
-						Matcher switchMatcher = switchPattern.matcher(key);
-						Matcher effectMatcher = calculationPattern.matcher(key);
-						if(conditionalMatcher.matches())
+						Object nestedContent = someHashMap.get(key);
+						NestedRoutine routine = NestedRoutine.getNew(key, nestedContent);
+						if(routine == null)
 						{
-							ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-							ModDamage.addToLogRecord(DebugSetting.NORMAL, "Conditional: \"" + key + "\"", LoadState.SUCCESS);
-							ConditionalRoutine routine = ConditionalRoutine.getNew(conditionalMatcher, parse(someHashMap.get(key), resultingState));
-							if(routine != null)
-							{
-								routines.add(routine);
-								ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Conditional \"" + key + "\"\n", currentState);
-							}
-							else
-							{
-								currentState = LoadState.FAILURE;
-								ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid Conditional"+ " \"" + key + "\"", currentState);
-							}
-						}
-						else if(effectMatcher.matches())
-						{
-							ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-							ModDamage.addToLogRecord(DebugSetting.NORMAL, "CalculatedEffect: \"" + key + "\"", LoadState.SUCCESS);
-							CalculationRoutine<?> routine = CalculationRoutine.getNew(effectMatcher, parse(someHashMap.get(key), resultingState));
-							if(routine != null)
-							{
-								routines.add(routine);
-								ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End CalculatedEffect \"" + key + "\"\n", currentState);
-							}
-							else
-							{
-								currentState = LoadState.FAILURE;
-								ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid CalculatedEffect \"" + key + "\"", currentState);
-							}
-						}
-						else if(switchMatcher.matches())
-						{					
-							LinkedHashMap<String, Object> anotherHashMap = (someHashMap.get(key) instanceof LinkedHashMap?(LinkedHashMap<String, Object>)someHashMap.get(key):null);
-							if(anotherHashMap != null)
-							{
-								ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-								ModDamage.addToLogRecord(DebugSetting.NORMAL, "Switch: \"" + key + "\"", LoadState.SUCCESS);
-								LinkedHashMap<String, List<Routine>> routineHashMap = new LinkedHashMap<String, List<Routine>>();
-								SwitchRoutine<?> routine = null;
-								for(String anotherKey : anotherHashMap.keySet())
-								{
-									ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-									ModDamage.addToLogRecord(DebugSetting.NORMAL, " case: \"" + anotherKey + "\"", LoadState.SUCCESS);
-									routineHashMap.put(anotherKey, parse(anotherHashMap.get(anotherKey), resultingState));
-									ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End case \"" + anotherKey + "\"\n", LoadState.SUCCESS);
-								}
-								routine = SwitchRoutine.getNew(switchMatcher, routineHashMap);
-								if(routine != null)
-								{
-									if(routine.isLoaded) routines.add(routine);
-									else 
-									{
-										currentState = LoadState.FAILURE;
-										for(String caseName : routine.failedCases)
-											ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid case \"" + caseName + "\"", currentState);
-									}
-									ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Switch \"" + key + "\"", LoadState.SUCCESS);
-								}
-								else
-								{
-									currentState = LoadState.FAILURE;
-									ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid Switch \"" + key + "\"", currentState);
-								}
-							}
-						}
-						else 
-						{
-							currentState = LoadState.FAILURE;
-							ModDamage.addToLogRecord(DebugSetting.QUIET, " No match found for nested node \"" + key + "\"", currentState);							
+							currentState = LoadState.FAILURE;					
 						}
 					}
 				else
 				{
-					currentState = LoadState.FAILURE;
-					ModDamage.addToLogRecord(DebugSetting.QUIET, "Parse error: bad nested routine.", currentState);				
-				} 
+					String[] keys = (String[]) someHashMap.keySet().toArray();
+					for(int i = 0; i < keys.length; i++)
+						ModDamage.addToLogRecord(DebugSetting.QUIET, "Parse error: bad nested routine \"" + keys[i] + "\"", LoadState.FAILURE);
+					currentState = LoadState.FAILURE;			
+				}
 			}
 			else if(object instanceof List)
 			{
@@ -216,7 +142,7 @@ public class RoutineAliaser extends Aliaser<Routine>
 			else
 			{
 				currentState = LoadState.FAILURE;
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "Parse error: object " + object.toString() + " of type " + object.getClass().getName(), currentState);
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "Parse error: did not recognize object " + object.toString() + " of type " + object.getClass().getName(), LoadState.FAILURE);
 			}
 		}
 		else 

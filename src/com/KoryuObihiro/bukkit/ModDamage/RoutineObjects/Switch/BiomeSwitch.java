@@ -12,7 +12,6 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class BiomeSwitch extends LivingEntitySwitchRoutine<List<Biome>>
 {
@@ -29,7 +28,7 @@ public class BiomeSwitch extends LivingEntitySwitchRoutine<List<Biome>>
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(BiomeSwitch.class, Pattern.compile("(\\w+)\\.biome", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(BiomeSwitch.class, Pattern.compile("switch\\.(\\w+)\\.biome", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static BiomeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

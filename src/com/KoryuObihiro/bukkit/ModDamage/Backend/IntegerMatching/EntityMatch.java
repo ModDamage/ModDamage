@@ -61,5 +61,5 @@ public class EntityMatch extends IntegerMatch
 	}
 	
 	@Override
-	public long getValue(TargetEventInfo eventInfo){ return propertyMatch.getProperty(eventInfo, reference);}
+	public int getValue(TargetEventInfo eventInfo){ return propertyMatch.getProperty(eventInfo, reference);}
 }

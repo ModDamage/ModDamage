@@ -9,7 +9,7 @@ import org.bukkit.Material;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class PlayerWielding extends PlayerConditionalStatement 
 {
@@ -24,7 +24,7 @@ public class PlayerWielding extends PlayerConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(PlayerWielding.class, Pattern.compile("(!?)(\\w+)\\.wielding\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(PlayerWielding.class, Pattern.compile("(!?)(\\w+)\\.wielding\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}	
 	
 	public static PlayerWielding getNew(Matcher matcher)

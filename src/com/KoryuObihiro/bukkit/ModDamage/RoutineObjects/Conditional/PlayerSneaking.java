@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class PlayerSneaking extends PlayerConditionalStatement
 {
@@ -25,7 +25,7 @@ public class PlayerSneaking extends PlayerConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(PlayerSneaking.class, Pattern.compile("(!?)(\\w+)\\.sneaking", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(PlayerSneaking.class, Pattern.compile("(!?)(\\w+)\\.sneaking", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerSneaking getNew(Matcher matcher)

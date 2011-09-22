@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class ServerOnlineMode extends ServerConditionalStatement<Boolean>
 {
@@ -17,7 +17,7 @@ public class ServerOnlineMode extends ServerConditionalStatement<Boolean>
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(ServerOnlineMode.class, Pattern.compile("(!?)server\\.onlineMode", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(ServerOnlineMode.class, Pattern.compile("(!?)server\\.onlineMode", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static ServerOnlineMode getNew(Matcher matcher)

@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
 
 public class EventRangedElementEvaluation extends ConditionalStatement 
 {
@@ -27,7 +27,7 @@ public class EventRangedElementEvaluation extends ConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(EventRangedElementEvaluation.class, Pattern.compile("(!?)event\\.rangedelement\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EventRangedElementEvaluation.class, Pattern.compile("(!?)event\\.rangedelement\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EventRangedElementEvaluation getNew(Matcher matcher)

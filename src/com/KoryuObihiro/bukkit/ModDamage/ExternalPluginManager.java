@@ -11,6 +11,63 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRoll;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Division;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.IntervalRange;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.CalculationRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityAddAirTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityAddFireTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityDropItem;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityExplode;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHeal;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHurt;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetAirTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetFireTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetHealth;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySpawn;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerAddItem;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerSetItem;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.SlimeSetSize;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.WorldTime;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Binomial;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ComparisonStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBiome;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityDrowning;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityExposedToSky;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityFalling;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnBlock;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnFire;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTypeEvaluation;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityUnderwater;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventHasRangedElement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventRangedElementEvaluation;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSleeping;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSneaking;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearing;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.DelayedRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Message;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupEvaluation;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Regions.EntityRegion;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EnvironmentSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.RangedElementSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.SwitchRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.elbukkit.api.elregions.region.Region;
 import com.gmail.nossr50.mcMMO;
@@ -24,6 +81,80 @@ import de.bananaco.permissions.Permissions;
 public class ExternalPluginManager
 {
 	private static final List<String> emptyList = new ArrayList<String>();
+	
+	private static List<ModDamagePlugin> registeredPlugins;
+	private static void reloadModDamagePlugins()
+	{
+		Routine.registeredBaseRoutines.clear();
+		NestedRoutine.registeredNestedRoutines.clear();
+		CalculationRoutine.registeredCalculations.clear();
+		ConditionalRoutine.registeredConditionalStatements.clear();
+		SwitchRoutine.registeredSwitchRoutines.clear();
+	//register vanilla MD routines
+		Addition.register();
+		DelayedRoutine.register();
+		DiceRoll.register();
+		Division.register();
+		IntervalRange.register();
+		LiteralRange.register();
+		Multiplication.register();
+		Set.register();
+		Message.register();
+	ConditionalRoutine.register();
+		Binomial.register();
+		ComparisonStatement.register();
+		//Entity
+		EntityBiome.register();
+		EntityDrowning.register();
+		EntityExposedToSky.register();
+		EntityFalling.register();
+		EntityOnBlock.register();
+		EntityOnFire.register();
+		EntityRegion.register();
+		EntityTypeEvaluation.register();
+		EntityUnderwater.register();
+		EventWorldEvaluation.register();
+		PlayerGroupEvaluation.register();
+		PlayerSleeping.register();
+		PlayerSneaking.register();
+		PlayerWearing.register();
+		PlayerWielding.register();
+		//World
+		WorldEnvironment.register();
+		//Server
+		ServerOnlineMode.register();
+		//Event
+		EventHasRangedElement.register();
+		EventRangedElementEvaluation.register();
+		EventWorldEvaluation.register();
+	CalculationRoutine.register();
+		EntityAddAirTicks.register();
+		EntityAddFireTicks.register();
+		EntityDropItem.register();
+		EntityExplode.register();
+		EntityHeal.register();
+		EntityHurt.register();
+		EntitySetAirTicks.register();
+		EntitySetFireTicks.register();
+		EntitySetHealth.register();
+		EntitySpawn.register();
+		PlayerAddItem.register();
+		PlayerSetItem.register();
+		SlimeSetSize.register();
+		WorldTime.register();
+	SwitchRoutine.register();
+		ArmorSetSwitch.register();
+		BiomeSwitch.register();
+		EntityTypeSwitch.register();
+		EnvironmentSwitch.register();
+		PlayerGroupSwitch.register();
+		PlayerWieldSwitch.register();
+		RangedElementSwitch.register();
+		WorldSwitch.register();
+		
+		for(ModDamagePlugin plugin : registeredPlugins)
+			plugin.registerRoutines();
+	}
 	
 	private static mcMMO plugin_mcMMO;
 	public mcMMO getPlugin_mcMMO()
@@ -178,5 +309,7 @@ public class ExternalPluginManager
 		}
 		if(regionsPlugin == null)
 			regionsManager = RegionsManager.NONE;
+		
+		reloadModDamagePlugins();
 	}
 }

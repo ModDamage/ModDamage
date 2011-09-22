@@ -10,12 +10,12 @@ public class WorldMatch extends IntegerMatch
 		OnlinePlayers,
 		Time;
 		
-		private long getProperty(TargetEventInfo eventInfo)
+		private int getProperty(TargetEventInfo eventInfo)
 		{
 			switch(this)
 			{
 				case OnlinePlayers: return eventInfo.world.getPlayers().size();
-				case Time: return eventInfo.world.getTime();
+				case Time: return (int)eventInfo.world.getTime();
 			}
 			return 0;
 		}
@@ -24,5 +24,5 @@ public class WorldMatch extends IntegerMatch
 	WorldMatch(WorldPropertyMatch propertyMatch){ this.propertyMatch = propertyMatch;}
 	
 	@Override
-	public long getValue(TargetEventInfo eventInfo){ return propertyMatch.getProperty(eventInfo);}
+	public int getValue(TargetEventInfo eventInfo){ return propertyMatch.getProperty(eventInfo);}
 }

@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class EntityOnFire extends EntityConditionalStatement 
 {
@@ -19,7 +19,7 @@ public class EntityOnFire extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(EntityOnFire.class, Pattern.compile("(!?)(\\w+)\\.onfire", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EntityOnFire.class, Pattern.compile("(!?)(\\w+)\\.onfire", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityOnFire getNew(Matcher matcher)

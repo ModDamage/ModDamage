@@ -9,7 +9,6 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class RangedElementSwitch extends SwitchRoutine<RangedElement>
 {
@@ -27,7 +26,7 @@ public class RangedElementSwitch extends SwitchRoutine<RangedElement>
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(RangedElementSwitch.class, Pattern.compile("event\\.rangedElement", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(RangedElementSwitch.class, Pattern.compile("switch\\.event\\.rangedElement", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static RangedElementSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

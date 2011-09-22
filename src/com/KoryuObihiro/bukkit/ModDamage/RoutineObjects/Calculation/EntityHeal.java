@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityHeal extends LivingEntityCalculationRoutine
@@ -25,7 +24,7 @@ public class EntityHeal extends LivingEntityCalculationRoutine
 	
 	public static void register()
 	{
-		CalculationRoutine.registerStatement(EntityHeal.class, Pattern.compile("(\\w+)effect\\.heal", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.register(EntityHeal.class, Pattern.compile("(\\w+)effect\\.heal", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityHeal getNew(Matcher matcher, List<Routine> routines)

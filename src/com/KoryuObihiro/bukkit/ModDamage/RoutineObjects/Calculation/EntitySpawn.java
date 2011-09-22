@@ -9,7 +9,6 @@ import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntitySpawn extends EntityCalculationRoutine<Entity>
@@ -31,7 +30,7 @@ public class EntitySpawn extends EntityCalculationRoutine<Entity>
 	
 	public static void register()
 	{
-		CalculationRoutine.registerStatement(EntitySpawn.class, Pattern.compile("(\\w+)effect\\.spawn\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.register(EntitySpawn.class, Pattern.compile("(\\w+)effect\\.spawn\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntitySpawn getNew(Matcher matcher, List<Routine> routines)

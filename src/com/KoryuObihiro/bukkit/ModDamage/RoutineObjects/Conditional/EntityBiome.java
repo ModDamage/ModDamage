@@ -9,7 +9,7 @@ import org.bukkit.block.Biome;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class EntityBiome extends EntityConditionalStatement
 {
@@ -30,7 +30,7 @@ public class EntityBiome extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(EntityBiome.class, Pattern.compile("(!?)(\\w+)\\.biome\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EntityBiome.class, Pattern.compile("(!?)(\\w+)\\.biome\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityBiome getNew(Matcher matcher)

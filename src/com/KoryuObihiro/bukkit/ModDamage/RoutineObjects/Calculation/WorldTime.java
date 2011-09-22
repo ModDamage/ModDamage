@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 import org.bukkit.World;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class WorldTime extends WorldCalculationRoutine
@@ -23,7 +22,7 @@ public class WorldTime extends WorldCalculationRoutine
 
 	public static void register() 
 	{
-		CalculationRoutine.registerStatement(WorldTime.class, Pattern.compile("worldeffect\\.setTime", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.register(WorldTime.class, Pattern.compile("worldeffect\\.setTime", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static WorldTime getNew(Matcher matcher, List<Routine> routines)

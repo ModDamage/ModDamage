@@ -7,7 +7,7 @@ import org.bukkit.World.Environment;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class WorldEnvironment extends WorldConditionalStatement 
 {
@@ -22,7 +22,7 @@ public class WorldEnvironment extends WorldConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(WorldEnvironment.class, Pattern.compile("(!?)event\\.environment\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(WorldEnvironment.class, Pattern.compile("(!?)event\\.environment\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static WorldEnvironment getNew(Matcher matcher)

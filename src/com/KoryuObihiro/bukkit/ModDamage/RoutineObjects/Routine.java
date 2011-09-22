@@ -7,12 +7,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 abstract public class Routine
 {	
 	public static final HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
-	public static final String dynamicIntegerPart = "(-?[0-9]+|\\w+\\.\\w+|_\\w+)";
+	public static final String dynamicIntegerPart;
+	static
+	{
+		String tempString = "(?:";
+		for(EntityReference reference : EntityReference.values())
+			tempString += reference.name() + "|";
+		tempString += "event|world|server)";
+		dynamicIntegerPart = "(-?[0-9]+|" + tempString + "\\.\\w+|_\\w+)";
+	}
 	
 	final String configString;
 	protected Routine(String configString)

@@ -12,21 +12,22 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Message.DynamicMessage;
 
 public class Message extends Chanceroutine 
 {
 	//FIXME Need to implement a special class that contains references and does .toString(), for dynamic referencing. Also, need color.
 	protected final EntityReference entityReference;
-	protected final List<String> messages;
+	protected final List<DynamicMessage> messages;
 	protected final MessageType messageType;
-	public Message(String configString, EntityReference entityReference, List<String> message)
+	public Message(String configString, EntityReference entityReference, List<DynamicMessage> messages)
 	{
 		super(configString);
 		this.messageType = MessageType.ENTITY;
 		this.entityReference = entityReference;
-		this.messages = message;
+		this.messages = messages;
 	}
-	public Message(String configString, MessageType messageType, List<String> message)
+	public Message(String configString, MessageType messageType, List<DynamicMessage> message)
 	{
 		super(configString);
 		this.messageType = messageType;
@@ -48,13 +49,13 @@ public class Message extends Chanceroutine
 	{
 		if(matcher != null)
 		{
-			List<String> matchedMessage = ModDamage.matchMessageAlias(matcher.group(2));
-			if(!matchedMessage.isEmpty())
+			List<DynamicMessage> messages = ModDamage.matchMessageAlias(matcher.group(2));
+			if(!messages.isEmpty())
 			{
 				if(EntityReference.isValid(matcher.group(1)))
-					return new Message(matcher.group(), EntityReference.match(matcher.group(1)), matchedMessage);
+					return new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
 				else if(MessageType.match(matcher.group(1)) != null)
-					return new Message(matcher.group(), MessageType.match(matcher.group(1)), matchedMessage);
+					return new Message(matcher.group(), MessageType.match(matcher.group(1)), messages);
 				ModDamage.addToLogRecord(DebugSetting.QUIET, "Unrecognized message recipient \"" + matcher.group(1) + "\"", LoadState.FAILURE);
 				return null;
 			}
@@ -74,7 +75,7 @@ public class Message extends Chanceroutine
 			return null;
 		}
 		
-		private void sendMessage(EntityReference entityReference, TargetEventInfo eventInfo, List<String> messages)
+		private void sendMessage(EntityReference entityReference, TargetEventInfo eventInfo, List<DynamicMessage> messages)
 		{
 			switch(this)
 			{
@@ -82,23 +83,19 @@ public class Message extends Chanceroutine
 					if(entityReference.getEntity(eventInfo) instanceof Player)
 					{
 						Player player = (Player)entityReference.getEntity(eventInfo);
-						for(String message : messages)
-							player.sendMessage(message);
+						for(DynamicMessage message : messages)
+							message.sendMessage(eventInfo, player);
 					}
 					break;
 				case WORLD:
 					for(Player player : eventInfo.world.getPlayers())
-						for(String message : messages)
-						{
-							player.sendMessage(message);
-						}
+						for(DynamicMessage message : messages)
+							message.sendMessage(eventInfo, player);
 					break;
 				case SERVER:
 					for(Player player : TargetEventInfo.server.getOnlinePlayers())
-						for(String message : messages)
-						{
-							player.sendMessage(message);
-						}
+						for(DynamicMessage message : messages)
+							message.sendMessage(eventInfo, player);
 					break;
 			}
 		}

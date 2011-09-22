@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class WorldSwitch extends SwitchRoutine<List<String>>
 {	
@@ -24,7 +23,7 @@ public class WorldSwitch extends SwitchRoutine<List<String>>
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(WorldSwitch.class, Pattern.compile("event\\.world", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(WorldSwitch.class, Pattern.compile("switch\\.event\\.world", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static WorldSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

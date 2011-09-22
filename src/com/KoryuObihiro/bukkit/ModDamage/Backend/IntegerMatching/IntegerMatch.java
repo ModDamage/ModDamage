@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,13 +12,25 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.EntityMatch.EntityPropertyMatch;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.ServerMatch.ServerPropertyMatch;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.WorldMatch.WorldPropertyMatch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class IntegerMatch
 {
-	protected final long value;
+	protected final int value;
 	private final boolean isDynamic;
 	
-	private static final Pattern dynamicPattern = Pattern.compile("(\\w+)\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern dynamicPattern;
+	
+	public static final String dynamicPart;
+	static
+	{
+		String tempString = "";
+		for(EntityReference reference : EntityReference.values())
+			tempString += reference.name() + "|";
+		tempString += "event|world|server";
+		dynamicPattern = Pattern.compile("(" + tempString + ")\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+		dynamicPart = "(" + tempString + "\\.\\w+)";
+	}
 	protected interface MatcherEnum {}
 	
 	protected IntegerMatch(int value)
@@ -31,7 +44,7 @@ public class IntegerMatch
 		this.isDynamic = true;
 	}
 	
-	public long getValue(TargetEventInfo eventInfo){ return isDynamic?value:eventInfo.eventValue;}
+	public int getValue(TargetEventInfo eventInfo){ return isDynamic?value:eventInfo.eventValue;}
 	
 	public static IntegerMatch getNew(String string)
 	{
@@ -43,7 +56,12 @@ public class IntegerMatch
 		catch(NumberFormatException e)
 		{
 			Matcher matcher = dynamicPattern.matcher(string);
-			if(matcher.matches())
+			if(string.startsWith("_"))
+			{
+				List<Routine> potentialAlias = ModDamage.matchRoutineAlias(string);
+				if(!potentialAlias.isEmpty()) return new RoutineMatch(potentialAlias);
+			}
+			else if(matcher.matches())
 			{
 				if(matcher.group(1).equalsIgnoreCase("event"))
 				{ 
@@ -73,7 +91,8 @@ public class IntegerMatch
 					ModDamage.addToLogRecord(DebugSetting.QUIET, "Error - couldn't match entity property \"" + matcher.group(2) + "\"", LoadState.FAILURE);
 				}
 			}
-			else ModDamage.addToLogRecord(DebugSetting.QUIET, "Error - unrecognized number reference \"" + matcher.group(2) + "\". Format is $entity.$property", LoadState.FAILURE);
+			//These shouldn't ever happen.
+			else ModDamage.addToLogRecord(DebugSetting.QUIET, "Critical error - unrecognized number reference \"" + string + "\". Bug Koryu about this one.", LoadState.FAILURE);
 			return null;
 		}
 	}

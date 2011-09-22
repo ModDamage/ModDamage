@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityExplode extends EntityCalculationRoutine<Entity>
@@ -25,7 +24,7 @@ public class EntityExplode extends EntityCalculationRoutine<Entity>
 	
 	public static void register()
 	{
-		CalculationRoutine.registerStatement(EntityExplode.class, Pattern.compile("(\\w+)effect\\.explode", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.register(EntityExplode.class, Pattern.compile("(\\w+)effect\\.explode", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityExplode getNew(Matcher matcher, List<Routine> routines)

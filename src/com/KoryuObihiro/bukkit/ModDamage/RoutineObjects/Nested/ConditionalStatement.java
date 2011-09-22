@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 

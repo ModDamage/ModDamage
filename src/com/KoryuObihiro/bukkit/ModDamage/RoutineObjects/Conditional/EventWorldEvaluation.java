@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
 
 public class EventWorldEvaluation extends ConditionalStatement
 {
@@ -22,7 +22,7 @@ public class EventWorldEvaluation extends ConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(EventWorldEvaluation.class, Pattern.compile("(!?)event\\.world\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EventWorldEvaluation.class, Pattern.compile("(!?)event\\.world\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EventWorldEvaluation getNew(Matcher matcher)

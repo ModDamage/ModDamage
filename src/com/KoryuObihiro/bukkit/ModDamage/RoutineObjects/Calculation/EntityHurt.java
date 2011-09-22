@@ -9,7 +9,6 @@ import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityHurt extends LivingEntityCalculationRoutine
@@ -36,7 +35,7 @@ public class EntityHurt extends LivingEntityCalculationRoutine
 
 	public static void register()
 	{
-		CalculationRoutine.registerStatement(EntityHurt.class, Pattern.compile("(\\w+)effect\\.hurt", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.register(EntityHurt.class, Pattern.compile("(\\w+)effect\\.hurt", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityHurt getNew(Matcher matcher, List<Routine> routines)

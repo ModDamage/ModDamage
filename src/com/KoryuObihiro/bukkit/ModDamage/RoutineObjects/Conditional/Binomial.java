@@ -5,9 +5,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
 
 public class Binomial extends ConditionalStatement
 {
@@ -23,7 +23,7 @@ public class Binomial extends ConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(Binomial.class, Pattern.compile("binom\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Binomial.class, Pattern.compile("binom\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Binomial getNew(Matcher matcher)

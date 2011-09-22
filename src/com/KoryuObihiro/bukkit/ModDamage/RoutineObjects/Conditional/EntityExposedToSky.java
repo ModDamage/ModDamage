@@ -9,7 +9,7 @@ import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class EntityExposedToSky extends EntityConditionalStatement
 {
@@ -44,7 +44,7 @@ public class EntityExposedToSky extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(EntityExposedToSky.class, Pattern.compile("(!?)(\\w+)\\.exposedtosky", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EntityExposedToSky.class, Pattern.compile("(!?)(\\w+)\\.exposedtosky", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityExposedToSky getNew(Matcher matcher)

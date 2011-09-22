@@ -8,7 +8,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class PlayerWearing extends PlayerConditionalStatement
 {
@@ -33,7 +33,7 @@ public class PlayerWearing extends PlayerConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(PlayerWearing.class, Pattern.compile("(!?)(\\w+)\\.(wearing|wearingonly)\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(PlayerWearing.class, Pattern.compile("(!?)(\\w+)\\.(wearing|wearingonly)\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerWearing getNew(Matcher matcher)

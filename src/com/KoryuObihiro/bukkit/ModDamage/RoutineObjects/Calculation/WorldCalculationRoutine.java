@@ -5,7 +5,6 @@ import java.util.List;
 import org.bukkit.World;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 abstract public class WorldCalculationRoutine extends CalculationRoutine<World>

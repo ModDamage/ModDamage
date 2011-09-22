@@ -10,7 +10,6 @@ import org.bukkit.World.Environment;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class EnvironmentSwitch extends SwitchRoutine<Environment>
 {	
@@ -22,7 +21,7 @@ public class EnvironmentSwitch extends SwitchRoutine<Environment>
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(EnvironmentSwitch.class, Pattern.compile("event\\.environment", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(EnvironmentSwitch.class, Pattern.compile("switch\\.event\\.environment", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EnvironmentSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)

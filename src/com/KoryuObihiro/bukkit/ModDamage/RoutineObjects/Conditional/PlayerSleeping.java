@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 
 public class PlayerSleeping extends PlayerConditionalStatement
 {
@@ -25,7 +25,7 @@ public class PlayerSleeping extends PlayerConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(PlayerSleeping.class, Pattern.compile("(!?)(\\w+)\\.sleeping", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(PlayerSleeping.class, Pattern.compile("(!?)(\\w+)\\.sleeping", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerSleeping getNew(Matcher matcher)

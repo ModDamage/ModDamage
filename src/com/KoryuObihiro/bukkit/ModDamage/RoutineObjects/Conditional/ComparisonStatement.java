@@ -8,8 +8,9 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
 
 public class ComparisonStatement extends ConditionalStatement
 {	
@@ -31,7 +32,7 @@ public class ComparisonStatement extends ConditionalStatement
 	{ 
 		EQUALS, NOTEQUALS, LESSTHAN, LESSTHANEQUALS, GREATERTHAN, GREATERTHANEQUALS;
 	
-		public static ComparisonType matchType(String key)
+		public static ComparisonType match(String key)
 		{
 			for(ComparisonType type : ComparisonType.values())
 				if(key.equalsIgnoreCase(type.name()))
@@ -54,17 +55,17 @@ public class ComparisonStatement extends ConditionalStatement
 		}
 	}
 
-	protected static String comparisonPattern;
+	protected static String comparisonPart;
 	static
 	{
-		comparisonPattern = "(";
+		comparisonPart = "(";
 		for(ComparisonType comparisonType : ComparisonType.values())
-			comparisonPattern += comparisonType.name() + "|";
-		comparisonPattern = comparisonPattern.substring(0, comparisonPattern.length() - 1) + ")";//FIXME Make sure this works
+			comparisonPart += comparisonType.name() + "|";
+		comparisonPart = comparisonPart.substring(0, comparisonPart.length() - 1) + ")";
 	}
 	public static void register()
 	{
-		ConditionalRoutine.registerStatement(ComparisonStatement.class, Pattern.compile("(!?)(\\w+)\\.(" + comparisonPattern + ")\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(ComparisonStatement.class, Pattern.compile("(!?)(?:" + Routine.dynamicIntegerPart + "\\." + comparisonPart + "\\." + Routine.dynamicIntegerPart + ")?", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static ComparisonStatement getNew(Matcher matcher)
@@ -72,7 +73,7 @@ public class ComparisonStatement extends ConditionalStatement
 		if(matcher != null)
 		{
 			IntegerMatch match1 = IntegerMatch.getNew(matcher.group(2)), match2 = IntegerMatch.getNew(matcher.group(4));
-			ComparisonType comparisonType = ComparisonType.matchType(matcher.group(3));
+			ComparisonType comparisonType = ComparisonType.match(matcher.group(3));
 			if(comparisonType != null && match1 != null && match2 != null)
 				return new ComparisonStatement(matcher.group(1).equalsIgnoreCase("!"), match1, match2, comparisonType);
 		}

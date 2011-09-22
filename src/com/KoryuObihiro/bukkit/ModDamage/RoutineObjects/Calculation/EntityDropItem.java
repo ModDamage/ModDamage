@@ -10,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityDropItem extends EntityCalculationRoutine<Entity>
@@ -31,7 +30,7 @@ public class EntityDropItem extends EntityCalculationRoutine<Entity>
 
 	public static void register()
 	{
-		CalculationRoutine.registerStatement(EntityDropItem.class, Pattern.compile("(\\w+)effect\\.dropItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.register(EntityDropItem.class, Pattern.compile("(\\w+)effect\\.dropItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityDropItem getNew(Matcher matcher, List<Routine> routines)
