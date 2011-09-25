@@ -39,7 +39,7 @@ public class ModDamageEntityListener extends EntityListener
 			if(ModDamage.isEnabled && ent_damaged.getNoDamageTicks() <= 40)
 			{
 				AttackerEventInfo eventInfo = null;
-				if(ModDamageElement.matchNonlivingElement(event.getCause()) != null)
+				if(!ModDamageElement.matchNonlivingElement(event.getCause()).equals(ModDamageElement.UNKNOWN))
 					eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.matchNonlivingElement(event.getCause()), null, null, event.getDamage());
 				else if(event instanceof EntityDamageByEntityEvent)
 				{
@@ -54,7 +54,7 @@ public class ModDamageEntityListener extends EntityListener
 			    			eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.DISPENSER, projectile, rangedElement, event.getDamage());
 		    		}
 		    		else if(event_EE.getDamager() != null) eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), (LivingEntity)event_EE.getDamager(), ModDamageElement.matchMobType((LivingEntity)event_EE.getDamager()), null, null, event.getDamage());
-		    		}
+	    		}
 				if(eventInfo != null)
 				{
 					for(Routine routine : ModDamage.routineManager.getRoutines(EventType.Damage))

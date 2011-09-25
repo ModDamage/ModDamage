@@ -32,11 +32,11 @@ public class DelayedRoutine extends NestedRoutine
 		
 	public static void register()
 	{
-		Routine.registerBase(DelayedRoutine.class, delayPattern);
+		NestedRoutine.registerNested(DelayedRoutine.class, delayPattern);
 	}
 	
 	public static DelayedRoutine getNew(String string, Object nestedContent)
-	{ 
+	{
 		if(string != null && nestedContent != null)
 		{
 			Matcher matcher = delayPattern.matcher(string);

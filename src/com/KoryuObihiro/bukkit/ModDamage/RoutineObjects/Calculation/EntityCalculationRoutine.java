@@ -7,6 +7,7 @@ import org.bukkit.entity.Entity;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
 
 abstract public class EntityCalculationRoutine<T extends Entity> extends CalculationRoutine<T>
 {
@@ -19,5 +20,5 @@ abstract public class EntityCalculationRoutine<T extends Entity> extends Calcula
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	protected T getAffectedObject(TargetEventInfo eventInfo){ return (T)entityReference.getEntity(eventInfo);}
+	protected T getAffectedObject(TargetEventInfo eventInfo){ return (T) entityReference.getEntity(eventInfo);}
 }

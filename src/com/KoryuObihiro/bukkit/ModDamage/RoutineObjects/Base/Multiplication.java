@@ -26,6 +26,6 @@ public class Multiplication extends Routine
 	
 	public static void register()
 	{
-		Routine.registerBase(Multiplication.class, Pattern.compile("mult\\.([0-9]+)", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(Multiplication.class, Pattern.compile("mult\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 }

@@ -6,6 +6,7 @@ import org.bukkit.World;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
 
 abstract public class WorldCalculationRoutine extends CalculationRoutine<World>
 {

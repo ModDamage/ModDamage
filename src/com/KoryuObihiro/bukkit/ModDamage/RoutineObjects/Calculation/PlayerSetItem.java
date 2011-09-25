@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
 
 public class PlayerSetItem extends PlayerCalculationRoutine
 {
@@ -37,7 +38,7 @@ public class PlayerSetItem extends PlayerCalculationRoutine
 		{
 			Material material = Material.matchMaterial(matcher.group(2));
 			if(material != null && EntityReference.isValid(matcher.group(1)))
-				return new PlayerSetItem(matcher.group(), EntityReference.match(matcher.group(1)), material, routines);
+				return new PlayerSetItem(matcher.group(), EntityReference.match(matcher.group(1)), material, routines);//FIXME 0.9.6 - ItemStack routine
 		}
 		return null;
 	}

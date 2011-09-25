@@ -21,7 +21,7 @@ public class EntityTypeEvaluation extends EntityConditionalStatement
 	@Override
 	public boolean condition(TargetEventInfo eventInfo)
 	{
-		for(ModDamageElement element : elements)//TODO Reference for entity properties that aren't integers
+		for(ModDamageElement element : elements)
 			if(entityReference.getElement(eventInfo).matchesType(element))
 				return true;
 		return false;

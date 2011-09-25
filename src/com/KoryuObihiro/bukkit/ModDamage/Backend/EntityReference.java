@@ -47,7 +47,7 @@ public enum EntityReference
 			case Target: return eventInfo.element_target;
 			case Attacker: 
 				if(eventInfo instanceof AttackerEventInfo) 
-					return ((AttackerEventInfo)eventInfo).element_target;
+					return ((AttackerEventInfo)eventInfo).element_attacker;
 		}
 		return null;
 	}

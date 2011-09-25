@@ -61,10 +61,10 @@ public class ConditionalRoutine extends NestedRoutine
 				//start with a programmatic "false ||" ... because of how this routine is executed.
 				
 				//parse all of the conditionals
+				boolean failFlag = false;
 				String[] statementStrings = matcher.group(2).split("\\s+");//FIXME 0.9.7 - Change this algorithm so it uses NestedConditionalStatement for parentheses. :D
 				for(int i = 0; i <= statementStrings.length; i += 2)
 				{
-					boolean failFlag = false;
 					for(Pattern pattern : registeredConditionalStatements.keySet())
 					{
 						Matcher statementMatcher = pattern.matcher(statementStrings[i]);
@@ -79,7 +79,11 @@ public class ConditionalRoutine extends NestedRoutine
 							}
 							catch (Exception e){ e.printStackTrace();}
 							
-							if(statement == null) ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: bad statement \"" + statementStrings[i] + "\"", LoadState.FAILURE);
+							if(statement == null)
+							{
+								ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: bad statement \"" + statementStrings[i] + "\"", LoadState.FAILURE);
+								failFlag = true;
+							}
 							//get its relation to the previous statement
 							//FIXME Does this not catch stray operators?
 							if(i >= 2)
@@ -97,9 +101,8 @@ public class ConditionalRoutine extends NestedRoutine
 							break;
 						}
 					}
-					if(failFlag) break;
 				}
-				if(!statements.isEmpty())
+				if(!statements.isEmpty() && !failFlag)
 				{
 					statements.add(0, new FalseStatement());
 					operations.add(0, LogicalOperation.OR);
@@ -118,7 +121,7 @@ public class ConditionalRoutine extends NestedRoutine
 	
 	public static void register()
 	{
-		NestedRoutine.register(ConditionalRoutine.class, Pattern.compile("(?:if|if_not).*", Pattern.CASE_INSENSITIVE));
+		NestedRoutine.registerNested(ConditionalRoutine.class, Pattern.compile("(?:if|if_not).*", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static void registerConditionalStatement(Class<? extends ConditionalStatement> statementClass, Pattern syntax)

@@ -29,7 +29,7 @@ public class IntegerMatch
 			tempString += reference.name() + "|";
 		tempString += "event|world|server";
 		dynamicPattern = Pattern.compile("(" + tempString + ")\\.(\\w+)", Pattern.CASE_INSENSITIVE);
-		dynamicPart = "(" + tempString + "\\.\\w+)";
+		dynamicPart = "((?:" + tempString + ")\\.\\w+)";
 	}
 	protected interface MatcherEnum {}
 	
@@ -44,7 +44,7 @@ public class IntegerMatch
 		this.isDynamic = true;
 	}
 	
-	public int getValue(TargetEventInfo eventInfo){ return isDynamic?value:eventInfo.eventValue;}
+	public int getValue(TargetEventInfo eventInfo){ return isDynamic?eventInfo.eventValue:value;}
 	
 	public static IntegerMatch getNew(String string)
 	{

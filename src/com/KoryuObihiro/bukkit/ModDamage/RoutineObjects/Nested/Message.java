@@ -47,7 +47,7 @@ public class Message extends NestedRoutine
 	public static void register()
 	{
 		Routine.registerBase(Message.class, Pattern.compile("message\\.(\\w+)\\.(.*)", Pattern.CASE_INSENSITIVE));//"debug\\.(server|(?:world(\\.[a-z0-9]+))|(?:player\\.[a-z0-9]+))\\.(_[a-z0-9]+)"
-		NestedRoutine.register(Message.class, nestedPattern);
+		NestedRoutine.registerNested(Message.class, nestedPattern);
 	}
 	
 	public static Message getNew(Matcher matcher)
@@ -114,7 +114,7 @@ public class Message extends NestedRoutine
 			return null;
 		}
 		
-		private void sendMessage(EntityReference entityReference, TargetEventInfo eventInfo, List<DynamicMessage> messages)
+		protected void sendMessage(EntityReference entityReference, TargetEventInfo eventInfo, List<DynamicMessage> messages)
 		{
 			switch(this)
 			{
@@ -142,8 +142,8 @@ public class Message extends NestedRoutine
 	
 	public static class DynamicMessage
 	{
-		private final Pattern dynamicPattern = Pattern.compile(".*?%(" + IntegerMatch.dynamicPart + ")%.*?", Pattern.CASE_INSENSITIVE);
 		private final String insertionCharacter = "\u001D";
+		private final Pattern dynamicPattern = Pattern.compile("(.*)%" + Routine.dynamicIntegerPart + "%(.*)", Pattern.CASE_INSENSITIVE);
 		private final String message;
 		private final List<IntegerMatch> matches = new ArrayList<IntegerMatch>();
 		
@@ -152,10 +152,10 @@ public class Message extends NestedRoutine
 			Matcher matcher = dynamicPattern.matcher(message);
 			while(matcher.matches())
 			{
-				IntegerMatch match = IntegerMatch.getNew(matcher.group(1));
+				IntegerMatch match = IntegerMatch.getNew(matcher.group(2));
 				if(match != null)
 				{
-					message = message.replaceFirst(dynamicPattern.pattern().substring(2, dynamicPattern.pattern().length() - 2), insertionCharacter);
+					message = matcher.group(1) + insertionCharacter + matcher.group(3);
 					matches.add(match);
 					matcher = dynamicPattern.matcher(message);
 				}
@@ -165,12 +165,12 @@ public class Message extends NestedRoutine
 		
 		public void sendMessage(TargetEventInfo eventInfo, Player player)
 		{
-			int currentCount = 0;
+			int currentCount = matches.size() - 1;
 			String displayString = message;
 			while(displayString.contains(insertionCharacter))
 			{
 				displayString = displayString.replaceFirst(insertionCharacter, matches.get(currentCount).getValue(eventInfo) + "");//FIXME Does this work?
-				currentCount++;
+				currentCount--;
 			}
 			player.sendMessage(displayString);
 		}

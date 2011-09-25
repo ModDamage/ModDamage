@@ -20,7 +20,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.IntervalRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityAddAirTicks;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityAddFireTicks;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityDropItem;
@@ -36,7 +35,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerSetIte
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.SlimeSetSize;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.WorldTime;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Binomial;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ComparisonStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Comparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBiome;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityDrowning;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityExposedToSky;
@@ -54,11 +53,14 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearin
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.DelayedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Message;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.SwitchRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerPermissionEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Regions.EntityRegion;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
@@ -66,7 +68,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EnvironmentSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.RangedElementSwitch;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.SwitchRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.elbukkit.api.elregions.region.Region;
@@ -82,7 +83,7 @@ public class ExternalPluginManager
 {
 	private static final List<String> emptyList = new ArrayList<String>();
 	
-	private static List<ModDamagePlugin> registeredPlugins;
+	private static List<ModDamagePlugin> registeredPlugins = new ArrayList<ModDamagePlugin>();
 	private static void reloadModDamagePlugins()
 	{
 		Routine.registeredBaseRoutines.clear();
@@ -102,7 +103,7 @@ public class ExternalPluginManager
 		Message.register();
 	ConditionalRoutine.register();
 		Binomial.register();
-		ComparisonStatement.register();
+		Comparison.register();
 		//Entity
 		EntityBiome.register();
 		EntityDrowning.register();
@@ -115,6 +116,7 @@ public class ExternalPluginManager
 		EntityUnderwater.register();
 		EventWorldEvaluation.register();
 		PlayerGroupEvaluation.register();
+		PlayerPermissionEvaluation.register();
 		PlayerSleeping.register();
 		PlayerSneaking.register();
 		PlayerWearing.register();

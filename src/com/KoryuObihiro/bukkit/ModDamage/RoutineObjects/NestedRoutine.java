@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.CalculationRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
 
 public abstract class NestedRoutine extends Routine
 {
@@ -21,7 +21,7 @@ public abstract class NestedRoutine extends Routine
 	}
 	
 	/*public static <T> T f(T x)*///FIXME USE A GENERIC, get rid of repetitive code elsewhere.
-	public static void register(Class<? extends NestedRoutine> statementClass, Pattern syntax)
+	public static void registerNested(Class<? extends NestedRoutine> statementClass, Pattern syntax)
 	{
 		try
 		{

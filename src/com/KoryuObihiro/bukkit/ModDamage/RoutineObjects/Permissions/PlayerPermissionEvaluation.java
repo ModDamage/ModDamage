@@ -1,10 +1,10 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import org.bukkit.entity.Player;
+
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityConditionalStatement;
@@ -12,34 +12,28 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutin
 
 public class PlayerPermissionEvaluation extends EntityConditionalStatement
 {
-	final List<String> groups;
-	public PlayerPermissionEvaluation(boolean inverted, EntityReference entityReference, List<String> groups)
+	final String permissionsString;
+	public PlayerPermissionEvaluation(boolean inverted, EntityReference entityReference, String permissionsString)
 	{  
 		super(inverted, entityReference);
-		this.groups = groups;
+		this.permissionsString = permissionsString;
 	}
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo) 
-	{
-		for(String group : entityReference.getGroups(eventInfo))
-			if(groups.contains(group))
-				return true;
-		return false;
+ 	{
+		return (entityReference.getEntity(eventInfo) instanceof Player)?((Player)entityReference.getEntity(eventInfo)).hasPermission(permissionsString):false;
 	}
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(PlayerPermissionEvaluation.class, Pattern.compile("(!?)(\\w+)\\.group\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(PlayerPermissionEvaluation.class, Pattern.compile("(!?)(\\w+)\\.hasPermission\\.(.+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerPermissionEvaluation getNew(Matcher matcher)
 	{
 		if(matcher != null)
-		{
-			List<String> matchedGroups = ModDamage.matchGroupAlias(matcher.group(3));
-			if(!matchedGroups.isEmpty())
-				return new PlayerPermissionEvaluation(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), matchedGroups);
-		}
+			if(EntityReference.isValid(matcher.group(2)))
+				return new PlayerPermissionEvaluation(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), matcher.group(3));
 		return null;
 	}
 }

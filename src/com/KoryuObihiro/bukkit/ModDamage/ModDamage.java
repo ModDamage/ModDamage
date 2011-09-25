@@ -164,7 +164,7 @@ public class ModDamage extends JavaPlugin
 				if(routineObjects != null)
 				{
 					addToLogRecord(DebugSetting.NORMAL, eventType.name() + " configuration:", LoadState.SUCCESS);
-					LoadState[] stateMachine = {LoadState.NOT_LOADED};//We use a single-cell array here because the enum is assigned later.
+					LoadState[] stateMachine = { LoadState.SUCCESS };//We use a single-cell array here because the enum is assigned later.
 					List<Routine> routines = RoutineAliaser.parse(routineObjects, stateMachine);
 					eventStates.put(eventType, stateMachine[0]);
 					
@@ -192,8 +192,8 @@ public class ModDamage extends JavaPlugin
 			}
 			state = LoadState.combineStates(new ArrayList<LoadState>(eventStates.values()));
 		}
-
 	}
+	
 //Alias objects
 	private static ArmorAliaser armorAliaser = new ArmorAliaser();
 	private static BiomeAliaser biomeAliaser = new BiomeAliaser();
@@ -218,6 +218,8 @@ public class ModDamage extends JavaPlugin
 	//Event registration
 		//register plugin-related stuff with the server's plugin manager
 		server.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
+		server.getPluginManager().registerEvent(Event.Type.PROJECTILE_HIT, entityListener, Event.Priority.Highest, this);
+		server.getPluginManager().registerEvent(Event.Type.ENTITY_TAME, entityListener, Event.Priority.Highest, this);
 		server.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
 		server.getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Highest, this);
 		server.getPluginManager().registerEvent(Event.Type.ENTITY_REGAIN_HEALTH, entityListener, Event.Priority.Highest, this);

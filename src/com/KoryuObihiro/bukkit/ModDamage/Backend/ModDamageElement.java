@@ -41,6 +41,7 @@ public enum ModDamageElement
 				COW(ANIMAL, CreatureType.COW),
 				PIG(ANIMAL, CreatureType.PIG),
 				SHEEP(ANIMAL, CreatureType.SHEEP),
+				SNOW_GOLEM(ANIMAL),//FIXME
 				SQUID(ANIMAL, CreatureType.SQUID),
 				WOLF(ANIMAL, CreatureType.WOLF),
 					WOLF_WILD(WOLF, CreatureType.WOLF),
@@ -49,9 +50,11 @@ public enum ModDamageElement
 				
 			HUMAN(LIVING),
 				PLAYER(HUMAN),
-				NPC(HUMAN),
+				NPC(HUMAN),//FIXME
+				VILLAGER(HUMAN),//FIXME
 			
-			MOB (LIVING),
+			MOB(LIVING),
+				BLAZE(MOB),//FIXME
 				CAVESPIDER(MOB, CreatureType.CAVE_SPIDER),
 				CREEPER(MOB, CreatureType.CREEPER),
 					CREEPER_CHARGED(CREEPER, CreatureType.CREEPER),
@@ -59,6 +62,8 @@ public enum ModDamageElement
 				ENDERMAN(MOB, CreatureType.ENDERMAN),
 				GHAST(MOB, CreatureType.GHAST),
 				GIANT(MOB, CreatureType.GIANT),
+				MAGMA_CUBE(MOB),//FIXME
+				MOOSHROM(MOB),//FIXME
 				PIGZOMBIE(MOB, CreatureType.PIG_ZOMBIE),
 				SILVERFISH(MOB, CreatureType.SILVERFISH),
 				SKELETON(MOB, CreatureType.SKELETON),

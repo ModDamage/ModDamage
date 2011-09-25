@@ -9,6 +9,7 @@ import org.bukkit.entity.Slime;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
 
 public class SlimeSetSize extends EntityCalculationRoutine<Slime>
 {
@@ -23,7 +24,6 @@ public class SlimeSetSize extends EntityCalculationRoutine<Slime>
 	{ 
 		return (entityReference.getEntity(eventInfo) instanceof Slime)?((Slime)entityReference.getEntity(eventInfo)):null;
 	}
-
 
 	public static void register()
 	{

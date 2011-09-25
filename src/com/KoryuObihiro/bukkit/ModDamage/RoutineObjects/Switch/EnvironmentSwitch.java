@@ -10,6 +10,7 @@ import org.bukkit.World.Environment;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.SwitchRoutine;
 
 public class EnvironmentSwitch extends SwitchRoutine<Environment>
 {	
@@ -26,12 +27,8 @@ public class EnvironmentSwitch extends SwitchRoutine<Environment>
 	
 	public static EnvironmentSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
-		EnvironmentSwitch routine = null;
 		if(matcher != null && switchStatements != null)
-		{
-			routine = new EnvironmentSwitch(matcher.group(), switchStatements);
-			return (routine.isLoaded?routine:null);
-		}
+			return new EnvironmentSwitch(matcher.group(), switchStatements);
 		return null;
 	}
 }

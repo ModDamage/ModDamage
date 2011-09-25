@@ -8,6 +8,7 @@ import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
 
 public class EntityAddAirTicks extends LivingEntityCalculationRoutine
 {
@@ -33,5 +34,4 @@ public class EntityAddAirTicks extends LivingEntityCalculationRoutine
 			return new EntityAddAirTicks(matcher.group(), EntityReference.match(matcher.group(1)), routines);
 		return null;
 	}
-
 }

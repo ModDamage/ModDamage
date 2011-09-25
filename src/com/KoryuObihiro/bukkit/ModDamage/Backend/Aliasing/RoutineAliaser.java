@@ -121,10 +121,9 @@ public class RoutineAliaser extends Aliaser<Routine>
 					{
 						Object nestedContent = someHashMap.get(key);
 						NestedRoutine routine = NestedRoutine.getNew(key, nestedContent);
-						if(routine == null)
-						{
-							currentState = LoadState.FAILURE;					
-						}
+						if(routine != null)
+							routines.add(routine);
+						else currentState = LoadState.FAILURE;
 					}
 				else
 				{

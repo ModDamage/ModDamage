@@ -10,7 +10,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.CalculationRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
 
 public class Set extends CalculationRoutine<Integer>
 {
@@ -39,7 +39,7 @@ public class Set extends CalculationRoutine<Integer>
 	public static void register()
 	{
 		Routine.registerBase(Set.class, Pattern.compile("set\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
-		NestedRoutine.register(Set.class, Pattern.compile("set", Pattern.CASE_INSENSITIVE));
+		NestedRoutine.registerNested(Set.class, Pattern.compile("set", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Set getNew(Matcher matcher)
@@ -68,4 +68,4 @@ public class Set extends CalculationRoutine<Integer>
 	protected void applyEffect(Integer affectedObject, int input) {}
 	@Override
 	protected Integer getAffectedObject(TargetEventInfo eventInfo) { return null;}
-}
+}
