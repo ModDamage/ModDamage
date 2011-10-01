@@ -22,7 +22,7 @@ public class Division extends Routine
 	
 	public static void register()
 	{
-		Routine.registerBase(Division.class, Pattern.compile("div(_add)?\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(Division.class, Pattern.compile("div(_add)?\\." + IntegerMatch.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Division getNew(Matcher matcher)

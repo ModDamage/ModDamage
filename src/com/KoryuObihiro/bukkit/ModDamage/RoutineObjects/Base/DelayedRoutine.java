@@ -26,7 +26,7 @@ public class DelayedRoutine extends Routine
 		
 	public static void register()
 	{
-		Routine.registerBase(DelayedRoutine.class, Pattern.compile("delay\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(DelayedRoutine.class, Pattern.compile("delay\\." + IntegerMatch.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static DelayedRoutine getNew(Matcher matcher, List<Routine> routines)

@@ -11,13 +11,18 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.DelayedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRoll;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Division;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.IntervalRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Message;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityAddAirTicks;
@@ -53,11 +58,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearin
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.DelayedRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Message;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.SwitchRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerPermissionEvaluation;
@@ -84,7 +84,7 @@ public class ExternalPluginManager
 	private static final List<String> emptyList = new ArrayList<String>();
 	
 	private static List<ModDamagePlugin> registeredPlugins = new ArrayList<ModDamagePlugin>();
-	private static void reloadModDamagePlugins()
+	private static void reloadModDamageRoutines()
 	{
 		Routine.registeredBaseRoutines.clear();
 		NestedRoutine.registeredNestedRoutines.clear();
@@ -158,35 +158,25 @@ public class ExternalPluginManager
 			plugin.registerRoutines();
 	}
 	
-	private static mcMMO plugin_mcMMO;
-	public mcMMO getPlugin_mcMMO()
+	private static mcMMO mcMMOplugin;
+	public static mcMMO getMcMMOPlugin()
 	{
-		return plugin_mcMMO; //FIXME
-		/* TODO 0.9.6 - make routines outta these.
-		plugin_mcMMO.getPlayerProfile(null).addBleedTicks(0);
-		plugin_mcMMO.getPlayerProfile(null).addXP(null, 0);
-		plugin_mcMMO.getPlayerProfile(null).getBerserkMode();
-		plugin_mcMMO.getPlayerProfile(null).getBleedTicks();
-		plugin_mcMMO.getPlayerProfile(null).getCurrentMana();
-		plugin_mcMMO.getPlayerProfile(null).getGigaDrillBreakerMode();
-		plugin_mcMMO.getPlayerProfile(null).getGodMode();
-		plugin_mcMMO.getPlayerProfile(null).getGreenTerraMode();
-		plugin_mcMMO.getPlayerProfile(null).getLastGained();
-		plugin_mcMMO.getPlayerProfile(null).getMaxMana();
-		plugin_mcMMO.getPlayerProfile(null).setXpBarInc(0);
-		plugin_mcMMO.getPlayerProfile(null).getSkullSplitterMode();
-		plugin_mcMMO.getPlayerProfile(null).getSerratedStrikesMode();
-		plugin_mcMMO.getPlayerProfile(null).getSuperBreakerMode();
-		plugin_mcMMO.getPlayerProfile(null).getSwordsPreparationMode();
-		plugin_mcMMO.getPlayerProfile(null).getTreeFellerMode();
-		plugin_mcMMO.getPlayerProfile(null).getXpBarInc();
-		plugin_mcMMO.getPlayerProfile(null).hasPartyInvite();
-		plugin_mcMMO.getPlayerProfile(null).modifyskill(null, 0);
-		plugin_mcMMO.mob.assignDifficulty(null);//Assigns to a UUID?
-		plugin_mcMMO.inSameParty(null, null);
+		// TODO 0.9.6 - make routines outta these.
+		mcMMOplugin.getPlayerProfile(null).addBleedTicks(0);
+		mcMMOplugin.getPlayerProfile(null).addXP(null, 0);
+		mcMMOplugin.getPlayerProfile(null).getBleedTicks();
+		mcMMOplugin.getPlayerProfile(null).getCurrentMana();
+		mcMMOplugin.getPlayerProfile(null).getLastGained();
+		mcMMOplugin.getPlayerProfile(null).getMaxMana();
+		mcMMOplugin.getPlayerProfile(null).setXpBarInc(0);
+		mcMMOplugin.getPlayerProfile(null).getXpBarInc();
+		mcMMOplugin.getPlayerProfile(null).hasPartyInvite();
+		mcMMOplugin.getPlayerProfile(null).modifyskill(null, 0);
+		mcMMOplugin.mob.assignDifficulty(null);//Assigns to a UUID?
+		mcMMOplugin.inSameParty(null, null);
 		mcMMO.inParty(null);
 		mcMMO.getPartyName(null);//aliases?
-		*/
+		return mcMMOplugin;
 	}
 	
 	private static Plugin permissionsPlugin = null;
@@ -312,6 +302,6 @@ public class ExternalPluginManager
 		if(regionsPlugin == null)
 			regionsManager = RegionsManager.NONE;
 		
-		reloadModDamagePlugins();
+		reloadModDamageRoutines();
 	}
 }

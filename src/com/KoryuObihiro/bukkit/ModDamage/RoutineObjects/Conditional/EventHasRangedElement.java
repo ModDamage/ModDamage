@@ -5,8 +5,8 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
 public class EventHasRangedElement extends ConditionalStatement 
 {
@@ -19,16 +19,13 @@ public class EventHasRangedElement extends ConditionalStatement
 	
 	public static void register()
 	{
-		//FIXME TESTING Furthest point of integration right now.
 		ConditionalRoutine.registerConditionalStatement(EventHasRangedElement.class, Pattern.compile("(!?)event\\.hasrangedelement", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EventHasRangedElement getNew(Matcher matcher)
 	{
 		if(matcher != null)
-		{
 			return new EventHasRangedElement(matcher.group(1).equalsIgnoreCase("!"));
-		}
 		return null;
 	}
 }

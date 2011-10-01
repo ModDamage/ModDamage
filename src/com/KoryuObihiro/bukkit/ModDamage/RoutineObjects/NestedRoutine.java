@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
 
 public abstract class NestedRoutine extends Routine
 {
@@ -20,7 +19,6 @@ public abstract class NestedRoutine extends Routine
 		super(configString);
 	}
 	
-	/*public static <T> T f(T x)*///FIXME USE A GENERIC, get rid of repetitive code elsewhere.
 	public static void registerNested(Class<? extends NestedRoutine> statementClass, Pattern syntax)
 	{
 		try
@@ -30,7 +28,7 @@ public abstract class NestedRoutine extends Routine
 			{
 				assert(method.getReturnType().equals(statementClass));
 				method.invoke(null, (String)null, (Object)null);
-				ModDamage.register(CalculationRoutine.registeredNestedRoutines, method, syntax);
+				Routine.register(CalculationRoutine.registeredNestedRoutines, method, syntax);
 			}
 			else ModDamage.log.severe("Method getNew not found for nested routine " + statementClass.getName());
 		}

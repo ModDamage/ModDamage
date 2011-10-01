@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class ServerOnlineMode extends ServerConditionalStatement<Boolean>
 {

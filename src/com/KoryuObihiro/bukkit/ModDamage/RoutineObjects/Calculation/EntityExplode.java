@@ -1,20 +1,19 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
 public class EntityExplode extends EntityCalculationRoutine<Entity>
 {
-	public EntityExplode(String configString, EntityReference entityReference, List<Routine> routines)
+	public EntityExplode(String configString, EntityReference entityReference, IntegerMatch match)
 	{
-		super(configString, entityReference, routines);
+		super(configString, entityReference, match);
 	}
 	
 	@Override
@@ -25,13 +24,13 @@ public class EntityExplode extends EntityCalculationRoutine<Entity>
 	
 	public static void register()
 	{
-		CalculationRoutine.register(EntityExplode.class, Pattern.compile("(\\w+)effect\\.explode", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerCalculation(EntityExplode.class, Pattern.compile("(\\w+)effect\\.explode", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static EntityExplode getNew(Matcher matcher, List<Routine> routines)
+	public static EntityExplode getNew(Matcher matcher, IntegerMatch match)
 	{
-		if(matcher != null && routines != null && EntityReference.isValid(matcher.group(1)))
-			return new EntityExplode(matcher.group(), EntityReference.match(matcher.group(1)), routines);
+		if(matcher != null && match != null && EntityReference.isValid(matcher.group(1)))
+			return new EntityExplode(matcher.group(), EntityReference.match(matcher.group(1)), match);
 		return null;
 	}
 }

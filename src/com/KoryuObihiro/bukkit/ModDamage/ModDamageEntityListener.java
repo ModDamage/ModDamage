@@ -34,27 +34,9 @@ public class ModDamageEntityListener extends EntityListener
 	public void onEntityDamage(EntityDamageEvent event)
 	{
 		if(!event.isCancelled() && (event.getEntity() instanceof LivingEntity)) 
-		{
-			LivingEntity ent_damaged = (LivingEntity)event.getEntity();
-			if(ModDamage.isEnabled && ent_damaged.getNoDamageTicks() <= 40)
+			if(ModDamage.isEnabled && ((LivingEntity)event.getEntity()).getNoDamageTicks() <= 40)
 			{
-				AttackerEventInfo eventInfo = null;
-				if(!ModDamageElement.matchNonlivingElement(event.getCause()).equals(ModDamageElement.UNKNOWN))
-					eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.matchNonlivingElement(event.getCause()), null, null, event.getDamage());
-				else if(event instanceof EntityDamageByEntityEvent)
-				{
-					EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
-		    		RangedElement rangedElement = RangedElement.matchElement(event_EE.getDamager());
-		    		if(rangedElement != null)
-		    		{
-		    			Projectile projectile = (Projectile)event_EE.getDamager();
-		    			if(projectile.getShooter() != null)
-		    				eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), projectile.getShooter(), ModDamageElement.matchMobType(projectile.getShooter()), projectile, rangedElement, event.getDamage());
-		    			else if(event_EE.getCause().equals(DamageCause.ENTITY_ATTACK))
-			    			eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.DISPENSER, projectile, rangedElement, event.getDamage());
-		    		}
-		    		else if(event_EE.getDamager() != null) eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), (LivingEntity)event_EE.getDamager(), ModDamageElement.matchMobType((LivingEntity)event_EE.getDamager()), null, null, event.getDamage());
-	    		}
+				AttackerEventInfo eventInfo = getDamageEventInfo(event);
 				if(eventInfo != null)
 				{
 					for(Routine routine : ModDamage.routineManager.getRoutines(EventType.Damage))
@@ -66,7 +48,6 @@ public class ModDamageEntityListener extends EntityListener
 				}
 				else  ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
 			}
-		}
 	}
 	
 ////DEATH ////
@@ -75,32 +56,19 @@ public class ModDamageEntityListener extends EntityListener
 	{
 		if(ModDamage.isEnabled && event.getEntity() instanceof LivingEntity)
 		{
-			LivingEntity ent_damaged = (LivingEntity)event.getEntity();
-		    EntityDamageEvent nEvent = ent_damaged.getLastDamageCause();
-		    AttackerEventInfo eventInfo = null;
-	    	if(ModDamageElement.matchNonlivingElement(nEvent.getCause()) != null)
-	    		eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.matchNonlivingElement(nEvent.getCause()), null, null, 0);
-	    	else if(nEvent instanceof EntityDamageByEntityEvent)
-	    	{
-	    		EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)nEvent;
-	    		RangedElement rangedElement = RangedElement.matchElement(event_EE.getDamager());
-	    		if(rangedElement != null)
-	    		{
-	    			Projectile projectile = (Projectile)event_EE.getDamager();
-	    			if(projectile.getShooter() != null)
-	    				eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), projectile.getShooter(), ModDamageElement.matchMobType(projectile.getShooter()), projectile, rangedElement, nEvent.getDamage());
-	    			else if(nEvent.getCause().equals(DamageCause.ENTITY_ATTACK))
-		    			eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.DISPENSER, projectile, rangedElement, nEvent.getDamage());
-	    		}
-	    		else if(event_EE.getDamager() != null) eventInfo = new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), (LivingEntity)event_EE.getDamager(), ModDamageElement.matchMobType((LivingEntity)event_EE.getDamager()), null, null, nEvent.getDamage());
-	    	}
-	    	if(eventInfo != null)
-				for(Routine routine : ModDamage.routineManager.getRoutines(EventType.Death))
+		    AttackerEventInfo eventInfo = getDamageEventInfo(((LivingEntity)event.getEntity()).getLastDamageCause());
+			if(eventInfo != null)
+			{
+				for(Routine routine : ModDamage.routineManager.getRoutines(EventType.Damage))
 					routine.run(eventInfo);
+					
+				if(eventInfo.eventValue < 0 && !ModDamage.negative_Heal) 
+					eventInfo.eventValue = 0;
+			}
 			else ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled death event. Is Bukkit and ModDamage up-to-date?");			
 		}
 	}
-	
+
 ////FOOD ////
 	@Override
 	public void onEntityRegainHealth(EntityRegainHealthEvent event)
@@ -137,7 +105,7 @@ public class ModDamageEntityListener extends EntityListener
 	@Override
 	public void onCreatureSpawn(CreatureSpawnEvent event)
 	{ 
-		if(ModDamage.isEnabled && !event.isCancelled() && event.getEntity() != null)
+		if(ModDamage.isEnabled && !event.isCancelled())
 		{
 			LivingEntity entity = (LivingEntity)event.getEntity();
 			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), entity.getHealth());
@@ -157,9 +125,31 @@ public class ModDamageEntityListener extends EntityListener
 		if(ModDamage.isEnabled)
 		{
 			AttackerEventInfo eventInfo = new AttackerEventInfo((LivingEntity)event.getEntity(), ModDamageElement.WOLF_TAME, (LivingEntity)event.getOwner(), ModDamageElement.matchMobType((LivingEntity)event.getOwner()), null, null, 0);
-
 			for(Routine routine : ModDamage.routineManager.getRoutines(EventType.Spawn))
 				routine.run(eventInfo);
 		}
+	}
+	
+//// HELPER FUNCTIONS ////
+	private AttackerEventInfo getDamageEventInfo(EntityDamageEvent event)
+	{
+		LivingEntity ent_damaged = (LivingEntity)event.getEntity();
+	    if(!ModDamageElement.matchNonlivingElement(event.getCause()).equals(ModDamageElement.UNKNOWN))
+			return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.matchNonlivingElement(event.getCause()), null, null, event.getDamage());
+		else if(event instanceof EntityDamageByEntityEvent)
+		{
+			EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
+			RangedElement rangedElement = RangedElement.matchElement(event_EE.getDamager());
+			if(rangedElement != null)
+			{
+				Projectile projectile = (Projectile)event_EE.getDamager();
+				if(projectile.getShooter() != null)
+					return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), projectile.getShooter(), ModDamageElement.matchMobType(projectile.getShooter()), projectile, rangedElement, event.getDamage());
+				else if(event_EE.getCause().equals(DamageCause.ENTITY_ATTACK))
+	    			return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.DISPENSER, projectile, rangedElement, event.getDamage());
+			}
+			else if(event_EE.getDamager() != null) return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), (LivingEntity)event_EE.getDamager(), ModDamageElement.matchMobType((LivingEntity)event_EE.getDamager()), null, null, event.getDamage());
+		}
+	    return null;
 	}
 }

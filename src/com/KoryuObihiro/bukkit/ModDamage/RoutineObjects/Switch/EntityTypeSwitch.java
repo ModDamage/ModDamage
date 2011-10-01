@@ -11,7 +11,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.SwitchRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class EntityTypeSwitch extends LivingEntitySwitchRoutine<List<ModDamageElement>>
 {

@@ -8,9 +8,8 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
 public class Comparison extends ConditionalStatement
 {	
@@ -65,7 +64,7 @@ public class Comparison extends ConditionalStatement
 	}
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Comparison.class, Pattern.compile("(!?)(?:" + Routine.dynamicIntegerPart + "\\." + comparisonPart + "\\." + Routine.dynamicIntegerPart + ")?", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Comparison.class, Pattern.compile("(!?)(?:" + IntegerMatch.dynamicIntegerPart + "\\." + comparisonPart + "\\." + IntegerMatch.dynamicIntegerPart + ")?", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Comparison getNew(Matcher matcher)

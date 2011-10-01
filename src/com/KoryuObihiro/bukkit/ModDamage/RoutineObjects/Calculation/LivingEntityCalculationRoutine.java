@@ -1,18 +1,16 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
-import java.util.List;
-
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
 
 abstract public class LivingEntityCalculationRoutine extends EntityCalculationRoutine<LivingEntity>
 {
-	public LivingEntityCalculationRoutine(String configString, EntityReference entityReference, List<Routine> routines)
+	public LivingEntityCalculationRoutine(String configString, EntityReference entityReference, IntegerMatch match)
 	{
-		super(configString, entityReference, routines);
+		super(configString, entityReference, match);
 	}
 
 	@Override

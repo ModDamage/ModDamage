@@ -1,6 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,16 +10,18 @@ import org.bukkit.Material;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class EntityOverBlock extends EntityConditionalStatement
-{
-	final List<Material> materials;
-	public EntityOverBlock(boolean inverted, EntityReference entityReference, List<Material> materials)
+{	
+	final HashSet<Material> materials;
+	
+	public EntityOverBlock(boolean inverted, EntityReference entityReference, HashSet<Material> materials)
 	{ 
 		super(inverted, entityReference);
 		this.materials = materials;
 	}
+	
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo)
 	{
@@ -46,7 +48,7 @@ public class EntityOverBlock extends EntityConditionalStatement
 	{
 		if(matcher != null)
 		{
-			List<Material> matchedItems = ModDamage.matchItemAlias(matcher.group(3));
+			HashSet<Material> matchedItems = new HashSet<Material>(ModDamage.matchItemAlias(matcher.group(3)));
 			if(!matchedItems.isEmpty() && EntityReference.isValid(matcher.group(2)))		
 				return new EntityOverBlock(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), matchedItems);
 		}

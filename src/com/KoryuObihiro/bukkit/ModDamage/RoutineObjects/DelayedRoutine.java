@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -10,14 +10,12 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class DelayedRoutine extends NestedRoutine
 {	
 	protected final IntegerMatch delay;
 	protected final List<Routine> routines;
-	protected static final Pattern delayPattern = Pattern.compile("delay\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE);
+	protected static final Pattern delayPattern = Pattern.compile("delay\\." + IntegerMatch.dynamicIntegerPart, Pattern.CASE_INSENSITIVE);
 	public DelayedRoutine(String configString, IntegerMatch delayValue, List<Routine> routines)
 	{
 		super(configString);
@@ -44,9 +42,11 @@ public class DelayedRoutine extends NestedRoutine
 			{
 				ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
 				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Delay: \"" + matcher.group() + "\"", LoadState.SUCCESS);
-				
+
+				ModDamage.indentation++;
 				LoadState[] stateMachine = { LoadState.SUCCESS };
 				List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
+				ModDamage.indentation--;
 				if(!stateMachine[0].equals(LoadState.FAILURE))
 				{
 					IntegerMatch numberMatch = IntegerMatch.getNew(matcher.group(1));

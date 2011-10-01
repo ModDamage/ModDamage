@@ -26,10 +26,11 @@ import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Squid;
-import org.bukkit.entity.WaterMob;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
 public enum ModDamageElement 
 {
@@ -50,7 +51,7 @@ public enum ModDamageElement
 				
 			HUMAN(LIVING),
 				PLAYER(HUMAN),
-				NPC(HUMAN),//FIXME
+				NPC(HUMAN, CreatureType.MONSTER),//TODO Does this work?
 				VILLAGER(HUMAN),//FIXME
 			
 			MOB(LIVING),
@@ -64,7 +65,6 @@ public enum ModDamageElement
 				GIANT(MOB, CreatureType.GIANT),
 				MAGMA_CUBE(MOB),//FIXME
 				MOOSHROM(MOB),//FIXME
-				PIGZOMBIE(MOB, CreatureType.PIG_ZOMBIE),
 				SILVERFISH(MOB, CreatureType.SILVERFISH),
 				SKELETON(MOB, CreatureType.SKELETON),
 				SLIME(MOB, CreatureType.SLIME),
@@ -77,6 +77,7 @@ public enum ModDamageElement
 					SPIDER_JOCKEY(SPIDER, CreatureType.SPIDER),
 					SPIDER_RIDERLESS(SPIDER, CreatureType.SPIDER),
 				ZOMBIE(MOB, CreatureType.ZOMBIE),
+				ZOMBIEPIGMAN(MOB, CreatureType.PIG_ZOMBIE),
 		
 		NONLIVING(GENERIC),
 			NATURE(NONLIVING),
@@ -155,8 +156,9 @@ public enum ModDamageElement
 		return false;
 	}
 
-	public static ModDamageElement matchMobType(LivingEntity entity)
+	public static ModDamageElement matchMobType(LivingEntity entity) throws IllegalArgumentException
 	{
+		if(entity == null) throw new IllegalArgumentException("Entity cannot be null for matchMobType method!");
 		if(entity instanceof Slime)	
 		{
 			switch(((Slime)entity).getSize())
@@ -194,16 +196,17 @@ public enum ModDamageElement
 				if(entity instanceof Spider)
 				{
 					if(entity.getPassenger() != null) return SPIDER_JOCKEY;
-					return SPIDER; 
+					return SPIDER_RIDERLESS; 
 				}
-				if(entity instanceof Zombie) 	return (entity instanceof PigZombie?PIGZOMBIE:ZOMBIE);
+				if(entity instanceof Zombie) 	return (entity instanceof PigZombie?ZOMBIEPIGMAN:ZOMBIE);
 			}
-			if(entity instanceof WaterMob) 
+			//if(entity instanceof WaterMob) - Uncomment when there's more watermobs. :P
 				if(entity instanceof Squid) 	return SQUID;
 		}
 		if(entity instanceof Flying) 
 			if(entity instanceof Ghast)			return GHAST;
 		if(entity instanceof HumanEntity)		return (entity instanceof Player)?PLAYER:NPC;
+		ModDamage.log.severe("[ModDamage] Uncaught mob type " + entity.getClass().getName() + " for an event!");
 		return UNKNOWN;
 	}
 

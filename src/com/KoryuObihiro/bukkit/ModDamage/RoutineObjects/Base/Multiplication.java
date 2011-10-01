@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class Multiplication extends Routine 
@@ -26,6 +27,6 @@ public class Multiplication extends Routine
 	
 	public static void register()
 	{
-		Routine.registerBase(Multiplication.class, Pattern.compile("mult\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(Multiplication.class, Pattern.compile("mult\\." + IntegerMatch.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 }

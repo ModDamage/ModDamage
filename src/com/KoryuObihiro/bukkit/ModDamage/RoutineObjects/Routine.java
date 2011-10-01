@@ -7,21 +7,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 abstract public class Routine
 {	
 	public static final HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
-	public static final String dynamicIntegerPart;
-	static
-	{
-		String tempString = "(?:";
-		for(EntityReference reference : EntityReference.values())
-			tempString += reference.name() + "|";
-		tempString += "event|world|server)";
-		dynamicIntegerPart = "(-?[0-9]+|" + tempString + "\\.\\w+|_\\w+)";
-	}
+
+	public static final String statementPart = "(!?\\w+(?:\\.[\\*\\w]+)*)";
 	
 	final String configString;
 	protected Routine(String configString)
@@ -31,6 +24,23 @@ abstract public class Routine
 	public final String getConfigString(){ return configString;}
 	abstract public void run(TargetEventInfo eventInfo);
 
+	////ROUTINE PARSING ////
+	
+	public static void register(HashMap<Pattern, Method> registry, Method method, Pattern syntax)
+	{
+		boolean successfullyRegistered = false;
+		if(syntax != null)
+		{
+			registry.put(syntax, method);
+			successfullyRegistered = true;
+		}
+		else ModDamage.log.severe("[ModDamage] Error: Bad regex for registering class \"" + method.getClass().getName() + "\"!");
+		if(successfullyRegistered)
+		{
+			if(ModDamage.getDebugSetting().shouldOutput(DebugSetting.VERBOSE)) ModDamage.log.info("[ModDamage] Registering class " + method.getClass().getName() + " with pattern " + syntax.pattern());
+		}
+	}
+	
 	public static void registerBase(Class<? extends Routine> routineClass, Pattern syntax)
 	{
 		try
@@ -40,7 +50,7 @@ abstract public class Routine
 			{
 				assert(method.getReturnType().equals(routineClass));
 				method.invoke(null, (Matcher)null);
-				ModDamage.register(registeredBaseRoutines, method, syntax);
+				Routine.register(registeredBaseRoutines, method, syntax);
 			}
 			else ModDamage.log.severe("Method getNew not found for statement " + routineClass.getName());
 		}

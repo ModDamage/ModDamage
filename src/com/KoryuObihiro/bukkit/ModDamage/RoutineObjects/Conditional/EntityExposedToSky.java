@@ -1,18 +1,39 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class EntityExposedToSky extends EntityConditionalStatement
 {
+	public static final HashSet<Material> goThroughThese = new HashSet<Material>();
+	
+	static
+	{
+		goThroughThese.add(Material.AIR );
+		goThroughThese.add(Material.GLASS);
+		goThroughThese.add(Material.LADDER);
+		goThroughThese.add(Material.TORCH);
+		goThroughThese.add(Material.REDSTONE_TORCH_ON);
+		goThroughThese.add(Material.REDSTONE_TORCH_OFF);
+		goThroughThese.add(Material.STATIONARY_LAVA);
+		goThroughThese.add(Material.STONE_PLATE);
+		goThroughThese.add(Material.STONE_BUTTON);
+		goThroughThese.add(Material.SIGN_POST);
+		goThroughThese.add(Material.WALL_SIGN);
+		goThroughThese.add(Material.FIRE);
+		goThroughThese.add(Material.LEVER);
+	}
+	
 	public EntityExposedToSky(boolean inverted, EntityReference entityReference) 
 	{
 		super(inverted, entityReference);
@@ -27,18 +48,7 @@ public class EntityExposedToSky extends EntityConditionalStatement
 		int i = entity.getLocation().getBlockX();
 		int k = entity.getLocation().getBlockZ();
 		for(int j = ((entity instanceof LivingEntity)?((LivingEntity)entity).getEyeLocation():entity.getLocation()).getBlockY(); j < 128; j++)
-			switch(world.getBlockAt(i, j, k).getType())
-			{
-				case AIR: 
-				case TORCH: 
-				case LADDER:
-				case FIRE:
-				case LEVER:
-				case STONE_BUTTON:
-				case WALL_SIGN:
-				case GLASS: continue;
-				default: return false;
-			}
+			if(!goThroughThese.contains(world.getBlockAt(i, j, k).getType())) return false;
 		return true;
 	}
 	

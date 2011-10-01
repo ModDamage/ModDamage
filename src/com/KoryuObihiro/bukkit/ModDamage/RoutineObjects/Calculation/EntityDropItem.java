@@ -10,15 +10,15 @@ import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
 public class EntityDropItem extends EntityCalculationRoutine<Entity>
 {
 	protected final List<Material> materials;
-	public EntityDropItem(String configString, EntityReference entityReference, List<Material> materials, List<Routine> routines)
+	public EntityDropItem(String configString, EntityReference entityReference, List<Material> materials, IntegerMatch match)
 	{
-		super(configString, entityReference, routines);
+		super(configString, entityReference, match);
 		this.materials = materials;
 	}
 	
@@ -31,16 +31,16 @@ public class EntityDropItem extends EntityCalculationRoutine<Entity>
 
 	public static void register()
 	{
-		CalculationRoutine.register(EntityDropItem.class, Pattern.compile("(\\w+)effect\\.dropItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerCalculation(EntityDropItem.class, Pattern.compile("(\\w+)effect\\.dropItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static EntityDropItem getNew(Matcher matcher, List<Routine> routines)
+	public static EntityDropItem getNew(Matcher matcher, IntegerMatch match)
 	{
-		if(matcher != null && routines != null)
+		if(matcher != null && match != null)
 		{
 			List<Material> materials =  ModDamage.matchItemAlias(matcher.group(2));
 			if(!materials.isEmpty() && EntityReference.isValid(matcher.group(1)))
-				return new EntityDropItem(matcher.group(), EntityReference.match(matcher.group(1)), materials, routines);
+				return new EntityDropItem(matcher.group(), EntityReference.match(matcher.group(1)), materials, match);
 		}
 		return null;
 	}

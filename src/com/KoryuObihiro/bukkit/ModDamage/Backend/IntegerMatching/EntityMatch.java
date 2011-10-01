@@ -2,6 +2,7 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
@@ -19,6 +20,7 @@ public class EntityMatch extends IntegerMatch
 		Health(true),
 		Light,
 		Size,
+		WieldQuantity,
 		X,
 		Y,
 		Z;
@@ -46,11 +48,12 @@ public class EntityMatch extends IntegerMatch
 					case Health: return ((LivingEntity)entity).getHealth();
 					case Light: return entity.getLocation().getBlock().getLightLevel();
 					case Size: if(entity instanceof Slime) return ((Slime)entity).getSize();
+					case WieldQuantity: if(entity instanceof Player) return ((Player)entity).getItemInHand().getAmount();
 					case X: return entity.getLocation().getBlockX();
 					case Y: return entity.getLocation().getBlockY();
 					case Z: return entity.getLocation().getBlockZ();
 				}
-			return 0;//TODO 0.9.6 - Do we really want this behavior?
+			return 0;//Shouldn't happen.
 		}
 	}
 	

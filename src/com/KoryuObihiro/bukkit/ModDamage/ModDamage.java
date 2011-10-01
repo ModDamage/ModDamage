@@ -1,7 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,8 +34,8 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RegionAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.WorldAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Message.DynamicMessage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Message.DynamicMessage;
 
 /**
  * "ModDamage" for Bukkit
@@ -78,7 +77,7 @@ public class ModDamage extends JavaPlugin
 	// -External calls to aliased sets of routines? But...EventInfo would be screwed up. :P
 
 	public static Server server;
-	public final int oldestSupportedBuild = 1060;
+	public final int oldestSupportedBuild = 1085;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	public final static Logger log = Logger.getLogger("Minecraft");
 	private static DebugSetting debugSetting = DebugSetting.NORMAL;
@@ -92,7 +91,7 @@ public class ModDamage extends JavaPlugin
 						return setting;
 				return null;
 		}
-		private boolean shouldOutput(DebugSetting setting)
+		public boolean shouldOutput(DebugSetting setting)
 		{
 			if(setting.ordinal() <= this.ordinal())
 				return true;
@@ -149,11 +148,14 @@ public class ModDamage extends JavaPlugin
 		
 		protected void reload()
 		{
+			addToLogRecord(DebugSetting.VERBOSE, "Loading routines...", LoadState.SUCCESS);
+			ModDamage.indentation++;
 			eventRoutines.clear();
 			eventStates.clear();
 			state = LoadState.NOT_LOADED;
 			for(EventType eventType : EventType.values())
 			{
+				ModDamage.indentation++;
 				List<Object> routineObjects = null;
 				for(String key : config.getKeys())
 					if(key.equalsIgnoreCase(eventType.name()))
@@ -164,8 +166,10 @@ public class ModDamage extends JavaPlugin
 				if(routineObjects != null)
 				{
 					addToLogRecord(DebugSetting.NORMAL, eventType.name() + " configuration:", LoadState.SUCCESS);
+					ModDamage.indentation++;
 					LoadState[] stateMachine = { LoadState.SUCCESS };//We use a single-cell array here because the enum is assigned later.
 					List<Routine> routines = RoutineAliaser.parse(routineObjects, stateMachine);
+					ModDamage.indentation--;
 					eventStates.put(eventType, stateMachine[0]);
 					
 					if(!routines.isEmpty() && !eventStates.get(eventType).equals(LoadState.FAILURE))
@@ -190,6 +194,7 @@ public class ModDamage extends JavaPlugin
 						break;
 				}
 			}
+			ModDamage.indentation--;
 			state = LoadState.combineStates(new ArrayList<LoadState>(eventStates.values()));
 		}
 	}
@@ -227,12 +232,6 @@ public class ModDamage extends JavaPlugin
 		config = this.getConfiguration();
 		reload(true);
 		isEnabled = true;
-		
-		//FIXME DEBUGGING
-		log.info("WORLDS: ");
-		for(Object world : server.getWorlds())
-			log.info(world.toString());
-		//END DEBUGGING
 	}
 
 	@Override
@@ -464,7 +463,7 @@ public class ModDamage extends JavaPlugin
 		try{ config.load();}
 		catch(Exception e)
 		{
-			//FIXME 0.9.6 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not auto-load config.
+			//FIXME 0.9.7 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not auto-load config.
 			addToLogRecord(DebugSetting.QUIET, "Error in YAML configuration. Type /md check for more information.", LoadState.FAILURE);
 			e.printStackTrace();
 			/*
@@ -504,14 +503,17 @@ public class ModDamage extends JavaPlugin
 		}
 
 	//Aliasing
+		addToLogRecord(DebugSetting.VERBOSE, "Loading aliases...", LoadState.SUCCESS);
 		for(String key : config.getKeys())
 			if(key.equalsIgnoreCase("Aliases"))
 			{
 				ConfigurationNode aliasesNode = config.getNode(key);
 				if(!aliasesNode.getKeys().isEmpty())
 				{
+					ModDamage.indentation++;
 					List<LoadState> list = Arrays.asList(armorAliaser.load(aliasesNode), biomeAliaser.load(aliasesNode), elementAliaser.load(aliasesNode), itemAliaser.load(aliasesNode), groupAliaser.load(aliasesNode), messageAliaser.load(aliasesNode), regionAliaser.load(aliasesNode), routineAliaser.load(aliasesNode), worldAliaser.load(aliasesNode));
 					state_aliases = LoadState.combineStates(list);
+					ModDamage.indentation--;
 					switch(state_aliases)
 					{
 						case NOT_LOADED:
@@ -589,24 +591,7 @@ public class ModDamage extends JavaPlugin
 		log.severe("[" + getDescription().getName() + "] Auto-generated config.yml. :D");
 	}
 	
-////ROUTINE PARSING ////
-	
-	public static void register(HashMap<Pattern, Method> registry, Method method, Pattern syntax)
-	{
-		boolean successfullyRegistered = false;
-		if(syntax != null)
-		{
-			registry.put(syntax, method);	
-			successfullyRegistered = true;
-		}
-		else log.severe("[ModDamage] Error: Bad regex for registering class \"" + method.getClass().getName() + "\"!");
-		if(successfullyRegistered)
-		{
-			if(debugSetting.shouldOutput(DebugSetting.VERBOSE)) log.info("[ModDamage] Registering class " + method.getClass().getName() + " with pattern " + syntax.pattern());
-		}
-	}
-	
-	//TODO 0.9.6 Implement a reload hook for other plugins, make /md r reload routine library.
+	//TODO 0.9.7 Implement a reload hook for other plugins, make /md r reload routine library.
 		
 //// LOGGING ////
 	
@@ -653,7 +638,7 @@ public class ModDamage extends JavaPlugin
 	//TODO Make an object that stores everything, but still prints according to debug settings.
 	public static void addToLogRecord(DebugSetting outputSetting, String string, LoadState loadState)
 	{
-		if(loadState.equals(LoadState.FAILURE)) state_plugin = LoadState.FAILURE;
+		if(loadState.equals(LoadState.FAILURE)) state_plugin = LoadState.FAILURE;//TODO REMOVE ME.
 		if(debugSetting.shouldOutput(outputSetting))
 		{
 			ChatColor color = null;
@@ -700,7 +685,7 @@ public class ModDamage extends JavaPlugin
 					log.info(nestIndentation + string);
 					break;
 				case FAILURE:
-					log.severe(string);
+					log.severe(nestIndentation + string);
 					break;
 			}
 		}
@@ -784,4 +769,6 @@ public class ModDamage extends JavaPlugin
 	public static List<String> matchRegionAlias(String key){ return regionAliaser.matchAlias(key);}
 	public static List<Routine> matchRoutineAlias(String key){ return routineAliaser.matchAlias(key);}
 	public static List<String> matchWorldAlias(String key){ return worldAliaser.matchAlias(key);}
+
+	public static DebugSetting getDebugSetting() { return debugSetting;}
 }

@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,14 +13,11 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.LogicalOperation;
 
 public class ConditionalRoutine extends NestedRoutine
 {
 	public static HashMap<Pattern, Method> registeredConditionalStatements = new HashMap<Pattern, Method>();
-	public static final Pattern conditionalPattern = Pattern.compile("(if|if_not)\\s+(" + RoutineAliaser.statementPart + "(?:\\s+([\\*\\w]+)\\s+" +  RoutineAliaser.statementPart + ")*)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern conditionalPattern = Pattern.compile("(if|if_not)\\s+(" + Routine.statementPart + "(?:\\s+" + LogicalOperation.logicalOperationPart + "\\s+" +  Routine.statementPart + ")*)", Pattern.CASE_INSENSITIVE);
 	
 	protected final boolean inverted;
 	protected final List<ConditionalStatement> statements;
@@ -50,7 +47,7 @@ public class ConditionalRoutine extends NestedRoutine
 	{
 		if(string != null && nestedContent != null)
 		{
-			Matcher matcher = conditionalPattern.matcher(string);
+ 			Matcher matcher = conditionalPattern.matcher(string);
 			if(matcher.matches())
 			{
 				ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
@@ -58,7 +55,7 @@ public class ConditionalRoutine extends NestedRoutine
 				
 				List<ConditionalStatement> statements = new ArrayList<ConditionalStatement>();
 				List<LogicalOperation> operations = new ArrayList<LogicalOperation>();
-				//start with a programmatic "false ||" ... because of how this routine is executed.
+				//start with a programmatic "false ||" ... because of how this routine is executed. TODO 0.9.7 - Change this?
 				
 				//parse all of the conditionals
 				boolean failFlag = false;
@@ -108,8 +105,11 @@ public class ConditionalRoutine extends NestedRoutine
 					operations.add(0, LogicalOperation.OR);
 					ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Conditional \"" + string + "\"\n", LoadState.SUCCESS);
 
+
+					ModDamage.indentation++;
 					LoadState[] stateMachine = { LoadState.SUCCESS };
 					List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
+					ModDamage.indentation--;
 					if(stateMachine[0].equals(LoadState.SUCCESS))
 						return new ConditionalRoutine(string, !matcher.group(1).equalsIgnoreCase("if"), statements, operations, routines);
 				}
@@ -133,7 +133,7 @@ public class ConditionalRoutine extends NestedRoutine
 			{
 				assert(method.getReturnType().equals(statementClass));
 				method.invoke(null, (Matcher)null);
-				ModDamage.register(ConditionalRoutine.registeredConditionalStatements, method, syntax);
+				Routine.register(ConditionalRoutine.registeredConditionalStatements, method, syntax);
 			}
 			else ModDamage.log.severe("Method getNew not found for statement " + statementClass.getName());
 		}

@@ -17,34 +17,66 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class IntegerMatch
 {
 	protected final int value;
-	private final boolean isDynamic;
+	private final List<Routine> routines;
+	private final BasicIntegerMatch propertyMatch;
+	private enum BasicIntegerMatch{ StaticValue, DynamicValue, RoutineValue;}
 	
 	private static final Pattern dynamicPattern;
 	
-	public static final String dynamicPart;
+	public static final String dynamicIntegerPart;
 	static
 	{
-		String tempString = "";
+		String tempString = "(?:";
 		for(EntityReference reference : EntityReference.values())
 			tempString += reference.name() + "|";
-		tempString += "event|world|server";
-		dynamicPattern = Pattern.compile("(" + tempString + ")\\.(\\w+)", Pattern.CASE_INSENSITIVE);
-		dynamicPart = "((?:" + tempString + ")\\.\\w+)";
+		tempString += "event|world|server)";
+		dynamicIntegerPart = "((?:-?[0-9]+)|(?:" + tempString + "(?:\\.\\w+))|(?:_\\w+))";
+		dynamicPattern = Pattern.compile(dynamicIntegerPart, Pattern.CASE_INSENSITIVE);
 	}
+	
 	protected interface MatcherEnum {}
 	
 	protected IntegerMatch(int value)
 	{ 
 		this.value = value;
-		this.isDynamic = false;
+		this.routines = null;
+		this.propertyMatch = BasicIntegerMatch.StaticValue;
 	}
+	
 	protected IntegerMatch()
 	{ 
 		this.value = 0;
-		this.isDynamic = true;
+		this.routines = null;
+		this.propertyMatch = BasicIntegerMatch.DynamicValue;
 	}
 	
-	public int getValue(TargetEventInfo eventInfo){ return isDynamic?eventInfo.eventValue:value;}
+	protected IntegerMatch(List<Routine> routines)
+	{
+		this.value = 0;
+		this.routines = routines;
+		this.propertyMatch = BasicIntegerMatch.RoutineValue;
+	}
+	
+	public int getValue(TargetEventInfo eventInfo)
+	{ 
+		switch(propertyMatch)
+		{
+			case StaticValue:	return value;
+			case RoutineValue:
+				for(Routine routine : routines)
+					routine.run(eventInfo);
+			case DynamicValue:	return eventInfo.eventValue;
+			default: return 0;
+		}
+	}
+	
+	public static IntegerMatch getNew(List<Routine> routines) 
+	{
+		if(routines != null && !routines.isEmpty())
+			return new IntegerMatch(routines);
+		ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: attempted to use invalid routine list for a dynamic integer reference.", LoadState.FAILURE);
+		return null;
+	}
 	
 	public static IntegerMatch getNew(String string)
 	{
@@ -63,32 +95,33 @@ public class IntegerMatch
 			}
 			else if(matcher.matches())
 			{
-				if(matcher.group(1).equalsIgnoreCase("event"))
+				String[] matches = matcher.group().split("\\.");
+				if(matches[0].equalsIgnoreCase("event"))
 				{ 
-					if(matcher.group(2).equalsIgnoreCase("value"))//XXX Can't think of any more properties, so no need to be dynamic here.
+					if(matches[1].equalsIgnoreCase("value"))//XXX Can't think of any more properties, so no need to be dynamic here.
 						return new IntegerMatch();
-					ModDamage.addToLogRecord(DebugSetting.QUIET, "Error - couldn't match event property \"" + matcher.group(2) + "\"", LoadState.FAILURE);
+					ModDamage.addToLogRecord(DebugSetting.QUIET, "Error - couldn't match event property \"" + matches[1] + "\"", LoadState.FAILURE);
 				}
-				else if(matcher.group(1).equalsIgnoreCase("world"))
+				else if(matches[0].equalsIgnoreCase("world"))
 				{ 
 					for(WorldPropertyMatch match : WorldPropertyMatch.values())
-						if(matcher.group(1).equalsIgnoreCase(match.name()))
+						if(matches[1].equalsIgnoreCase(match.name()))
 							return new WorldMatch(match);
-					ModDamage.addToLogRecord(DebugSetting.QUIET, "Error - couldn't match world property \"" + matcher.group(2) + "\"", LoadState.FAILURE);
+					ModDamage.addToLogRecord(DebugSetting.QUIET, "Error - couldn't match world property \"" + matches[1] + "\"", LoadState.FAILURE);
 				}
-				else if(matcher.group(1).equalsIgnoreCase("server"))
+				else if(matches[0].equalsIgnoreCase("server"))
 				{
 					for(ServerPropertyMatch match : ServerPropertyMatch.values())
-						if(matcher.group(1).equalsIgnoreCase(match.name()))
+						if(matches[1].equalsIgnoreCase(match.name()))
 							return new ServerMatch(match);
-					ModDamage.addToLogRecord(DebugSetting.QUIET, "Error - couldn't match server property \"" + matcher.group(2) + "\"", LoadState.FAILURE);
+					ModDamage.addToLogRecord(DebugSetting.QUIET, "Error - couldn't match server property \"" + matches[1] + "\"", LoadState.FAILURE);
 				}
-				else if(EntityReference.isValid(matcher.group(1)))
+				else if(EntityReference.isValid(matches[0]))
 				{
 					for(EntityPropertyMatch match : EntityPropertyMatch.values())
-						if(matcher.group(2).equalsIgnoreCase(match.name()))
-							return new EntityMatch(EntityReference.match(matcher.group(1)), match);
-					ModDamage.addToLogRecord(DebugSetting.QUIET, "Error - couldn't match entity property \"" + matcher.group(2) + "\"", LoadState.FAILURE);
+						if(matches[1].equalsIgnoreCase(match.name()))
+							return new EntityMatch(EntityReference.match(matches[1]), match);
+					ModDamage.addToLogRecord(DebugSetting.QUIET, "Error - couldn't match entity property \"" + matches[1] + "\"", LoadState.FAILURE);
 				}
 			}
 			//These shouldn't ever happen.

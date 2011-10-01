@@ -20,7 +20,7 @@ public class Addition extends Routine
 	
 	public static void register()
 	{
-		Routine.registerBase(Addition.class, Pattern.compile(Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(Addition.class, Pattern.compile(IntegerMatch.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Addition getNew(Matcher matcher)

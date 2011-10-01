@@ -39,7 +39,7 @@ public class DiceRoll extends Chanceroutine
 	
 	public static void register()
 	{
-		Routine.registerBase(DiceRoll.class, Pattern.compile("roll(\\." + Routine.dynamicIntegerPart + ")?", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(DiceRoll.class, Pattern.compile("roll(\\." + IntegerMatch.dynamicIntegerPart + ")?", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static DiceRoll getNew(Matcher matcher)

@@ -1,6 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,15 +8,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
 public class PlayerSetItem extends PlayerCalculationRoutine
 {
 	protected final Material material;
-	public PlayerSetItem(String configString, EntityReference entityReference, Material material, List<Routine> routines)
+	public PlayerSetItem(String configString, EntityReference entityReference, Material material, IntegerMatch match)
 	{
-		super(configString, entityReference, routines);
+		super(configString, entityReference, match);
 		this.material = material;
 	}
 	
@@ -29,16 +28,16 @@ public class PlayerSetItem extends PlayerCalculationRoutine
 	
 	public static void register()
 	{
-		CalculationRoutine.register(PlayerSetItem.class, Pattern.compile("(\\w+)effect\\.setItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerCalculation(PlayerSetItem.class, Pattern.compile("(\\w+)effect\\.setItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static PlayerSetItem getNew(Matcher matcher, List<Routine> routines)
+	public static PlayerSetItem getNew(Matcher matcher, IntegerMatch match)
 	{
-		if(matcher != null && routines != null)
+		if(matcher != null && match != null)
 		{
 			Material material = Material.matchMaterial(matcher.group(2));
 			if(material != null && EntityReference.isValid(matcher.group(1)))
-				return new PlayerSetItem(matcher.group(), EntityReference.match(matcher.group(1)), material, routines);//FIXME 0.9.6 - ItemStack routine
+				return new PlayerSetItem(matcher.group(), EntityReference.match(matcher.group(1)), material, match);//FIXME 0.9.7 - ItemStack routine
 		}
 		return null;
 	}

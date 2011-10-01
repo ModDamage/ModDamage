@@ -10,7 +10,7 @@ import org.bukkit.World.Environment;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.SwitchRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class EnvironmentSwitch extends SwitchRoutine<Environment>
 {	

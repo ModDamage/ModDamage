@@ -9,7 +9,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.SwitchRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class RangedElementSwitch extends SwitchRoutine<RangedElement>
 {

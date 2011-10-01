@@ -1,6 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,14 +7,14 @@ import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
 public class EntityAddFireTicks extends EntityCalculationRoutine<Entity>
 {
-	public EntityAddFireTicks(String configString, EntityReference entityReference, List<Routine> routines) 
+	public EntityAddFireTicks(String configString, EntityReference entityReference, IntegerMatch match) 
 	{
-		super(configString, entityReference, routines);
+		super(configString, entityReference, match);
 	}
 
 	@Override
@@ -29,13 +28,14 @@ public class EntityAddFireTicks extends EntityCalculationRoutine<Entity>
 
 	public static void register()
 	{
-		CalculationRoutine.register(EntityAddFireTicks.class, Pattern.compile("(\\w+)effect\\.addFireTicks", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerCalculation(EntityAddFireTicks.class, Pattern.compile("(\\w+)effect\\.addFireTicks", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static EntityAddFireTicks getNew(Matcher matcher, List<Routine> routines)
+	public static EntityAddFireTicks getNew(Matcher matcher, IntegerMatch integerMatch)
 	{
-		if(matcher != null && routines != null && EntityReference.isValid(matcher.group(1)))
-			return new EntityAddFireTicks(matcher.group(), EntityReference.match(matcher.group(1)), routines);
+		if(matcher != null && integerMatch != null)
+			if(EntityReference.isValid(matcher.group(1)))
+				return new EntityAddFireTicks(matcher.group(), EntityReference.match(matcher.group(1)), integerMatch);
 		return null;
 	}
 }

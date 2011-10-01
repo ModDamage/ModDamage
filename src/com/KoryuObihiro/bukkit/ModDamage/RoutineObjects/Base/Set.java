@@ -8,37 +8,28 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
 
 public class Set extends CalculationRoutine<Integer>
 {
-	protected final boolean usingStaticValue;
-	protected IntegerMatch setValue;
 	public Set(String configString, IntegerMatch value)
 	{ 
-		super(configString, null);
-		usingStaticValue = true;
-		setValue = value;
+		super(configString, value);
 	}
-	public Set(String configString, List<Routine> routines)
-	{ 
-		super(configString, routines);
-		usingStaticValue = false;
-		setValue = null;
-	}
+	
 	@Override
-	public void run(TargetEventInfo eventInfo)
-	{ 
-		if(usingStaticValue)
-			eventInfo.eventValue = setValue.getValue(eventInfo);
-		else eventInfo.eventValue = calculateInputValue(eventInfo);
-	}
+	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = value.getValue(eventInfo);}
+	
+	@Override
+	protected Integer getAffectedObject(TargetEventInfo eventInfo) { return null;}
+	@Override
+	protected void applyEffect(Integer affectedObject, int input) {}
 	
 	public static void register()
 	{
-		Routine.registerBase(Set.class, Pattern.compile("set\\." + Routine.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(Set.class, Pattern.compile("set\\." + IntegerMatch.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 		NestedRoutine.registerNested(Set.class, Pattern.compile("set", Pattern.CASE_INSENSITIVE));
 	}
 	
@@ -60,12 +51,12 @@ public class Set extends CalculationRoutine<Integer>
 			LoadState[] stateMachine = { LoadState.SUCCESS };
 			List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
 			if(!stateMachine[0].equals(LoadState.FAILURE))
-				return new Set(string, routines);
+			{
+				IntegerMatch match = IntegerMatch.getNew(routines);
+				if(match != null)
+					return new Set(string, match);
+			}
 		}
 		return null;
 	}
-	@Override
-	protected void applyEffect(Integer affectedObject, int input) {}
-	@Override
-	protected Integer getAffectedObject(TargetEventInfo eventInfo) { return null;}
 }

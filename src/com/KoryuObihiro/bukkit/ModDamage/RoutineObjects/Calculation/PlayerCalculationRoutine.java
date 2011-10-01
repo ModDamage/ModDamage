@@ -1,18 +1,16 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
-import java.util.List;
-
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
 
 abstract public class PlayerCalculationRoutine extends EntityCalculationRoutine<Player>
 {
-	public PlayerCalculationRoutine(String configString, EntityReference entityReference, List<Routine> routines)
+	public PlayerCalculationRoutine(String configString, EntityReference entityReference, IntegerMatch match)
 	{
-		super(configString, entityReference, routines);
+		super(configString, entityReference, match);
 	}
 	@Override
 	protected Player getAffectedObject(TargetEventInfo eventInfo)

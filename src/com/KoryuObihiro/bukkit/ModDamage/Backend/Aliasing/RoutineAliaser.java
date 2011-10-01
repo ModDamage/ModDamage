@@ -16,11 +16,6 @@ public class RoutineAliaser extends Aliaser<Routine>
 {
 	private static final long serialVersionUID = -2744471820826321788L;
 	public RoutineAliaser(){ super("Routine");}
-
-	//Predefined pattern strings
-	//TODO integrate these into their respective classes when the NestedRoutine stuff works out.
-	public static final String statementPart = "(?:!?(?:[\\*\\w]+)(?:\\.[\\*\\w]+)*)";
-		
 	
 	public boolean addAlias(String key, List<Object> values)
 	{
@@ -53,13 +48,7 @@ public class RoutineAliaser extends Aliaser<Routine>
 	@Override
 	public List<Routine> matchAlias(String key)
 	{
-		if(this.containsKey(key))
-		{
-			ModDamage.addToLogRecord(DebugSetting.NORMAL, "Alias: " + key.substring(1), LoadState.SUCCESS);
-			return this.get(key);
-		}
-		List<Routine> value = parse(key, new LoadState[1]);//FIXME Does this work?
-		if(!value.isEmpty()) return value;
+		if(this.containsKey(key)) return this.get(key);
 		return new ArrayList<Routine>();
 	}
 	
@@ -71,14 +60,22 @@ public class RoutineAliaser extends Aliaser<Routine>
 	@SuppressWarnings("unchecked")
 	public static List<Routine> parse(Object object, LoadState[] resultingState)
 	{
-		ModDamage.indentation++;
 		LoadState currentState = LoadState.SUCCESS;
 		List<Routine> routines = new ArrayList<Routine>();
 		if(object != null)
 		{
 			if(object instanceof String)
 			{
-				if(((String)object).startsWith("_")) routines.addAll(ModDamage.matchRoutineAlias((String)object));
+				if(((String)object).startsWith("_"))
+				{
+					List<Routine> aliasedRoutines = ModDamage.matchRoutineAlias((String)object);
+					if(!aliasedRoutines.isEmpty())
+					{
+						ModDamage.addToLogRecord(DebugSetting.NORMAL, "Alias: \"" + ((String)object).substring(1) + "\"", LoadState.SUCCESS);
+						routines.addAll(aliasedRoutines);
+					}
+					else ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid routine alias " + ((String)object).substring(1), LoadState.FAILURE);
+				}
 				if(routines.isEmpty())
 				{
 					Routine routine = null;
@@ -134,24 +131,30 @@ public class RoutineAliaser extends Aliaser<Routine>
 				}
 			}
 			else if(object instanceof List)
-			{
 				for(Object nestedObject : (List<Object>)object)
-					routines.addAll(parse(nestedObject, resultingState));
-			}
+				{
+					LoadState[] stateMachine = { LoadState.SUCCESS };
+					List<Routine> someRoutines = parse(nestedObject, stateMachine);
+					if(stateMachine[0].equals(LoadState.SUCCESS))
+						routines.addAll(someRoutines);
+					else currentState = LoadState.FAILURE;
+				}
 			else
 			{
 				currentState = LoadState.FAILURE;
 				ModDamage.addToLogRecord(DebugSetting.QUIET, "Parse error: did not recognize object " + object.toString() + " of type " + object.getClass().getName(), LoadState.FAILURE);
 			}
 		}
-		else 
+		else
 		{
 			currentState = LoadState.FAILURE;
 			ModDamage.addToLogRecord(DebugSetting.QUIET, "Parse error: null", currentState);
 		}
-		if(currentState.equals(LoadState.FAILURE))
+		if(currentState.equals(LoadState.FAILURE) || routines.isEmpty())
+		{
 			resultingState[0] = LoadState.FAILURE;
-		ModDamage.indentation--;
+			routines.clear();
+		}
 		return routines;
 	}
 

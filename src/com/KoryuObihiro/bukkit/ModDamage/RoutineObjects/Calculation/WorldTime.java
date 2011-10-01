@@ -1,20 +1,19 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.World;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
 public class WorldTime extends WorldCalculationRoutine
 {
-	public WorldTime(String configString, List<Routine> routines)
+	public WorldTime(String configString, IntegerMatch match)
 	{
-		super(configString, routines);
+		super(configString, match);
 	}
 	@Override
 	protected World getAffectedObject(TargetEventInfo eventInfo){ return eventInfo.world;}
@@ -23,13 +22,13 @@ public class WorldTime extends WorldCalculationRoutine
 
 	public static void register() 
 	{
-		CalculationRoutine.register(WorldTime.class, Pattern.compile("worldeffect\\.setTime", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerCalculation(WorldTime.class, Pattern.compile("worldeffect\\.setTime", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static WorldTime getNew(Matcher matcher, List<Routine> routines)
+	public static WorldTime getNew(Matcher matcher, IntegerMatch match)
 	{
-		if(matcher != null && routines != null)
-			return new WorldTime(matcher.group(), routines);
+		if(matcher != null && match != null)
+			return new WorldTime(matcher.group(), match);
 		return null;
 	}
 }

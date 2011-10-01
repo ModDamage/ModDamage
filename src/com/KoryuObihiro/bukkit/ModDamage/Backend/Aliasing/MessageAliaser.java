@@ -1,6 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Message.DynamicMessage;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Message.DynamicMessage;
 
 public class MessageAliaser extends Aliaser<DynamicMessage> 
 {

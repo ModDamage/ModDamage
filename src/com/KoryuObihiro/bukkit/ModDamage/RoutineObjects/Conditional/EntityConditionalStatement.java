@@ -1,7 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
 public abstract class EntityConditionalStatement extends ConditionalStatement
 {

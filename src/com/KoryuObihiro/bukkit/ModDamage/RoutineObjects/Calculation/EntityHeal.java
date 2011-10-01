@@ -1,20 +1,19 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
 public class EntityHeal extends LivingEntityCalculationRoutine
 {
-	public EntityHeal(String configString, EntityReference entityReference, List<Routine> routines)
+	public EntityHeal(String configString, EntityReference entityReference, IntegerMatch match)
 	{
-		super(configString, entityReference, routines);
+		super(configString, entityReference, match);
 	}
 
 	@Override
@@ -25,13 +24,13 @@ public class EntityHeal extends LivingEntityCalculationRoutine
 	
 	public static void register()
 	{
-		CalculationRoutine.register(EntityHeal.class, Pattern.compile("(\\w+)effect\\.heal", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerCalculation(EntityHeal.class, Pattern.compile("(\\w+)effect\\.heal", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static EntityHeal getNew(Matcher matcher, List<Routine> routines)
+	public static EntityHeal getNew(Matcher matcher, IntegerMatch match)
 	{
-		if(matcher != null && routines != null && EntityReference.isValid(matcher.group(1)))
-			return new EntityHeal(matcher.group(), EntityReference.match(matcher.group(1)), routines);
+		if(matcher != null && match != null && EntityReference.isValid(matcher.group(1)))
+			return new EntityHeal(matcher.group(), EntityReference.match(matcher.group(1)), match);
 		return null;
 	}
 }

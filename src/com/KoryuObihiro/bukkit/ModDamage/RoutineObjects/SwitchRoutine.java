@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,15 +12,13 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 
 abstract public class SwitchRoutine<InfoType> extends NestedRoutine 
 {
 	public static HashMap<Pattern, Method> registeredSwitchRoutines = new HashMap<Pattern, Method>();
-	protected static final Pattern switchPattern = Pattern.compile("switch\\.(" + RoutineAliaser.statementPart + ")", Pattern.CASE_INSENSITIVE);
+	protected static final Pattern switchPattern = Pattern.compile("switch\\." + Routine.statementPart, Pattern.CASE_INSENSITIVE);
 	
 	final protected LinkedHashMap<InfoType, List<Routine>> switchStatements;
 	public final boolean isLoaded;
@@ -89,8 +87,11 @@ abstract public class SwitchRoutine<InfoType> extends NestedRoutine
 							ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
 							ModDamage.addToLogRecord(DebugSetting.NORMAL, " case: \"" + anotherKey + "\"", LoadState.SUCCESS);
 
+
+							ModDamage.indentation++;
 							LoadState[] stateMachine = { LoadState.SUCCESS };
 							List<Routine> routines = RoutineAliaser.parse(switchCases.get(anotherKey), stateMachine);
+							ModDamage.indentation--;
 							switchStatements.put(anotherKey, stateMachine[0].equals(LoadState.FAILURE)?null:routines);
 							
 							ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End case \"" + anotherKey + "\"\n", LoadState.SUCCESS);
@@ -133,7 +134,7 @@ abstract public class SwitchRoutine<InfoType> extends NestedRoutine
 			{
 				assert(method.getReturnType().equals(statementClass));
 				method.invoke(null, (Matcher)null, (LinkedHashMap<String, List<Routine>>)null);
-				ModDamage.register(SwitchRoutine.registeredSwitchRoutines, method, syntax);
+				Routine.register(SwitchRoutine.registeredSwitchRoutines, method, syntax);
 			}
 			else ModDamage.log.severe("Method getNew not found for statement " + statementClass.getName());
 		}
