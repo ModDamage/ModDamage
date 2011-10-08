@@ -34,8 +34,8 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RegionAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.WorldAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Message.DynamicMessage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Message.DynamicMessage;
 
 /**
  * "ModDamage" for Bukkit
@@ -46,7 +46,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class ModDamage extends JavaPlugin
 {
 	//TODO 0.9.6 Command for autogen world/entitytype switches?
-	//TODO 0.9.6 switch and comparison for wieldquantity
 	//TODO 0.9.6 switch.conditional
 	//TODO 0.9.6 Make the Scan message possible.
 	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
@@ -193,6 +192,7 @@ public class ModDamage extends JavaPlugin
 						addToLogRecord(DebugSetting.NORMAL, "End " + eventType.name() + " configuration.", LoadState.SUCCESS);
 						break;
 				}
+				ModDamage.indentation--;
 			}
 			ModDamage.indentation--;
 			state = LoadState.combineStates(new ArrayList<LoadState>(eventStates.values()));
@@ -463,7 +463,7 @@ public class ModDamage extends JavaPlugin
 		try{ config.load();}
 		catch(Exception e)
 		{
-			//FIXME 0.9.7 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not auto-load config.
+			//TODO 0.9.7 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not auto-load config.
 			addToLogRecord(DebugSetting.QUIET, "Error in YAML configuration. Type /md check for more information.", LoadState.FAILURE);
 			e.printStackTrace();
 			/*
@@ -638,7 +638,7 @@ public class ModDamage extends JavaPlugin
 	//TODO Make an object that stores everything, but still prints according to debug settings.
 	public static void addToLogRecord(DebugSetting outputSetting, String string, LoadState loadState)
 	{
-		if(loadState.equals(LoadState.FAILURE)) state_plugin = LoadState.FAILURE;//TODO REMOVE ME.
+		//if(loadState.equals(LoadState.FAILURE)) state_plugin = LoadState.FAILURE;//TODO REMOVE ME.
 		if(debugSetting.shouldOutput(outputSetting))
 		{
 			ChatColor color = null;
@@ -715,7 +715,7 @@ public class ModDamage extends JavaPlugin
 		}
 		else
 		{
-			//TODO 0.9.6 - Unify the placement, output according to the RoutineManager and the AliasManager.z 
+			//TODO 0.9.6 - Unify the placement, output according to the RoutineManager and the AliasManager.
 			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Config Overview: " + state_plugin.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
 			player.sendMessage(ChatColor.AQUA + "Aliases:    " + state_aliases.statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + routineManager.state.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:        " + armorAliaser.getLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Damage: " + routineManager.getState(EventType.Damage).statusString());

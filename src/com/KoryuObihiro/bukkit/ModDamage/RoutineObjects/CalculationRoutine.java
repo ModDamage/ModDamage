@@ -30,9 +30,11 @@ abstract public class CalculationRoutine<AffectedClass> extends NestedRoutine
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{
+		int eventValue = eventInfo.eventValue;
 		AffectedClass someObject = (AffectedClass)getAffectedObject(eventInfo);
 		if(someObject != null)
 			applyEffect(someObject, value.getValue(eventInfo));
+		eventInfo.eventValue = eventValue;
 	}
 
 	abstract protected void applyEffect(AffectedClass affectedObject, int input);

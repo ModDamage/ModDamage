@@ -59,7 +59,7 @@ public class ConditionalRoutine extends NestedRoutine
 				
 				//parse all of the conditionals
 				boolean failFlag = false;
-				String[] statementStrings = matcher.group(2).split("\\s+");//FIXME 0.9.7 - Change this algorithm so it uses NestedConditionalStatement for parentheses. :D
+				String[] statementStrings = matcher.group(2).split("\\s+");//TODO 0.9.7 - Change this algorithm so it uses NestedConditionalStatement for parentheses. :D
 				for(int i = 0; i <= statementStrings.length; i += 2)
 				{
 					for(Pattern pattern : registeredConditionalStatements.keySet())
@@ -82,7 +82,6 @@ public class ConditionalRoutine extends NestedRoutine
 								failFlag = true;
 							}
 							//get its relation to the previous statement
-							//FIXME Does this not catch stray operators?
 							if(i >= 2)
 							{
 								LogicalOperation operation = LogicalOperation.matchType(statementStrings[i - 1]);
@@ -141,9 +140,9 @@ public class ConditionalRoutine extends NestedRoutine
 		catch(SecurityException e){ ModDamage.log.severe("[ModDamage] Error: getNew isn't public for class " + statementClass.getName() + "!");}
 		catch(NullPointerException e){ ModDamage.log.severe("[ModDamage] Error: getNew for class " + statementClass.getName() + " is not static!");}
 		catch(NoSuchMethodException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have a getNew() method!");} 
-		catch (IllegalArgumentException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
-		catch (IllegalAccessException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
-		catch (InvocationTargetException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
+		catch(IllegalArgumentException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
+		catch(IllegalAccessException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
+		catch(InvocationTargetException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
 	}
 	
 	private static class FalseStatement extends ConditionalStatement

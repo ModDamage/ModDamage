@@ -133,22 +133,25 @@ public class ModDamageEntityListener extends EntityListener
 //// HELPER FUNCTIONS ////
 	private AttackerEventInfo getDamageEventInfo(EntityDamageEvent event)
 	{
-		LivingEntity ent_damaged = (LivingEntity)event.getEntity();
-	    if(!ModDamageElement.matchNonlivingElement(event.getCause()).equals(ModDamageElement.UNKNOWN))
-			return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.matchNonlivingElement(event.getCause()), null, null, event.getDamage());
-		else if(event instanceof EntityDamageByEntityEvent)
+		if(event != null)
 		{
-			EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
-			RangedElement rangedElement = RangedElement.matchElement(event_EE.getDamager());
-			if(rangedElement != null)
+			LivingEntity ent_damaged = (LivingEntity)event.getEntity();
+		    if(!ModDamageElement.matchNonlivingElement(event.getCause()).equals(ModDamageElement.UNKNOWN))
+				return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.matchNonlivingElement(event.getCause()), null, null, event.getDamage());
+			else if(event instanceof EntityDamageByEntityEvent)
 			{
-				Projectile projectile = (Projectile)event_EE.getDamager();
-				if(projectile.getShooter() != null)
-					return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), projectile.getShooter(), ModDamageElement.matchMobType(projectile.getShooter()), projectile, rangedElement, event.getDamage());
-				else if(event_EE.getCause().equals(DamageCause.ENTITY_ATTACK))
-	    			return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.DISPENSER, projectile, rangedElement, event.getDamage());
+				EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
+				RangedElement rangedElement = RangedElement.matchElement(event_EE.getDamager());
+				if(rangedElement != null)
+				{
+					Projectile projectile = (Projectile)event_EE.getDamager();
+					if(projectile.getShooter() != null)
+						return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), projectile.getShooter(), ModDamageElement.matchMobType(projectile.getShooter()), projectile, rangedElement, event.getDamage());
+					else if(event_EE.getCause().equals(DamageCause.ENTITY_ATTACK))
+		    			return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.DISPENSER, projectile, rangedElement, event.getDamage());
+				}
+				else if(event_EE.getDamager() != null) return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), (LivingEntity)event_EE.getDamager(), ModDamageElement.matchMobType((LivingEntity)event_EE.getDamager()), null, null, event.getDamage());
 			}
-			else if(event_EE.getDamager() != null) return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), (LivingEntity)event_EE.getDamager(), ModDamageElement.matchMobType((LivingEntity)event_EE.getDamager()), null, null, event.getDamage());
 		}
 	    return null;
 	}

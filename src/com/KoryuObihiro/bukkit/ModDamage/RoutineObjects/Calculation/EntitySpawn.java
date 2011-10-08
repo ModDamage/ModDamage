@@ -25,7 +25,7 @@ public class EntitySpawn extends EntityCalculationRoutine<Entity>
 	{
 		if(input > 0)
 			for(int i = 0; i < input; i++)
-				entity.getLocation().getWorld().spawnCreature(entity.getLocation(), creatureType);//FIXME 0.9.7 - What if I try to spawn a Wolf_Angry? :<
+				entity.getLocation().getWorld().spawnCreature(entity.getLocation(), creatureType);//TODO 0.9.7 - What if I try to spawn a Wolf_Angry? :<
 	}
 	
 	public static void register()

@@ -2,7 +2,6 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
@@ -10,59 +9,81 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class EntityMatch extends IntegerMatch
 {
-	protected final EntityReference reference;
-	protected final EntityPropertyMatch propertyMatch;
-	enum EntityPropertyMatch implements MatcherEnum
+	protected final EntityReference entityReference;
+	private final EntityPropertyMatch propertyMatch;
+	public enum EntityPropertyMatch
 	{
-		AirTicks(true),
-		FallDistance(true),
-		FireTicks(true),
-		Health(true),
+		AirTicks(true, true),
+		FallDistance(false, true),
+		FireTicks(true, true),
+		Health(true, true),
 		Light,
-		Size,
-		WieldQuantity,
+		Size(true),
 		X,
 		Y,
 		Z;
-		//TODO Add player stuff
 		
-		private boolean castsToLiving;
-		private EntityPropertyMatch()
+		public boolean settable = false;
+		private boolean castsToLiving = false;
+		private EntityPropertyMatch(){}
+		private EntityPropertyMatch(boolean settable)
 		{
-			this.castsToLiving = false;
+			this.settable = settable;
 		}
-		private EntityPropertyMatch(boolean castsToLiving)
+		private EntityPropertyMatch(boolean settable, boolean castsToLiving)
 		{
+			this.settable = settable;
 			this.castsToLiving = castsToLiving;
-		}
-		
-		protected int getProperty(TargetEventInfo eventInfo, EntityReference reference)
-		{
-			Entity entity = reference.getEntity(eventInfo);
-			if(!castsToLiving || (entity instanceof LivingEntity))
-				switch(this)
-				{
-					case AirTicks: return ((LivingEntity)entity).getRemainingAir();
-					case FallDistance: return (int) ((LivingEntity)entity).getFallDistance();
-					case FireTicks: return ((LivingEntity)entity).getFireTicks();
-					case Health: return ((LivingEntity)entity).getHealth();
-					case Light: return entity.getLocation().getBlock().getLightLevel();
-					case Size: if(entity instanceof Slime) return ((Slime)entity).getSize();
-					case WieldQuantity: if(entity instanceof Player) return ((Player)entity).getItemInHand().getAmount();
-					case X: return entity.getLocation().getBlockX();
-					case Y: return entity.getLocation().getBlockY();
-					case Z: return entity.getLocation().getBlockZ();
-				}
-			return 0;//Shouldn't happen.
 		}
 	}
 	
 	EntityMatch(EntityReference reference, EntityPropertyMatch propertyMatch)
 	{
-		this.reference = reference;
+		super(propertyMatch.settable);
+		this.entityReference = reference;
 		this.propertyMatch = propertyMatch;
 	}
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo){ return propertyMatch.getProperty(eventInfo, reference);}
+	public int getValue(TargetEventInfo eventInfo)
+	{
+		Entity entity = entityReference.getEntity(eventInfo);
+		if((!propertyMatch.castsToLiving || (entity instanceof LivingEntity)))
+			switch(propertyMatch)
+			{
+				case AirTicks: return ((LivingEntity)entity).getRemainingAir();
+				case FallDistance: return (int) ((LivingEntity)entity).getFallDistance();
+				case FireTicks: return ((LivingEntity)entity).getFireTicks();
+				case Health: return ((LivingEntity)entity).getHealth();
+				case Light: return entity.getLocation().getBlock().getLightLevel();
+				case Size: if(entity instanceof Slime) return ((Slime)entity).getSize();
+				case X: return entity.getLocation().getBlockX();
+				case Y: return entity.getLocation().getBlockY();
+				case Z: return entity.getLocation().getBlockZ();
+			}
+		return 0;//Shouldn't happen.
+	}
+	
+	@Override
+	public void setValue(TargetEventInfo eventInfo, int value, boolean additive)
+	{
+		Entity entity = entityReference.getEntity(eventInfo);
+		if((!propertyMatch.castsToLiving || (entity instanceof LivingEntity)))
+		{
+			value += (additive?getValue(eventInfo):0);
+			switch(propertyMatch)
+			{
+				case AirTicks: 		((LivingEntity)entity).setRemainingAir(value);
+				case FireTicks:		((LivingEntity)entity).setFireTicks(value);
+				case Health:		((LivingEntity)entity).setHealth(value);
+				case Size: 			if(entity instanceof Slime) ((Slime)entity).setSize(value);
+			}
+		}
+	}
+	
+	@Override
+	public String toString()
+	{
+		return entityReference.name().toLowerCase() + "." + propertyMatch.name().toLowerCase();
+	}
 }

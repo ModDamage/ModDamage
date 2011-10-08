@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,44 +10,42 @@ import org.bukkit.entity.Player;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
 
 public class Message extends NestedRoutine 
 {
-	protected static final Pattern nestedPattern = Pattern.compile("message.(\\w+)", Pattern.CASE_INSENSITIVE);
+	protected static final Pattern nestedMessagePattern = Pattern.compile("message.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
 	//FIXME Need colors!
 	protected final EntityReference entityReference;
-	protected final List<DynamicMessage> message;
+	protected final List<DynamicMessage> messages;
 	protected final MessageType messageType;
 	public Message(String configString, EntityReference entityReference, List<DynamicMessage> messages)
 	{
 		super(configString);
 		this.messageType = MessageType.ENTITY;
 		this.entityReference = entityReference;
-		this.message = messages;
+		this.messages = messages;
 	}
 	public Message(String configString, MessageType messageType, List<DynamicMessage> messages)
 	{
 		super(configString);
 		this.messageType = messageType;
 		this.entityReference = null;
-		this.message = messages;
+		this.messages = messages;
 	}
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{ 
-		messageType.sendMessage(entityReference, eventInfo, message);
+		messageType.sendMessage(entityReference, eventInfo, messages);
 	}
 	
 	public static void register()
 	{
 		Routine.registerBase(Message.class, Pattern.compile("message\\.(\\w+)\\.(.*)", Pattern.CASE_INSENSITIVE));//"debug\\.(server|(?:world(\\.[a-z0-9]+))|(?:player\\.[a-z0-9]+))\\.(_[a-z0-9]+)"
-		NestedRoutine.registerNested(Message.class, nestedPattern);
+		NestedRoutine.registerNested(Message.class, nestedMessagePattern);
 	}
 	
 	public static Message getNew(Matcher matcher)
@@ -57,13 +55,14 @@ public class Message extends NestedRoutine
 			List<DynamicMessage> messages = ModDamage.matchMessageAlias(matcher.group(2));
 			if(!messages.isEmpty())
 			{
+				Message routine = null;
 				if(EntityReference.isValid(matcher.group(1)))
-					return new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
+					routine = new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
 				else if(MessageType.match(matcher.group(1)) != null)
-					return new Message(matcher.group(), MessageType.match(matcher.group(1)), messages);
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "Unrecognized message recipient \"" + matcher.group(1) + "\"", LoadState.FAILURE);
-				return null;
+					routine = new Message(matcher.group(), MessageType.match(matcher.group(1)), messages);
+				if(routine != null) return routine;
 			}
+			else ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message content \"" + matcher.group(3) + "\" is invalid.", LoadState.SUCCESS);
 		}
 		return null;
 	}
@@ -93,7 +92,15 @@ public class Message extends NestedRoutine
 					routine = new Message(string, EntityReference.match(splitParts[1]), messages);
 				else if(MessageType.match(splitParts[1]) != null)
 					routine = new Message(string, MessageType.match(splitParts[1]), messages);
-				if(!failFlag) return routine;
+				if(!failFlag)
+				{
+					ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message: \"" + string + "\"" , LoadState.SUCCESS);
+					ModDamage.indentation++;
+					for(DynamicMessage message : routine.messages)
+						ModDamage.addToLogRecord(DebugSetting.NORMAL, "- \"" + message.toString() + "\"" , LoadState.SUCCESS);
+					ModDamage.indentation--;
+					return routine;
+				}
 			}	
 		}
 		return null;
@@ -111,6 +118,7 @@ public class Message extends NestedRoutine
 				if(key.equalsIgnoreCase(messageType.name()))
 					return messageType;
 			}
+			ModDamage.addToLogRecord(DebugSetting.QUIET, "Unrecognized message recipient \"" + key + "\"", LoadState.FAILURE);
 			return null;
 		}
 		
@@ -142,28 +150,36 @@ public class Message extends NestedRoutine
 	
 	public static class DynamicMessage
 	{
+		private static final Pattern integerReplacePattern = Pattern.compile("(.*)%" + IntegerMatch.dynamicIntegerPart + "%(.*)", Pattern.CASE_INSENSITIVE);
+		private static final Pattern colorReplacePattern = Pattern.compile("(.*)&([0-9a-f])(.*)", Pattern.CASE_INSENSITIVE);
+		
 		private final String insertionCharacter = "\u001D";
-		private final Pattern dynamicMessagePattern = Pattern.compile("(.*)%" + IntegerMatch.dynamicIntegerPart + "%(.*)", Pattern.CASE_INSENSITIVE);
 		private final String message;
 		private final List<IntegerMatch> matches = new ArrayList<IntegerMatch>();
 		
 		public DynamicMessage(String message)
 		{
-			Matcher matcher = dynamicMessagePattern.matcher(message);
-			while(matcher.matches())
+			Matcher integerMatcher = integerReplacePattern.matcher(message);
+			while(integerMatcher.matches())
 			{
-				IntegerMatch match = IntegerMatch.getNew(matcher.group(2));
+				IntegerMatch match = IntegerMatch.getNew(integerMatcher.group(2));
 				if(match != null)
 				{
-					message = matcher.group(1) + insertionCharacter + matcher.group(3);
+					message = integerMatcher.group(1) + insertionCharacter + integerMatcher.group(3);
 					matches.add(match);
-					matcher = dynamicMessagePattern.matcher(message);
+					integerMatcher = integerReplacePattern.matcher(message);
 				}
-				else if(matcher.group(2).startsWith("_"))
+				else
 				{
-					message = matcher.group(1) + "INVALID" + matcher.group(3);
-					matcher = dynamicMessagePattern.matcher(message);
+					message = integerMatcher.group(1) + "INVALID" + integerMatcher.group(3);
+					integerMatcher = integerReplacePattern.matcher(message);
 				}
+			}
+			Matcher colorMatcher = colorReplacePattern.matcher(message);
+			while(colorMatcher.matches())
+			{
+				message = colorMatcher.group(1) + String.format("\u00A7%s", colorMatcher.group(2)) + colorMatcher.group(3);
+				colorMatcher = colorReplacePattern.matcher(message);
 			}
 			this.message = message;
 		}
@@ -178,6 +194,19 @@ public class Message extends NestedRoutine
 				currentCount--;
 			}
 			player.sendMessage(displayString);
+		}
+		
+		@Override
+		public String toString()//TODO Algorithm is retarded, but not sure how else to do it at this point.
+		{
+			int currentCount = matches.size() - 1;
+			String displayString = message;
+			while(displayString.contains(insertionCharacter))
+			{
+				displayString = displayString.replaceFirst(insertionCharacter, "%" + matches.get(currentCount).toString() + "%");
+				currentCount--;
+			}
+			return displayString;
 		}
 	}
 }

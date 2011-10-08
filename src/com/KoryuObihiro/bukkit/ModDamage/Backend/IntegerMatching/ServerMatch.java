@@ -21,8 +21,18 @@ public class ServerMatch extends IntegerMatch
 		}
 	}
 	
-	ServerMatch(ServerPropertyMatch propertyMatch){ this.propertyMatch = propertyMatch;}
+	ServerMatch(ServerPropertyMatch propertyMatch)
+	{
+		super(false);
+		this.propertyMatch = propertyMatch;
+	}
 	
 	@Override
 	public int getValue(TargetEventInfo eventInfo){ return propertyMatch.getProperty(eventInfo);}
+	
+	@Override
+	public String toString()
+	{
+		return "server." + propertyMatch.name().toLowerCase();
+	}
 }

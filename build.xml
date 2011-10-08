@@ -2,9 +2,9 @@
 <project name="ModDamage" default="jar">
 	<property file="build/build.properties"/>
 	<target name="jar">
-		<delete file="../Minecraft/plugins/ModDamage.jar" />
+		<!-- <delete file="../Minecraft/plugins/ModDamage.jar" /> -->
 
-		<jar destfile="../Minecraft/plugins/ModDamage.jar" update="true">
+		<jar destfile="../Minecraft/plugins/ModDamage.jar" update="no">
 			<fileset dir="bin" includes="**/*.class" />
 			<fileset dir="." includes="plugin.yml" />
 			<manifest>

@@ -11,7 +11,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 abstract public class Routine
-{	
+{
 	public static final HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
 
 	public static final String statementPart = "(!?\\w+(?:\\.[\\*\\w]+)*)";

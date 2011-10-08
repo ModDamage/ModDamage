@@ -3,7 +3,6 @@ package com.KoryuObihiro.bukkit.ModDamage;
 import static com.sk89q.worldguard.bukkit.BukkitUtil.toVector;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Location;
@@ -11,9 +10,12 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import ru.tehkode.permissions.PermissionGroup;
+
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.DelayedRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Message;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
@@ -22,23 +24,14 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRoll;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Division;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.IntervalRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Message;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityAddAirTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityAddFireTicks;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.ChangeProperty;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityDropItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityExplode;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHeal;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHurt;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetAirTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetFireTicks;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySetHealth;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySpawn;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerAddItem;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.PlayerSetItem;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.SlimeSetSize;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.WorldTime;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Binomial;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Comparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBiome;
@@ -72,7 +65,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.elbukkit.api.elregions.region.Region;
 import com.gmail.nossr50.mcMMO;
-import com.nijiko.permissions.PermissionHandler;
 import com.platymuus.bukkit.permissions.Group;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -130,20 +122,12 @@ public class ExternalPluginManager
 		EventRangedElementEvaluation.register();
 		EventWorldEvaluation.register();
 	CalculationRoutine.register();
-		EntityAddAirTicks.register();
-		EntityAddFireTicks.register();
+		ChangeProperty.register();
 		EntityDropItem.register();
 		EntityExplode.register();
 		EntityHeal.register();
 		EntityHurt.register();
-		EntitySetAirTicks.register();
-		EntitySetFireTicks.register();
-		EntitySetHealth.register();
 		EntitySpawn.register();
-		PlayerAddItem.register();
-		PlayerSetItem.register();
-		SlimeSetSize.register();
-		WorldTime.register();
 	SwitchRoutine.register();
 		ArmorSetSwitch.register();
 		BiomeSwitch.register();
@@ -161,21 +145,11 @@ public class ExternalPluginManager
 	private static mcMMO mcMMOplugin;
 	public static mcMMO getMcMMOPlugin()
 	{
-		// TODO 0.9.6 - make routines outta these.
-		mcMMOplugin.getPlayerProfile(null).addBleedTicks(0);
-		mcMMOplugin.getPlayerProfile(null).addXP(null, 0);
-		mcMMOplugin.getPlayerProfile(null).getBleedTicks();
-		mcMMOplugin.getPlayerProfile(null).getCurrentMana();
-		mcMMOplugin.getPlayerProfile(null).getLastGained();
-		mcMMOplugin.getPlayerProfile(null).getMaxMana();
-		mcMMOplugin.getPlayerProfile(null).setXpBarInc(0);
-		mcMMOplugin.getPlayerProfile(null).getXpBarInc();
-		mcMMOplugin.getPlayerProfile(null).hasPartyInvite();
-		mcMMOplugin.getPlayerProfile(null).modifyskill(null, 0);
-		mcMMOplugin.mob.assignDifficulty(null);//Assigns to a UUID?
+		/* TODO 0.9.6 - make routines outta these.
 		mcMMOplugin.inSameParty(null, null);
 		mcMMO.inParty(null);
 		mcMMO.getPartyName(null);//aliases?
+		*/
 		return mcMMOplugin;
 	}
 	
@@ -195,26 +169,28 @@ public class ExternalPluginManager
 			switch(this)
 			{
 				case PermissionsEx:
-					return Arrays.asList(((PermissionHandler)permissionsPlugin).getGroups(player.getWorld().getName(), player.getName()));
+					List<String> groupNames = new ArrayList<String>();
+					for(PermissionGroup group : ru.tehkode.permissions.bukkit.PermissionsEx.getPermissionManager().getGroups(player.getName()))
+						groupNames.add(group.getName());
+					return groupNames;
 				case bPermissions:
 					return Permissions.getWorldPermissionsManager().getPermissionSet(player.getWorld()).getGroups(player);
 				case PermissionsBukkit:
-					List<String> groupNames = new ArrayList<String>();
+					List<String> groupStrings = new ArrayList<String>();
 					for(Group group : ((PermissionsPlugin)permissionsPlugin).getGroups(player.getName()))
-						groupNames.add(group.getName());
-					return groupNames;
+						groupStrings.add(group.getName());
+					return groupStrings;
 				default: return emptyList;
 			}
 		}
 		public boolean hasPermission(Player player, String permission)
 		{
-			if(player == null) return false;
 			switch(this)
 			{
-				case PermissionsEx:		return ((PermissionHandler)permissionsPlugin).has(player, permission);
+				case PermissionsEx:		return ru.tehkode.permissions.bukkit.PermissionsEx.getPermissionManager().has(player, permission);
 				case PermissionsBukkit:	return ((PermissionsPlugin)permissionsPlugin).getPlayerInfo(player.getName()).getPermissions().containsKey(permission);
+				default:				return player.hasPermission(permission);
 			}
-			return player.hasPermission(permission);
 		}
 	}
 	
