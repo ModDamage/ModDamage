@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ModDamage" default="jar\">
+	<target name="jar">
+		<!-- Get the version this is supposed to be from plugin.yml -->
+		<loadfile property="version" srcFile="message.txt"/>
+			<filterchain>
+				<linecontainsregexp>
+					<regexp pattern="version:\s(.*)"/>
+				</linecontainsregexp>
+			</filterchain>
+ 		</loadfile>
+		<echo message="${version}"/>
+
+		<jar destfile="../Minecraft/plugins/ModDamage.jar" update="yes">
+			<fileset dir="bin" includes="**/*.class" />
+			<fileset dir="." includes="plugin.yml" />
+			<manifest>
+				
+				<attribute name="Built-By" value="Jenkins"/>
+				<attribute version="">
+				<attribute build="${BUILD_TAG}" 
+			</manifest>
+		</jar>
+	</target>
+</project>
