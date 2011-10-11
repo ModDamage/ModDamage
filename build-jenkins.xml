@@ -1,24 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="ModDamage" default="jar\">
+<project name="ModDamage" default="jar">
 	<target name="jar">
-		<!-- Get the version this is supposed to be from plugin.yml -->
-		<loadfile property="version" srcFile="message.txt"/>
+		
+		<!-- Get the version from the plugin.yml -->
+		<loadfile property="rawversion" srcfile="plugin.yml">      
 			<filterchain>
 				<linecontainsregexp>
-					<regexp pattern="version:\s(.*)"/>
+					<regexp pattern="version:\s"/>
 				</linecontainsregexp>
 			</filterchain>
- 		</loadfile>
-		<echo message="${version}"/>
-
+		</loadfile>
+		<echo message="${rawversion}"/>
+		
+		<!-- Neat little script from StackOverflow - this lets us strip out the YAML key from out version line. -->
+		<scriptdef name="substring" language="javascript">
+			<attribute name="text" />
+			<attribute name="start" />
+			<attribute name="end" />
+			<attribute name="property" />
+			<![CDATA[
+			var text = attributes.get("text");
+			var start = attributes.get("start");
+			var end = attributes.get("end") || text.length();
+			project.setProperty(attributes.get("property"), text.substring(start, end));
+			]]>
+		</scriptdef>
+		<substring text="${rawversion}" start="9" property="version" />
+		
+		<!-- Now build the JAR!? -->
 		<jar destfile="../Minecraft/plugins/ModDamage.jar" update="yes">
-			<fileset dir="bin" includes="**/*.class" />
-			<fileset dir="." includes="plugin.yml" />
+			<fileset dir="bin" includes="**/*.class"/>
+			<fileset dir="." includes="plugin.yml"/>
 			<manifest>
-				
 				<attribute name="Built-By" value="Jenkins"/>
-				<attribute version="">
-				<attribute build="${BUILD_TAG}" 
+				<attribute name="Version" value="${version}"/>
+				<attribute name="Build" value="${BUILD_TAG}"/> 
 			</manifest>
 		</jar>
 	</target>

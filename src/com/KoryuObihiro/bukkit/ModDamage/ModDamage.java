@@ -34,8 +34,8 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RegionAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.WorldAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Message.DynamicMessage;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 /**
  * "ModDamage" for Bukkit
