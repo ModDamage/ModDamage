@@ -22,7 +22,7 @@ public class EntityBiome extends EntityConditionalStatement
 	
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo)
-	{ 	
+	{ 
 		if(entityReference.getEntity(eventInfo) != null)
 			return biomes.contains(entityReference.getEntity(eventInfo).getLocation().getBlock().getBiome());
 		return false;

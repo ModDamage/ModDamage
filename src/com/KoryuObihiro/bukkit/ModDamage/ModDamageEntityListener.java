@@ -94,7 +94,7 @@ public class ModDamageEntityListener extends EntityListener
 			ProjectileEventInfo eventInfo = null;
 			if(projectile.getShooter() != null)
 				eventInfo = new ProjectileEventInfo(projectile.getShooter(), ModDamageElement.matchMobType(projectile.getShooter()), projectile, rangedElement, 0);
-			else eventInfo = new ProjectileEventInfo(null, ModDamageElement.DISPENSER, projectile, rangedElement, 0);
+			else eventInfo = new ProjectileEventInfo(projectile.getWorld(), ModDamageElement.DISPENSER, projectile, rangedElement, 0);
 
 			for(Routine routine : ModDamage.routineManager.getRoutines(EventType.ProjectileHit))
 				routine.run(eventInfo);
@@ -136,21 +136,32 @@ public class ModDamageEntityListener extends EntityListener
 		if(event != null)
 		{
 			LivingEntity ent_damaged = (LivingEntity)event.getEntity();
-		    if(!ModDamageElement.matchNonlivingElement(event.getCause()).equals(ModDamageElement.UNKNOWN))
-				return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.matchNonlivingElement(event.getCause()), null, null, event.getDamage());
-			else if(event instanceof EntityDamageByEntityEvent)
+			if(event instanceof EntityDamageByEntityEvent)
 			{
 				EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
-				RangedElement rangedElement = RangedElement.matchElement(event_EE.getDamager());
-				if(rangedElement != null)
+				if(event_EE.getDamager() instanceof Projectile)
 				{
 					Projectile projectile = (Projectile)event_EE.getDamager();
+					RangedElement rangedElement = RangedElement.matchElement(projectile);
 					if(projectile.getShooter() != null)
 						return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), projectile.getShooter(), ModDamageElement.matchMobType(projectile.getShooter()), projectile, rangedElement, event.getDamage());
-					else if(event_EE.getCause().equals(DamageCause.ENTITY_ATTACK))
+					else if(event_EE.getCause().equals(DamageCause.PROJECTILE))//FIXME Necessary?
 		    			return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.DISPENSER, projectile, rangedElement, event.getDamage());
 				}
 				else if(event_EE.getDamager() != null) return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), (LivingEntity)event_EE.getDamager(), ModDamageElement.matchMobType((LivingEntity)event_EE.getDamager()), null, null, event.getDamage());
+			}
+			else
+			{
+				ModDamageElement primaryElement = ModDamageElement.matchNonlivingElement(event.getCause());
+			    switch(primaryElement)
+			    {
+			    	case UNKNOWN:
+			    	case PROJECTILE:
+			    		ModDamage.log.severe(primaryElement.name() + " element not caught!");
+						break;
+					default:
+						return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, primaryElement, null, null, event.getDamage());
+			    }
 			}
 		}
 	    return null;

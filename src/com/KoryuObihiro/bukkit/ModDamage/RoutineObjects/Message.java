@@ -171,6 +171,8 @@ public class Message extends NestedRoutine
 				}
 				else
 				{
+					
+					
 					message = integerMatcher.group(1) + "INVALID" + integerMatcher.group(3);
 					integerMatcher = integerReplacePattern.matcher(message);
 				}

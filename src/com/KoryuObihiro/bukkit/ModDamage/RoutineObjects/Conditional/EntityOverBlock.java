@@ -48,7 +48,7 @@ public class EntityOverBlock extends EntityConditionalStatement
 	{
 		if(matcher != null)
 		{
-			HashSet<Material> matchedItems = new HashSet<Material>(ModDamage.matchItemAlias(matcher.group(3)));
+			HashSet<Material> matchedItems = new HashSet<Material>(ModDamage.matchMaterialAlias(matcher.group(3)));
 			if(!matchedItems.isEmpty() && EntityReference.isValid(matcher.group(2)))		
 				return new EntityOverBlock(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), matchedItems);
 		}

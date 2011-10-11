@@ -42,7 +42,7 @@ public enum ModDamageElement
 				COW(ANIMAL, CreatureType.COW),
 				PIG(ANIMAL, CreatureType.PIG),
 				SHEEP(ANIMAL, CreatureType.SHEEP),
-				SNOW_GOLEM(ANIMAL),//FIXME
+				SNOW_GOLEM(ANIMAL),//FIXME Not in the right place?
 				SQUID(ANIMAL, CreatureType.SQUID),
 				WOLF(ANIMAL, CreatureType.WOLF),
 					WOLF_WILD(WOLF, CreatureType.WOLF),
@@ -91,7 +91,10 @@ public enum ModDamageElement
 				BURN(NATURE),
 				LAVA(NATURE),
 				LIGHTNING(NATURE),
+				PROJECTILE(NATURE),
+				STARVATION(NATURE),
 				SUFFOCATION(NATURE),
+				SUICIDE(NATURE),
 				VOID(NATURE),
 			
 			TRAP(NONLIVING),
@@ -123,7 +126,7 @@ public enum ModDamageElement
 	
 	public static ModDamageElement matchNonlivingElement(DamageCause cause)
 	{
-		switch(cause) 
+		switch(cause)
 		{
 			case BLOCK_EXPLOSION:   return EXPLOSION_BLOCK;
 			case CONTACT: 			return CACTUS;
@@ -134,7 +137,10 @@ public enum ModDamageElement
 			case FIRE_TICK:			return BURN;
 			case LAVA: 				return LAVA;
 			case LIGHTNING: 		return LIGHTNING;
+			case PROJECTILE:		return PROJECTILE;
+			case STARVATION:		return STARVATION;
 			case SUFFOCATION: 		return SUFFOCATION;
+			case SUICIDE:			return SUICIDE;
 			case VOID: 				return VOID;
 			default: 				return UNKNOWN;//shouldn't happen
 		}
@@ -159,7 +165,7 @@ public enum ModDamageElement
 	public static ModDamageElement matchMobType(LivingEntity entity) throws IllegalArgumentException
 	{
 		if(entity == null) throw new IllegalArgumentException("Entity cannot be null for matchMobType method!");
-		if(entity instanceof Slime)	
+		if(entity instanceof Slime)
 		{
 			switch(((Slime)entity).getSize())
 			{
@@ -177,6 +183,7 @@ public enum ModDamageElement
 				if(entity instanceof Chicken) 	return CHICKEN;
 				if(entity instanceof Cow) 		return COW; 
 				if(entity instanceof Pig) 		return PIG; 
+				//if(entity instanceof Mooshrom)	return MOOSHROM; TODO
 				if(entity instanceof Sheep) 	return SHEEP;
 				if(entity instanceof Wolf)
 				{
@@ -204,7 +211,11 @@ public enum ModDamageElement
 				if(entity instanceof Squid) 	return SQUID;
 		}
 		if(entity instanceof Flying) 
+		{
 			if(entity instanceof Ghast)			return GHAST;
+			//if(entity instanceof Blaze)			return BLAZE; TODO
+		}
+			
 		if(entity instanceof HumanEntity)		return (entity instanceof Player)?PLAYER:NPC;
 		ModDamage.log.severe("[ModDamage] Uncaught mob type " + entity.getClass().getName() + " for an event!");
 		return UNKNOWN;

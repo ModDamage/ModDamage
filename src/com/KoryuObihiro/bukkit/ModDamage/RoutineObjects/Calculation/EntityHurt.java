@@ -5,6 +5,8 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
@@ -24,9 +26,13 @@ public class EntityHurt extends LivingEntityCalculationRoutine
 		Entity targetEntity = entityReference.getEntity(eventInfo);
 		if(entityReference.getEntity(eventInfo) != null && entityReference.getEntity(eventInfo) instanceof LivingEntity)
 		{
+			LivingEntity entity = ((LivingEntity)targetEntity);//XXX Need to allocate this?
 			if(entityReference.getEntityOther(eventInfo) != null)
-				((LivingEntity)targetEntity).damage(value.getValue(eventInfo), entityReference.getEntityOther(eventInfo));
-			else ((LivingEntity)targetEntity).damage(value.getValue(eventInfo));
+			{
+				int damageValue = value.getValue(eventInfo);
+				TargetEventInfo.server.getPluginManager().callEvent( new EntityDamageByEntityEvent(entityReference.getEntityOther(eventInfo), entity, DamageCause.CUSTOM, damageValue));
+				entity.damage(damageValue);
+			}
 		}
 	}
 	

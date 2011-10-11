@@ -31,7 +31,7 @@ public class PlayerWielding extends PlayerConditionalStatement
 	{
 		if(matcher != null)
 		{
-			List<Material> matchedItems = ModDamage.matchItemAlias(matcher.group(3));
+			List<Material> matchedItems = ModDamage.matchMaterialAlias(matcher.group(3));
 			if(!matchedItems.isEmpty())
 				return new PlayerWielding(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), matchedItems);
 		}

@@ -29,7 +29,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ArmorAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.BiomeAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ElementAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.GroupAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ItemAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MaterialAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RegionAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
@@ -204,7 +204,7 @@ public class ModDamage extends JavaPlugin
 	private static BiomeAliaser biomeAliaser = new BiomeAliaser();
 	private static ElementAliaser elementAliaser = new ElementAliaser();
 	private static GroupAliaser groupAliaser = new GroupAliaser();
-	private static ItemAliaser itemAliaser = new ItemAliaser();
+	private static MaterialAliaser itemAliaser = new MaterialAliaser();
 	private static MessageAliaser messageAliaser = new MessageAliaser();
 	private static RegionAliaser regionAliaser = new RegionAliaser();
 	private static RoutineAliaser routineAliaser = new RoutineAliaser();
@@ -763,7 +763,7 @@ public class ModDamage extends JavaPlugin
 	public static List<ArmorSet> matchArmorAlias(String key){ return armorAliaser.matchAlias(key);}
 	public static List<Biome> matchBiomeAlias(String key){ return biomeAliaser.matchAlias(key);}
 	public static List<ModDamageElement> matchElementAlias(String key){ return elementAliaser.matchAlias(key);}
-	public static List<Material> matchItemAlias(String key){ return itemAliaser.matchAlias(key);}
+	public static List<Material> matchMaterialAlias(String key){ return itemAliaser.matchAlias(key);}
 	public static List<String> matchGroupAlias(String key){ return groupAliaser.matchAlias(key);}
 	public static List<DynamicMessage> matchMessageAlias(String key){ return messageAliaser.matchAlias(key);}
 	public static List<String> matchRegionAlias(String key){ return regionAliaser.matchAlias(key);}

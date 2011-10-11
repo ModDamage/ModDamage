@@ -25,7 +25,7 @@ public class PlayerWieldSwitch extends LivingEntitySwitchRoutine<List<Material>>
 	@Override
 	protected boolean compare(List<Material> info_1, List<Material> info_2){ return info_2.contains(info_1.get(0));}
 	@Override
-	protected List<Material> matchCase(String switchCase){ return ModDamage.matchItemAlias(switchCase);}
+	protected List<Material> matchCase(String switchCase){ return ModDamage.matchMaterialAlias(switchCase);}
 	
 	public static void register()
 	{

@@ -38,7 +38,7 @@ public class EntityDropItem extends EntityCalculationRoutine<Entity>
 	{
 		if(matcher != null && match != null)
 		{
-			List<Material> materials =  ModDamage.matchItemAlias(matcher.group(2));
+			List<Material> materials =  ModDamage.matchMaterialAlias(matcher.group(2));
 			if(!materials.isEmpty() && EntityReference.isValid(matcher.group(1)))
 				return new EntityDropItem(matcher.group(), EntityReference.match(matcher.group(1)), materials, match);
 		}

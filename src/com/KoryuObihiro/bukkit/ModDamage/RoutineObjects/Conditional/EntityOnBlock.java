@@ -34,7 +34,7 @@ public class EntityOnBlock extends EntityConditionalStatement
 	{
 		if(matcher != null)
 		{
-			List<Material> matchedItems = ModDamage.matchItemAlias(matcher.group(3));
+			List<Material> matchedItems = ModDamage.matchMaterialAlias(matcher.group(3));
 			if(!matchedItems.isEmpty() && EntityReference.isValid(matcher.group(2)))		
 				return new EntityOnBlock(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), matchedItems);
 		}

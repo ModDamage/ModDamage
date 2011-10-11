@@ -41,20 +41,34 @@ public class TargetEventInfo
 		if(entity instanceof Player)
 		{
 			Player player_target = (Player)entity;
-			materialInHand_target = player_target.getItemInHand().getType();
-			armorSet_target = new ArmorSet(player_target);
-			name_target = player_target.getName();
-			groups_target = ExternalPluginManager.getPermissionsManager().getGroups(player_target);
+			this.materialInHand_target = player_target.getItemInHand().getType();
+			this.armorSet_target = new ArmorSet(player_target);
+			this.name_target = player_target.getName();
+			this.groups_target = ExternalPluginManager.getPermissionsManager().getGroups(player_target);
 		}
 		else
 		{
-			materialInHand_target = null;
-			armorSet_target = null;
-			name_target = null;
-			groups_target = ModDamage.emptyList;
+			this.materialInHand_target = null;
+			this.armorSet_target = null;
+			this.name_target = null;
+			this.groups_target = ModDamage.emptyList;
 		}
 		
-		world = entity.getWorld();	
-		environment = world.getEnvironment();
+		this.world = entity.getWorld();	
+		this.environment = world.getEnvironment();
+	}
+	
+	public TargetEventInfo(World world, ModDamageElement eventElement_target, int eventValue) 
+	{
+		this.eventValue = eventValue;
+		this.entity_target = null;
+		this.element_target = eventElement_target;
+		this.materialInHand_target = null;
+		this.armorSet_target = null;
+		this.name_target = null;
+		this.groups_target = ModDamage.emptyList;
+		
+		this.world = world;	
+		this.environment = world.getEnvironment();
 	}
 }

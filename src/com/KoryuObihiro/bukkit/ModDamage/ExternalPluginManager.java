@@ -36,12 +36,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Binomial;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Comparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBiome;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityDrowning;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityExposedToSky;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityFalling;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnBlock;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnFire;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTypeEvaluation;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityUnderwater;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventHasRangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventRangedElementEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
@@ -99,13 +96,10 @@ public class ExternalPluginManager
 		//Entity
 		EntityBiome.register();
 		EntityDrowning.register();
-		EntityExposedToSky.register();
 		EntityFalling.register();
 		EntityOnBlock.register();
-		EntityOnFire.register();
 		EntityRegion.register();
 		EntityTypeEvaluation.register();
-		EntityUnderwater.register();
 		EventWorldEvaluation.register();
 		PlayerGroupEvaluation.register();
 		PlayerPermissionEvaluation.register();
@@ -145,11 +139,6 @@ public class ExternalPluginManager
 	private static mcMMO mcMMOplugin;
 	public static mcMMO getMcMMOPlugin()
 	{
-		/* TODO 0.9.6 - make routines outta these.
-		mcMMOplugin.inSameParty(null, null);
-		mcMMO.inParty(null);
-		mcMMO.getPartyName(null);//aliases?
-		*/
 		return mcMMOplugin;
 	}
 	
@@ -189,7 +178,7 @@ public class ExternalPluginManager
 			{
 				case PermissionsEx:		return ru.tehkode.permissions.bukkit.PermissionsEx.getPermissionManager().has(player, permission);
 				case PermissionsBukkit:	return ((PermissionsPlugin)permissionsPlugin).getPlayerInfo(player.getName()).getPermissions().containsKey(permission);
-				default:				return player.hasPermission(permission);
+				default:				return player.hasPermission(permission) || player.isOp();
 			}
 		}
 	}
