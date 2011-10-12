@@ -7,21 +7,8 @@
 	<property name="buildFolder" location="bin"/>
 	<property name="dependencyFolder" location="src/resource"/>
 	
-	<!-- Neat little script from StackOverflow - this lets us strip out the YAML key from out version line. -->
-	<scriptdef name="substring" language="javascript">
-		<attribute name="text" />
-		<attribute name="start" />
-		<attribute name="end" />
-		<attribute name="property" />
-		<![CDATA[
-		var text = attributes.get("text");
-		var start = attributes.get("start");
-		var end = attributes.get("end") || text.length();
-		project.setProperty(attributes.get("property"), text.substring(start, end));
-		]]>
-	</scriptdef>
-	
 <!-- END PREDEFINED -->	
+	
 	<target name="init">
 		<tstamp/>
 	    <mkdir dir="${buildFolder}"/>
@@ -38,6 +25,7 @@
 	</target>
 
 	<target name="jar" depends="compile" description="Pack JAR file">
+		
 		<!-- Get the version from the plugin.yml -->
 		<loadfile property="rawversion" srcfile="plugin.yml">    
 			<filterchain>
@@ -46,10 +34,8 @@
 				</linecontains>
 			</filterchain>  
 		</loadfile>
-		<substring text="${rawversion}" start="9" property="version" />
 		
 		<echo message="Building JAR for version ${version}"/>
-		
 		
 		<!-- Now put the JAR together! -->
 		<jar destfile="${env.JOB_NAME}.jar" update="no">

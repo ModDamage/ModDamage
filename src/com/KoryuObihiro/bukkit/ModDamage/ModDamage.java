@@ -1,6 +1,8 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -235,7 +237,7 @@ public class ModDamage extends JavaPlugin
 	}
 
 	@Override
-	public void onDisable(){ log.info("[" + getDescription().getName() + "] disabled.");}
+	public void onDisable(){ log.info(logPrepend() + "disabled.");}
 
 ////COMMAND PARSING ////
 	@Override
@@ -282,7 +284,7 @@ public class ModDamage extends JavaPlugin
 								if(fromConsole) reload(reloadingAll);
 								else if(ExternalPluginManager.getPermissionsManager().hasPermission(player, "moddamage.reload")) 
 								{
-									log.info("[" + getDescription().getName() + "] Reload initiated by user " + player.getName() + "...");
+									log.info(logPrepend() + "Reload initiated by user " + player.getName() + "...");
 									reload(reloadingAll);
 									switch(state_plugin)
 									{
@@ -323,7 +325,7 @@ public class ModDamage extends JavaPlugin
 							if(fromConsole)
 							{
 								sendLogRecord(null, 9001);
-								log.info("[" + getDescription().getName() + "] Done.");
+								log.info(logPrepend() + "Done.");
 							}
 							else if(args.length == 1)
 							{
@@ -350,7 +352,7 @@ public class ModDamage extends JavaPlugin
 						}
 					}
 					else if(player == null)
-						log.info("[" + getDescription().getName() + "] ModDamage must be enabled to use that command.");
+						log.info(logPrepend() + "ModDamage must be enabled to use that command.");
 					else player.sendMessage(ModDamageString(ChatColor.RED) + " ModDamage must be enabled to use that command.");
 					return true;
 				}
@@ -361,7 +363,8 @@ public class ModDamage extends JavaPlugin
 	
 ///// HELPER FUNCTIONS ////
 	public static String ModDamageString(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "]";}
-
+	public static String logPrepend(){ return "[ModDamage] ";}
+	
 //// PLUGIN CONFIGURATION ////
 	private void setPluginStatus(Player player, boolean sentEnable) 
 	{
@@ -370,12 +373,12 @@ public class ModDamage extends JavaPlugin
 			if(isEnabled)
 			{
 				if(player != null) player.sendMessage(ModDamageString(ChatColor.RED) + " Already enabled!");
-				else log.info("[" + getDescription().getName() + "] Already enabled!");
+				else log.info(logPrepend() + "Already enabled!");
 			}
 			else
 			{
 				isEnabled = true;
-				log.info("[" + getDescription().getName() + "] Plugin enabled.");
+				log.info(logPrepend() + "Plugin enabled.");
 				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Plugin enabled.");
 			}
 		}
@@ -384,13 +387,13 @@ public class ModDamage extends JavaPlugin
 			if(isEnabled)
 			{
 				isEnabled = false;
-				log.info("[" + getDescription().getName() + "] Plugin disabled.");
+				log.info(logPrepend() + "Plugin disabled.");
 				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Plugin disabled.");
 			}
 			else
 			{
 				if(player != null) player.sendMessage(ModDamageString(ChatColor.RED) + " Already disabled!");
-				else log.info("[" + getDescription().getName() + "] Already disabled!");
+				else log.info(logPrepend() + "Already disabled!");
 			}
 		}
 	}
@@ -436,17 +439,45 @@ public class ModDamage extends JavaPlugin
 		configStrings_ingame.clear();
 		configStrings_console.clear();
 		
-		if(reloadingAll)
-		{		
-			ExternalPluginManager.reload(this);
-			
-			if(ExternalPluginManager.getPermissionsPlugin() != null)
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [" + ExternalPluginManager.getPermissionsPlugin().getDescription().getName() + " v" + ExternalPluginManager.getPermissionsPlugin().getDescription().getVersion() + " active]", LoadState.SUCCESS);
-			else ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] " + this.getDescription().getVersion() + " enabled [Permissions plugin not found]", LoadState.NOT_LOADED);
-			if(ExternalPluginManager.getRegionsPlugin() != null)
+		//See if we have a Jenkins build number appended to the plugin.yml (part of Koryu's build process)
+		String jenkinsLine = null;
+		BufferedReader reader = null;
+		try
+		{
+	        reader = new BufferedReader(new InputStreamReader(ModDamage.class.getResourceAsStream("/plugin.yml")));  
+	        
+	        jenkinsLine = reader.readLine();
+	        while(jenkinsLine != null)
+	        {
+	        	if(jenkinsLine.contains("jenkins"))
+	        	{
+	        		jenkinsLine = jenkinsLine.substring(9);
+	        		break;
+	        	}
+	        	jenkinsLine = reader.readLine();
+	        }
+		}
+		catch (Exception e){ e.printStackTrace();}
+		finally
+		{
+			if(reader != null)
 			{
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] Region conditionals enabled - using " + ExternalPluginManager.getRegionsPlugin().getDescription().getName() + " v" + ExternalPluginManager.getRegionsPlugin().getDescription().getVersion(), LoadState.SUCCESS);
+				try{ reader.close();}
+				catch (Exception e){e.printStackTrace();}
 			}
+		}
+        
+        
+		ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] " + this.getDescription().getVersion() + (jenkinsLine != null?" (test build " + jenkinsLine + ")":"") +" loading...", LoadState.SUCCESS);
+		
+		if(reloadingAll)
+		{
+			ExternalPluginManager.reload(this);
+			if(ExternalPluginManager.getPermissionsPlugin() != null)
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] Permissions: " + ExternalPluginManager.getPermissionsPlugin().getDescription().getName() + " v" + ExternalPluginManager.getPermissionsPlugin().getDescription().getVersion(), LoadState.SUCCESS);
+			else ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] No permissions plugin found.", LoadState.NOT_LOADED);
+			if(ExternalPluginManager.getRegionsPlugin() != null)
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] Regions: " + ExternalPluginManager.getRegionsPlugin().getDescription().getName() + " v" + ExternalPluginManager.getRegionsPlugin().getDescription().getVersion(), LoadState.SUCCESS);
 			else ModDamage.addToLogRecord(DebugSetting.VERBOSE, "[" + this.getDescription().getName() + "] No regional plugins found.", LoadState.NOT_LOADED);
 			
 		//Build check
@@ -457,7 +488,7 @@ public class ModDamage extends JavaPlugin
 				if(Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
 					addToLogRecord(DebugSetting.QUIET, "Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.", LoadState.FAILURE);
 			}
-			else addToLogRecord(DebugSetting.QUIET, "[" + getDescription().getName() + "] Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.", LoadState.FAILURE);
+			else addToLogRecord(DebugSetting.QUIET, logPrepend() + "Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.", LoadState.FAILURE);
 		}
 		
 		try{ config.load();}
@@ -486,16 +517,16 @@ public class ModDamage extends JavaPlugin
 			switch(debugSetting)
 			{
 				case QUIET: 
-					log.info("[" + getDescription().getName()+ "] \"Quiet\" mode active - suppressing noncritical debug messages and warnings.");
+					log.info(logPrepend() + "\"Quiet\" mode active - suppressing noncritical debug messages and warnings.");
 					break;
 				case NORMAL: 
-					log.info("[" + getDescription().getName()+ "] Debugging active.");
+					log.info(logPrepend() + "Debugging active.");
 					break;
 				case VERBOSE: 
-					log.info("[" + getDescription().getName()+ "] Verbose debugging active.");
+					log.info(logPrepend() + "Verbose debugging active.");
 					break;
 				default: 
-					log.info("[" + getDescription().getName()+ "] Debug string not recognized - defaulting to \"normal\" settings.");
+					log.info(logPrepend() + "Debug string not recognized - defaulting to \"normal\" settings.");
 					debugSetting = DebugSetting.NORMAL;
 					break;
 			}
@@ -551,7 +582,7 @@ public class ModDamage extends JavaPlugin
 	//single-property config
 		negative_Heal = config.getBoolean("negativeHeal", false);
 		if(debugSetting.shouldOutput(negative_Heal?DebugSetting.NORMAL:DebugSetting.VERBOSE))
-			log.info("[" + getDescription().getName()+ "] Negative-damage healing " + (negative_Heal?"en":"dis") + "abled.");
+			log.info(logPrepend() + "Negative-damage healing " + (negative_Heal?"en":"dis") + "abled.");
 		
 		config.load(); //Discard any changes made to the file by the above reads.
 		
@@ -568,12 +599,12 @@ public class ModDamage extends JavaPlugin
 				sendThis = "Finished loading configuration.";
 				break;
 		}
-		log.info("[" + getDescription().getName() + "] " + sendThis);
+		log.info(logPrepend() + "" + sendThis);
 	}
 
 	private void writeDefaults() 
 	{
-		addToLogRecord(DebugSetting.QUIET, "[" + getDescription().getName() + "] No configuration file found! Writing a blank config...", LoadState.NOT_LOADED);
+		addToLogRecord(DebugSetting.QUIET, logPrepend() + "No configuration file found! Writing a blank config...", LoadState.NOT_LOADED);
 		config.setHeader("#Auto-generated config");
 		config.setProperty("debugging", "normal");
 		for(EventType eventType : EventType.values())
@@ -588,7 +619,7 @@ public class ModDamage extends JavaPlugin
 			config.setProperty("Aliases.Item." + toolType, combinations);
 		}
 		config.save();
-		log.severe("[" + getDescription().getName() + "] Auto-generated config.yml. :D");
+		log.severe(logPrepend() + "Auto-generated config.yml. :D");
 	}
 	
 	//TODO 0.9.7 Implement a reload hook for other plugins, make /md r reload routine library.
@@ -602,7 +633,7 @@ public class ModDamage extends JavaPlugin
 			if(!debugSetting.equals(setting))
 			{
 				String sendThis = "Changed debug from " + debugSetting.name().toLowerCase() + " to " + setting.name().toLowerCase();
-				log.info("[ModDamage] " + sendThis);
+				log.info(logPrepend() + sendThis);
 				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " " + sendThis);
 				debugSetting = setting;
 				config.setProperty("debugging", debugSetting.name().toLowerCase());
@@ -610,11 +641,11 @@ public class ModDamage extends JavaPlugin
 			}
 			else
 			{
-				log.info("[ModDamage] Debug already set to " + setting.name().toLowerCase() + "!");
+				log.info(logPrepend() + "Debug already set to " + setting.name().toLowerCase() + "!");
 				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Debug already set to " + setting.name().toLowerCase() + "!");
 			}
 		}
-		else log.severe("[ModDamage] Error: bad debug setting. Valid settings: normal, quiet, verbose");//shouldn't happen
+		else log.severe(logPrepend() + "Error: bad debug setting. Valid settings: normal, quiet, verbose");//shouldn't happen
 	}
 	
 	private static void toggleDebugging(Player player) 
@@ -697,7 +728,7 @@ public class ModDamage extends JavaPlugin
 	{
 		if(player == null)
 		{
-			String printString = "[ModDamage] Complete log record for this server:";
+			String printString = logPrepend() + "Complete log record for this server:";
 			for(String configString : configStrings_console)
 				printString += "\n" + configString;
 			log.info(printString);
