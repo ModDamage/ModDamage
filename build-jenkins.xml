@@ -1,41 +1,72 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="ModDamage" default="jar">
-	<target name="jar">
-		
+<project name="Jenkins-BukkitPlugin" default="jar">
+	
+<!-- START PREDEFINED -->
+	<property environment="env"/>
+	
+	<property name="sourceFolder" location="src"/>
+	<property name="buildFolder" location="bin"/>
+	<property name="dependencyFolder" location="src/resource"/>
+	
+	<!-- Neat little script from StackOverflow - this lets us strip out the YAML key from out version line. -->
+	<scriptdef name="substring" language="javascript">
+		<attribute name="text" />
+		<attribute name="start" />
+		<attribute name="end" />
+		<attribute name="property" />
+		<![CDATA[
+		var text = attributes.get("text");
+		var start = attributes.get("start");
+		var end = attributes.get("end") || text.length();
+		project.setProperty(attributes.get("property"), text.substring(start, end));
+		]]>
+	</scriptdef>
+	
+<!-- END PREDEFINED -->	
+	<target name="init">
+		<tstamp/>
+	    <mkdir dir="${buildFolder}"/>
+	</target>
+
+	<target name="compile" depends="init" description="Compile class files">
+		<echo message="Compiling source into ${buildFolder}..."/>
+		<path id="project.classpath">
+	        <fileset dir="${dependencyFolder}">
+	            <include name="*.jar"/>
+	        </fileset>
+	    </path>
+		<javac srcdir="${sourceFolder}" destdir="${buildFolder}" classpathref="project.classpath"/>
+	</target>
+
+	<target name="jar" depends="compile" description="Pack JAR file">
 		<!-- Get the version from the plugin.yml -->
-		<loadfile property="rawversion" srcfile="plugin.yml">      
+		<loadfile property="rawversion" srcfile="plugin.yml">    
 			<filterchain>
-				<linecontainsregexp>
-					<regexp pattern="version:\s"/>
-				</linecontainsregexp>
-			</filterchain>
+				<linecontains>
+					<contains value="version"/>
+				</linecontains>
+			</filterchain>  
 		</loadfile>
-		<echo message="${rawversion}"/>
-		
-		<!-- Neat little script from StackOverflow - this lets us strip out the YAML key from out version line. -->
-		<scriptdef name="substring" language="javascript">
-			<attribute name="text" />
-			<attribute name="start" />
-			<attribute name="end" />
-			<attribute name="property" />
-			<![CDATA[
-			var text = attributes.get("text");
-			var start = attributes.get("start");
-			var end = attributes.get("end") || text.length();
-			project.setProperty(attributes.get("property"), text.substring(start, end));
-			]]>
-		</scriptdef>
 		<substring text="${rawversion}" start="9" property="version" />
 		
-		<!-- Now build the JAR!? -->
-		<jar destfile="../Minecraft/plugins/ModDamage.jar" update="yes">
-			<fileset dir="bin" includes="**/*.class"/>
+		<echo message="Building JAR for version ${version}"/>
+		
+		
+		<!-- Now put the JAR together! -->
+		<jar destfile="${env.JOB_NAME}.jar" update="no">
+			<fileset dir="${buildFolder}" includes="**/*.class"/>
 			<fileset dir="." includes="plugin.yml"/>
 			<manifest>
+				<attribute name="Job" value="${env.JOB_NAME}"/>
 				<attribute name="Built-By" value="Jenkins"/>
-				<attribute name="Version" value="${version}"/>
-				<attribute name="Build" value="${BUILD_TAG}"/> 
+				<!-- <attribute name="Version" value="${version}"/> -->
+				<attribute name="Build" value="${env.BUILD_NUMBER}"/> 
 			</manifest>
 		</jar>
 	</target>
+
+	<target name="clean" depends="jar">
+		<echo message="Deleting .class files..."/>
+		<delete dir="${buildFolder}"/>
+	</target>
+	
 </project>
