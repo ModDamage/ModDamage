@@ -4,13 +4,13 @@ import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
 abstract public class EntityCalculationRoutine<T extends Entity> extends CalculationRoutine<T>
 {
 	protected final EntityReference entityReference;
-	public EntityCalculationRoutine(String configString, EntityReference entityReference, IntegerMatch match)
+	public EntityCalculationRoutine(String configString, EntityReference entityReference, DynamicInteger match)
 	{
 		super(configString, match);
 		this.entityReference = entityReference;

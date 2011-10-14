@@ -8,13 +8,13 @@ import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
 public class EntitySpawn extends EntityCalculationRoutine<Entity>
 {
 	final CreatureType creatureType;
-	public EntitySpawn(String configString, EntityReference entityReference, CreatureType creatureType, IntegerMatch match)
+	public EntitySpawn(String configString, EntityReference entityReference, CreatureType creatureType, DynamicInteger match)
 	{
 		super(configString, entityReference, match);
 		this.creatureType = creatureType;
@@ -33,7 +33,7 @@ public class EntitySpawn extends EntityCalculationRoutine<Entity>
 		CalculationRoutine.registerCalculation(EntitySpawn.class, Pattern.compile("(\\w+)effect\\.spawn\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static EntitySpawn getNew(Matcher matcher, IntegerMatch match)
+	public static EntitySpawn getNew(Matcher matcher, DynamicInteger match)
 	{
 		if(matcher != null && match != null)
 		{

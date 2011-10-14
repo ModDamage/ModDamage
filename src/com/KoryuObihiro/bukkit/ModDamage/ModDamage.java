@@ -78,7 +78,7 @@ public class ModDamage extends JavaPlugin
 	// -External calls to aliased sets of routines? But...EventInfo would be screwed up. :P
 
 	public static Server server;
-	public final int oldestSupportedBuild = 1085;
+	public final int oldestSupportedBuild = 1317;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	public final static Logger log = Logger.getLogger("Minecraft");
 	private static DebugSetting debugSetting = DebugSetting.NORMAL;

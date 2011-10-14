@@ -203,6 +203,7 @@ public class ExternalPluginManager
 							regionNames.add(region.getName());
 						return regionNames;
 					}
+					break;
 				case WorldGuard:
 					com.sk89q.worldguard.protection.managers.RegionManager wgManager = ((WorldGuardPlugin)regionsPlugin).getGlobalRegionManager().get(location.getWorld());
 					if(wgManager != null)
@@ -228,6 +229,7 @@ public class ExternalPluginManager
 							return regionNames;
 						}
 					}
+					break;
 				case WorldGuard:
 					for(World world : regionsPlugin.getServer().getWorlds())
 					{
@@ -235,6 +237,7 @@ public class ExternalPluginManager
 						if(wgManager != null)
 							return new ArrayList<String>(wgManager.getRegions().keySet());
 					}
+					break;
 			}
 			return emptyList;
 		}

@@ -13,7 +13,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.gmail.nossr50.mcMMO;
@@ -24,7 +24,7 @@ public class McMMOSetSkill extends McMMOCalculationRoutine
 {	
 	private static final Pattern setSkillPattern = Pattern.compile("(\\w+)effect\\.setskill\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	protected final SkillType skillType;
-	protected McMMOSetSkill(String configString, EntityReference entityReference, IntegerMatch value, SkillType skillType)
+	protected McMMOSetSkill(String configString, EntityReference entityReference, DynamicInteger value, SkillType skillType)
 	{
 		super(configString, value, entityReference);
 		this.skillType = skillType;
@@ -56,7 +56,7 @@ public class McMMOSetSkill extends McMMOCalculationRoutine
 			for(SkillType skill : SkillType.values())
 				if(matcher.group(2).equalsIgnoreCase(skill.name()))
 					skillType = skill;
-			IntegerMatch match = IntegerMatch.getNew(matcher.group(3));
+			DynamicInteger match = DynamicInteger.getNew(matcher.group(3));
 			if(EntityReference.isValid(matcher.group(1)) && match != null && skillType != null);
 				return new McMMOSetSkill(matcher.group(), EntityReference.match(matcher.group(1)), match, skillType);
 		}
@@ -79,7 +79,7 @@ public class McMMOSetSkill extends McMMOCalculationRoutine
 				LoadState[] stateMachine = { LoadState.SUCCESS };
 				List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);				
 				if(EntityReference.isValid(matcher.group(1)) & skillType != null & stateMachine.equals(LoadState.SUCCESS))
-					return new McMMOSetSkill(configString, EntityReference.match(matcher.group(1)), IntegerMatch.getNew(routines), skillType);
+					return new McMMOSetSkill(configString, EntityReference.match(matcher.group(1)), DynamicInteger.getNew(routines), skillType);
 			}
 		}
 		return null;

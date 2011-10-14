@@ -12,16 +12,16 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 
 abstract public class CalculationRoutine<AffectedClass> extends NestedRoutine 
 {
 	public static HashMap<Pattern, Method> registeredCalculations = new HashMap<Pattern, Method>();
 	protected final static Pattern calculationPattern = Pattern.compile("((?:([\\*\\w]+)effect\\." + Routine.statementPart + "))", Pattern.CASE_INSENSITIVE);
 	
-	protected final IntegerMatch value;
+	protected final DynamicInteger value;
 	
-	protected CalculationRoutine(String configString, IntegerMatch value)
+	protected CalculationRoutine(String configString, DynamicInteger value)
 	{
 		super(configString);
 		this.value = value;
@@ -64,7 +64,7 @@ abstract public class CalculationRoutine<AffectedClass> extends NestedRoutine
 					ModDamage.indentation--;
 					if(!stateMachine[0].equals(LoadState.FAILURE))
 					{
-						IntegerMatch match = IntegerMatch.getNew(routines);
+						DynamicInteger match = DynamicInteger.getNew(routines);
 						if(match != null)
 						{
 							try 
@@ -86,11 +86,11 @@ abstract public class CalculationRoutine<AffectedClass> extends NestedRoutine
 	{
 		try
 		{
-			Method method = calculationClass.getMethod("getNew", Matcher.class, IntegerMatch.class);
+			Method method = calculationClass.getMethod("getNew", Matcher.class, DynamicInteger.class);
 			if(method != null)//XXX Is this necessary?
 			{
 				assert(method.getReturnType().equals(calculationClass));
-				method.invoke(null, (Matcher)null, (IntegerMatch)null);
+				method.invoke(null, (Matcher)null, (DynamicInteger)null);
 				Routine.register(CalculationRoutine.registeredCalculations, method, syntax);
 			}
 			else ModDamage.log.severe("Method getNew not found for nested routine " + calculationClass.getName());

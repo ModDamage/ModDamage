@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicString;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class DivisionAddition extends Routine 
@@ -27,6 +27,6 @@ public class DivisionAddition extends Routine
 	
 	public static void register()
 	{
-		Routine.registerBase(DivisionAddition.class, Pattern.compile("div_add\\." + IntegerMatch.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(DivisionAddition.class, Pattern.compile("div_add\\." + DynamicString.dynamicPart, Pattern.CASE_INSENSITIVE));
 	}
 }

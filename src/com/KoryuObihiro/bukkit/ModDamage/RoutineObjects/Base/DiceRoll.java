@@ -4,12 +4,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class DiceRoll extends Chanceroutine 
 {
-	protected final IntegerMatch rollValue;
+	protected final DynamicInteger rollValue;
 	protected final boolean isAdditive;
 	protected DiceRoll(String configString)
 	{
@@ -17,7 +17,7 @@ public class DiceRoll extends Chanceroutine
 		this.rollValue = null;
 		this.isAdditive = false;
 	}
-	protected DiceRoll(String configString, IntegerMatch rollValue) 
+	protected DiceRoll(String configString, DynamicInteger rollValue) 
 	{
 		super(configString);
 		this.rollValue = rollValue;
@@ -39,7 +39,7 @@ public class DiceRoll extends Chanceroutine
 	
 	public static void register()
 	{
-		Routine.registerBase(DiceRoll.class, Pattern.compile("roll(\\." + IntegerMatch.dynamicIntegerPart + ")?", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(DiceRoll.class, Pattern.compile("roll(\\." + DynamicInteger.dynamicPart + ")?", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static DiceRoll getNew(Matcher matcher)
@@ -48,7 +48,7 @@ public class DiceRoll extends Chanceroutine
 		{
 			if(!matcher.group(1).equalsIgnoreCase(""))
 			{
-				IntegerMatch match1 = IntegerMatch.getNew(matcher.group(2));
+				DynamicInteger match1 = DynamicInteger.getNew(matcher.group(2));
 				if(match1 != null)
 					return new DiceRoll(matcher.group(), match1);
 			}

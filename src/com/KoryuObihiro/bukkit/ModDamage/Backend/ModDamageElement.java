@@ -99,7 +99,20 @@ public enum ModDamageElement
 			
 			TRAP(NONLIVING),
 				DISPENSER(TRAP);
-
+	
+	/* TODO 0.9.7
+	private String displayName = null;
+	
+	static
+	{
+		for(ModDamageElement element : ModDamageElement.values())
+			if(element.displayName == null)
+			{
+				if(element.)
+			}
+	}
+	*/
+	
 	private final ModDamageElement genericElement;
 	private final CreatureType creatureType;
 	ModDamageElement(ModDamageElement parentElement) 
@@ -131,6 +144,7 @@ public enum ModDamageElement
 			case BLOCK_EXPLOSION:   return EXPLOSION_BLOCK;
 			case CONTACT: 			return CACTUS;
 			case DROWNING: 			return DROWNING;
+			case ENTITY_ATTACK:		return LIVING;
 			case ENTITY_EXPLOSION: 	return EXPLOSION_ENTITY;
 			case FALL: 				return FALL;
 			case FIRE: 				return FIRE;

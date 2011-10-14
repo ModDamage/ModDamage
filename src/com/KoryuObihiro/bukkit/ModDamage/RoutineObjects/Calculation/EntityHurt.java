@@ -10,12 +10,12 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
 public class EntityHurt extends LivingEntityCalculationRoutine
 {
-	public EntityHurt(String configString, EntityReference entityReference, IntegerMatch match)
+	public EntityHurt(String configString, EntityReference entityReference, DynamicInteger match)
 	{
 		super(configString, entityReference, match);
 	}
@@ -44,7 +44,7 @@ public class EntityHurt extends LivingEntityCalculationRoutine
 		CalculationRoutine.registerCalculation(EntityHurt.class, Pattern.compile("(\\w+)effect\\.hurt", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static EntityHurt getNew(Matcher matcher, IntegerMatch match)
+	public static EntityHurt getNew(Matcher matcher, DynamicInteger match)
 	{
 		if(matcher != null && match != null && EntityReference.isValid(matcher.group(1)))
 			return new EntityHurt(matcher.group(), EntityReference.match(matcher.group(1)), match);

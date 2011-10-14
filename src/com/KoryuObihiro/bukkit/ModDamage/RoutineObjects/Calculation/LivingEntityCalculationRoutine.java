@@ -4,11 +4,11 @@ import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 
 abstract public class LivingEntityCalculationRoutine extends EntityCalculationRoutine<LivingEntity>
 {
-	public LivingEntityCalculationRoutine(String configString, EntityReference entityReference, IntegerMatch match)
+	public LivingEntityCalculationRoutine(String configString, EntityReference entityReference, DynamicInteger match)
 	{
 		super(configString, entityReference, match);
 	}

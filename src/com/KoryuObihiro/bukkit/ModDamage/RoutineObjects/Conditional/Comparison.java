@@ -7,16 +7,16 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
 public class Comparison extends ConditionalStatement
 {	
-	protected final IntegerMatch operand1;
-	protected final IntegerMatch operand2;
+	protected final DynamicInteger operand1;
+	protected final DynamicInteger operand2;
 	protected final ComparisonType comparisonType;
-	protected Comparison(boolean inverted, IntegerMatch operand1, IntegerMatch operand2, ComparisonType comparisonType)
+	protected Comparison(boolean inverted, DynamicInteger operand1, DynamicInteger operand2, ComparisonType comparisonType)
 	{
 		super(inverted);
 		this.operand1 = operand1;
@@ -64,14 +64,14 @@ public class Comparison extends ConditionalStatement
 	}
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Comparison.class, Pattern.compile("(!?)(?:" + IntegerMatch.dynamicIntegerPart + "\\." + comparisonPart + "\\." + IntegerMatch.dynamicIntegerPart + ")?", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Comparison.class, Pattern.compile("(!?)(?:" + DynamicInteger.dynamicPart + "\\." + comparisonPart + "\\." + DynamicInteger.dynamicPart + ")?", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Comparison getNew(Matcher matcher)
 	{
 		if(matcher != null)
 		{
-			IntegerMatch match1 = IntegerMatch.getNew(matcher.group(2)), match2 = IntegerMatch.getNew(matcher.group(4));
+			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(2)), match2 = DynamicInteger.getNew(matcher.group(4));
 			ComparisonType comparisonType = ComparisonType.match(matcher.group(3));
 			if(comparisonType != null && match1 != null && match2 != null)
 				return new Comparison(matcher.group(1).equalsIgnoreCase("!"), match1, match2, comparisonType);

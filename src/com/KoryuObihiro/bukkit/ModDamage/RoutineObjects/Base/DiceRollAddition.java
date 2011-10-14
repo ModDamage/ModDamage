@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicString;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class DiceRollAddition extends Chanceroutine 
@@ -27,6 +27,6 @@ public class DiceRollAddition extends Chanceroutine
 	
 	public static void register() 
 	{
-		Routine.registerBase(DiceRollAddition.class, Pattern.compile("roll\\." + IntegerMatch.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(DiceRollAddition.class, Pattern.compile("roll\\." + DynamicString.dynamicPart, Pattern.CASE_INSENSITIVE));
 	}
 }

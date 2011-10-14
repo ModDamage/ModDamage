@@ -12,7 +12,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicString;
 
 public class Message extends NestedRoutine 
 {
@@ -56,10 +56,10 @@ public class Message extends NestedRoutine
 			if(!messages.isEmpty())
 			{
 				Message routine = null;
-				if(EntityReference.isValid(matcher.group(1)))
-					routine = new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
-				else if(MessageType.match(matcher.group(1)) != null)
+				if(MessageType.match(matcher.group(1)) != null)
 					routine = new Message(matcher.group(), MessageType.match(matcher.group(1)), messages);
+				else if(EntityReference.isValid(matcher.group(1)))
+					routine = new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
 				if(routine != null) return routine;
 			}
 			else ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message content \"" + matcher.group(3) + "\" is invalid.", LoadState.SUCCESS);
@@ -79,10 +79,7 @@ public class Message extends NestedRoutine
 				for(Object object : (List<Object>)nestedContent)
 				{
 					if(!(object instanceof String))
-					{
-						ModDamage.addToLogRecord(DebugSetting.NORMAL, "Unrecognized message element \"" + object.toString() + "\"", LoadState.NOT_LOADED);
 						failFlag = true;
-					}
 					messages.addAll(ModDamage.matchMessageAlias((String)object));
 				}
 				
@@ -118,7 +115,6 @@ public class Message extends NestedRoutine
 				if(key.equalsIgnoreCase(messageType.name()))
 					return messageType;
 			}
-			ModDamage.addToLogRecord(DebugSetting.QUIET, "Unrecognized message recipient \"" + key + "\"", LoadState.FAILURE);
 			return null;
 		}
 		
@@ -150,19 +146,19 @@ public class Message extends NestedRoutine
 	
 	public static class DynamicMessage
 	{
-		private static final Pattern integerReplacePattern = Pattern.compile("(.*)%" + IntegerMatch.dynamicIntegerPart + "%(.*)", Pattern.CASE_INSENSITIVE);
+		private static final Pattern integerReplacePattern = Pattern.compile("(.*)%" + DynamicString.dynamicPart + "%(.*)", Pattern.CASE_INSENSITIVE);
 		private static final Pattern colorReplacePattern = Pattern.compile("(.*)&([0-9a-f])(.*)", Pattern.CASE_INSENSITIVE);
 		
 		private final String insertionCharacter = "\u001D";
 		private final String message;
-		private final List<IntegerMatch> matches = new ArrayList<IntegerMatch>();
+		private final List<DynamicString> matches = new ArrayList<DynamicString>();
 		
 		public DynamicMessage(String message)
 		{
 			Matcher integerMatcher = integerReplacePattern.matcher(message);
 			while(integerMatcher.matches())
 			{
-				IntegerMatch match = IntegerMatch.getNew(integerMatcher.group(2));
+				DynamicString match = DynamicString.getNew(integerMatcher.group(2));
 				if(match != null)
 				{
 					message = integerMatcher.group(1) + insertionCharacter + integerMatcher.group(3);
@@ -171,8 +167,6 @@ public class Message extends NestedRoutine
 				}
 				else
 				{
-					
-					
 					message = integerMatcher.group(1) + "INVALID" + integerMatcher.group(3);
 					integerMatcher = integerReplacePattern.matcher(message);
 				}
@@ -192,7 +186,7 @@ public class Message extends NestedRoutine
 			String displayString = message;
 			while(displayString.contains(insertionCharacter))
 			{
-				displayString = displayString.replaceFirst(insertionCharacter, matches.get(currentCount).getValue(eventInfo) + "");
+				displayString = displayString.replaceFirst(insertionCharacter, matches.get(currentCount).getString(eventInfo) + "");
 				currentCount--;
 			}
 			player.sendMessage(displayString);

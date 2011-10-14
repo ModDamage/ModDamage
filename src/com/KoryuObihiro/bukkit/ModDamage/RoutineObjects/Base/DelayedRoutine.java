@@ -5,14 +5,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class DelayedRoutine extends Routine
 {	
-	private final IntegerMatch delay;
+	private final DynamicInteger delay;
 	private final List<Routine> routines;
-	public DelayedRoutine(String configString, IntegerMatch delayValue, List<Routine> routines)
+	public DelayedRoutine(String configString, DynamicInteger delayValue, List<Routine> routines)
 	{
 		super(configString);
 		this.delay = delayValue;
@@ -26,14 +26,14 @@ public class DelayedRoutine extends Routine
 		
 	public static void register()
 	{
-		Routine.registerBase(DelayedRoutine.class, Pattern.compile("delay\\." + IntegerMatch.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(DelayedRoutine.class, Pattern.compile("delay\\." + DynamicInteger.dynamicPart, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static DelayedRoutine getNew(Matcher matcher, List<Routine> routines)
 	{ 
 		if(matcher != null)
 		{
-			IntegerMatch numberMatch = IntegerMatch.getNew(matcher.group(1));
+			DynamicInteger numberMatch = DynamicInteger.getNew(matcher.group(1));
 			return new DelayedRoutine(matcher.group(), numberMatch, routines);
 		}
 		return null;

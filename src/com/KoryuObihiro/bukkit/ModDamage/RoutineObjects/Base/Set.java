@@ -7,14 +7,14 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class Set extends CalculationRoutine<Integer>
 {
-	public Set(String configString, IntegerMatch value)
+	public Set(String configString, DynamicInteger value)
 	{ 
 		super(configString, value);
 	}
@@ -29,7 +29,7 @@ public class Set extends CalculationRoutine<Integer>
 	
 	public static void register()
 	{
-		Routine.registerBase(Set.class, Pattern.compile("set\\." + IntegerMatch.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(Set.class, Pattern.compile("set\\." + DynamicInteger.dynamicPart, Pattern.CASE_INSENSITIVE));
 		NestedRoutine.registerNested(Set.class, Pattern.compile("set", Pattern.CASE_INSENSITIVE));
 	}
 	
@@ -37,7 +37,7 @@ public class Set extends CalculationRoutine<Integer>
 	{
 		if(matcher != null)
 		{
-			IntegerMatch match1 = IntegerMatch.getNew(matcher.group(1));
+			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1));
 			if(match1 != null)
 				return new Set(matcher.group(), match1);
 		}
@@ -52,7 +52,7 @@ public class Set extends CalculationRoutine<Integer>
 			List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
 			if(!stateMachine[0].equals(LoadState.FAILURE))
 			{
-				IntegerMatch match = IntegerMatch.getNew(routines);
+				DynamicInteger match = DynamicInteger.getNew(routines);
 				if(match != null)
 					return new Set(string, match);
 			}

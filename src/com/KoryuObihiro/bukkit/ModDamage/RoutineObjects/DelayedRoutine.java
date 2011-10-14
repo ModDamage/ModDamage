@@ -5,18 +5,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicString;
 
 public class DelayedRoutine extends NestedRoutine
 {	
-	protected final IntegerMatch delay;
+	protected final DynamicInteger delay;
 	protected final List<Routine> routines;
-	protected static final Pattern delayPattern = Pattern.compile("delay\\." + IntegerMatch.dynamicIntegerPart, Pattern.CASE_INSENSITIVE);
-	public DelayedRoutine(String configString, IntegerMatch delayValue, List<Routine> routines)
+	protected static final Pattern delayPattern = Pattern.compile("delay\\." + DynamicString.dynamicPart, Pattern.CASE_INSENSITIVE);
+	public DelayedRoutine(String configString, DynamicInteger delayValue, List<Routine> routines)
 	{
 		super(configString);
 		this.delay = delayValue;
@@ -49,7 +50,7 @@ public class DelayedRoutine extends NestedRoutine
 				ModDamage.indentation--;
 				if(!stateMachine[0].equals(LoadState.FAILURE))
 				{
-					IntegerMatch numberMatch = IntegerMatch.getNew(matcher.group(1));
+					DynamicInteger numberMatch = DynamicInteger.getNew(matcher.group(1));
 					if(numberMatch != null)
 					{
 						ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Delay \"" + matcher.group() + "\"\n", LoadState.SUCCESS);

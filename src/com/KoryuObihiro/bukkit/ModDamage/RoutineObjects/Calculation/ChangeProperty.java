@@ -7,14 +7,14 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
 public final class ChangeProperty extends CalculationRoutine<Object>
 {	
-	protected final IntegerMatch targetPropertyMatch;
+	protected final DynamicInteger targetPropertyMatch;
 	protected final boolean additive;
-	public ChangeProperty(String configString, IntegerMatch value, IntegerMatch targetPropertyMatch, boolean additive)
+	public ChangeProperty(String configString, DynamicInteger value, DynamicInteger targetPropertyMatch, boolean additive)
 	{
 		super(configString, value);
 		this.targetPropertyMatch = targetPropertyMatch;
@@ -38,11 +38,11 @@ public final class ChangeProperty extends CalculationRoutine<Object>
 		CalculationRoutine.registerCalculation(ChangeProperty.class, Pattern.compile("(\\w+)effect\\.(set|add)(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static ChangeProperty getNew(Matcher matcher, IntegerMatch resultMatch)
+	public static ChangeProperty getNew(Matcher matcher, DynamicInteger resultMatch)
 	{
 		if(matcher != null && resultMatch != null)
 		{
-			IntegerMatch targetPropertyMatch = IntegerMatch.getNew(matcher.group(1) + "." + matcher.group(3));
+			DynamicInteger targetPropertyMatch = DynamicInteger.getNew(matcher.group(1) + "." + matcher.group(3));
 			if(targetPropertyMatch != null)
 			{
 				if(targetPropertyMatch.isSettable())

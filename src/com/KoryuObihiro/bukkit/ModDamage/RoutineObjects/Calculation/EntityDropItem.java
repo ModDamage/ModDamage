@@ -10,13 +10,13 @@ import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
 public class EntityDropItem extends EntityCalculationRoutine<Entity>
 {
 	protected final List<Material> materials;
-	public EntityDropItem(String configString, EntityReference entityReference, List<Material> materials, IntegerMatch match)
+	public EntityDropItem(String configString, EntityReference entityReference, List<Material> materials, DynamicInteger match)
 	{
 		super(configString, entityReference, match);
 		this.materials = materials;
@@ -34,7 +34,7 @@ public class EntityDropItem extends EntityCalculationRoutine<Entity>
 		CalculationRoutine.registerCalculation(EntityDropItem.class, Pattern.compile("(\\w+)effect\\.dropItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static EntityDropItem getNew(Matcher matcher, IntegerMatch match)
+	public static EntityDropItem getNew(Matcher matcher, DynamicInteger match)
 	{
 		if(matcher != null && match != null)
 		{

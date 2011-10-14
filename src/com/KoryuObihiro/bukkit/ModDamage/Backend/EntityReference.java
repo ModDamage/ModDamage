@@ -6,6 +6,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 
 public enum EntityReference
 {
@@ -17,6 +19,7 @@ public enum EntityReference
 		for(EntityReference reference : EntityReference.values())
 			if(string.equalsIgnoreCase(reference.name()))
 				return true;
+		ModDamage.addToLogRecord(DebugSetting.QUIET, "String \"" + string + "\" is not a valid entity reference.", LoadState.NOT_LOADED);
 		return false;
 	}
 	

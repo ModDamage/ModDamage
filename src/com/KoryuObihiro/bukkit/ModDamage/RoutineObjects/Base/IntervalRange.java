@@ -4,13 +4,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class IntervalRange extends Chanceroutine 
 {
-	protected IntegerMatch baseValue, intervalValue, rangeValue;
-	public IntervalRange(String configString, IntegerMatch base, IntegerMatch interval, IntegerMatch interval_range)
+	protected DynamicInteger baseValue, intervalValue, rangeValue;
+	public IntervalRange(String configString, DynamicInteger base, DynamicInteger interval, DynamicInteger interval_range)
 	{ 
 		super(configString);
 		baseValue = base;
@@ -22,14 +22,14 @@ public class IntervalRange extends Chanceroutine
 	
 	public static void register()
 	{
-		Routine.registerBase(DiceRoll.class, Pattern.compile("range_int\\." + IntegerMatch.dynamicIntegerPart + "\\." + IntegerMatch.dynamicIntegerPart + "\\." + IntegerMatch.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(DiceRoll.class, Pattern.compile("range_int\\." + DynamicInteger.dynamicPart + "\\." + DynamicInteger.dynamicPart + "\\." + DynamicInteger.dynamicPart, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static IntervalRange getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
 		{
-			IntegerMatch match1 = IntegerMatch.getNew(matcher.group(1)), match2 = IntegerMatch.getNew(matcher.group(2)), match3 = IntegerMatch.getNew(matcher.group(3));
+			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1)), match2 = DynamicInteger.getNew(matcher.group(2)), match3 = DynamicInteger.getNew(matcher.group(3));
 			if(match1 != null && match2 != null && match3 != null)
 				return new IntervalRange(matcher.group(), match1, match2, match3);
 		}

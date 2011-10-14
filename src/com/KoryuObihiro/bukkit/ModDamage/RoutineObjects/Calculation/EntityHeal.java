@@ -6,12 +6,12 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.IntegerMatching.IntegerMatch;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
 public class EntityHeal extends LivingEntityCalculationRoutine
 {
-	public EntityHeal(String configString, EntityReference entityReference, IntegerMatch match)
+	public EntityHeal(String configString, EntityReference entityReference, DynamicInteger match)
 	{
 		super(configString, entityReference, match);
 	}
@@ -27,7 +27,7 @@ public class EntityHeal extends LivingEntityCalculationRoutine
 		CalculationRoutine.registerCalculation(EntityHeal.class, Pattern.compile("(\\w+)effect\\.heal", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static EntityHeal getNew(Matcher matcher, IntegerMatch match)
+	public static EntityHeal getNew(Matcher matcher, DynamicInteger match)
 	{
 		if(matcher != null && match != null && EntityReference.isValid(matcher.group(1)))
 			return new EntityHeal(matcher.group(), EntityReference.match(matcher.group(1)), match);
