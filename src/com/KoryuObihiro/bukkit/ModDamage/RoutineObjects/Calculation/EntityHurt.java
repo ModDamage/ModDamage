@@ -1,42 +1,53 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
-public class EntityHurt extends EntityCalculatedEffectRoutine
+public class EntityHurt extends LivingEntityCalculationRoutine
 {
-	public EntityHurt(boolean forAttacker, List<Routine> routines){ super(forAttacker, routines);}
+	public EntityHurt(String configString, EntityReference entityReference, DynamicInteger match)
+	{
+		super(configString, entityReference, match);
+	}
 	
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{
-		if(eventInfo.getRelevantEntity(forAttacker) != null)
+		Entity targetEntity = entityReference.getEntity(eventInfo);
+		if(entityReference.getEntity(eventInfo) != null && entityReference.getEntity(eventInfo) instanceof LivingEntity)
 		{
-			if(eventInfo.getRelevantEntity(!forAttacker) != null)
-				eventInfo.getRelevantEntity(forAttacker).damage(calculateInputValue(eventInfo), eventInfo.getRelevantEntity(!forAttacker));
-			else eventInfo.getRelevantEntity(forAttacker).damage(calculateInputValue(eventInfo));
+			LivingEntity entity = ((LivingEntity)targetEntity);//XXX Need to allocate this?
+			if(entityReference.getEntityOther(eventInfo) != null)
+			{
+				int damageValue = value.getValue(eventInfo);
+				TargetEventInfo.server.getPluginManager().callEvent( new EntityDamageByEntityEvent(entityReference.getEntityOther(eventInfo), entity, DamageCause.CUSTOM, damageValue));
+				entity.damage(damageValue);
+			}
 		}
 	}
 	
 	@Override
 	protected void applyEffect(LivingEntity affectedObject, int input){}
 
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ModDamage.registerEffect(EntityHurt.class, Pattern.compile("(\\w+)effect\\.hurt", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerCalculation(EntityHurt.class, Pattern.compile("(\\w+)effect\\.hurt", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static EntityHurt getNew(Matcher matcher, List<Routine> routines)
+	public static EntityHurt getNew(Matcher matcher, DynamicInteger match)
 	{
-		if(matcher != null && routines != null)
-			return new EntityHurt((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
+		if(matcher != null && match != null && EntityReference.isValid(matcher.group(1)))
+			return new EntityHurt(matcher.group(), EntityReference.match(matcher.group(1)), match);
 		return null;
 	}
 }

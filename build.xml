@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ModDamage" default="jar">
+	<target name="jar">
+		<jar destfile="../Minecraft/plugins/ModDamage.jar" update="no">
+			<fileset dir="bin" includes="**/*.class" />
+			<fileset dir="." includes="plugin.yml" />
+			<manifest>
+				<attribute name="Built-By" value="KoryuObihiro"/>
+			</manifest>
+		</jar>
+	</target>
+</project>

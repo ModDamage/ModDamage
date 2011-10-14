@@ -7,33 +7,33 @@ import java.util.regex.Pattern;
 import org.bukkit.Material;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
-public class PlayerWielding extends EntityConditionalStatement<List<Material>> 
+public class PlayerWielding extends PlayerConditionalStatement 
 {
-	public PlayerWielding(boolean inverted, boolean forAttacker, List<Material> materials)
+	final List<Material> materials;
+	public PlayerWielding(boolean inverted, EntityReference entityReference, List<Material> materials)
 	{  
-		super(inverted, forAttacker, materials);
+		super(inverted, entityReference);
+		this.materials = materials;
 	}
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo){ return value.contains((forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).materialInHand_attacker:eventInfo.materialInHand_target);}
-	@Override
-	public List<Material> getRelevantInfo(TargetEventInfo eventInfo){ return null;}
+	protected boolean condition(TargetEventInfo eventInfo){ return materials.contains(entityReference.getMaterial(eventInfo));}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWielding.class, Pattern.compile("(!?)(\\w+)\\.wielding\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(PlayerWielding.class, Pattern.compile("(!?)(\\w+)\\.wielding\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}	
 	
 	public static PlayerWielding getNew(Matcher matcher)
 	{
 		if(matcher != null)
 		{
-			List<Material> matchedItems = ModDamage.matchItemAlias(matcher.group(3));
+			List<Material> matchedItems = ModDamage.matchMaterialAlias(matcher.group(3));
 			if(!matchedItems.isEmpty())
-				return new PlayerWielding(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, matchedItems);
+				return new PlayerWielding(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), matchedItems);
 		}
 		return null;
 	}

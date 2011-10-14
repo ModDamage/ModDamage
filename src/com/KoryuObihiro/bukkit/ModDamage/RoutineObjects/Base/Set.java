@@ -4,56 +4,59 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class Set extends CalculationRoutine<Integer>
 {
-	protected final boolean usingStaticValue;
-	protected int setValue;
-	public Set(int value)
+	public Set(String configString, DynamicInteger value)
 	{ 
-		super(null);
-		usingStaticValue = true;
-		setValue = value;
-	}
-	public Set(List<Routine> routines)
-	{ 
-		super(routines);
-		usingStaticValue = false;
-		setValue = 0;
-	}
-	@Override
-	public void run(TargetEventInfo eventInfo)
-	{ 
-		if(usingStaticValue)
-			eventInfo.eventValue = setValue;
-		else eventInfo.eventValue = calculateInputValue(eventInfo);
+		super(configString, value);
 	}
 	
-	public static void register(ModDamage routineUtility)
+	@Override
+	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = value.getValue(eventInfo);}
+	
+	@Override
+	protected Integer getAffectedObject(TargetEventInfo eventInfo) { return null;}
+	@Override
+	protected void applyEffect(Integer affectedObject, int input) {}
+	
+	public static void register()
 	{
-		routineUtility.registerBase(Set.class, Pattern.compile("set\\.(\\w+)", Pattern.CASE_INSENSITIVE));
-		CalculationRoutine.registerStatement(routineUtility, Set.class, Pattern.compile("set", Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(Set.class, Pattern.compile("set\\." + DynamicInteger.dynamicPart, Pattern.CASE_INSENSITIVE));
+		NestedRoutine.registerNested(Set.class, Pattern.compile("set", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Set getNew(Matcher matcher)
 	{
 		if(matcher != null)
-			return new Set(Integer.parseInt(matcher.group(1)));
+		{
+			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1));
+			if(match1 != null)
+				return new Set(matcher.group(), match1);
+		}
 		return null;
 	}
 	
-	public static Set getNew(Matcher matcher, List<Routine> routines)
+	public static Set getNew(String string, Object nestedContent)
 	{ 
-		if(matcher != null && routines != null)
-			return new Set(routines);
+		if(string != null && nestedContent != null)
+		{
+			LoadState[] stateMachine = { LoadState.SUCCESS };
+			List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
+			if(!stateMachine[0].equals(LoadState.FAILURE))
+			{
+				DynamicInteger match = DynamicInteger.getNew(routines);
+				if(match != null)
+					return new Set(string, match);
+			}
+		}
 		return null;
 	}
-	@Override
-	protected void applyEffect(Integer affectedObject, int input) {}
-	@Override
-	protected Integer getAffectedObject(TargetEventInfo eventInfo) { return null;}
-}
+}

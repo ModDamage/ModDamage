@@ -1,17 +1,20 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
-public class EntityHeal extends EntityCalculatedEffectRoutine
+public class EntityHeal extends LivingEntityCalculationRoutine
 {
-	public EntityHeal(boolean forAttacker, List<Routine> routines){ super(forAttacker, routines);}
+	public EntityHeal(String configString, EntityReference entityReference, DynamicInteger match)
+	{
+		super(configString, entityReference, match);
+	}
 
 	@Override
 	protected void applyEffect(LivingEntity affectedObject, int input) 
@@ -19,15 +22,15 @@ public class EntityHeal extends EntityCalculatedEffectRoutine
 		affectedObject.setHealth(affectedObject.getHealth() + input);
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ModDamage.registerEffect(EntityHeal.class, Pattern.compile("(\\w+)effect\\.heal", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerCalculation(EntityHeal.class, Pattern.compile("(\\w+)effect\\.heal", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static EntityHeal getNew(Matcher matcher, List<Routine> routines)
+	public static EntityHeal getNew(Matcher matcher, DynamicInteger match)
 	{
-		if(matcher != null && routines != null)
-			return new EntityHeal((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
+		if(matcher != null && match != null && EntityReference.isValid(matcher.group(1)))
+			return new EntityHeal(matcher.group(), EntityReference.match(matcher.group(1)), match);
 		return null;
 	}
 }

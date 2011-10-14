@@ -1,11 +1,11 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
-import org.bukkit.craftbukkit.entity.CraftArrow;
-import org.bukkit.craftbukkit.entity.CraftEgg;
-import org.bukkit.craftbukkit.entity.CraftFireball;
-import org.bukkit.craftbukkit.entity.CraftFish;
-import org.bukkit.craftbukkit.entity.CraftSnowball;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.Fish;
+import org.bukkit.entity.Snowball;
 
 public enum RangedElement 
 {
@@ -13,11 +13,11 @@ public enum RangedElement
 	
 	public static RangedElement matchElement(Entity entity)
 	{
-		if(entity instanceof CraftArrow)	return ARROW;
-		if(entity instanceof CraftEgg)		return EGG;
-		if(entity instanceof CraftFireball)	return FIREBALL;
-		if(entity instanceof CraftFish)		return FISHINGROD; 
-		if(entity instanceof CraftSnowball)	return SNOWBALL;
+		if(entity instanceof Arrow)	return ARROW;
+		if(entity instanceof Egg)		return EGG;
+		if(entity instanceof Fireball)	return FIREBALL;
+		if(entity instanceof Fish)		return FISHINGROD; 
+		if(entity instanceof Snowball)	return SNOWBALL;
 		return null;
 	}
 	public static RangedElement matchElement(String key)

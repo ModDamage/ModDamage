@@ -7,35 +7,36 @@ import java.util.regex.Pattern;
 import org.bukkit.Material;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
-public class EntityOnBlock extends EntityConditionalStatement<List<Material>>
+public class EntityOnBlock extends EntityConditionalStatement
 {
-	public EntityOnBlock(boolean inverted, boolean forAttacker, List<Material> materials)
+	final List<Material> materials;
+	public EntityOnBlock(boolean inverted, EntityReference entityReference, List<Material> materials)
 	{ 
-		super(inverted, forAttacker, materials);
+		super(inverted, entityReference);
+		this.materials = materials;
 	}
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo)
 	{
-		return (eventInfo.getRelevantEntity(forAttacker)!= null)?value.contains(eventInfo.getRelevantEntity(forAttacker).getLocation().add(0, -1, 0).getBlock().getType()):false;
+		return materials.contains(entityReference.getEntity(eventInfo).getLocation().add(0, -1, 0).getBlock().getType());
 	}
-	@Override
-	protected List<Material> getRelevantInfo(TargetEventInfo eventInfo){ return null;}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityOnBlock.class, Pattern.compile("(!?)(\\w+)\\.onblock\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EntityOnBlock.class, Pattern.compile("(!?)(\\w+)\\.onblock\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityOnBlock getNew(Matcher matcher)
 	{
 		if(matcher != null)
 		{
-			List<Material> matchedItems = ModDamage.matchItemAlias(matcher.group(3));
-			if(!matchedItems.isEmpty())
-				return new EntityOnBlock(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, matchedItems);
+			List<Material> matchedItems = ModDamage.matchMaterialAlias(matcher.group(3));
+			if(!matchedItems.isEmpty() && EntityReference.isValid(matcher.group(2)))		
+				return new EntityOnBlock(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), matchedItems);
 		}
 		return null;
 	}

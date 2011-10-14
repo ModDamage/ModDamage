@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.util.config.ConfigurationNode;
+
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
@@ -14,35 +16,42 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 	private static final long serialVersionUID = -5035446508507898319L;
 	HashMap<String, List<Type>> aliases;
 	final String name;
+	protected LoadState loadState;
 	
-	Aliaser(String name)
-	{
-		super();
-		this.name = name;
-	}
+	Aliaser(String name){ this.name = name;}
 
-	public boolean addAlias(String key, List<String> values)
+	public boolean addAlias(String key, List<Object> values)
 	{
 		if(this.containsKey(key)) return false;
 		List<Type> matchedItems = new ArrayList<Type>();
-		ModDamage.addToConfig(DebugSetting.NORMAL, 0, "Adding " + name + " alias \"" + key + "\"", LoadState.SUCCESS);
-		for(String listedValue : values)
+		ModDamage.addToLogRecord(DebugSetting.NORMAL, "Adding " + name + " alias \"" + key + "\"", LoadState.SUCCESS);
+		ModDamage.indentation++;
+		for(Object listedValue : values)
 		{
-			List<Type> matchedList = matchAlias(listedValue);
-			if(!matchedList.isEmpty())
+			if(listedValue instanceof String)
 			{
-				for(Type value : matchedList)
+				List<Type> matchedList = matchAlias((String)listedValue);
+				if(!matchedList.isEmpty())
 				{
-					if(!matchedItems.contains(value))
+					for(Type value : matchedList)
 					{
-						ModDamage.addToConfig(DebugSetting.VERBOSE, 1, "Adding value \"" + getObjectName(value) + "\"", LoadState.SUCCESS);
-						matchedItems.add(value);
+						if(!matchedItems.contains(value))
+						{
+							ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Adding value \"" + getObjectName(value) + "\"", LoadState.SUCCESS);
+							matchedItems.add(value);
+						}
+						else ModDamage.addToLogRecord(DebugSetting.NORMAL, "Error: duplicate value \"" + getObjectName(value) + "\" - ignoring.", LoadState.NOT_LOADED);
 					}
-					else ModDamage.addToConfig(DebugSetting.NORMAL, 1, "Error: duplicate value \"" + getObjectName(value) + "\" - ignoring.", LoadState.NOT_LOADED);
 				}
+				else return false;//debug output already handled in failed matchAlias
 			}
-			else return false;
+			else
+			{
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "Unrecognized object " + listedValue.toString(), LoadState.FAILURE);
+				return false;
+			}
 		}
+		ModDamage.indentation--;
 		this.put("_" + key, matchedItems);
 		return true;
 	}
@@ -54,7 +63,12 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 			return this.get(key);
 		Type value = matchNonAlias(key);
 		if(value != null) return Arrays.asList(value);
-		ModDamage.addToConfig(DebugSetting.QUIET, 1, "No matching " + name + " alias or value \"" + key + "\"", LoadState.FAILURE);
+		{
+			ModDamage.indentation++;
+			ModDamage.addToLogRecord(DebugSetting.QUIET, "No matching " + name + " alias or value \"" + key + "\"", LoadState.FAILURE);
+			ModDamage.indentation--;
+		}
+		
 		return new ArrayList<Type>();
 	}
 	
@@ -63,4 +77,43 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 	abstract protected String getObjectName(Type object);
 	
 	public String getName(){ return name;}
+
+	public LoadState getLoadState(){ return this.loadState;}
+	
+	@Override
+	public void clear()
+	{
+		super.clear();
+		loadState = LoadState.NOT_LOADED;
+	}
+	
+	public LoadState load(ConfigurationNode aliasesNode)
+	{
+		loadState = LoadState.NOT_LOADED;
+		ConfigurationNode specificAliasesNode = null;
+		for(String key : aliasesNode.getKeys())
+			if(key.equalsIgnoreCase(this.name))
+			{
+				specificAliasesNode = aliasesNode.getNode(key);
+				break;
+			}
+		if(specificAliasesNode != null)
+		{
+			if(!specificAliasesNode.getKeys().isEmpty())
+			{
+				this.loadState = LoadState.SUCCESS;
+				ModDamage.addToLogRecord(DebugSetting.VERBOSE, this.name + " aliases found, parsing...", LoadState.SUCCESS);
+				for(String alias : specificAliasesNode.getKeys())
+				{
+					List<Object> values = specificAliasesNode.getList(alias);
+					if(values.isEmpty())
+						ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Found empty " + this.name.toLowerCase() + " alias \"" + alias + "\", ignoring...", LoadState.NOT_LOADED);
+					else if(!this.addAlias(alias, values))
+						this.loadState = LoadState.FAILURE;
+				}
+			}
+		}
+		else ModDamage.addToLogRecord(DebugSetting.VERBOSE, "No " + this.name + " aliases node found.", LoadState.NOT_LOADED);
+		return loadState;
+	}
 }

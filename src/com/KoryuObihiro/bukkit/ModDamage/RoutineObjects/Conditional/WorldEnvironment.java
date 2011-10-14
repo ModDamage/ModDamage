@@ -20,9 +20,9 @@ public class WorldEnvironment extends WorldConditionalStatement
 	@Override
 	public boolean condition(TargetEventInfo eventInfo){ return (useEventWorld?eventInfo.world:world).getEnvironment().equals(environment);}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, WorldEnvironment.class, Pattern.compile("(!?)event\\.environment\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(WorldEnvironment.class, Pattern.compile("(!?)event\\.environment\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static WorldEnvironment getNew(Matcher matcher)

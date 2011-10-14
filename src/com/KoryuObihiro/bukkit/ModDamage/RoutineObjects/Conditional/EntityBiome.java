@@ -1,6 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,26 +7,30 @@ import java.util.regex.Pattern;
 import org.bukkit.block.Biome;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
-public class EntityBiome extends EntityConditionalStatement<List<Biome>>
+public class EntityBiome extends EntityConditionalStatement
 {
-	public EntityBiome(boolean inverted, boolean forAttacker, List<Biome> value)
+	protected final List<Biome> biomes;
+	public EntityBiome(boolean inverted, EntityReference entityReference, List<Biome> biomes)
 	{ 
-		super(inverted, forAttacker, value);
-	}
-	@Override
-	protected boolean condition(TargetEventInfo eventInfo){ return value.contains(getRelevantInfo(eventInfo));}
-	@Override
-	protected List<Biome> getRelevantInfo(TargetEventInfo eventInfo)
-	{
-		return Arrays.asList((eventInfo.getRelevantEntity(forAttacker) != null)?eventInfo.getRelevantEntity(forAttacker).getLocation().getBlock().getBiome():null);
+		super(inverted, entityReference);
+		this.biomes = biomes;
 	}
 	
-	public static void register(ModDamage routineUtility)
+	@Override
+	protected boolean condition(TargetEventInfo eventInfo)
+	{ 
+		if(entityReference.getEntity(eventInfo) != null)
+			return biomes.contains(entityReference.getEntity(eventInfo).getLocation().getBlock().getBiome());
+		return false;
+	}
+	
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EntityBiome.class, Pattern.compile("(!?)(\\w+)\\.biome\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EntityBiome.class, Pattern.compile("(!?)(\\w+)\\.biome\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityBiome getNew(Matcher matcher)
@@ -35,8 +38,8 @@ public class EntityBiome extends EntityConditionalStatement<List<Biome>>
 		if(matcher != null)
 		{
 			List<Biome> biomes = ModDamage.matchBiomeAlias(matcher.group(3));
-			if(!biomes.isEmpty())
-				return new EntityBiome(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, biomes);
+			if(!biomes.isEmpty() && EntityReference.isValid(matcher.group(2)))
+				return new EntityBiome(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), biomes);
 		}
 		return null;
 	}

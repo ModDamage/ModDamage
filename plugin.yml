@@ -1,6 +1,6 @@
 name: ModDamage
 main: com.KoryuObihiro.bukkit.ModDamage.ModDamage
-version: 0.9.5
+version: 0.9.6
 authors: [KoryuObihiro]
 description: |
     Completely customize damage in Bukkit with ModDamage!
@@ -8,3 +8,5 @@ commands:
   moddamage: 
     aliases: [md]
     description:
+softdepend: [Multiverse-Core]
+jenkins:

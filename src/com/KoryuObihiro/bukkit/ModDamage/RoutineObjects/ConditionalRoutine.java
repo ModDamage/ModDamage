@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,22 +9,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 
-public class ConditionalRoutine extends Routine
+public class ConditionalRoutine extends NestedRoutine
 {
-	public static HashMap<Pattern, Method> registeredStatements = new HashMap<Pattern, Method>();
-	final protected boolean inverted;
-	final protected List<Routine> routines;
-	final List<ConditionalStatement> statements;
-	final List<LogicalOperation> logicalOperations;
-	public ConditionalRoutine(boolean inverted, List<ConditionalStatement> statements, List<LogicalOperation> logicalOperations, List<Routine> routines)
+	public static HashMap<Pattern, Method> registeredConditionalStatements = new HashMap<Pattern, Method>();
+	public static final Pattern conditionalPattern = Pattern.compile("(if|if_not)\\s+(" + Routine.statementPart + "(?:\\s+" + LogicalOperation.logicalOperationPart + "\\s+" +  Routine.statementPart + ")*)", Pattern.CASE_INSENSITIVE);
+	
+	protected final boolean inverted;
+	protected final List<ConditionalStatement> statements;
+	protected final List<LogicalOperation> LogicalOperations;
+	protected final List<Routine> routines;
+	public ConditionalRoutine(String configString, boolean inverted, List<ConditionalStatement> statements, List<LogicalOperation> LogicalOperations, List<Routine> routines)
 	{
+		super(configString);
 		this.inverted = inverted;
 		this.statements = statements;
-		this.logicalOperations = logicalOperations;
+		this.LogicalOperations = LogicalOperations;
 		this.routines = routines;
 	}
 	
@@ -32,69 +37,112 @@ public class ConditionalRoutine extends Routine
 	{
 		boolean result = statements.get(0).condition(eventInfo);
 		for(int i = 1; i < statements.size(); i++)
-			 result = logicalOperations.get(i - 1).operate(result, statements.get(i).condition(eventInfo) ^ statements.get(i).inverted);
-		if(result ^ inverted) 
+			 result = LogicalOperations.get(i - 1).operate(result, statements.get(i).condition(eventInfo) ^ statements.get(i).inverted);
+		if(result ^ inverted)
 			for(Routine routine : routines)
 				routine.run(eventInfo);
 	}
 	
-	public static ConditionalRoutine getNew(Matcher matcher, List<Routine> routines)
+	public static ConditionalRoutine getNew(String string, Object nestedContent)
 	{
-		List<ConditionalStatement> statements = new ArrayList<ConditionalStatement>();
-		List<LogicalOperation> operations = new ArrayList<LogicalOperation>();
-		//start with a programmatic "false ||" ... because of how this routine is executed.
-		
-		//parse all of the conditionals
-		String[] statementStrings = matcher.group(2).split("\\s+");
-		for(int i = 0; i <= statementStrings.length; i += 2)
+		if(string != null && nestedContent != null)
 		{
-			for(Pattern pattern : registeredStatements.keySet())
+ 			Matcher matcher = conditionalPattern.matcher(string);
+			if(matcher.matches())
 			{
-				Matcher statementMatcher = pattern.matcher(statementStrings[i]);
-				if(statementMatcher.matches())
+				ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Conditional: \"" + string + "\"", LoadState.SUCCESS);
+				
+				List<ConditionalStatement> statements = new ArrayList<ConditionalStatement>();
+				List<LogicalOperation> operations = new ArrayList<LogicalOperation>();
+				//start with a programmatic "false ||" ... because of how this routine is executed. TODO 0.9.7 - Change this?
+				
+				//parse all of the conditionals
+				boolean failFlag = false;
+				String[] statementStrings = matcher.group(2).split("\\s+");//TODO 0.9.7 - Change this algorithm so it uses NestedConditionalStatement for parentheses. :D
+				for(int i = 0; i <= statementStrings.length; i += 2)
 				{
-					Method method = registeredStatements.get(pattern);
-					//get next statement
-					ConditionalStatement statement = null;
-					try 
+					for(Pattern pattern : registeredConditionalStatements.keySet())
 					{
-						statement = (ConditionalStatement)method.invoke(null, statementMatcher);
-					}
-					catch (Exception e){ e.printStackTrace();}
-					
-					if(statement == null)
-					{
-						ModDamage.addToConfig(DebugSetting.QUIET, 0, "Error: bad statement \"" + statementStrings[i] + "\"", LoadState.FAILURE);
-						return null;
-					}
-					//get its relation to the previous statement
-					if(i >= 2)
-					{
-						LogicalOperation operation = LogicalOperation.matchType(statementStrings[i - 1]);
-						if(operation == null)
+						Matcher statementMatcher = pattern.matcher(statementStrings[i]);
+						if(statementMatcher.matches())
 						{
-							ModDamage.addToConfig(DebugSetting.QUIET, 0, "Error: bad operator \"" + statementStrings[i - 1] + "\"", LoadState.FAILURE);
-							return null;//shouldn't ever happen
+							Method method = registeredConditionalStatements.get(pattern);
+							//get next statement
+							ConditionalStatement statement = null;
+							try 
+							{
+								statement = (ConditionalStatement)method.invoke(null, statementMatcher);
+							}
+							catch (Exception e){ e.printStackTrace();}
+							
+							if(statement == null)
+							{
+								ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: bad statement \"" + statementStrings[i] + "\"", LoadState.FAILURE);
+								failFlag = true;
+							}
+							//get its relation to the previous statement
+							if(i >= 2)
+							{
+								LogicalOperation operation = LogicalOperation.matchType(statementStrings[i - 1]);
+								if(operation == null)
+								{
+									ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: bad operator \"" + statementStrings[i - 1] + "\"", LoadState.FAILURE);
+									failFlag = true;
+									break;
+								}
+								operations.add(operation);
+							}
+							statements.add(statement);
+							break;
 						}
-						operations.add(operation);
 					}
-					statements.add(statement);
-					break;
+				}
+				if(!statements.isEmpty() && !failFlag)
+				{
+					statements.add(0, new FalseStatement());
+					operations.add(0, LogicalOperation.OR);
+					ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Conditional \"" + string + "\"\n", LoadState.SUCCESS);
+
+
+					ModDamage.indentation++;
+					LoadState[] stateMachine = { LoadState.SUCCESS };
+					List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
+					ModDamage.indentation--;
+					if(stateMachine[0].equals(LoadState.SUCCESS))
+						return new ConditionalRoutine(string, !matcher.group(1).equalsIgnoreCase("if"), statements, operations, routines);
 				}
 			}
-		}
-		if(!statements.isEmpty())
-		{
-			statements.add(0, new FalseStatement());
-			operations.add(0, LogicalOperation.OR);
-			return new ConditionalRoutine(!matcher.group(1).equalsIgnoreCase("if"), statements, operations, routines);
+			ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid Conditional" + " \"" + string + "\"", LoadState.FAILURE);
 		}
 		return null;
 	}
 	
-	public static void registerStatement(ModDamage routineUtility, Class<? extends ConditionalStatement> statementClass, Pattern syntax)
+	public static void register()
 	{
-		ModDamage.registerConditional(statementClass, syntax);
+		NestedRoutine.registerNested(ConditionalRoutine.class, Pattern.compile("(?:if|if_not).*", Pattern.CASE_INSENSITIVE));
+	}
+	
+	public static void registerConditionalStatement(Class<? extends ConditionalStatement> statementClass, Pattern syntax)
+	{
+		try
+		{
+			Method method = statementClass.getMethod("getNew", Matcher.class);
+			if(method != null)
+			{
+				assert(method.getReturnType().equals(statementClass));
+				method.invoke(null, (Matcher)null);
+				Routine.register(ConditionalRoutine.registeredConditionalStatements, method, syntax);
+			}
+			else ModDamage.log.severe("Method getNew not found for statement " + statementClass.getName());
+		}
+		catch(AssertionError e){ ModDamage.log.severe("[ModDamage] Error: getNew doesn't return class " + statementClass.getName() + "!");}
+		catch(SecurityException e){ ModDamage.log.severe("[ModDamage] Error: getNew isn't public for class " + statementClass.getName() + "!");}
+		catch(NullPointerException e){ ModDamage.log.severe("[ModDamage] Error: getNew for class " + statementClass.getName() + " is not static!");}
+		catch(NoSuchMethodException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have a getNew() method!");} 
+		catch(IllegalArgumentException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
+		catch(IllegalAccessException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
+		catch(InvocationTargetException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
 	}
 	
 	private static class FalseStatement extends ConditionalStatement

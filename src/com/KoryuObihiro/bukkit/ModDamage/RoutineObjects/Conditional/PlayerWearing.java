@@ -6,43 +6,43 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
-public class PlayerWearing extends EntityConditionalStatement<List<ArmorSet>>
+public class PlayerWearing extends PlayerConditionalStatement
 {
-	public PlayerWearing(boolean inverted, boolean forAttacker, List<ArmorSet> armorSet)
+	final boolean inclusiveComparison;
+	final List<ArmorSet> armorSets;
+	public PlayerWearing(boolean inverted, boolean inclusiveComparison, EntityReference entityReference, List<ArmorSet> armorSets)
 	{  
-		super(inverted, forAttacker, armorSet);
+		super(inverted, entityReference);
+		this.inclusiveComparison = inclusiveComparison;
+		this.armorSets = armorSets;
 	}
 	@Override
 	public boolean condition(TargetEventInfo eventInfo)
 	{
-		if((shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).armorSet_attacker:eventInfo.armorSet_target) != null)
-		{
-			ArmorSet playerSet = (shouldGetAttacker(eventInfo)?((AttackerEventInfo)eventInfo).armorSet_attacker:eventInfo.armorSet_target);
-			for(ArmorSet armorSet : value)
-				if(armorSet.contains(playerSet))
+		ArmorSet playerSet = entityReference.getArmorSet(eventInfo);
+		if(playerSet != null)
+			for(ArmorSet armorSet : armorSets)
+				if(inclusiveComparison?armorSet.equals(playerSet):armorSet.contains(playerSet))
 					return true;
-		}
 		return false;
 	}
-	@Override
-	protected List<ArmorSet> getRelevantInfo(TargetEventInfo eventInfo) { return null;}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, PlayerWearing.class, Pattern.compile("(!?)(\\w+)\\.wearing\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(PlayerWearing.class, Pattern.compile("(!?)(\\w+)\\.(wearing|wearingonly)\\.([\\*\\w]+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerWearing getNew(Matcher matcher)
 	{
 		if(matcher != null)
 		{
-			List<ArmorSet> armorSet = ModDamage.matchArmorAlias(matcher.group(3));
-			if(!armorSet.isEmpty())
-				return new PlayerWearing(matcher.group(1).equalsIgnoreCase("!"), (ModDamage.matchesValidEntity(matcher.group(2)))?ModDamage.matchEntity(matcher.group(2)):false, armorSet);
+			List<ArmorSet> armorSet = ModDamage.matchArmorAlias(matcher.group(4));
+			if(!armorSet.isEmpty() && EntityReference.isValid(matcher.group(2)))
+				return new PlayerWearing(matcher.group(1).equalsIgnoreCase("!"), matcher.group(3).endsWith("only"), EntityReference.match(matcher.group(2)), armorSet);
 		}
 		return null;
 	}

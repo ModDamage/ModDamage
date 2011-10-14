@@ -14,25 +14,21 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
 public class EnvironmentSwitch extends SwitchRoutine<Environment>
 {	
-	public EnvironmentSwitch(LinkedHashMap<String, List<Routine>> switchStatements){ super(switchStatements);}
+	public EnvironmentSwitch(String configString, LinkedHashMap<String, List<Routine>> switchStatements){ super(configString, switchStatements);}
 	@Override
 	protected Environment getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.environment;}
 	@Override
 	protected Environment matchCase(String switchCase){ return ModDamage.matchEnvironment(switchCase);}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		SwitchRoutine.registerStatement(routineUtility, EnvironmentSwitch.class, Pattern.compile("event\\.environment", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(EnvironmentSwitch.class, Pattern.compile("switch\\.event\\.environment", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EnvironmentSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
-		EnvironmentSwitch routine = null;
 		if(matcher != null && switchStatements != null)
-		{
-			routine = new EnvironmentSwitch(switchStatements);
-			return (routine.isLoaded?routine:null);
-		}
+			return new EnvironmentSwitch(matcher.group(), switchStatements);
 		return null;
 	}
 }

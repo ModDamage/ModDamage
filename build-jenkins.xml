@@ -1,0 +1,60 @@
+<project name="Jenkins-BukkitPlugin" default="jar">
+	
+<!-- START PREDEFINED -->
+	<property environment="env"/>
+	
+	<property name="sourceFolder" location="src"/>
+	<property name="buildFolder" location="bin"/>
+	<property name="dependencyFolder" location="src/resource"/>
+	
+<!-- END PREDEFINED -->	
+	
+	<target name="init">
+		<tstamp/>
+	    <mkdir dir="${buildFolder}"/>
+	</target>
+
+	<target name="compile" depends="init" description="Compile class files">
+		<echo message="Compiling source into ${buildFolder}..."/>
+		<path id="project.classpath">
+	        <fileset dir="${dependencyFolder}">
+	            <include name="*.jar"/>
+	        </fileset>
+	    </path>
+		<javac srcdir="${sourceFolder}" destdir="${buildFolder}" classpathref="project.classpath"/>
+	</target>
+
+	<target name="appendBuild" depends="compile" if="jenkinsLine">
+		<!-- Append Jenkins build number if a blank Jenkins key is present. -->
+		<loadfile property="jenkinsLine" srcfile="plugin.yml">    
+			<filterchain>
+				<linecontainsregexp>
+					<regexp pattern="^jenkins:$"/>
+				</linecontainsregexp>
+			</filterchain>  
+		</loadfile>
+	
+		<echo message="Found empty &quot;jenkins&quot; key in plugin.yml, appending build number..."/>
+   		<echo file="plugin.yml" append="true" message=" ${env.BUILD_NUMBER}"/>
+	</target>
+	
+	<!-- Slap the JAR together. -->
+	<target name="jar" depends="appendBuild" description="Pack JAR file">
+		<jar destfile="${env.JOB_NAME}.jar" update="no">
+			<fileset dir="${buildFolder}" includes="**/*.class"/>
+			<fileset dir="." includes="plugin.yml"/>
+			<manifest>
+				<attribute name="Job" value="${env.JOB_NAME}"/>
+				<attribute name="Built-By" value="Jenkins"/>
+				<!-- <attribute name="Version" value="${version}"/> -->
+				<attribute name="Build" value="${env.BUILD_NUMBER}"/> 
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="clean" depends="jar">
+		<echo message="Deleting .class files..."/>
+		<delete dir="${buildFolder}"/>
+	</target>
+	
+</project>

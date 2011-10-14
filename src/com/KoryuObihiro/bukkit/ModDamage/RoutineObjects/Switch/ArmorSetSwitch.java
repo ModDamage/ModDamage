@@ -8,17 +8,23 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-public class ArmorSetSwitch extends EntitySwitchRoutine<List<ArmorSet>>
+public class ArmorSetSwitch extends LivingEntitySwitchRoutine<List<ArmorSet>>
 {
-	public ArmorSetSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchStatements){ super(forAttacker, switchStatements);}
+	public ArmorSetSwitch(String configString, EntityReference entityReference, LinkedHashMap<String, List<Routine>> switchStatements)
+	{ 
+		super(configString, entityReference, switchStatements);
+	}
 
 	@Override
-	protected List<ArmorSet> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList((forAttacker && eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).armorSet_attacker:eventInfo.armorSet_target);}
+	protected List<ArmorSet> getRelevantInfo(TargetEventInfo eventInfo)
+	{ 
+		return Arrays.asList(entityReference.getArmorSet(eventInfo));
+	}
 	@Override
 	protected boolean compare(List<ArmorSet> info_1, List<ArmorSet> info_2)
 	{ 
@@ -34,15 +40,15 @@ public class ArmorSetSwitch extends EntitySwitchRoutine<List<ArmorSet>>
 		return (armorSet.isEmpty()?null:armorSet);
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		SwitchRoutine.registerStatement(routineUtility, ArmorSetSwitch.class, Pattern.compile("(\\w+)\\.armorset", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(ArmorSetSwitch.class, Pattern.compile("switch\\.(\\w+)\\.armorset", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static ArmorSetSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
-		if(matcher != null && switchStatements != null)
-			return new ArmorSetSwitch((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, switchStatements);
+		if(matcher != null && switchStatements != null && EntityReference.isValid(matcher.group(1)))
+			return new ArmorSetSwitch(matcher.group(), EntityReference.match(matcher.group(1)), switchStatements);
 		return null;
 	}
 

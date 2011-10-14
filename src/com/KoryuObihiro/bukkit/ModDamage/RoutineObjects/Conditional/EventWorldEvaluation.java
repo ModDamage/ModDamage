@@ -20,9 +20,9 @@ public class EventWorldEvaluation extends ConditionalStatement
 	@Override
 	public boolean condition(TargetEventInfo eventInfo){ return worlds.contains(eventInfo.world.getName());}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ConditionalRoutine.registerStatement(routineUtility, EventWorldEvaluation.class, Pattern.compile("(!?)event\\.world\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EventWorldEvaluation.class, Pattern.compile("(!?)event\\.world\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EventWorldEvaluation getNew(Matcher matcher)

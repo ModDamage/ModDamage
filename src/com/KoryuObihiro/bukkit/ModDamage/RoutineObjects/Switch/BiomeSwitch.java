@@ -9,15 +9,16 @@ import java.util.regex.Pattern;
 import org.bukkit.block.Biome;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-public class BiomeSwitch extends EntitySwitchRoutine<List<Biome>>
+public class BiomeSwitch extends LivingEntitySwitchRoutine<List<Biome>>
 {
-	public BiomeSwitch(boolean forAttacker, LinkedHashMap<String, List<Routine>> switchLabels)
+	public BiomeSwitch(String configString, EntityReference entityReference, LinkedHashMap<String, List<Routine>> switchLabels)
 	{
-		super(forAttacker, switchLabels);
+		super(configString, entityReference, switchLabels);
 	}
 	@Override
 	protected List<Biome> getRelevantInfo(TargetEventInfo eventInfo){ return Arrays.asList(getRelevantEntity(eventInfo).getLocation().getBlock().getBiome());}
@@ -26,18 +27,15 @@ public class BiomeSwitch extends EntitySwitchRoutine<List<Biome>>
 	@Override
 	protected List<Biome> matchCase(String switchCase){ return ModDamage.matchBiomeAlias(switchCase);}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		SwitchRoutine.registerStatement(routineUtility, BiomeSwitch.class, Pattern.compile("(\\w+)\\.biome", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(BiomeSwitch.class, Pattern.compile("switch\\.(\\w+)\\.biome", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static BiomeSwitch getNew(Matcher matcher, LinkedHashMap<String, List<Routine>> switchStatements)
 	{
-		if(matcher != null && switchStatements != null)
-		{
-			boolean forAttacker = (ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false;
-			return new BiomeSwitch(forAttacker, switchStatements);
-		}
+		if(matcher != null && switchStatements != null && EntityReference.isValid(matcher.group(1)))
+			return new BiomeSwitch(matcher.group(), EntityReference.match(matcher.group(1)), switchStatements);
 		return null;
 	}
 }

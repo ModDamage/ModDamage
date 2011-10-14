@@ -1,14 +1,16 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
-public class MessageAliaser extends Aliaser<String> 
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Message.DynamicMessage;
+
+public class MessageAliaser extends Aliaser<DynamicMessage> 
 {
 	private static final long serialVersionUID = 7539931612104625797L;
 
 	public MessageAliaser() {super("Message");}
 
 	@Override
-	protected String matchNonAlias(String key){ return key;} //TODO 0.9.5 Add color.
+	protected DynamicMessage matchNonAlias(String key){ return new DynamicMessage(key);}
 
 	@Override
-	protected String getObjectName(String object){ return object;}
+	protected String getObjectName(DynamicMessage object){ return object.toString();}
 }

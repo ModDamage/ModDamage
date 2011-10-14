@@ -3,15 +3,14 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.craftbukkit.entity.CraftCreeper;
-import org.bukkit.craftbukkit.entity.CraftSlime;
-import org.bukkit.craftbukkit.entity.CraftWolf;
 import org.bukkit.entity.Animals;
+import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Flying;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Giant;
@@ -22,94 +21,116 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Silverfish;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Squid;
-import org.bukkit.entity.WaterMob;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+
 public enum ModDamageElement 
 {
-GENERIC ("generic", null),
-	GENERIC_LIVING ("Living", GENERIC),
-		LIVING_ANIMAL 	("animal", GENERIC_LIVING),
-			ANIMAL_CHICKEN ("Chicken", LIVING_ANIMAL, CreatureType.CHICKEN),
-			ANIMAL_COW ("Cow", LIVING_ANIMAL, CreatureType.COW),
-			ANIMAL_PIG ("Pig", LIVING_ANIMAL, CreatureType.PIG),
-			ANIMAL_SHEEP ("Sheep", LIVING_ANIMAL, CreatureType.SHEEP),
-			ANIMAL_SQUID ("Squid", LIVING_ANIMAL, CreatureType.SQUID),
-			ANIMAL_WOLF ("Wolf", LIVING_ANIMAL, CreatureType.WOLF),
-				ANIMAL_WOLF_WILD ("Wolf_Wild", ANIMAL_WOLF, CreatureType.WOLF),
-				ANIMAL_WOLF_ANGRY ("Wolf_Hostile", ANIMAL_WOLF, CreatureType.WOLF),
-				ANIMAL_WOLF_TAME ("Wolf_Tame", ANIMAL_WOLF, CreatureType.WOLF),
+	UNKNOWN(null),
+	GENERIC(null),
+		LIVING(GENERIC),
+			ANIMAL(LIVING),
+				CHICKEN(ANIMAL, CreatureType.CHICKEN),
+				COW(ANIMAL, CreatureType.COW),
+				PIG(ANIMAL, CreatureType.PIG),
+				SHEEP(ANIMAL, CreatureType.SHEEP),
+				SNOW_GOLEM(ANIMAL),//FIXME Not in the right place?
+				SQUID(ANIMAL, CreatureType.SQUID),
+				WOLF(ANIMAL, CreatureType.WOLF),
+					WOLF_WILD(WOLF, CreatureType.WOLF),
+					WOLF_ANGRY(WOLF, CreatureType.WOLF),
+					WOLF_TAME(WOLF, CreatureType.WOLF),
+				
+			HUMAN(LIVING),
+				PLAYER(HUMAN),
+				NPC(HUMAN, CreatureType.MONSTER),//TODO Does this work?
+				VILLAGER(HUMAN),//FIXME
 			
-		LIVING_HUMAN ("Human", GENERIC_LIVING),
-			HUMAN_PLAYER ("Player", LIVING_HUMAN),
-			HUMAN_NPC ("NPC", LIVING_HUMAN),
+			MOB(LIVING),
+				BLAZE(MOB),//FIXME
+				CAVESPIDER(MOB, CreatureType.CAVE_SPIDER),
+				CREEPER(MOB, CreatureType.CREEPER),
+					CREEPER_CHARGED(CREEPER, CreatureType.CREEPER),
+					CREEPER_NORMAL(CREEPER, CreatureType.CREEPER),
+				ENDERMAN(MOB, CreatureType.ENDERMAN),
+				GHAST(MOB, CreatureType.GHAST),
+				GIANT(MOB, CreatureType.GIANT),
+				MAGMA_CUBE(MOB),//FIXME
+				MOOSHROM(MOB),//FIXME
+				SILVERFISH(MOB, CreatureType.SILVERFISH),
+				SKELETON(MOB, CreatureType.SKELETON),
+				SLIME(MOB, CreatureType.SLIME),
+					SLIME_HUGE (SLIME, CreatureType.SLIME),
+					SLIME_LARGE (SLIME, CreatureType.SLIME),
+					SLIME_MEDIUM(SLIME, CreatureType.SLIME),
+					SLIME_OTHER(SLIME, CreatureType.SLIME),
+					SLIME_SMALL(SLIME, CreatureType.SLIME),
+				SPIDER(MOB, CreatureType.SPIDER),
+					SPIDER_JOCKEY(SPIDER, CreatureType.SPIDER),
+					SPIDER_RIDERLESS(SPIDER, CreatureType.SPIDER),
+				ZOMBIE(MOB, CreatureType.ZOMBIE),
+				ZOMBIEPIGMAN(MOB, CreatureType.PIG_ZOMBIE),
 		
-		LIVING_MOB 	("Mob", GENERIC_LIVING),
-			MOB_CREEPER ("Creeper", LIVING_MOB, CreatureType.CREEPER),
-				MOB_CREEPER_CHARGED("Creeper_Charged", MOB_CREEPER, CreatureType.CREEPER),
-				MOB_CREEPER_NORMAL ("Creeper_Normal", MOB_CREEPER, CreatureType.CREEPER),
-			MOB_GHAST ("Ghast", LIVING_MOB, CreatureType.GHAST),
-			MOB_GIANT ("Giant", LIVING_MOB, CreatureType.GIANT),
-			MOB_PIGZOMBIE ("ZombiePigman", LIVING_MOB, CreatureType.PIG_ZOMBIE),
-			MOB_SKELETON ("Skeleton", LIVING_MOB, CreatureType.SKELETON),
-			MOB_SLIME ("Slime", LIVING_MOB, CreatureType.SLIME),
-				MOB_SLIME_HUGE ("Slime_Huge", MOB_SLIME, CreatureType.SLIME),
-				MOB_SLIME_LARGE ("Slime_Large", MOB_SLIME, CreatureType.SLIME),
-				MOB_SLIME_MEDIUM("Slime_Medium", MOB_SLIME, CreatureType.SLIME),
-				MOB_SLIME_OTHER("Slime_Other", MOB_SLIME, CreatureType.SLIME),
-				MOB_SLIME_SMALL("Slime_Small", MOB_SLIME, CreatureType.SLIME),
-			MOB_SPIDER ("Spider", LIVING_MOB, CreatureType.SPIDER),
-				MOB_SPIDER_JOCKEY("Spider_Jockey", MOB_SPIDER, CreatureType.SPIDER),
-				MOB_SPIDER_RIDERLESS("Spider_Riderless", MOB_SPIDER, CreatureType.SPIDER),
-			MOB_ZOMBIE ("Zombie", LIVING_MOB, CreatureType.ZOMBIE),
-		
-	GENERIC_NONLIVING ("Nonliving", GENERIC),
-		NONLIVING_NATURE ("Nature", GENERIC_NONLIVING),
-			NATURE_EXPLOSION ("Explosion", NONLIVING_NATURE),
-				NATURE_EXPLOSION_ENTITY ("Explosion_Entity", NATURE_EXPLOSION),
-				NATURE_EXPLOSION_BLOCK ("Explosion_Block", NATURE_EXPLOSION),
-			NATURE_CONTACT("Cactus", NONLIVING_NATURE),
-			NATURE_DROWNING ("Drowning", NONLIVING_NATURE),
-			NATURE_FALL ("Fall", NONLIVING_NATURE),
-			NATURE_FIRE ("Fire", NONLIVING_NATURE),
-			NATURE_FIRE_TICK ("Burn", NONLIVING_NATURE),
-			NATURE_LAVA ("Lava", NONLIVING_NATURE),
-			NATURE_LIGHTNING ("Lightning", NONLIVING_NATURE),
-			NATURE_SUFFOCATION ("Suffocation", NONLIVING_NATURE),
-			NATURE_VOID ("Void", NONLIVING_NATURE),
+		NONLIVING(GENERIC),
+			NATURE(NONLIVING),
+				EXPLOSION(NATURE),
+					EXPLOSION_ENTITY(EXPLOSION),
+					EXPLOSION_BLOCK(EXPLOSION),
+				CACTUS(NATURE),
+				DROWNING (NATURE),
+				FALL(NATURE),
+				FIRE(NATURE),
+				BURN(NATURE),
+				LAVA(NATURE),
+				LIGHTNING(NATURE),
+				PROJECTILE(NATURE),
+				STARVATION(NATURE),
+				SUFFOCATION(NATURE),
+				SUICIDE(NATURE),
+				VOID(NATURE),
+			
+			TRAP(NONLIVING),
+				DISPENSER(TRAP);
 	
-		GENERIC_TRAP("Trap", GENERIC_NONLIVING),
-			TRAP_DISPENSER("Dispenser", GENERIC_TRAP);
-
-	private final String stringReference;
+	/* TODO 0.9.7
+	private String displayName = null;
+	
+	static
+	{
+		for(ModDamageElement element : ModDamageElement.values())
+			if(element.displayName == null)
+			{
+				if(element.)
+			}
+	}
+	*/
+	
 	private final ModDamageElement genericElement;
 	private final CreatureType creatureType;
-	ModDamageElement(String stringReference, ModDamageElement genericElement) 
+	ModDamageElement(ModDamageElement parentElement) 
 	{
-		this.stringReference = stringReference;
-		this.genericElement = genericElement;
+		this.genericElement = parentElement;
 		this.creatureType = null;
 	}
-	ModDamageElement(String stringReference, ModDamageElement genericElement, CreatureType creatureType) 
+	ModDamageElement(ModDamageElement genericElement, CreatureType creatureType) 
 	{
-		this.stringReference = stringReference;
 		this.genericElement = genericElement;
 		this.creatureType = creatureType;
 	}
-	
-	public String getReference(){ return this.stringReference;}
 	public ModDamageElement getParentType(){ return genericElement;}
 
 	public boolean isElementReference(String string)
 	{
 		for(ModDamageElement element : values())
-			if(element.getReference().equals(string))
+			if(element.name().equalsIgnoreCase(string))
 				return true;
 		return false;
 	}
@@ -118,20 +139,24 @@ GENERIC ("generic", null),
 	
 	public static ModDamageElement matchNonlivingElement(DamageCause cause)
 	{
-		switch(cause) 
+		switch(cause)
 		{
-			case BLOCK_EXPLOSION:   return NATURE_EXPLOSION_BLOCK;
-			case CONTACT: 			return NATURE_CONTACT;
-			case DROWNING: 			return NATURE_DROWNING;
-			case ENTITY_EXPLOSION: 	return NATURE_EXPLOSION_ENTITY;
-			case FALL: 				return NATURE_FALL;
-			case FIRE: 				return NATURE_FIRE;
-			case FIRE_TICK:			return NATURE_FIRE_TICK;
-			case LAVA: 				return NATURE_LAVA;
-			case LIGHTNING: 		return NATURE_LIGHTNING;
-			case SUFFOCATION: 		return NATURE_SUFFOCATION;
-			case VOID: 				return NATURE_VOID;
-			default: 				return null;//shouldn't happen
+			case BLOCK_EXPLOSION:   return EXPLOSION_BLOCK;
+			case CONTACT: 			return CACTUS;
+			case DROWNING: 			return DROWNING;
+			case ENTITY_ATTACK:		return LIVING;
+			case ENTITY_EXPLOSION: 	return EXPLOSION_ENTITY;
+			case FALL: 				return FALL;
+			case FIRE: 				return FIRE;
+			case FIRE_TICK:			return BURN;
+			case LAVA: 				return LAVA;
+			case LIGHTNING: 		return LIGHTNING;
+			case PROJECTILE:		return PROJECTILE;
+			case STARVATION:		return STARVATION;
+			case SUFFOCATION: 		return SUFFOCATION;
+			case SUICIDE:			return SUICIDE;
+			case VOID: 				return VOID;
+			default: 				return UNKNOWN;//shouldn't happen
 		}
 	}
 	
@@ -151,61 +176,71 @@ GENERIC ("generic", null),
 		return false;
 	}
 
-	public static ModDamageElement matchMobType(LivingEntity entity)
+	public static ModDamageElement matchMobType(LivingEntity entity) throws IllegalArgumentException
 	{
-		if(entity instanceof Slime)	
+		if(entity == null) throw new IllegalArgumentException("Entity cannot be null for matchMobType method!");
+		if(entity instanceof Slime)
 		{
-			switch(((CraftSlime)entity).getSize())
+			switch(((Slime)entity).getSize())
 			{
-				case 0: return MOB_SLIME_SMALL;
-				case 1: return MOB_SLIME_MEDIUM;
-				case 2: return MOB_SLIME_LARGE;
-				case 3: return MOB_SLIME_HUGE;
-				default:return MOB_SLIME_OTHER;
+				case 0: return SLIME_SMALL;
+				case 1: return SLIME_MEDIUM;
+				case 2: return SLIME_LARGE;
+				case 3: return SLIME_HUGE;
+				default:return SLIME_OTHER;
 			}
 		}
 		if(entity instanceof Creature) 
 		{
 			if(entity instanceof Animals) 
 			{
-				if(entity instanceof Chicken) 	return ANIMAL_CHICKEN;
-				if(entity instanceof Cow) 		return ANIMAL_COW; 
-				if(entity instanceof Pig) 		return ANIMAL_PIG; 
-				if(entity instanceof Sheep) 	return ANIMAL_SHEEP;
+				if(entity instanceof Chicken) 	return CHICKEN;
+				if(entity instanceof Cow) 		return COW; 
+				if(entity instanceof Pig) 		return PIG; 
+				//if(entity instanceof Mooshrom)	return MOOSHROM; TODO
+				if(entity instanceof Sheep) 	return SHEEP;
 				if(entity instanceof Wolf)
 				{
-					if(((CraftWolf)entity).getOwner() != null) return ANIMAL_WOLF_TAME;
-					if(((CraftWolf)entity).isAngry()) return ANIMAL_WOLF_ANGRY;
-					return ANIMAL_WOLF_WILD;
+					if(((Wolf)entity).getOwner() != null) return WOLF_TAME;
+					if(((Wolf)entity).isAngry()) return WOLF_ANGRY;
+					return WOLF_WILD;
 				}
 			}
 			if(entity instanceof Monster) 
 			{
-				if(entity instanceof Zombie) 	return (entity instanceof PigZombie?MOB_PIGZOMBIE:MOB_ZOMBIE);
-				if(entity instanceof Creeper)	return ((CraftCreeper)entity).isPowered()?MOB_CREEPER_CHARGED:MOB_CREEPER_NORMAL;;
-				if(entity instanceof Giant) 	return MOB_GIANT;
-				if(entity instanceof Skeleton)	return MOB_SKELETON;
+				if(entity instanceof CaveSpider)return CAVESPIDER;
+				if(entity instanceof Creeper)	return ((Creeper)entity).isPowered()?CREEPER_CHARGED:CREEPER_NORMAL;
+				if(entity instanceof Enderman)	return ENDERMAN;
+				if(entity instanceof Giant) 	return GIANT;
+				if(entity instanceof Silverfish)return SILVERFISH;
+				if(entity instanceof Skeleton)	return SKELETON;
 				if(entity instanceof Spider)
 				{
-					if(entity.getPassenger() != null) return MOB_SPIDER_JOCKEY;
-					return MOB_SPIDER; 
+					if(entity.getPassenger() != null) return SPIDER_JOCKEY;
+					return SPIDER_RIDERLESS; 
 				}
+				if(entity instanceof Zombie) 	return (entity instanceof PigZombie?ZOMBIEPIGMAN:ZOMBIE);
 			}
-			if(entity instanceof WaterMob) 
-				if(entity instanceof Squid) 	return ANIMAL_SQUID;
+			//if(entity instanceof WaterMob) - Uncomment when there's more watermobs. :P
+				if(entity instanceof Squid) 	return SQUID;
 		}
 		if(entity instanceof Flying) 
-			if(entity instanceof Ghast)			return MOB_GHAST;
-		if(entity instanceof HumanEntity)		return (entity instanceof Player)?HUMAN_PLAYER:HUMAN_NPC;
-		return null;
+		{
+			if(entity instanceof Ghast)			return GHAST;
+			//if(entity instanceof Blaze)			return BLAZE; TODO
+		}
+			
+		if(entity instanceof HumanEntity)		return (entity instanceof Player)?PLAYER:NPC;
+		ModDamage.log.severe("[ModDamage] Uncaught mob type " + entity.getClass().getName() + " for an event!");
+		return UNKNOWN;
 	}
 
-	public static List<ModDamageElement> getElementsOf(ModDamageElement element){ return getElementsOf(element.getReference());}
+	public static List<ModDamageElement> getElementsOf(ModDamageElement element){ return getElementsOf(element.name());}
 	public static List<ModDamageElement> getElementsOf(String elementType)
 	{
 		List<ModDamageElement> typeStrings = new ArrayList<ModDamageElement>();
 		for(ModDamageElement element : values())
-			if(element.getParentType() != null && element.getParentType().getReference().equals(elementType))
+			if(element.getParentType() != null && element.getParentType().name().equals(elementType))
 				typeStrings.add(element);
 		return typeStrings;
 	}
@@ -213,8 +248,8 @@ GENERIC ("generic", null),
 	public static ModDamageElement matchElement(String nodeName)
 	{
 		for(ModDamageElement element : values())
-			if(element.getReference().equalsIgnoreCase(nodeName))
+			if(element.name().equalsIgnoreCase(nodeName))
 				return element;
-		return null;
+		return UNKNOWN;
 	}
 }

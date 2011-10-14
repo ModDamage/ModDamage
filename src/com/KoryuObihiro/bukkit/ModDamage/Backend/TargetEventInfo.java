@@ -1,7 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -12,20 +10,20 @@ import org.bukkit.World.Environment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
+import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.platymuus.bukkit.permissions.Group;
 
-@SuppressWarnings("deprecation")
 public class TargetEventInfo
-{	
+{
 	public static final Logger log = ModDamage.log;
 	public static final Server server = ModDamage.server;
-	protected static final List<String> emptyList = new ArrayList<String>();
+
+	protected ExecutionState executionState;
+	private enum ExecutionState{ GOTO_NEXT, GOTO_ELSE, STOP;}
 	
 	public int eventValue;
 	public final World world;
 	public final Environment environment;
-	public final RangedElement rangedElement;
 	
 	public final ModDamageElement element_target;
 	public final LivingEntity entity_target;
@@ -35,55 +33,42 @@ public class TargetEventInfo
 	public final List<String> groups_target;
 	
 //CONSTRUCTORS	
-	public TargetEventInfo(LivingEntity entity, ModDamageElement eventElement_target, int eventValue, RangedElement rangedElement) 
+	public TargetEventInfo(LivingEntity entity, ModDamageElement eventElement_target, int eventValue) 
 	{
-		this.rangedElement = rangedElement;
 		this.eventValue = eventValue;
 		this.entity_target = entity;
 		this.element_target = eventElement_target;
 		if(entity instanceof Player)
 		{
 			Player player_target = (Player)entity;
-			materialInHand_target = player_target.getItemInHand().getType();
-			armorSet_target = new ArmorSet(player_target);
-			name_target = player_target.getName();
-			groups_target = TargetEventInfo.getGroups(player_target);
+			this.materialInHand_target = player_target.getItemInHand().getType();
+			this.armorSet_target = new ArmorSet(player_target);
+			this.name_target = player_target.getName();
+			this.groups_target = ExternalPluginManager.getPermissionsManager().getGroups(player_target);
 		}
 		else
 		{
-			materialInHand_target = null;
-			armorSet_target = null;
-			name_target = null;
-			groups_target = emptyList;
+			this.materialInHand_target = null;
+			this.armorSet_target = null;
+			this.name_target = null;
+			this.groups_target = ModDamage.emptyList;
 		}
 		
-		world = entity.getWorld();	
-		environment = world.getEnvironment();
-	}
-
-	public boolean shouldGetAttacker(boolean forAttacker){ return (forAttacker && this instanceof AttackerEventInfo);}
-	
-	public LivingEntity getRelevantEntity(boolean forAttacker)
-	{
-		return (shouldGetAttacker(forAttacker)?((AttackerEventInfo)this).entity_attacker:this.entity_target);
+		this.world = entity.getWorld();	
+		this.environment = world.getEnvironment();
 	}
 	
-	protected static List<String> getGroups(Player player)
+	public TargetEventInfo(World world, ModDamageElement eventElement_target, int eventValue) 
 	{
-		if(ModDamage.using_Permissions)
-		{
-			if(ModDamage.using_SuperPerms)
-			{
-				List<String> groupNames = new ArrayList<String>();
-				for(Group group : ModDamage.permissionsBukkit.getGroups(player.getName()))
-					groupNames.add(group.getName());
-				return groupNames;
-			}
-			else Arrays.asList(ModDamage.multigroupPermissions
-						?ModDamage.Permissions.getGroups(player.getWorld().getName(), player.getName())
-						:ModDamage.Permissions.getGroup(player.getWorld().getName(), player.getName()).split(" "));
-		}
+		this.eventValue = eventValue;
+		this.entity_target = null;
+		this.element_target = eventElement_target;
+		this.materialInHand_target = null;
+		this.armorSet_target = null;
+		this.name_target = null;
+		this.groups_target = ModDamage.emptyList;
 		
-		return emptyList;
+		this.world = world;	
+		this.environment = world.getEnvironment();
 	}
 }

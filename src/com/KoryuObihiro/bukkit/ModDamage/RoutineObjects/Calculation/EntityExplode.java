@@ -1,33 +1,36 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Entity;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
-public class EntityExplode extends EntityCalculatedEffectRoutine
+public class EntityExplode extends EntityCalculationRoutine<Entity>
 {
-	public EntityExplode(boolean forAttacker, List<Routine> routines){ super(forAttacker, routines);}
+	public EntityExplode(String configString, EntityReference entityReference, DynamicInteger match)
+	{
+		super(configString, entityReference, match);
+	}
 	
 	@Override
-	protected void applyEffect(LivingEntity affectedObject, int input) 
+	protected void applyEffect(Entity entity, int input) 
 	{
-		affectedObject.getWorld().createExplosion(affectedObject.getLocation(), (float)input/10);
+		entity.getWorld().createExplosion(entity.getLocation(), (float)input/10);
 	}
 	
-	public static void register(ModDamage routineUtility)
+	public static void register()
 	{
-		ModDamage.registerEffect(EntityExplode.class, Pattern.compile("(\\w+)effect\\.explode", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerCalculation(EntityExplode.class, Pattern.compile("(\\w+)effect\\.explode", Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static EntityExplode getNew(Matcher matcher, List<Routine> routines)
+	public static EntityExplode getNew(Matcher matcher, DynamicInteger match)
 	{
-		if(matcher != null && routines != null)
-			return new EntityExplode((ModDamage.matchesValidEntity(matcher.group(1)))?ModDamage.matchEntity(matcher.group(1)):false, routines);
+		if(matcher != null && match != null && EntityReference.isValid(matcher.group(1)))
+			return new EntityExplode(matcher.group(), EntityReference.match(matcher.group(1)), match);
 		return null;
 	}
 }
