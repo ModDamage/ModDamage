@@ -1,4 +1,4 @@
-<project name="Jenkins-BukkitPlugin" default="jar">
+<project name="Jenkins-BukkitPlugin" default="clean">
 	
 <!-- START PREDEFINED -->
 	<property environment="env"/>
@@ -24,22 +24,13 @@
 		<javac srcdir="${sourceFolder}" destdir="${buildFolder}" classpathref="project.classpath"/>
 	</target>
 
-	<target name="appendBuild" depends="compile" if="jenkinsLine">
-		<!-- Append Jenkins build number if a blank Jenkins key is present. -->
-		<loadfile property="jenkinsLine" srcfile="plugin.yml">    
-			<filterchain>
-				<linecontainsregexp>
-					<regexp pattern="^jenkins:$"/>
-				</linecontainsregexp>
-			</filterchain>  
-		</loadfile>
-	
-		<echo message="Found empty &quot;jenkins&quot; key in plugin.yml, appending build number..."/>
-   		<echo file="plugin.yml" append="true" message=" ${env.BUILD_NUMBER}"/>
+	<!-- Append Jenkins build number if a blank Jenkins key is present. -->
+	<target name="addJenkinsBuild" depends="compile">
+		<replaceregexp file="plugin.yml" match="^jenkins:\s*$" replace="jenkins: ${env.BUILD_NUMBER}" byline="true"/>
 	</target>
 	
 	<!-- Slap the JAR together. -->
-	<target name="jar" depends="appendBuild" description="Pack JAR file">
+	<target name="jar" depends="addJenkinsBuild" description="Pack JAR file">
 		<jar destfile="${env.JOB_NAME}.jar" update="no">
 			<fileset dir="${buildFolder}" includes="**/*.class"/>
 			<fileset dir="." includes="plugin.yml"/>
