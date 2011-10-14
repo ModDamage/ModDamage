@@ -24,20 +24,22 @@
 		<javac srcdir="${sourceFolder}" destdir="${buildFolder}" classpathref="project.classpath"/>
 	</target>
 
-	<target name="jar" depends="compile" description="Pack JAR file">
-		
-		<!-- Get the version from the plugin.yml -->
-		<loadfile property="rawversion" srcfile="plugin.yml">    
+	<target name="appendBuild" depends="compile" if="jenkinsLine">
+		<!-- Append Jenkins build number if a blank Jenkins key is present. -->
+		<loadfile property="jenkinsLine" srcfile="plugin.yml">    
 			<filterchain>
-				<linecontains>
-					<contains value="version"/>
-				</linecontains>
+				<linecontainsregexp>
+					<regexp pattern="^jenkins:$"/>
+				</linecontainsregexp>
 			</filterchain>  
 		</loadfile>
-		
-		<echo message="Building JAR for version ${version}"/>
-		
-		<!-- Now put the JAR together! -->
+	
+		<echo message="Found empty &quot;jenkins&quot; key in plugin.yml, appending build number..."/>
+   		<echo file="plugin.yml" append="true" message=" ${env.BUILD_NUMBER}"/>
+	</target>
+	
+	<!-- Slap the JAR together. -->
+	<target name="jar" depends="appendBuild" description="Pack JAR file">
 		<jar destfile="${env.JOB_NAME}.jar" update="no">
 			<fileset dir="${buildFolder}" includes="**/*.class"/>
 			<fileset dir="." includes="plugin.yml"/>

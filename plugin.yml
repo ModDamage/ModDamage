@@ -9,4 +9,4 @@ commands:
     aliases: [md]
     description:
 softdepend: [Multiverse-Core]
-jenkins: 
+jenkins:
