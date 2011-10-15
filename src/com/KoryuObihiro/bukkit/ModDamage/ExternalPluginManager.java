@@ -3,14 +3,13 @@ package com.KoryuObihiro.bukkit.ModDamage;
 import static com.sk89q.worldguard.bukkit.BukkitUtil.toVector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-
-import ru.tehkode.permissions.PermissionGroup;
 
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
@@ -154,10 +153,7 @@ public class ExternalPluginManager
 			switch(this)
 			{
 				case PermissionsEx:
-					List<String> groupNames = new ArrayList<String>();
-					for(PermissionGroup group : ru.tehkode.permissions.bukkit.PermissionsEx.getPermissionManager().getGroups(player.getName()))
-						groupNames.add(group.getName());
-					return groupNames;
+					return Arrays.asList(ru.tehkode.permissions.bukkit.PermissionsEx.getPermissionManager().getUser(player).getGroupsNames(player.getWorld().getName()));
 				case bPermissions:
 					return Permissions.getWorldPermissionsManager().getPermissionSet(player.getWorld()).getGroups(player);
 				case PermissionsBukkit:
@@ -170,11 +166,12 @@ public class ExternalPluginManager
 		}
 		public boolean hasPermission(Player player, String permission)
 		{
+			if(player.isOp()) return true;
 			switch(this)
 			{
 				case PermissionsEx:		return ru.tehkode.permissions.bukkit.PermissionsEx.getPermissionManager().has(player, permission);
 				case PermissionsBukkit:	return ((PermissionsPlugin)permissionsPlugin).getPlayerInfo(player.getName()).getPermissions().containsKey(permission);
-				default:				return player.hasPermission(permission) || player.isOp();
+				default:				return player.hasPermission(permission);
 			}
 		}
 	}
