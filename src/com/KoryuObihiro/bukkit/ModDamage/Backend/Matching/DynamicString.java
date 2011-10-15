@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo.EventInfoType;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicEntityString.EntityStringPropertyMatch;
 
 public class DynamicString
@@ -47,7 +48,7 @@ public class DynamicString
 			case Event_Environment:
 				return eventInfo.environment.name();
 			case Event_RangedElement:
-				return (eventInfo instanceof ProjectileEventInfo?((ProjectileEventInfo)eventInfo).rangedElement.name():null).toString();
+				return (eventInfo.type.equals(EventInfoType.PROJECTILE) && ((ProjectileEventInfo)eventInfo).rangedElement != null?((ProjectileEventInfo)eventInfo).rangedElement.name():null).toString();//FIXME null.toString() does what?
 			default: return null;//shouldn't happen
 		}
 	}

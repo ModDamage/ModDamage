@@ -440,18 +440,21 @@ public class ModDamage extends JavaPlugin
 		configStrings_console.clear();
 		
 		//See if we have a Jenkins build number appended to the plugin.yml (part of Koryu's build process)
-		String jenkinsLine = null;
+		Integer jenkinsBuild = null;
 		BufferedReader reader = null;
 		try
 		{
-	        reader = new BufferedReader(new InputStreamReader(ModDamage.class.getResourceAsStream("/plugin.yml")));  
-	        
-	        jenkinsLine = reader.readLine();
+	        reader = new BufferedReader(new InputStreamReader(ModDamage.class.getResourceAsStream("/plugin.yml")));
+	        String jenkinsLine = reader.readLine();
 	        while(jenkinsLine != null)
 	        {
-	        	if(jenkinsLine.contains("jenkins"))
+	        	if(jenkinsLine.contains("jenkins:"))
 	        	{
-	        		jenkinsLine = jenkinsLine.substring(9);
+	        		try{ jenkinsBuild = Integer.parseInt(jenkinsLine.substring(8));}
+	        		catch(NumberFormatException e)
+	        		{
+	        			log.severe(logPrepend() + "Error: couldn't parse test build value after finding test build tag. Tell Koryu he's an idiot.");
+	        		}
 	        		break;
 	        	}
 	        	jenkinsLine = reader.readLine();
@@ -468,7 +471,7 @@ public class ModDamage extends JavaPlugin
 		}
         
         
-		ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] " + this.getDescription().getVersion() + (jenkinsLine != null?" (test build " + jenkinsLine + ")":"") +" loading...", LoadState.SUCCESS);
+		ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] " + this.getDescription().getVersion() + (jenkinsBuild != null?" (test build " + jenkinsBuild + ")":"") +" loading...", LoadState.SUCCESS);
 		
 		if(reloadingAll)
 		{

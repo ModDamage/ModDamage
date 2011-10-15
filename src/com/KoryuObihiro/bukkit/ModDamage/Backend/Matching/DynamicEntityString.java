@@ -1,9 +1,11 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class DynamicEntityString extends DynamicString
@@ -13,12 +15,19 @@ public class DynamicEntityString extends DynamicString
 	
 	public enum EntityStringPropertyMatch
 	{
-		ArmorSet,
-		Group,
-		Name,
+		ArmorSet(true),
+		Group(true),
+		Name(true),
 		Region,
 		Type,
-		Wield;
+		Wield(true);
+		
+		boolean requiresPlayer = false;
+		private EntityStringPropertyMatch(){}
+		private EntityStringPropertyMatch(boolean requiresPlayer)
+		{
+			this.requiresPlayer = true;
+		}
 	}
 	
 	DynamicEntityString(EntityReference entityReference, EntityStringPropertyMatch propertyMatch)
@@ -30,6 +39,12 @@ public class DynamicEntityString extends DynamicString
 	@Override
 	public String getString(TargetEventInfo eventInfo)
 	{
+		if(propertyMatch.equals(EntityStringPropertyMatch.Type))	
+			return entityReference.getElement(eventInfo).name();//TODO See the enum for the name property.
+		Entity entity = entityReference.getEntity(eventInfo);
+		if(entity != null 
+				&& (!propertyMatch.requiresPlayer
+						|| entityReference.getElement(eventInfo).equals(ModDamageElement.PLAYER)))
 		switch(propertyMatch)
 		{
 			case ArmorSet:
@@ -40,11 +55,9 @@ public class DynamicEntityString extends DynamicString
 				return (entityReference.getEntity(eventInfo) instanceof Player?((Player)entityReference.getEntity(eventInfo)).getName():null).toString();
 			case Region:
 				return ExternalPluginManager.getRegionsManager().getRegions(entityReference.getEntity(eventInfo).getLocation()).toString();
-			case Type:
-				return entityReference.getElement(eventInfo).name();//TODO See the enum for the name property.
 			case Wield:
 				return entityReference.getMaterial(eventInfo).name();
-			default: return null; //shouldn't happen
 		}
+		return null;
 	}
 }

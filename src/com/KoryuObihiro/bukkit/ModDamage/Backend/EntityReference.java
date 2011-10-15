@@ -8,10 +8,11 @@ import org.bukkit.entity.Entity;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo.EventInfoType;
 
 public enum EntityReference
 {
-	Target, Projectile, Attacker;
+	Target, Projectile, Attacker;//TODO Merge this with the EventInfoType enum?
 	
 //Use these when building routines.
 	public static boolean isValid(String string)
@@ -37,7 +38,7 @@ public enum EntityReference
 		{
 			case Target: return eventInfo.armorSet_target;
 			case Attacker: 
-				if(eventInfo instanceof AttackerEventInfo) 
+				if(eventInfo.type.equals(EventInfoType.ATTACKER)) 
 					return ((AttackerEventInfo)eventInfo).armorSet_attacker;
 		}
 		return null;
@@ -49,7 +50,7 @@ public enum EntityReference
 		{
 			case Target: return eventInfo.element_target;
 			case Attacker: 
-				if(eventInfo instanceof AttackerEventInfo) 
+				if(eventInfo.type.equals(EventInfoType.ATTACKER)) 
 					return ((AttackerEventInfo)eventInfo).element_attacker;
 		}
 		return null;
@@ -60,8 +61,8 @@ public enum EntityReference
 		switch(this)
 		{
 			case Target: return eventInfo.entity_target;
-			case Projectile: return (eventInfo instanceof ProjectileEventInfo)?((ProjectileEventInfo)eventInfo).projectile:null;
-			case Attacker: return (eventInfo instanceof AttackerEventInfo)?((AttackerEventInfo)eventInfo).entity_attacker:null;
+			case Projectile: return (eventInfo.equals(EventInfoType.PROJECTILE))?((ProjectileEventInfo)eventInfo).projectile:null;
+			case Attacker: return (eventInfo.equals(EventInfoType.ATTACKER))?((AttackerEventInfo)eventInfo).entity_attacker:null;
 		}
 		return null;//shouldn't happen.
 	}
@@ -71,24 +72,25 @@ public enum EntityReference
 		switch(this)
 		{
 			case Target:
-				if(eventInfo instanceof AttackerEventInfo) return ((AttackerEventInfo)eventInfo).entity_attacker;
-				if(eventInfo instanceof ProjectileEventInfo) return ((ProjectileEventInfo)eventInfo).projectile;
+				if(eventInfo.equals(EventInfoType.ATTACKER)) return ((AttackerEventInfo)eventInfo).entity_attacker;
+				if(eventInfo.equals(EventInfoType.PROJECTILE)) return ((ProjectileEventInfo)eventInfo).projectile;
 				return eventInfo.entity_target;
 			case Projectile:
-				if(eventInfo instanceof AttackerEventInfo) return ((AttackerEventInfo)eventInfo).entity_attacker;
+				if(eventInfo.equals(EventInfoType.ATTACKER)) return ((AttackerEventInfo)eventInfo).entity_attacker;
 				return eventInfo.entity_target;
 			case Attacker: return eventInfo.entity_target;
 		}
 		return null;//shouldn't happen
 	}
 
+	//TODO: KILL THIS REPETITIVE LOGIC
 	public List<String> getGroups(TargetEventInfo eventInfo) 
 	{
 		switch(this)
 		{
 			case Target: return eventInfo.groups_target;
 			case Attacker: 
-				if(eventInfo instanceof AttackerEventInfo) 
+				if(eventInfo.equals(EventInfoType.ATTACKER)) 
 					return ((AttackerEventInfo)eventInfo).groups_attacker;
 		}
 		return ModDamage.emptyList;
@@ -100,8 +102,20 @@ public enum EntityReference
 		{
 			case Target: return eventInfo.materialInHand_target;
 			case Attacker: 
-				if(eventInfo instanceof AttackerEventInfo) 
+				if(eventInfo.equals(EventInfoType.ATTACKER)) 
 					return ((AttackerEventInfo)eventInfo).materialInHand_attacker;
+		}
+		return null;
+	}
+
+	public String getName(TargetEventInfo eventInfo) 
+	{
+		switch(this)
+		{
+			case Target: return eventInfo.name_target;
+			case Attacker: 
+				if(eventInfo.equals(EventInfoType.ATTACKER)) 
+					return ((AttackerEventInfo)eventInfo).name_attacker;
 		}
 		return null;
 	}

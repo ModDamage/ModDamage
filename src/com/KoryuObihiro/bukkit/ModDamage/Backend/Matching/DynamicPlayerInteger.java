@@ -52,7 +52,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 	public int getValue(TargetEventInfo eventInfo)
 	{
 		Entity entity = entityReference.getEntity(eventInfo);
-		if(entity instanceof Player)
+		if(entityReference.getName(eventInfo) != null)
 			switch(propertyMatch)
 			{
 				case BleedTicks:	return ExternalPluginManager.getMcMMOPlugin().getPlayerProfile((Player)entity).getBleedTicks();

@@ -4,13 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.entity.Animals;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Egg;
 import org.bukkit.entity.Enderman;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.Fish;
 import org.bukkit.entity.Flying;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Giant;
@@ -24,6 +29,7 @@ import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Silverfish;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
+import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Squid;
 import org.bukkit.entity.Wolf;
@@ -91,11 +97,16 @@ public enum ModDamageElement
 				BURN(NATURE),
 				LAVA(NATURE),
 				LIGHTNING(NATURE),
-				PROJECTILE(NATURE),
 				STARVATION(NATURE),
 				SUFFOCATION(NATURE),
 				SUICIDE(NATURE),
 				VOID(NATURE),
+			PROJECTILE(NONLIVING),
+				ARROW(PROJECTILE),
+				EGG(PROJECTILE),
+				FIREBALL(PROJECTILE),
+				FISHINGROD(PROJECTILE),
+				SNOWBALL(PROJECTILE),
 			
 			TRAP(NONLIVING),
 				DISPENSER(TRAP);
@@ -137,7 +148,7 @@ public enum ModDamageElement
 	
 	public CreatureType getCreatureType(){ return creatureType;}
 	
-	public static ModDamageElement matchNonlivingElement(DamageCause cause)
+	public static ModDamageElement matchEventElement(DamageCause cause)
 	{
 		switch(cause)
 		{
@@ -158,6 +169,16 @@ public enum ModDamageElement
 			case VOID: 				return VOID;
 			default: 				return UNKNOWN;//shouldn't happen
 		}
+	}
+	
+	public static ModDamageElement matchRangedElement(Entity entity)
+	{
+		if(entity instanceof Arrow)		return ARROW;
+		if(entity instanceof Egg)		return EGG;
+		if(entity instanceof Fireball)	return FIREBALL;
+		if(entity instanceof Fish)		return FISHINGROD; 
+		if(entity instanceof Snowball)	return SNOWBALL;
+		return null;
 	}
 	
 	//Returns true if this is equals or a subtype of the inputted element

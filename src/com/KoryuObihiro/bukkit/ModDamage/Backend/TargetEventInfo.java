@@ -18,8 +18,8 @@ public class TargetEventInfo
 	public static final Logger log = ModDamage.log;
 	public static final Server server = ModDamage.server;
 
-	protected ExecutionState executionState;
-	private enum ExecutionState{ GOTO_NEXT, GOTO_ELSE, STOP;}
+	public final EventInfoType type;
+	public enum EventInfoType{ ATTACKER, PROJECTILE, TARGET;}
 	
 	public int eventValue;
 	public final World world;
@@ -32,9 +32,35 @@ public class TargetEventInfo
 	public final String name_target;
 	public final List<String> groups_target;
 	
-//CONSTRUCTORS	
-	public TargetEventInfo(LivingEntity entity, ModDamageElement eventElement_target, int eventValue) 
+//CONSTRUCTORS
+	public TargetEventInfo(LivingEntity entity, ModDamageElement eventElement_target, int eventValue)
 	{
+		this.type = EventInfoType.TARGET;
+		this.eventValue = eventValue;
+		this.entity_target = entity;
+		this.element_target = eventElement_target;
+		if(entity instanceof Player)
+		{
+			Player player_target = (Player)entity;
+			this.materialInHand_target = player_target.getItemInHand().getType();
+			this.armorSet_target = new ArmorSet(player_target);
+			this.name_target = player_target.getName();
+			this.groups_target = ExternalPluginManager.getPermissionsManager().getGroups(player_target);
+		}
+		else
+		{
+			this.materialInHand_target = null;
+			this.armorSet_target = null;
+			this.name_target = null;
+			this.groups_target = ModDamage.emptyList;
+		}
+		
+		this.world = entity.getWorld();	
+		this.environment = world.getEnvironment();
+	}
+	protected TargetEventInfo(LivingEntity entity, ModDamageElement eventElement_target, int eventValue, EventInfoType type) 
+	{
+		this.type = type;
 		this.eventValue = eventValue;
 		this.entity_target = entity;
 		this.element_target = eventElement_target;
@@ -60,6 +86,7 @@ public class TargetEventInfo
 	
 	public TargetEventInfo(World world, ModDamageElement eventElement_target, int eventValue) 
 	{
+		this.type = EventInfoType.PROJECTILE;
 		this.eventValue = eventValue;
 		this.entity_target = null;
 		this.element_target = eventElement_target;

@@ -16,7 +16,6 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.RangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
@@ -90,7 +89,7 @@ public class ModDamageEntityListener extends EntityListener
 		if(ModDamage.isEnabled)
 		{
 			Projectile projectile = (Projectile)event.getEntity();
-			RangedElement rangedElement = RangedElement.matchElement(projectile);
+			ModDamageElement rangedElement = ModDamageElement.matchRangedElement(projectile);
 			ProjectileEventInfo eventInfo = null;
 			if(projectile.getShooter() != null)
 				eventInfo = new ProjectileEventInfo(projectile.getShooter(), ModDamageElement.matchMobType(projectile.getShooter()), projectile, rangedElement, 0);
@@ -136,7 +135,7 @@ public class ModDamageEntityListener extends EntityListener
 		if(event != null)
 		{
     		LivingEntity ent_damaged = (LivingEntity)event.getEntity();
-			ModDamageElement primaryElement = ModDamageElement.matchNonlivingElement(event.getCause());
+			ModDamageElement primaryElement = ModDamageElement.matchEventElement(event.getCause());
 		    switch(primaryElement)
 		    {
 		    	case LIVING:
@@ -147,7 +146,7 @@ public class ModDamageEntityListener extends EntityListener
 						if(event_EE.getDamager() instanceof Projectile)
 						{
 							Projectile projectile = (Projectile)event_EE.getDamager();
-							RangedElement rangedElement = RangedElement.matchElement(projectile);
+							ModDamageElement rangedElement = ModDamageElement.matchRangedElement(projectile);
 							if(projectile.getShooter() != null)
 								return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), projectile.getShooter(), ModDamageElement.matchMobType(projectile.getShooter()), projectile, rangedElement, event.getDamage());
 							else if(event_EE.getCause().equals(DamageCause.PROJECTILE))//FIXME Necessary?

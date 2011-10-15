@@ -3,8 +3,8 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo.EventInfoType;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
@@ -15,7 +15,7 @@ public class EventHasRangedElement extends ConditionalStatement
 		super(inverted);
 	}
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo){ return eventInfo instanceof ProjectileEventInfo && ((ProjectileEventInfo)eventInfo).rangedElement != null;}
+	protected boolean condition(TargetEventInfo eventInfo){ return eventInfo.type.equals(EventInfoType.PROJECTILE);}
 	
 	public static void register()
 	{

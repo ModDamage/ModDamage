@@ -40,7 +40,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityFallin
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnBlock;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTypeEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventHasRangedElement;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventRangedElementEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSleeping;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSneaking;
@@ -57,7 +56,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EnvironmentSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.RangedElementSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.elbukkit.api.elregions.region.Region;
@@ -113,7 +111,6 @@ public class ExternalPluginManager
 		ServerOnlineMode.register();
 		//Event
 		EventHasRangedElement.register();
-		EventRangedElementEvaluation.register();
 		EventWorldEvaluation.register();
 	CalculationRoutine.register();
 		ChangeProperty.register();
@@ -129,7 +126,6 @@ public class ExternalPluginManager
 		EnvironmentSwitch.register();
 		PlayerGroupSwitch.register();
 		PlayerWieldSwitch.register();
-		RangedElementSwitch.register();
 		WorldSwitch.register();
 		
 		for(ModDamagePlugin plugin : registeredPlugins)
