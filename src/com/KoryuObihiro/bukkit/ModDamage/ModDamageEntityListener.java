@@ -154,9 +154,7 @@ public class ModDamageEntityListener extends EntityListener
 						}
 						else if(event_EE.getDamager() != null) return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), (LivingEntity)event_EE.getDamager(), ModDamageElement.matchMobType((LivingEntity)event_EE.getDamager()), null, null, event.getDamage());
 					}
-		    	case UNKNOWN:
-		    		ModDamage.log.severe(primaryElement.name() + " element not caught!");
-					break;
+		    	case UNKNOWN: break;
 				default: return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, primaryElement, null, null, event.getDamage());
 		    }
 		}

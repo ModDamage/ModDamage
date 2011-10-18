@@ -5,8 +5,13 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 
 public enum LogicalOperation
-{ 
-	AND, OR, NAND, NOR, XNOR, XOR;
+{
+	AND{public boolean operate(boolean operand_1, boolean operand_2){ return operand_1 && operand_2;}},
+	OR{public boolean operate(boolean operand_1, boolean operand_2){ return operand_1 || operand_2;}},
+	NAND{public boolean operate(boolean operand_1, boolean operand_2){ return !operand_1 || !operand_2;}},
+	NOR{public boolean operate(boolean operand_1, boolean operand_2){ return !operand_1 && !operand_2;}},
+	XNOR{public boolean operate(boolean operand_1, boolean operand_2){ return operand_1 == operand_2;}},
+	XOR{public boolean operate(boolean operand_1, boolean operand_2){ return operand_1 ^ operand_2;}};
 
 	public static final String logicalOperationPart;
 	static
@@ -26,17 +31,5 @@ public enum LogicalOperation
 		return null;
 	}
 	
-	public boolean operate(boolean operand_1, boolean operand_2)
-	{
-		switch(this)
-		{
-			case AND:	return operand_1 && operand_2;
-			case OR:	return operand_1 || operand_2;
-			case NAND:	return !operand_1 || !operand_2;
-			case NOR:	return !operand_1 && !operand_2;
-			case XNOR:	return operand_1 == operand_2;
-			case XOR:	return operand_1 ^ operand_2;
-			default:return false;
-		}
-	}
+	abstract public boolean operate(boolean operand_1, boolean operand_2);
 }

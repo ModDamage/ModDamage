@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
@@ -24,21 +25,39 @@ public class EntityBlockStatus extends EntityConditionalStatement
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo)
 	{
-		switch(statusType)
-		{
-			case OnBlock:
-				return materials.contains(entityReference.getEntity(eventInfo).getLocation().add(0, -1, 0).getBlock().getType());
-			case OverBlock:
-			case UnderBlock:
-			default: return false;
-		}
+		if(entityReference.getEntity(eventInfo) != null)
+			return statusType.isTrue(materials, entityReference.getEntity(eventInfo));
+		return false;
 	}
 	
 	private enum BlockStatusType
 	{
-		OnBlock,
-		OverBlock,
-		UnderBlock;
+		OnBlock
+		{
+			@Override
+			public boolean isTrue(List<Material> materials, Entity entity)
+			{
+				return materials.contains(entity.getLocation().add(0, -1, 0).getBlock().getType());
+			}
+		}/*,
+		OverBlock
+		{
+			@Override
+			public boolean isTrue(List<Material> materials, Entity entity)
+			{
+				
+			}
+		},
+		UnderBlock
+		{
+			@Override
+			public boolean isTrue(List<Material> materials, Entity entity)
+			{
+				
+			}
+		}*/;
+		
+		abstract public boolean isTrue(List<Material> materials, Entity entity);
 	}
 	
 	public static void register()

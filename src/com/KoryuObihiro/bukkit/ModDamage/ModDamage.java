@@ -18,12 +18,15 @@ import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
 
+import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.PermissionsManager;
+import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.RegionsManager;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamageEntityListener.EventType;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
@@ -121,8 +124,8 @@ public class ModDamage extends JavaPlugin
 			return returnState;
 		}
 	}
-	
-	private static Configuration config;
+
+	private static YamlConfiguration config;
 	private static final String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
 	private static int configPages = 0;
 	private static List<String> configStrings_ingame = new ArrayList<String>();
@@ -157,11 +160,11 @@ public class ModDamage extends JavaPlugin
 			for(EventType eventType : EventType.values())
 			{
 				ModDamage.indentation++;
-				List<Object> routineObjects = null;
-				for(String key : config.getKeys())
+				List<?> routineObjects = null;
+				for(String key : config.getKeys(false))
 					if(key.equalsIgnoreCase(eventType.name()))
 					{
-						routineObjects = config.getList(key);
+						routineObjects = (List<?>)config.getList(key);
 						break;
 					}
 				if(routineObjects != null)
@@ -230,8 +233,9 @@ public class ModDamage extends JavaPlugin
 		server.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
 		server.getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Highest, this);
 		server.getPluginManager().registerEvent(Event.Type.ENTITY_REGAIN_HEALTH, entityListener, Event.Priority.Highest, this);
-		
-		config = this.getConfiguration();
+		FileConfiguration configger = this.getConfig();
+		try{ this.getConfig().load(new File(this.getDataFolder(), "config.yml"));}
+		catch(Exception e){ e.printStackTrace();}
 		reload(true);
 		isEnabled = true;
 	}
@@ -444,14 +448,14 @@ public class ModDamage extends JavaPlugin
 		BufferedReader reader = null;
 		try
 		{
-	        reader = new BufferedReader(new InputStreamReader(ModDamage.class.getResourceAsStream("/plugin.yml")));
+	        reader = new BufferedReader(new InputStreamReader(this.getClassLoader().getResourceAsStream("/plugin.yml")));
 	        String jenkinsLine = reader.readLine();
 	        while(jenkinsLine != null)
 	        {
 	        	if(jenkinsLine.contains("jenkins:"))
 	        	{
 	        		try{ jenkinsBuild = Integer.parseInt(jenkinsLine.substring(8));}
-	        		catch(NumberFormatException e)
+	        		catch(Exception e)
 	        		{
 	        			log.severe(logPrepend() + "Error: couldn't parse test build value after finding test build tag. Tell Koryu he's an idiot.");
 	        		}
@@ -475,15 +479,15 @@ public class ModDamage extends JavaPlugin
 		
 		if(reloadingAll)
 		{
-			ExternalPluginManager.reload(this);
-			if(ExternalPluginManager.getPermissionsPlugin() != null)
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] Permissions: " + ExternalPluginManager.getPermissionsPlugin().getDescription().getName() + " v" + ExternalPluginManager.getPermissionsPlugin().getDescription().getVersion(), LoadState.SUCCESS);
-			else ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] No permissions plugin found.", LoadState.NOT_LOADED);
-			if(ExternalPluginManager.getRegionsPlugin() != null)
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] Regions: " + ExternalPluginManager.getRegionsPlugin().getDescription().getName() + " v" + ExternalPluginManager.getRegionsPlugin().getDescription().getVersion(), LoadState.SUCCESS);
-			else ModDamage.addToLogRecord(DebugSetting.VERBOSE, "[" + this.getDescription().getName() + "] No regional plugins found.", LoadState.NOT_LOADED);
+			ExternalPluginManager.reload();
+			if(ExternalPluginManager.getPermissionsManager().equals(PermissionsManager.SUPERPERMS))
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] No permissions plugin found.", LoadState.NOT_LOADED);
+			else ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] Permissions: " + ExternalPluginManager.getPermissionsManager().name() + " v" + ExternalPluginManager.getPermissionsManager().getVersion(), LoadState.SUCCESS);
+			if(ExternalPluginManager.getRegionsManager().equals(RegionsManager.NONE))
+				ModDamage.addToLogRecord(DebugSetting.VERBOSE, "[" + this.getDescription().getName() + "] No regional plugins found.", LoadState.NOT_LOADED);
+			else ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] Regions: " + ExternalPluginManager.getRegionsManager().name() + " v" + ExternalPluginManager.getRegionsManager().getVersion(), LoadState.SUCCESS);
 			
-		//Build check
+		//Bukkit build check
 			String string = getServer().getVersion();
 			Matcher matcher = Pattern.compile(".*b([0-9]+)jnks.*", Pattern.CASE_INSENSITIVE).matcher(string);
 			if(matcher.matches())
@@ -494,7 +498,7 @@ public class ModDamage extends JavaPlugin
 			else addToLogRecord(DebugSetting.QUIET, logPrepend() + "Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.", LoadState.FAILURE);
 		}
 		
-		try{ config.load();}
+		try{ config.load(new File(this.getDataFolder(), "config.yml"));}
 		catch(Exception e)
 		{
 			//TODO 0.9.7 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not auto-load config.
@@ -538,11 +542,11 @@ public class ModDamage extends JavaPlugin
 
 	//Aliasing
 		addToLogRecord(DebugSetting.VERBOSE, "Loading aliases...", LoadState.SUCCESS);
-		for(String key : config.getKeys())
+		for(String key : config.getKeys(false))
 			if(key.equalsIgnoreCase("Aliases"))
 			{
-				ConfigurationNode aliasesNode = config.getNode(key);
-				if(!aliasesNode.getKeys().isEmpty())
+				ConfigurationSection aliasesNode = config.getConfigurationSection(key);
+				if(!aliasesNode.getKeys(false).isEmpty())
 				{
 					ModDamage.indentation++;
 					List<LoadState> list = Arrays.asList(armorAliaser.load(aliasesNode), biomeAliaser.load(aliasesNode), elementAliaser.load(aliasesNode), itemAliaser.load(aliasesNode), groupAliaser.load(aliasesNode), messageAliaser.load(aliasesNode), regionAliaser.load(aliasesNode), routineAliaser.load(aliasesNode), worldAliaser.load(aliasesNode));
@@ -587,7 +591,7 @@ public class ModDamage extends JavaPlugin
 		if(debugSetting.shouldOutput(negative_Heal?DebugSetting.NORMAL:DebugSetting.VERBOSE))
 			log.info(logPrepend() + "Negative-damage healing " + (negative_Heal?"en":"dis") + "abled.");
 		
-		config.load(); //Discard any changes made to the file by the above reads.
+		//FIXME config.load(); //Discard any changes made to the file by the above reads.
 		
 		String sendThis = null;
 		switch(state_plugin)
@@ -608,10 +612,10 @@ public class ModDamage extends JavaPlugin
 	private void writeDefaults() 
 	{
 		addToLogRecord(DebugSetting.QUIET, logPrepend() + "No configuration file found! Writing a blank config...", LoadState.NOT_LOADED);
-		config.setHeader("#Auto-generated config");
-		config.setProperty("debugging", "normal");
+		//config.a("#Auto-generated config"); FIXME
+		config.set("debugging", "normal");
 		for(EventType eventType : EventType.values())
-			config.setProperty(eventType.name(), null);
+			config.set(eventType.name(), null);
 		
 		String[][] toolAliases = { {"axe", "hoe", "pickaxe", "spade", "sword"}, {"WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_"}};
 		for(String toolType : toolAliases[0])
@@ -619,10 +623,11 @@ public class ModDamage extends JavaPlugin
 			List<String> combinations = new ArrayList<String>();
 			for(String toolMaterial : toolAliases[1])
 				combinations.add(toolMaterial + toolType.toUpperCase());
-			config.setProperty("Aliases.Item." + toolType, combinations);
+			config.set("Aliases.Item." + toolType, combinations);
 		}
-		config.save();
+		saveConfig();
 		log.severe(logPrepend() + "Auto-generated config.yml. :D");
+		this.saveConfig();
 	}
 	
 	//TODO 0.9.7 Implement a reload hook for other plugins, make /md r reload routine library.
@@ -639,8 +644,7 @@ public class ModDamage extends JavaPlugin
 				log.info(logPrepend() + sendThis);
 				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " " + sendThis);
 				debugSetting = setting;
-				config.setProperty("debugging", debugSetting.name().toLowerCase());
-				config.save();
+				config.set("debugging", debugSetting.name().toLowerCase());
 			}
 			else
 			{

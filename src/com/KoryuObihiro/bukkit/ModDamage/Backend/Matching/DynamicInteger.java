@@ -20,11 +20,30 @@ public class DynamicInteger extends DynamicString
 	protected final int value;
 	private final List<Routine> routines;
 	private final BasicIntegerMatch propertyMatch;
+	protected final boolean settable;
 	public enum BasicIntegerMatch
 	{
-		StaticValue,
-		DynamicValue,
-		RoutineValue(true);
+		StaticValue
+		{
+			@Override
+			public String getString(TargetEventInfo eventInfo){ return null;}
+		},
+		DynamicValue(true)
+		{
+			@Override
+			public String getString(TargetEventInfo eventInfo)
+			{
+				return "" + eventInfo.eventValue;
+			}
+			
+			@Override
+			public String toString(){ return "event.value";}
+		},
+		RoutineValue
+		{			
+			@Override
+			public String toString(){ return "<SOME-ROUTINES>";}//shouldn't happen
+		};
 		
 		public boolean settable = false;
 		private BasicIntegerMatch(){}
@@ -32,22 +51,18 @@ public class DynamicInteger extends DynamicString
 		{
 			this.settable = settable;
 		}
+		
+		@Override
+		public String toString(){ return null;}
+		
+		public String getString(TargetEventInfo eventInfo){ return null;}
 	}
-	protected final boolean settable;
 	
 	private DynamicInteger()
 	{ 
 		this.value = 0;
 		this.routines = null;
 		this.propertyMatch = BasicIntegerMatch.DynamicValue;
-		this.settable = true;
-	}
-	
-	protected DynamicInteger(boolean settable)
-	{ 
-		this.value = 0;
-		this.routines = null;
-		this.propertyMatch = BasicIntegerMatch.StaticValue;
 		this.settable = true;
 	}
 	
@@ -58,7 +73,7 @@ public class DynamicInteger extends DynamicString
 		this.propertyMatch = BasicIntegerMatch.StaticValue;
 		this.settable = false;
 	}
-	
+
 	private DynamicInteger(List<Routine> routines)
 	{
 		this.value = 0;
@@ -67,26 +82,34 @@ public class DynamicInteger extends DynamicString
 		this.settable = false;
 	}
 	
+	protected DynamicInteger(boolean settable)
+	{ 
+		this.value = 0;
+		this.routines = null;
+		this.propertyMatch = BasicIntegerMatch.StaticValue;
+		this.settable = true;
+	}
+	
 	public boolean isSettable(){ return settable;}
 	
-	public int getValue(TargetEventInfo eventInfo)
-	{ 
+	public Integer getValue(TargetEventInfo eventInfo)
+	{
 		switch(propertyMatch)
 		{
 			case StaticValue:	return value;
 			case RoutineValue:
-				for(Routine routine : routines)//FIXME Unify routines. Because we need default behavior.
+				for(Routine routine : routines)
 					routine.run(eventInfo);
 			case DynamicValue:	return eventInfo.eventValue;
 			default: return 0;
 		}
 	}
 
-	public void setValue(TargetEventInfo eventInfo, int value, boolean additive)
+	public void setValue(TargetEventInfo eventInfo, int value)
 	{
 		switch(propertyMatch)
 		{
-			case DynamicValue: eventInfo.eventValue = value + (additive?eventInfo.eventValue:0);
+			case DynamicValue: eventInfo.eventValue = value;
 		}
 	}
 	
@@ -162,9 +185,7 @@ public class DynamicInteger extends DynamicString
 		switch(propertyMatch)
 		{
 			case StaticValue: return "" + value;
-			case DynamicValue: return "event.value";
-			case RoutineValue: return "<SOME-ROUTINES>";//shouldn't happen
-			default: return "null";
+			default: return propertyMatch.toString();
 		}
 	}
 

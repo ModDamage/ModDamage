@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
+
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
@@ -26,7 +28,7 @@ public class DelayedRoutine extends NestedRoutine
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{ 
-		TargetEventInfo.server.getScheduler().scheduleAsyncDelayedTask(TargetEventInfo.server.getPluginManager().getPlugin("ModDamage"), new DelayedRunnable(eventInfo), delay.getValue(eventInfo));
+		Bukkit.getScheduler().scheduleAsyncDelayedTask(Bukkit.getPluginManager().getPlugin("ModDamage"), new DelayedRunnable(eventInfo), delay.getValue(eventInfo));
 	}
 		
 	public static void register()

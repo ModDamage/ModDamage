@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.util.config.ConfigurationNode;
+import org.bukkit.configuration.ConfigurationSection;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
@@ -20,7 +20,7 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 	
 	Aliaser(String name){ this.name = name;}
 
-	public boolean addAlias(String key, List<Object> values)
+	public boolean addAlias(String key, List<?> values)
 	{
 		if(this.containsKey(key)) return false;
 		List<Type> matchedItems = new ArrayList<Type>();
@@ -87,25 +87,25 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 		loadState = LoadState.NOT_LOADED;
 	}
 	
-	public LoadState load(ConfigurationNode aliasesNode)
+	public LoadState load(ConfigurationSection aliasesNode)
 	{
 		loadState = LoadState.NOT_LOADED;
-		ConfigurationNode specificAliasesNode = null;
-		for(String key : aliasesNode.getKeys())
+		ConfigurationSection specificAliasesNode = null;
+		for(String key : aliasesNode.getKeys(false))
 			if(key.equalsIgnoreCase(this.name))
 			{
-				specificAliasesNode = aliasesNode.getNode(key);
+				specificAliasesNode = aliasesNode.getConfigurationSection(key);
 				break;
 			}
 		if(specificAliasesNode != null)
 		{
-			if(!specificAliasesNode.getKeys().isEmpty())
+			if(!specificAliasesNode.getKeys(false).isEmpty())
 			{
 				this.loadState = LoadState.SUCCESS;
 				ModDamage.addToLogRecord(DebugSetting.VERBOSE, this.name + " aliases found, parsing...", LoadState.SUCCESS);
-				for(String alias : specificAliasesNode.getKeys())
+				for(String alias : specificAliasesNode.getKeys(false))
 				{
-					List<Object> values = specificAliasesNode.getList(alias);
+					List<?> values = (List<?>)specificAliasesNode.getList(alias);
 					if(values.isEmpty())
 						ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Found empty " + this.name.toLowerCase() + " alias \"" + alias + "\", ignoring...", LoadState.NOT_LOADED);
 					else if(!this.addAlias(alias, values))

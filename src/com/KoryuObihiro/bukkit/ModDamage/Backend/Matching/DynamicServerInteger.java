@@ -1,24 +1,31 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching;
 
+import org.bukkit.Bukkit;
+
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class DynamicServerInteger extends DynamicInteger
 {
 	protected final ServerPropertyMatch propertyMatch;
-	enum ServerPropertyMatch
+	enum ServerPropertyMatch //FIXME Merge with DynamicInteger?
 	{
-		MaxPlayers,
-		OnlinePlayers;
-		private int getProperty(TargetEventInfo eventInfo)
+		OnlinePlayers
 		{
-			
-			switch(this)
+			@Override
+			protected Integer getValue()
 			{
-				case MaxPlayers: return TargetEventInfo.server.getMaxPlayers();
-				case OnlinePlayers: return TargetEventInfo.server.getOnlinePlayers().length;
+				return Bukkit.getOnlinePlayers().length;
 			}
-			return 0;
-		}
+		},
+		MaxPlayers
+		{
+			@Override
+			protected Integer getValue()
+			{
+				return Bukkit.getMaxPlayers();
+			}
+		};
+		abstract protected Integer getValue();
 	}
 	
 	DynamicServerInteger(ServerPropertyMatch propertyMatch)
@@ -28,7 +35,7 @@ public class DynamicServerInteger extends DynamicInteger
 	}
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo){ return propertyMatch.getProperty(eventInfo);}
+	public Integer getValue(TargetEventInfo eventInfo){ return propertyMatch.getValue();}
 	
 	@Override
 	public String toString()

@@ -12,12 +12,13 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class EntityStatus extends EntityConditionalStatement
 {
-	static final List<Material> waterList = Arrays.asList(Material.WATER, Material.STATIONARY_WATER);
+	private static final List<Material> waterList = Arrays.asList(Material.WATER, Material.STATIONARY_WATER);
 
 	public static final HashSet<Material> goThroughThese = new HashSet<Material>();
 	
@@ -39,6 +40,66 @@ public class EntityStatus extends EntityConditionalStatement
 	}
 	
 	final StatusType statusType;
+	private enum StatusType
+	{
+		Drowning(ModDamageElement.LIVING)
+		{
+			@Override
+			public boolean isTrue(Entity entity){ return ((LivingEntity)entity).getRemainingAir() <= 0;}
+		},
+		ExposedToSky
+		{
+			@Override
+			public boolean isTrue(Entity entity)
+			{
+				int i = entity.getLocation().getBlockX();
+				int k = entity.getLocation().getBlockZ();
+				for(int j = (entity instanceof LivingEntity?((LivingEntity)entity).getEyeLocation():entity.getLocation()).getBlockY(); j < 128; j++)
+					if(!goThroughThese.contains(entity.getWorld().getBlockAt(i, j, k).getType())) return false;
+				return true;
+			}
+		},
+		Falling
+		{
+			@Override
+			public boolean isTrue(Entity entity){ return entity.getFallDistance() > 0;}
+		},
+		OnFire
+		{
+			@Override
+			public boolean isTrue(Entity entity){ return entity.getFireTicks() > 0;}
+		},
+		Sleeping(ModDamageElement.PLAYER)
+		{
+			@Override
+			public boolean isTrue(Entity entity){ return ((Player)entity).isSleeping();}
+		},
+		Sneaking(ModDamageElement.LIVING)
+		{
+			@Override
+			public boolean isTrue(Entity entity)
+			{ return ((Player)entity).isSneaking();
+			}
+		},
+		Underwater
+		{
+			@Override
+			public boolean isTrue(Entity entity)
+			{
+				return waterList.contains(entity.getLocation().getBlock().getType()) && (entity instanceof LivingEntity)?waterList.contains(((LivingEntity)entity).getEyeLocation().getBlock().getType()):true;
+			}
+		};
+		
+		protected ModDamageElement requiredElement = ModDamageElement.GENERIC;
+		StatusType(){}
+		StatusType(ModDamageElement requiredElement)
+		{
+			this.requiredElement = requiredElement;
+		}
+		
+		abstract public boolean isTrue(Entity entity);
+	}
+	
 	protected EntityStatus(boolean inverted, EntityReference entityReference, StatusType statusType)
 	{
 		super(inverted, entityReference);
@@ -48,53 +109,9 @@ public class EntityStatus extends EntityConditionalStatement
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo)
 	{
-		Entity entity = entityReference.getEntity(eventInfo);
-		if((!statusType.forLiving && entity instanceof LivingEntity) && (!statusType.forPlayer && (entity instanceof Player)))
-		{
-			switch(statusType)
-			{
-				case Drowning:
-					return entityReference.getEntity(eventInfo) instanceof LivingEntity && ((LivingEntity)entityReference.getEntity(eventInfo)).getRemainingAir() <= 0;
-				case ExposedToSky:
-					int i = entity.getLocation().getBlockX();
-					int k = entity.getLocation().getBlockZ();
-					for(int j = ((entity instanceof LivingEntity)?((LivingEntity)entity).getEyeLocation():entity.getLocation()).getBlockY(); j < 128; j++)
-						if(!goThroughThese.contains(eventInfo.world.getBlockAt(i, j, k).getType())) return false;
-					return true;
-				case Falling:
-					return entityReference.getEntity(eventInfo).getFallDistance() > 3;
-				case OnFire:
-					return entity.getFireTicks() > 0;
-				case Sleeping:
-					return ((Player)entity).isSleeping();
-				case Sneaking:
-					return ((Player)entity).isSneaking();
-				case Underwater:
-					return waterList.contains(entityReference.getEntity(eventInfo).getLocation().getBlock().getType()) && (entityReference.getEntity(eventInfo) instanceof LivingEntity)?waterList.contains(((LivingEntity)entityReference.getEntity(eventInfo)).getEyeLocation().getBlock().getType()):true;
-						
-			}
-		}
+		if(entityReference.getElement(eventInfo).matchesType(statusType.requiredElement))
+			return statusType.isTrue(entityReference.getEntity(eventInfo));
 		return false;
-	}
-	
-	private enum StatusType
-	{
-		Drowning(true, false),
-		ExposedToSky,
-		Falling,
-		OnFire,
-		Sleeping(false, true),
-		Sneaking(false, true),
-		Underwater;
-		
-		protected boolean forLiving = false;
-		protected boolean forPlayer = false;
-		StatusType(){}
-		StatusType(boolean forLiving,boolean forPlayer)
-		{
-			this.forLiving = forLiving;
-			this.forPlayer = forPlayer;
-		}
 	}
 	
 	public static void register()

@@ -1,9 +1,9 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public abstract class PlayerConditionalStatement extends EntityConditionalStatement
@@ -15,7 +15,6 @@ public abstract class PlayerConditionalStatement extends EntityConditionalStatem
 	
 	protected Player getRelevantPlayer(TargetEventInfo eventInfo)
 	{
-		Entity entity = entityReference.getEntity(eventInfo);
-		return (entity != null && entity instanceof Player)?(Player)entity:null;
+		return (entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER)?(Player)entityReference.getEntity(eventInfo):null);
 	}
 }

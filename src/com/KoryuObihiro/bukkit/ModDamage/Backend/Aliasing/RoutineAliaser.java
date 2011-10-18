@@ -17,7 +17,7 @@ public class RoutineAliaser extends Aliaser<Routine>
 	private static final long serialVersionUID = -2744471820826321788L;
 	public RoutineAliaser(){ super("Routine");}
 	
-	public boolean addAlias(String key, List<Object> values)
+	public boolean addAlias(String key, List<?> values)
 	{
 		if(this.containsKey(key)) return false;
 		ModDamage.addToLogRecord(DebugSetting.NORMAL, "Adding " + name + " alias \"" + key + "\"", LoadState.SUCCESS);

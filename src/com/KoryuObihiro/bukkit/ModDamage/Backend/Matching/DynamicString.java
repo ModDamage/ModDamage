@@ -27,9 +27,32 @@ public class DynamicString
 	final CommonDynamicProperty dynamicProperty;
 	public enum CommonDynamicProperty
 	{
-		Event_World,
-		Event_Environment,
-		Event_RangedElement;
+		Event_World
+		{
+			@Override
+			protected String getString(TargetEventInfo eventInfo)
+			{
+				return eventInfo.world.getName();
+			}
+		},
+		Event_Environment
+		{
+			@Override
+			protected String getString(TargetEventInfo eventInfo)
+			{
+				return eventInfo.environment.name();
+			}
+		},
+		Event_RangedElement
+		{
+			@Override
+			protected String getString(TargetEventInfo eventInfo)
+			{
+				return (eventInfo.type.equals(EventInfoType.PROJECTILE) && ((ProjectileEventInfo)eventInfo).rangedElement != null?((ProjectileEventInfo)eventInfo).rangedElement.name():null).toString();//FIXME null.toString() does what?
+			}
+		};
+		
+		protected String getString(TargetEventInfo eventInfo){ return null;}
 	}
 	
 	protected DynamicString(){ dynamicProperty = null;}
@@ -41,16 +64,7 @@ public class DynamicString
 	
 	public String getString(TargetEventInfo eventInfo)
 	{
-		switch(dynamicProperty)
-		{
-			case Event_World:
-				return eventInfo.world.getName();
-			case Event_Environment:
-				return eventInfo.environment.name();
-			case Event_RangedElement:
-				return (eventInfo.type.equals(EventInfoType.PROJECTILE) && ((ProjectileEventInfo)eventInfo).rangedElement != null?((ProjectileEventInfo)eventInfo).rangedElement.name():null).toString();//FIXME null.toString() does what?
-			default: return null;//shouldn't happen
-		}
+		return dynamicProperty.getString(eventInfo);
 	}
 	
 	public static DynamicString getNew(String string)

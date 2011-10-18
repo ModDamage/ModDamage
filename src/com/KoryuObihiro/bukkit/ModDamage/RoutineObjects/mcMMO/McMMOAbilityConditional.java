@@ -6,12 +6,11 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityFalling;
 import com.gmail.nossr50.mcMMO;
 
 public class McMMOAbilityConditional extends McMMOConditionalStatement
@@ -26,12 +25,11 @@ public class McMMOAbilityConditional extends McMMOConditionalStatement
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo, mcMMO mcMMOplugin, Player player)
 	{
-		return ability.checkAbility(mcMMOplugin, player);
+		return ability.isActivated(mcMMOplugin, player);
 	}
-
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(EntityFalling.class, Pattern.compile("(!?)(\\w+).hasactive.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(McMMOAbilityConditional.class, Pattern.compile("(!?)(\\w+).hasactive.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static McMMOAbilityConditional getNew(Matcher matcher)
@@ -51,31 +49,79 @@ public class McMMOAbilityConditional extends McMMOConditionalStatement
 	
 	private enum McMMOAbility
 	{
-		Berserk,
-		GigaDrillBreaker,
-		God,
-		GreenTerra,
-		SkullSplitter,
-		SerratedStrikes,
-		SuperBreaker,
-		SwordsPreparation,
-		TreeFeller;
-
-		public boolean checkAbility(mcMMO mcMMOplugin, Player player)
+		Berserk
 		{
-			switch(this)
+			@Override
+			public boolean isActivated(mcMMO mcMMOplugin, Player player)
 			{
-				case Berserk: return mcMMOplugin.getPlayerProfile(player).getBerserkMode(); 
-				case GigaDrillBreaker: return mcMMOplugin.getPlayerProfile(player).getGigaDrillBreakerMode(); 
-				case God: return mcMMOplugin.getPlayerProfile(player).getGodMode(); 
-				case GreenTerra: return mcMMOplugin.getPlayerProfile(player).getGreenTerraMode(); 
-				case SkullSplitter: return mcMMOplugin.getPlayerProfile(player).getSkullSplitterMode(); 
-				case SerratedStrikes: return mcMMOplugin.getPlayerProfile(player).getSerratedStrikesMode(); 
-				case SuperBreaker: return mcMMOplugin.getPlayerProfile(player).getSuperBreakerMode(); 
-				case SwordsPreparation: return mcMMOplugin.getPlayerProfile(player).getSwordsPreparationMode(); 
-				case TreeFeller: return mcMMOplugin.getPlayerProfile(player).getTreeFellerMode(); 
-				default: return false;
+				return mcMMOplugin.getPlayerProfile(player).getBerserkMode();
 			}
-		}
+		},
+		GigaDrillBreaker
+		{
+			@Override
+			public boolean isActivated(mcMMO mcMMOplugin, Player player)
+			{
+				return mcMMOplugin.getPlayerProfile(player).getGigaDrillBreakerMode(); 
+			}
+		},
+		God
+		{
+			@Override
+			public boolean isActivated(mcMMO mcMMOplugin, Player player)
+			{
+				return mcMMOplugin.getPlayerProfile(player).getGodMode(); 
+			}
+		},
+		GreenTerra
+		{
+			@Override
+			public boolean isActivated(mcMMO mcMMOplugin, Player player)
+			{
+				return mcMMOplugin.getPlayerProfile(player).getGreenTerraMode(); 
+			}
+		},
+		SkullSplitter
+		{
+			@Override
+			public boolean isActivated(mcMMO mcMMOplugin, Player player)
+			{
+				return mcMMOplugin.getPlayerProfile(player).getSkullSplitterMode(); 
+			}
+		},
+		SerratedStrikes
+		{
+			@Override
+			public boolean isActivated(mcMMO mcMMOplugin, Player player)
+			{
+				return mcMMOplugin.getPlayerProfile(player).getSerratedStrikesMode();
+			}
+		},
+		SuperBreaker
+		{
+			@Override
+			public boolean isActivated(mcMMO mcMMOplugin, Player player)
+			{
+				return mcMMOplugin.getPlayerProfile(player).getSuperBreakerMode(); 
+			}
+		},
+		SwordsPreparation
+		{
+			@Override
+			public boolean isActivated(mcMMO mcMMOplugin, Player player)
+			{
+				return mcMMOplugin.getPlayerProfile(player).getSwordsPreparationMode();
+			}
+		},
+		TreeFeller
+		{
+			@Override
+			public boolean isActivated(mcMMO mcMMOplugin, Player player)
+			{
+				return mcMMOplugin.getPlayerProfile(player).getTreeFellerMode(); 
+			}
+		};
+
+		abstract public boolean isActivated(mcMMO mcMMOplugin, Player player);
 	}
 }

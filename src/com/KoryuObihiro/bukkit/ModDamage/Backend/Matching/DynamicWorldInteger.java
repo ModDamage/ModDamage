@@ -5,10 +5,24 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 public class DynamicWorldInteger extends DynamicInteger
 {
 	protected final WorldPropertyMatch propertyMatch;
-	enum WorldPropertyMatch
+	enum WorldPropertyMatch //FIXME Merge with DynamicInteger?
 	{
-		OnlinePlayers,
-		Time(true);
+		OnlinePlayers
+		{
+			@Override
+			protected Integer getProperty(TargetEventInfo eventInfo)
+			{
+				return eventInfo.world.getPlayers().size();
+			}
+		},
+		Time(true)
+		{
+			@Override
+			protected Integer getProperty(TargetEventInfo eventInfo)
+			{
+				return (int)eventInfo.world.getTime();
+			}
+		};
 		
 		public boolean settable = false;
 		private WorldPropertyMatch(){}
@@ -17,15 +31,7 @@ public class DynamicWorldInteger extends DynamicInteger
 			this.settable = settable;
 		}
 		
-		private int getProperty(TargetEventInfo eventInfo)
-		{
-			switch(this)
-			{
-				case OnlinePlayers: return eventInfo.world.getPlayers().size();
-				case Time: return (int)eventInfo.world.getTime();
-			}
-			return 0;
-		}
+		abstract protected Integer getProperty(TargetEventInfo eventInfo);
 	}
 	
 	DynamicWorldInteger(WorldPropertyMatch propertyMatch)
@@ -35,7 +41,7 @@ public class DynamicWorldInteger extends DynamicInteger
 	}
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo){ return propertyMatch.getProperty(eventInfo);}
+	public Integer getValue(TargetEventInfo eventInfo){ return propertyMatch.getProperty(eventInfo);}
 	
 	@Override
 	public String toString()

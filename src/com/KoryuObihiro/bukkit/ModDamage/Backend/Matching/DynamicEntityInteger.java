@@ -5,6 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Slime;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class DynamicEntityInteger extends DynamicInteger
@@ -13,28 +14,119 @@ public class DynamicEntityInteger extends DynamicInteger
 	private final EntityIntegerPropertyMatch propertyMatch;
 	public enum EntityIntegerPropertyMatch
 	{
-		AirTicks(true, true),
-		FallDistance(false, true),
-		FireTicks(true, true),
-		Health(true, true),
-		Light,
-		Size(true),
-		X,
-		Y,
-		Z;
+		AirTicks(true, ModDamageElement.LIVING)
+		{
+			@Override
+			public int getValue(Entity entity)
+			{
+				return ((LivingEntity)entity).getRemainingAir();
+			}
+			
+			@Override
+			public void setValue(Entity entity, int value)
+			{
+				((LivingEntity)entity).setRemainingAir(value);
+			}
+		},
+		FallDistance(false, ModDamageElement.LIVING)
+		{
+			@Override
+			public int getValue(Entity entity)
+			{
+				return (int) ((LivingEntity)entity).getFallDistance();
+			}
+		},
+		FireTicks(true, ModDamageElement.LIVING)
+		{
+			@Override
+			public int getValue(Entity entity)
+			{
+				return ((LivingEntity)entity).getFireTicks();
+			}
+			
+			@Override
+			public void setValue(Entity entity, int value)
+			{
+				((LivingEntity)entity).setFireTicks(value);
+			}
+		},
+		Health(true, ModDamageElement.LIVING)
+		{
+			@Override
+			public int getValue(Entity entity)
+			{
+				return ((LivingEntity)entity).getHealth();
+			}
+			
+			@Override
+			public void setValue(Entity entity, int value)
+			{
+				((LivingEntity)entity).setHealth(value);
+			}
+		},
+		Light
+		{
+			@Override
+			public int getValue(Entity entity)
+			{
+				return entity.getLocation().getBlock().getLightLevel();
+			}
+		},
+		Size(true)
+		{
+			@Override
+			public int getValue(Entity entity)
+			{
+				return (entity instanceof Slime?((Slime)entity).getSize():0);
+			}
+			
+			@Override
+			public void setValue(Entity entity, int value)
+			{
+				if(entity instanceof Slime) ((Slime)entity).setSize(value);
+			}
+		},
+		X
+		{
+			@Override
+			public int getValue(Entity entity)
+			{
+				return entity.getLocation().getBlockX();
+			}
+		},
+		Y
+		{
+			@Override
+			public int getValue(Entity entity)
+			{
+				return entity.getLocation().getBlockY();
+			}
+		},
+		Z
+		{
+			@Override
+			public int getValue(Entity entity)
+			{
+				return entity.getLocation().getBlockZ();
+			}
+		};
 		
 		public boolean settable = false;
-		private boolean castsToLiving = false;
+		private ModDamageElement requiredElement = ModDamageElement.GENERIC;
 		private EntityIntegerPropertyMatch(){}
 		private EntityIntegerPropertyMatch(boolean settable)
 		{
 			this.settable = settable;
 		}
-		private EntityIntegerPropertyMatch(boolean settable, boolean castsToLiving)
+		private EntityIntegerPropertyMatch(boolean settable, ModDamageElement requiredElement)
 		{
 			this.settable = settable;
-			this.castsToLiving = castsToLiving;
+			this.requiredElement = requiredElement;
 		}
+		
+		abstract public int getValue(Entity entity);
+		public void setValue(Entity entity, int value){}
+		
 	}
 	
 	DynamicEntityInteger(EntityReference reference, EntityIntegerPropertyMatch propertyMatch)
@@ -45,40 +137,18 @@ public class DynamicEntityInteger extends DynamicInteger
 	}
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public Integer getValue(TargetEventInfo eventInfo)
 	{
-		Entity entity = entityReference.getEntity(eventInfo);
-		if((!propertyMatch.castsToLiving || (entity instanceof LivingEntity)))
-			switch(propertyMatch)
-			{
-				case AirTicks: return ((LivingEntity)entity).getRemainingAir();
-				case FallDistance: return (int) ((LivingEntity)entity).getFallDistance();
-				case FireTicks: return ((LivingEntity)entity).getFireTicks();
-				case Health: return ((LivingEntity)entity).getHealth();
-				case Light: return entity.getLocation().getBlock().getLightLevel();
-				case Size: if(entity instanceof Slime) return ((Slime)entity).getSize();
-				case X: return entity.getLocation().getBlockX();
-				case Y: return entity.getLocation().getBlockY();
-				case Z: return entity.getLocation().getBlockZ();
-			}
+		if(entityReference.getElement(eventInfo).matchesType(propertyMatch.requiredElement))
+			return propertyMatch.getValue(entityReference.getEntity(eventInfo));
 		return 0;//Shouldn't happen.
 	}
 	
 	@Override
-	public void setValue(TargetEventInfo eventInfo, int value, boolean additive)
+	public void setValue(TargetEventInfo eventInfo, int value)
 	{
-		Entity entity = entityReference.getEntity(eventInfo);
-		if((!propertyMatch.castsToLiving || (entity instanceof LivingEntity)))
-		{
-			value += (additive?getValue(eventInfo):0);
-			switch(propertyMatch)
-			{
-				case AirTicks: 		((LivingEntity)entity).setRemainingAir(value);
-				case FireTicks:		((LivingEntity)entity).setFireTicks(value);
-				case Health:		((LivingEntity)entity).setHealth(value);
-				case Size: 			if(entity instanceof Slime) ((Slime)entity).setSize(value);
-			}
-		}
+		if(propertyMatch.settable && entityReference.getElement(eventInfo).matchesType(propertyMatch.requiredElement))
+			propertyMatch.setValue(entityReference.getEntity(eventInfo), value);
 	}
 	
 	@Override

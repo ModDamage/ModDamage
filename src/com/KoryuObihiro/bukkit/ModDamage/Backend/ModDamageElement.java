@@ -196,9 +196,10 @@ public enum ModDamageElement
 		}
 		return false;
 	}
-
+	
 	public static ModDamageElement matchMobType(LivingEntity entity) throws IllegalArgumentException
 	{
+		//TODO Optimization - just use string comparisons against the class?
 		if(entity == null) throw new IllegalArgumentException("Entity cannot be null for matchMobType method!");
 		if(entity instanceof Slime)
 		{

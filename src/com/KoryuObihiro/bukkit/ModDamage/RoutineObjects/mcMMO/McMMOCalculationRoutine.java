@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
@@ -21,7 +22,7 @@ public abstract class McMMOCalculationRoutine extends CalculationRoutine<Player>
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{
-		if(entityReference.getEntity(eventInfo) instanceof Player)
+		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
 			super.run(eventInfo);
 	}
 	

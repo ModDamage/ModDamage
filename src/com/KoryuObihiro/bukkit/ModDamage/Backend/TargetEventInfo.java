@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
-import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.LivingEntity;
@@ -16,7 +15,6 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 public class TargetEventInfo
 {
 	public static final Logger log = ModDamage.log;
-	public static final Server server = ModDamage.server;
 
 	public final EventInfoType type;
 	public enum EventInfoType{ ATTACKER, PROJECTILE, TARGET;}

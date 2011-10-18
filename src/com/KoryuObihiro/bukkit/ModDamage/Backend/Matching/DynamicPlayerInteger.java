@@ -1,11 +1,11 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class DynamicPlayerInteger extends DynamicInteger
@@ -14,18 +14,162 @@ public class DynamicPlayerInteger extends DynamicInteger
 	protected final PlayerIntegerPropertyMatch propertyMatch;
 	public enum PlayerIntegerPropertyMatch
 	{
-		BleedTicks(true, true),
-		Exhaustion(true),
-		Experience(true),
-		FoodLevel(true),
-		GameMode(true),
-		Mana(true, true),
-		MaxMana(false, true),
-		Saturation(true),
-		SleepTicks,
-		TotalExperience(true),
-		WieldMaterial(true),
-		WieldQuantity(true);
+		BleedTicks(true, true)
+		{
+			@Override
+			public Integer getValue(Player player) 
+			{
+				return ExternalPluginManager.getMcMMOPlugin().getPlayerProfile(player).getBleedTicks();
+			}
+			
+			@Override
+			public void setValue(Player player, int value) 
+			{
+				ExternalPluginManager.getMcMMOPlugin().getPlayerProfile(player).setBleedTicks(value);
+			}
+		},
+		Exhaustion(true)
+		{
+			@Override
+			public Integer getValue(Player player) 
+			{
+				return (int)player.getExhaustion();
+			}
+			
+			@Override
+			public void setValue(Player player, int value) 
+			{
+				player.setExhaustion(value);
+			}
+		},
+		Experience(true)
+		{
+			@Override
+			public Integer getValue(Player player) 
+			{
+				return player.getExperience();
+			}
+			
+			@Override
+			public void setValue(Player player, int value) 
+			{
+				player.setExperience(value);
+			}
+		},
+		FoodLevel(true)
+		{
+			@Override
+			public Integer getValue(Player player) 
+			{
+				return player.getFoodLevel();
+			}
+			
+			@Override
+			public void setValue(Player player, int value) 
+			{
+				player.setFoodLevel(value);
+			}
+		},
+		GameMode(true)
+		{
+			@Override
+			public Integer getValue(Player player) 
+			{
+				return player.getGameMode().getValue();
+			}
+			
+			@Override
+			public void setValue(Player player, int value) 
+			{
+				player.setGameMode(org.bukkit.GameMode.getByValue(value));
+			}
+		},
+		Mana(true, true)
+		{
+			@Override
+			public Integer getValue(Player player) 
+			{
+				return ExternalPluginManager.getMcMMOPlugin().getPlayerProfile(player).getCurrentMana();
+			}
+			
+			@Override
+			public void setValue(Player player, int value) 
+			{
+				ExternalPluginManager.getMcMMOPlugin().getPlayerProfile(player).setMana(value);
+			}
+		},
+		MaxMana(false, true)
+		{
+			@Override
+			public Integer getValue(Player player) 
+			{
+				return ExternalPluginManager.getMcMMOPlugin().getPlayerProfile(player).getMaxMana();
+			}
+		},
+		Saturation(true)
+		{
+			@Override
+			public Integer getValue(Player player) 
+			{
+				return (int)player.getSaturation();
+			}
+			
+			@Override
+			public void setValue(Player player, int value) 
+			{
+				player.setSaturation(value);
+			}
+		},
+		SleepTicks
+		{
+			@Override
+			public Integer getValue(Player player) 
+			{
+				return player.getSleepTicks();
+			}
+		},
+		TotalExperience(true)
+		{
+			@Override
+			public Integer getValue(Player player) 
+			{
+				return player.getTotalExperience();
+			}
+			
+			@Override
+			public void setValue(Player player, int value) 
+			{
+				player.setTotalExperience(value);
+			}
+		},
+		WieldMaterial(true)
+		{
+			@Override
+			public Integer getValue(Player player) 
+			{
+				return player.getItemInHand().getTypeId();
+			}
+			
+			@Override
+			public void setValue(Player player, int value) 
+			{
+				player.setItemInHand(new ItemStack(value, player.getItemInHand().getAmount()));
+			}
+		},
+		WieldQuantity(true)
+		{
+			@Override
+			public Integer getValue(Player player) 
+			{
+				return player.getItemInHand().getAmount();
+			}
+			
+			@Override
+			public void setValue(Player player, int value) 
+			{
+				player.setItemInHand(new ItemStack(player.getItemInHand().getType(), value));
+			}
+		};
 		
 		public boolean settable = false;
 		public boolean usesMcMMO = false;
@@ -39,6 +183,10 @@ public class DynamicPlayerInteger extends DynamicInteger
 			this.settable = settable;
 			this.usesMcMMO = usesMcMMO;
 		}
+		
+		abstract public Integer getValue(Player player);
+		
+		public void setValue(Player player, int value) {}
 	}
 	
 	DynamicPlayerInteger(EntityReference reference, PlayerIntegerPropertyMatch propertyMatch)
@@ -49,49 +197,18 @@ public class DynamicPlayerInteger extends DynamicInteger
 	}
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public Integer getValue(TargetEventInfo eventInfo)
 	{
-		Entity entity = entityReference.getEntity(eventInfo);
-		if(entityReference.getName(eventInfo) != null)
-			switch(propertyMatch)
-			{
-				case BleedTicks:	return ExternalPluginManager.getMcMMOPlugin().getPlayerProfile((Player)entity).getBleedTicks();
-				case Experience:	return ((Player)entity).getExperience();
-				case Exhaustion:	return (int)((Player)entity).getExhaustion();
-				case FoodLevel:		return ((Player)entity).getFoodLevel();
-				case GameMode:		return ((Player)entity).getGameMode().getValue();
-				case Mana:			return ExternalPluginManager.getMcMMOPlugin().getPlayerProfile((Player)entity).getCurrentMana();
-				case MaxMana:		return ExternalPluginManager.getMcMMOPlugin().getPlayerProfile((Player)entity).getMaxMana();
-				case Saturation:	return (int)((Player)entity).getSaturation();
-				case SleepTicks:	return ((Player)entity).getSleepTicks();
-				case TotalExperience:return ((Player)entity).getTotalExperience();
-				case WieldMaterial:	return ((Player)entity).getItemInHand().getTypeId();
-				case WieldQuantity:	return ((Player)entity).getItemInHand().getAmount();
-			}
-		return 0;//Shouldn't happen.
+		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
+			return propertyMatch.getValue((Player)entityReference.getEntity(eventInfo));
+		return null;
 	}
 	
 	@Override
-	public void setValue(TargetEventInfo eventInfo, int value, boolean additive)
+	public void setValue(TargetEventInfo eventInfo, int value)
 	{
-		Entity entity = entityReference.getEntity(eventInfo);
-		if(entity instanceof Player)
-		{
-			value += (additive?getValue(eventInfo):0);
-			switch(propertyMatch)
-			{
-				case BleedTicks:	ExternalPluginManager.getMcMMOPlugin().getPlayerProfile((Player)entity).setBleedTicks(value);
-				case Experience:	((Player)entity).setExperience(value);
-				case Exhaustion:	((Player)entity).setExhaustion(value);
-				case FoodLevel:		((Player)entity).setFoodLevel(value);
-				case GameMode:		((Player)entity).setGameMode(org.bukkit.GameMode.getByValue(value));
-				case Mana:			ExternalPluginManager.getMcMMOPlugin().getPlayerProfile((Player)entity).setMana(value);
-				case Saturation:	((Player)entity).setSaturation(value);
-				case TotalExperience:((Player)entity).setTotalExperience(value);
-				case WieldMaterial:	((Player)entity).setItemInHand(new ItemStack(value, ((Player)entity).getItemInHand().getAmount()));
-				case WieldQuantity:	((Player)entity).setItemInHand(new ItemStack(((Player)entity).getItemInHand().getType(), value));
-			}	
-		}
+		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
+			propertyMatch.setValue((Player)entityReference.getEntity(eventInfo), value);
 	}
 	
 	@Override

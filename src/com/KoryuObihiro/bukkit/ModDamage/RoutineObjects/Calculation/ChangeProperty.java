@@ -24,7 +24,7 @@ public final class ChangeProperty extends CalculationRoutine<Object>
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{
-		targetPropertyMatch.setValue(eventInfo, value.getValue(eventInfo), additive);
+		targetPropertyMatch.setValue(eventInfo, value.getValue(eventInfo) + (additive?targetPropertyMatch.getValue(eventInfo):0));
 	}
 
 	@Override

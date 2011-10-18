@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicString;
 
@@ -18,77 +20,71 @@ public class Message extends NestedRoutine
 {
 	protected static final Pattern nestedMessagePattern = Pattern.compile("message.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
-	//FIXME Need colors!
 	protected final EntityReference entityReference;
 	protected final List<DynamicMessage> messages;
 	protected final MessageType messageType;
-	public Message(String configString, EntityReference entityReference, List<DynamicMessage> messages)
+	
+	private Message(String configString, EntityReference entityReference, List<DynamicMessage> messages)
 	{
 		super(configString);
 		this.messageType = MessageType.ENTITY;
 		this.entityReference = entityReference;
 		this.messages = messages;
 	}
-	public Message(String configString, MessageType messageType, List<DynamicMessage> messages)
+	private Message(String configString, MessageType messageType, List<DynamicMessage> messages)
 	{
 		super(configString);
 		this.messageType = messageType;
 		this.entityReference = null;
 		this.messages = messages;
 	}
+	
 	@Override
 	public void run(TargetEventInfo eventInfo)
-	{ 
-		messageType.sendMessage(entityReference, eventInfo, messages);
-	}
-	
-	public static void register()
 	{
-		Routine.registerBase(Message.class, Pattern.compile("message\\.(\\w+)\\.(.*)", Pattern.CASE_INSENSITIVE));//"debug\\.(server|(?:world(\\.[a-z0-9]+))|(?:player\\.[a-z0-9]+))\\.(_[a-z0-9]+)"
-		NestedRoutine.registerNested(Message.class, nestedMessagePattern);
-	}
-	
-	public static Message getNew(Matcher matcher)
-	{
-		if(matcher != null)
+		switch(messageType)
 		{
-			List<DynamicMessage> messages = ModDamage.matchMessageAlias(matcher.group(2));
-			if(!messages.isEmpty())
-			{
-				Message routine = null;
-				if(MessageType.match(matcher.group(1)) != null)
-					routine = new Message(matcher.group(), MessageType.match(matcher.group(1)), messages);
-				else if(EntityReference.isValid(matcher.group(1)))
-					routine = new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
-				if(routine != null) return routine;
-			}
-			else ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message content \"" + matcher.group(3) + "\" is invalid.", LoadState.SUCCESS);
+			case ENTITY:
+				if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
+					DynamicMessage.sendMessages(messages, eventInfo, (Player)entityReference.getEntity(eventInfo));
+				break;
+			case WORLD:
+				for(Player player : eventInfo.world.getPlayers())
+					DynamicMessage.sendMessages(messages, eventInfo, player);
+				break;
+			case SERVER:
+				for(Player player : Bukkit.getOnlinePlayers())
+					DynamicMessage.sendMessages(messages, eventInfo, player);
+				break;
 		}
-		return null;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static Message getNew(String string, Object nestedContent)
 	{
 		if(string != null && nestedContent != null)
 		{
+			String[] splitParts = string.split("\\.");
+			MessageType messageType = MessageType.match(splitParts[1]);
 			if(nestedContent instanceof List)
 			{
 				boolean failFlag = false;
 				List<DynamicMessage> messages = new ArrayList<DynamicMessage>();
-				for(Object object : (List<Object>)nestedContent)
+				for(Object object : (List<?>)nestedContent)
 				{
 					if(!(object instanceof String))
 						failFlag = true;
 					messages.addAll(ModDamage.matchMessageAlias((String)object));
 				}
 				
-				String[] splitParts = string.split("\\.");
 				Message routine = null;
-				if(EntityReference.isValid(splitParts[1]))
-					routine = new Message(string, EntityReference.match(splitParts[1]), messages);
-				else if(MessageType.match(splitParts[1]) != null)
-					routine = new Message(string, MessageType.match(splitParts[1]), messages);
+				switch(messageType)
+				{
+					case ENTITY:
+						routine = new Message(string, EntityReference.match(splitParts[1]), messages);
+					case WORLD:
+					case SERVER:
+						routine = new Message(string, messageType, messages);
+				}
 				if(!failFlag)
 				{
 					ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message: \"" + string + "\"" , LoadState.SUCCESS);
@@ -111,36 +107,16 @@ public class Message extends NestedRoutine
 		{
 			for(MessageType messageType : MessageType.values())
 			{
-				if(messageType.equals(MessageType.ENTITY)) continue;
+				if(messageType.equals(MessageType.ENTITY))
+				{
+					if(EntityReference.isValid(key))
+						return messageType;
+					else continue;
+				}
 				if(key.equalsIgnoreCase(messageType.name()))
 					return messageType;
 			}
 			return null;
-		}
-		
-		protected void sendMessage(EntityReference entityReference, TargetEventInfo eventInfo, List<DynamicMessage> messages)
-		{
-			switch(this)
-			{
-				case ENTITY:
-					if(entityReference.getEntity(eventInfo) instanceof Player)
-					{
-						Player player = (Player)entityReference.getEntity(eventInfo);
-						for(DynamicMessage message : messages)
-							message.sendMessage(eventInfo, player);
-					}
-					break;
-				case WORLD:
-					for(Player player : eventInfo.world.getPlayers())
-						for(DynamicMessage message : messages)
-							message.sendMessage(eventInfo, player);
-					break;
-				case SERVER:
-					for(Player player : TargetEventInfo.server.getOnlinePlayers())
-						for(DynamicMessage message : messages)
-							message.sendMessage(eventInfo, player);
-					break;
-			}
 		}
 	}
 	
@@ -180,7 +156,7 @@ public class Message extends NestedRoutine
 			this.message = message;
 		}
 		
-		public void sendMessage(TargetEventInfo eventInfo, Player player)
+		private void sendMessage(TargetEventInfo eventInfo, Player player)
 		{
 			int currentCount = matches.size() - 1;
 			String displayString = message;
@@ -190,6 +166,12 @@ public class Message extends NestedRoutine
 				currentCount--;
 			}
 			player.sendMessage(displayString);
+		}
+		
+		public static void sendMessages(List<DynamicMessage> messages, TargetEventInfo eventInfo, Player player)
+		{
+			for(DynamicMessage message : messages)
+				message.sendMessage(eventInfo, player);
 		}
 		
 		@Override
@@ -204,5 +186,30 @@ public class Message extends NestedRoutine
 			}
 			return displayString;
 		}
+	}
+	
+	public static void register()
+	{
+		Routine.registerBase(Message.class, Pattern.compile("message\\.(\\w+)\\.(.*)", Pattern.CASE_INSENSITIVE));//"debug\\.(server|(?:world(\\.[a-z0-9]+))|(?:player\\.[a-z0-9]+))\\.(_[a-z0-9]+)"
+		NestedRoutine.registerNested(Message.class, nestedMessagePattern);
+	}
+	
+	public static Message getNew(Matcher matcher)
+	{
+		if(matcher != null)
+		{
+			List<DynamicMessage> messages = ModDamage.matchMessageAlias(matcher.group(2));
+			if(!messages.isEmpty())
+			{
+				Message routine = null;
+				if(MessageType.match(matcher.group(1)) != null)
+					routine = new Message(matcher.group(), MessageType.match(matcher.group(1)), messages);
+				else if(EntityReference.isValid(matcher.group(1)))
+					routine = new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
+				if(routine != null) return routine;
+			}
+			else ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message content \"" + matcher.group(3) + "\" is invalid.", LoadState.SUCCESS);
+		}
+		return null;
 	}
 }

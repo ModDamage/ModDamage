@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityConditionalStatement;
@@ -21,7 +22,7 @@ public class PlayerPermissionEvaluation extends EntityConditionalStatement
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo) 
  	{
-		return (entityReference.getEntity(eventInfo) instanceof Player)?((Player)entityReference.getEntity(eventInfo)).hasPermission(permissionsString):false;
+		return (entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))?((Player)entityReference.getEntity(eventInfo)).hasPermission(permissionsString):false;
 	}
 	
 	public static void register()
