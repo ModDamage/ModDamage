@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
@@ -87,23 +87,23 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 		loadState = LoadState.NOT_LOADED;
 	}
 	
-	public LoadState load(ConfigurationSection aliasesNode)
+	public LoadState load(ConfigurationNode aliasesNode)
 	{
 		loadState = LoadState.NOT_LOADED;
-		ConfigurationSection specificAliasesNode = null;
-		for(String key : aliasesNode.getKeys(false))
+		ConfigurationNode specificAliasesNode = null;
+		for(String key : aliasesNode.getKeys())
 			if(key.equalsIgnoreCase(this.name))
 			{
-				specificAliasesNode = aliasesNode.getConfigurationSection(key);
+				specificAliasesNode = aliasesNode.getNode(key);
 				break;
 			}
 		if(specificAliasesNode != null)
 		{
-			if(!specificAliasesNode.getKeys(false).isEmpty())
+			if(!specificAliasesNode.getKeys().isEmpty())
 			{
 				this.loadState = LoadState.SUCCESS;
 				ModDamage.addToLogRecord(DebugSetting.VERBOSE, this.name + " aliases found, parsing...", LoadState.SUCCESS);
-				for(String alias : specificAliasesNode.getKeys(false))
+				for(String alias : specificAliasesNode.getKeys())
 				{
 					List<?> values = (List<?>)specificAliasesNode.getList(alias);
 					if(values.isEmpty())

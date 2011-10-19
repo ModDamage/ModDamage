@@ -3,6 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend;
 import java.util.List;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Enderman;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -26,7 +27,7 @@ public class AttackerEventInfo extends ProjectileEventInfo
 		
 		entity_attacker = eventEntity_attacker;
 		element_attacker = eventElement_attacker;
-		if(entity_attacker instanceof Player)
+		if(element_attacker.matchesType(ModDamageElement.PLAYER))
 		{
 			Player player_attacker = (Player)entity_attacker;
 			materialInHand_attacker = player_attacker.getItemInHand().getType();
@@ -36,7 +37,7 @@ public class AttackerEventInfo extends ProjectileEventInfo
 		}
 		else
 		{
-			materialInHand_attacker = null;
+			this.materialInHand_attacker = element_attacker.matchesType(ModDamageElement.ENDERMAN)?((Enderman)entity_attacker).getCarriedMaterial().getItemType():null;
 			armorSet_attacker = null;
 			name_attacker = null;
 			groups_attacker = ModDamage.emptyList;

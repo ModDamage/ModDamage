@@ -107,12 +107,7 @@ public class Message extends NestedRoutine
 		{
 			for(MessageType messageType : MessageType.values())
 			{
-				if(messageType.equals(MessageType.ENTITY))
-				{
-					if(EntityReference.isValid(key))
-						return messageType;
-					else continue;
-				}
+				if(messageType.equals(MessageType.ENTITY)) continue;
 				if(key.equalsIgnoreCase(messageType.name()))
 					return messageType;
 			}

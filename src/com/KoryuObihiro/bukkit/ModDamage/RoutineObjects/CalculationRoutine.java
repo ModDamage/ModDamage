@@ -43,7 +43,7 @@ abstract public class CalculationRoutine<AffectedClass> extends NestedRoutine
 	
 	public static void register()
 	{
-		Routine.registerBase(CalculationRoutine.class, calculationPattern);
+		//Routine.registerBase(CalculationRoutine.class, calculationPattern); FIXME 0.9.6
 		NestedRoutine.registerNested(CalculationRoutine.class, calculationPattern);
 	}
 	

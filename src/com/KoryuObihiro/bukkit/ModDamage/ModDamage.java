@@ -11,19 +11,18 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Server;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.config.Configuration;
+import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.PermissionsManager;
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.RegionsManager;
@@ -80,7 +79,6 @@ public class ModDamage extends JavaPlugin
 	
 	// -External calls to aliased sets of routines? But...EventInfo would be screwed up. :P
 
-	public static Server server;
 	public final int oldestSupportedBuild = 1317;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
 	public final static Logger log = Logger.getLogger("Minecraft");
@@ -125,7 +123,7 @@ public class ModDamage extends JavaPlugin
 		}
 	}
 
-	private static YamlConfiguration config;
+	private static Configuration config;
 	private static final String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
 	private static int configPages = 0;
 	private static List<String> configStrings_ingame = new ArrayList<String>();
@@ -161,7 +159,7 @@ public class ModDamage extends JavaPlugin
 			{
 				ModDamage.indentation++;
 				List<?> routineObjects = null;
-				for(String key : config.getKeys(false))
+				for(String key : config.getKeys())
 					if(key.equalsIgnoreCase(eventType.name()))
 					{
 						routineObjects = (List<?>)config.getList(key);
@@ -223,19 +221,16 @@ public class ModDamage extends JavaPlugin
 	@Override
 	public void onEnable() 
 	{
-		ModDamage.server = getServer();
 		
 	//Event registration
 		//register plugin-related stuff with the server's plugin manager
-		server.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
-		server.getPluginManager().registerEvent(Event.Type.PROJECTILE_HIT, entityListener, Event.Priority.Highest, this);
-		server.getPluginManager().registerEvent(Event.Type.ENTITY_TAME, entityListener, Event.Priority.Highest, this);
-		server.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
-		server.getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Highest, this);
-		server.getPluginManager().registerEvent(Event.Type.ENTITY_REGAIN_HEALTH, entityListener, Event.Priority.Highest, this);
-		FileConfiguration configger = this.getConfig();
-		try{ this.getConfig().load(new File(this.getDataFolder(), "config.yml"));}
-		catch(Exception e){ e.printStackTrace();}
+		Bukkit.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
+		Bukkit.getPluginManager().registerEvent(Event.Type.PROJECTILE_HIT, entityListener, Event.Priority.Highest, this);
+		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_TAME, entityListener, Event.Priority.Highest, this);
+		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
+		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Highest, this);
+		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_REGAIN_HEALTH, entityListener, Event.Priority.Highest, this);
+		this.config = this.getConfiguration();
 		reload(true);
 		isEnabled = true;
 	}
@@ -448,7 +443,7 @@ public class ModDamage extends JavaPlugin
 		BufferedReader reader = null;
 		try
 		{
-	        reader = new BufferedReader(new InputStreamReader(this.getClassLoader().getResourceAsStream("/plugin.yml")));
+	        reader = new BufferedReader(new InputStreamReader(this.getClassLoader().getResourceAsStream("plugin.yml")));
 	        String jenkinsLine = reader.readLine();
 	        while(jenkinsLine != null)
 	        {
@@ -498,7 +493,7 @@ public class ModDamage extends JavaPlugin
 			else addToLogRecord(DebugSetting.QUIET, logPrepend() + "Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.", LoadState.FAILURE);
 		}
 		
-		try{ config.load(new File(this.getDataFolder(), "config.yml"));}
+		try{ config.load();}
 		catch(Exception e)
 		{
 			//TODO 0.9.7 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not auto-load config.
@@ -542,11 +537,11 @@ public class ModDamage extends JavaPlugin
 
 	//Aliasing
 		addToLogRecord(DebugSetting.VERBOSE, "Loading aliases...", LoadState.SUCCESS);
-		for(String key : config.getKeys(false))
+		for(String key : config.getKeys())
 			if(key.equalsIgnoreCase("Aliases"))
 			{
-				ConfigurationSection aliasesNode = config.getConfigurationSection(key);
-				if(!aliasesNode.getKeys(false).isEmpty())
+				ConfigurationNode aliasesNode = config.getNode(key);
+				if(!aliasesNode.getKeys().isEmpty())
 				{
 					ModDamage.indentation++;
 					List<LoadState> list = Arrays.asList(armorAliaser.load(aliasesNode), biomeAliaser.load(aliasesNode), elementAliaser.load(aliasesNode), itemAliaser.load(aliasesNode), groupAliaser.load(aliasesNode), messageAliaser.load(aliasesNode), regionAliaser.load(aliasesNode), routineAliaser.load(aliasesNode), worldAliaser.load(aliasesNode));
@@ -613,9 +608,9 @@ public class ModDamage extends JavaPlugin
 	{
 		addToLogRecord(DebugSetting.QUIET, logPrepend() + "No configuration file found! Writing a blank config...", LoadState.NOT_LOADED);
 		//config.a("#Auto-generated config"); FIXME
-		config.set("debugging", "normal");
+		config.setProperty("debugging", "normal");
 		for(EventType eventType : EventType.values())
-			config.set(eventType.name(), null);
+			config.setProperty(eventType.name(), null);
 		
 		String[][] toolAliases = { {"axe", "hoe", "pickaxe", "spade", "sword"}, {"WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_"}};
 		for(String toolType : toolAliases[0])
@@ -623,7 +618,7 @@ public class ModDamage extends JavaPlugin
 			List<String> combinations = new ArrayList<String>();
 			for(String toolMaterial : toolAliases[1])
 				combinations.add(toolMaterial + toolType.toUpperCase());
-			config.set("Aliases.Item." + toolType, combinations);
+			config.setProperty("Aliases.Item." + toolType, combinations);
 		}
 		saveConfig();
 		log.severe(logPrepend() + "Auto-generated config.yml. :D");
@@ -644,7 +639,7 @@ public class ModDamage extends JavaPlugin
 				log.info(logPrepend() + sendThis);
 				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " " + sendThis);
 				debugSetting = setting;
-				config.set("debugging", debugSetting.name().toLowerCase());
+				config.setProperty("debugging", debugSetting.name().toLowerCase());
 			}
 			else
 			{
