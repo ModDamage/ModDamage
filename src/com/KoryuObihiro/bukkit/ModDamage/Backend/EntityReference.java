@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
@@ -17,10 +18,14 @@ public enum EntityReference
 //Use these when building routines.
 	public static boolean isValid(String string)
 	{
+		return isValid(string, false);
+	}
+	public static boolean isValid(String string, boolean suppressWarning)
+	{
 		for(EntityReference reference : EntityReference.values())
 			if(string.equalsIgnoreCase(reference.name()))
 				return true;
-		ModDamage.addToLogRecord(DebugSetting.QUIET, "String \"" + string + "\" is not a valid entity reference.", LoadState.NOT_LOADED);
+		if(!suppressWarning) ModDamage.addToLogRecord(DebugSetting.QUIET, "String \"" + string + "\" is not a valid entity reference.", LoadState.NOT_LOADED);
 		return false;
 	}
 	
@@ -61,8 +66,8 @@ public enum EntityReference
 		switch(this)
 		{
 			case Target: return eventInfo.entity_target;
-			case Projectile: return (eventInfo.equals(EventInfoType.PROJECTILE))?((ProjectileEventInfo)eventInfo).projectile:null;
-			case Attacker: return (eventInfo.equals(EventInfoType.ATTACKER))?((AttackerEventInfo)eventInfo).entity_attacker:null;
+			case Projectile: return (eventInfo.type.equals(EventInfoType.PROJECTILE))?((ProjectileEventInfo)eventInfo).projectile:null;
+			case Attacker: return (eventInfo.type.equals(EventInfoType.ATTACKER))?((AttackerEventInfo)eventInfo).entity_attacker:null;
 		}
 		return null;//shouldn't happen.
 	}
@@ -72,15 +77,19 @@ public enum EntityReference
 		switch(this)
 		{
 			case Target:
-				if(eventInfo.equals(EventInfoType.ATTACKER)) return ((AttackerEventInfo)eventInfo).entity_attacker;
-				if(eventInfo.equals(EventInfoType.PROJECTILE)) return ((ProjectileEventInfo)eventInfo).projectile;
-				return eventInfo.entity_target;
+				switch(eventInfo.type)
+				{
+					case PROJECTILE:	return ((ProjectileEventInfo)eventInfo).projectile;
+					case ATTACKER:		return ((AttackerEventInfo)eventInfo).entity_attacker;
+				}
+				break;
 			case Projectile:
-				if(eventInfo.equals(EventInfoType.ATTACKER)) return ((AttackerEventInfo)eventInfo).entity_attacker;
+				if(eventInfo.type.equals(EventInfoType.ATTACKER)) return ((AttackerEventInfo)eventInfo).entity_attacker;
+				break;
+			case Attacker:
 				return eventInfo.entity_target;
-			case Attacker: return eventInfo.entity_target;
 		}
-		return null;//shouldn't happen
+		return null;
 	}
 
 	//TODO: KILL THIS REPETITIVE LOGIC
@@ -90,7 +99,7 @@ public enum EntityReference
 		{
 			case Target: return eventInfo.groups_target;
 			case Attacker: 
-				if(eventInfo.equals(EventInfoType.ATTACKER)) 
+				if(eventInfo.type.equals(EventInfoType.ATTACKER)) 
 					return ((AttackerEventInfo)eventInfo).groups_attacker;
 		}
 		return ModDamage.emptyList;
@@ -102,7 +111,7 @@ public enum EntityReference
 		{
 			case Target: return eventInfo.materialInHand_target;
 			case Attacker: 
-				if(eventInfo.equals(EventInfoType.ATTACKER)) 
+				if(eventInfo.type.equals(EventInfoType.ATTACKER))
 					return ((AttackerEventInfo)eventInfo).materialInHand_attacker;
 		}
 		return null;
@@ -110,13 +119,6 @@ public enum EntityReference
 
 	public String getName(TargetEventInfo eventInfo) 
 	{
-		switch(this)
-		{
-			case Target: return eventInfo.name_target;
-			case Attacker: 
-				if(eventInfo.equals(EventInfoType.ATTACKER)) 
-					return ((AttackerEventInfo)eventInfo).name_attacker;
-		}
-		return null;
+		return this.getElement(eventInfo).matchesType(ModDamageElement.PLAYER)?((Player)this.getEntity(eventInfo)).getName():null;
 	}
 }

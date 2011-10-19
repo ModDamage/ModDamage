@@ -1,6 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import org.bukkit.Bukkit;
 
 public class WorldAliaser extends Aliaser<String> 
 {
@@ -11,7 +11,7 @@ public class WorldAliaser extends Aliaser<String>
 	@Override
 	protected String matchNonAlias(String key)
 	{ 
-		if(ModDamage.server.getWorld(key) != null) return ModDamage.server.getWorld(key).getName();
+		if(Bukkit.getWorld(key) != null) return Bukkit.getWorld(key).getName();
 		return null;
 	}
 

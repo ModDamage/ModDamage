@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
+import org.bukkit.entity.Enderman;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -62,7 +63,7 @@ public class TargetEventInfo
 		this.eventValue = eventValue;
 		this.entity_target = entity;
 		this.element_target = eventElement_target;
-		if(entity instanceof Player)
+		if(element_target.matchesType(ModDamageElement.PLAYER))
 		{
 			Player player_target = (Player)entity;
 			this.materialInHand_target = player_target.getItemInHand().getType();
@@ -72,7 +73,7 @@ public class TargetEventInfo
 		}
 		else
 		{
-			this.materialInHand_target = null;
+			this.materialInHand_target = element_target.matchesType(ModDamageElement.ENDERMAN)?((Enderman)entity).getCarriedMaterial().getItemType():null;
 			this.armorSet_target = null;
 			this.name_target = null;
 			this.groups_target = ModDamage.emptyList;

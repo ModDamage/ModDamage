@@ -77,7 +77,7 @@ public class DynamicString
 				if(commonAttempt.equalsIgnoreCase(property.name()))
 					return new DynamicString(property);
 			String[] matches = matcher.group().split("\\.");
-			if(EntityReference.isValid(matches[0]))
+			if(EntityReference.isValid(matches[0], true))
 				for(EntityStringPropertyMatch match : EntityStringPropertyMatch.values())
 					if(matches[1].equalsIgnoreCase(match.name()))
 						return new DynamicEntityString(EntityReference.match(matches[0]), match);

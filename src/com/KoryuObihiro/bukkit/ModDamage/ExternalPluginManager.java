@@ -236,6 +236,7 @@ public class ExternalPluginManager
 				Plugin plugin = Bukkit.getPluginManager().getPlugin(permsPlugin.name());
 				if (plugin != null)
 				{
+					permsPlugin.reload(plugin);
 					version = plugin.getDescription().getVersion();
 					return permsPlugin;
 				}
