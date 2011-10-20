@@ -29,6 +29,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.RegionsManager;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamageEntityListener.EventType;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageTag;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ArmorAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.BiomeAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ElementAliaser;
@@ -435,6 +436,9 @@ public class ModDamage extends JavaPlugin
 		routineAliaser.clear();
 		worldAliaser.clear();
 		state_plugin = state_aliases = LoadState.NOT_LOADED;
+		
+		ModDamageTag.reload(null);//FIXME
+		
 		configStrings_ingame.clear();
 		configStrings_console.clear();
 		
