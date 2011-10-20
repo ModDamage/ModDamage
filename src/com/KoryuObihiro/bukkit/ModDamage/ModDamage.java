@@ -442,39 +442,7 @@ public class ModDamage extends JavaPlugin
 		configStrings_ingame.clear();
 		configStrings_console.clear();
 		
-		//See if we have a Jenkins build number appended to the plugin.yml (part of Koryu's build process)
-		Integer jenkinsBuild = null;
-		BufferedReader reader = null;
-		try
-		{
-	        reader = new BufferedReader(new InputStreamReader(this.getClassLoader().getResourceAsStream("plugin.yml")));
-	        String jenkinsLine = reader.readLine();
-	        while(jenkinsLine != null)
-	        {
-	        	if(jenkinsLine.contains("jenkins:"))
-	        	{
-	        		try{ jenkinsBuild = Integer.parseInt(jenkinsLine.substring(8));}
-	        		catch(Exception e)
-	        		{
-	        			log.severe(logPrepend() + "Error: couldn't parse test build value after finding test build tag. Tell Koryu he's an idiot.");
-	        		}
-	        		break;
-	        	}
-	        	jenkinsLine = reader.readLine();
-	        }
-		}
-		catch (Exception e){ e.printStackTrace();}
-		finally
-		{
-			if(reader != null)
-			{
-				try{ reader.close();}
-				catch (Exception e){e.printStackTrace();}
-			}
-		}
-        
-        
-		ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] " + this.getDescription().getVersion() + (jenkinsBuild != null?" (test build " + jenkinsBuild + ")":"") +" loading...", LoadState.SUCCESS);
+		ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] v" + this.getDescription().getVersion()  + " loading...", LoadState.SUCCESS);
 		
 		if(reloadingAll)
 		{

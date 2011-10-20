@@ -26,7 +26,7 @@
 
 	<!-- Append Jenkins build number if a blank Jenkins key is present. -->
 	<target name="addJenkinsBuild" depends="compile">
-		<replaceregexp file="plugin.yml" match="^jenkins:\s*$" replace="jenkins: ${env.BUILD_NUMBER}" byline="true"/>
+		<replaceregexp file="plugin.yml" match="^version: (.*)test\sbuild$" replace="version: \1test build ${env.BUILD_NUMBER}" byline="true"/>
 	</target>
 	
 	<!-- Slap the JAR together. -->
