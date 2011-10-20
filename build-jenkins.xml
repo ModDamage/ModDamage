@@ -21,7 +21,7 @@
 	            <include name="*.jar"/>
 	        </fileset>
 	    </path>
-		<javac srcdir="${sourceFolder}" destdir="${buildFolder}" classpathref="project.classpath"/>
+		<javac srcdir="${sourceFolder}" destdir="${buildFolder}" classpathref="project.classpath" source="1.6" target="1.6"/>
 	</target>
 
 	<!-- Append Jenkins build number if a blank Jenkins key is present. -->
