@@ -86,4 +86,10 @@ public class DynamicString
 		}
 		return null;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return dynamicProperty.name().toLowerCase().replace('_', '.');
+	}
 }

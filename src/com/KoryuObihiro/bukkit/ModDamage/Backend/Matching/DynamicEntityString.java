@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageTag;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class DynamicEntityString extends DynamicString
@@ -46,6 +47,14 @@ public class DynamicEntityString extends DynamicString
 				return ExternalPluginManager.getRegionsManager().getRegions(entityReference.getEntity(eventInfo).getLocation()).toString();
 			}
 		},
+		Tag
+		{
+			@Override
+			protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			{
+				return ModDamageTag.getTags(entityReference.getEntity(eventInfo)).toString();
+			}
+		},
 		Type
 		{
 			@Override
@@ -85,5 +94,11 @@ public class DynamicEntityString extends DynamicString
 		if(propertyMatch.equals(EntityStringPropertyMatch.Type) || (entityReference.getEntity(eventInfo) != null && (!propertyMatch.requiresPlayer || entityReference.getElement(eventInfo).equals(ModDamageElement.PLAYER))))
 			return propertyMatch.getString(eventInfo, entityReference);
 		return null;
+	}
+
+	@Override
+	public String toString()
+	{
+		return entityReference.name().toLowerCase() + "." + propertyMatch.name().toLowerCase();
 	}
 }

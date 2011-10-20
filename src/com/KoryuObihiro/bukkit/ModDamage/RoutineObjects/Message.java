@@ -59,58 +59,20 @@ public class Message extends NestedRoutine
 		}
 	}
 	
-	public static Message getNew(String string, Object nestedContent)
-	{
-		if(string != null && nestedContent != null)
-		{
-			String[] splitParts = string.split("\\.");
-			MessageType messageType = MessageType.match(splitParts[1]);
-			if(nestedContent instanceof List)
-			{
-				boolean failFlag = false;
-				List<DynamicMessage> messages = new ArrayList<DynamicMessage>();
-				for(Object object : (List<?>)nestedContent)
-				{
-					if(!(object instanceof String))
-						failFlag = true;
-					messages.addAll(ModDamage.matchMessageAlias((String)object));
-				}
-				
-				Message routine = null;
-				switch(messageType)
-				{
-					case ENTITY:
-						routine = new Message(string, EntityReference.match(splitParts[1]), messages);
-					case WORLD:
-					case SERVER:
-						routine = new Message(string, messageType, messages);
-				}
-				if(!failFlag)
-				{
-					ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message: \"" + string + "\"" , LoadState.SUCCESS);
-					ModDamage.indentation++;
-					for(DynamicMessage message : routine.messages)
-						ModDamage.addToLogRecord(DebugSetting.NORMAL, "- \"" + message.toString() + "\"" , LoadState.SUCCESS);
-					ModDamage.indentation--;
-					return routine;
-				}
-			}	
-		}
-		return null;
-	}
-	
 	private enum MessageType
 	{
 		ENTITY, WORLD, SERVER;
 		
-		private static MessageType match(String key)
+		protected static MessageType match(String key)
 		{
 			for(MessageType messageType : MessageType.values())
 			{
-				if(messageType.equals(MessageType.ENTITY)) continue;
+				if(messageType.equals(ENTITY)) continue;
 				if(key.equalsIgnoreCase(messageType.name()))
 					return messageType;
 			}
+			if(EntityReference.isValid(key))
+				return ENTITY;
 			return null;
 		}
 	}
@@ -193,17 +155,61 @@ public class Message extends NestedRoutine
 	{
 		if(matcher != null)
 		{
+			MessageType messageType = MessageType.match(matcher.group(1));
 			List<DynamicMessage> messages = ModDamage.matchMessageAlias(matcher.group(2));
-			if(!messages.isEmpty())
+			if(!messages.isEmpty() && messageType != null)
 			{
-				Message routine = null;
-				if(MessageType.match(matcher.group(1)) != null)
-					routine = new Message(matcher.group(), MessageType.match(matcher.group(1)), messages);
-				else if(EntityReference.isValid(matcher.group(1)))
-					routine = new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
-				if(routine != null) return routine;
+				switch(messageType)
+				{
+					case ENTITY:
+						return new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
+					case WORLD:
+					case SERVER:
+						return new Message(matcher.group(), messageType, messages);
+				}
 			}
 			else ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message content \"" + matcher.group(3) + "\" is invalid.", LoadState.SUCCESS);
+		}
+		return null;
+	}
+	
+	public static Message getNew(String string, Object nestedContent)
+	{
+		if(string != null && nestedContent != null)
+		{
+			String[] splitParts = string.split("\\.");
+			MessageType messageType = MessageType.match(splitParts[1]);
+			if(nestedContent instanceof List)
+			{
+				boolean failFlag = false;
+				List<DynamicMessage> messages = new ArrayList<DynamicMessage>();
+				for(Object object : (List<?>)nestedContent)
+				{
+					if(!(object instanceof String))
+						failFlag = true;
+					messages.addAll(ModDamage.matchMessageAlias((String)object));
+				}
+				
+				Message routine = null;
+				switch(messageType)
+				{
+					case ENTITY:
+						routine = new Message(string, EntityReference.match(splitParts[1]), messages);
+						break;
+					case WORLD:
+					case SERVER:
+						routine = new Message(string, messageType, messages);
+				}
+				if(!failFlag)
+				{
+					ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message: \"" + string + "\"" , LoadState.SUCCESS);
+					ModDamage.indentation++;
+					for(DynamicMessage message : routine.messages)
+						ModDamage.addToLogRecord(DebugSetting.NORMAL, "- \"" + message.toString() + "\"" , LoadState.SUCCESS);
+					ModDamage.indentation--;
+					return routine;
+				}
+			}	
 		}
 		return null;
 	}

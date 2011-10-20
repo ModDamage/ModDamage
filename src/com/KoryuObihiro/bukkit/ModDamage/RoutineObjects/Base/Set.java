@@ -59,4 +59,4 @@ public class Set extends CalculationRoutine<Integer>
 		}
 		return null;
 	}
-}
+}
