@@ -40,9 +40,9 @@ public class ModDamageEntityListener extends EntityListener
 				{
 					for(Routine routine : ModDamage.routineManager.getRoutines(EventType.Damage))
 						routine.run(eventInfo);
-						
-					if(eventInfo.eventValue < 0 && !ModDamage.negative_Heal) 
-						eventInfo.eventValue = 0;
+							
+					/*if(eventInfo.eventValue < 0) 
+						eventInfo.eventValue = 0; FIXME Is this necessary?*/
 					event.setDamage(eventInfo.eventValue);
 				}
 				else  ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
@@ -60,9 +60,6 @@ public class ModDamageEntityListener extends EntityListener
 			{
 				for(Routine routine : ModDamage.routineManager.getRoutines(EventType.Damage))
 					routine.run(eventInfo);
-					
-				if(eventInfo.eventValue < 0 && !ModDamage.negative_Heal) 
-					eventInfo.eventValue = 0;
 			}
 			else ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled death event. Is Bukkit and ModDamage up-to-date?");			
 		}
@@ -72,7 +69,7 @@ public class ModDamageEntityListener extends EntityListener
 	@Override
 	public void onEntityRegainHealth(EntityRegainHealthEvent event)
 	{
-		if(ModDamage.isEnabled && !event.isCancelled() && event.getRegainReason().equals(RegainReason.EATING))
+		if(ModDamage.isEnabled && !event.isCancelled() && event.getRegainReason().equals(RegainReason.SATIATED))
 		{
 			LivingEntity entity = (LivingEntity)event.getEntity();
 			TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), event.getAmount());

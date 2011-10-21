@@ -18,7 +18,7 @@ public class IntervalRange extends Chanceroutine
 		rangeValue = interval_range;
 	}
 	@Override
-	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = baseValue.getValue(eventInfo) + (intervalValue.getValue(eventInfo) * (Math.abs(random.nextInt()%(rangeValue.getValue(eventInfo) + 1))));}
+	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue += baseValue.getValue(eventInfo) + (intervalValue.getValue(eventInfo) * (Math.abs(random.nextInt()%(rangeValue.getValue(eventInfo) + 1))));}
 	
 	public static void register()
 	{

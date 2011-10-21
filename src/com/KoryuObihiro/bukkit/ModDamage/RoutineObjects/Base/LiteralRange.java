@@ -17,7 +17,7 @@ public class LiteralRange extends Chanceroutine
 		upperBound = upper;
 	}
 	@Override
-	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = lowerBound.getValue(eventInfo) + Math.abs(random.nextInt()%(upperBound.getValue(eventInfo) - lowerBound.getValue(eventInfo) + 1));}
+	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue += lowerBound.getValue(eventInfo) + Math.abs(random.nextInt()%(upperBound.getValue(eventInfo) - lowerBound.getValue(eventInfo) + 1));}
 	
 	public static void register()
 	{

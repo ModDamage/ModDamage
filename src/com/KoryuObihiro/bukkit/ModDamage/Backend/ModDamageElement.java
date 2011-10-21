@@ -48,7 +48,7 @@ public enum ModDamageElement
 				COW(ANIMAL, CreatureType.COW),
 				PIG(ANIMAL, CreatureType.PIG),
 				SHEEP(ANIMAL, CreatureType.SHEEP),
-				SNOW_GOLEM(ANIMAL),//FIXME Not in the right place?
+				SNOWGOLEM(ANIMAL),//FIXME Not in the right place?
 				SQUID(ANIMAL, CreatureType.SQUID),
 				WOLF(ANIMAL, CreatureType.WOLF),
 					WOLF_WILD(WOLF, CreatureType.WOLF),
@@ -69,7 +69,7 @@ public enum ModDamageElement
 				ENDERMAN(MOB, CreatureType.ENDERMAN),
 				GHAST(MOB, CreatureType.GHAST),
 				GIANT(MOB, CreatureType.GIANT),
-				MAGMA_CUBE(MOB),//FIXME
+				MAGMACUBE(MOB),//FIXME
 				MOOSHROM(MOB),//FIXME
 				SILVERFISH(MOB, CreatureType.SILVERFISH),
 				SKELETON(MOB, CreatureType.SKELETON),
@@ -87,11 +87,11 @@ public enum ModDamageElement
 		
 		NONLIVING(GENERIC),
 			NATURE(NONLIVING),
+				CACTUS(NATURE),
+				DROWNING (NATURE),
 				EXPLOSION(NATURE),
 					EXPLOSION_ENTITY(EXPLOSION),
 					EXPLOSION_BLOCK(EXPLOSION),
-				CACTUS(NATURE),
-				DROWNING (NATURE),
 				FALL(NATURE),
 				FIRE(NATURE),
 				BURN(NATURE),

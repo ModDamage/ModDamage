@@ -134,9 +134,6 @@ public class ModDamage extends JavaPlugin
 	//misc
 	public static final List<String> emptyList = new ArrayList<String>();
 	
-//General mechanics options
-	static boolean negative_Heal;
-	
 //Routine objects
 	public static final RoutineManager routineManager = new RoutineManager();
 	public static class RoutineManager
@@ -208,7 +205,7 @@ public class ModDamage extends JavaPlugin
 	private static BiomeAliaser biomeAliaser = new BiomeAliaser();
 	private static ElementAliaser elementAliaser = new ElementAliaser();
 	private static GroupAliaser groupAliaser = new GroupAliaser();
-	private static MaterialAliaser itemAliaser = new MaterialAliaser();
+	private static MaterialAliaser materialAliaser = new MaterialAliaser();
 	private static MessageAliaser messageAliaser = new MessageAliaser();
 	private static RegionAliaser regionAliaser = new RegionAliaser();
 	private static RoutineAliaser routineAliaser = new RoutineAliaser();
@@ -430,7 +427,7 @@ public class ModDamage extends JavaPlugin
 		biomeAliaser.clear();
 		elementAliaser.clear();
 		groupAliaser.clear();
-		itemAliaser.clear();
+		materialAliaser.clear();
 		messageAliaser.clear();
 		regionAliaser.clear();
 		routineAliaser.clear();
@@ -516,7 +513,7 @@ public class ModDamage extends JavaPlugin
 				if(!aliasesNode.getKeys().isEmpty())
 				{
 					ModDamage.indentation++;
-					List<LoadState> list = Arrays.asList(armorAliaser.load(aliasesNode), biomeAliaser.load(aliasesNode), elementAliaser.load(aliasesNode), itemAliaser.load(aliasesNode), groupAliaser.load(aliasesNode), messageAliaser.load(aliasesNode), regionAliaser.load(aliasesNode), routineAliaser.load(aliasesNode), worldAliaser.load(aliasesNode));
+					List<LoadState> list = Arrays.asList(armorAliaser.load(aliasesNode), biomeAliaser.load(aliasesNode), elementAliaser.load(aliasesNode), materialAliaser.load(aliasesNode), groupAliaser.load(aliasesNode), messageAliaser.load(aliasesNode), regionAliaser.load(aliasesNode), routineAliaser.load(aliasesNode), worldAliaser.load(aliasesNode));
 					state_aliases = LoadState.combineStates(list);
 					ModDamage.indentation--;
 					switch(state_aliases)
@@ -553,11 +550,6 @@ public class ModDamage extends JavaPlugin
 
 		state_plugin = LoadState.combineStates(Arrays.asList(state_aliases, routineManager.state));
 		
-	//single-property config
-		negative_Heal = config.getBoolean("negativeHeal", false);
-		if(debugSetting.shouldOutput(negative_Heal?DebugSetting.NORMAL:DebugSetting.VERBOSE))
-			log.info(logPrepend() + "Negative-damage healing " + (negative_Heal?"en":"dis") + "abled.");
-		
 		//FIXME config.load(); //Discard any changes made to the file by the above reads.
 		
 		String sendThis = null;
@@ -579,7 +571,7 @@ public class ModDamage extends JavaPlugin
 	private void writeDefaults() 
 	{
 		addToLogRecord(DebugSetting.QUIET, logPrepend() + "No configuration file found! Writing a blank config...", LoadState.NOT_LOADED);
-		//config.a("#Auto-generated config"); FIXME
+		config.setHeader("#Auto-generated config");
 		config.setProperty("debugging", "normal");
 		for(EventType eventType : EventType.values())
 			config.setProperty(eventType.name(), null);
@@ -590,11 +582,10 @@ public class ModDamage extends JavaPlugin
 			List<String> combinations = new ArrayList<String>();
 			for(String toolMaterial : toolAliases[1])
 				combinations.add(toolMaterial + toolType.toUpperCase());
-			config.setProperty("Aliases.Item." + toolType, combinations);
+			config.setProperty("Aliases." + materialAliaser.getName() + "." + toolType, combinations);
 		}
-		saveConfig();
-		log.severe(logPrepend() + "Auto-generated config.yml. :D");
-		this.saveConfig();
+		log.info(logPrepend() + "Completed auto-generation of config.yml.");
+		config.save();
 	}
 	
 	//TODO 0.9.7 Implement a reload hook for other plugins, make /md r reload routine library.
@@ -726,10 +717,10 @@ public class ModDamage extends JavaPlugin
 			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:        " + armorAliaser.getLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Damage: " + routineManager.getState(EventType.Damage).statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Element:     " + elementAliaser.getLoadState().statusString() + "       " + ChatColor.DARK_GREEN + "Death:  " + routineManager.getState(EventType.Death).statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Group:        " + groupAliaser.getLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Food:  " + routineManager.getState(EventType.Food).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Item:        " + itemAliaser.getLoadState().statusString() + "      " + ChatColor.DARK_GREEN + "ProjectileHit:  " + routineManager.getState(EventType.ProjectileHit).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Material:    " + materialAliaser.getLoadState().statusString() + "      " + ChatColor.DARK_GREEN + "ProjectileHit:  " + routineManager.getState(EventType.ProjectileHit).statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Message:   " + messageAliaser.getLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Spawn:  " + routineManager.getState(EventType.Spawn).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Region:   " + routineAliaser.getLoadState().statusString()+ "        " + ChatColor.DARK_GREEN + "Tame:  " + routineManager.getState(EventType.Tame).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:   " + messageAliaser.getLoadState().statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Region:   " + regionAliaser.getLoadState().statusString()+ "        " + ChatColor.DARK_GREEN + "Tame:  " + routineManager.getState(EventType.Tame).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:   " + routineAliaser.getLoadState().statusString());
 			String bottomString = null;
 			switch(state_plugin)
 			{
@@ -768,7 +759,7 @@ public class ModDamage extends JavaPlugin
 	public static List<ArmorSet> matchArmorAlias(String key){ return armorAliaser.matchAlias(key);}
 	public static List<Biome> matchBiomeAlias(String key){ return biomeAliaser.matchAlias(key);}
 	public static List<ModDamageElement> matchElementAlias(String key){ return elementAliaser.matchAlias(key);}
-	public static List<Material> matchMaterialAlias(String key){ return itemAliaser.matchAlias(key);}
+	public static List<Material> matchMaterialAlias(String key){ return materialAliaser.matchAlias(key);}
 	public static List<String> matchGroupAlias(String key){ return groupAliaser.matchAlias(key);}
 	public static List<DynamicMessage> matchMessageAlias(String key){ return messageAliaser.matchAlias(key);}
 	public static List<String> matchRegionAlias(String key){ return regionAliaser.matchAlias(key);}

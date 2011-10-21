@@ -35,7 +35,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityExplod
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHeal;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHurt;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySpawn;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Binomial;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Chance;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Comparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBiome;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnBlock;
@@ -94,7 +94,7 @@ public class ExternalPluginManager
 		Tag.register();
 		Message.register();
 	ConditionalRoutine.register();
-		Binomial.register();
+		Chance.register();
 		Comparison.register();
 		//Entity
 		EntityBiome.register();

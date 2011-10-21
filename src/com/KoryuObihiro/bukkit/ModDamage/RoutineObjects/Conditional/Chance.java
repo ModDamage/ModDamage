@@ -9,11 +9,11 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
-public class Binomial extends ConditionalStatement
+public class Chance extends ConditionalStatement
 {
 	protected final Random random = new Random();
 	protected final DynamicInteger probability;
-	public Binomial(DynamicInteger probability)
+	public Chance(DynamicInteger probability)
 	{ 
 		super(false);
 		this.probability = probability;
@@ -23,13 +23,13 @@ public class Binomial extends ConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Binomial.class, Pattern.compile("binom\\." + DynamicInteger.dynamicPart, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Chance.class, Pattern.compile("chance\\." + DynamicInteger.dynamicPart, Pattern.CASE_INSENSITIVE));
 	}
 	
-	public static Binomial getNew(Matcher matcher)
+	public static Chance getNew(Matcher matcher)
 	{ 
 		if(matcher != null)
-			return new Binomial(DynamicInteger.getNew(matcher.group(1)));
+			return new Chance(DynamicInteger.getNew(matcher.group(1)));
 		return null;
 	}
 }

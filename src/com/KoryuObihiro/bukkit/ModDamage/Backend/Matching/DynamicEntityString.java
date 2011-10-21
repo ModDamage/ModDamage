@@ -63,7 +63,7 @@ public class DynamicEntityString extends DynamicString
 				return entityReference.getElement(eventInfo).name();//TODO See the enum for the name property.
 			}
 		},
-		Wield(true)
+		Wielding(true)
 		{
 			@Override
 			protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
