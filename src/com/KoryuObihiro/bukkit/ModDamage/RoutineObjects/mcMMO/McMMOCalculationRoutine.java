@@ -10,7 +10,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.gmail.nossr50.mcMMO;
 
-public abstract class McMMOCalculationRoutine extends CalculationRoutine<Player>
+public abstract class McMMOCalculationRoutine extends CalculationRoutine
 {
 	final EntityReference entityReference;
 	protected McMMOCalculationRoutine(String configString, DynamicInteger match, EntityReference entityReference)
@@ -20,18 +20,14 @@ public abstract class McMMOCalculationRoutine extends CalculationRoutine<Player>
 	}
 	
 	@Override
-	public void run(TargetEventInfo eventInfo)
+	protected final void doCalculation(TargetEventInfo eventInfo, int input)
 	{
 		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
-			super.run(eventInfo);
-	}
-	
-	@Override
-	protected final void applyEffect(Player player, int input)
-	{
-		mcMMO mcMMOplugin = ExternalPluginManager.getMcMMOPlugin();
-		if(mcMMOplugin != null)
-			applyEffect(player, input, mcMMOplugin);
+		{
+			mcMMO mcMMOplugin = ExternalPluginManager.getMcMMOPlugin();
+			if(mcMMOplugin != null)
+				applyEffect(((Player)entityReference.getEntity(eventInfo)), input, mcMMOplugin);
+		}
 	}
 
 	abstract protected void applyEffect(Player player, int input, mcMMO mcMMOplugin);

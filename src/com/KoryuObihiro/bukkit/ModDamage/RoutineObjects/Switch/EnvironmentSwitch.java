@@ -16,7 +16,7 @@ public class EnvironmentSwitch extends SwitchRoutine<Environment>
 {	
 	public EnvironmentSwitch(String configString, LinkedHashMap<String, List<Routine>> switchStatements){ super(configString, switchStatements);}
 	@Override
-	protected Environment getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.environment;}
+	protected Environment getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.world.getEnvironment();}
 	@Override
 	protected Environment matchCase(String switchCase){ return ModDamage.matchEnvironment(switchCase);}
 	

@@ -6,10 +6,12 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.LivingEntity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
-public class EntityUnknownHurt extends LivingEntityCalculationRoutine
+public class EntityUnknownHurt extends EntityCalculationRoutine
 {
 	public EntityUnknownHurt(String configString, EntityReference entityReference, DynamicInteger match)
 	{
@@ -17,7 +19,11 @@ public class EntityUnknownHurt extends LivingEntityCalculationRoutine
 	}
 	
 	@Override
-	protected void applyEffect(LivingEntity entity, int input){ entity.damage(input);}
+	protected void doCalculation(TargetEventInfo eventInfo, int input)
+	{
+		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.LIVING))
+			((LivingEntity)entityReference.getEntity(eventInfo)).damage(input);
+	}
 
 	public static void register()
 	{

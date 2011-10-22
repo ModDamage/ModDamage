@@ -54,6 +54,7 @@ public enum EntityReference
 		switch(this)
 		{
 			case Target: return eventInfo.element_target;
+			case Projectile: return ((ProjectileEventInfo)eventInfo).rangedElement;
 			case Attacker: 
 				if(eventInfo.type.equals(EventInfoType.ATTACKER)) 
 					return ((AttackerEventInfo)eventInfo).element_attacker;

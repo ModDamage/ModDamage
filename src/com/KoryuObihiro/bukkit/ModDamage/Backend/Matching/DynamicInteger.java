@@ -17,76 +17,29 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class DynamicInteger extends DynamicString
 {
-	protected final int value;
-	private final List<Routine> routines;
-	private final BasicIntegerMatch propertyMatch;
+	//TODO: Interface to make subclass enum code cleaner?
+	protected final Integer value;
 	protected final boolean settable;
-	public enum BasicIntegerMatch
-	{
-		StaticValue
-		{
-			@Override
-			public String getString(TargetEventInfo eventInfo){ return null;}
-		},
-		DynamicValue(true)
-		{
-			@Override
-			public String getString(TargetEventInfo eventInfo)
-			{
-				return "" + eventInfo.eventValue;
-			}
-			
-			@Override
-			public String toString(){ return "event.value";}
-		},
-		RoutineValue
-		{			
-			@Override
-			public String toString(){ return "<SOME-ROUTINES>";}//shouldn't happen
-		};
-		
-		public boolean settable = false;
-		private BasicIntegerMatch(){}
-		private BasicIntegerMatch(boolean settable)
-		{
-			this.settable = settable;
-		}
-		
-		@Override
-		public String toString(){ return null;}
-		
-		public String getString(TargetEventInfo eventInfo){ return null;}
-	}
+	private final boolean usingStatic;
 	
 	private DynamicInteger()
 	{ 
-		this.value = 0;
-		this.routines = null;
-		this.propertyMatch = BasicIntegerMatch.DynamicValue;
+		this.value = null;
+		this.usingStatic = false;
 		this.settable = true;
 	}
 	
 	private DynamicInteger(int value)
 	{ 
 		this.value = value;
-		this.routines = null;
-		this.propertyMatch = BasicIntegerMatch.StaticValue;
-		this.settable = false;
-	}
-
-	private DynamicInteger(List<Routine> routines)
-	{
-		this.value = 0;
-		this.routines = routines;
-		this.propertyMatch = BasicIntegerMatch.RoutineValue;
+		this.usingStatic = true;
 		this.settable = false;
 	}
 	
 	protected DynamicInteger(boolean settable)
-	{ 
-		this.value = 0;
-		this.routines = null;
-		this.propertyMatch = BasicIntegerMatch.StaticValue;
+	{
+		this.value = null;
+		this.usingStatic = false;
 		this.settable = true;
 	}
 	
@@ -94,29 +47,18 @@ public class DynamicInteger extends DynamicString
 	
 	public Integer getValue(TargetEventInfo eventInfo)
 	{
-		switch(propertyMatch)
-		{
-			case StaticValue:	return value;
-			case RoutineValue:
-				for(Routine routine : routines)
-					routine.run(eventInfo);
-			case DynamicValue:	return eventInfo.eventValue;
-			default: return 0;
-		}
+		return usingStatic?value:eventInfo.eventValue;
 	}
 
 	public void setValue(TargetEventInfo eventInfo, int value)
 	{
-		switch(propertyMatch)
-		{
-			case DynamicValue: eventInfo.eventValue = value;
-		}
+		if(!usingStatic) eventInfo.eventValue = value;
 	}
 	
 	public static DynamicInteger getNew(List<Routine> routines) 
 	{
 		if(routines != null && !routines.isEmpty())
-			return new DynamicInteger(routines);
+			return new DynamicRoutineInteger(routines);
 		ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: attempted to use invalid routine list for a dynamic integer reference.", LoadState.FAILURE);
 		return null;
 	}
@@ -133,8 +75,9 @@ public class DynamicInteger extends DynamicString
 			Matcher matcher = dynamicPattern.matcher(string);
 			if(string.startsWith("_"))
 			{
-				List<Routine> potentialAlias = ModDamage.matchRoutineAlias(string);
-				if(!potentialAlias.isEmpty()) return new DynamicInteger(potentialAlias);
+				List<Routine> routines = ModDamage.matchRoutineAlias(string);
+				if(routines != null)
+					return new DynamicRoutineInteger(routines);
 			}
 			else if(matcher.matches())
 			{
@@ -171,7 +114,7 @@ public class DynamicInteger extends DynamicString
 								ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: attempted to use McMMO-dependent player property without McMMO.", LoadState.FAILURE);
 						}
 				}
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: unrecognized entity property \"" + string + "\".", LoadState.FAILURE);
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: unrecognized integer reference \"" + string + "\".", LoadState.FAILURE);
 			}
 			//These shouldn't ever happen.
 			else ModDamage.addToLogRecord(DebugSetting.QUIET, "Critical error: unrecognized property \"" + string + "\". Bug Koryu about this one.", LoadState.FAILURE);
@@ -182,11 +125,7 @@ public class DynamicInteger extends DynamicString
 	@Override
 	public String toString()
 	{
-		switch(propertyMatch)
-		{
-			case StaticValue: return "" + value;
-			default: return propertyMatch.toString();
-		}
+		return usingStatic?"" + value:"event.value";
 	}
 
 	@Override

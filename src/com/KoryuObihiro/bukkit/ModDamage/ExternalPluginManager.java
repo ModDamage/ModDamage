@@ -16,7 +16,7 @@ import ru.tehkode.permissions.PermissionManager;
 
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.DelayedRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Delay;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Message;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
@@ -29,12 +29,13 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Tag;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.Calculate;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.ChangeProperty;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityDropItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityExplode;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHeal;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHurt;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySpawn;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityUnknownHurt;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Chance;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Comparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBiome;
@@ -84,7 +85,7 @@ public class ExternalPluginManager
 		SwitchRoutine.registeredSwitchRoutines.clear();
 	//register vanilla MD routines
 		Addition.register();
-		DelayedRoutine.register();
+		Delay.register();
 		DiceRoll.register();
 		Division.register();
 		IntervalRange.register();
@@ -93,6 +94,14 @@ public class ExternalPluginManager
 		Set.register();
 		Tag.register();
 		Message.register();
+	Calculate.register();
+	CalculationRoutine.register();
+		ChangeProperty.register();
+		EntityDropItem.register();
+		EntityExplode.register();
+		EntityHurt.register();
+		EntitySpawn.register();
+		EntityUnknownHurt.register();
 	ConditionalRoutine.register();
 		Chance.register();
 		Comparison.register();
@@ -116,13 +125,6 @@ public class ExternalPluginManager
 		//Event
 		EventHasRangedElement.register();
 		EventWorldEvaluation.register();
-	CalculationRoutine.register();
-		ChangeProperty.register();
-		EntityDropItem.register();
-		EntityExplode.register();
-		EntityHeal.register();
-		EntityHurt.register();
-		EntitySpawn.register();
 	SwitchRoutine.register();
 		ArmorSetSwitch.register();
 		BiomeSwitch.register();
@@ -159,7 +161,7 @@ public class ExternalPluginManager
 			public boolean hasPermission(Player player, String permission)
 			{
 				if(player != null)
-					return permissionManager.has(player, permission);
+					return player.isOp() || permissionManager.has(player, permission) ;
 				return false;
 			}
 			
@@ -211,7 +213,7 @@ public class ExternalPluginManager
 			public boolean hasPermission(Player player, String permission)
 			{
 				if(player != null)
-					return plugin.getPlayerInfo(player.getName()).getPermissions().containsKey(permission);
+					return player.isOp() || plugin.getPlayerInfo(player.getName()).getPermissions().containsKey(permission);
 				return false;
 			}
 			

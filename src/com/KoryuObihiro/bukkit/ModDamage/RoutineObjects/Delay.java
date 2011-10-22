@@ -14,12 +14,12 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicString;
 
-public class DelayedRoutine extends NestedRoutine
+public class Delay extends NestedRoutine
 {	
 	protected final DynamicInteger delay;
 	protected final List<Routine> routines;
 	protected static final Pattern delayPattern = Pattern.compile("delay\\." + DynamicString.dynamicPart, Pattern.CASE_INSENSITIVE);
-	public DelayedRoutine(String configString, DynamicInteger delayValue, List<Routine> routines)
+	public Delay(String configString, DynamicInteger delayValue, List<Routine> routines)
 	{
 		super(configString);
 		this.delay = delayValue;
@@ -28,15 +28,15 @@ public class DelayedRoutine extends NestedRoutine
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{ 
-		Bukkit.getScheduler().scheduleAsyncDelayedTask(Bukkit.getPluginManager().getPlugin("ModDamage"), new DelayedRunnable(eventInfo), delay.getValue(eventInfo));
+		Bukkit.getScheduler().scheduleAsyncDelayedTask(Bukkit.getPluginManager().getPlugin("ModDamage"), new DelayedRunnable(eventInfo.clone()), delay.getValue(eventInfo));
 	}
 		
 	public static void register()
 	{
-		NestedRoutine.registerNested(DelayedRoutine.class, delayPattern);
+		NestedRoutine.registerNested(Delay.class, delayPattern);
 	}
 	
-	public static DelayedRoutine getNew(String string, Object nestedContent)
+	public static Delay getNew(String string, Object nestedContent)
 	{
 		if(string != null && nestedContent != null)
 		{
@@ -56,7 +56,7 @@ public class DelayedRoutine extends NestedRoutine
 					if(numberMatch != null)
 					{
 						ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Delay \"" + matcher.group() + "\"\n", LoadState.SUCCESS);
-						return new DelayedRoutine(matcher.group(), numberMatch, routines);
+						return new Delay(matcher.group(), numberMatch, routines);
 					}
 					else ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid Delay \"" + matcher.group() + "\"", LoadState.FAILURE);
 				}

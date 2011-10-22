@@ -1,5 +1,8 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
+import java.util.List;
+
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
@@ -31,5 +34,17 @@ public class ProjectileEventInfo extends TargetEventInfo
 
 		this.projectile = eventEntity_projectile;
 		this.rangedElement = rangedElement;
+	}
+
+	protected ProjectileEventInfo(Projectile projectile, ModDamageElement element, World world, LivingEntity shooter, ModDamageElement element_target, Material materialInHand_target, ArmorSet armorSet_target, String name_target, List<String> groups_target, int eventValue)
+	{
+		super(shooter, world, element_target, materialInHand_target, armorSet_target, name_target, groups_target, eventValue);
+		this.projectile = projectile;
+		this.rangedElement = element;
+	}
+	@Override
+	public ProjectileEventInfo clone()
+	{
+		return new ProjectileEventInfo(projectile, rangedElement, world, entity_target, element_target, materialInHand_target, armorSet_target, name_target, groups_target, eventValue);
 	}
 }

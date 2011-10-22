@@ -10,10 +10,11 @@ import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
-public class EntityDropItem extends EntityCalculationRoutine<Entity>
+public class EntityDropItem extends EntityCalculationRoutine
 {
 	protected final List<Material> materials;
 	public EntityDropItem(String configString, EntityReference entityReference, List<Material> materials, DynamicInteger match)
@@ -23,10 +24,11 @@ public class EntityDropItem extends EntityCalculationRoutine<Entity>
 	}
 	
 	@Override
-	protected void applyEffect(Entity emtity, int input) 
+	protected void doCalculation(TargetEventInfo eventInfo, int input) 
 	{
+		Entity entity = entityReference.getEntity(eventInfo);
 		for(Material material : materials)
-			emtity.getWorld().dropItem(emtity.getLocation(), new ItemStack(material, input));
+			entity.getWorld().dropItem(entity.getLocation(), new ItemStack(material, input));
 	}
 
 	public static void register()

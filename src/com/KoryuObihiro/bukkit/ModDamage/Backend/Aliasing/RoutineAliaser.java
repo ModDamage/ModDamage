@@ -17,17 +17,14 @@ public class RoutineAliaser extends Aliaser<Routine>
 	private static final long serialVersionUID = -2744471820826321788L;
 	public RoutineAliaser(){ super("Routine");}
 	
-	public boolean addAlias(String key, List<?> values)
+	public boolean completeAlias(String key, List<?> values)
 	{
-		if(this.containsKey(key)) return false;
+		key = "_" + key;
 		ModDamage.addToLogRecord(DebugSetting.NORMAL, "Adding " + name + " alias \"" + key + "\"", LoadState.SUCCESS);
 		
 		ModDamage.indentation++;
-		if(values.toString().contains("_" + key))
-		{
-			ModDamage.addToLogRecord(DebugSetting.QUIET, "Error adding value \"_" + key + "\" - value is self-referential!", loadState);
-			return false;
-		}
+		if(values.toString().contains(key))
+			ModDamage.addToLogRecord(DebugSetting.NORMAL, "Warning: \"" + key + "\" is self-referential!", LoadState.NOT_LOADED);
 		LoadState[] addStateMachine = {LoadState.SUCCESS};
 		
 		ModDamage.indentation++;
@@ -37,19 +34,19 @@ public class RoutineAliaser extends Aliaser<Routine>
 		if(!addStateMachine[0].equals(LoadState.SUCCESS))
 		{
 			ModDamage.addToLogRecord(DebugSetting.QUIET, "Error adding value " + values.toString(), loadState);
+			ModDamage.indentation--;
 			return false;
 		}
 		ModDamage.indentation--;
 		
-		this.put("_" + key, matchedItems);
+		this.get(key).addAll(matchedItems);
 		return true;
 	}
 
 	@Override
 	public List<Routine> matchAlias(String key)
 	{
-		if(this.containsKey(key)) return this.get(key);
-		return new ArrayList<Routine>();
+		return this.containsKey(key)?this.get(key):null;
 	}
 	
 	@Override
@@ -69,7 +66,7 @@ public class RoutineAliaser extends Aliaser<Routine>
 				if(((String)object).startsWith("_"))
 				{
 					List<Routine> aliasedRoutines = ModDamage.matchRoutineAlias((String)object);
-					if(!aliasedRoutines.isEmpty())
+					if(aliasedRoutines != null)
 					{
 						ModDamage.addToLogRecord(DebugSetting.NORMAL, "Alias: \"" + ((String)object).substring(1) + "\"", LoadState.SUCCESS);
 						routines.addAll(aliasedRoutines);
@@ -160,5 +157,4 @@ public class RoutineAliaser extends Aliaser<Routine>
 
 	@Override
 	protected String getObjectName(Routine routine){ return routine.getClass().getSimpleName();}
-
 }

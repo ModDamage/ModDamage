@@ -21,9 +21,11 @@ public class EntityTypeEvaluation extends EntityConditionalStatement
 	@Override
 	public boolean condition(TargetEventInfo eventInfo)
 	{
-		for(ModDamageElement element : elements)
-			if(entityReference.getElement(eventInfo).matchesType(element))
-				return true;
+		ModDamageElement entityElement = entityReference.getElement(eventInfo);
+		if(entityElement != null)
+			for(ModDamageElement element : elements)
+				if(entityElement.matchesType(element))
+					return true;
 		return false;
 	}
 	

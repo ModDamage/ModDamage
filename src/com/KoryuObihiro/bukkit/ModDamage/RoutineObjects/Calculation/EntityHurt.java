@@ -15,15 +15,15 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
-public class EntityHurt extends LivingEntityCalculationRoutine
+public class EntityHurt extends EntityCalculationRoutine
 {
 	public EntityHurt(String configString, EntityReference entityReference, DynamicInteger match)
 	{
 		super(configString, entityReference, match);
 	}
-	
+
 	@Override
-	public void run(TargetEventInfo eventInfo)
+	protected void doCalculation(TargetEventInfo eventInfo, int input)
 	{
 		Entity targetEntity = entityReference.getEntity(eventInfo);
 		if(targetEntity != null && entityReference.getElement(eventInfo).matchesType(ModDamageElement.LIVING))
@@ -37,9 +37,6 @@ public class EntityHurt extends LivingEntityCalculationRoutine
 			}
 		}
 	}
-	
-	@Override
-	protected void applyEffect(LivingEntity affectedObject, int input){}
 
 	public static void register()
 	{

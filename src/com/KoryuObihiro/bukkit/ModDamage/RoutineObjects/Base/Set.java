@@ -12,7 +12,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class Set extends CalculationRoutine<Integer>
+public class Set extends CalculationRoutine
 {
 	public Set(String configString, DynamicInteger value)
 	{ 
@@ -23,9 +23,7 @@ public class Set extends CalculationRoutine<Integer>
 	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = value.getValue(eventInfo);}
 	
 	@Override
-	protected Integer getAffectedObject(TargetEventInfo eventInfo) { return null;}
-	@Override
-	protected void applyEffect(Integer affectedObject, int input) {}
+	protected void doCalculation(TargetEventInfo eventInfo, int input){}
 	
 	public static void register()
 	{

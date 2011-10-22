@@ -1,8 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -466,7 +464,7 @@ public class ModDamage extends JavaPlugin
 		catch(Exception e)
 		{
 			//TODO 0.9.7 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not auto-load config.
-			addToLogRecord(DebugSetting.QUIET, "Error in YAML configuration. Type /md check for more information.", LoadState.FAILURE);
+			addToLogRecord(DebugSetting.QUIET, "Error in YAML configuration.", LoadState.FAILURE);
 			e.printStackTrace();
 			/*
 			for(StackTraceElement element : e.getStackTrace())
@@ -549,8 +547,6 @@ public class ModDamage extends JavaPlugin
 		}
 
 		state_plugin = LoadState.combineStates(Arrays.asList(state_aliases, routineManager.state));
-		
-		//FIXME config.load(); //Discard any changes made to the file by the above reads.
 		
 		String sendThis = null;
 		switch(state_plugin)

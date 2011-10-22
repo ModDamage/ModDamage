@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.World.Environment;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -13,7 +12,7 @@ import org.bukkit.entity.Player;
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 
-public class TargetEventInfo
+public class TargetEventInfo implements Cloneable
 {
 	public static final Logger log = ModDamage.log;
 
@@ -22,7 +21,6 @@ public class TargetEventInfo
 	
 	public int eventValue;
 	public final World world;
-	public final Environment environment;
 	
 	public final ModDamageElement element_target;
 	public final LivingEntity entity_target;
@@ -55,14 +53,13 @@ public class TargetEventInfo
 		}
 		
 		this.world = entity.getWorld();	
-		this.environment = world.getEnvironment();
 	}
-	protected TargetEventInfo(LivingEntity entity, ModDamageElement eventElement_target, int eventValue, EventInfoType type) 
+	protected TargetEventInfo(LivingEntity entity, ModDamageElement element, int eventValue, EventInfoType type) 
 	{
 		this.type = type;
 		this.eventValue = eventValue;
 		this.entity_target = entity;
-		this.element_target = eventElement_target;
+		this.element_target = element;
 		if(element_target.matchesType(ModDamageElement.PLAYER))
 		{
 			Player player_target = (Player)entity;
@@ -79,22 +76,39 @@ public class TargetEventInfo
 			this.groups_target = ModDamage.emptyList;
 		}
 		
-		this.world = entity.getWorld();	
-		this.environment = world.getEnvironment();
+		this.world = entity.getWorld();
 	}
 	
-	public TargetEventInfo(World world, ModDamageElement eventElement_target, int eventValue) 
+	public TargetEventInfo(World world, ModDamageElement element, int eventValue) 
 	{
 		this.type = EventInfoType.PROJECTILE;
 		this.eventValue = eventValue;
 		this.entity_target = null;
-		this.element_target = eventElement_target;
+		this.element_target = element;
 		this.materialInHand_target = null;
 		this.armorSet_target = null;
 		this.name_target = null;
 		this.groups_target = ModDamage.emptyList;
 		
 		this.world = world;	
-		this.environment = world.getEnvironment();
+	}
+	
+	protected TargetEventInfo(LivingEntity entity, World world, ModDamageElement element, Material material, ArmorSet armorSet, String name, List<String> groups, int eventValue)
+	{
+		this.type = EventInfoType.TARGET;
+		this.eventValue = eventValue;
+		this.entity_target = entity;
+		this.element_target = element;
+		this.materialInHand_target = material;
+		this.armorSet_target = armorSet;
+		this.name_target = name;
+		this.groups_target = groups;
+		this.world = world;
+	}
+	
+	@Override
+	public TargetEventInfo clone()
+	{
+		return new TargetEventInfo(this.entity_target, this.world, this.element_target, this.materialInHand_target, this.armorSet_target, this.name_target, this.groups_target, this.eventValue);
 	}
 }

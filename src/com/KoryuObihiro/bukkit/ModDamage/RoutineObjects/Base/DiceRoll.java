@@ -27,9 +27,7 @@ public class DiceRoll extends Chanceroutine
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{
-		if(isAdditive)
-			eventInfo.eventValue = Math.abs(random.nextInt()%(eventInfo.eventValue + 1));
-		else eventInfo.eventValue += Math.abs(random.nextInt()%(rollValue.getValue(eventInfo) + 1));
+		eventInfo.eventValue = (isAdditive?eventInfo.eventValue:0) +  Math.abs(random.nextInt()%(eventInfo.eventValue + 1));
 	}
 	
 	public static void register()

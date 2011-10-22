@@ -6,10 +6,11 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
-public class EntityExplode extends EntityCalculationRoutine<Entity>
+public class EntityExplode extends EntityCalculationRoutine
 {
 	public EntityExplode(String configString, EntityReference entityReference, DynamicInteger match)
 	{
@@ -17,8 +18,9 @@ public class EntityExplode extends EntityCalculationRoutine<Entity>
 	}
 	
 	@Override
-	protected void applyEffect(Entity entity, int input) 
+	protected void doCalculation(TargetEventInfo eventInfo, int input) 
 	{
+		Entity entity = entityReference.getEntity(eventInfo);
 		entity.getWorld().createExplosion(entity.getLocation(), (float)input/10);
 	}
 	

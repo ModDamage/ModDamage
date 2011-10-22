@@ -40,7 +40,7 @@ public class DynamicString
 			@Override
 			protected String getString(TargetEventInfo eventInfo)
 			{
-				return eventInfo.environment.name();
+				return eventInfo.world.getEnvironment().name();
 			}
 		},
 		Event_RangedElement

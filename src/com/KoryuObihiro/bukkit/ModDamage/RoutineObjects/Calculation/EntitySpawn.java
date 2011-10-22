@@ -8,10 +8,11 @@ import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
-public class EntitySpawn extends EntityCalculationRoutine<Entity>
+public class EntitySpawn extends EntityCalculationRoutine
 {
 	final CreatureType creatureType;
 	public EntitySpawn(String configString, EntityReference entityReference, CreatureType creatureType, DynamicInteger match)
@@ -21,8 +22,9 @@ public class EntitySpawn extends EntityCalculationRoutine<Entity>
 	}
 
 	@Override
-	protected void applyEffect(Entity entity, int input) 
+	protected void doCalculation(TargetEventInfo eventInfo, int input) 
 	{
+		Entity entity = entityReference.getEntity(eventInfo);
 		if(input > 0)
 			for(int i = 0; i < input; i++)
 				entity.getLocation().getWorld().spawnCreature(entity.getLocation(), creatureType);//TODO 0.9.7 - What if I try to spawn a Wolf_Angry? :<

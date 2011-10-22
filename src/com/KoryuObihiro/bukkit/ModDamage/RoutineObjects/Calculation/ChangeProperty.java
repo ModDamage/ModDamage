@@ -10,7 +10,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
-public final class ChangeProperty extends CalculationRoutine<Object>
+public final class ChangeProperty extends CalculationRoutine
 {	
 	protected final DynamicInteger targetPropertyMatch;
 	protected final boolean additive;
@@ -20,18 +20,12 @@ public final class ChangeProperty extends CalculationRoutine<Object>
 		this.targetPropertyMatch = targetPropertyMatch;
 		this.additive = additive;
 	}
-	
+
 	@Override
-	public void run(TargetEventInfo eventInfo)
+	protected void doCalculation(TargetEventInfo eventInfo, int input)
 	{
 		targetPropertyMatch.setValue(eventInfo, value.getValue(eventInfo) + (additive?targetPropertyMatch.getValue(eventInfo):0));
 	}
-
-	@Override
-	protected void applyEffect(Object affectedObject, int input){}
-
-	@Override
-	protected Object getAffectedObject(TargetEventInfo eventInfo){ return null;}
 	
 	public static void register()
 	{

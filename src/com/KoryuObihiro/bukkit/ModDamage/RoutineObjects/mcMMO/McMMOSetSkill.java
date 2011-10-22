@@ -10,15 +10,12 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.datatypes.SkillType;
-
 
 public class McMMOSetSkill extends McMMOCalculationRoutine
 {	
@@ -28,12 +25,6 @@ public class McMMOSetSkill extends McMMOCalculationRoutine
 	{
 		super(configString, value, entityReference);
 		this.skillType = skillType;
-	}
-
-	@Override
-	protected Player getAffectedObject(TargetEventInfo eventInfo)
-	{
-		return(entityReference.getElement(eventInfo).equals(ModDamageElement.PLAYER)?(Player)entityReference.getEntity(eventInfo):null);
 	}
 
 	@Override

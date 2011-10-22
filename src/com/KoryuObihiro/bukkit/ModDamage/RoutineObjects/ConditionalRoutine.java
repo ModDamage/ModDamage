@@ -102,18 +102,20 @@ public class ConditionalRoutine extends NestedRoutine
 				{
 					statements.add(0, new FalseStatement());
 					operations.add(0, LogicalOperation.OR);
-					ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Conditional \"" + string + "\"\n", LoadState.SUCCESS);
-
-
+					
 					ModDamage.indentation++;
 					LoadState[] stateMachine = { LoadState.SUCCESS };
 					List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
 					ModDamage.indentation--;
+					
 					if(stateMachine[0].equals(LoadState.SUCCESS))
+					{
+						ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Conditional \"" + string + "\"\n", LoadState.SUCCESS);
 						return new ConditionalRoutine(string, !matcher.group(1).equalsIgnoreCase("if"), statements, operations, routines);
+					}
 				}
 			}
-			ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid Conditional" + " \"" + string + "\"", LoadState.FAILURE);
+			ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid Conditional \"" + string + "\"", LoadState.FAILURE);
 		}
 		return null;
 	}

@@ -14,7 +14,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 
-abstract public class CalculationRoutine<AffectedClass> extends NestedRoutine 
+abstract public class CalculationRoutine extends NestedRoutine 
 {
 	public static HashMap<Pattern, Method> registeredCalculations = new HashMap<Pattern, Method>();
 	protected final static Pattern calculationPattern = Pattern.compile("((?:([\\*\\w]+)effect\\." + Routine.statementPart + "))", Pattern.CASE_INSENSITIVE);
@@ -31,15 +31,11 @@ abstract public class CalculationRoutine<AffectedClass> extends NestedRoutine
 	public void run(TargetEventInfo eventInfo)
 	{
 		int eventValue = eventInfo.eventValue;
-		AffectedClass someObject = (AffectedClass)getAffectedObject(eventInfo);
-		if(someObject != null)
-			applyEffect(someObject, value.getValue(eventInfo));
+			doCalculation(eventInfo, value.getValue(eventInfo));
 		eventInfo.eventValue = eventValue;
 	}
 
-	abstract protected void applyEffect(AffectedClass affectedObject, int input);
-
-	abstract protected AffectedClass getAffectedObject(TargetEventInfo eventInfo);
+	abstract protected void doCalculation(TargetEventInfo eventInfo, int input);
 	
 	public static void register()
 	{
@@ -47,7 +43,7 @@ abstract public class CalculationRoutine<AffectedClass> extends NestedRoutine
 		NestedRoutine.registerNested(CalculationRoutine.class, calculationPattern);
 	}
 	
-	public static CalculationRoutine<?> getNew(String string, Object nestedContent)
+	public static CalculationRoutine getNew(String string, Object nestedContent)
 	{
 		if(string != null && nestedContent != null)
 		{
@@ -70,7 +66,7 @@ abstract public class CalculationRoutine<AffectedClass> extends NestedRoutine
 							try 
 							{
 								ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Calculation \"" + string + "\"\n", LoadState.SUCCESS);
-								return (CalculationRoutine<?>)registeredCalculations.get(pattern).invoke(null, matcher, match);
+								return (CalculationRoutine)registeredCalculations.get(pattern).invoke(null, matcher, match);
 							} 
 							catch (Exception e){ e.printStackTrace();}
 						}
@@ -82,7 +78,7 @@ abstract public class CalculationRoutine<AffectedClass> extends NestedRoutine
 		return null;
 	}
 
-	public static void registerCalculation(Class<? extends CalculationRoutine<?>> calculationClass, Pattern syntax)
+	public static void registerCalculation(Class<? extends CalculationRoutine> calculationClass, Pattern syntax)
 	{
 		try
 		{
