@@ -17,44 +17,30 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.datatypes.SkillType;
 
-public class McMMOSetSkill extends McMMOCalculationRoutine
+public class McMMOChangeSkill extends McMMOCalculationRoutine
 {	
-	private static final Pattern setSkillPattern = Pattern.compile("(\\w+)effect\\.setskill\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern setSkillPattern = Pattern.compile("(\\w+)effect\\.(set|add)skill\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	protected final SkillType skillType;
-	protected McMMOSetSkill(String configString, EntityReference entityReference, DynamicInteger value, SkillType skillType)
+	protected final boolean isAdditive;
+	protected McMMOChangeSkill(String configString, EntityReference entityReference, DynamicInteger value, SkillType skillType, boolean isAdditive)
 	{
 		super(configString, value, entityReference);
 		this.skillType = skillType;
+		this.isAdditive = isAdditive;
 	}
 
 	@Override
 	protected void applyEffect(Player player, int input, mcMMO mcMMOplugin)
 	{
-		mcMMOplugin.getPlayerProfile(player).modifyskill(skillType, input);
+		mcMMOplugin.getPlayerProfile(player).modifyskill(skillType, input + (isAdditive?mcMMOplugin.getPlayerProfile(player).getSkillLevel(skillType):0));
 	}
 
 	public static void register()
 	{
-		//Routine.registerBase(McMMOSetSkill.class, Pattern.compile("(\\w+)effect\\.setskill\\.(\\w+)\\." + IntegerMatch.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
-		CalculationRoutine.registerCalculation(McMMOSetSkill.class, setSkillPattern);
+		CalculationRoutine.registerCalculation(McMMOChangeSkill.class, setSkillPattern);
 	}
 	
-	public static McMMOSetSkill getNew(Matcher matcher)
-	{
-		if(matcher != null)
-		{
-			SkillType skillType = null;
-			for(SkillType skill : SkillType.values())
-				if(matcher.group(2).equalsIgnoreCase(skill.name()))
-					skillType = skill;
-			DynamicInteger match = DynamicInteger.getNew(matcher.group(3));
-			if(EntityReference.isValid(matcher.group(1)) && match != null && skillType != null);
-				return new McMMOSetSkill(matcher.group(), EntityReference.match(matcher.group(1)), match, skillType);
-		}
-		return null;
-	}
-	
-	public static McMMOSetSkill getNew(String configString, Object nestedContent)
+	public static McMMOChangeSkill getNew(String configString, Object nestedContent)
 	{
 		if(configString != null && nestedContent != null)
 		{
@@ -63,14 +49,14 @@ public class McMMOSetSkill extends McMMOCalculationRoutine
 			{
 				SkillType skillType = null;
 				for(SkillType type : SkillType.values())
-					if(matcher.group(2).equalsIgnoreCase(type.name()))
+					if(matcher.group(3).equalsIgnoreCase(type.name()))
 						skillType = type;
-				if(skillType == null) ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid McMMO skill \"" + matcher.group(2) + "\"", LoadState.FAILURE);
+				if(skillType == null) ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid McMMO skill \"" + matcher.group(3) + "\"", LoadState.FAILURE);
 			
 				LoadState[] stateMachine = { LoadState.SUCCESS };
 				List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);				
 				if(EntityReference.isValid(matcher.group(1)) & skillType != null & stateMachine.equals(LoadState.SUCCESS))
-					return new McMMOSetSkill(configString, EntityReference.match(matcher.group(1)), DynamicInteger.getNew(routines), skillType);
+					return new McMMOChangeSkill(configString, EntityReference.match(matcher.group(1)), DynamicInteger.getNew(routines), skillType, matcher.group(2).equalsIgnoreCase("add"));
 			}
 		}
 		return null;

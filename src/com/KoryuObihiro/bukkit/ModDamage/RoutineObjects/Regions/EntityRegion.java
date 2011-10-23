@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Regions;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,8 +15,8 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityCondit
 public class EntityRegion extends EntityConditionalStatement
 {
 	final boolean inclusiveComparison;
-	final List<String> regions;
-	public EntityRegion(boolean inverted, boolean inclusiveComparison, EntityReference entityReference, List<String> regions)
+	final HashSet<String> regions;
+	public EntityRegion(boolean inverted, boolean inclusiveComparison, EntityReference entityReference, HashSet<String> regions)
 	{
 		super(inverted, entityReference);
 		this.inclusiveComparison = inclusiveComparison;
@@ -25,8 +26,9 @@ public class EntityRegion extends EntityConditionalStatement
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo)
 	{
-		for(String region : getRegions(eventInfo))
-			if(inclusiveComparison?regions.contains(region):(regions.size() == 1 && regions.contains(regions.get(0))))
+		List<String> entityRegions = getRegions(eventInfo);
+		for(String region : entityRegions)
+			if(inclusiveComparison?regions.contains(region):(entityRegions.size() == 1 && regions.contains(entityRegions.get(1))))
 				return true;
 		return false;
 	}
@@ -47,7 +49,7 @@ public class EntityRegion extends EntityConditionalStatement
 	{
 		if(matcher != null)
 		{
-			List<String> regions = ModDamage.matchRegionAlias(matcher.group(3));
+			HashSet<String> regions = ModDamage.matchRegionAlias(matcher.group(3));
 			if(!regions.isEmpty() && EntityReference.isValid(matcher.group(2)))
 				return new EntityRegion(matcher.group(1).equalsIgnoreCase("!"), matcher.group(3).endsWith("only"), EntityReference.match(matcher.group(2)), regions);
 		}

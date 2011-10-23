@@ -1,6 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,8 +13,8 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
 public class EntityBiome extends EntityConditionalStatement
 {
-	protected final List<Biome> biomes;
-	public EntityBiome(boolean inverted, EntityReference entityReference, List<Biome> biomes)
+	protected final HashSet<Biome> biomes;
+	public EntityBiome(boolean inverted, EntityReference entityReference, HashSet<Biome> biomes)
 	{ 
 		super(inverted, entityReference);
 		this.biomes = biomes;
@@ -37,7 +37,7 @@ public class EntityBiome extends EntityConditionalStatement
 	{
 		if(matcher != null)
 		{
-			List<Biome> biomes = ModDamage.matchBiomeAlias(matcher.group(3));
+			HashSet<Biome> biomes = ModDamage.matchBiomeAlias(matcher.group(3));
 			if(!biomes.isEmpty() && EntityReference.isValid(matcher.group(2)))
 				return new EntityBiome(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), biomes);
 		}

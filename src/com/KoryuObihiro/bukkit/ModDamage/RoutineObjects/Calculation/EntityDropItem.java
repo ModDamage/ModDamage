@@ -1,6 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,8 +16,8 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 
 public class EntityDropItem extends EntityCalculationRoutine
 {
-	protected final List<Material> materials;
-	public EntityDropItem(String configString, EntityReference entityReference, List<Material> materials, DynamicInteger match)
+	protected final HashSet<Material> materials;
+	public EntityDropItem(String configString, EntityReference entityReference, HashSet<Material> materials, DynamicInteger match)
 	{
 		super(configString, entityReference, match);
 		this.materials = materials;
@@ -40,7 +40,7 @@ public class EntityDropItem extends EntityCalculationRoutine
 	{
 		if(matcher != null && match != null)
 		{
-			List<Material> materials =  ModDamage.matchMaterialAlias(matcher.group(2));
+			HashSet<Material> materials =  ModDamage.matchMaterialAlias(matcher.group(2));
 			if(!materials.isEmpty() && EntityReference.isValid(matcher.group(1)))
 				return new EntityDropItem(matcher.group(), EntityReference.match(matcher.group(1)), materials, match);
 		}

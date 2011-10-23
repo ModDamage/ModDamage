@@ -1,7 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -9,13 +9,12 @@ import org.bukkit.entity.LivingEntity;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 
-abstract public class LivingEntitySwitchRoutine<InfoType> extends SwitchRoutine<InfoType>
+abstract public class EntitySwitchRoutine<StorageClass extends Collection<InfoType>, InfoType> extends SwitchRoutine<StorageClass, InfoType>
 {
 	protected final EntityReference entityReference;
-	public LivingEntitySwitchRoutine(String configString, EntityReference entityReference, LinkedHashMap<String, List<Routine>> switchStatements) 
+	public EntitySwitchRoutine(String configString, EntityReference entityReference, LinkedHashMap<String, Object> switchStatements) 
 	{
 		super(configString, switchStatements);
 		this.entityReference = entityReference;

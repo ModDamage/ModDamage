@@ -39,15 +39,14 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityUnknow
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Chance;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Comparison;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBiome;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityOnBlock;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityBlockStatus;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityStatus;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTagged;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTypeEvaluation;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityWearing;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityWielding;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventHasRangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSleeping;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerSneaking;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWearing;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerWielding;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupEvaluation;
@@ -107,17 +106,16 @@ public class ExternalPluginManager
 		Comparison.register();
 		//Entity
 		EntityBiome.register();
-		EntityOnBlock.register();
+		EntityBlockStatus.register();
+		EntityStatus.register();
 		EntityRegion.register();
 		EntityTagged.register();
 		EntityTypeEvaluation.register();
+		EntityWearing.register();
+		EntityWielding.register();
 		EventWorldEvaluation.register();
 		PlayerGroupEvaluation.register();
 		PlayerPermissionEvaluation.register();
-		PlayerSleeping.register();
-		PlayerSneaking.register();
-		PlayerWearing.register();
-		PlayerWielding.register();
 		//World
 		WorldEnvironment.register();
 		//Server

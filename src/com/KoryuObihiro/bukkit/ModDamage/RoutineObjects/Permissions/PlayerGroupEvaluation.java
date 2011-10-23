@@ -1,6 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,12 +8,12 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityConditionalStatement;
 
-public class PlayerGroupEvaluation extends PlayerConditionalStatement
+public class PlayerGroupEvaluation extends EntityConditionalStatement
 {
-	final List<String> groups;
-	public PlayerGroupEvaluation(boolean inverted, EntityReference entityReference, List<String> groups)
+	final HashSet<String> groups;
+	public PlayerGroupEvaluation(boolean inverted, EntityReference entityReference, HashSet<String> groups)
 	{  
 		super(inverted, entityReference);
 		this.groups = groups;
@@ -36,7 +36,7 @@ public class PlayerGroupEvaluation extends PlayerConditionalStatement
 	{
 		if(matcher != null)
 		{
-			List<String> matchedGroups = ModDamage.matchGroupAlias(matcher.group(3));
+			HashSet<String> matchedGroups = ModDamage.matchGroupAlias(matcher.group(3));
 			if(!matchedGroups.isEmpty())
 				return new PlayerGroupEvaluation(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), matchedGroups);
 		}

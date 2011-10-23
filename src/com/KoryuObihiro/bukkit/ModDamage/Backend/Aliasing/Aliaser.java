@@ -1,7 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,7 +11,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 
-abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
+abstract public class Aliaser<StorageClass extends Collection<Type>, Type> extends HashMap<String, StorageClass>
 {
 	private static final long serialVersionUID = -5035446508507898319L;
 	HashMap<String, List<Type>> aliases;
@@ -31,7 +31,7 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 		{
 			if(listedValue instanceof String)
 			{
-				List<Type> matchedList = matchAlias((String)listedValue);
+				StorageClass matchedList = matchAlias((String)listedValue);
 				if(!matchedList.isEmpty())
 				{
 					for(Type value : matchedList)
@@ -65,22 +65,21 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 		return true;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List<Type> matchAlias(String key)
+	public StorageClass matchAlias(String key)
 	{
 		if(this.containsKey(key))
 			return this.get(key);
 		Type value = matchNonAlias(key);
-		if(value != null) return Arrays.asList(value);
+		if(value != null) return getNewStorageClass(value);
 		{
 			ModDamage.indentation++;
 			ModDamage.addToLogRecord(DebugSetting.QUIET, "No matching " + name + " alias or value \"" + key + "\"", LoadState.FAILURE);
 			ModDamage.indentation--;
 		}
 		
-		return new ArrayList<Type>();
+		return getNewStorageClass();
 	}
-	
+
 	abstract protected Type matchNonAlias(String key);
 	
 	abstract protected String getObjectName(Type object);
@@ -117,7 +116,7 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 				for(String alias : specificAliasesNode.getKeys())
 				{
 					rawAliases.put(alias, (List<?>)specificAliasesNode.getList(alias));
-					this.put("_" + alias, new ArrayList<Type>());
+					this.put("_" + alias, getNewStorageClass());
 				}
 				for(String alias : rawAliases.keySet())
 				{
@@ -134,4 +133,7 @@ abstract public class Aliaser<Type> extends HashMap<String, List<Type>>
 		else ModDamage.addToLogRecord(DebugSetting.VERBOSE, "No " + this.name + " aliases node found.", LoadState.NOT_LOADED);
 		return loadState;
 	}
+	
+	abstract protected StorageClass getNewStorageClass(Type value);
+	abstract protected StorageClass getNewStorageClass();
 }

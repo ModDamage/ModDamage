@@ -44,6 +44,7 @@ public class ModDamageEntityListener extends EntityListener
 					/*if(eventInfo.eventValue < 0) 
 						eventInfo.eventValue = 0; FIXME Is this necessary?*/
 					event.setDamage(eventInfo.eventValue);
+					event.setCancelled(event.getDamage() <= 0);
 				}
 				else  ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
 			}
@@ -58,10 +59,10 @@ public class ModDamageEntityListener extends EntityListener
 		    AttackerEventInfo eventInfo = getDamageEventInfo(((LivingEntity)event.getEntity()).getLastDamageCause());
 			if(eventInfo != null)
 			{
-				for(Routine routine : ModDamage.routineManager.getRoutines(EventType.Damage))
+				for(Routine routine : ModDamage.routineManager.getRoutines(EventType.Death))
 					routine.run(eventInfo);
 			}
-			else ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled death event. Is Bukkit and ModDamage up-to-date?");			
+			//else ModDamage.log.severe("[" + plugin.getDescription().getName() + "] Error! Unhandled death event. Is Bukkit and ModDamage up-to-date?");			
 		}
 	}
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -753,14 +754,14 @@ public class ModDamage extends JavaPlugin
 	}
 
 	public static List<ArmorSet> matchArmorAlias(String key){ return armorAliaser.matchAlias(key);}
-	public static List<Biome> matchBiomeAlias(String key){ return biomeAliaser.matchAlias(key);}
+	public static HashSet<Biome> matchBiomeAlias(String key){ return biomeAliaser.matchAlias(key);}
 	public static List<ModDamageElement> matchElementAlias(String key){ return elementAliaser.matchAlias(key);}
-	public static List<Material> matchMaterialAlias(String key){ return materialAliaser.matchAlias(key);}
-	public static List<String> matchGroupAlias(String key){ return groupAliaser.matchAlias(key);}
+	public static HashSet<Material> matchMaterialAlias(String key){ return materialAliaser.matchAlias(key);}
+	public static HashSet<String> matchGroupAlias(String key){ return groupAliaser.matchAlias(key);}
 	public static List<DynamicMessage> matchMessageAlias(String key){ return messageAliaser.matchAlias(key);}
-	public static List<String> matchRegionAlias(String key){ return regionAliaser.matchAlias(key);}
+	public static HashSet<String> matchRegionAlias(String key){ return regionAliaser.matchAlias(key);}
 	public static List<Routine> matchRoutineAlias(String key){ return routineAliaser.matchAlias(key);}
-	public static List<String> matchWorldAlias(String key){ return worldAliaser.matchAlias(key);}
+	public static HashSet<String> matchWorldAlias(String key){ return worldAliaser.matchAlias(key);}
 
 	public static DebugSetting getDebugSetting() { return debugSetting;}
 }

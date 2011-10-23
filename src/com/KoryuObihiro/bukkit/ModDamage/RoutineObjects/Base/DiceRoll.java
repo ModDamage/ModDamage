@@ -14,7 +14,7 @@ public class DiceRoll extends Chanceroutine
 	protected DiceRoll(String configString)
 	{
 		super(configString);
-		this.rollValue = null;
+		this.rollValue = DynamicInteger.getNew("event.value");
 		this.isAdditive = false;
 	}
 	protected DiceRoll(String configString, DynamicInteger rollValue) 
@@ -27,7 +27,7 @@ public class DiceRoll extends Chanceroutine
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{
-		eventInfo.eventValue = (isAdditive?eventInfo.eventValue:0) +  Math.abs(random.nextInt()%(eventInfo.eventValue + 1));
+		eventInfo.eventValue = (isAdditive?eventInfo.eventValue:0) +  Math.abs(random.nextInt()%(rollValue.getValue(eventInfo) + 1));
 	}
 	
 	public static void register()

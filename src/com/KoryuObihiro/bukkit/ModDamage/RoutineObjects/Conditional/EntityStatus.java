@@ -30,8 +30,6 @@ public class EntityStatus extends EntityConditionalStatement
 		goThroughThese.add(Material.TORCH);
 		goThroughThese.add(Material.REDSTONE_TORCH_ON);
 		goThroughThese.add(Material.REDSTONE_TORCH_OFF);
-		goThroughThese.add(Material.STATIONARY_LAVA);
-		goThroughThese.add(Material.STONE_PLATE);
 		goThroughThese.add(Material.STONE_BUTTON);
 		goThroughThese.add(Material.SIGN_POST);
 		goThroughThese.add(Material.WALL_SIGN);

@@ -1,6 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,10 +11,10 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 
-public class PlayerWielding extends PlayerConditionalStatement 
+public class EntityWielding extends EntityConditionalStatement 
 {
-	final List<Material> materials;
-	public PlayerWielding(boolean inverted, EntityReference entityReference, List<Material> materials)
+	final HashSet<Material> materials;
+	public EntityWielding(boolean inverted, EntityReference entityReference, HashSet<Material> materials)
 	{  
 		super(inverted, entityReference);
 		this.materials = materials;
@@ -24,16 +24,16 @@ public class PlayerWielding extends PlayerConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(PlayerWielding.class, Pattern.compile("(!?)(\\w+)\\.wielding\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(EntityWielding.class, Pattern.compile("(!?)(\\w+)\\.wielding\\.(\\w+)", Pattern.CASE_INSENSITIVE));
 	}	
 	
-	public static PlayerWielding getNew(Matcher matcher)
+	public static EntityWielding getNew(Matcher matcher)
 	{
 		if(matcher != null)
 		{
-			List<Material> matchedItems = ModDamage.matchMaterialAlias(matcher.group(3));
+			HashSet<Material> matchedItems = ModDamage.matchMaterialAlias(matcher.group(3));
 			if(!matchedItems.isEmpty())
-				return new PlayerWielding(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), matchedItems);
+				return new EntityWielding(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), matchedItems);
 		}
 		return null;
 	}

@@ -3,6 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,42 +16,54 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 
-abstract public class SwitchRoutine<InfoType> extends NestedRoutine 
+abstract public class SwitchRoutine<StorageClass extends Collection<Type>, Type> extends NestedRoutine 
 {
 	public static HashMap<Pattern, Method> registeredSwitchRoutines = new HashMap<Pattern, Method>();
 	protected static final Pattern switchPattern = Pattern.compile("switch\\." + Routine.statementPart, Pattern.CASE_INSENSITIVE);
 	
-	final protected LinkedHashMap<InfoType, List<Routine>> switchStatements;
+	final protected LinkedHashMap<StorageClass, List<Routine>> switchStatements;
 	public final boolean isLoaded;
 	public List<String> failedCases = new ArrayList<String>();
 	
 	//TODO Definitely not as efficient as it could be. Refactor?
-	public SwitchRoutine(String configString, LinkedHashMap<String, List<Routine>> switchStatements)
+	public SwitchRoutine(String configString, LinkedHashMap<String, Object> rawSwitchStatements)
 	{
 		super(configString);
-		LinkedHashMap<InfoType, List<Routine>> container = new LinkedHashMap<InfoType, List<Routine>>();
+		this.switchStatements = new LinkedHashMap<StorageClass, List<Routine>>();
 		boolean caseFailed = false;
-		for(String switchCase : switchStatements.keySet())
+		for(String switchCase : rawSwitchStatements.keySet())
 		{
-			InfoType matchedCase = matchCase(switchCase);
-			if(matchedCase != null && switchStatements.get(switchCase) != null && (matchedCase instanceof List?!((List<?>)matchedCase).isEmpty():true))
-				container.put(matchCase(switchCase), switchStatements.get(switchCase));
-			else
+			//get the case first, see if it refers to anything valid
+			StorageClass matchedCase = matchCase(switchCase);
+			
+			ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+			ModDamage.addToLogRecord(DebugSetting.NORMAL, " case: \"" + switchCase + "\"", LoadState.SUCCESS);
+
+			//then grab the routines
+			ModDamage.indentation++;
+			LoadState[] stateMachine = { LoadState.SUCCESS };
+			List<Routine> routines = RoutineAliaser.parse(rawSwitchStatements.get(switchCase), stateMachine);
+			ModDamage.indentation--;
+			switchStatements.put(matchedCase, stateMachine[0].equals(LoadState.FAILURE)?null:routines);
+			
+			ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End case \"" + switchCase + "\"\n", LoadState.SUCCESS);
+			
+			//Check if the case is valid
+			if(!(matchedCase != null && !matchedCase.isEmpty() && switchStatements.get(matchedCase) != null ))
 			{
 				failedCases.add(switchCase);
 				caseFailed = true;
 			}
 		}
 		isLoaded = !caseFailed;
-		this.switchStatements = container;
 	}
 	
 	@Override
 	public void run(TargetEventInfo eventInfo) 
 	{
-		InfoType info = getRelevantInfo(eventInfo);
+		Type info = getRelevantInfo(eventInfo);
 		if(info != null)
-			for(InfoType infoKey : switchStatements.keySet())
+			for(StorageClass infoKey : switchStatements.keySet())
 				if(compare(info, infoKey))
 				{
 					for(Routine routine : switchStatements.get(infoKey))
@@ -59,13 +72,13 @@ abstract public class SwitchRoutine<InfoType> extends NestedRoutine
 				}
 	}
 	
-	protected boolean compare(InfoType info_1, InfoType info_2){ return info_1.equals(info_2);}
+	protected boolean compare(Type info_event, StorageClass info_case){ return info_event.equals(info_case);}
 	
-	abstract protected InfoType getRelevantInfo(TargetEventInfo eventInfo);
+	abstract protected Type getRelevantInfo(TargetEventInfo eventInfo);
 
-	abstract protected InfoType matchCase(String switchCase);
+	abstract protected StorageClass matchCase(String switchCase);
 	
-	public static SwitchRoutine<?> getNew(String string, Object nestedContent)
+	public static SwitchRoutine<?, ?> getNew(String string, Object nestedContent)
 	{
 		if(string != null && nestedContent != null)
 		{
@@ -80,25 +93,10 @@ abstract public class SwitchRoutine<InfoType> extends NestedRoutine
 					LinkedHashMap<String, Object> switchCases = (nestedContent instanceof LinkedHashMap?(LinkedHashMap<String, Object>)nestedContent:null);
 					if(switchCases != null)
 					{
-						LinkedHashMap<String, List<Routine>> switchStatements = new LinkedHashMap<String, List<Routine>>();
-						SwitchRoutine<?> routine = null;
-						for(String anotherKey : switchCases.keySet())
-						{
-							ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-							ModDamage.addToLogRecord(DebugSetting.NORMAL, " case: \"" + anotherKey + "\"", LoadState.SUCCESS);
-
-
-							ModDamage.indentation++;
-							LoadState[] stateMachine = { LoadState.SUCCESS };
-							List<Routine> routines = RoutineAliaser.parse(switchCases.get(anotherKey), stateMachine);
-							ModDamage.indentation--;
-							switchStatements.put(anotherKey, stateMachine[0].equals(LoadState.FAILURE)?null:routines);
-							
-							ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End case \"" + anotherKey + "\"\n", LoadState.SUCCESS);
-						}
+						SwitchRoutine<?, ?> routine = null;
 						try
 						{
-							routine = (SwitchRoutine<?>)registeredSwitchRoutines.get(pattern).invoke(null, matcher, switchStatements);
+							routine = (SwitchRoutine<?, ?>)registeredSwitchRoutines.get(pattern).invoke(null, matcher, switchCases);
 						}
 						catch (Exception e){ e.printStackTrace();}
 						if(routine != null)
@@ -113,10 +111,7 @@ abstract public class SwitchRoutine<InfoType> extends NestedRoutine
 									ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid case \"" + caseName + "\"", LoadState.FAILURE);
 						}
 					}
-					else
-					{
-						ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: unexpected nested content " + nestedContent.toString() + " in Switch routine \"" + string + "\"", LoadState.FAILURE);
-					}
+					else ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: unexpected nested content " + nestedContent.toString() + " in Switch routine \"" + string + "\"", LoadState.FAILURE);
 					break;
 				}
 			}
@@ -125,7 +120,7 @@ abstract public class SwitchRoutine<InfoType> extends NestedRoutine
 		return null;
 	}
 	
-	public static void registerStatement(Class<? extends SwitchRoutine<?>> statementClass, Pattern syntax)
+	public static void registerStatement(Class<? extends SwitchRoutine<?, ?>> statementClass, Pattern syntax)
 	{
 		try
 		{

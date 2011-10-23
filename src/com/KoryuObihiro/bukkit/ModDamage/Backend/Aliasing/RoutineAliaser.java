@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -12,7 +13,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class RoutineAliaser extends Aliaser<Routine> 
+public class RoutineAliaser extends Aliaser<List<Routine>, Routine> 
 {
 	private static final long serialVersionUID = -2744471820826321788L;
 	public RoutineAliaser(){ super("Routine");}
@@ -157,4 +158,10 @@ public class RoutineAliaser extends Aliaser<Routine>
 
 	@Override
 	protected String getObjectName(Routine routine){ return routine.getClass().getSimpleName();}
+
+	@Override
+	protected List<Routine> getNewStorageClass(Routine value){ return Arrays.asList(value);}
+
+	@Override
+	protected List<Routine> getNewStorageClass(){ return new ArrayList<Routine>();}
 }

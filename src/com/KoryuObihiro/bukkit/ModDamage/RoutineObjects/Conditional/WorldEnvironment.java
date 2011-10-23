@@ -8,8 +8,9 @@ import org.bukkit.World.Environment;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
-public class WorldEnvironment extends WorldConditionalStatement 
+public class WorldEnvironment extends ConditionalStatement 
 {
 	protected final Environment environment;
 	public WorldEnvironment(boolean inverted, Environment environment)
@@ -18,7 +19,7 @@ public class WorldEnvironment extends WorldConditionalStatement
 		this.environment = environment;
 	}
 	@Override
-	public boolean condition(TargetEventInfo eventInfo){ return (useEventWorld?eventInfo.world:world).getEnvironment().equals(environment);}
+	public boolean condition(TargetEventInfo eventInfo){ return eventInfo.world.getEnvironment().equals(environment);}
 	
 	public static void register()
 	{

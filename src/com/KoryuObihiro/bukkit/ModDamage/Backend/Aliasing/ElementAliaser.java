@@ -9,7 +9,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 
-public class ElementAliaser extends Aliaser<ModDamageElement> 
+public class ElementAliaser extends Aliaser<List<ModDamageElement>, ModDamageElement> 
 {
 	private static final long serialVersionUID = -557230493957602224L;
 
@@ -36,5 +36,11 @@ public class ElementAliaser extends Aliaser<ModDamageElement>
 
 	@Override
 	protected String getObjectName(ModDamageElement object){ return object.name();}
+
+	@Override
+	protected List<ModDamageElement> getNewStorageClass(ModDamageElement value){ return Arrays.asList(value);}
+
+	@Override
+	protected List<ModDamageElement> getNewStorageClass(){ return new ArrayList<ModDamageElement>();}
 
 }
