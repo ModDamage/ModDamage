@@ -108,10 +108,9 @@ public class DynamicInteger extends DynamicString
 						if(matches[1].equalsIgnoreCase(match.name()))
 						{
 							DynamicPlayerInteger yayMatch = new DynamicPlayerInteger(EntityReference.match(matches[0]), match);
-							if(ExternalPluginManager.getMcMMOPlugin() != null == yayMatch.propertyMatch.usesMcMMO)
-								return yayMatch;
-							else if(yayMatch.propertyMatch.usesMcMMO)
+							if(yayMatch.propertyMatch.usesMcMMO && ExternalPluginManager.getMcMMOPlugin() == null)
 								ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: attempted to use McMMO-dependent player property without McMMO.", LoadState.FAILURE);
+							else return yayMatch;
 						}
 				}
 				ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: unrecognized integer reference \"" + string + "\".", LoadState.FAILURE);
