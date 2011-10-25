@@ -12,13 +12,12 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicString;
 
 public class Delay extends NestedRoutine
 {	
 	protected final DynamicInteger delay;
 	protected final List<Routine> routines;
-	protected static final Pattern delayPattern = Pattern.compile("delay\\." + DynamicString.dynamicPart, Pattern.CASE_INSENSITIVE);
+	protected static final Pattern delayPattern = Pattern.compile("delay\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE);
 	public Delay(String configString, DynamicInteger delayValue, List<Routine> routines)
 	{
 		super(configString);

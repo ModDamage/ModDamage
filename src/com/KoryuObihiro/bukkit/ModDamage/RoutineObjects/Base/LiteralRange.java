@@ -21,7 +21,7 @@ public class LiteralRange extends Chanceroutine
 	
 	public static void register()
 	{
-		Routine.registerBase(LiteralRange.class, Pattern.compile("range\\." + DynamicInteger.dynamicPart + "\\." + DynamicInteger.dynamicPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(LiteralRange.class, Pattern.compile("range\\." + DynamicInteger.dynamicIntegerPart + "\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static LiteralRange getNew(Matcher matcher)

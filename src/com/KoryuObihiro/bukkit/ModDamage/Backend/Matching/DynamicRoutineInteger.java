@@ -9,9 +9,9 @@ public class DynamicRoutineInteger extends DynamicInteger
 {
 	private final List<Routine> routines;
 	
-	public DynamicRoutineInteger(List<Routine> routines)
+	public DynamicRoutineInteger(List<Routine> routines, boolean isNegative)
 	{
-		super(false);
+		super(isNegative, false);
 		this.routines = routines;
 	}
 	
@@ -20,13 +20,13 @@ public class DynamicRoutineInteger extends DynamicInteger
 	{
 		for(Routine routine : routines)
 			routine.run(eventInfo);
-		return eventInfo.eventValue;
+		return (isNegative?-1:1) * eventInfo.eventValue;
 	}
 	
 	@Override
 	public String toString()
 	{
-		return "<some-routines>";//TODO Make this a bit better?
+		return isNegative?"-":"" + "<some-routines>";//TODO Make this a bit better?
 	}
 	
 }

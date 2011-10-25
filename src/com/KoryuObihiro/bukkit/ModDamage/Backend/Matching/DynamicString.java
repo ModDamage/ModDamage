@@ -1,8 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
@@ -10,20 +7,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo.EventInfoType;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicEntityString.EntityStringPropertyMatch;
 
 public class DynamicString
-{
-	protected static final Pattern dynamicPattern;
-	
-	public static final String dynamicPart;
-	static
-	{
-		String tempString = "(?:";
-		for(EntityReference reference : EntityReference.values())
-			tempString += reference.name() + "|";
-		tempString += "event|world|server)";
-		dynamicPart = "((?:-?[0-9]+)|(?:" + tempString + "(?:\\.\\w+))|(?:_\\w+))";
-		dynamicPattern = Pattern.compile(DynamicString.dynamicPart, Pattern.CASE_INSENSITIVE);
-	}
-	
+{	
 	final CommonDynamicProperty dynamicProperty;
 	public enum CommonDynamicProperty
 	{
@@ -69,21 +53,17 @@ public class DynamicString
 	
 	public static DynamicString getNew(String string)
 	{
-		Matcher matcher = dynamicPattern.matcher(string);
-		if(matcher.matches())
-		{
-			String commonAttempt = matcher.group().replace('.', '_');
-			for(CommonDynamicProperty property : CommonDynamicProperty.values())
-				if(commonAttempt.equalsIgnoreCase(property.name()))
-					return new DynamicString(property);
-			String[] matches = matcher.group().split("\\.");
-			if(EntityReference.isValid(matches[0], true))
-				for(EntityStringPropertyMatch match : EntityStringPropertyMatch.values())
-					if(matches[1].equalsIgnoreCase(match.name()))
-						return new DynamicEntityString(EntityReference.match(matches[0]), match);
-			DynamicInteger dynamicInteger = DynamicInteger.getNew(string);
-			if(dynamicInteger != null) return dynamicInteger;
-		}
+		String commonAttempt = string.replace('.', '_');
+		for(CommonDynamicProperty property : CommonDynamicProperty.values())
+			if(commonAttempt.equalsIgnoreCase(property.name()))
+				return new DynamicString(property);
+		String[] matches = string.split("\\.");
+		if(string.length() == 2 && EntityReference.isValid(matches[0], true))
+			for(EntityStringPropertyMatch match : EntityStringPropertyMatch.values())
+				if(matches[1].equalsIgnoreCase(match.name()))
+					return new DynamicEntityString(EntityReference.match(matches[0]), match);
+		DynamicInteger dynamicInteger = DynamicInteger.getNew(string);
+		if(dynamicInteger != null) return dynamicInteger;
 		return null;
 	}
 	

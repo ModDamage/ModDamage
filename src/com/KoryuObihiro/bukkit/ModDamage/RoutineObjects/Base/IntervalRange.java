@@ -22,7 +22,7 @@ public class IntervalRange extends Chanceroutine
 	
 	public static void register()
 	{
-		Routine.registerBase(DiceRoll.class, Pattern.compile("range_int\\." + DynamicInteger.dynamicPart + "\\." + DynamicInteger.dynamicPart + "\\." + DynamicInteger.dynamicPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(DiceRoll.class, Pattern.compile("range_int\\." + DynamicInteger.dynamicIntegerPart + "\\." + DynamicInteger.dynamicIntegerPart + "\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static IntervalRange getNew(Matcher matcher)

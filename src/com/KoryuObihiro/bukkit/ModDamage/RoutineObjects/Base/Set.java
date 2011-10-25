@@ -27,7 +27,7 @@ public class Set extends CalculationRoutine
 	
 	public static void register()
 	{
-		Routine.registerBase(Set.class, Pattern.compile("set\\." + DynamicInteger.dynamicPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(Set.class, Pattern.compile("set\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 		NestedRoutine.registerNested(Set.class, Pattern.compile("set", Pattern.CASE_INSENSITIVE));
 	}
 	

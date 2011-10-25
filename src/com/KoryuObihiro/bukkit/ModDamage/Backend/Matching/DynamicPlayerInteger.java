@@ -189,9 +189,9 @@ public class DynamicPlayerInteger extends DynamicInteger
 		public void setValue(Player player, int value) {}
 	}
 	
-	DynamicPlayerInteger(EntityReference reference, PlayerIntegerPropertyMatch propertyMatch)
+	DynamicPlayerInteger(EntityReference reference, PlayerIntegerPropertyMatch propertyMatch, boolean isNegative)
 	{
-		super(propertyMatch.settable);
+		super(isNegative, propertyMatch.settable);
 		this.entityReference = reference;
 		this.propertyMatch = propertyMatch;
 	}
@@ -200,7 +200,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 	public Integer getValue(TargetEventInfo eventInfo)
 	{
 		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
-			return propertyMatch.getValue((Player)entityReference.getEntity(eventInfo));
+			return (isNegative?-1:1) * propertyMatch.getValue((Player)entityReference.getEntity(eventInfo));
 		return null;
 	}
 	
@@ -214,7 +214,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 	@Override
 	public String toString()
 	{
-		return entityReference.name().toLowerCase() + "." + propertyMatch.name().toLowerCase();
+		return isNegative?"-":"" + entityReference.name().toLowerCase() + "." + propertyMatch.name().toLowerCase();
 	}
 
 }

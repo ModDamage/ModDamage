@@ -116,12 +116,10 @@ public class ArmorSet
 	{
 		String output = "[";
 		if(hasSomething)
-		{
 			for(Material material : armorSet)
 				if(material != null)
 					output += material.name() + " ";
-		}
-		return output + "]";
+		return output.substring(0, output.length()) + "]";
 	}
 	
 	public Material[] toMaterialArray(){ return armorSet;}

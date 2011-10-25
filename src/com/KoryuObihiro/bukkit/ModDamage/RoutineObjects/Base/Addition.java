@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicString;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class Addition extends Routine 
@@ -21,7 +20,7 @@ public class Addition extends Routine
 	
 	public static void register()
 	{
-		Routine.registerBase(Addition.class, Pattern.compile(DynamicString.dynamicPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerBase(Addition.class, Pattern.compile(DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Addition getNew(Matcher matcher)

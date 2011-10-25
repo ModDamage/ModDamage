@@ -28,18 +28,18 @@ public class DynamicServerInteger extends DynamicInteger
 		abstract protected Integer getValue();
 	}
 	
-	DynamicServerInteger(ServerPropertyMatch propertyMatch)
+	DynamicServerInteger(ServerPropertyMatch propertyMatch, boolean isNegative)
 	{
-		super(false);
+		super(isNegative, false);
 		this.propertyMatch = propertyMatch;
 	}
 	
 	@Override
-	public Integer getValue(TargetEventInfo eventInfo){ return propertyMatch.getValue();}
+	public Integer getValue(TargetEventInfo eventInfo){ return (isNegative?-1:1) * propertyMatch.getValue();}
 	
 	@Override
 	public String toString()
 	{
-		return "server." + propertyMatch.name().toLowerCase();
+		return isNegative?"-":"" + "server." + propertyMatch.name().toLowerCase();
 	}
 }

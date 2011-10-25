@@ -72,7 +72,15 @@ public class DynamicEntityInteger extends DynamicInteger
 				return entity.getLocation().getBlock().getLightLevel();
 			}
 		},
-		Size(true)
+		NoDamageTicks(false, ModDamageElement.LIVING)
+		{
+			@Override
+			public int getValue(Entity entity)
+			{
+				return ((LivingEntity)entity).getNoDamageTicks();
+			}
+		},
+		Size(true, ModDamageElement.SLIME)
 		{
 			@Override
 			public int getValue(Entity entity)
@@ -129,9 +137,9 @@ public class DynamicEntityInteger extends DynamicInteger
 		
 	}
 	
-	DynamicEntityInteger(EntityReference reference, EntityIntegerPropertyMatch propertyMatch)
+	DynamicEntityInteger(EntityReference reference, EntityIntegerPropertyMatch propertyMatch, boolean isNegative)
 	{
-		super(propertyMatch.settable);
+		super(isNegative, propertyMatch.settable);
 		this.entityReference = reference;
 		this.propertyMatch = propertyMatch;
 	}
@@ -140,7 +148,7 @@ public class DynamicEntityInteger extends DynamicInteger
 	public Integer getValue(TargetEventInfo eventInfo)
 	{
 		if(entityReference.getElement(eventInfo).matchesType(propertyMatch.requiredElement))
-			return propertyMatch.getValue(entityReference.getEntity(eventInfo));
+			return (isNegative?-1:1) * propertyMatch.getValue(entityReference.getEntity(eventInfo));
 		return 0;//Shouldn't happen.
 	}
 	
@@ -154,6 +162,6 @@ public class DynamicEntityInteger extends DynamicInteger
 	@Override
 	public String toString()
 	{
-		return entityReference.name().toLowerCase() + "." + propertyMatch.name().toLowerCase();
+		return isNegative?"-":"" + entityReference.name().toLowerCase() + "." + propertyMatch.name().toLowerCase();
 	}
 }

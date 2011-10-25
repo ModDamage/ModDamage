@@ -79,7 +79,7 @@ public class Message extends NestedRoutine
 	
 	public static class DynamicMessage
 	{
-		private static final Pattern integerReplacePattern = Pattern.compile("(.*)%" + DynamicString.dynamicPart + "%(.*)", Pattern.CASE_INSENSITIVE);
+		private static final Pattern stringReplacePattern = Pattern.compile("(.*)%([^%]+)%(.*)", Pattern.CASE_INSENSITIVE);
 		private static final Pattern colorReplacePattern = Pattern.compile("(.*)&([0-9a-f])(.*)", Pattern.CASE_INSENSITIVE);
 		
 		private final String insertionCharacter = "\u001D";
@@ -88,28 +88,34 @@ public class Message extends NestedRoutine
 		
 		public DynamicMessage(String message)
 		{
-			Matcher integerMatcher = integerReplacePattern.matcher(message);
+			Matcher integerMatcher = stringReplacePattern.matcher(message);
 			while(integerMatcher.matches())
 			{
+				ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Matched dynamic integer " + integerMatcher.group(2) + ", attempting to get reference...", LoadState.SUCCESS);
 				DynamicString match = DynamicString.getNew(integerMatcher.group(2));
 				if(match != null)
 				{
+					ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Reference found: \"" + match.toString() + "\"", LoadState.SUCCESS);
 					message = integerMatcher.group(1) + insertionCharacter + integerMatcher.group(3);
 					matches.add(match);
-					integerMatcher = integerReplacePattern.matcher(message);
+					integerMatcher = stringReplacePattern.matcher(message);
 				}
 				else
 				{
+					ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Reference not found, marking invalid.", LoadState.SUCCESS);
 					message = integerMatcher.group(1) + "INVALID" + integerMatcher.group(3);
-					integerMatcher = integerReplacePattern.matcher(message);
+					integerMatcher = stringReplacePattern.matcher(message);
 				}
 			}
 			Matcher colorMatcher = colorReplacePattern.matcher(message);
 			while(colorMatcher.matches())
 			{
+				ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Matched color " + colorMatcher.group(2) + "", LoadState.SUCCESS);
 				message = colorMatcher.group(1) + String.format("\u00A7%s", colorMatcher.group(2)) + colorMatcher.group(3);
 				colorMatcher = colorReplacePattern.matcher(message);
 			}
+			
+			ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Resulting Message string: \"" + message + "\"", LoadState.SUCCESS);
 			this.message = message;
 		}
 		
@@ -159,6 +165,7 @@ public class Message extends NestedRoutine
 			List<DynamicMessage> messages = ModDamage.matchMessageAlias(matcher.group(2));
 			if(!messages.isEmpty() && messageType != null)
 			{
+				reportContents(messages);
 				switch(messageType)
 				{
 					case ENTITY:
@@ -168,7 +175,7 @@ public class Message extends NestedRoutine
 						return new Message(matcher.group(), messageType, messages);
 				}
 			}
-			else ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message content \"" + matcher.group(3) + "\" is invalid.", LoadState.SUCCESS);
+			else ModDamage.addToLogRecord(DebugSetting.QUIET, "Message content \"" + matcher.group(3) + "\" is invalid.", LoadState.NOT_LOADED);
 		}
 		return null;
 	}
@@ -202,15 +209,19 @@ public class Message extends NestedRoutine
 				}
 				if(!failFlag)
 				{
-					ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message: \"" + string + "\"" , LoadState.SUCCESS);
-					ModDamage.indentation++;
-					for(DynamicMessage message : routine.messages)
-						ModDamage.addToLogRecord(DebugSetting.NORMAL, "- \"" + message.toString() + "\"" , LoadState.SUCCESS);
-					ModDamage.indentation--;
+					reportContents(messages);
 					return routine;
 				}
 			}	
 		}
 		return null;
+	}
+	private static void reportContents(List<DynamicMessage> messages)
+	{
+		ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message: \"" + messages.get(0).toString() + "\"" , LoadState.SUCCESS);
+		ModDamage.indentation++;
+		for(int i = 1; i < messages.size(); i++)
+			ModDamage.addToLogRecord(DebugSetting.NORMAL, "- \"" + messages.get(i).toString() + "\"" , LoadState.SUCCESS);
+		ModDamage.indentation--;
 	}
 }

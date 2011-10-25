@@ -34,18 +34,18 @@ public class DynamicWorldInteger extends DynamicInteger
 		abstract protected Integer getProperty(TargetEventInfo eventInfo);
 	}
 	
-	DynamicWorldInteger(WorldPropertyMatch propertyMatch)
+	DynamicWorldInteger(WorldPropertyMatch propertyMatch, boolean isNegative)
 	{
-		super(propertyMatch.settable);
+		super(isNegative, propertyMatch.settable);
 		this.propertyMatch = propertyMatch;
 	}
 	
 	@Override
-	public Integer getValue(TargetEventInfo eventInfo){ return propertyMatch.getProperty(eventInfo);}
+	public Integer getValue(TargetEventInfo eventInfo){ return (isNegative?-1:1) * propertyMatch.getProperty(eventInfo);}
 	
 	@Override
 	public String toString()
 	{
-		return "world." + propertyMatch.name().toLowerCase();
+		return isNegative?"-":"" + "world." + propertyMatch.name().toLowerCase();
 	}
 }

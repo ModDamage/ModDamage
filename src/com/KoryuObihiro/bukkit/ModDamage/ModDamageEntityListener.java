@@ -33,7 +33,7 @@ public class ModDamageEntityListener extends EntityListener
 	public void onEntityDamage(EntityDamageEvent event)
 	{
 		if(!event.isCancelled() && (event.getEntity() instanceof LivingEntity)) 
-			if(ModDamage.isEnabled && ((LivingEntity)event.getEntity()).getNoDamageTicks() <= 40)
+			if(ModDamage.isEnabled && ((LivingEntity)event.getEntity()).getNoDamageTicks() <= 20L)//TODO Does this wor
 			{
 				AttackerEventInfo eventInfo = getDamageEventInfo(event);
 				if(eventInfo != null)

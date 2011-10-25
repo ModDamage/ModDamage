@@ -64,7 +64,7 @@ public class Comparison extends ConditionalStatement
 	}
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Comparison.class, Pattern.compile("(!?)(?:" + DynamicInteger.dynamicPart + "\\." + comparisonPart + "\\." + DynamicInteger.dynamicPart + ")?", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Comparison.class, Pattern.compile("(!?)(?:" + DynamicInteger.dynamicIntegerPart + "\\." + comparisonPart + "\\." + DynamicInteger.dynamicIntegerPart + ")?", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Comparison getNew(Matcher matcher)

@@ -23,7 +23,7 @@ public class Chance extends ConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Chance.class, Pattern.compile("chance\\." + DynamicInteger.dynamicPart, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Chance.class, Pattern.compile("chance\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static Chance getNew(Matcher matcher)
