@@ -32,7 +32,7 @@ public class EntityTypeSwitch extends EntitySwitchRoutine<List<ModDamageElement>
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(EntityTypeSwitch.class, Pattern.compile("switch\\.(\\w+)\\.type", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(EntityTypeSwitch.class, Pattern.compile("(\\w+)\\.type", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EntityTypeSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)

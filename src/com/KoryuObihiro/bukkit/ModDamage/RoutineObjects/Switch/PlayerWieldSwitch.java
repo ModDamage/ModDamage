@@ -27,7 +27,7 @@ public class PlayerWieldSwitch extends EntitySwitchRoutine<HashSet<Material>, Ma
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(PlayerWieldSwitch.class, Pattern.compile("switch\\.(\\w+)\\.wielding", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(PlayerWieldSwitch.class, Pattern.compile("(\\w+)\\.wielding", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerWieldSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)

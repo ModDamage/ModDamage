@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Material;
@@ -103,7 +104,7 @@ public enum EntityReference
 				if(eventInfo.type.equals(EventInfoType.ATTACKER)) 
 					return ((AttackerEventInfo)eventInfo).groups_attacker;
 		}
-		return ModDamage.emptyList;
+		return Arrays.asList();
 	}
 
 	public Material getMaterial(TargetEventInfo eventInfo)

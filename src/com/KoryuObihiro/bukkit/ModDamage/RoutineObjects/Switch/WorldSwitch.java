@@ -22,7 +22,7 @@ public class WorldSwitch extends SwitchRoutine<HashSet<String>, String>
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(WorldSwitch.class, Pattern.compile("switch\\.event\\.world", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(WorldSwitch.class, Pattern.compile("event\\.world", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static WorldSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)

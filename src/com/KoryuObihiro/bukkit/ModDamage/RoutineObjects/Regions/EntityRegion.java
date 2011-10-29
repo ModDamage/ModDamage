@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Regions;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -37,7 +38,7 @@ public class EntityRegion extends EntityConditionalStatement
 	{
 		if(entityReference.getEntity(eventInfo) != null)
 			return ExternalPluginManager.getRegionsManager().getRegions(entityReference.getEntity(eventInfo).getLocation());//XXX Use .addAll(getEyeLocation())?
-		return ModDamage.emptyList;
+		return Arrays.asList();
 	}
 	
 	public static void register()

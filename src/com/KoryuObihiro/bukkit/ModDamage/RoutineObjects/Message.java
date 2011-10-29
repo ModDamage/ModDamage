@@ -91,7 +91,7 @@ public class Message extends NestedRoutine
 			Matcher integerMatcher = stringReplacePattern.matcher(message);
 			while(integerMatcher.matches())
 			{
-				ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Matched dynamic integer " + integerMatcher.group(2) + ", attempting to get reference...", LoadState.SUCCESS);
+				ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Matched dynamic integer \"" + integerMatcher.group(2) + "\", attempting to get reference...", LoadState.SUCCESS);
 				DynamicString match = DynamicString.getNew(integerMatcher.group(2));
 				if(match != null)
 				{
@@ -218,10 +218,12 @@ public class Message extends NestedRoutine
 	}
 	private static void reportContents(List<DynamicMessage> messages)
 	{
+		ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
 		ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message: \"" + messages.get(0).toString() + "\"" , LoadState.SUCCESS);
 		ModDamage.indentation++;
 		for(int i = 1; i < messages.size(); i++)
 			ModDamage.addToLogRecord(DebugSetting.NORMAL, "- \"" + messages.get(i).toString() + "\"" , LoadState.SUCCESS);
 		ModDamage.indentation--;
+		ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
 	}
 }

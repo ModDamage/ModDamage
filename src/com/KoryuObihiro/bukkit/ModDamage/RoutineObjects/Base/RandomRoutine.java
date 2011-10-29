@@ -4,9 +4,11 @@ import java.util.Random;
 
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-abstract class Chanceroutine extends Routine
+public abstract class RandomRoutine extends Routine
 {
-	protected Chanceroutine(String configString){ super(configString);}
-	int chance;
-	final Random random = new Random();
+	protected RandomRoutine(String configString)
+	{
+		super(configString);
+	}
+	protected final Random random = new Random();
 }

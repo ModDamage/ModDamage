@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 
+import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
@@ -13,21 +14,21 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityCondit
 
 public class PlayerPermissionEvaluation extends EntityConditionalStatement
 {
-	final String permissionsString;
-	public PlayerPermissionEvaluation(boolean inverted, EntityReference entityReference, String permissionsString)
+	final String permission;
+	public PlayerPermissionEvaluation(boolean inverted, EntityReference entityReference, String permission)
 	{  
 		super(inverted, entityReference);
-		this.permissionsString = permissionsString;
+		this.permission = permission;
 	}
 	@Override
 	protected boolean condition(TargetEventInfo eventInfo) 
  	{
-		return (entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))?((Player)entityReference.getEntity(eventInfo)).hasPermission(permissionsString):false;
+		return (entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))?ExternalPluginManager.getPermissionsManager().hasPermission(((Player)entityReference.getEntity(eventInfo)), permission):false;//XXX Include hasPermission in EntityReference?
 	}
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(PlayerPermissionEvaluation.class, Pattern.compile("(!?)(\\w+)\\.hasPermission\\.(.+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(PlayerPermissionEvaluation.class, Pattern.compile("(!?)(\\w+)\\.haspermission\\.(.+)", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static PlayerPermissionEvaluation getNew(Matcher matcher)

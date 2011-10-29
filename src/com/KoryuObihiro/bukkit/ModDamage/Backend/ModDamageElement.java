@@ -1,8 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.CaveSpider;
@@ -13,7 +10,6 @@ import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Enderman;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Fish;
 import org.bukkit.entity.Flying;
@@ -25,6 +21,7 @@ import org.bukkit.entity.Monster;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Silverfish;
 import org.bukkit.entity.Skeleton;
@@ -48,7 +45,7 @@ public enum ModDamageElement
 				COW(ANIMAL, CreatureType.COW),
 				PIG(ANIMAL, CreatureType.PIG),
 				SHEEP(ANIMAL, CreatureType.SHEEP),
-				SNOWGOLEM(ANIMAL),//FIXME Not in the right place?
+				//SNOWGOLEM(ANIMAL),TODO Future release
 				SQUID(ANIMAL, CreatureType.SQUID),
 				WOLF(ANIMAL, CreatureType.WOLF),
 					WOLF_WILD(WOLF, CreatureType.WOLF),
@@ -58,19 +55,20 @@ public enum ModDamageElement
 			HUMAN(LIVING),
 				PLAYER(HUMAN),
 				NPC(HUMAN, CreatureType.MONSTER),//TODO Does this work?
-				VILLAGER(HUMAN),//FIXME
+				//VILLAGER(HUMAN),TODO Future release
 			
 			MOB(LIVING),
-				BLAZE(MOB),//FIXME
+				//BLAZE(MOB),TODO Future release
 				CAVESPIDER(MOB, CreatureType.CAVE_SPIDER),
 				CREEPER(MOB, CreatureType.CREEPER),
 					CREEPER_CHARGED(CREEPER, CreatureType.CREEPER),
 					CREEPER_NORMAL(CREEPER, CreatureType.CREEPER),
+				//DRAGON(MOB),TODO Future release
 				ENDERMAN(MOB, CreatureType.ENDERMAN),
 				GHAST(MOB, CreatureType.GHAST),
 				GIANT(MOB, CreatureType.GIANT),
-				MAGMACUBE(MOB),//FIXME
-				MOOSHROM(MOB),//FIXME
+				//MAGMACUBE(MOB),TODO Future release
+				//MOOSHROM(MOB),TODO Future release
 				SILVERFISH(MOB, CreatureType.SILVERFISH),
 				SKELETON(MOB, CreatureType.SKELETON),
 				SLIME(MOB, CreatureType.SLIME),
@@ -171,13 +169,13 @@ public enum ModDamageElement
 		}
 	}
 	
-	public static ModDamageElement matchRangedElement(Entity entity)
+	public static ModDamageElement matchRangedElement(Projectile projectile)
 	{
-		if(entity instanceof Arrow)		return ARROW;
-		if(entity instanceof Egg)		return EGG;
-		if(entity instanceof Fireball)	return FIREBALL;
-		if(entity instanceof Fish)		return FISHINGROD; 
-		if(entity instanceof Snowball)	return SNOWBALL;
+		if(projectile instanceof Arrow)		return ARROW;
+		if(projectile instanceof Egg)		return EGG;
+		if(projectile instanceof Fireball)	return FIREBALL;
+		if(projectile instanceof Fish)		return FISHINGROD; 
+		if(projectile instanceof Snowball)	return SNOWBALL;
 		return null;
 	}
 	
@@ -199,7 +197,7 @@ public enum ModDamageElement
 	
 	public static ModDamageElement matchMobType(LivingEntity entity) throws IllegalArgumentException
 	{
-		//TODO Optimization - just use string comparisons against the class?
+		//XXX Optimization - grab classname once, use string comparisons?
 		if(entity == null) throw new IllegalArgumentException("Entity cannot be null for matchMobType method!");
 		if(entity instanceof Slime)
 		{
@@ -218,9 +216,10 @@ public enum ModDamageElement
 			{
 				if(entity instanceof Chicken) 	return CHICKEN;
 				if(entity instanceof Cow) 		return COW; 
-				if(entity instanceof Pig) 		return PIG; 
-				//if(entity instanceof Mooshrom)	return MOOSHROM; TODO
+				if(entity instanceof Pig) 		return PIG;
+				//if(entity instanceof Mooshrom)	return MOOSHROM;
 				if(entity instanceof Sheep) 	return SHEEP;
+				//if(entity instanceof SnowGolem)	return SNOWGOLEM;
 				if(entity instanceof Wolf)
 				{
 					if(((Wolf)entity).getOwner() != null) return WOLF_TAME;
@@ -232,6 +231,7 @@ public enum ModDamageElement
 			{
 				if(entity instanceof CaveSpider)return CAVESPIDER;
 				if(entity instanceof Creeper)	return ((Creeper)entity).isPowered()?CREEPER_CHARGED:CREEPER_NORMAL;
+				//if(entity instanceof Dragon) return DRAGON;
 				if(entity instanceof Enderman)	return ENDERMAN;
 				if(entity instanceof Giant) 	return GIANT;
 				if(entity instanceof Silverfish)return SILVERFISH;
@@ -248,23 +248,14 @@ public enum ModDamageElement
 		}
 		if(entity instanceof Flying) 
 		{
+			//if(entity instanceof Blaze)			return BLAZE;
+			//if(entity instanceof Dragon)			return DRAGON;
 			if(entity instanceof Ghast)			return GHAST;
-			//if(entity instanceof Blaze)			return BLAZE; TODO
 		}
 			
 		if(entity instanceof HumanEntity)		return (entity instanceof Player)?PLAYER:NPC;
 		ModDamage.log.severe("[ModDamage] Uncaught mob type " + entity.getClass().getName() + " for an event!");
 		return UNKNOWN;
-	}
-
-	public static List<ModDamageElement> getElementsOf(ModDamageElement element){ return getElementsOf(element.name());}
-	public static List<ModDamageElement> getElementsOf(String elementType)
-	{
-		List<ModDamageElement> typeStrings = new ArrayList<ModDamageElement>();
-		for(ModDamageElement element : values())
-			if(element.getParentType() != null && element.getParentType().name().equals(elementType))
-				typeStrings.add(element);
-		return typeStrings;
 	}
 	
 	public static ModDamageElement matchElement(String nodeName)

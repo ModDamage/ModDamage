@@ -72,12 +72,15 @@ public class EntityStatus extends EntityConditionalStatement
 			@Override
 			public boolean isTrue(Entity entity){ return ((Player)entity).isSleeping();}
 		},
-		Sneaking(ModDamageElement.LIVING)
+		Sneaking(ModDamageElement.PLAYER)
 		{
 			@Override
-			public boolean isTrue(Entity entity)
-			{ return ((Player)entity).isSneaking();
-			}
+			public boolean isTrue(Entity entity){ return ((Player)entity).isSneaking();}
+		},
+		Sprinting(ModDamageElement.PLAYER)
+		{
+			@Override
+			public boolean isTrue(Entity entity){ return ((Player)entity).isSprinting();}
 		},
 		Underwater
 		{

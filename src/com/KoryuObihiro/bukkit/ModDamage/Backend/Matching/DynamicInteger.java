@@ -25,7 +25,7 @@ public class DynamicInteger extends DynamicString
 		for(EntityReference reference : EntityReference.values())
 			tempString += reference.name() + "|";
 		tempString += "event|world|server)";
-		dynamicIntegerPart = "-?([0-9]+|(?:" + tempString + "(?:\\.\\w+))|(?:_\\w+)|(?:\\(.*\\)?))";
+		dynamicIntegerPart = "-?([0-9]+|(?:" + tempString + "\\.\\w+)|(?:_\\w+)|(?:\\(.*\\)))";//FIXME The greediness at the end blocks all 
 	}
 	private static final Pattern dynamicIntegerPattern = Pattern.compile(dynamicIntegerPart, Pattern.CASE_INSENSITIVE);
 	

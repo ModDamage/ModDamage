@@ -10,13 +10,20 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.Calculate;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.ChangeProperty;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityDropItem;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityExplode;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHurt;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySpawn;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityUnknownHurt;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 
 abstract public class CalculationRoutine extends NestedRoutine 
 {
-	public static HashMap<Pattern, Method> registeredCalculations = new HashMap<Pattern, Method>();
+	private static HashMap<Pattern, Method> registeredCalculations = new HashMap<Pattern, Method>();
 	protected final static Pattern calculationPattern = Pattern.compile("((?:([\\*\\w]+)effect\\." + Routine.statementPart + "))", Pattern.CASE_INSENSITIVE);
 	
 	protected final DynamicInteger value;
@@ -40,7 +47,16 @@ abstract public class CalculationRoutine extends NestedRoutine
 	public static void register()
 	{
 		//Routine.registerBase(CalculationRoutine.class, calculationPattern); FIXME 0.9.6
+		registeredCalculations.clear();
 		NestedRoutine.registerNested(CalculationRoutine.class, calculationPattern);
+		registeredCalculations.clear();
+		Calculate.register();
+		ChangeProperty.register();
+		EntityDropItem.register();
+		EntityExplode.register();
+		EntityHurt.register();
+		EntitySpawn.register();
+		EntityUnknownHurt.register();
 	}
 	
 	public static CalculationRoutine getNew(String string, Object nestedContent)
@@ -65,7 +81,8 @@ abstract public class CalculationRoutine extends NestedRoutine
 						{
 							try 
 							{
-								ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Calculation \"" + string + "\"\n", LoadState.SUCCESS);
+								ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Calculation \"" + string + "\"", LoadState.SUCCESS);
+								ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
 								return (CalculationRoutine)registeredCalculations.get(pattern).invoke(null, matcher, match);
 							} 
 							catch (Exception e){ e.printStackTrace();}
@@ -74,6 +91,7 @@ abstract public class CalculationRoutine extends NestedRoutine
 				}
 			}
 			ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid Calculation \"" + string + "\"", LoadState.FAILURE);
+			ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
 		}
 		return null;
 	}

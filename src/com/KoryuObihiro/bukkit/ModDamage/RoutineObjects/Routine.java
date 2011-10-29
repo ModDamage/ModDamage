@@ -8,13 +8,21 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRoll;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Division;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.IntervalRange;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Tag;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 abstract public class Routine
 {
 	public static final HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
-
-	public static final String statementPart = "(!?\\w+(?:\\.[\\*\\w]+)*)";
+	
+	public static String statementPart = "!?[\\w_\\.\\*]+";
 	
 	final String configString;
 	protected Routine(String configString)
@@ -37,7 +45,7 @@ abstract public class Routine
 		else ModDamage.log.severe("[ModDamage] Error: Bad regex for registering class \"" + method.getClass().getName() + "\"!");
 		if(successfullyRegistered)
 		{
-			if(ModDamage.getDebugSetting().shouldOutput(DebugSetting.VERBOSE)) ModDamage.log.info("[ModDamage] Registering class " + method.getClass().getName() + " with pattern " + syntax.pattern());
+			if(ModDamage.getDebugSetting().shouldOutput(DebugSetting.VERBOSE)) ModDamage.log.info("[ModDamage] Registering class " + method.getDeclaringClass().getName() + " with pattern " + syntax.pattern());
 		}
 	}
 	
@@ -61,5 +69,19 @@ abstract public class Routine
 		catch (IllegalArgumentException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
 		catch (IllegalAccessException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
 		catch (InvocationTargetException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");}
+	}
+	
+	public static void register()
+	{
+		registeredBaseRoutines.clear();
+		Addition.register();
+		Delay.register();
+		DiceRoll.register();
+		Division.register();
+		IntervalRange.register();
+		LiteralRange.register();
+		Multiplication.register();
+		Set.register();
+		Tag.register();
 	}
 }

@@ -27,7 +27,7 @@ public class BiomeSwitch extends EntitySwitchRoutine<HashSet<Biome>, Biome>
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(BiomeSwitch.class, Pattern.compile("switch\\.(\\w+)\\.biome", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(BiomeSwitch.class, Pattern.compile("(\\w+)\\.biome", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static BiomeSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)

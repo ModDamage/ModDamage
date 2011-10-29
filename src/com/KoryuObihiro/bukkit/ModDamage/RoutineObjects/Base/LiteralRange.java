@@ -7,7 +7,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class LiteralRange extends Chanceroutine 
+public class LiteralRange extends RandomRoutine 
 {
 	private DynamicInteger lowerBound, upperBound;
 	public LiteralRange(String configString, DynamicInteger lower, DynamicInteger upper)

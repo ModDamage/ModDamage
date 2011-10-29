@@ -13,13 +13,20 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EnvironmentSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 
 abstract public class SwitchRoutine<StorageClass extends Collection<Type>, Type> extends NestedRoutine 
 {
 	public static HashMap<Pattern, Method> registeredSwitchRoutines = new HashMap<Pattern, Method>();
-	protected static final Pattern switchPattern = Pattern.compile("switch\\." + Routine.statementPart, Pattern.CASE_INSENSITIVE);
+	private static Pattern switchPattern = Pattern.compile("switch\\.(.*)", Pattern.CASE_INSENSITIVE);
 	
 	final protected LinkedHashMap<StorageClass, List<Routine>> switchStatements;
 	public final boolean isLoaded;
@@ -46,7 +53,8 @@ abstract public class SwitchRoutine<StorageClass extends Collection<Type>, Type>
 			ModDamage.indentation--;
 			switchStatements.put(matchedCase, stateMachine[0].equals(LoadState.FAILURE)?null:routines);
 			
-			ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End case \"" + switchCase + "\"\n", LoadState.SUCCESS);
+			ModDamage.addToLogRecord(DebugSetting.VERBOSE, " End case \"" + switchCase + "\"", LoadState.SUCCESS);
+			ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
 			
 			//Check if the case is valid
 			if(!(matchedCase != null && !matchedCase.isEmpty() && switchStatements.get(matchedCase) != null ))
@@ -82,40 +90,49 @@ abstract public class SwitchRoutine<StorageClass extends Collection<Type>, Type>
 	{
 		if(string != null && nestedContent != null)
 		{
-			ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-			ModDamage.addToLogRecord(DebugSetting.NORMAL, "Switch: \"" + string + "\"", LoadState.SUCCESS);
-			for(Pattern pattern : registeredSwitchRoutines.keySet())
+			Matcher switchMatcher = switchPattern.matcher(string);
+			if(switchMatcher.matches())
 			{
-				Matcher matcher = pattern.matcher(string);
-				if(matcher.matches())
+				ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Switch: \"" + string + "\"", LoadState.SUCCESS);
+				for(Pattern pattern : registeredSwitchRoutines.keySet())
 				{
-					@SuppressWarnings("unchecked")
-					LinkedHashMap<String, Object> switchCases = (nestedContent instanceof LinkedHashMap?(LinkedHashMap<String, Object>)nestedContent:null);
-					if(switchCases != null)
+					Matcher matcher = pattern.matcher(switchMatcher.group(1));
+					if(matcher.matches())
 					{
-						SwitchRoutine<?, ?> routine = null;
-						try
+						@SuppressWarnings("unchecked")
+						LinkedHashMap<String, Object> switchCases = (nestedContent instanceof LinkedHashMap?(LinkedHashMap<String, Object>)nestedContent:null);
+						if(switchCases != null)
 						{
-							routine = (SwitchRoutine<?, ?>)registeredSwitchRoutines.get(pattern).invoke(null, matcher, switchCases);
-						}
-						catch (Exception e){ e.printStackTrace();}
-						if(routine != null)
-						{
-							if(routine.isLoaded)
+							SwitchRoutine<?, ?> routine = null;
+							try
 							{
-								ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Switch \"" + string + "\"", LoadState.SUCCESS);
-								return routine;
+								routine = (SwitchRoutine<?, ?>)registeredSwitchRoutines.get(pattern).invoke(null, matcher, switchCases);
 							}
-							else 
-								for(String caseName : routine.failedCases)
-									ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid case \"" + caseName + "\"", LoadState.FAILURE);
+							catch (Exception e){ e.printStackTrace();}
+							if(routine != null)
+							{
+								if(routine.isLoaded)
+								{
+									ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Switch \"" + string + "\"", LoadState.SUCCESS);
+									ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+									return routine;
+								}
+								else 
+									for(String caseName : routine.failedCases)
+										ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid case \"" + caseName + "\"", LoadState.FAILURE);
+							}
 						}
+						else
+						{
+							ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: unexpected nested content " + nestedContent.toString() + " in Switch routine \"" + string + "\"", LoadState.FAILURE);
+							ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+						}
+						break;
 					}
-					else ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: unexpected nested content " + nestedContent.toString() + " in Switch routine \"" + string + "\"", LoadState.FAILURE);
-					break;
 				}
 			}
-			ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid Switch \"" + string + "\"", LoadState.FAILURE);
+			ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid Switch \"" + string + "\"" + (ModDamage.getDebugSetting().equals(DebugSetting.VERBOSE)?"\n":""), LoadState.FAILURE);
 		}
 		return null;
 	}
@@ -144,6 +161,15 @@ abstract public class SwitchRoutine<StorageClass extends Collection<Type>, Type>
 	
 	public static void register()
 	{
-		NestedRoutine.registerNested(SwitchRoutine.class, Pattern.compile("switch\\..*", Pattern.CASE_INSENSITIVE));
+		registeredSwitchRoutines.clear();
+		NestedRoutine.registerNested(SwitchRoutine.class, switchPattern);
+		registeredSwitchRoutines.clear();
+		ArmorSetSwitch.register();
+		BiomeSwitch.register();
+		EntityTypeSwitch.register();
+		EnvironmentSwitch.register();
+		PlayerGroupSwitch.register();
+		PlayerWieldSwitch.register();
+		WorldSwitch.register();
 	}
 }

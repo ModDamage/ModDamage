@@ -3,9 +3,9 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageTag;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class DynamicEntityString extends DynamicString
@@ -52,7 +52,7 @@ public class DynamicEntityString extends DynamicString
 			@Override
 			protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
 			{
-				return ModDamageTag.getTags(entityReference.getEntity(eventInfo)).toString();
+				return ModDamage.getTagger().getTags(entityReference.getEntity(eventInfo)).toString();
 			}
 		},
 		Type

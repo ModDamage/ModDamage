@@ -61,4 +61,14 @@ public abstract class NestedRoutine extends Routine
 		ModDamage.addToLogRecord(DebugSetting.QUIET, " No match found for nested routine \"" + string + "\"", LoadState.FAILURE);		
 		return null;
 	}
+	
+	public static void register()
+	{
+		registeredNestedRoutines.clear();
+		Delay.register();
+		Message.register();
+		CalculationRoutine.register();
+		ConditionalRoutine.register();
+		SwitchRoutine.register();
+	}
 }

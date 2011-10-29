@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -49,7 +50,7 @@ public class TargetEventInfo implements Cloneable
 			this.materialInHand_target = null;
 			this.armorSet_target = null;
 			this.name_target = null;
-			this.groups_target = ModDamage.emptyList;
+			this.groups_target = Arrays.asList();
 		}
 		
 		this.world = entity.getWorld();	
@@ -73,7 +74,7 @@ public class TargetEventInfo implements Cloneable
 			this.materialInHand_target = element_target.matchesType(ModDamageElement.ENDERMAN)?((Enderman)entity).getCarriedMaterial().getItemType():null;
 			this.armorSet_target = null;
 			this.name_target = null;
-			this.groups_target = ModDamage.emptyList;
+			this.groups_target = Arrays.asList();
 		}
 		
 		this.world = entity.getWorld();
@@ -88,7 +89,7 @@ public class TargetEventInfo implements Cloneable
 		this.materialInHand_target = null;
 		this.armorSet_target = null;
 		this.name_target = null;
-		this.groups_target = ModDamage.emptyList;
+		this.groups_target = Arrays.asList();
 		
 		this.world = world;	
 	}

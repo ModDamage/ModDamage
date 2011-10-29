@@ -3,8 +3,8 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageTag;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
@@ -27,8 +27,8 @@ public class Tag extends Routine
 		if(entityReference.getEntity(eventInfo) != null)
 		{
 			if(setting)
-				ModDamageTag.addTag(tag, entityReference.getEntity(eventInfo));
-			else ModDamageTag.removeTag(tag, entityReference.getEntity(eventInfo));
+				ModDamage.getTagger().addTag(tag, entityReference.getEntity(eventInfo));
+			else ModDamage.getTagger().removeTag(tag, entityReference.getEntity(eventInfo));
 		}
 	}
 
@@ -40,10 +40,7 @@ public class Tag extends Routine
 	public static Tag getNew(Matcher matcher)
 	{
 		if(matcher != null && EntityReference.isValid(matcher.group(2)))
-		{
-			ModDamageTag.generateTag(matcher.group(3));
-			return new Tag(matcher.group(), matcher.group(3), EntityReference.match(matcher.group(2)), matcher.group(1) == null);
-		}
+			return new Tag(matcher.group(), matcher.group(3).toLowerCase(), EntityReference.match(matcher.group(2)), matcher.group(1) == null);
 		return null;
 	}
 }

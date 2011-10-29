@@ -1,8 +1,14 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +34,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.RegionsManager;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamageEntityListener.EventType;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageTag;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageTagger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ArmorAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.BiomeAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ElementAliaser;
@@ -55,20 +61,6 @@ public class ModDamage extends JavaPlugin
 	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
 	// -AoE clearance, block search nearby for Material?
 	
-	// Crazy Ideas 
-	// -----------
-	//
-	// -if.server.port.#port
-	// -switch.spawnreason
-
-	// -for.eventvalue iterations?
-	// -foreach (probably want dynamic tags here)
-	//    -region
-	//    -item in inventory?
-	//    -item in hand?
-	//    -item by slot?
-	//    -health tick?
-	
 	//--Yet-to-be-plausible:
 	// -tag.$aliasName
 	// -ability to clear non-static tag
@@ -76,8 +68,6 @@ public class ModDamage extends JavaPlugin
 	// -External: check entity tags
 	// -find a way to give players ownership of an explosion?
 	// -Deregister when Bukkit supports!
-	
-	// -External calls to aliased sets of routines? But...EventInfo would be screwed up. :P
 
 	public final int oldestSupportedBuild = 1317;
 	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
@@ -89,9 +79,9 @@ public class ModDamage extends JavaPlugin
 		public static DebugSetting matchSetting(String key)
 		{
 			for(DebugSetting setting : DebugSetting.values())
-				if(key.equalsIgnoreCase(setting.name()))
-						return setting;
-				return null;
+			if(key.equalsIgnoreCase(setting.name()))
+					return setting;
+			return null;
 		}
 		public boolean shouldOutput(DebugSetting setting)
 		{
@@ -100,38 +90,13 @@ public class ModDamage extends JavaPlugin
 			return false;
 		}
 	}
-	public enum LoadState
-	{
-		NOT_LOADED(ChatColor.GRAY + "NO  "), 
-		FAILURE(ChatColor.RED + "FAIL"), 
-		SUCCESS(ChatColor.GREEN + "YES ");
-		
-		private String string;
-		private LoadState(String string){ this.string = string;}
-		private String statusString(){ return string;}
-		private static LoadState combineStates(List<LoadState> eventStates)
-		{
-			LoadState returnState = LoadState.NOT_LOADED;
-			for(LoadState state : eventStates)
-			{
-				if(state.equals(LoadState.FAILURE))
-					return LoadState.FAILURE;
-				else if(state.equals(LoadState.SUCCESS))
-					returnState = SUCCESS;
-			}
-			return returnState;
-		}
-	}
 
 	private static Configuration config;
-	private static final String errorString_Permissions = ModDamageString(ChatColor.RED) + " You don't have access to that command.";
+	private static final String errorString_Permissions = chatPrepend(ChatColor.RED) + "You don't have access to that command.";
 	private static int configPages = 0;
 	private static List<String> configStrings_ingame = new ArrayList<String>();
 	private static List<String> configStrings_console = new ArrayList<String>();
 	public static int indentation = 0;
-	
-	//misc
-	public static final List<String> emptyList = new ArrayList<String>();
 	
 //Routine objects
 	public static final RoutineManager routineManager = new RoutineManager();
@@ -139,7 +104,7 @@ public class ModDamage extends JavaPlugin
 	{
 		private final HashMap<EventType, List<Routine>> eventRoutines = new HashMap<EventType, List<Routine>>();
 		private final HashMap<EventType, LoadState> eventStates = new HashMap<EventType, LoadState>();
-		private LoadState state = LoadState.NOT_LOADED;
+		protected LoadState state = LoadState.NOT_LOADED;
 	
 		public List<Routine> getRoutines(EventType eventType){ return eventRoutines.get(eventType);}
 		
@@ -195,9 +160,10 @@ public class ModDamage extends JavaPlugin
 				ModDamage.indentation--;
 			}
 			ModDamage.indentation--;
-			state = LoadState.combineStates(new ArrayList<LoadState>(eventStates.values()));
+			state = LoadState.combineStates(eventStates.values());
 		}
 	}
+	private static ModDamageTagger tagger = null;
 	
 //Alias objects
 	private static ArmorAliaser armorAliaser = new ArmorAliaser();
@@ -212,14 +178,34 @@ public class ModDamage extends JavaPlugin
 	private static LoadState state_aliases = LoadState.NOT_LOADED;
 	
 	private static LoadState state_plugin = LoadState.NOT_LOADED;
+	
+	public enum LoadState
+	{
+		NOT_LOADED(ChatColor.GRAY + "NO  "), 
+		FAILURE(ChatColor.RED + "FAIL"), 
+		SUCCESS(ChatColor.GREEN + "YES ");
+		
+		private String string;
+		private LoadState(String string){ this.string = string;}
+		private String statusString(){ return string;}
+		
+		public static LoadState combineStates(LoadState...states){ return combineStates(Arrays.asList(states));}
+		public static LoadState combineStates(Collection<LoadState> loadStates)
+		{
+			LoadState returnState = LoadState.NOT_LOADED;
+			if(loadStates.contains(LoadState.SUCCESS))
+				returnState = SUCCESS;
+			if(loadStates.contains(LoadState.FAILURE))
+				return LoadState.FAILURE;
+			return returnState;
+		}
+	}
 	public static boolean isEnabled = false;
 	
 ////////////////////////// INITIALIZATION
 	@Override
 	public void onEnable() 
 	{
-		
-	//Event registration
 		//register plugin-related stuff with the server's plugin manager
 		Bukkit.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
 		Bukkit.getPluginManager().registerEvent(Event.Type.PROJECTILE_HIT, entityListener, Event.Priority.Highest, this);
@@ -233,169 +219,238 @@ public class ModDamage extends JavaPlugin
 	}
 
 	@Override
-	public void onDisable(){ log.info(logPrepend() + "disabled.");}
+	public void onDisable()
+	{
+		tagger.close();
+		log.info(logPrepend() + "disabled.");
+	}
 
 ////COMMAND PARSING ////
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
 		Player player = ((sender instanceof Player)?((Player)sender):null);
-		boolean fromConsole = (player == null);
-		
-			if (label.equalsIgnoreCase("ModDamage") || label.equalsIgnoreCase("md"))
-			{
-				if (args.length == 0)
-				{
-					sendCommandUsage(player, false);
-					return true;
-				}
-				else if(args.length >= 0)
-				{
-					if(args[0].equalsIgnoreCase("debug") || args[0].equalsIgnoreCase("d"))
-						{
-							if(fromConsole || ExternalPluginManager.getPermissionsManager().hasPermission(player, "moddamage.debug"))
-							{
-								if(args.length == 1) toggleDebugging(player);
-								else if(args.length == 2)
-								{
-									DebugSetting matchedSetting = DebugSetting.matchSetting(args[1]);
-									if(matchedSetting != null)
-										setDebugging(player, matchedSetting);
-									else
-									{
-										sendCommandUsage(player, true);
-										return true;
-									}
-									return true;
-								}
-							}
-							else player.sendMessage(errorString_Permissions);
-							return true;
-						}
-						else if(args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("r"))
-						{
-							if(args.length == 1 || args.length == 2)
-							{
-								boolean reloadingAll = args.length == 2 && args[1].equalsIgnoreCase("all");
-								if(fromConsole) reload(reloadingAll);
-								else if(ExternalPluginManager.getPermissionsManager().hasPermission(player, "moddamage.reload")) 
-								{
-									log.info(logPrepend() + "Reload initiated by user " + player.getName() + "...");
-									reload(reloadingAll);
-									switch(state_plugin)
-									{
-										case SUCCESS: 
-											player.sendMessage(ModDamageString(ChatColor.GREEN) + " Reloaded!");
-											break;
-										case FAILURE: 
-											player.sendMessage(ModDamageString(ChatColor.YELLOW) + " Reloaded with errors.");
-											break;
-										case NOT_LOADED: 
-											player.sendMessage(ModDamageString(ChatColor.GRAY) + " No configuration loaded! Are any routines defined?");
-											break;
-									}
-								}
-								else player.sendMessage(errorString_Permissions);
-							}
-							return true;
-						}
-						else if(args[0].equalsIgnoreCase("enable"))
-						{
-							if(fromConsole || ExternalPluginManager.getPermissionsManager().hasPermission(player, "moddamage.enable"))
-								setPluginStatus(player, true);
-							else player.sendMessage(errorString_Permissions);
-							return true;
-						}
-						else if(args[0].equalsIgnoreCase("disable"))
-						{
-							if(fromConsole || ExternalPluginManager.getPermissionsManager().hasPermission(player, "moddamage.disable"))
-									setPluginStatus(player, false);
-							else player.sendMessage(errorString_Permissions);
-							return true;
-						}
-					if(isEnabled)
-					{
-						if(args[0].equalsIgnoreCase("check") || args[0].equalsIgnoreCase("c"))
-						{
-							//md check
-							if(fromConsole)
-							{
-								sendLogRecord(null, 9001);
-								log.info(logPrepend() + "Done.");
-							}
-							else if(args.length == 1)
-							{
-								if(ExternalPluginManager.getPermissionsManager().hasPermission(player, "moddamage.check"))
-									sendLogRecord(player, 0);
-								else player.sendMessage(errorString_Permissions);
-							}
-							//md check int
-							else if(args.length == 2)
-							{
-								try
-								{
-									sendLogRecord(player, Integer.parseInt(args[1]));
-								} 
-								catch(NumberFormatException e)
-								{
-									sendCommandUsage(player, true);
-								}
-							}
-						}
-						else
-						{
-							sendCommandUsage(player, true);
-						}
-					}
-					else if(player == null)
-						log.info(logPrepend() + "ModDamage must be enabled to use that command.");
-					else player.sendMessage(ModDamageString(ChatColor.RED) + " ModDamage must be enabled to use that command.");
-					return true;
-				}
-			}
-		sendCommandUsage(player, true);
+		if (args.length == 0)
+			sendCommandUsage(player, false);
+		else if(args.length >= 0)
+		{
+			String commandString = "";
+			for(String arg : args)
+				commandString += " " + arg;
+			PluginCommand.handleCommand(player, commandString);
+		}
 		return true;
 	}
 	
-///// HELPER FUNCTIONS ////
-	public static String ModDamageString(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "]";}
-	public static String logPrepend(){ return "[ModDamage] ";}
-	
-//// PLUGIN CONFIGURATION ////
-	private void setPluginStatus(Player player, boolean sentEnable) 
+	private enum PluginCommand//FIXME TEST!
 	{
-		if(sentEnable)
+		CHECK(false, "\\s(?:check|c)(\\s\\d+)?")
 		{
-			if(isEnabled)
+			@Override
+			protected void handleCommand(Player player, Matcher matcher)
 			{
-				if(player != null) player.sendMessage(ModDamageString(ChatColor.RED) + " Already enabled!");
-				else log.info(logPrepend() + "Already enabled!");
+				if(player == null)
+				{
+					sendLogRecord(null, 9001);
+					log.info(logPrepend() + "Done.");
+				}
+				else
+				{
+					if(matcher.group(1) == null)
+					{
+						if(hasPermission(player, "moddamage.check"))
+							sendLogRecord(player, 0);
+					}
+					else sendLogRecord(player, Integer.parseInt(matcher.group(1).substring(1)));	
+				}
 			}
-			else
+		},
+		DEBUG(false, "\\sdebug(\\s\\w+)?")
+		{
+			@Override
+			protected void handleCommand(Player player, Matcher matcher)
 			{
-				isEnabled = true;
-				log.info(logPrepend() + "Plugin enabled.");
-				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Plugin enabled.");
+				if(matcher.group(1) != null)
+				{
+					DebugSetting matchedSetting = DebugSetting.matchSetting(matcher.group(1).substring(1));
+					if(matchedSetting != null)
+						setDebugging(player, matchedSetting);
+					else sendMessage(player, "Invalid debugging mode \"" + matcher.group(1).substring(1) + "\" - modes are \"quiet\", \"normal\", and \"verbose\".", ChatColor.RED);
+				}
+				else toggleDebugging(player);
 			}
+		},
+		RELOAD(false, "\\s(?:reload|r)(\\sall)?")
+		{
+			@Override
+			protected void handleCommand(Player player, Matcher matcher)
+			{
+				boolean reloadingAll = matcher.group(1) != null;
+				if(player != null) log.info(logPrepend() + "Reload initiated by user " + player.getName() + "...");
+				((ModDamage)Bukkit.getPluginManager().getPlugin("ModDamage")).reload(reloadingAll);
+				if(player != null)
+					switch(state_plugin)
+					{
+						case SUCCESS: 
+							player.sendMessage(chatPrepend(ChatColor.GREEN) + "Reloaded!");
+							break;
+						case FAILURE: 
+							player.sendMessage(chatPrepend(ChatColor.YELLOW) + "Reloaded with errors.");
+							break;
+						case NOT_LOADED: 
+							player.sendMessage(chatPrepend(ChatColor.GRAY) + "No configuration loaded! Are any routines defined?");
+							break;
+					}
+			}
+		},
+		STATUS(false, "\\s(?:enable|disable)")
+		{
+			@Override
+			protected void handleCommand(Player player, Matcher matcher)
+			{
+				ModDamage.setPluginStatus(player, matcher.group().equalsIgnoreCase(" enable"));
+			}
+		},
+		TAGS(true, "\\s(?:tags|t)\\s(clear|save)")
+		{
+			@Override
+			protected void handleCommand(Player player, Matcher matcher)
+			{
+				if(matcher.group(1).equalsIgnoreCase("clear"))
+					tagger.clear();
+				else tagger.save();
+				sendMessage(player, "Tags " + matcher.group(1).toLowerCase() + "ed.", ChatColor.GREEN);
+			}
+		};
+		
+		final static List<String> commandInstructions = new ArrayList<String>();
+		final boolean needsEnable;
+		final Pattern pattern;
+		private PluginCommand(boolean needsEnable, String pattern)
+		{
+			this.needsEnable = needsEnable;
+			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
 		}
-		else 
+		public static void handleCommand(Player player, String commandString)
 		{
-			if(isEnabled)
+			for(PluginCommand command : PluginCommand.values())
 			{
-				isEnabled = false;
-				log.info(logPrepend() + "Plugin disabled.");
-				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Plugin disabled.");
+				Matcher matcher = command.pattern.matcher(commandString);
+				if(matcher.matches() && hasPermission(player, "moddamage." + command.name().toLowerCase()))
+				{
+					if(!command.needsEnable || isEnabled) command.handleCommand(player, matcher);
+					else sendMessage(player, "ModDamage must be enabled to use that command.", ChatColor.RED);
+					return;
+				}
 			}
-			else
+			sendCommandUsage(player, true);
+		}
+		abstract protected void handleCommand(Player player, Matcher matcher);
+	}
+	
+///// HELPER FUNCTIONS ////
+	private static boolean hasPermission(Player player, String permission)
+	{
+		boolean has = player != null?ExternalPluginManager.getPermissionsManager().hasPermission(player, "moddamage.reload"):true;
+		if(!has) player.sendMessage(errorString_Permissions);
+		return has;
+	}
+	
+	private static void sendMessage(Player player, String message, ChatColor color)
+	{
+		if(player != null)
+			player.sendMessage(chatPrepend(color) + message);
+		else log.info(logPrepend() + message);
+	}
+	
+	private static String chatPrepend(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "] ";}
+	private static String logPrepend(){ return "[ModDamage] ";}
+	
+	private static void setPluginStatus(Player player, boolean status) 
+	{
+		if(status != isEnabled)
+		{
+			isEnabled = status;
+			log.info(logPrepend() + "Plugin " + (isEnabled?"en":"dis") + "abled.");
+			if(player != null) player.sendMessage(chatPrepend(ChatColor.GREEN) + "Plugin " + (isEnabled?"en":"dis") + "abled.");	
+		}
+		else sendMessage(player, "Already " + (isEnabled?"en":"dis") + "abled!", ChatColor.RED);
+	}
+	
+	private static void setDebugging(Player player, DebugSetting setting)
+	{ 
+		if(setting != null) 
+		{
+			if(!debugSetting.equals(setting))
 			{
-				if(player != null) player.sendMessage(ModDamageString(ChatColor.RED) + " Already disabled!");
-				else log.info(logPrepend() + "Already disabled!");
+				if(replaceOrAppendInFile(new File(Bukkit.getPluginManager().getPlugin("ModDamage").getDataFolder(), "config.yml"), "debugging:.*", "debugging: " + setting.name().toLowerCase()))					
+				{
+					sendMessage(player, "Changed debug from " + debugSetting.name().toLowerCase() + " to " + setting.name().toLowerCase(), ChatColor.GREEN);
+					debugSetting = setting;
+				}
+				else if(player != null) player.sendMessage(chatPrepend(ChatColor.RED) + "Couldn't save changes to config.yml.");
 			}
+			else sendMessage(player, "Debug already set to " + setting.name().toLowerCase() + "!", ChatColor.RED);
+		}
+		else log.severe(logPrepend() + "Error: bad debug setting sent. Valid settings: normal, quiet, verbose");//shouldn't happen
+	}
+	
+	private static boolean replaceOrAppendInFile(File file, String targetRegex, String replaceString)
+	{
+		Pattern targetPattern = Pattern.compile(targetRegex, Pattern.CASE_INSENSITIVE);
+		try
+		{
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+            Matcher matcher;
+            StringBuffer contents = new StringBuffer();
+            String line;
+            boolean changedFlag = false;
+            while(reader.ready())
+            {
+            	line = reader.readLine();
+            	matcher = targetPattern.matcher(line);
+            	if(matcher.matches())
+            	{
+            		changedFlag = true;
+            		contents.append(matcher.replaceAll(replaceString));
+            	}
+            	else contents.append(line);
+            	contents.append("\r\n");
+            }
+            reader.close();
+            if(!changedFlag) contents.append(replaceString + "\r\n");
+       
+			FileWriter writer = new FileWriter(file);
+            writer.write(String.valueOf(contents));
+            writer.close();
+		}
+		catch(FileNotFoundException e)
+		{
+			
+		}
+		catch(IOException e){}
+		return true;
+	}
+
+	private static void toggleDebugging(Player player) 
+	{
+		switch(debugSetting)
+		{
+			case QUIET: 
+				setDebugging(player, DebugSetting.NORMAL);
+				break;
+			case NORMAL:
+				setDebugging(player, DebugSetting.VERBOSE);
+				break;
+			case VERBOSE:
+				setDebugging(player, DebugSetting.QUIET);
+				break;
 		}
 	}
 
-	private void sendCommandUsage(Player player, boolean forError) 
+	private static void sendCommandUsage(Player player, boolean forError) 
 	{
+		//TODO Use the PluginCommand enum
 		if(player != null)
 		{
 			if(forError) player.sendMessage(ChatColor.RED + "Error: invalid command syntax.");
@@ -419,6 +474,7 @@ public class ModDamage extends JavaPlugin
 		}
 	}
 	
+	
 /////////////////// MECHANICS CONFIGURATION 
 	private void reload(boolean reloadingAll)
 	{
@@ -432,8 +488,6 @@ public class ModDamage extends JavaPlugin
 		routineAliaser.clear();
 		worldAliaser.clear();
 		state_plugin = state_aliases = LoadState.NOT_LOADED;
-		
-		ModDamageTag.reload(null);//FIXME
 		
 		configStrings_ingame.clear();
 		configStrings_console.clear();
@@ -459,6 +513,9 @@ public class ModDamage extends JavaPlugin
 					addToLogRecord(DebugSetting.QUIET, "Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of ModDamage. Please update your current Bukkit installation.", LoadState.FAILURE);
 			}
 			else addToLogRecord(DebugSetting.QUIET, logPrepend() + "Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.", LoadState.FAILURE);
+			
+			if(tagger != null) tagger.close();
+			tagger = new ModDamageTagger(new File(this.getDataFolder(), "tags.yml"), config.getInt("Tagging.interval-save", ModDamageTagger.defaultInterval), config.getInt("Tagging.interval-clean", ModDamageTagger.defaultInterval));
 		}
 		
 		try{ config.load();}
@@ -546,8 +603,8 @@ public class ModDamage extends JavaPlugin
 				addToLogRecord(DebugSetting.VERBOSE, "Routines loaded!", state_aliases);
 				break;
 		}
-
-		state_plugin = LoadState.combineStates(Arrays.asList(state_aliases, routineManager.state));
+		
+		state_plugin = LoadState.combineStates(routineManager.state, state_aliases);
 		
 		String sendThis = null;
 		switch(state_plugin)
@@ -568,7 +625,7 @@ public class ModDamage extends JavaPlugin
 	private void writeDefaults() 
 	{
 		addToLogRecord(DebugSetting.QUIET, logPrepend() + "No configuration file found! Writing a blank config...", LoadState.NOT_LOADED);
-		config.setHeader("#Auto-generated config");
+		config.setHeader("#Auto-generated config.\n#See the [wiki](https://github.com/KoryuObihiro/ModDamage/wiki) for more information.");
 		config.setProperty("debugging", "normal");
 		for(EventType eventType : EventType.values())
 			config.setProperty(eventType.name(), null);
@@ -581,53 +638,15 @@ public class ModDamage extends JavaPlugin
 				combinations.add(toolMaterial + toolType.toUpperCase());
 			config.setProperty("Aliases." + materialAliaser.getName() + "." + toolType, combinations);
 		}
+		config.setProperty("Tagging.SaveInterval", ModDamageTagger.defaultInterval);
+		config.setProperty("Tagging.CleanInterval", ModDamageTagger.defaultInterval);
 		log.info(logPrepend() + "Completed auto-generation of config.yml.");
 		config.save();
 	}
 	
 	//TODO 0.9.7 Implement a reload hook for other plugins, make /md r reload routine library.
-		
-//// LOGGING ////
-	
-	private static void setDebugging(Player player, DebugSetting setting)
-	{ 
-		if(setting != null) 
-		{
-			if(!debugSetting.equals(setting))
-			{
-				String sendThis = "Changed debug from " + debugSetting.name().toLowerCase() + " to " + setting.name().toLowerCase();
-				log.info(logPrepend() + sendThis);
-				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " " + sendThis);
-				debugSetting = setting;
-				config.setProperty("debugging", debugSetting.name().toLowerCase());
-			}
-			else
-			{
-				log.info(logPrepend() + "Debug already set to " + setting.name().toLowerCase() + "!");
-				if(player != null) player.sendMessage(ModDamageString(ChatColor.GREEN) + " Debug already set to " + setting.name().toLowerCase() + "!");
-			}
-		}
-		else log.severe(logPrepend() + "Error: bad debug setting. Valid settings: normal, quiet, verbose");//shouldn't happen
-	}
-	
-	private static void toggleDebugging(Player player) 
-	{
-		switch(debugSetting)
-		{
-			case QUIET: 
-				setDebugging(player, DebugSetting.NORMAL);
-				break;
-				
-			case NORMAL:
-				setDebugging(player, DebugSetting.VERBOSE);
-				break;
-				
-			case VERBOSE:
-				setDebugging(player, DebugSetting.QUIET);
-				break;
-		}
-	}
-	
+
+//// LOGGING ////	
 	//TODO Make an object that stores everything, but still prints according to debug settings.
 	public static void addToLogRecord(DebugSetting outputSetting, String string, LoadState loadState)
 	{
@@ -700,7 +719,7 @@ public class ModDamage extends JavaPlugin
 		{
 			if(pageNumber <= configPages)
 			{
-				player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Log Record: (" + pageNumber + "/" + configPages + ")");
+				player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Log Record: (" + pageNumber + "/" + configPages + ")");
 				for(int i = (9 * (pageNumber - 1)); i < (configStrings_ingame.size() < (9 * pageNumber)?configStrings_ingame.size():(9 * pageNumber)); i++)
 					player.sendMessage(ChatColor.DARK_AQUA + configStrings_ingame.get(i));
 				return true;
@@ -709,7 +728,7 @@ public class ModDamage extends JavaPlugin
 		else
 		{
 			//TODO 0.9.6 - Unify the placement, output according to the RoutineManager and the AliasManager.
-			player.sendMessage(ModDamage.ModDamageString(ChatColor.GOLD) + " Config Overview: " + state_plugin.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
+			player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Config Overview: " + state_plugin.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
 			player.sendMessage(ChatColor.AQUA + "Aliases:    " + state_aliases.statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + routineManager.state.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:        " + armorAliaser.getLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Damage: " + routineManager.getState(EventType.Damage).statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Element:     " + elementAliaser.getLoadState().statusString() + "       " + ChatColor.DARK_GREEN + "Death:  " + routineManager.getState(EventType.Death).statusString());
@@ -764,4 +783,6 @@ public class ModDamage extends JavaPlugin
 	public static HashSet<String> matchWorldAlias(String key){ return worldAliaser.matchAlias(key);}
 
 	public static DebugSetting getDebugSetting() { return debugSetting;}
+
+	public static ModDamageTagger getTagger(){ return tagger;}
 }

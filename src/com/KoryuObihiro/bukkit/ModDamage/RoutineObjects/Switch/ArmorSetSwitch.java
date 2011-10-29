@@ -40,7 +40,7 @@ public class ArmorSetSwitch extends EntitySwitchRoutine<List<ArmorSet>, ArmorSet
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(ArmorSetSwitch.class, Pattern.compile("switch\\.(\\w+)\\.armorset", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(ArmorSetSwitch.class, Pattern.compile("(\\w+)\\.armorset", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static ArmorSetSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)

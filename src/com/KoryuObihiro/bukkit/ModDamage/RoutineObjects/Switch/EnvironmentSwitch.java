@@ -22,7 +22,7 @@ public class EnvironmentSwitch extends SwitchRoutine<HashSet<Environment>, Envir
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(EnvironmentSwitch.class, Pattern.compile("switch\\.event\\.environment", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerStatement(EnvironmentSwitch.class, Pattern.compile("event\\.environment", Pattern.CASE_INSENSITIVE));
 	}
 	
 	public static EnvironmentSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)

@@ -7,7 +7,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class IntervalRange extends Chanceroutine 
+public class IntervalRange extends RandomRoutine 
 {
 	protected DynamicInteger baseValue, intervalValue, rangeValue;
 	public IntervalRange(String configString, DynamicInteger base, DynamicInteger interval, DynamicInteger interval_range)

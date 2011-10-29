@@ -34,7 +34,7 @@ public class ParentheticalParser
 	private static boolean sanityCheckString(String...strings)
 	{
 		for(String string : strings)
-			if(string.contains("\\s"))
+			if(string.contains("\\s") || string.contains(" "))
 				return false;
 		return true;
 	}
@@ -60,8 +60,12 @@ public class ParentheticalParser
 	@SuppressWarnings("unchecked")
 	private static <TermClass, OperatorClass> boolean doTokenize(char[] input, String termRegex, String operatorRegex, Method newTermMethod, Method newOperatorMethod, List<TermClass> terms, List<OperatorClass> operators) throws Exception
 	{
-		SeekMode mode = SeekMode.Term;
+		Pattern termPattern = Pattern.compile(termRegex, Pattern.CASE_INSENSITIVE);
+		Pattern operatorPattern = Pattern.compile(operatorRegex, Pattern.CASE_INSENSITIVE);
+		
+		boolean gettingTerm = true;
 		StringBuffer temp = new StringBuffer();
+		int termParenthesesOpenCount = 0;
 		boolean readyForMethod = false;
 		boolean failFlag = false;
 		
@@ -71,93 +75,84 @@ public class ParentheticalParser
 				i++;
 		for(; i < input.length; i++)
 		{
-			switch(mode)
+			switch(input[i])
 			{
-				case Term:
-				case Operator:
-					switch(input[i])
+				case ')':
+				case '(':
+					if(gettingTerm)
 					{
-						case ')':
-							failFlag = true;
-							logError("Encountered unexpected close parenthesis at index " + i + ".");
-							return false;
-						case '(':
-							if(temp.length() == 0 && mode.equals(SeekMode.Term))
+						if(input[i] == ')')
+						{
+							if(--termParenthesesOpenCount < 0)
 							{
-								mode = SeekMode.Parenthesis;
-								temp.append(input[i]);
-							}
-							else
-							{
-								logError("Encountered unexpected opening parenthesis at index " + i + ".");
+								failFlag = true;
+								logError("Encountered unexpected closing parenthesis at index " + i + ".");
 								return false;
 							}
-							break;
-						default:
-							if(Character.isWhitespace(input[i]))
-							{
-								readyForMethod = true;
-								while(i + 1 < input.length && Character.isWhitespace(input[i + 1]))
-									i++;
-							}
-							else
-							{
-								temp.append(input[i]);
-								if(i == input.length - 1)
-									readyForMethod = true;
-							}
-								
+						}
+						else termParenthesesOpenCount++;
+						temp.append(input[i]);
+					}
+					else
+					{
+						logError("Encountered unexpected " + (input[i] == '('?"opening":"closing") + " parenthesis at index " + i + ".");
+						return false;
 					}
 					break;
-				case Parenthesis:
-					if(input[i] == ')')
-						readyForMethod = true;
-					temp.append(input[i]);
+				default:
+					if(termParenthesesOpenCount == 0)
+					{
+						if(Character.isWhitespace(input[i]))
+						{
+							readyForMethod = true;
+							while(i + 1 < input.length && Character.isWhitespace(input[i + 1]))
+								i++;
+						}
+						else
+						{
+							temp.append(input[i]);
+							readyForMethod = i == input.length - 1;
+						}
+					}
+					else temp.append(input[i]);
 					break;
 			}
+			if(i == input.length - 1)
+				readyForMethod = true;
 
 			if(readyForMethod)
 			{
-				SeekMode changeToMode = null;
 				Object tokenObject = null;
-				switch(mode)
+				if(gettingTerm)
 				{
-					case Term:
-					case Parenthesis:
-						changeToMode = SeekMode.Operator;
-						tokenObject = Pattern.compile(termRegex, Pattern.CASE_INSENSITIVE).matcher(temp).matches()?newTermMethod.invoke(null, String.valueOf(temp)):null;
-						if(tokenObject != null)
-							terms.add((TermClass)tokenObject);
-						break;
-					case Operator:
-						changeToMode = SeekMode.Term;
-						tokenObject = Pattern.compile(operatorRegex, Pattern.CASE_INSENSITIVE).matcher(temp).matches()?newOperatorMethod.invoke(null, String.valueOf(temp)):null;
-						if(tokenObject != null)
-							operators.add((OperatorClass)tokenObject);
-						break;
+					tokenObject = termPattern.matcher(temp).matches()?newTermMethod.invoke(null, String.valueOf(temp)):null;
+					if(tokenObject != null)
+						terms.add((TermClass)tokenObject);
+				}
+				else
+				{
+					tokenObject = operatorPattern.matcher(temp).matches()?newOperatorMethod.invoke(null, String.valueOf(temp)):null;
+					if(tokenObject != null)
+						operators.add((OperatorClass)tokenObject);
 				}
 				if(tokenObject == null)
 				{
 					failFlag = true;
-					logError("Couldn't parse " + mode.name().toLowerCase() + " \"" + temp + "\"");
+					logError("Couldn't match " + (gettingTerm?"term":"operator") + " \"" + temp + "\"");
 				}
 				temp.delete(0, temp.length());
 				readyForMethod = false;
-				mode = changeToMode;
+				gettingTerm = !gettingTerm;
 			}
 		}
-		switch(mode)
+
+		if(gettingTerm)
 		{
-			case Term:
-			case Parenthesis:
-				logError((mode.equals(SeekMode.Term)?"Expected a term to complete operation at the end of string.":"Unclosed parenthetical set!"));
-				failFlag = true;
-				break;
+			logError("Expected a term to complete operation at the end of string.");
+			failFlag = true;
 		}
 		return !failFlag;
 	}
-	
-	private enum SeekMode{ Term, Operator, Parenthesis;}
 	
 	private static void logError(String message)//FIXME Add to ModDamage main?
 	{

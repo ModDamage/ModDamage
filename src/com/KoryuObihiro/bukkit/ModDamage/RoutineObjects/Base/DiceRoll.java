@@ -7,10 +7,10 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class DiceRoll extends Chanceroutine 
+public class DiceRoll extends RandomRoutine 
 {
-	protected final DynamicInteger rollValue;
 	protected final boolean isAdditive;
+	protected final DynamicInteger rollValue;
 	protected DiceRoll(String configString)
 	{
 		super(configString);
