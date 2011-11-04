@@ -6,9 +6,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -25,8 +29,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 public class ModDamageTagger
 {
 	public static final int defaultInterval = 120 * 20;
-
-	private final LinkedHashMap<String, HashSet<UUID>> tags = new LinkedHashMap<String, HashSet<UUID>>();
+	private final Map<String, HashSet<UUID>> tags = Collections.synchronizedMap(new LinkedHashMap<String, HashSet<UUID>>());
 	
 	private final HashSet<Integer> pendingTaskIDs = new HashSet<Integer>();
 	private long saveInterval;
@@ -99,7 +102,7 @@ public class ModDamageTagger
 	
 	public void reload(){ reload(true);}
 	
-	private void reload(boolean initialized)
+	private synchronized void reload(boolean initialized)
 	{
 		cleanUp();
 		save();
@@ -112,25 +115,45 @@ public class ModDamageTagger
 			}
 		}
 		Plugin modDamage = Bukkit.getPluginManager().getPlugin("ModDamage");
-		saveTaskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(modDamage, new ModDamageTagSaveTask(), saveInterval, saveInterval);
-		cleanTaskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(modDamage, new ModDamageTagCleanTask(), cleanInterval, cleanInterval);	
+		saveTaskID = Bukkit.getScheduler().scheduleAsyncRepeatingTask(modDamage, new ModDamageTagSaveTask(), saveInterval, saveInterval);
+		cleanTaskID = Bukkit.getScheduler().scheduleAsyncRepeatingTask(modDamage, new ModDamageTagCleanTask(), cleanInterval, cleanInterval);	
 	}
-	public class ModDamageTagSaveTask implements Runnable{ @Override public void run(){ save();}}
-	public class ModDamageTagCleanTask implements Runnable{ @Override public void run(){ cleanUp();}}
+	
+	private abstract class ModDamageTagTask implements Runnable//FIXME This shouldn't be necessary, if we're handling syncing right. The problem is...we're not. :(
+	{
+		@Override public void run()
+		{
+			try
+			{
+				doSomething();
+			}
+			catch(ConcurrentModificationException e)
+			{
+				ModDamage.log.warning("Encountered a threading error with tags.");
+			}
+		}
+		protected abstract void doSomething();
+	}
+	private class ModDamageTagSaveTask extends ModDamageTagTask{ @Override protected void doSomething(){ save();}}
+	private class ModDamageTagCleanTask extends ModDamageTagTask{ @Override protected void doSomething(){ cleanUp();}}
 	
 	/**
-	 * Saves all tags to the file that was given on the last call of
+	 * Saves all tags to a file.
 	 */
-	public void save()
+	public synchronized void save()
 	{
 		if(file != null)
 		{
 			LinkedHashMap<String, List<String>> tempMap = new LinkedHashMap<String, List<String>>();
-			for(String tag : tags.keySet())
+			Set<String> keys = tags.keySet();
+			synchronized(tags)
 			{
-				tempMap.put(tag, new ArrayList<String>());
-				for(UUID entityID : tags.get(tag))
-					tempMap.get(tag).add(entityID.toString());
+				for(String tag : keys)
+				{
+					tempMap.put(tag, new ArrayList<String>());
+					for(UUID entityID : tags.get(tag))
+						tempMap.get(tag).add(entityID.toString());
+				}
 			}
 			try
 			{
@@ -146,7 +169,7 @@ public class ModDamageTagger
 	/**
 	 * Add the entity's UUID to a tag. A new tag is made if it doesn't already exist.
 	 */
-	public void addTag(String tag, Entity entity)
+	public synchronized void addTag(String tag, Entity entity)
 	{
 		if(!tags.containsKey(tag))
 			tags.put(tag, new HashSet<UUID>());
@@ -160,7 +183,7 @@ public class ModDamageTagger
 	 * 
 	 * @param tagDuration the delay for removing the tag, in Minecraft ticks.
 	 */
-	public void addTag(String tag, Entity entity, long tagDuration)
+	public synchronized void addTag(String tag, Entity entity, long tagDuration)
 	{
 		addTag(tag, entity);
 		Bukkit.getScheduler().scheduleSyncDelayedTask(Bukkit.getPluginManager().getPlugin("ModDamage"), new ModDamageTagRemoveTask(tag, entity), tagDuration);
@@ -189,7 +212,7 @@ public class ModDamageTagger
 	 * Checks if entity has been tagged with the specified tag.
 	 * @return Boolean indicating whether or not the entity was tagged.
 	 */
-	public boolean isTagged(Entity entity, String tag)
+	public synchronized boolean isTagged(Entity entity, String tag)
 	{
 		return tags.containsKey(tag)?tags.get(tag).contains(entity.getUniqueId()):false;
 	}
@@ -198,20 +221,24 @@ public class ModDamageTagger
 	 * @param entity - The entity whose UUID will be checked for tags.
 	 * @return List of found tags.
 	 */
-	public List<String> getTags(Entity entity)
+	public synchronized List<String> getTags(Entity entity)
 	{
 		List<String> entityTags = new ArrayList<String>();
 		int id = entity.getEntityId();
-		for(String tag : tags.keySet())
-			if(tags.get(tag).contains(id))
-				entityTags.add(tag);
+		Set<String> keys = tags.keySet();
+		synchronized(tags)
+		{	
+			for(String tag : keys)
+				if(tags.get(tag).contains(id))
+					entityTags.add(tag);
+		}
 		return entityTags;
 	}
 	
 	/**
 	 * Removes the entity's UUID from a tag, if {@link void generateTag(String tag) [generateTag]} was called correctly.	 * 
 	 */
-	public void removeTag(String tag, Entity entity)
+	public synchronized void removeTag(String tag, Entity entity)
 	{
 		if(tags.containsKey(tag))
 			tags.get(tag).remove(entity.getEntityId());
@@ -221,18 +248,21 @@ public class ModDamageTagger
 	 * This method checks whether or not the number of tagged entities exceeds the number of entities in the server,
 	 * and if so removes entities that no longer exist.
 	 */
-	public void cleanUp()
+	public synchronized void cleanUp()
 	{
 		//clean up the entities
 		HashSet<UUID> ids = new HashSet<UUID>();
 		for(World world : Bukkit.getWorlds())
 			for(Entity entity : world.getEntities())
 				ids.add(entity.getUniqueId());
-		for(String tag : tags.keySet())
-			for(UUID id : tags.get(tag))
-				if(!ids.contains(id))
-					tags.get(tag).remove(id);
-		
+		Set<String> keys = tags.keySet();
+		synchronized(tags)
+		{	
+			for(String tag : keys)
+				for(UUID id : tags.get(tag))
+					if(!ids.contains(id))
+						tags.get(tag).remove(id);
+		}
 		//clean up the tasks
 		HashSet<Integer> bukkitTaskIDs = new HashSet<Integer>();
 		List<BukkitTask> bukkitTasks = Bukkit.getScheduler().getPendingTasks();
@@ -246,12 +276,12 @@ public class ModDamageTagger
 	/**
 	 * Only the ModDamage main should use this method.
 	 */
-	public void clear(){ tags.clear();}
+	public synchronized void clear(){ tags.clear();}
 	
 	/**
 	 * This is used in the ModDamage main to finish any file IO.
 	 */
-	public void close()
+	public synchronized void close()
 	{
 		cleanUp();
 		save();

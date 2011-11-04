@@ -31,7 +31,7 @@ import org.bukkit.util.config.ConfigurationNode;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.PermissionsManager;
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.RegionsManager;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamageEntityListener.EventType;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamageEventHandler.ModDamageEntityListener;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageTagger;
@@ -57,20 +57,12 @@ public class ModDamage extends JavaPlugin
 {
 	//TODO 0.9.6 Command for autogen world/entitytype switches?
 	//TODO 0.9.6 switch.conditional
-	//TODO 0.9.6 Make the Scan message possible.
 	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
 	// -AoE clearance, block search nearby for Material?
-	
-	//--Yet-to-be-plausible:
-	// -tag.$aliasName
-	// -ability to clear non-static tag
-	// -External: tag entities with an alias ($)
-	// -External: check entity tags
 	// -find a way to give players ownership of an explosion?
 	// -Deregister when Bukkit supports!
 
-	public final int oldestSupportedBuild = 1317;
-	private final ModDamageEntityListener entityListener = new ModDamageEntityListener(this);
+	public final int oldestSupportedBuild = 1337;
 	public final static Logger log = Logger.getLogger("Minecraft");
 	private static DebugSetting debugSetting = DebugSetting.NORMAL;
 	public static enum DebugSetting
@@ -102,13 +94,13 @@ public class ModDamage extends JavaPlugin
 	public static final RoutineManager routineManager = new RoutineManager();
 	public static class RoutineManager
 	{
-		private final HashMap<EventType, List<Routine>> eventRoutines = new HashMap<EventType, List<Routine>>();
-		private final HashMap<EventType, LoadState> eventStates = new HashMap<EventType, LoadState>();
+		private final HashMap<ModDamageEventHandler, List<Routine>> eventRoutines = new HashMap<ModDamageEventHandler, List<Routine>>();
+		private final HashMap<ModDamageEventHandler, LoadState> eventStates = new HashMap<ModDamageEventHandler, LoadState>();
 		protected LoadState state = LoadState.NOT_LOADED;
 	
-		public List<Routine> getRoutines(EventType eventType){ return eventRoutines.get(eventType);}
+		public List<Routine> getRoutines(ModDamageEventHandler eventType){ return eventRoutines.get(eventType);}
 		
-		protected LoadState getState(EventType eventType){ return eventStates.get(eventType);}
+		protected LoadState getState(ModDamageEventHandler eventType){ return eventStates.get(eventType);}
 		
 		protected void reload()
 		{
@@ -117,7 +109,7 @@ public class ModDamage extends JavaPlugin
 			eventRoutines.clear();
 			eventStates.clear();
 			state = LoadState.NOT_LOADED;
-			for(EventType eventType : EventType.values())
+			for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
 			{
 				ModDamage.indentation++;
 				List<?> routineObjects = null;
@@ -190,15 +182,7 @@ public class ModDamage extends JavaPlugin
 		private String statusString(){ return string;}
 		
 		public static LoadState combineStates(LoadState...states){ return combineStates(Arrays.asList(states));}
-		public static LoadState combineStates(Collection<LoadState> loadStates)
-		{
-			LoadState returnState = LoadState.NOT_LOADED;
-			if(loadStates.contains(LoadState.SUCCESS))
-				returnState = SUCCESS;
-			if(loadStates.contains(LoadState.FAILURE))
-				return LoadState.FAILURE;
-			return returnState;
-		}
+		public static LoadState combineStates(Collection<LoadState> loadStates){ return loadStates.contains(FAILURE)?LoadState.FAILURE:(loadStates.contains(SUCCESS)?LoadState.SUCCESS:LoadState.NOT_LOADED);}
 	}
 	public static boolean isEnabled = false;
 	
@@ -207,12 +191,14 @@ public class ModDamage extends JavaPlugin
 	public void onEnable() 
 	{
 		//register plugin-related stuff with the server's plugin manager
+		ModDamageEntityListener entityListener = ModDamageEventHandler.entityListener;
 		Bukkit.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
 		Bukkit.getPluginManager().registerEvent(Event.Type.PROJECTILE_HIT, entityListener, Event.Priority.Highest, this);
 		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_TAME, entityListener, Event.Priority.Highest, this);
 		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
 		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Highest, this);
 		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_REGAIN_HEALTH, entityListener, Event.Priority.Highest, this);
+		Bukkit.getPluginManager().registerEvent(Event.Type.PLAYER_RESPAWN, ModDamageEventHandler.playerListener, Event.Priority.Highest, this);
 		this.config = this.getConfiguration();
 		reload(true);
 		isEnabled = true;
@@ -627,7 +613,7 @@ public class ModDamage extends JavaPlugin
 		addToLogRecord(DebugSetting.QUIET, logPrepend() + "No configuration file found! Writing a blank config...", LoadState.NOT_LOADED);
 		config.setHeader("#Auto-generated config.\n#See the [wiki](https://github.com/KoryuObihiro/ModDamage/wiki) for more information.");
 		config.setProperty("debugging", "normal");
-		for(EventType eventType : EventType.values())
+		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
 			config.setProperty(eventType.name(), null);
 		
 		String[][] toolAliases = { {"axe", "hoe", "pickaxe", "spade", "sword"}, {"WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_"}};
@@ -730,12 +716,12 @@ public class ModDamage extends JavaPlugin
 			//TODO 0.9.6 - Unify the placement, output according to the RoutineManager and the AliasManager.
 			player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Config Overview: " + state_plugin.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
 			player.sendMessage(ChatColor.AQUA + "Aliases:    " + state_aliases.statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + routineManager.state.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:        " + armorAliaser.getLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Damage: " + routineManager.getState(EventType.Damage).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Element:     " + elementAliaser.getLoadState().statusString() + "       " + ChatColor.DARK_GREEN + "Death:  " + routineManager.getState(EventType.Death).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Group:        " + groupAliaser.getLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Food:  " + routineManager.getState(EventType.Food).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Material:    " + materialAliaser.getLoadState().statusString() + "      " + ChatColor.DARK_GREEN + "ProjectileHit:  " + routineManager.getState(EventType.ProjectileHit).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Message:   " + messageAliaser.getLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Spawn:  " + routineManager.getState(EventType.Spawn).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Region:   " + regionAliaser.getLoadState().statusString()+ "        " + ChatColor.DARK_GREEN + "Tame:  " + routineManager.getState(EventType.Tame).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:        " + armorAliaser.getLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Damage: " + routineManager.getState(ModDamageEventHandler.Damage).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Element:     " + elementAliaser.getLoadState().statusString() + "       " + ChatColor.DARK_GREEN + "Death:  " + routineManager.getState(ModDamageEventHandler.Death).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Group:        " + groupAliaser.getLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Food:  " + routineManager.getState(ModDamageEventHandler.Food).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Material:    " + materialAliaser.getLoadState().statusString() + "      " + ChatColor.DARK_GREEN + "ProjectileHit:  " + routineManager.getState(ModDamageEventHandler.ProjectileHit).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Message:   " + messageAliaser.getLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Spawn:  " + routineManager.getState(ModDamageEventHandler.Spawn).statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Region:   " + regionAliaser.getLoadState().statusString()+ "        " + ChatColor.DARK_GREEN + "Tame:  " + routineManager.getState(ModDamageEventHandler.Tame).statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:   " + routineAliaser.getLoadState().statusString());
 			String bottomString = null;
 			switch(state_plugin)
