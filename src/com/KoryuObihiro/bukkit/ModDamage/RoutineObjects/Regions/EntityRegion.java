@@ -11,6 +11,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityConditionalStatement;
 
 public class EntityRegion extends EntityConditionalStatement
@@ -43,17 +44,18 @@ public class EntityRegion extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(EntityRegion.class, Pattern.compile("(!?)(\\w+)\\.(region|regiononly).(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+)\\.(region|regiononly).(\\w+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static EntityRegion getNew(Matcher matcher)
-	{
-		if(matcher != null)
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
+	{	
+		@Override
+		public EntityRegion getNew(Matcher matcher)
 		{
 			HashSet<String> regions = ModDamage.matchRegionAlias(matcher.group(3));
 			if(!regions.isEmpty() && EntityReference.isValid(matcher.group(2)))
 				return new EntityRegion(matcher.group(1).equalsIgnoreCase("!"), matcher.group(3).endsWith("only"), EntityReference.match(matcher.group(2)), regions);
+			return null;
 		}
-		return null;
 	}
 }

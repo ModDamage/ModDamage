@@ -1,5 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
+import java.util.regex.Matcher;
+
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 abstract public class ConditionalStatement
@@ -10,5 +12,10 @@ abstract public class ConditionalStatement
 		this.inverted = inverted;
 	}
 	
-	protected abstract boolean condition(TargetEventInfo eventInfo);
+	abstract protected boolean condition(TargetEventInfo eventInfo);
+
+	abstract protected static class StatementBuilder
+	{
+		abstract public ConditionalStatement getNew(Matcher matcher);
+	}
 }

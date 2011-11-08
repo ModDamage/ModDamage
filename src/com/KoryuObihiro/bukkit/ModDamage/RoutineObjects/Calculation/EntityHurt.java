@@ -40,13 +40,17 @@ public class EntityHurt extends EntityCalculationRoutine
 
 	public static void register()
 	{
-		CalculationRoutine.registerCalculation(EntityHurt.class, Pattern.compile("(\\w+)effect\\.hurt", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.hurt", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static EntityHurt getNew(Matcher matcher, DynamicInteger match)
-	{
-		if(matcher != null && match != null && EntityReference.isValid(matcher.group(1)))
-			return new EntityHurt(matcher.group(), EntityReference.match(matcher.group(1)), match);
-		return null;
+	protected static class RoutineBuilder extends CalculationRoutine.CalculationBuilder
+	{	
+		@Override
+		public EntityHurt getNew(Matcher matcher, DynamicInteger match)
+		{
+			if(EntityReference.isValid(matcher.group(1)))
+				return new EntityHurt(matcher.group(), EntityReference.match(matcher.group(1)), match);
+			return null;
+		}
 	}
 }

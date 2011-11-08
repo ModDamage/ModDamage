@@ -23,13 +23,15 @@ public class Chance extends ConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Chance.class, Pattern.compile("chance\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("chance\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static Chance getNew(Matcher matcher)
-	{ 
-		if(matcher != null)
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
+	{	
+		@Override
+		public Chance getNew(Matcher matcher)
+		{
 			return new Chance(DynamicInteger.getNew(matcher.group(1)));
-		return null;
+		}
 	}
 }

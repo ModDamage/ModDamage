@@ -7,29 +7,12 @@ public class DynamicWorldInteger extends DynamicInteger
 	protected final WorldPropertyMatch propertyMatch;
 	enum WorldPropertyMatch //FIXME Merge with DynamicInteger?
 	{
-		OnlinePlayers
-		{
-			@Override
-			protected Integer getProperty(TargetEventInfo eventInfo)
-			{
-				return eventInfo.world.getPlayers().size();
-			}
-		},
-		Time(true)
-		{
-			@Override
-			protected Integer getProperty(TargetEventInfo eventInfo)
-			{
-				return (int)eventInfo.world.getTime();
-			}
-		};
+		OnlinePlayers{ @Override protected Integer getProperty(TargetEventInfo eventInfo){ return eventInfo.world.getPlayers().size();}},
+		Time(true){ @Override protected Integer getProperty(TargetEventInfo eventInfo){ return (int)eventInfo.world.getTime();}};
 		
 		public boolean settable = false;
 		private WorldPropertyMatch(){}
-		private WorldPropertyMatch(boolean settable)
-		{
-			this.settable = settable;
-		}
+		private WorldPropertyMatch(boolean settable){ this.settable = settable;}
 		
 		abstract protected Integer getProperty(TargetEventInfo eventInfo);
 	}
@@ -44,8 +27,5 @@ public class DynamicWorldInteger extends DynamicInteger
 	public Integer getValue(TargetEventInfo eventInfo){ return (isNegative?-1:1) * propertyMatch.getProperty(eventInfo);}
 	
 	@Override
-	public String toString()
-	{
-		return isNegative?"-":"" + "world." + propertyMatch.name().toLowerCase();
-	}
+	public String toString(){ return isNegative?"-":"" + "world." + propertyMatch.name().toLowerCase();}
 }

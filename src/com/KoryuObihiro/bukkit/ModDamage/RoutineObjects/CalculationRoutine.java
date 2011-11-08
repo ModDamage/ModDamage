@@ -1,7 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -10,6 +8,9 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.Calculate;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.ChangeProperty;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityDropItem;
@@ -17,13 +18,10 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityExplod
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHurt;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySpawn;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityUnknownHurt;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 
 abstract public class CalculationRoutine extends NestedRoutine 
 {
-	private static HashMap<Pattern, Method> registeredCalculations = new HashMap<Pattern, Method>();
+	private static HashMap<Pattern, CalculationBuilder> registeredCalculations = new HashMap<Pattern, CalculationBuilder>();
 	protected final static Pattern calculationPattern = Pattern.compile("((?:([\\*\\w]+)effect\\." + Routine.statementPart + "))", Pattern.CASE_INSENSITIVE);
 	
 	protected final DynamicInteger value;
@@ -48,7 +46,7 @@ abstract public class CalculationRoutine extends NestedRoutine
 	{
 		//Routine.registerBase(CalculationRoutine.class, calculationPattern); FIXME 0.9.6
 		registeredCalculations.clear();
-		NestedRoutine.registerNested(CalculationRoutine.class, calculationPattern);
+		NestedRoutine.registerRoutine(calculationPattern, new RoutineBuilder());
 		registeredCalculations.clear();
 		Calculate.register();
 		ChangeProperty.register();
@@ -57,64 +55,49 @@ abstract public class CalculationRoutine extends NestedRoutine
 		EntityHurt.register();
 		EntitySpawn.register();
 		EntityUnknownHurt.register();
+	}	
+
+	public static void registerRoutine(Pattern syntax, CalculationBuilder builder)
+	{
+		Routine.registerRoutine(registeredCalculations, syntax, builder);
 	}
 	
-	public static CalculationRoutine getNew(String string, Object nestedContent)
+	protected static final class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{
-		if(string != null && nestedContent != null)
+		@Override
+		public CalculationRoutine getNew(Matcher calculationMatcher, Object nestedContent)
 		{
-			ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-			ModDamage.addToLogRecord(DebugSetting.NORMAL, "Calculation: \"" + string + "\"", LoadState.SUCCESS);
-			for(Pattern pattern : registeredCalculations.keySet())
+			if(calculationMatcher.group() != null && nestedContent != null)
 			{
-				Matcher matcher = pattern.matcher(string);
-				if(matcher.matches())
+				ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Calculation: \"" + calculationMatcher.group() + "\"", LoadState.SUCCESS);
+				for(Pattern pattern : registeredCalculations.keySet())
 				{
-					ModDamage.indentation++;
-					LoadState[] stateMachine = { LoadState.SUCCESS };
-					List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
-					ModDamage.indentation--;
-					if(!stateMachine[0].equals(LoadState.FAILURE))
+					Matcher matcher = pattern.matcher(calculationMatcher.group());
+					if(matcher.matches())
 					{
-						DynamicInteger match = DynamicInteger.getNew(routines);
-						if(match != null)
+						ModDamage.indentation++;
+						LoadState[] stateMachine = { LoadState.SUCCESS };
+						List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
+						ModDamage.indentation--;
+						if(!stateMachine[0].equals(LoadState.FAILURE))
 						{
-							try 
-							{
-								ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Calculation \"" + string + "\"", LoadState.SUCCESS);
-								ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-								return (CalculationRoutine)registeredCalculations.get(pattern).invoke(null, matcher, match);
-							} 
-							catch (Exception e){ e.printStackTrace();}
+							DynamicInteger match = DynamicInteger.getNew(routines);
+							ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Calculation \"" + matcher.group() + "\"", LoadState.SUCCESS);
+							ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+							return registeredCalculations.get(pattern).getNew(matcher, match);
 						}
 					}
 				}
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid Calculation \"" + calculationMatcher.group() + "\"", LoadState.FAILURE);
+				ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
 			}
-			ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid Calculation \"" + string + "\"", LoadState.FAILURE);
-			ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+			return null;
 		}
-		return null;
 	}
-
-	public static void registerCalculation(Class<? extends CalculationRoutine> calculationClass, Pattern syntax)
+	
+	abstract protected static class CalculationBuilder
 	{
-		try
-		{
-			Method method = calculationClass.getMethod("getNew", Matcher.class, DynamicInteger.class);
-			if(method != null)//XXX Is this necessary?
-			{
-				assert(method.getReturnType().equals(calculationClass));
-				method.invoke(null, (Matcher)null, (DynamicInteger)null);
-				Routine.register(CalculationRoutine.registeredCalculations, method, syntax);
-			}
-			else ModDamage.log.severe("Method getNew not found for nested routine " + calculationClass.getName());
-		}
-		catch(AssertionError e){ ModDamage.log.severe("[ModDamage] Error: getNew doesn't return class " + calculationClass.getName() + "!");}
-		catch(SecurityException e){ ModDamage.log.severe("[ModDamage] Error: getNew isn't public for class " + calculationClass.getName() + "!");}
-		catch(NullPointerException e){ ModDamage.log.severe("[ModDamage] Error: getNew for class " + calculationClass.getName() + " is not static!");}
-		catch(NoSuchMethodException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + calculationClass.toString() + "\" does not have a getNew() method!");} 
-		catch(IllegalArgumentException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + calculationClass.toString() + "\" does not have matching method getNew(Matcher, IntegerMatch)!");} 
-		catch(IllegalAccessException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + calculationClass.toString() + "\" does not have valid getNew() method!");} 
-		catch(InvocationTargetException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + calculationClass.toString() + "\" does not have valid getNew() method!");}
+		abstract public CalculationRoutine getNew(Matcher matcher, DynamicInteger integer);
 	}
 }

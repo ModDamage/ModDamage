@@ -19,13 +19,15 @@ public class EventHasRangedElement extends ConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(EventHasRangedElement.class, Pattern.compile("(!?)event\\.hasrangedelement", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)event\\.hasrangedelement", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static EventHasRangedElement getNew(Matcher matcher)
-	{
-		if(matcher != null)
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
+	{	
+		@Override
+		public EventHasRangedElement getNew(Matcher matcher)
+		{	
 			return new EventHasRangedElement(matcher.group(1).equalsIgnoreCase("!"));
-		return null;
+		}
 	}
 }

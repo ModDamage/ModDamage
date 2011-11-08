@@ -23,17 +23,18 @@ public class WorldEnvironment extends ConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(WorldEnvironment.class, Pattern.compile("(!?)event\\.environment\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)event\\.environment\\.(\\w+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static WorldEnvironment getNew(Matcher matcher)
-	{
-		if(matcher != null)
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
+	{	
+		@Override
+		public WorldEnvironment getNew(Matcher matcher)
 		{
 			Environment environment = ModDamage.matchEnvironment(matcher.group(2));
 			if(environment != null)
 				return new WorldEnvironment(matcher.group(1).equalsIgnoreCase("!"), environment);
+			return null;
 		}
-		return null;
 	}
 }

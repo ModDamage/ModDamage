@@ -22,17 +22,18 @@ public class EventWorldEvaluation extends ConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(EventWorldEvaluation.class, Pattern.compile("(!?)event\\.world\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)event\\.world\\.(\\w+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static EventWorldEvaluation getNew(Matcher matcher)
-	{
-		if(matcher != null)
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
+	{	
+		@Override
+		public EventWorldEvaluation getNew(Matcher matcher)
 		{
 			HashSet<String> worlds = ModDamage.matchWorldAlias(matcher.group(2));
 			if(!worlds.isEmpty())
 				return new EventWorldEvaluation(matcher.group(1).equalsIgnoreCase("!"), worlds);
+			return null;
 		}
-		return null;
 	}
 }

@@ -34,20 +34,16 @@ public class ExternalPluginManager
 	private static List<ModDamagePlugin> registeredPlugins = new ArrayList<ModDamagePlugin>();
 	private static void reloadModDamageRoutines()
 	{
-		NestedRoutine.registeredNestedRoutines.clear();
 	//register vanilla MD routines
-		Routine.register();
-		NestedRoutine.register();
+		Routine.registerVanillaRoutines();
+		NestedRoutine.registerVanillaRoutines();
 		
 		for(ModDamagePlugin plugin : registeredPlugins)
 			plugin.reloadRoutines();
 	}
 	
 	private static mcMMO mcMMOplugin;
-	public static mcMMO getMcMMOPlugin()
-	{
-		return mcMMOplugin;
-	}
+	public static mcMMO getMcMMOPlugin(){ return mcMMOplugin;}
 	
 	private static PermissionsManager permissionsManager = PermissionsManager.SUPERPERMS;
 	public static PermissionsManager getPermissionsManager(){ return permissionsManager;}

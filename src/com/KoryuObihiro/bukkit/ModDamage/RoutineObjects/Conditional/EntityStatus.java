@@ -15,6 +15,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
 public class EntityStatus extends EntityConditionalStatement
 {
@@ -117,20 +118,24 @@ public class EntityStatus extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(EntityStatus.class, Pattern.compile("(!?)(\\w+)\\.is(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+)\\.is(\\w+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static EntityStatus getNew(Matcher matcher)
-	{
-		if(matcher != null)
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
+	{	
+		@Override
+		public EntityStatus getNew(Matcher matcher)
 		{
-			StatusType statusType = null;
-			for(StatusType type : StatusType.values())
-				if(matcher.group(3).equalsIgnoreCase(type.name()))
-						statusType = type;
-			if(EntityReference.isValid(matcher.group(2)) && statusType != null)
-				return new EntityStatus(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), statusType);
+			if(matcher != null)
+			{
+				StatusType statusType = null;
+				for(StatusType type : StatusType.values())
+					if(matcher.group(3).equalsIgnoreCase(type.name()))
+							statusType = type;
+				if(EntityReference.isValid(matcher.group(2)) && statusType != null)
+					return new EntityStatus(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), statusType);
+			}
+			return null;
 		}
-		return null;
 	}
 }

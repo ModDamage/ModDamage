@@ -22,17 +22,19 @@ public class IntervalRange extends RandomRoutine
 	
 	public static void register()
 	{
-		Routine.registerBase(DiceRoll.class, Pattern.compile("range_int\\." + DynamicInteger.dynamicIntegerPart + "\\." + DynamicInteger.dynamicIntegerPart + "\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerRoutine(Pattern.compile("range_int\\." + DynamicInteger.dynamicIntegerPart + "\\." + DynamicInteger.dynamicIntegerPart + "\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
+
 	
-	public static IntervalRange getNew(Matcher matcher)
-	{ 
-		if(matcher != null)
-		{
+	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	{
+		@Override
+		public IntervalRange getNew(Matcher matcher)
+		{ 
 			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1)), match2 = DynamicInteger.getNew(matcher.group(2)), match3 = DynamicInteger.getNew(matcher.group(3));
 			if(match1 != null && match2 != null && match3 != null)
 				return new IntervalRange(matcher.group(), match1, match2, match3);
+			return null;
 		}
-		return null;
 	}
 }

@@ -12,6 +12,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
 public class EntityBlockStatus extends EntityConditionalStatement
 {
@@ -106,12 +107,13 @@ public class EntityBlockStatus extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(EntityBlockStatus.class, Pattern.compile("(!?)(\\w+)\\.is(\\w+)block\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+)\\.is(\\w+)block\\.(\\w+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static EntityBlockStatus getNew(Matcher matcher)
-	{
-		if(matcher != null)
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
+	{	
+		@Override
+		public EntityBlockStatus getNew(Matcher matcher)
 		{
 			BlockStatusType statusType = null;
 			for(BlockStatusType type : BlockStatusType.values())
@@ -120,8 +122,8 @@ public class EntityBlockStatus extends EntityConditionalStatement
 			HashSet<Material> materials = new HashSet<Material>(ModDamage.matchMaterialAlias(matcher.group(4)));
 			if(EntityReference.isValid(matcher.group(2)) && statusType != null)
 				return new EntityBlockStatus(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), statusType, materials);
+			return null;
 		}
-		return null;
 	}
 
 }

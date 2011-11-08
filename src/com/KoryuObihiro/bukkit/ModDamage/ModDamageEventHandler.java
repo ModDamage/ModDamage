@@ -42,7 +42,6 @@ enum ModDamageEventHandler
 		@Override
 		public void onPlayerRespawn(PlayerRespawnEvent event)
 		{
-			
 			if(ModDamage.isEnabled)
 			{
 				Player player = event.getPlayer();

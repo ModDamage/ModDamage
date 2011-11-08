@@ -31,24 +31,28 @@ public final class NestedConditionalStatement extends ConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(NestedConditionalStatement.class, Pattern.compile("(!?)\\((.*)\\)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)\\((.*)\\)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static NestedConditionalStatement getNew(Matcher matcher)
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
 	{
-		if(matcher != null)
+		@Override
+		public NestedConditionalStatement getNew(Matcher matcher)
 		{
-			List<ConditionalStatement> statements = new ArrayList<ConditionalStatement>();
-			List<LogicalOperator> operations = new ArrayList<LogicalOperator>();
-			operations.add(LogicalOperator.OR);
-			
-			try
+			if(matcher != null)
 			{
-				if(ParentheticalParser.tokenize(matcher.group(2), ConditionalRoutine.conditionalStatementPart, LogicalOperator.logicalOperationPart, ConditionalRoutine.class.getMethod("getNewTerm", String.class), LogicalOperator.class.getMethod("match", String.class), statements, operations))
-					return new NestedConditionalStatement(matcher.group(1).equals("!"), statements, operations);
+				List<ConditionalStatement> statements = new ArrayList<ConditionalStatement>();
+				List<LogicalOperator> operations = new ArrayList<LogicalOperator>();
+				operations.add(LogicalOperator.OR);
+				
+				try
+				{
+					if(ParentheticalParser.tokenize(matcher.group(2), ConditionalRoutine.conditionalStatementPart, LogicalOperator.logicalOperationPart, ConditionalRoutine.class.getMethod("getNewTerm", String.class), LogicalOperator.class.getMethod("match", String.class), statements, operations))
+						return new NestedConditionalStatement(matcher.group(1).equals("!"), statements, operations);
+				}
+				catch(Exception e){ e.printStackTrace();}//shouldn't happen
 			}
-			catch(Exception e){ e.printStackTrace();}//shouldn't happen
+			return null;
 		}
-		return null;
 	}
 }

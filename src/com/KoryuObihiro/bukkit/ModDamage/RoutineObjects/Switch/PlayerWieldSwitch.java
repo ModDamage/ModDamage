@@ -27,13 +27,17 @@ public class PlayerWieldSwitch extends EntitySwitchRoutine<HashSet<Material>, Ma
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(PlayerWieldSwitch.class, Pattern.compile("(\\w+)\\.wielding", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerSwitch(Pattern.compile("(\\w+)\\.wielding", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static PlayerWieldSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+	protected static class RoutineBuilder extends SwitchRoutine.SwitchBuilder
 	{
-		if(matcher != null && switchStatements != null && EntityReference.isValid(matcher.group(1)))
-			return new PlayerWieldSwitch(matcher.group(), EntityReference.match(matcher.group(1)), switchStatements);
-		return null;
+		@Override
+		public PlayerWieldSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+		{
+			if(EntityReference.isValid(matcher.group(1)))
+				return new PlayerWieldSwitch(matcher.group(), EntityReference.match(matcher.group(1)), switchStatements);
+			return null;
+		}
 	}
 }

@@ -1,13 +1,13 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRoll;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Division;
@@ -16,64 +16,23 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Tag;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 abstract public class Routine
 {
-	public static final HashMap<Pattern, Method> registeredBaseRoutines = new HashMap<Pattern, Method>();
+	protected static final Pattern anyPattern = Pattern.compile(".*");
+	private static final RoutineBuilder builder = new RoutineBuilder();
+	private static final HashMap<Pattern, RoutineBuilder> registeredBaseRoutines = new HashMap<Pattern, RoutineBuilder>();
 	
-	public static String statementPart = "!?[\\w_\\.\\*]+";
+	protected static String statementPart = "!?[\\w_\\.\\*]+";
 	
 	final String configString;
-	protected Routine(String configString)
-	{
-		this.configString = configString;
-	}
+	protected Routine(String configString){ this.configString = configString;}
 	public final String getConfigString(){ return configString;}
 	abstract public void run(TargetEventInfo eventInfo);
-
-	////ROUTINE PARSING ////
 	
-	public static void register(HashMap<Pattern, Method> registry, Method method, Pattern syntax)
+	public static void registerVanillaRoutines()
 	{
-		boolean successfullyRegistered = false;
-		if(syntax != null)
-		{
-			registry.put(syntax, method);
-			successfullyRegistered = true;
-		}
-		else ModDamage.log.severe("[ModDamage] Error: Bad regex for registering class \"" + method.getClass().getName() + "\"!");
-		if(successfullyRegistered)
-		{
-			if(ModDamage.getDebugSetting().shouldOutput(DebugSetting.VERBOSE)) ModDamage.log.info("[ModDamage] Registering class " + method.getDeclaringClass().getName() + " with pattern " + syntax.pattern());
-		}
-	}
-	
-	public static void registerBase(Class<? extends Routine> routineClass, Pattern syntax)
-	{
-		try
-		{
-			Method method = routineClass.getMethod("getNew", Matcher.class);
-			if(method != null)
-			{
-				assert(method.getReturnType().equals(routineClass));
-				method.invoke(null, (Matcher)null);
-				Routine.register(registeredBaseRoutines, method, syntax);
-			}
-			else ModDamage.log.severe("Method getNew not found for statement " + routineClass.getName());
-		}
-		catch(AssertionError e){ ModDamage.log.severe("[ModDamage] Error: getNew doesn't return class " + routineClass.getName() + "!");}
-		catch(SecurityException e){ ModDamage.log.severe("[ModDamage] Error: getNew isn't public for class " + routineClass.getName() + "!");}
-		catch(NullPointerException e){ ModDamage.log.severe("[ModDamage] Error: getNew for class " + routineClass.getName() + " is not static!");}
-		catch(NoSuchMethodException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have a getNew() method!");} 
-		catch (IllegalArgumentException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have matching method getNew(Matcher)!");} 
-		catch (IllegalAccessException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");} 
-		catch (InvocationTargetException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + routineClass.toString() + "\" does not have valid getNew() method!");}
-	}
-	
-	public static void register()
-	{
-		registeredBaseRoutines.clear();
+		registeredBaseRoutines.clear();		
 		Addition.register();
 		Delay.register();
 		DiceRoll.register();
@@ -83,5 +42,38 @@ abstract public class Routine
 		Multiplication.register();
 		Set.register();
 		Tag.register();
+	}
+	
+	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)
+	{
+		registerRoutine(registeredBaseRoutines, pattern, builder);
+	}
+	
+	protected static <BuilderClass> void registerRoutine(HashMap<Pattern, BuilderClass> registry, Pattern pattern, BuilderClass builder)
+	{
+		if(pattern != null && builder != null) registry.put(pattern, builder);
+		else ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: could not load builder for the " + builder.getClass().getEnclosingClass().getSimpleName() + " routine.", LoadState.FAILURE);
+	}
+	
+	public static Routine getNew(String string)
+	{
+		Matcher matcher = anyPattern.matcher(string);
+		matcher.matches();
+		return builder.getNew(matcher);
+	}
+	
+	protected static class RoutineBuilder
+	{
+		public Routine getNew(Matcher anyMatcher)
+		{
+			for(Pattern pattern : registeredBaseRoutines.keySet())
+			{
+				Matcher matcher = pattern.matcher(anyMatcher.group());
+				if(matcher.matches())
+					return registeredBaseRoutines.get(pattern).getNew(matcher);
+			}
+			ModDamage.addToLogRecord(DebugSetting.QUIET, " No match found for nested routine \"" + anyMatcher.group() + "\"", LoadState.FAILURE);		
+			return null;
+		}
 	}
 }

@@ -30,38 +30,37 @@ public class Delay extends NestedRoutine
 		Bukkit.getScheduler().scheduleAsyncDelayedTask(Bukkit.getPluginManager().getPlugin("ModDamage"), new DelayedRunnable(eventInfo.clone()), delay.getValue(eventInfo));
 	}
 		
-	public static void register()
+	public static void register(){ NestedRoutine.registerRoutine(delayPattern, new RoutineBuilder());}
+	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{
-		NestedRoutine.registerNested(Delay.class, delayPattern);
-	}
-	
-	public static Delay getNew(String string, Object nestedContent)
-	{
-		if(string != null && nestedContent != null)
+		@Override
+		public Delay getNew(Matcher matcher, Object nestedContent)
 		{
-			Matcher matcher = delayPattern.matcher(string);
-			if(matcher.matches())
+			if(matcher != null && nestedContent != null)
 			{
-				ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Delay: \"" + matcher.group() + "\"", LoadState.SUCCESS);
-
-				ModDamage.indentation++;
-				LoadState[] stateMachine = { LoadState.SUCCESS };
-				List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
-				ModDamage.indentation--;
-				if(!stateMachine[0].equals(LoadState.FAILURE))
+				if(matcher.matches())
 				{
-					DynamicInteger numberMatch = DynamicInteger.getNew(matcher.group(1));
-					if(numberMatch != null)
+					ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+					ModDamage.addToLogRecord(DebugSetting.NORMAL, "Delay: \"" + matcher.group() + "\"", LoadState.SUCCESS);
+
+					ModDamage.indentation++;
+					LoadState[] stateMachine = { LoadState.SUCCESS };
+					List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
+					ModDamage.indentation--;
+					if(!stateMachine[0].equals(LoadState.FAILURE))
 					{
-						ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Delay \"" + matcher.group() + "\"\n", LoadState.SUCCESS);
-						return new Delay(matcher.group(), numberMatch, routines);
+						DynamicInteger numberMatch = DynamicInteger.getNew(matcher.group(1));
+						if(numberMatch != null)
+						{
+							ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Delay \"" + matcher.group() + "\"\n", LoadState.SUCCESS);
+							return new Delay(matcher.group(), numberMatch, routines);
+						}
+						else ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid Delay \"" + matcher.group() + "\"", LoadState.FAILURE);
 					}
-					else ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid Delay \"" + matcher.group() + "\"", LoadState.FAILURE);
 				}
 			}
+			return null;
 		}
-		return null;
 	}
 	
 	private class DelayedRunnable implements Runnable

@@ -6,11 +6,14 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class DelayedRoutine extends Routine
+public class DelayedRoutine extends NestedRoutine
 {	
 	private final DynamicInteger delay;
 	private final List<Routine> routines;
@@ -28,17 +31,23 @@ public class DelayedRoutine extends Routine
 		
 	public static void register()
 	{
-		Routine.registerBase(DelayedRoutine.class, Pattern.compile("delay\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		NestedRoutine.registerRoutine(Pattern.compile("delay\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static DelayedRoutine getNew(Matcher matcher, List<Routine> routines)
-	{ 
-		if(matcher != null)
+	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	{
+		@Override
+		public DelayedRoutine getNew(Matcher matcher, Object nestedContent)
 		{
-			DynamicInteger numberMatch = DynamicInteger.getNew(matcher.group(1));
-			return new DelayedRoutine(matcher.group(), numberMatch, routines);
+			LoadState[] stateMachine = { LoadState.SUCCESS };
+			List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
+			if(stateMachine.equals(LoadState.SUCCESS))
+			{
+				DynamicInteger numberMatch = DynamicInteger.getNew(matcher.group(1));
+				return new DelayedRoutine(matcher.group(), numberMatch, routines);
+			}
+			return null;
 		}
-		return null;
 	}
 	
 	private class DelayedRunnable implements Runnable

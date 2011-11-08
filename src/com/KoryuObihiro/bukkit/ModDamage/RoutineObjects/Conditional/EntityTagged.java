@@ -7,6 +7,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
 public class EntityTagged extends EntityConditionalStatement
 {
@@ -25,13 +26,17 @@ public class EntityTagged extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(EntityTagged.class, Pattern.compile("(!?)(\\w+)\\.istagged\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+)\\.istagged\\.(\\w+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static EntityTagged getNew(Matcher matcher)
-	{
-		if(matcher != null && EntityReference.isValid(matcher.group(2)))
-			return new EntityTagged(matcher.group(1).equals("!"), EntityReference.match(matcher.group(2)), matcher.group(3).toLowerCase());
-		return null;
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
+	{	
+		@Override
+		public EntityTagged getNew(Matcher matcher)
+		{
+			if(EntityReference.isValid(matcher.group(2)))
+				return new EntityTagged(matcher.group(1).equals("!"), EntityReference.match(matcher.group(2)), matcher.group(3).toLowerCase());
+			return null;
+		}
 	}
 }

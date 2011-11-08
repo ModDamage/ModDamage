@@ -11,6 +11,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 import com.gmail.nossr50.mcMMO;
 
 public class McMMOAbilityConditional extends McMMOConditionalStatement
@@ -29,12 +30,13 @@ public class McMMOAbilityConditional extends McMMOConditionalStatement
 	}
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(McMMOAbilityConditional.class, Pattern.compile("(!?)(\\w+).hasactive.(\\w+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+).hasactive.(\\w+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static McMMOAbilityConditional getNew(Matcher matcher)
-	{
-		if(matcher != null)
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
+	{	
+		@Override
+		public McMMOAbilityConditional getNew(Matcher matcher)
 		{
 			McMMOAbility mcMMOability = null;
 			for(McMMOAbility ability : McMMOAbility.values())
@@ -43,7 +45,7 @@ public class McMMOAbilityConditional extends McMMOConditionalStatement
 			if(mcMMOability == null) ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid McMMO ability \"" + matcher.group(3) + "\"", LoadState.FAILURE);
 			if(EntityReference.isValid(matcher.group(2)) & mcMMOability != null)
 				return new McMMOAbilityConditional(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), mcMMOability);
+			return null;
 		}
-		return null;
 	}
 }

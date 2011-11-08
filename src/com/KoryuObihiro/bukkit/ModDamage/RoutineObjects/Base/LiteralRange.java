@@ -21,17 +21,18 @@ public class LiteralRange extends RandomRoutine
 	
 	public static void register()
 	{
-		Routine.registerBase(LiteralRange.class, Pattern.compile("range\\." + DynamicInteger.dynamicIntegerPart + "\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerRoutine(Pattern.compile("range\\." + DynamicInteger.dynamicIntegerPart + "\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static LiteralRange getNew(Matcher matcher)
-	{ 
-		if(matcher != null)
+	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	{	
+		@Override
+		public LiteralRange getNew(Matcher matcher)
 		{
 			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1)), match2 = DynamicInteger.getNew(matcher.group(2));
 			if(match1 != null && match2 != null)
 				return new LiteralRange(matcher.group(), match1, match2);
+			return null;
 		}
-		return null;
 	}
 }

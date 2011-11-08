@@ -32,13 +32,14 @@ public class DiceRoll extends RandomRoutine
 	
 	public static void register()
 	{
-		Routine.registerBase(DiceRoll.class, Pattern.compile("roll(\\." + DynamicInteger.dynamicIntegerPart + ")?", Pattern.CASE_INSENSITIVE));
+		Routine.registerRoutine(Pattern.compile("roll(\\." + DynamicInteger.dynamicIntegerPart + ")?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static DiceRoll getNew(Matcher matcher)
-	{ 
-		if(matcher != null)
-		{
+	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	{
+		@Override
+		public DiceRoll getNew(Matcher matcher)
+		{ 
 			if(!matcher.group(1).equalsIgnoreCase(""))
 			{
 				DynamicInteger match1 = DynamicInteger.getNew(matcher.group(2));
@@ -46,7 +47,7 @@ public class DiceRoll extends RandomRoutine
 					return new DiceRoll(matcher.group(), match1);
 			}
 			else return new DiceRoll(matcher.group());
+			return null;
 		}
-		return null;
 	}
 }

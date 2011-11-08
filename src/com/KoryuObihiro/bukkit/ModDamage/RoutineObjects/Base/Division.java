@@ -22,17 +22,18 @@ public class Division extends Routine
 	
 	public static void register()
 	{
-		Routine.registerBase(Division.class, Pattern.compile("div(?:ide)?(_add)?\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerRoutine(Pattern.compile("div(?:ide)?(_add)?\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static Division getNew(Matcher matcher)
-	{ 
-		if(matcher != null)
-		{
+	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	{
+		@Override
+		public Division getNew(Matcher matcher)
+		{ 
 			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(2));
 			if(match1 != null)
 				return new Division(matcher.group(), match1, matcher.group(1) != null);
+			return null;
 		}
-		return null;
 	}
 }

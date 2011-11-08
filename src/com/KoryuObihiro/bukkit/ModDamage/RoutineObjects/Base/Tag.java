@@ -34,13 +34,17 @@ public class Tag extends Routine
 
 	public static void register()
 	{
-		Routine.registerBase(Tag.class, Pattern.compile("(un)?tag\\.(\\w+)\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		Routine.registerRoutine(Pattern.compile("(un)?tag\\.(\\w+)\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static Tag getNew(Matcher matcher)
-	{
-		if(matcher != null && EntityReference.isValid(matcher.group(2)))
-			return new Tag(matcher.group(), matcher.group(3).toLowerCase(), EntityReference.match(matcher.group(2)), matcher.group(1) == null);
-		return null;
+	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	{	
+		@Override
+		public Tag getNew(Matcher matcher)
+		{
+			if(EntityReference.isValid(matcher.group(2)))
+				return new Tag(matcher.group(), matcher.group(3).toLowerCase(), EntityReference.match(matcher.group(2)), matcher.group(1) == null);
+			return null;
+		}
 	}
 }

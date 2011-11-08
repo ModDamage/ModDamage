@@ -22,17 +22,15 @@ public class WorldSwitch extends SwitchRoutine<HashSet<String>, String>
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(WorldSwitch.class, Pattern.compile("event\\.world", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerSwitch(Pattern.compile("event\\.world", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static WorldSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+	protected static class RoutineBuilder extends SwitchRoutine.SwitchBuilder
 	{
-		WorldSwitch routine = null;
-		if(matcher != null && switchStatements != null)
+		@Override
+		public WorldSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
 		{
-			routine = new WorldSwitch(matcher.group(), switchStatements);
-			return (routine.isLoaded?routine:null);
+			return new WorldSwitch(matcher.group(), switchStatements);
 		}
-		return null;
 	}
 }

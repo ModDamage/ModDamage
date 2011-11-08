@@ -40,14 +40,17 @@ public class ArmorSetSwitch extends EntitySwitchRoutine<List<ArmorSet>, ArmorSet
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(ArmorSetSwitch.class, Pattern.compile("(\\w+)\\.armorset", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerSwitch(Pattern.compile("(\\w+)\\.armorset", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static ArmorSetSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+	protected static class RoutineBuilder extends SwitchRoutine.SwitchBuilder
 	{
-		if(matcher != null && switchStatements != null && EntityReference.isValid(matcher.group(1)))
-			return new ArmorSetSwitch(matcher.group(), EntityReference.match(matcher.group(1)), switchStatements);
-		return null;
+		@Override
+		public ArmorSetSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+		{
+			if(EntityReference.isValid(matcher.group(1)))
+				return new ArmorSetSwitch(matcher.group(), EntityReference.match(matcher.group(1)), switchStatements);
+			return null;
+		}
 	}
-
 }

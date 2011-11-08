@@ -17,9 +17,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicString;
 
 public class Message extends NestedRoutine 
-{
-	protected static final Pattern nestedMessagePattern = Pattern.compile("message.(\\w+)", Pattern.CASE_INSENSITIVE);
-	
+{	
 	protected final EntityReference entityReference;
 	protected final List<DynamicMessage> messages;
 	protected final MessageType messageType;
@@ -153,68 +151,75 @@ public class Message extends NestedRoutine
 	
 	public static void register()
 	{
-		Routine.registerBase(Message.class, Pattern.compile("message\\.(\\w+)\\.(.*)", Pattern.CASE_INSENSITIVE));//"debug\\.(server|(?:world(\\.[a-z0-9]+))|(?:player\\.[a-z0-9]+))\\.(_[a-z0-9]+)"
-		NestedRoutine.registerNested(Message.class, nestedMessagePattern);
+		Routine.registerRoutine(Pattern.compile("message\\.(\\w+)\\.(.*)", Pattern.CASE_INSENSITIVE), new BaseRoutineBuilder());//"debug\\.(server|(?:world(\\.[a-z0-9]+))|(?:player\\.[a-z0-9]+))\\.(_[a-z0-9]+)"
+		NestedRoutine.registerRoutine(Pattern.compile("message.(\\w+)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
 	}
 	
-	public static Message getNew(Matcher matcher)
+	protected static class BaseRoutineBuilder extends Routine.RoutineBuilder
 	{
-		if(matcher != null)
+		@Override
+		public Message getNew(Matcher matcher)
 		{
-			MessageType messageType = MessageType.match(matcher.group(1));
-			List<DynamicMessage> messages = ModDamage.matchMessageAlias(matcher.group(2));
-			if(!messages.isEmpty() && messageType != null)
+			if(matcher != null)
 			{
-				reportContents(messages);
-				switch(messageType)
-				{
-					case ENTITY:
-						return new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
-					case WORLD:
-					case SERVER:
-						return new Message(matcher.group(), messageType, messages);
-				}
-			}
-			else ModDamage.addToLogRecord(DebugSetting.QUIET, "Message content \"" + matcher.group(3) + "\" is invalid.", LoadState.NOT_LOADED);
-		}
-		return null;
-	}
-	
-	public static Message getNew(String string, Object nestedContent)
-	{
-		if(string != null && nestedContent != null)
-		{
-			String[] splitParts = string.split("\\.");
-			MessageType messageType = MessageType.match(splitParts[1]);
-			if(nestedContent instanceof List)
-			{
-				boolean failFlag = false;
-				List<DynamicMessage> messages = new ArrayList<DynamicMessage>();
-				for(Object object : (List<?>)nestedContent)
-				{
-					if(!(object instanceof String))
-						failFlag = true;
-					messages.addAll(ModDamage.matchMessageAlias((String)object));
-				}
-				
-				Message routine = null;
-				switch(messageType)
-				{
-					case ENTITY:
-						routine = new Message(string, EntityReference.match(splitParts[1]), messages);
-						break;
-					case WORLD:
-					case SERVER:
-						routine = new Message(string, messageType, messages);
-				}
-				if(!failFlag)
+				MessageType messageType = MessageType.match(matcher.group(1));
+				List<DynamicMessage> messages = ModDamage.matchMessageAlias(matcher.group(2));
+				if(!messages.isEmpty() && messageType != null)
 				{
 					reportContents(messages);
-					return routine;
+					switch(messageType)
+					{
+						case ENTITY:
+							return new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
+						case WORLD:
+						case SERVER:
+							return new Message(matcher.group(), messageType, messages);
+					}
 				}
-			}	
+				else ModDamage.addToLogRecord(DebugSetting.QUIET, "Message content \"" + matcher.group(3) + "\" is invalid.", LoadState.NOT_LOADED);
+			}
+			return null;
 		}
-		return null;
+	}
+	
+	protected static class NestedRoutineBuilder extends NestedRoutine.RoutineBuilder
+	{
+		@Override
+		public Message getNew(Matcher matcher, Object nestedContent)
+		{
+			if(matcher != null && nestedContent != null)
+			{
+				MessageType messageType = MessageType.match(matcher.group(1));
+				if(nestedContent instanceof List)
+				{
+					boolean failFlag = false;
+					List<DynamicMessage> messages = new ArrayList<DynamicMessage>();
+					for(Object object : (List<?>)nestedContent)
+					{
+						if(!(object instanceof String))
+							failFlag = true;
+						messages.addAll(ModDamage.matchMessageAlias((String)object));
+					}
+					
+					Message routine = null;
+					switch(messageType)
+					{
+						case ENTITY:
+							routine = new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
+							break;
+						case WORLD:
+						case SERVER:
+							routine = new Message(matcher.group(), messageType, messages);
+					}
+					if(!failFlag)
+					{
+						reportContents(messages);
+						return routine;
+					}
+				}	
+			}
+			return null;
+		}
 	}
 	private static void reportContents(List<DynamicMessage> messages)
 	{

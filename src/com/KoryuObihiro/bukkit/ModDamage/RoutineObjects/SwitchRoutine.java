@@ -1,7 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,6 +11,8 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
@@ -20,20 +20,17 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EnvironmentSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerWieldSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 
 abstract public class SwitchRoutine<StorageClass extends Collection<Type>, Type> extends NestedRoutine 
 {
-	public static HashMap<Pattern, Method> registeredSwitchRoutines = new HashMap<Pattern, Method>();
-	private static Pattern switchPattern = Pattern.compile("switch\\.(.*)", Pattern.CASE_INSENSITIVE);
+	private static HashMap<Pattern, SwitchBuilder> registeredSwitchRoutines = new HashMap<Pattern, SwitchBuilder>();
 	
-	final protected LinkedHashMap<StorageClass, List<Routine>> switchStatements;
+	protected final LinkedHashMap<StorageClass, List<Routine>> switchStatements;
 	public final boolean isLoaded;
-	public List<String> failedCases = new ArrayList<String>();
+	public final List<String> failedCases = new ArrayList<String>();
 	
 	//TODO Definitely not as efficient as it could be. Refactor?
-	public SwitchRoutine(String configString, LinkedHashMap<String, Object> rawSwitchStatements)
+	protected SwitchRoutine(String configString, LinkedHashMap<String, Object> rawSwitchStatements)
 	{
 		super(configString);
 		this.switchStatements = new LinkedHashMap<StorageClass, List<Routine>>();
@@ -86,83 +83,10 @@ abstract public class SwitchRoutine<StorageClass extends Collection<Type>, Type>
 
 	abstract protected StorageClass matchCase(String switchCase);
 	
-	public static SwitchRoutine<?, ?> getNew(String string, Object nestedContent)
-	{
-		if(string != null && nestedContent != null)
-		{
-			Matcher switchMatcher = switchPattern.matcher(string);
-			if(switchMatcher.matches())
-			{
-				ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Switch: \"" + string + "\"", LoadState.SUCCESS);
-				for(Pattern pattern : registeredSwitchRoutines.keySet())
-				{
-					Matcher matcher = pattern.matcher(switchMatcher.group(1));
-					if(matcher.matches())
-					{
-						@SuppressWarnings("unchecked")
-						LinkedHashMap<String, Object> switchCases = (nestedContent instanceof LinkedHashMap?(LinkedHashMap<String, Object>)nestedContent:null);
-						if(switchCases != null)
-						{
-							SwitchRoutine<?, ?> routine = null;
-							try
-							{
-								routine = (SwitchRoutine<?, ?>)registeredSwitchRoutines.get(pattern).invoke(null, matcher, switchCases);
-							}
-							catch (Exception e){ e.printStackTrace();}
-							if(routine != null)
-							{
-								if(routine.isLoaded)
-								{
-									ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Switch \"" + string + "\"", LoadState.SUCCESS);
-									ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-									return routine;
-								}
-								else 
-									for(String caseName : routine.failedCases)
-										ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid case \"" + caseName + "\"", LoadState.FAILURE);
-							}
-						}
-						else
-						{
-							ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: unexpected nested content " + nestedContent.toString() + " in Switch routine \"" + string + "\"", LoadState.FAILURE);
-							ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-						}
-						break;
-					}
-				}
-			}
-			ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid Switch \"" + string + "\"" + (ModDamage.getDebugSetting().equals(DebugSetting.VERBOSE)?"\n":""), LoadState.FAILURE);
-		}
-		return null;
-	}
-	
-	public static void registerStatement(Class<? extends SwitchRoutine<?, ?>> statementClass, Pattern syntax)
-	{
-		try
-		{
-			Method method = statementClass.getMethod("getNew", Matcher.class, LinkedHashMap.class);
-			if(method != null)
-			{
-				assert(method.getReturnType().equals(statementClass));
-				method.invoke(null, (Matcher)null, (LinkedHashMap<String, List<Routine>>)null);
-				Routine.register(SwitchRoutine.registeredSwitchRoutines, method, syntax);
-			}
-			else ModDamage.log.severe("Method getNew not found for statement " + statementClass.getName());
-		}
-		catch(AssertionError e){ ModDamage.log.severe("[ModDamage] Error: getNew doesn't return class " + statementClass.getName() + "!");}
-		catch(SecurityException e){ ModDamage.log.severe("[ModDamage] Error: getNew isn't public for class " + statementClass.getName() + "!");}
-		catch(NullPointerException e){ ModDamage.log.severe("[ModDamage] Error: getNew for class " + statementClass.getName() + " is not static!");}
-		catch(NoSuchMethodException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have a getNew() method!");} 
-		catch (IllegalArgumentException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have matching method getNew(Matcher, LinkedHashMap)!");} 
-		catch (IllegalAccessException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
-		catch (InvocationTargetException e){ ModDamage.log.severe("[ModDamage] Error: Class \"" + statementClass.toString() + "\" does not have valid getNew() method!");} 
-	}
-	
 	public static void register()
 	{
 		registeredSwitchRoutines.clear();
-		NestedRoutine.registerNested(SwitchRoutine.class, switchPattern);
+		NestedRoutine.registerRoutine(Pattern.compile("switch\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 		registeredSwitchRoutines.clear();
 		ArmorSetSwitch.register();
 		BiomeSwitch.register();
@@ -171,5 +95,64 @@ abstract public class SwitchRoutine<StorageClass extends Collection<Type>, Type>
 		PlayerGroupSwitch.register();
 		PlayerWieldSwitch.register();
 		WorldSwitch.register();
+	}
+
+	protected static void registerSwitch(Pattern syntax, SwitchBuilder builder)
+	{
+		Routine.registerRoutine(registeredSwitchRoutines, syntax, builder);
+	}
+	
+	protected final static class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	{
+		@Override
+		public SwitchRoutine<?, ?> getNew(Matcher switchMatcher, Object nestedContent)
+		{
+			if(switchMatcher != null && nestedContent != null)
+			{
+				if(switchMatcher.matches())
+				{
+					ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+					ModDamage.addToLogRecord(DebugSetting.NORMAL, "Switch: \"" + switchMatcher.group() + "\"", LoadState.SUCCESS);
+					for(Pattern pattern : registeredSwitchRoutines.keySet())
+					{
+						Matcher matcher = pattern.matcher(switchMatcher.group(1));
+						if(matcher.matches())
+						{
+							@SuppressWarnings("unchecked")
+							LinkedHashMap<String, Object> switchCases = (nestedContent instanceof LinkedHashMap?(LinkedHashMap<String, Object>)nestedContent:null);
+							if(switchCases != null)
+							{
+								SwitchRoutine<?, ?> routine = registeredSwitchRoutines.get(pattern).getNew(matcher, switchCases);
+								if(routine != null)
+								{
+									if(routine.isLoaded)
+									{
+										ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Switch \"" + switchMatcher.group() + "\"", LoadState.SUCCESS);
+										ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+										return routine;
+									}
+									else 
+										for(String caseName : routine.failedCases)
+											ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid case \"" + caseName + "\"", LoadState.FAILURE);
+								}
+							}
+							else
+							{
+								ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: unexpected nested content " + nestedContent.toString() + " in Switch routine \"" + switchMatcher + "\"", LoadState.FAILURE);
+								ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+							}
+							break;
+						}
+					}
+				}
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid Switch \"" + switchMatcher.group() + "\"" + (ModDamage.getDebugSetting().equals(DebugSetting.VERBOSE)?"\n":""), LoadState.FAILURE);
+			}
+			return null;
+		}
+	}
+	
+	abstract protected static class SwitchBuilder
+	{
+		abstract protected SwitchRoutine<?, ?> getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements);
 	}
 }

@@ -20,13 +20,15 @@ public class ServerOnlineMode extends ConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(ServerOnlineMode.class, Pattern.compile("(!?)server\\.onlineMode", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)server\\.onlineMode", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static ServerOnlineMode getNew(Matcher matcher)
-	{
-		if(matcher != null)
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
+	{	
+		@Override
+		public ServerOnlineMode getNew(Matcher matcher)
+		{
 			return new ServerOnlineMode(matcher.group(1).equalsIgnoreCase("!"));
-		return null;
+		}
 	}
 }

@@ -9,6 +9,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
 public class EntityWearing extends EntityConditionalStatement
 {
@@ -33,17 +34,18 @@ public class EntityWearing extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(EntityWearing.class, Pattern.compile("(!?)(\\w+)\\.(wearing|wearingonly)\\.([\\*\\w]+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+)\\.(wearing|wearingonly)\\.([\\*\\w]+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static EntityWearing getNew(Matcher matcher)
-	{
-		if(matcher != null)
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
+	{	
+		@Override
+		public EntityWearing getNew(Matcher matcher)
 		{
 			List<ArmorSet> armorSet = ModDamage.matchArmorAlias(matcher.group(4));
 			if(!armorSet.isEmpty() && EntityReference.isValid(matcher.group(2)))
 				return new EntityWearing(matcher.group(1).equalsIgnoreCase("!"), matcher.group(3).endsWith("only"), EntityReference.match(matcher.group(2)), armorSet);
+			return null;
 		}
-		return null;
 	}
 }

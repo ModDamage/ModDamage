@@ -10,6 +10,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityConditionalStatement;
 
 public class PlayerPermissionEvaluation extends EntityConditionalStatement
@@ -28,14 +29,17 @@ public class PlayerPermissionEvaluation extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(PlayerPermissionEvaluation.class, Pattern.compile("(!?)(\\w+)\\.haspermission\\.(.+)", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+)\\.haspermission\\.(.+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static PlayerPermissionEvaluation getNew(Matcher matcher)
-	{
-		if(matcher != null)
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
+	{	
+		@Override
+		public PlayerPermissionEvaluation getNew(Matcher matcher)
+		{
 			if(EntityReference.isValid(matcher.group(2)))
 				return new PlayerPermissionEvaluation(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), matcher.group(3));
-		return null;
+			return null;
+		}
 	}
 }

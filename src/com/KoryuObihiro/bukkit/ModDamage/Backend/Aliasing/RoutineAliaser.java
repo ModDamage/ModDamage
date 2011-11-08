@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
@@ -76,36 +74,13 @@ public class RoutineAliaser extends Aliaser<List<Routine>, Routine>
 				}
 				if(routines.isEmpty())
 				{
-					Routine routine = null;
-					for(Pattern pattern : Routine.registeredBaseRoutines.keySet())
+					Routine routine = Routine.getNew((String)object);
+					if(routine != null) routines.add(routine);
+					else
 					{
-						Matcher matcher = pattern.matcher((String)object);
-						if(matcher.matches())
-						{
-							try
-							{
-								routine = (Routine)Routine.registeredBaseRoutines.get(pattern).invoke(null, matcher);
-								if(routine != null)
-								{
-									routines.add(routine);
-									ModDamage.addToLogRecord(DebugSetting.NORMAL, "Routine: \"" + (String)object + "\"", currentState);
-								}
-								else
-								{
-									//TODO: Catch what routine matched, if/when it failed.
-									currentState = LoadState.FAILURE;
-									ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Bad parameters for new " + Routine.registeredBaseRoutines.get(pattern).getClass().getSimpleName() + " \"" + (String)object + "\"", currentState);
-								}
-								break;
-							}
-							catch(Exception e){ e.printStackTrace();}
-						}
+						currentState = LoadState.FAILURE;
+						ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid base routine " + " \"" + (String)object + "\"", currentState);
 					}
-				}
-				if(routines.isEmpty())
-				{
-					currentState = LoadState.FAILURE;
-					ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid base routine " + " \"" + (String)object + "\"", currentState);
 				}
 			}
 			else if(object instanceof LinkedHashMap)
@@ -116,15 +91,12 @@ public class RoutineAliaser extends Aliaser<List<Routine>, Routine>
 					{
 						Object nestedContent = someHashMap.get(key);
 						NestedRoutine routine = NestedRoutine.getNew(key, nestedContent);
-						if(routine != null)
-							routines.add(routine);
+						if(routine != null) routines.add(routine);
 						else currentState = LoadState.FAILURE;
 					}
 				else
 				{
-					String[] keys = (String[]) someHashMap.keySet().toArray();
-					for(int i = 0; i < keys.length; i++)
-						ModDamage.addToLogRecord(DebugSetting.QUIET, "Parse error: bad nested routine \"" + keys[i] + "\"", LoadState.FAILURE);
+					ModDamage.addToLogRecord(DebugSetting.QUIET, "Parse error: bad nested routine \"" + someHashMap.toString() + "\"", LoadState.FAILURE);
 					currentState = LoadState.FAILURE;			
 				}
 			}

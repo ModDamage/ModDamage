@@ -32,18 +32,19 @@ public class EntitySpawn extends EntityCalculationRoutine
 	
 	public static void register()
 	{
-		CalculationRoutine.registerCalculation(EntitySpawn.class, Pattern.compile("(\\w+)effect\\.spawn\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.spawn\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static EntitySpawn getNew(Matcher matcher, DynamicInteger match)
-	{
-		if(matcher != null && match != null)
+	protected static class RoutineBuilder extends CalculationRoutine.CalculationBuilder
+	{	
+		@Override
+		public EntitySpawn getNew(Matcher matcher, DynamicInteger match)
 		{
 			ModDamageElement element = ModDamageElement.matchElement(matcher.group(2));
 			CreatureType creatureType = (element != null)?element.getCreatureType():null;
 			if(element != null && creatureType != null && EntityReference.isValid(matcher.group(1)))
 				return new EntitySpawn(matcher.group(), EntityReference.match(matcher.group(1)), creatureType, match);
+			return null;
 		}
-		return null;
 	}
 }

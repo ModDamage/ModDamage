@@ -20,17 +20,21 @@ public class Addition extends Routine
 	
 	public static void register()
 	{
-		Routine.registerBase(Addition.class, Pattern.compile(DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerRoutine(Pattern.compile(DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static Addition getNew(Matcher matcher)
-	{ 
-		if(matcher != null)
-		{
-			DynamicInteger match = DynamicInteger.getNew(matcher.group(1));
-			if(match != null)
-				return new Addition(matcher.group(), match);
+	protected static final class RoutineBuilder extends Routine.RoutineBuilder
+	{
+		@Override
+		public Addition getNew(Matcher matcher)
+		{ 
+			if(matcher != null)
+			{
+				DynamicInteger match = DynamicInteger.getNew(matcher.group(1));
+				if(match != null)
+					return new Addition(matcher.group(), match);
+			}
+			return null;
 		}
-		return null;
 	}
 }

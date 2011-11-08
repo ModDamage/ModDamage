@@ -18,15 +18,17 @@ public class Multiplication extends Routine
 	@Override
 	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue *= multiplicationValue;}
 	
-	public static Multiplication getNew(Matcher matcher)
-	{ 
-		if(matcher != null)
-			return new Multiplication(matcher.group(), Integer.parseInt(matcher.group(1)));
-		return null;
-	}
-	
 	public static void register()
 	{
-		Routine.registerBase(Multiplication.class, Pattern.compile("mult(?:iply)?\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE));
+		Routine.registerRoutine(Pattern.compile("mult(?:iply)?\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+	}
+	
+	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	{	
+		@Override
+		public Multiplication getNew(Matcher matcher)
+		{ 
+			return new Multiplication(matcher.group(), Integer.parseInt(matcher.group(1)));
+		}
 	}
 }

@@ -27,13 +27,17 @@ public class BiomeSwitch extends EntitySwitchRoutine<HashSet<Biome>, Biome>
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(BiomeSwitch.class, Pattern.compile("(\\w+)\\.biome", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerSwitch(Pattern.compile("(\\w+)\\.biome", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static BiomeSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+	protected static class RoutineBuilder extends SwitchRoutine.SwitchBuilder
 	{
-		if(matcher != null && switchStatements != null && EntityReference.isValid(matcher.group(1)))
-			return new BiomeSwitch(matcher.group(), EntityReference.match(matcher.group(1)), switchStatements);
-		return null;
+		@Override
+		public BiomeSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+		{
+			if(EntityReference.isValid(matcher.group(1)))
+				return new BiomeSwitch(matcher.group(), EntityReference.match(matcher.group(1)), switchStatements);
+			return null;
+		}
 	}
 }

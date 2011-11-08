@@ -33,17 +33,18 @@ public class EntityDropItem extends EntityCalculationRoutine
 
 	public static void register()
 	{
-		CalculationRoutine.registerCalculation(EntityDropItem.class, Pattern.compile("(\\w+)effect\\.dropItem\\.(\\w+)", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.dropItem\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static EntityDropItem getNew(Matcher matcher, DynamicInteger match)
-	{
-		if(matcher != null && match != null)
+	protected static class RoutineBuilder extends CalculationRoutine.CalculationBuilder
+	{	
+		@Override
+		public EntityDropItem getNew(Matcher matcher, DynamicInteger match)
 		{
 			HashSet<Material> materials =  ModDamage.matchMaterialAlias(matcher.group(2));
 			if(!materials.isEmpty() && EntityReference.isValid(matcher.group(1)))
 				return new EntityDropItem(matcher.group(), EntityReference.match(matcher.group(1)), materials, match);
+			return null;
 		}
-		return null;
 	}
 }

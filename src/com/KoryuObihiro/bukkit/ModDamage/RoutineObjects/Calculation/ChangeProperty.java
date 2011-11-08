@@ -29,21 +29,22 @@ public final class ChangeProperty extends CalculationRoutine
 	
 	public static void register()
 	{
-		CalculationRoutine.registerCalculation(ChangeProperty.class, Pattern.compile("(\\w+)effect\\.(set|add)(\\w+)", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.(set|add)(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static ChangeProperty getNew(Matcher matcher, DynamicInteger resultMatch)
-	{
-		if(matcher != null && resultMatch != null)
+	protected static class RoutineBuilder extends CalculationRoutine.CalculationBuilder
+	{	
+		@Override
+		public ChangeProperty getNew(Matcher matcher, DynamicInteger routines)
 		{
 			DynamicInteger targetPropertyMatch = DynamicInteger.getNew(matcher.group(1) + "." + matcher.group(3));
 			if(targetPropertyMatch != null)
 			{
 				if(targetPropertyMatch.isSettable())
-					return new ChangeProperty(matcher.group(), resultMatch, targetPropertyMatch, matcher.group(2).equalsIgnoreCase("add"));
+					return new ChangeProperty(matcher.group(), routines, targetPropertyMatch, matcher.group(2).equalsIgnoreCase("add"));
 				else ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: Property \"" + matcher.group(3) + "\" of \"" + matcher.group(1) + "\" is not modifiable." , LoadState.FAILURE);
 			}
+			return null;
 		}
-		return null;
 	}
 }

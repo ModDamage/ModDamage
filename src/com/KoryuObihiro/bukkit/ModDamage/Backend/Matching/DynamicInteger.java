@@ -29,10 +29,9 @@ public class DynamicInteger extends DynamicString
 	}
 	private static final Pattern dynamicIntegerPattern = Pattern.compile(dynamicIntegerPart, Pattern.CASE_INSENSITIVE);
 	
-	
 	private final Integer value;
 	private final boolean usingStatic;
-	
+
 	protected final boolean settable;
 	protected final boolean isNegative;
 	

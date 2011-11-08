@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
@@ -31,27 +32,27 @@ public class Calculate extends NestedRoutine
 	
 	public static void register()
 	{
-		NestedRoutine.registerNested(Calculate.class, Pattern.compile("calculate", Pattern.CASE_INSENSITIVE));
+		NestedRoutine.registerRoutine(Pattern.compile("calculate", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
-	
-	public static Calculate getNew(String string, Object nestedContent)
-	{
-		if(string != null && nestedContent != null)
+
+	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	{	
+		@Override
+		public Calculate getNew(Matcher matcher, Object nestedContent)
 		{
 			ModDamage.addToLogRecord(DebugSetting.NORMAL, "Nested: Calculate", LoadState.SUCCESS);
 			ModDamage.indentation++;
 			LoadState[] stateMachine = { LoadState.SUCCESS };
 			List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
 			ModDamage.indentation--;
-			
 			if(stateMachine[0].equals(LoadState.SUCCESS))
 			{
 				ModDamage.addToLogRecord(DebugSetting.NORMAL, "End Calculate", LoadState.SUCCESS);
-				return new Calculate(string, routines);
+				return new Calculate(matcher.group(), routines);
 			}
 			else ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: bad routines under Calculate", LoadState.SUCCESS);
+			return null;
 		}
-		return null;
 	}
 
 }

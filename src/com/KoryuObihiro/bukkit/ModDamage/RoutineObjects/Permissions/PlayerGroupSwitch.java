@@ -45,13 +45,18 @@ public class PlayerGroupSwitch extends EntitySwitchRoutine<HashSet<String>, Stri
 	
 	public static void register()
 	{
-		SwitchRoutine.registerStatement(PlayerGroupSwitch.class, Pattern.compile("(\\w+)\\.group", Pattern.CASE_INSENSITIVE));
+		SwitchRoutine.registerSwitch(Pattern.compile("(\\w+)\\.group", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static PlayerGroupSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+	protected static class RoutineBuilder extends SwitchRoutine.SwitchBuilder
 	{
-		if(matcher != null && switchStatements != null && EntityReference.isValid(matcher.group(1)))
-			return new PlayerGroupSwitch(matcher.group(),  EntityReference.match(matcher.group(1)), switchStatements);
-		return null;
+		@Override
+		public PlayerGroupSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+		{
+			if(EntityReference.isValid(matcher.group(1)))
+				return new PlayerGroupSwitch(matcher.group(),  EntityReference.match(matcher.group(1)), switchStatements);
+			return null;
+		}
 	}
+	
 }

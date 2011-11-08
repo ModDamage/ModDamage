@@ -64,18 +64,19 @@ public class Comparison extends ConditionalStatement
 	}
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Comparison.class, Pattern.compile("(!?)(?:" + DynamicInteger.dynamicIntegerPart + "\\." + comparisonPart + "\\." + DynamicInteger.dynamicIntegerPart + ")?", Pattern.CASE_INSENSITIVE));
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(?:" + DynamicInteger.dynamicIntegerPart + "\\." + comparisonPart + "\\." + DynamicInteger.dynamicIntegerPart + ")?", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
-	public static Comparison getNew(Matcher matcher)
-	{
-		if(matcher != null)
+	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
+	{	
+		@Override
+		public Comparison getNew(Matcher matcher)
 		{
 			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(2)), match2 = DynamicInteger.getNew(matcher.group(4));
 			ComparisonType comparisonType = ComparisonType.match(matcher.group(3));
 			if(comparisonType != null && match1 != null && match2 != null)
 				return new Comparison(matcher.group(1).equalsIgnoreCase("!"), match1, match2, comparisonType);
+			return null;
 		}
-		return null;
 	}
 }

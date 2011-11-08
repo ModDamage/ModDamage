@@ -26,13 +26,17 @@ public class EntityExplode extends EntityCalculationRoutine
 	
 	public static void register()
 	{
-		CalculationRoutine.registerCalculation(EntityExplode.class, Pattern.compile("(\\w+)effect\\.explode", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.explode", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static EntityExplode getNew(Matcher matcher, DynamicInteger match)
-	{
-		if(matcher != null && match != null && EntityReference.isValid(matcher.group(1)))
-			return new EntityExplode(matcher.group(), EntityReference.match(matcher.group(1)), match);
-		return null;
+	protected static class RoutineBuilder extends CalculationRoutine.CalculationBuilder
+	{	
+		@Override
+		public EntityExplode getNew(Matcher matcher, DynamicInteger match)
+		{
+			if(EntityReference.isValid(matcher.group(1)))
+				return new EntityExplode(matcher.group(), EntityReference.match(matcher.group(1)), match);
+			return null;
+		}
 	}
 }

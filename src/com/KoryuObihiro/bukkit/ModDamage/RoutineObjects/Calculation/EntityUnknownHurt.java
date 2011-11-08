@@ -27,13 +27,17 @@ public class EntityUnknownHurt extends EntityCalculationRoutine
 
 	public static void register()
 	{
-		CalculationRoutine.registerCalculation(EntityUnknownHurt.class, Pattern.compile("(\\w+)effect\\.unknownhurt", Pattern.CASE_INSENSITIVE));
+		CalculationRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.unknownhurt", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	public static EntityUnknownHurt getNew(Matcher matcher, DynamicInteger match)
-	{
-		if(matcher != null && match != null && EntityReference.isValid(matcher.group(1)))
-			return new EntityUnknownHurt(matcher.group(), EntityReference.match(matcher.group(1)), match);
-		return null;
+	protected static class RoutineBuilder extends CalculationRoutine.CalculationBuilder
+	{	
+		@Override
+		public EntityUnknownHurt getNew(Matcher matcher, DynamicInteger match)
+		{
+			if(EntityReference.isValid(matcher.group(1)))
+				return new EntityUnknownHurt(matcher.group(), EntityReference.match(matcher.group(1)), match);
+			return null;
+		}
 	}
 }
