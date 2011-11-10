@@ -11,6 +11,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRoll;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Division;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.EntityItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.IntervalRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
@@ -37,6 +38,7 @@ abstract public class Routine
 		Delay.register();
 		DiceRoll.register();
 		Division.register();
+		EntityItem.register();
 		IntervalRange.register();
 		LiteralRange.register();
 		Multiplication.register();

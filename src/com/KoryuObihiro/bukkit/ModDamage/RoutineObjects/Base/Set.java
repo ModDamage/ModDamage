@@ -3,8 +3,11 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
@@ -35,7 +38,10 @@ public class Set extends CalculationRoutine
 		{
 			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1));
 			if(match1 != null)
+			{
+				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Set: " + matcher.group(1), LoadState.SUCCESS);
 				return new Set(matcher.group(), match1);
+			}
 			return null;
 		}
 	}
@@ -43,7 +49,7 @@ public class Set extends CalculationRoutine
 	{	
 		@Override
 		public Set getNew(Matcher matcher, DynamicInteger routines)
-		{ 
+		{
 			return new Set(matcher.group(), routines);
 		}
 	}

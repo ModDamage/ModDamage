@@ -25,6 +25,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityWearin
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityWielding;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventHasRangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerHasItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupEvaluation;
@@ -88,6 +89,7 @@ public class ConditionalRoutine extends NestedRoutine
 		EntityWielding.register();
 		EventWorldEvaluation.register();
 		PlayerGroupEvaluation.register();
+		PlayerHasItem.register();
 		PlayerPermissionEvaluation.register();
 		//Event
 		EventHasRangedElement.register();

@@ -38,7 +38,7 @@ enum ModDamageEventHandler
 		for(Routine routine : routines)
 			routine.run(eventInfo);
 	}
-	private final List<Routine> routines = new ArrayList<Routine>();
+	protected final List<Routine> routines = new ArrayList<Routine>();
 	protected LoadState specificLoadState = LoadState.NOT_LOADED;
 	protected static LoadState state = LoadState.NOT_LOADED;
 	
@@ -63,7 +63,7 @@ enum ModDamageEventHandler
 				eventType.specificLoadState = stateMachine[0];
 				
 				if(!routines.isEmpty() && !eventType.specificLoadState.equals(LoadState.FAILURE))
-					routines.addAll(routines);
+					eventType.routines.addAll(routines);
 			}
 			else eventType.specificLoadState = LoadState.NOT_LOADED;
 			switch(eventType.specificLoadState)

@@ -8,11 +8,14 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageItemStack;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityItem extends Routine
@@ -42,7 +45,7 @@ public class EntityItem extends Routine
 			@Override
 			protected void doAction(Entity entity, Collection<ModDamageItemStack> items)
 			{
-				((Player)entity).getInventory().addItem(ModDamageItemStack.toItemStacks(items));
+				((Player)entity).getInventory().removeItem(ModDamageItemStack.toItemStacks(items));
 			}
 		};
 		
@@ -76,7 +79,7 @@ public class EntityItem extends Routine
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("(\\w+)effect\\.(give|drop|take)Item\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(\\w+)\\.(give|drop|take)Item\\.([\\w\\*]+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
@@ -84,9 +87,12 @@ public class EntityItem extends Routine
 		@Override
 		public EntityItem getNew(Matcher matcher)
 		{
-			Collection<ModDamageItemStack> items = AliasManager.matchItemAlias(matcher.group(2));
+			Collection<ModDamageItemStack> items = AliasManager.matchItemAlias(matcher.group(3));
 			if(EntityReference.isValid(matcher.group(1)) && !items.isEmpty())
+			{
+				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Item (" + matcher.group(2).toLowerCase() + "): " + matcher.group(1) + ", " + matcher.group(3), LoadState.SUCCESS);
 				return new EntityItem(matcher.group(), EntityReference.match(matcher.group(1)), ItemAction.valueOf(matcher.group(2).toUpperCase()), items);
+			}
 			return null;
 		}
 	}

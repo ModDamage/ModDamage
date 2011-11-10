@@ -1,8 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -59,10 +57,14 @@ public class ModDamageItemStack
 
 	public static ItemStack[] toItemStacks(Collection<ModDamageItemStack> items)
 	{
-		List<ItemStack> stacks = new ArrayList<ItemStack>();
-		for(ModDamageItemStack itemStack : items)
-			stacks.add(itemStack.toItemStack());
-		return (ItemStack[])stacks.toArray();
+		ItemStack[] stacks = new ItemStack[items.size()];
+		int i = 0;
+		for(ModDamageItemStack item : items)
+		{
+			stacks[i] = item.toItemStack();
+			i++;
+		}
+		return stacks;
 	}
 	
 	@Override
