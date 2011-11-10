@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +11,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicEntityInteger.EntityIntegerPropertyMatch;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicPlayerInteger.PlayerIntegerPropertyMatch;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicServerInteger.ServerPropertyMatch;
@@ -19,6 +21,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class DynamicInteger extends DynamicString
 {
 	public static final String dynamicIntegerPart;
+	public static final String dynamicIntegerPart_silent;
 	static
 	{
 		String tempString = "(?:";
@@ -26,6 +29,7 @@ public class DynamicInteger extends DynamicString
 			tempString += reference.name() + "|";
 		tempString += "event|world|server)";
 		dynamicIntegerPart = "(-?(?:[0-9]+|(?:" + tempString + "\\.\\w+)|(?:_\\w+)|(?:\\(.*\\))))";//FIXME The greediness at the end blocks all 
+		dynamicIntegerPart_silent = dynamicIntegerPart.substring(0, 1) + "?:" + dynamicIntegerPart.substring(1); 
 	}
 	private static final Pattern dynamicIntegerPattern = Pattern.compile(dynamicIntegerPart, Pattern.CASE_INSENSITIVE);
 	
@@ -99,7 +103,7 @@ public class DynamicInteger extends DynamicString
 				Matcher matcher = dynamicIntegerPattern.matcher(string);
 				if(string.startsWith("_"))
 				{
-					List<Routine> routines = ModDamage.matchRoutineAlias(string);
+					Collection<Routine> routines = AliasManager.matchRoutineAlias(string);
 					if(routines != null)
 						return new DynamicRoutineInteger(routines, isNegative);
 				}
@@ -145,10 +149,8 @@ public class DynamicInteger extends DynamicString
 								else return yayMatch;
 							}
 					}
-					ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: unrecognized integer reference \"" + string + "\".", LoadState.FAILURE);
 				}
-				//These shouldn't ever happen.
-				else ModDamage.addToLogRecord(DebugSetting.QUIET, "Critical error: unrecognized property \"" + string + "\". Bug Koryu about this one.", LoadState.FAILURE);
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "Warning: unrecognized integer reference \"" + string + "\".", LoadState.FAILURE);
 			}
 		}
 		return null;

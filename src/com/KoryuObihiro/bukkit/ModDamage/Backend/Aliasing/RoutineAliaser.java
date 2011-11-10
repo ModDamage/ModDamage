@@ -1,17 +1,18 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class RoutineAliaser extends Aliaser<List<Routine>, Routine> 
+public class RoutineAliaser extends CollectionAliaser<Routine> 
 {
 	private static final long serialVersionUID = -2744471820826321788L;
 	public RoutineAliaser(){ super("Routine");}
@@ -43,7 +44,7 @@ public class RoutineAliaser extends Aliaser<List<Routine>, Routine>
 	}
 
 	@Override
-	public List<Routine> matchAlias(String key)
+	public Collection<Routine> matchAlias(String key)
 	{
 		return this.containsKey(key)?this.get(key):null;
 	}
@@ -64,7 +65,7 @@ public class RoutineAliaser extends Aliaser<List<Routine>, Routine>
 			{
 				if(((String)object).startsWith("_"))
 				{
-					List<Routine> aliasedRoutines = ModDamage.matchRoutineAlias((String)object);
+					Collection<Routine> aliasedRoutines = AliasManager.matchRoutineAlias((String)object);
 					if(aliasedRoutines != null)
 					{
 						ModDamage.addToLogRecord(DebugSetting.NORMAL, "Alias: \"" + ((String)object).substring(1) + "\"", LoadState.SUCCESS);
@@ -130,10 +131,4 @@ public class RoutineAliaser extends Aliaser<List<Routine>, Routine>
 
 	@Override
 	protected String getObjectName(Routine routine){ return routine.getClass().getSimpleName();}
-
-	@Override
-	protected List<Routine> getNewStorageClass(Routine value){ return Arrays.asList(value);}
-
-	@Override
-	protected List<Routine> getNewStorageClass(){ return new ArrayList<Routine>();}
 }

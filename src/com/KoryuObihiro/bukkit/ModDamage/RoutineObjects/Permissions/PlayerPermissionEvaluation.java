@@ -22,7 +22,7 @@ public class PlayerPermissionEvaluation extends EntityConditionalStatement
 		this.permission = permission;
 	}
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo) 
+	public boolean condition(TargetEventInfo eventInfo) 
  	{
 		return (entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))?ExternalPluginManager.getPermissionsManager().hasPermission(((Player)entityReference.getEntity(eventInfo)), permission):false;//XXX Include hasPermission in EntityReference?
 	}

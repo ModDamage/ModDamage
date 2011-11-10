@@ -19,7 +19,7 @@ public class EntityTagged extends EntityConditionalStatement
 	}
 
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo)
+	public boolean condition(TargetEventInfo eventInfo)
 	{
 		return entityReference.getEntity(eventInfo) != null && ModDamage.getTagger().isTagged(entityReference.getEntity(eventInfo), tag);
 	}

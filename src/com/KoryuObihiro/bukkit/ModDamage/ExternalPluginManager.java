@@ -31,14 +31,14 @@ public class ExternalPluginManager
 {
 	private static final List<String> emptyList = new ArrayList<String>();
 	
-	private static List<ModDamagePlugin> registeredPlugins = new ArrayList<ModDamagePlugin>();
+	private static List<ModDamageExtension> registeredPlugins = new ArrayList<ModDamageExtension>();
 	private static void reloadModDamageRoutines()
 	{
 	//register vanilla MD routines
 		Routine.registerVanillaRoutines();
 		NestedRoutine.registerVanillaRoutines();
 		
-		for(ModDamagePlugin plugin : registeredPlugins)
+		for(ModDamageExtension plugin : registeredPlugins)
 			plugin.reloadRoutines();
 	}
 	

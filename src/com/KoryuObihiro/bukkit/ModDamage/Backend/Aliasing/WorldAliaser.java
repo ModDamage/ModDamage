@@ -5,7 +5,9 @@ import java.util.HashSet;
 
 import org.bukkit.Bukkit;
 
-public class WorldAliaser extends Aliaser<HashSet<String>, String> 
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
+
+public class WorldAliaser extends CollectionAliaser<String> 
 {
 	private static final long serialVersionUID = 6446417315016119118L;
 
@@ -25,5 +27,5 @@ public class WorldAliaser extends Aliaser<HashSet<String>, String>
 	protected HashSet<String> getNewStorageClass(String value){ return new HashSet<String>(Arrays.asList(value));}
 
 	@Override
-	protected HashSet<String> getNewStorageClass(){ return new HashSet<String>();}
+	protected HashSet<String> getDefaultValue(){ return new HashSet<String>();}
 }

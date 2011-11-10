@@ -3,8 +3,11 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class LiteralRange extends RandomRoutine 
@@ -31,7 +34,10 @@ public class LiteralRange extends RandomRoutine
 		{
 			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1)), match2 = DynamicInteger.getNew(matcher.group(2));
 			if(match1 != null && match2 != null)
+			{
+				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Literal Range: (" + matcher.group(1) + ", " + matcher.group(2) + ")", LoadState.SUCCESS);
 				return new LiteralRange(matcher.group(), match1, match2);
+			}
 			return null;
 		}
 	}

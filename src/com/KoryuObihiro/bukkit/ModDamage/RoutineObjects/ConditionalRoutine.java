@@ -12,6 +12,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.ParentheticalParser;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement.LogicalOperator;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement.StatementBuilder;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Chance;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.Comparison;
@@ -52,10 +53,7 @@ public class ConditionalRoutine extends NestedRoutine
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{
-		boolean result = false;
-		for(int i = 0; i < statements.size(); i++)
-			 result = operators.get(i).operate(eventInfo, result, statements.get(i));
-		if(result ^ inverted)
+		if(ConditionalStatement.evaluateStatements(eventInfo, statements, operators) ^ inverted)
 			for(Routine routine : routines)
 				routine.run(eventInfo);
 	}
@@ -70,75 +68,6 @@ public class ConditionalRoutine extends NestedRoutine
 					return registeredConditionalStatements.get(pattern).getNew(matcher);
 			}
 		return null;
-	}
-	
-	public enum LogicalOperator
-	{
-		AND
-		{
-			public boolean operate(TargetEventInfo eventInfo, boolean operand_1, ConditionalStatement operand_2)
-			{
-				return operand_1 && (operand_2.condition(eventInfo) ^ operand_2.inverted);
-			}
-		},
-		OR
-		{
-			public boolean operate(TargetEventInfo eventInfo, boolean operand_1, ConditionalStatement operand_2)
-			{
-				return operand_1 || (operand_2.condition(eventInfo) ^ operand_2.inverted);
-			}
-		},
-		NAND
-		{
-			public boolean operate(TargetEventInfo eventInfo, boolean operand_1, ConditionalStatement operand_2)
-			{
-				return !operand_1 || !(operand_2.condition(eventInfo) ^ operand_2.inverted);
-			}
-		},
-		NOR
-		{
-			public boolean operate(TargetEventInfo eventInfo, boolean operand_1, ConditionalStatement operand_2)
-			{
-				return !operand_1 && !(operand_2.condition(eventInfo) ^ operand_2.inverted);
-			}
-		},
-		XNOR
-		{
-			public boolean operate(TargetEventInfo eventInfo, boolean operand_1, ConditionalStatement operand_2)
-			{
-				return operand_1 == (operand_2.condition(eventInfo) ^ operand_2.inverted);
-			}
-		},
-		XOR
-		{
-			public boolean operate(TargetEventInfo eventInfo, boolean operand_1, ConditionalStatement operand_2)
-			{
-				return operand_1 ^ operand_2.condition(eventInfo);
-			}
-		};
-
-		public static final String logicalOperationPart;
-		static
-		{
-			String temp = "(";
-			for(LogicalOperator operation : LogicalOperator.values())
-				temp += operation.name() + "|";
-			logicalOperationPart = temp.substring(0, temp.length() - 1) + ")";
-		}
-		
-		public static LogicalOperator match(String key)
-		{
-			if(key != null)
-			{
-				for(LogicalOperator operation : LogicalOperator.values())
-					if(key.equalsIgnoreCase(operation.name()))
-						return operation;	
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid comparison operator \"" + key + "\"", LoadState.FAILURE);		
-			}
-			return null;
-		}
-		
-		abstract public boolean operate(TargetEventInfo eventInfo, boolean operand_1, ConditionalStatement operand_2);
 	}
 	
 	public static void register()

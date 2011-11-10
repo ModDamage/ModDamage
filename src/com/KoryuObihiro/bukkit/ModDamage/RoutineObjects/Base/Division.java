@@ -3,8 +3,11 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class Division extends Routine 
@@ -30,9 +33,12 @@ public class Division extends Routine
 		@Override
 		public Division getNew(Matcher matcher)
 		{ 
-			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(2));
-			if(match1 != null)
-				return new Division(matcher.group(), match1, matcher.group(1) != null);
+			DynamicInteger match = DynamicInteger.getNew(matcher.group(2));
+			if(match != null)
+			{
+				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Division: " + matcher.group(1), LoadState.SUCCESS);
+				return new Division(matcher.group(), match, matcher.group(1) != null);
+			}
 			return null;
 		}
 	}

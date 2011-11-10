@@ -1,18 +1,18 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
 public class EventWorldEvaluation extends ConditionalStatement
 {
-	protected final HashSet<String> worlds;
-	public EventWorldEvaluation(boolean inverted, HashSet<String> worlds)
+	protected final Collection<String> worlds;
+	public EventWorldEvaluation(boolean inverted, Collection<String> worlds)
 	{
 		super(inverted);
 		this.worlds = worlds;
@@ -30,7 +30,7 @@ public class EventWorldEvaluation extends ConditionalStatement
 		@Override
 		public EventWorldEvaluation getNew(Matcher matcher)
 		{
-			HashSet<String> worlds = ModDamage.matchWorldAlias(matcher.group(2));
+			Collection<String> worlds = AliasManager.matchWorldAlias(matcher.group(2));
 			if(!worlds.isEmpty())
 				return new EventWorldEvaluation(matcher.group(1).equalsIgnoreCase("!"), worlds);
 			return null;

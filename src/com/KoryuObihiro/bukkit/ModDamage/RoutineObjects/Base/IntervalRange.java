@@ -3,8 +3,11 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class IntervalRange extends RandomRoutine 
@@ -33,7 +36,10 @@ public class IntervalRange extends RandomRoutine
 		{ 
 			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1)), match2 = DynamicInteger.getNew(matcher.group(2)), match3 = DynamicInteger.getNew(matcher.group(3));
 			if(match1 != null && match2 != null && match3 != null)
+			{
+				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Interval range: " + matcher.group(1) + ", " + matcher.group(2) + ", " + matcher.group(3), LoadState.SUCCESS);
 				return new IntervalRange(matcher.group(), match1, match2, match3);
+			}
 			return null;
 		}
 	}

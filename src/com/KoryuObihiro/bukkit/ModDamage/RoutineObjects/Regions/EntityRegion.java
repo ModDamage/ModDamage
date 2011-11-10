@@ -1,15 +1,14 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Regions;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityConditionalStatement;
@@ -17,8 +16,8 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityCondit
 public class EntityRegion extends EntityConditionalStatement
 {
 	final boolean inclusiveComparison;
-	final HashSet<String> regions;
-	public EntityRegion(boolean inverted, boolean inclusiveComparison, EntityReference entityReference, HashSet<String> regions)
+	final Collection<String> regions;
+	public EntityRegion(boolean inverted, boolean inclusiveComparison, EntityReference entityReference, Collection<String> regions)
 	{
 		super(inverted, entityReference);
 		this.inclusiveComparison = inclusiveComparison;
@@ -26,16 +25,16 @@ public class EntityRegion extends EntityConditionalStatement
 	}
 
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo)
+	public boolean condition(TargetEventInfo eventInfo)
 	{
-		List<String> entityRegions = getRegions(eventInfo);
+		Collection<String> entityRegions = getRegions(eventInfo);
 		for(String region : entityRegions)
-			if(inclusiveComparison?regions.contains(region):(entityRegions.size() == 1 && regions.contains(entityRegions.get(1))))
+			if(inclusiveComparison?regions.contains(region):(entityRegions.size() == 1 && regions.containsAll(entityRegions)))
 				return true;
 		return false;
 	}
 	
-	protected List<String> getRegions(TargetEventInfo eventInfo) 
+	protected Collection<String> getRegions(TargetEventInfo eventInfo) 
 	{
 		if(entityReference.getEntity(eventInfo) != null)
 			return ExternalPluginManager.getRegionsManager().getRegions(entityReference.getEntity(eventInfo).getLocation());//XXX Use .addAll(getEyeLocation())?
@@ -52,7 +51,7 @@ public class EntityRegion extends EntityConditionalStatement
 		@Override
 		public EntityRegion getNew(Matcher matcher)
 		{
-			HashSet<String> regions = ModDamage.matchRegionAlias(matcher.group(3));
+			Collection<String> regions = AliasManager.matchRegionAlias(matcher.group(3));
 			if(!regions.isEmpty() && EntityReference.isValid(matcher.group(2)))
 				return new EntityRegion(matcher.group(1).equalsIgnoreCase("!"), matcher.group(3).endsWith("only"), EntityReference.match(matcher.group(2)), regions);
 			return null;

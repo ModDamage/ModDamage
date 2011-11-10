@@ -10,40 +10,51 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 
 public class ArmorSet 
 {
-	//private boolean inclusive = true;
-	private boolean isValid = true;
 	private boolean hasSomething = false;
-	protected final Material armorSet[] = new Material[4];
+	protected final Material[] armorSet;
 	
+	public ArmorSet(){ armorSet = new Material[4];}
+	public ArmorSet(Material[] materials)
+	{
+		assert(materials.length == 4);
+		armorSet = materials;
+	}
 	public ArmorSet(Player player)
 	{
+		armorSet = new Material[4];
+		Material material;
 		ItemStack[] equipment = player.getInventory().getArmorContents();
 		for(int i = 0; i < equipment.length; i++)
 		{
-			Material material = equipment[i].getType();
-			if(!this.put(material))
+			material = equipment[i].getType();
+			if(!ArmorSet.put(material, armorSet))
 				ModDamage.log.severe("Invalid ArmorSet loaded from player \"" + player.getName() + "\" while attempting to add material of type " + material.name() + "!");
 		}
 	}
 	
-	public ArmorSet(String armorSetString)
+	public static ArmorSet getNew(String armorSetString)
 	{
-		if(armorSetString.equalsIgnoreCase("EMPTY")) return;
+		if(armorSetString.equalsIgnoreCase("EMPTY")) return new ArmorSet();
+		
+		boolean failFlag = false;
+		Material[] materials = new Material[4];
 		String parts[] = armorSetString.split("\\*");
 		for(String part : parts)
-		{
-			Material material = Material.matchMaterial(part);
-			if(material == null || !this.put(material))
+			if(!put(Material.matchMaterial(part), materials))
 			{
-				isValid = false;
+				failFlag = true;
 				ModDamage.addToLogRecord(DebugSetting.QUIET, "Unrecognized armor part \"" + part + "\"", LoadState.FAILURE);
 				break;
 			}
+		if(failFlag)
+		{
+			ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid ArmorSet \"" + armorSetString + "\"", LoadState.FAILURE);
+			return null;
 		}
-		if(!isValid) ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid ArmorSet \"" + armorSetString + "\"", LoadState.FAILURE);
+		else return new ArmorSet(materials);
 	}
 	
-	private boolean put(Material material)
+	private static boolean put(Material material, Material[] armorArray)
 	{
 		ArmorElement armorType = ArmorElement.matchElement(material);
 		if(armorType != null)
@@ -51,27 +62,23 @@ public class ArmorSet
 			{
 				case EMPTY: return true;
 				case HELMET:
-					if(armorSet[0] == null) armorSet[0] = material;
+					if(armorArray[0] == null) armorArray[0] = material;
 					else return false;
-					hasSomething = true;
 					return true;
 					
 				case CHESTPLATE:
-					if(armorSet[1] == null) armorSet[1] = material;
+					if(armorArray[1] == null) armorArray[1] = material;
 					else return false;
-					hasSomething = true;
 					return true;
 					
 				case LEGGINGS:
-					if(armorSet[2] == null) armorSet[2] = material;
+					if(armorArray[2] == null) armorArray[2] = material;
 					else return false;
-					hasSomething = true;
 					return true;
 					
 				case BOOTS:
-					if(armorSet[3] == null) armorSet[3] = material;
+					if(armorArray[3] == null) armorArray[3] = material;
 					else return false;
-					hasSomething = true;
 					return true;
 			}
 		return false;
@@ -106,8 +113,6 @@ public class ArmorSet
 		}
 		return true;
 	}
-	
-	public boolean isValid(){ return isValid;}
 	
 	private boolean isEmpty(){ return !hasSomething;}
 	

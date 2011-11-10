@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.ParentheticalParser;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine.LogicalOperator;
 
 public final class NestedConditionalStatement extends ConditionalStatement
 {
@@ -21,12 +20,9 @@ public final class NestedConditionalStatement extends ConditionalStatement
 	}
 
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo)
+	public boolean condition(TargetEventInfo eventInfo)
 	{
-		boolean result = false;
-		for(int i = 0; i < statements.size(); i++)
-			 result = operators.get(i).operate(eventInfo, result, statements.get(i));
-		return result;
+		return ConditionalStatement.evaluateStatements(eventInfo, statements, operators);
 	}
 	
 	public static void register()

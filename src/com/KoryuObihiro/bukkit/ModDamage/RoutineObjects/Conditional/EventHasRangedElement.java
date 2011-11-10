@@ -15,7 +15,7 @@ public class EventHasRangedElement extends ConditionalStatement
 		super(inverted);
 	}
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo){ return eventInfo.type.equals(EventInfoType.PROJECTILE);}
+	public boolean condition(TargetEventInfo eventInfo){ return eventInfo.type.equals(EventInfoType.PROJECTILE);}
 	
 	public static void register()
 	{

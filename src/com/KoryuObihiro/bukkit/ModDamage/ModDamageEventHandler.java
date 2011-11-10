@@ -1,5 +1,8 @@
 package com.KoryuObihiro.bukkit.ModDamage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -17,10 +20,13 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 enum ModDamageEventHandler
@@ -29,8 +35,53 @@ enum ModDamageEventHandler
 	
 	public void runRoutines(TargetEventInfo eventInfo)
 	{
-		for(Routine routine : ModDamage.routineManager.getRoutines(this))
+		for(Routine routine : routines)
 			routine.run(eventInfo);
+	}
+	private final List<Routine> routines = new ArrayList<Routine>();
+	protected LoadState specificLoadState = LoadState.NOT_LOADED;
+	protected static LoadState state = LoadState.NOT_LOADED;
+	
+	protected LoadState getState(){ return specificLoadState;}
+	
+	protected static void reload()
+	{
+		ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Loading routines...", LoadState.SUCCESS);
+		ModDamage.indentation++;
+		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
+		{
+			eventType.routines.clear();
+			ModDamage.indentation++;
+			Object nestedContent = ModDamage.getConfigMap().get(ConfigLibrary.getCaseInsensitiveKey(ModDamage.getConfigMap(), eventType.name()));
+			if(nestedContent != null)
+			{
+				ModDamage.addToLogRecord(DebugSetting.NORMAL, eventType.name() + " configuration:", LoadState.SUCCESS);
+				ModDamage.indentation++;
+				LoadState[] stateMachine = { LoadState.SUCCESS };//We use a single-cell array here because the enum is assigned later.
+				List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
+				ModDamage.indentation--;
+				eventType.specificLoadState = stateMachine[0];
+				
+				if(!routines.isEmpty() && !eventType.specificLoadState.equals(LoadState.FAILURE))
+					routines.addAll(routines);
+			}
+			else eventType.specificLoadState = LoadState.NOT_LOADED;
+			switch(eventType.specificLoadState)
+			{
+				case NOT_LOADED:
+				ModDamage.addToLogRecord(DebugSetting.VERBOSE, eventType.name() + " configuration not found.", LoadState.NOT_LOADED);
+					break;
+				case FAILURE:
+				ModDamage.addToLogRecord(DebugSetting.QUIET, "Error in " + eventType.name() + " configuration.", LoadState.FAILURE);
+					break;
+				case SUCCESS:
+				ModDamage.addToLogRecord(DebugSetting.NORMAL, "End " + eventType.name() + " configuration.", LoadState.SUCCESS);
+					break;
+			}
+			ModDamage.indentation--;
+			state = LoadState.combineStates(state, eventType.specificLoadState);
+		}
+		ModDamage.indentation--;
 	}
 	
 	static ModDamagePlayerListener playerListener = new ModDamagePlayerListener();

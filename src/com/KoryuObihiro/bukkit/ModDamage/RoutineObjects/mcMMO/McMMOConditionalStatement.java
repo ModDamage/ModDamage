@@ -20,7 +20,7 @@ public abstract class McMMOConditionalStatement extends ConditionalStatement
 	}
 
 	@Override
-	protected final boolean condition(TargetEventInfo eventInfo)
+	public boolean condition(TargetEventInfo eventInfo)
 	{
 		return (ExternalPluginManager.getMcMMOPlugin() != null && entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER)
 				?condition(eventInfo, ExternalPluginManager.getMcMMOPlugin(), (Player)entityReference.getEntity(eventInfo))

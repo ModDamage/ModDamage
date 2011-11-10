@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,22 +15,23 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicString;
 
 public class Message extends NestedRoutine 
 {	
 	protected final EntityReference entityReference;
-	protected final List<DynamicMessage> messages;
+	protected final Collection<DynamicMessage> messages;
 	protected final MessageType messageType;
 	
-	private Message(String configString, EntityReference entityReference, List<DynamicMessage> messages)
+	private Message(String configString, EntityReference entityReference, Collection<DynamicMessage> messages)
 	{
 		super(configString);
 		this.messageType = MessageType.ENTITY;
 		this.entityReference = entityReference;
 		this.messages = messages;
 	}
-	private Message(String configString, MessageType messageType, List<DynamicMessage> messages)
+	private Message(String configString, MessageType messageType, Collection<DynamicMessage> messages)
 	{
 		super(configString);
 		this.messageType = messageType;
@@ -86,21 +88,21 @@ public class Message extends NestedRoutine
 		
 		public DynamicMessage(String message)
 		{
+			ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
 			Matcher integerMatcher = stringReplacePattern.matcher(message);
 			while(integerMatcher.matches())
 			{
-				ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Matched dynamic integer \"" + integerMatcher.group(2) + "\", attempting to get reference...", LoadState.SUCCESS);
 				DynamicString match = DynamicString.getNew(integerMatcher.group(2));
 				if(match != null)
 				{
-					ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Reference found: \"" + match.toString() + "\"", LoadState.SUCCESS);
+					ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Matched dynamic integer: \"" + match.toString() + "\"", LoadState.SUCCESS);
 					message = integerMatcher.group(1) + insertionCharacter + integerMatcher.group(3);
 					matches.add(match);
 					integerMatcher = stringReplacePattern.matcher(message);
 				}
 				else
 				{
-					ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Reference not found, marking invalid.", LoadState.SUCCESS);
+					//ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Reference not found, marking invalid.", LoadState.SUCCESS);
 					message = integerMatcher.group(1) + "INVALID" + integerMatcher.group(3);
 					integerMatcher = stringReplacePattern.matcher(message);
 				}
@@ -129,7 +131,7 @@ public class Message extends NestedRoutine
 			player.sendMessage(displayString);
 		}
 		
-		public static void sendMessages(List<DynamicMessage> messages, TargetEventInfo eventInfo, Player player)
+		public static void sendMessages(Collection<DynamicMessage> messages, TargetEventInfo eventInfo, Player player)
 		{
 			for(DynamicMessage message : messages)
 				message.sendMessage(eventInfo, player);
@@ -163,7 +165,7 @@ public class Message extends NestedRoutine
 			if(matcher != null)
 			{
 				MessageType messageType = MessageType.match(matcher.group(1));
-				List<DynamicMessage> messages = ModDamage.matchMessageAlias(matcher.group(2));
+				Collection<DynamicMessage> messages = AliasManager.matchMessageAlias(matcher.group(2));
 				if(!messages.isEmpty() && messageType != null)
 				{
 					reportContents(messages);
@@ -198,7 +200,7 @@ public class Message extends NestedRoutine
 					{
 						if(!(object instanceof String))
 							failFlag = true;
-						messages.addAll(ModDamage.matchMessageAlias((String)object));
+						messages.addAll(AliasManager.matchMessageAlias((String)object));
 					}
 					
 					Message routine = null;
@@ -221,14 +223,18 @@ public class Message extends NestedRoutine
 			return null;
 		}
 	}
-	private static void reportContents(List<DynamicMessage> messages)
+	private static void reportContents(Collection<DynamicMessage> messages)
 	{
-		ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-		ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message: \"" + messages.get(0).toString() + "\"" , LoadState.SUCCESS);
-		ModDamage.indentation++;
-		for(int i = 1; i < messages.size(); i++)
-			ModDamage.addToLogRecord(DebugSetting.NORMAL, "- \"" + messages.get(i).toString() + "\"" , LoadState.SUCCESS);
-		ModDamage.indentation--;
+		if(messages instanceof List)
+		{
+			List<DynamicMessage> messageList = (List<DynamicMessage>)messages;
+			ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message: \"" + messageList.get(0).toString() + "\"" , LoadState.SUCCESS);
+			ModDamage.indentation++;
+			for(int i = 1; i < messages.size(); i++)
+				ModDamage.addToLogRecord(DebugSetting.NORMAL, "- \"" + messageList.get(i).toString() + "\"" , LoadState.SUCCESS);
+			ModDamage.indentation--;
+		}
+		else ModDamage.addToLogRecord(DebugSetting.QUIET, "Fatal: messages are not in a linked data structure!", LoadState.FAILURE);//shouldn't happen
 		ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
 	}
 }

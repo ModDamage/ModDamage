@@ -109,7 +109,7 @@ public class EntityStatus extends EntityConditionalStatement
 	}
 
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo)
+	public boolean condition(TargetEventInfo eventInfo)
 	{
 		if(entityReference.getElement(eventInfo).matchesType(statusType.requiredElement))
 			return statusType.isTrue(entityReference.getEntity(eventInfo));

@@ -25,7 +25,7 @@ public class Comparison extends ConditionalStatement
 	}
 
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo) { return comparisonType.compare(operand1.getValue(eventInfo), operand2.getValue(eventInfo));}
+	public boolean condition(TargetEventInfo eventInfo) { return comparisonType.compare(operand1.getValue(eventInfo), operand2.getValue(eventInfo));}
 
 	private enum ComparisonType
 	{ 

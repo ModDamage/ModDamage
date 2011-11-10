@@ -1,15 +1,16 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine.SingleValueSwitchRoutine;
 
-public class WorldSwitch extends SwitchRoutine<HashSet<String>, String>
+public class WorldSwitch extends SingleValueSwitchRoutine<String>
 {	
 	public WorldSwitch(String configString, LinkedHashMap<String, Object> switchStatements)
 	{ 
@@ -18,7 +19,7 @@ public class WorldSwitch extends SwitchRoutine<HashSet<String>, String>
 	@Override
 	protected String getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.world.getName();}
 	@Override
-	protected HashSet<String> matchCase(String switchCase){ return ModDamage.matchWorldAlias(switchCase);}
+	protected Collection<String> matchCase(String switchCase){ return AliasManager.matchWorldAlias(switchCase);}
 	
 	public static void register()
 	{

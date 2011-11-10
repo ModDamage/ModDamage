@@ -2,21 +2,22 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 
-public class ElementAliaser extends Aliaser<List<ModDamageElement>, ModDamageElement> 
+public class ElementAliaser extends CollectionAliaser<ModDamageElement> 
 {
 	private static final long serialVersionUID = -557230493957602224L;
 
 	public ElementAliaser() {super("Element");}
 
 	@Override
-	public List<ModDamageElement> matchAlias(String key)
+	public Collection<ModDamageElement> matchAlias(String key)
 	{
 		if(this.containsKey(key))
 			return this.get(key);
@@ -27,7 +28,6 @@ public class ElementAliaser extends Aliaser<List<ModDamageElement>, ModDamageEle
 			ModDamage.addToLogRecord(DebugSetting.QUIET, "No matching " + name + " alias or value \"" + key + "\"", LoadState.FAILURE);
 			ModDamage.indentation--;
 		}
-		
 		return new ArrayList<ModDamageElement>();
 	}
 	
@@ -36,11 +36,5 @@ public class ElementAliaser extends Aliaser<List<ModDamageElement>, ModDamageEle
 
 	@Override
 	protected String getObjectName(ModDamageElement object){ return object.name();}
-
-	@Override
-	protected List<ModDamageElement> getNewStorageClass(ModDamageElement value){ return Arrays.asList(value);}
-
-	@Override
-	protected List<ModDamageElement> getNewStorageClass(){ return new ArrayList<ModDamageElement>();}
 
 }

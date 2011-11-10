@@ -1,15 +1,15 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class DynamicRoutineInteger extends DynamicInteger
 {
-	private final List<Routine> routines;
+	private final Collection<Routine> routines;
 	
-	public DynamicRoutineInteger(List<Routine> routines, boolean isNegative)
+	public DynamicRoutineInteger(Collection<Routine> routines, boolean isNegative)
 	{
 		super(isNegative, false);
 		this.routines = routines;

@@ -3,8 +3,11 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class Addition extends Routine 
@@ -32,7 +35,10 @@ public class Addition extends Routine
 			{
 				DynamicInteger match = DynamicInteger.getNew(matcher.group(1));
 				if(match != null)
+				{
+					ModDamage.addToLogRecord(DebugSetting.NORMAL, "Add: " + matcher.group(1), LoadState.SUCCESS);
 					return new Addition(matcher.group(), match);
+				}
 			}
 			return null;
 		}

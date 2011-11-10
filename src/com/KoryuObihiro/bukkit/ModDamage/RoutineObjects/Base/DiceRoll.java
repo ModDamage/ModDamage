@@ -3,8 +3,11 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class DiceRoll extends RandomRoutine 
@@ -32,7 +35,7 @@ public class DiceRoll extends RandomRoutine
 	
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("roll(\\." + DynamicInteger.dynamicIntegerPart + ")?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("roll(?:\\.(" + DynamicInteger.dynamicIntegerPart + "))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
@@ -42,11 +45,18 @@ public class DiceRoll extends RandomRoutine
 		{ 
 			if(!matcher.group(1).equalsIgnoreCase(""))
 			{
-				DynamicInteger match1 = DynamicInteger.getNew(matcher.group(2));
-				if(match1 != null)
-					return new DiceRoll(matcher.group(), match1);
+				DynamicInteger match = DynamicInteger.getNew(matcher.group(2));
+				if(match != null)
+				{
+					ModDamage.addToLogRecord(DebugSetting.NORMAL, "Dice Roll: " + matcher.group(1), LoadState.SUCCESS);
+					return new DiceRoll(matcher.group(), match);
+				}
 			}
-			else return new DiceRoll(matcher.group());
+			else
+			{
+				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Dice Roll: roll existing", LoadState.SUCCESS);
+				return new DiceRoll(matcher.group());
+			}
 			return null;
 		}
 	}

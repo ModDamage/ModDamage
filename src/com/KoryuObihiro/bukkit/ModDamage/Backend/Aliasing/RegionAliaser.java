@@ -1,11 +1,9 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 
-public class RegionAliaser extends Aliaser<HashSet<String>, String> 
+public class RegionAliaser extends CollectionAliaser<String> 
 {
 	private static final long serialVersionUID = 6446417315016119118L;
 
@@ -21,10 +19,4 @@ public class RegionAliaser extends Aliaser<HashSet<String>, String>
 
 	@Override
 	protected String getObjectName(String object){ return object;}
-
-	@Override
-	protected HashSet<String> getNewStorageClass(String value){ return new HashSet<String>(Arrays.asList(value));}
-
-	@Override
-	protected HashSet<String> getNewStorageClass(){ return new HashSet<String>();}
 }

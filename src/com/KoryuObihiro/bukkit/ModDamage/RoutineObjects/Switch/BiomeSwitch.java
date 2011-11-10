@@ -1,29 +1,31 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.block.Biome;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine.EntitySingleTraitSwitchRoutine;
 
-public class BiomeSwitch extends EntitySwitchRoutine<HashSet<Biome>, Biome>
+public class BiomeSwitch extends EntitySingleTraitSwitchRoutine<Biome>
 {
 	public BiomeSwitch(String configString, EntityReference entityReference, LinkedHashMap<String, Object> switchLabels)
 	{
-		super(configString, entityReference, switchLabels);
+		super(configString, switchLabels, ModDamageElement.GENERIC, entityReference);//XXX Optimization - check for generic first?
 	}
 	@Override
 	protected Biome getRelevantInfo(TargetEventInfo eventInfo){ return getRelevantEntity(eventInfo).getLocation().getBlock().getBiome();}
 	@Override
-	protected boolean compare(Biome info_event, HashSet<Biome> info_case){ return info_case.contains(info_event);}
+	protected boolean compare(Biome info_event, Collection<Biome> info_case){ return info_case.contains(info_event);}
 	@Override
-	protected HashSet<Biome> matchCase(String switchCase){ return ModDamage.matchBiomeAlias(switchCase);}
+	protected Collection<Biome> matchCase(String switchCase){ return AliasManager.matchBiomeAlias(switchCase);}
 	
 	public static void register()
 	{

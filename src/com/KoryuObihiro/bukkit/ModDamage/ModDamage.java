@@ -2,15 +2,17 @@ package com.KoryuObihiro.bukkit.ModDamage;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -18,7 +20,6 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.command.Command;
@@ -26,26 +27,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.error.YAMLException;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.PermissionsManager;
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.RegionsManager;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamageEventHandler.ModDamageEntityListener;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageTagger;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ArmorAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.BiomeAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.ElementAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.GroupAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MaterialAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.MessageAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RegionAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.WorldAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Message.DynamicMessage;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 
 /**
  * "ModDamage" for Bukkit
@@ -56,7 +45,8 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 public class ModDamage extends JavaPlugin
 {
 	//TODO 0.9.6 Command for autogen world/entitytype switches?
-	//TODO 0.9.6 switch.conditional
+	//TODO 0.9.6 Autogen empty aliasing nodes
+	//FIXME Change conditional term builders to use aliasing!
 	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
 	// -AoE clearance, block search nearby for Material?
 	// -find a way to give players ownership of an explosion?
@@ -64,7 +54,8 @@ public class ModDamage extends JavaPlugin
 
 	public final int oldestSupportedBuild = 1337;
 	public final static Logger log = Logger.getLogger("Minecraft");
-	private static DebugSetting debugSetting = DebugSetting.NORMAL;
+
+//MD-centric configuration objects
 	public static enum DebugSetting
 	{
 		QUIET, NORMAL, CONSOLE, VERBOSE;
@@ -81,96 +72,24 @@ public class ModDamage extends JavaPlugin
 				return true;
 			return false;
 		}
-	}
-
-	private static Configuration config;
-	private static final String errorString_Permissions = chatPrepend(ChatColor.RED) + "You don't have access to that command.";
-	private static int configPages = 0;
-	private static List<String> configStrings_ingame = new ArrayList<String>();
-	private static List<String> configStrings_console = new ArrayList<String>();
-	public static int indentation = 0;
-	
-//Routine objects
-	public static final RoutineManager routineManager = new RoutineManager();
-	public static class RoutineManager
-	{
-		private final HashMap<ModDamageEventHandler, List<Routine>> eventRoutines = new HashMap<ModDamageEventHandler, List<Routine>>();
-		private final HashMap<ModDamageEventHandler, LoadState> eventStates = new HashMap<ModDamageEventHandler, LoadState>();
-		protected LoadState state = LoadState.NOT_LOADED;
-	
-		public List<Routine> getRoutines(ModDamageEventHandler eventType){ return eventRoutines.get(eventType);}
-		
-		protected LoadState getState(ModDamageEventHandler eventType){ return eventStates.get(eventType);}
-		
-		protected void reload()
+		public static void toggleDebugging(Player player)
 		{
-			addToLogRecord(DebugSetting.VERBOSE, "Loading routines...", LoadState.SUCCESS);
-			ModDamage.indentation++;
-			eventRoutines.clear();
-			eventStates.clear();
-			state = LoadState.NOT_LOADED;
-			for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
+			switch(DebugSetting.currentSetting)
 			{
-				ModDamage.indentation++;
-				List<?> routineObjects = null;
-				for(String key : config.getKeys())
-					if(key.equalsIgnoreCase(eventType.name()))
-					{
-						routineObjects = (List<?>)config.getList(key);
-						break;
-					}
-				if(routineObjects != null)
-				{
-					addToLogRecord(DebugSetting.NORMAL, eventType.name() + " configuration:", LoadState.SUCCESS);
-					ModDamage.indentation++;
-					LoadState[] stateMachine = { LoadState.SUCCESS };//We use a single-cell array here because the enum is assigned later.
-					List<Routine> routines = RoutineAliaser.parse(routineObjects, stateMachine);
-					ModDamage.indentation--;
-					eventStates.put(eventType, stateMachine[0]);
-					
-					if(!routines.isEmpty() && !eventStates.get(eventType).equals(LoadState.FAILURE))
-						eventRoutines.put(eventType, routines);
-					else  eventRoutines.put(eventType, new ArrayList<Routine>());
-				}
-				else
-				{
-					eventRoutines.put(eventType, new ArrayList<Routine>());
-					eventStates.put(eventType, LoadState.NOT_LOADED);
-				}
-				switch(eventStates.get(eventType))
-				{
-					case NOT_LOADED:
-						addToLogRecord(DebugSetting.VERBOSE, eventType.name() + " configuration not found.", LoadState.NOT_LOADED);
-						break;
-					case FAILURE:
-						addToLogRecord(DebugSetting.QUIET, "Error in " + eventType.name() + " configuration.", LoadState.FAILURE);
-						break;
-					case SUCCESS:
-						addToLogRecord(DebugSetting.NORMAL, "End " + eventType.name() + " configuration.", LoadState.SUCCESS);
-						break;
-				}
-				ModDamage.indentation--;
+				case QUIET: 
+					setDebugging(player, DebugSetting.NORMAL);
+					break;
+				case NORMAL:
+					setDebugging(player, DebugSetting.VERBOSE);
+					break;
+				case VERBOSE:
+					setDebugging(player, DebugSetting.QUIET);
+					break;
 			}
-			ModDamage.indentation--;
-			state = LoadState.combineStates(eventStates.values());
 		}
+		
+		protected static DebugSetting currentSetting = DebugSetting.NORMAL;
 	}
-	private static ModDamageTagger tagger = null;
-	
-//Alias objects
-	private static ArmorAliaser armorAliaser = new ArmorAliaser();
-	private static BiomeAliaser biomeAliaser = new BiomeAliaser();
-	private static ElementAliaser elementAliaser = new ElementAliaser();
-	private static GroupAliaser groupAliaser = new GroupAliaser();
-	private static MaterialAliaser materialAliaser = new MaterialAliaser();
-	private static MessageAliaser messageAliaser = new MessageAliaser();
-	private static RegionAliaser regionAliaser = new RegionAliaser();
-	private static RoutineAliaser routineAliaser = new RoutineAliaser();
-	private static WorldAliaser worldAliaser = new WorldAliaser();
-	private static LoadState state_aliases = LoadState.NOT_LOADED;
-	
-	private static LoadState state_plugin = LoadState.NOT_LOADED;
-	
 	public enum LoadState
 	{
 		NOT_LOADED(ChatColor.GRAY + "NO  "), 
@@ -183,8 +102,17 @@ public class ModDamage extends JavaPlugin
 		
 		public static LoadState combineStates(LoadState...states){ return combineStates(Arrays.asList(states));}
 		public static LoadState combineStates(Collection<LoadState> loadStates){ return loadStates.contains(FAILURE)?LoadState.FAILURE:(loadStates.contains(SUCCESS)?LoadState.SUCCESS:LoadState.NOT_LOADED);}
+		protected static LoadState pluginState = LoadState.NOT_LOADED;
 	}
 	public static boolean isEnabled = false;
+	private static LinkedHashMap<String, Object> config;
+	private static final String errorString_Permissions = chatPrepend(ChatColor.RED) + "You don't have access to that command.";
+	private static int configPages = 0;
+	private static List<String> configStrings_ingame = new ArrayList<String>();
+	private static List<String> configStrings_console = new ArrayList<String>();
+	public static int indentation = 0;
+	
+	private static ModDamageTagger tagger = null;
 	
 ////////////////////////// INITIALIZATION
 	@Override
@@ -199,7 +127,7 @@ public class ModDamage extends JavaPlugin
 		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Highest, this);
 		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_REGAIN_HEALTH, entityListener, Event.Priority.Highest, this);
 		Bukkit.getPluginManager().registerEvent(Event.Type.PLAYER_RESPAWN, ModDamageEventHandler.playerListener, Event.Priority.Highest, this);
-		this.config = this.getConfiguration();
+		
 		reload(true);
 		isEnabled = true;
 	}
@@ -263,7 +191,7 @@ public class ModDamage extends JavaPlugin
 						setDebugging(player, matchedSetting);
 					else sendMessage(player, "Invalid debugging mode \"" + matcher.group(1).substring(1) + "\" - modes are \"quiet\", \"normal\", and \"verbose\".", ChatColor.RED);
 				}
-				else toggleDebugging(player);
+				else DebugSetting.toggleDebugging(player);
 			}
 		},
 		RELOAD(false, "\\s(?:reload|r)(\\sall)?")
@@ -275,7 +203,7 @@ public class ModDamage extends JavaPlugin
 				if(player != null) log.info(logPrepend() + "Reload initiated by user " + player.getName() + "...");
 				((ModDamage)Bukkit.getPluginManager().getPlugin("ModDamage")).reload(reloadingAll);
 				if(player != null)
-					switch(state_plugin)
+					switch(LoadState.pluginState)
 					{
 						case SUCCESS: 
 							player.sendMessage(chatPrepend(ChatColor.GREEN) + "Reloaded!");
@@ -335,6 +263,7 @@ public class ModDamage extends JavaPlugin
 	}
 	
 ///// HELPER FUNCTIONS ////
+	
 	private static boolean hasPermission(Player player, String permission)
 	{
 		boolean has = player != null?ExternalPluginManager.getPermissionsManager().hasPermission(player, "moddamage.reload"):true;
@@ -367,12 +296,12 @@ public class ModDamage extends JavaPlugin
 	{ 
 		if(setting != null) 
 		{
-			if(!debugSetting.equals(setting))
+			if(!DebugSetting.currentSetting.equals(setting))
 			{
 				if(replaceOrAppendInFile(new File(Bukkit.getPluginManager().getPlugin("ModDamage").getDataFolder(), "config.yml"), "debugging:.*", "debugging: " + setting.name().toLowerCase()))					
 				{
-					sendMessage(player, "Changed debug from " + debugSetting.name().toLowerCase() + " to " + setting.name().toLowerCase(), ChatColor.GREEN);
-					debugSetting = setting;
+					sendMessage(player, "Changed debug from " + DebugSetting.currentSetting.name().toLowerCase() + " to " + setting.name().toLowerCase(), ChatColor.GREEN);
+					DebugSetting.currentSetting = setting;
 				}
 				else if(player != null) player.sendMessage(chatPrepend(ChatColor.RED) + "Couldn't save changes to config.yml.");
 			}
@@ -418,22 +347,6 @@ public class ModDamage extends JavaPlugin
 		return true;
 	}
 
-	private static void toggleDebugging(Player player) 
-	{
-		switch(debugSetting)
-		{
-			case QUIET: 
-				setDebugging(player, DebugSetting.NORMAL);
-				break;
-			case NORMAL:
-				setDebugging(player, DebugSetting.VERBOSE);
-				break;
-			case VERBOSE:
-				setDebugging(player, DebugSetting.QUIET);
-				break;
-		}
-	}
-
 	private static void sendCommandUsage(Player player, boolean forError) 
 	{
 		//TODO Use the PluginCommand enum
@@ -464,21 +377,38 @@ public class ModDamage extends JavaPlugin
 /////////////////// MECHANICS CONFIGURATION 
 	private void reload(boolean reloadingAll)
 	{
-		armorAliaser.clear();
-		biomeAliaser.clear();
-		elementAliaser.clear();
-		groupAliaser.clear();
-		materialAliaser.clear();
-		messageAliaser.clear();
-		regionAliaser.clear();
-		routineAliaser.clear();
-		worldAliaser.clear();
-		state_plugin = state_aliases = LoadState.NOT_LOADED;
+		long reloadStartTime = System.nanoTime();
+		LoadState.pluginState = LoadState.NOT_LOADED;
 		
 		configStrings_ingame.clear();
 		configStrings_console.clear();
 		
 		ModDamage.addToLogRecord(DebugSetting.QUIET, "[" + this.getDescription().getName() + "] v" + this.getDescription().getVersion()  + " loading...", LoadState.SUCCESS);
+
+		//scope this...because I think it looks nicer. :P
+		{
+			Object configObject = null;
+			FileInputStream stream;
+			try
+			{
+				Yaml yaml = new Yaml();
+				stream = new FileInputStream(new File(this.getDataFolder(), "config.yml"));
+				configObject = yaml.load(stream);
+				stream.close();
+				if(configObject == null) writeDefaults();
+				else config = ConfigLibrary.getStringMap("config.yml", configObject);
+			}
+			catch(FileNotFoundException e){ writeDefaults();}
+			catch(IOException e){ ModDamage.log.severe("Fatal: could not close config.yml!");}
+			catch(YAMLException e)
+			{
+				//TODO 0.9.7 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not auto-load config.
+				addToLogRecord(DebugSetting.QUIET, "Error in YAML configuration. Please use valid YAML in config.yml.", LoadState.FAILURE);
+				e.printStackTrace();
+				LoadState.pluginState = LoadState.FAILURE;
+				return;
+			}
+		}
 		
 		if(reloadingAll)
 		{
@@ -501,31 +431,33 @@ public class ModDamage extends JavaPlugin
 			else addToLogRecord(DebugSetting.QUIET, logPrepend() + "Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.", LoadState.FAILURE);
 			
 			if(tagger != null) tagger.close();
-			tagger = new ModDamageTagger(new File(this.getDataFolder(), "tags.yml"), config.getInt("Tagging.interval-save", ModDamageTagger.defaultInterval), config.getInt("Tagging.interval-clean", ModDamageTagger.defaultInterval));
-		}
-		
-		try{ config.load();}
-		catch(Exception e)
-		{
-			//TODO 0.9.7 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not auto-load config.
-			addToLogRecord(DebugSetting.QUIET, "Error in YAML configuration.", LoadState.FAILURE);
-			e.printStackTrace();
-			/*
-			for(StackTraceElement element : e.getStackTrace())
+
+			long[] tagConfigIntegers = { ModDamageTagger.defaultInterval, ModDamageTagger.defaultInterval };
+			LinkedHashMap<String, Object> tagConfigurationTree = ConfigLibrary.getStringMap("Tagging", config.get("Tagging"));
+			if(tagConfigurationTree != null)
 			{
-			    addToConfig(DebugSetting.QUIET, 0, element.toString(), LoadState.FAILURE);
+				String[] tagConfigStrings = { ConfigLibrary.getCaseInsensitiveKey(tagConfigurationTree, "interval-save"), ConfigLibrary.getCaseInsensitiveKey(tagConfigurationTree, "interval-clean") };
+				Object[] tagConfigObjects = { tagConfigurationTree.get(tagConfigStrings[0]), tagConfigurationTree.get(tagConfigStrings[1]) };
+				for(int i = 0; i < tagConfigObjects.length; i++)
+				{
+					if(tagConfigObjects[i] != null)
+					{
+						if(tagConfigObjects[i] instanceof Integer)
+							tagConfigIntegers[i] = (Integer)tagConfigObjects[i];
+						else addToLogRecord(DebugSetting.QUIET, "Error: Could not read value for Tagging setting \"" + tagConfigStrings[i] + "\"", LoadState.FAILURE);
+					}
+				}
 			}
-			*/
-			state_plugin = LoadState.FAILURE;
-		    return;
+			tagger = new ModDamageTagger(new File(this.getDataFolder(), "tags.yml"), tagConfigIntegers[0], tagConfigIntegers[1]);
 		}
 		
 	//get plugin config.yml...if it doesn't exist, create it.
 		if(!(new File(this.getDataFolder(), "config.yml")).exists()) writeDefaults();
 	//load debug settings
-		String debugString = config.getString("debugging");
-		if(debugString != null)
+		Object debugObject = config.get(ConfigLibrary.getCaseInsensitiveKey(config, "debugging"));
+		if(debugObject != null)
 		{
+			String debugString = (String)debugObject;
 			DebugSetting debugSetting = DebugSetting.matchSetting(debugString);
 			switch(debugSetting)
 			{
@@ -543,57 +475,31 @@ public class ModDamage extends JavaPlugin
 					debugSetting = DebugSetting.NORMAL;
 					break;
 			}
-			ModDamage.debugSetting = debugSetting;
+			ModDamage.DebugSetting.currentSetting = debugSetting;
 		}
 
 	//Aliasing
-		addToLogRecord(DebugSetting.VERBOSE, "Loading aliases...", LoadState.SUCCESS);
-		for(String key : config.getKeys())
-			if(key.equalsIgnoreCase("Aliases"))
-			{
-				ConfigurationNode aliasesNode = config.getNode(key);
-				if(!aliasesNode.getKeys().isEmpty())
-				{
-					ModDamage.indentation++;
-					List<LoadState> list = Arrays.asList(armorAliaser.load(aliasesNode), biomeAliaser.load(aliasesNode), elementAliaser.load(aliasesNode), materialAliaser.load(aliasesNode), groupAliaser.load(aliasesNode), messageAliaser.load(aliasesNode), regionAliaser.load(aliasesNode), routineAliaser.load(aliasesNode), worldAliaser.load(aliasesNode));
-					state_aliases = LoadState.combineStates(list);
-					ModDamage.indentation--;
-					switch(state_aliases)
-					{
-						case NOT_LOADED:
-							addToLogRecord(DebugSetting.VERBOSE, "No aliases loaded! Are any aliases defined?", state_aliases);
-							break;
-						case FAILURE:
-							addToLogRecord(DebugSetting.QUIET, "One or more errors occurred while loading aliases.", state_aliases);
-							break;
-						case SUCCESS:
-							addToLogRecord(DebugSetting.VERBOSE, "Aliases loaded!", state_aliases);
-							break;
-					}
-					break;
-				}
-				else addToLogRecord(DebugSetting.VERBOSE, "No Aliases node found.", LoadState.NOT_LOADED);
-			}
+		AliasManager.reload();
 		
 	//Routines
-		routineManager.reload();
-		switch(routineManager.state)
+		ModDamageEventHandler.reload();
+		switch(ModDamageEventHandler.state)
 		{
 			case NOT_LOADED:
-				addToLogRecord(DebugSetting.VERBOSE, "No routines loaded! Are any routines defined?", state_aliases);
+				addToLogRecord(DebugSetting.VERBOSE, "No routines loaded! Are any routines defined?", ModDamageEventHandler.state);
 				break;
 			case FAILURE:
-				addToLogRecord(DebugSetting.QUIET, "One or more errors occurred while loading routines.", state_aliases);
+				addToLogRecord(DebugSetting.QUIET, "One or more errors occurred while loading routines.", ModDamageEventHandler.state);
 				break;
 			case SUCCESS:
-				addToLogRecord(DebugSetting.VERBOSE, "Routines loaded!", state_aliases);
+				addToLogRecord(DebugSetting.VERBOSE, "Routines loaded!", ModDamageEventHandler.state);
 				break;
 		}
 		
-		state_plugin = LoadState.combineStates(routineManager.state, state_aliases);
+		LoadState.pluginState = LoadState.combineStates(ModDamageEventHandler.state, AliasManager.getState());
 		
 		String sendThis = null;
-		switch(state_plugin)
+		switch(LoadState.pluginState)
 		{
 			case NOT_LOADED:
 				sendThis = "No configuration loaded.";
@@ -606,28 +512,49 @@ public class ModDamage extends JavaPlugin
 				break;
 		}
 		log.info(logPrepend() + "" + sendThis);
+		
+		addToLogRecord(DebugSetting.VERBOSE, "Reload operation took " + (System.nanoTime() - reloadStartTime) + " nanoseconds.", LoadState.NOT_LOADED);
 	}
 
-	private void writeDefaults() 
+	private boolean writeDefaults() 
 	{
 		addToLogRecord(DebugSetting.QUIET, logPrepend() + "No configuration file found! Writing a blank config...", LoadState.NOT_LOADED);
-		config.setHeader("#Auto-generated config.\n#See the [wiki](https://github.com/KoryuObihiro/ModDamage/wiki) for more information.");
-		config.setProperty("debugging", "normal");
-		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
-			config.setProperty(eventType.name(), null);
 		
+		String outputString = "#Auto-generated config at " + (new Date()).toString() + ".\n#See the [wiki](https://github.com/KoryuObihiro/ModDamage/wiki) for more information.\nAliases:";
+
+		outputString += "\n    " + AliasManager.Material.getAliaser().getName() + ":";
 		String[][] toolAliases = { {"axe", "hoe", "pickaxe", "spade", "sword"}, {"WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_"}};
 		for(String toolType : toolAliases[0])
 		{
-			List<String> combinations = new ArrayList<String>();
+			outputString += "\n        " + toolType + ":";
 			for(String toolMaterial : toolAliases[1])
-				combinations.add(toolMaterial + toolType.toUpperCase());
-			config.setProperty("Aliases." + materialAliaser.getName() + "." + toolType, combinations);
+				outputString += "\n            - '" + toolMaterial + toolType.toUpperCase() + "'";
 		}
-		config.setProperty("Tagging.SaveInterval", ModDamageTagger.defaultInterval);
-		config.setProperty("Tagging.CleanInterval", ModDamageTagger.defaultInterval);
+
+		outputString += "\n\n#Events";
+		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
+			outputString += "\n" + eventType.name() + ":";
+
+		outputString += "\n\n#Miscellaneous configuration";
+		outputString += "\ndebugging: normal";
+		outputString += "\nTagging: #These intervals should be tinkered with ONLY if you understand the implications.";
+		outputString += "\n    interval-save: " + ModDamageTagger.defaultInterval;
+		outputString += "\n    interval-clean: " + ModDamageTagger.defaultInterval;
 		log.info(logPrepend() + "Completed auto-generation of config.yml.");
-		config.save();
+		
+		try
+		{
+			File file = new File(this.getDataFolder(), "config.yml");
+			Writer writer = new FileWriter(file);
+			writer.write(outputString);
+			writer.close();
+
+			FileInputStream stream = new FileInputStream(file);
+			config = ConfigLibrary.getStringMap("config.yml", (new Yaml()).load(stream));
+			stream.close();
+		}
+		catch (IOException e){ ModDamage.log.severe("Error writing to config.yml.");}
+		return true;
 	}
 	
 	//TODO 0.9.7 Implement a reload hook for other plugins, make /md r reload routine library.
@@ -637,7 +564,7 @@ public class ModDamage extends JavaPlugin
 	public static void addToLogRecord(DebugSetting outputSetting, String string, LoadState loadState)
 	{
 		//if(loadState.equals(LoadState.FAILURE)) state_plugin = LoadState.FAILURE;//TODO REMOVE ME.
-		if(debugSetting.shouldOutput(outputSetting))
+		if(DebugSetting.currentSetting.shouldOutput(outputSetting))
 		{
 			ChatColor color = null;
 			switch(loadState)
@@ -714,17 +641,17 @@ public class ModDamage extends JavaPlugin
 		else
 		{
 			//TODO 0.9.6 - Unify the placement, output according to the RoutineManager and the AliasManager.
-			player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Config Overview: " + state_plugin.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
-			player.sendMessage(ChatColor.AQUA + "Aliases:    " + state_aliases.statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + routineManager.state.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:        " + armorAliaser.getLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Damage: " + routineManager.getState(ModDamageEventHandler.Damage).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Element:     " + elementAliaser.getLoadState().statusString() + "       " + ChatColor.DARK_GREEN + "Death:  " + routineManager.getState(ModDamageEventHandler.Death).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Group:        " + groupAliaser.getLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Food:  " + routineManager.getState(ModDamageEventHandler.Food).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Material:    " + materialAliaser.getLoadState().statusString() + "      " + ChatColor.DARK_GREEN + "ProjectileHit:  " + routineManager.getState(ModDamageEventHandler.ProjectileHit).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Message:   " + messageAliaser.getLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Spawn:  " + routineManager.getState(ModDamageEventHandler.Spawn).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Region:   " + regionAliaser.getLoadState().statusString()+ "        " + ChatColor.DARK_GREEN + "Tame:  " + routineManager.getState(ModDamageEventHandler.Tame).statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:   " + routineAliaser.getLoadState().statusString());
+			player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Config Overview: " + LoadState.pluginState.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
+			player.sendMessage(ChatColor.AQUA + "Aliases:    " + AliasManager.getState().statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + ModDamageEventHandler.state.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:        " + AliasManager.Armor.getSpecificLoadState() + "     " + ChatColor.DARK_GREEN + "Damage: " + ModDamageEventHandler.Damage.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Element:     " + AliasManager.Element.getSpecificLoadState().statusString() + "       " + ChatColor.DARK_GREEN + "Death:  " + ModDamageEventHandler.Death.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Group:        " + AliasManager.Group.getSpecificLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Food:  " + ModDamageEventHandler.Food.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Material:    " + AliasManager.Material.getSpecificLoadState().statusString() + "      " + ChatColor.DARK_GREEN + "ProjectileHit:  " + ModDamageEventHandler.ProjectileHit.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Message:   " + AliasManager.Message.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Spawn:  " + ModDamageEventHandler.Spawn.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Region:   " + AliasManager.Region.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Tame:  " + ModDamageEventHandler.Tame.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:   " + AliasManager.Routine.getSpecificLoadState().statusString() + "        Condition:  " + AliasManager.Routine.getSpecificLoadState().statusString());
 			String bottomString = null;
-			switch(state_plugin)
+			switch(LoadState.pluginState)
 			{
 				case NOT_LOADED:
 					bottomString = ChatColor.GRAY + "No configuration found.";
@@ -741,7 +668,7 @@ public class ModDamage extends JavaPlugin
 		return false;
 	}
 	
-//// CONFIG MATCHING ////	
+//// CONFIG MATCHING ////
 	public static Biome matchBiome(String biomeName)
 	{
 		for(Biome biome : Biome.values())
@@ -758,17 +685,9 @@ public class ModDamage extends JavaPlugin
 		return null;
 	}
 
-	public static List<ArmorSet> matchArmorAlias(String key){ return armorAliaser.matchAlias(key);}
-	public static HashSet<Biome> matchBiomeAlias(String key){ return biomeAliaser.matchAlias(key);}
-	public static List<ModDamageElement> matchElementAlias(String key){ return elementAliaser.matchAlias(key);}
-	public static HashSet<Material> matchMaterialAlias(String key){ return materialAliaser.matchAlias(key);}
-	public static HashSet<String> matchGroupAlias(String key){ return groupAliaser.matchAlias(key);}
-	public static List<DynamicMessage> matchMessageAlias(String key){ return messageAliaser.matchAlias(key);}
-	public static HashSet<String> matchRegionAlias(String key){ return regionAliaser.matchAlias(key);}
-	public static List<Routine> matchRoutineAlias(String key){ return routineAliaser.matchAlias(key);}
-	public static HashSet<String> matchWorldAlias(String key){ return worldAliaser.matchAlias(key);}
-
-	public static DebugSetting getDebugSetting() { return debugSetting;}
+	public static DebugSetting getDebugSetting() { return DebugSetting.currentSetting;}
 
 	public static ModDamageTagger getTagger(){ return tagger;}
+
+	public static LinkedHashMap<String, Object> getConfigMap(){ return config;}
 }

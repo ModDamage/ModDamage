@@ -8,9 +8,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
@@ -41,7 +41,7 @@ public class EntityBlockStatus extends EntityConditionalStatement
 		this.materials = materials;
 	}
 	@Override
-	protected boolean condition(TargetEventInfo eventInfo)
+	public boolean condition(TargetEventInfo eventInfo)
 	{
 		if(entityReference.getEntity(eventInfo) != null)
 			return statusType.isTrue(materials, entityReference.getEntity(eventInfo));
@@ -119,7 +119,7 @@ public class EntityBlockStatus extends EntityConditionalStatement
 			for(BlockStatusType type : BlockStatusType.values())
 				if(matcher.group(3).equalsIgnoreCase(type.name()))
 						statusType = type;
-			HashSet<Material> materials = new HashSet<Material>(ModDamage.matchMaterialAlias(matcher.group(4)));
+			HashSet<Material> materials = new HashSet<Material>(AliasManager.matchMaterialAlias(matcher.group(4)));
 			if(EntityReference.isValid(matcher.group(2)) && statusType != null)
 				return new EntityBlockStatus(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), statusType, materials);
 			return null;
