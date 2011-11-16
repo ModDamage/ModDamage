@@ -135,7 +135,7 @@ enum ModDamageEventHandler
 			}
 		}
 	
-	////FOOD ////
+	//// FOOD ////
 		@Override
 		public void onEntityRegainHealth(EntityRegainHealthEvent event)
 		{

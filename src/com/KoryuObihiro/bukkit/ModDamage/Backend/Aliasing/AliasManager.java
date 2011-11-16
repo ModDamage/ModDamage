@@ -45,7 +45,7 @@ public enum AliasManager
 		AliasManager.state = state;
 	}
 
-	private static final String nodeName = "Aliases";
+	public static final String nodeName = "Aliases";
 	public static void reload()
 	{
 		for(AliasManager aliasType : AliasManager.values())

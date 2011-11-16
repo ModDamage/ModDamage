@@ -34,11 +34,11 @@ public class Tag extends Routine
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("(\\w+)\\.(un)?tag\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(un)?tag\\.(\\w+)\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
-	{	
+	{
 		@Override
 		public Tag getNew(Matcher matcher)
 		{

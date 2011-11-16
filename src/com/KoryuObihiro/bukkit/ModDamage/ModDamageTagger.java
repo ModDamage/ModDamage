@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.Backend;
+package com.KoryuObihiro.bukkit.ModDamage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,9 +22,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.yaml.snakeyaml.Yaml;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+
 
 public class ModDamageTagger
 {
@@ -52,7 +52,7 @@ public class ModDamageTagger
 				if(!file.exists())
 				{
 					ModDamage.addToLogRecord(DebugSetting.NORMAL, "No tags file found at " + file.getAbsolutePath() + ", generating a new one...", LoadState.NOT_LOADED);
-					if(!file.createNewFile())
+					if(!file.getParentFile().mkdirs() && !file.createNewFile())
 						ModDamage.addToLogRecord(DebugSetting.QUIET, "Couldn't make new tags file! Tags will not have persistence between reloads.", LoadState.FAILURE);
 				}
 				reader = new FileInputStream(file);

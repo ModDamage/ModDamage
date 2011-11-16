@@ -8,4 +8,4 @@ commands:
   moddamage:
     aliases: [md]
     description:
-softdepend: [Multiverse-Core]
+softdepend: [Multiverse-Core, elRegions, WorldGuard, bPermissions, PermissionsBukkit, PermissionsEx]

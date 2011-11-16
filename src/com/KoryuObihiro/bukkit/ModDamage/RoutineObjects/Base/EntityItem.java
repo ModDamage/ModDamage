@@ -83,7 +83,7 @@ public class EntityItem extends Routine
 	}
 	
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
-	{	
+	{
 		@Override
 		public EntityItem getNew(Matcher matcher)
 		{
