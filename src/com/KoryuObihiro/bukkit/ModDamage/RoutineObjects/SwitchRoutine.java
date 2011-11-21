@@ -44,19 +44,15 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 		{
 			//get the case first, see if it refers to anything valid
 			CaseInfoClass matchedCase = matchCase(switchCase);
-			
-			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-			ModDamage.addToLogRecord(OutputPreset.INFO, " case: \"" + switchCase + "\"");
-
+			NestedRoutine.paddedLogRecord(OutputPreset.INFO, " case: \"" + switchCase + "\"");
 			//then grab the routines
 			List<Routine> routines = new ArrayList<Routine>();
-			if(!RoutineAliaser.parseRoutines(routines, rawSwitchStatements.get(switchCase)))
+			if(RoutineAliaser.parseRoutines(routines, rawSwitchStatements.get(switchCase)))
 			{
 				switchStatements.put(matchedCase, routines);
-				ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, " End case \"" + switchCase + "\"");
+				NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, " End case \"" + switchCase + "\"");
 			}	
-			else ModDamage.addToLogRecord(OutputPreset.FAILURE, " Invalid content in case \"" + switchCase + "\"");
-			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+			else NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, " Invalid content in case \"" + switchCase + "\"");
 			//Check if the case is valid
 			if(!caseIsSane(matchedCase))
 				caseFailed = true;
@@ -115,8 +111,7 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 			{
 				if(switchMatcher.matches())
 				{
-					ModDamage.addToLogRecord(OutputPreset.INFO, "Switch: \"" + switchMatcher.group() + "\"");
-					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+					NestedRoutine.paddedLogRecord(OutputPreset.INFO, "Switch: \"" + switchMatcher.group() + "\"");
 					for(Pattern pattern : registeredSwitchRoutines.keySet())
 					{
 						Matcher matcher = pattern.matcher(switchMatcher.group(1));
@@ -131,13 +126,17 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 								{
 									if(routine.isLoaded)
 									{
-										ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "End Switch \"" + switchMatcher.group() + "\"");
-										ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+										NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End Switch \"" + switchMatcher.group() + "\"");
 										return routine;
 									}
 									else 
+									{
+										ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+										ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid contents of Switch \"" + switchMatcher.group() + "\"");
 										for(String caseName : routine.failedCases)
 											ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: invalid case \"" + caseName + "\"");
+										ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+									}
 								}
 							}
 							else

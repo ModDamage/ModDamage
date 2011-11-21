@@ -54,4 +54,11 @@ public abstract class NestedRoutine extends Routine
 			return null;
 		}
 	}
+	
+	public static void paddedLogRecord(OutputPreset preset, String message)
+	{		
+		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+		ModDamage.addToLogRecord(preset, message);
+		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+	}
 }

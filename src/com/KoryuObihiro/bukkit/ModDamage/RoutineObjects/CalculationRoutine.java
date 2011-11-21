@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
@@ -68,25 +67,27 @@ abstract public class CalculationRoutine extends NestedRoutine
 		{
 			if(calculationMatcher.group() != null && nestedContent != null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Calculation: \"" + calculationMatcher.group() + "\"");
-				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+				NestedRoutine.paddedLogRecord(OutputPreset.INFO, "Calculation: \"" + calculationMatcher.group() + "\"");
 				for(Pattern pattern : registeredCalculations.keySet())
 				{
 					Matcher matcher = pattern.matcher(calculationMatcher.group());
 					if(matcher.matches())
 					{
 						List<Routine> routines = new ArrayList<Routine>();
-						if(!RoutineAliaser.parseRoutines(routines, nestedContent))
+						if(RoutineAliaser.parseRoutines(routines, nestedContent))
 						{
 							DynamicInteger match = DynamicInteger.getNew(routines);
-							ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "End Calculation \"" + matcher.group() + "\"");
+							NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End Calculation \"" + calculationMatcher.group() + "\"");
 							return registeredCalculations.get(pattern).getNew(matcher, match);
+						}
+						else
+						{
+							NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid content in Calculation \"" + calculationMatcher.group() + "\"");
+							return null;
 						}
 					}
 				}
-				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid Calculation \"" + calculationMatcher.group() + "\"");
+				NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid Calculation \"" + calculationMatcher.group() + "\"");
 			}
 			return null;
 		}

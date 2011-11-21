@@ -51,27 +51,39 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 	public LoadState load(LinkedHashMap<String, Object> rawAliases)
 	{
 		loadState = LoadState.NOT_LOADED;
-		this.loadState = LoadState.SUCCESS;
-		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, this.name + " aliases found, parsing...");
-		Set<String> foundAliases = rawAliases.keySet();
-		if(!foundAliases.isEmpty())
+		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+		if(rawAliases != null)
 		{
-			for(String alias : foundAliases)
-				this.put("_" + alias, getDefaultValue());
-			for(String alias : foundAliases)
+			Set<String> foundAliases = rawAliases.keySet();
+			if(!foundAliases.isEmpty())
 			{
-				if(rawAliases.get(alias) != null)
+				loadState = LoadState.SUCCESS;
+				ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, this.name + " aliases found, parsing...");
+				for(String alias : foundAliases)
+					this.put("_" + alias, getDefaultValue());
+				for(String alias : foundAliases)
 				{
-					if(!this.completeAlias("_" + alias, rawAliases.get(alias)))
-						this.loadState = LoadState.FAILURE;
+					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+					if(rawAliases.get(alias) != null)
+					{
+						if(!this.completeAlias("_" + alias, rawAliases.get(alias)))
+							this.loadState = LoadState.FAILURE;
+					}
+					else ModDamage.addToLogRecord(OutputPreset.WARNING, "Found empty " + this.name.toLowerCase() + " alias \"" + alias + "\", ignoring...");
 				}
-				else ModDamage.addToLogRecord(OutputPreset.WARNING, "Found empty " + this.name.toLowerCase() + " alias \"" + alias + "\", ignoring...");
+				for(String alias : this.keySet())
+					if(this.get(alias) == null)
+						this.remove(alias);
 			}
-			for(String alias : this.keySet())
-				if(this.get(alias) == null)
-					this.remove(alias);
+			else
+			{
+				ModDamage.addToLogRecord(OutputPreset.WARNING, "Found " + this.name + " aliases node, but it was empty.");
+			}
 		}
-		else ModDamage.addToLogRecord(OutputPreset.WARNING, "No " + this.name + " aliases node found.");
+		else
+		{
+			ModDamage.addToLogRecord(OutputPreset.WARNING, "No " + this.name + " aliases node found.");
+		}
 		return loadState;	
 	}
 	

@@ -46,7 +46,9 @@ enum ModDamageEventHandler
 	
 	protected static void reload()
 	{
+		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading routines...");
+		state = LoadState.NOT_LOADED;
 		ModDamage.changeIndentation(true);
 		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
 		{
@@ -54,6 +56,7 @@ enum ModDamageEventHandler
 			Object nestedContent = ModDamage.getPluginConfiguration().getConfigMap().get(PluginConfiguration.getCaseInsensitiveKey(ModDamage.getPluginConfiguration().getConfigMap(), eventType.name()));//XXX This is nasty. Change it.
 			if(nestedContent != null)
 			{
+				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 				ModDamage.addToLogRecord(OutputPreset.INFO, eventType.name() + " configuration:");
 				List<Routine> routines = new ArrayList<Routine>();
 				eventType.specificLoadState = RoutineAliaser.parseRoutines(routines, nestedContent)?LoadState.SUCCESS:LoadState.FAILURE;
@@ -61,6 +64,7 @@ enum ModDamageEventHandler
 					eventType.routines.addAll(routines);
 			}
 			else eventType.specificLoadState = LoadState.NOT_LOADED;
+			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 			switch(eventType.specificLoadState)
 			{
 				case NOT_LOADED:
@@ -76,6 +80,7 @@ enum ModDamageEventHandler
 			state = LoadState.combineStates(state, eventType.specificLoadState);
 		}
 		ModDamage.changeIndentation(false);
+		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		switch(state)
 		{
 			case NOT_LOADED:
@@ -102,7 +107,7 @@ enum ModDamageEventHandler
 			if(ModDamage.isEnabled)
 			{
 				Player player = event.getPlayer();
-				TargetEventInfo eventInfo = new TargetEventInfo(player, ModDamageElement.PLAYER, player.getHealth());
+				TargetEventInfo eventInfo = new TargetEventInfo(player, ModDamageElement.PLAYER, player.getMaxHealth());
 				Spawn.runRoutines(eventInfo);
 				player.setHealth(eventInfo.eventValue);
 			}

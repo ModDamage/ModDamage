@@ -9,10 +9,10 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 
-public class WorldEnvironment extends ConditionalStatement 
+public class EventEnvironment extends ConditionalStatement 
 {
 	protected final Environment environment;
-	public WorldEnvironment(boolean inverted, Environment environment)
+	public EventEnvironment(boolean inverted, Environment environment)
 	{
 		super(inverted);
 		this.environment = environment;
@@ -28,11 +28,11 @@ public class WorldEnvironment extends ConditionalStatement
 	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
 	{	
 		@Override
-		public WorldEnvironment getNew(Matcher matcher)
+		public EventEnvironment getNew(Matcher matcher)
 		{
 			Environment environment = Environment.valueOf(matcher.group(2).toUpperCase());
 			if(environment != null)
-				return new WorldEnvironment(matcher.group(1).equalsIgnoreCase("!"), environment);
+				return new EventEnvironment(matcher.group(1).equalsIgnoreCase("!"), environment);
 			return null;
 		}
 	}

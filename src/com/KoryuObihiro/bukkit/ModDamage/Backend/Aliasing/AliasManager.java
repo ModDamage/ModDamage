@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Biome;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
@@ -37,43 +38,39 @@ public enum AliasManager
 	
 	public static LoadState getState(){ return state;}
 
-	public static void setState(LoadState state)
-	{
-		AliasManager.state = state;
-	}
-
 	public static final String nodeName = "Aliases";
 	public static void reload()
 	{
 		for(AliasManager aliasType : AliasManager.values())
 		{
 			aliasType.aliaser.clear();
+			state = LoadState.NOT_LOADED;
 			aliasType.specificLoadState = LoadState.NOT_LOADED;
 		}
+		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading aliases...");
 
 		for(String configKeys : ModDamage.getPluginConfiguration().getConfigMap().keySet())
 			if(configKeys.equalsIgnoreCase(nodeName))
 			{
 				ModDamage.changeIndentation(true);
-				LinkedHashMap<String, Object> aliasesNode = ModDamage.getPluginConfiguration().castToStringMap(nodeName, ModDamage.getPluginConfiguration().getConfigMap().get(nodeName));
-				if(aliasesNode != null)
+				LinkedHashMap<String, Object> aliasesMap = ModDamage.getPluginConfiguration().castToStringMap(nodeName, ModDamage.getPluginConfiguration().getConfigMap().get(nodeName));
+				if(aliasesMap != null)
 				{
-					LinkedHashMap<String, Object> rawAliases;
-					for(AliasManager aliasType : AliasManager.values())	
-						for(String key : aliasesNode.keySet())
+					LinkedHashMap<String, Object> rawAliases = null;
+					for(AliasManager aliasType : AliasManager.values())
+					{
+						PluginConfiguration.getCaseInsensitiveKey(aliasesMap, aliasType.name());
+						for(String key : aliasesMap.keySet())
 							if(key.equalsIgnoreCase(aliasType.name()))
-							{
-								rawAliases = ModDamage.getPluginConfiguration().castToStringMap(aliasType.name(), aliasesNode.get(key));
-								if(rawAliases != null)
-								{
-									aliasType.specificLoadState = aliasType.aliaser.load(rawAliases);
-									setState(LoadState.combineStates(getState(), aliasType.getSpecificLoadState()));
-								}
-								break;
-							}
+								rawAliases = ModDamage.getPluginConfiguration().castToStringMap(aliasType.name(), aliasesMap.get(key));
+						aliasType.specificLoadState = aliasType.aliaser.load(rawAliases);
+						state = LoadState.combineStates(state, aliasType.getSpecificLoadState());
+						rawAliases = null;
+					}
 				}
 				ModDamage.changeIndentation(false);
+				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 				switch(state)
 				{
 					case NOT_LOADED:
@@ -89,6 +86,7 @@ public enum AliasManager
 				return;
 				//TODO Add log recording
 			}
+		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		ModDamage.addToLogRecord(OutputPreset.WARNING, "No Aliases node found.");
 	}
 

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
@@ -29,7 +28,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerGroupE
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerHasItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerPermissionEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.WorldEnvironment;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventEnvironment;
 
 public class ConditionalRoutine extends NestedRoutine
 {
@@ -96,7 +95,7 @@ public class ConditionalRoutine extends NestedRoutine
 		EventHasRangedElement.register();
 		EventWorldEvaluation.register();
 		//World
-		WorldEnvironment.register();
+		EventEnvironment.register();
 		//Server
 		ServerOnlineMode.register();
 	}
@@ -108,28 +107,26 @@ public class ConditionalRoutine extends NestedRoutine
 		{
 			if(matcher != null && nestedContent != null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Conditional: \"" + matcher.group() + "\"");
-				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-				
+				NestedRoutine.paddedLogRecord(OutputPreset.INFO, "Conditional: \"" + matcher.group() + "\"");
 				List<ConditionalStatement> statements = new ArrayList<ConditionalStatement>();
 				List<LogicalOperator> operations = new ArrayList<LogicalOperator>();
 				operations.add(LogicalOperator.OR);
-				
 				matcher.matches();
 				try
 				{
-					boolean couldReadStatements = ParentheticalParser.tokenize(matcher.group(2), conditionalStatementPart, LogicalOperator.logicalOperationPart, ConditionalRoutine.class.getMethod("getNewTerm", String.class), LogicalOperator.class.getMethod("match", String.class), statements, operations);
-					List<Routine> routines = new ArrayList<Routine>();
-					if(RoutineAliaser.parseRoutines(routines, nestedContent) && couldReadStatements)
+					if(ParentheticalParser.tokenize(matcher.group(2), conditionalStatementPart, LogicalOperator.logicalOperationPart, ConditionalRoutine.class.getMethod("getNewTerm", String.class), LogicalOperator.class.getMethod("match", String.class), statements, operations))
 					{
-						ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-						ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "End Conditional \"" + matcher.group() + "\"");
-						return new ConditionalRoutine(matcher.group(), !matcher.group(1).equalsIgnoreCase("if"), statements, operations, routines);
+						List<Routine> routines = new ArrayList<Routine>();
+						if(RoutineAliaser.parseRoutines(routines, nestedContent))
+						{
+							NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End Conditional \"" + matcher.group() + "\"");
+							return new ConditionalRoutine(matcher.group(), !matcher.group(1).equalsIgnoreCase("if"), statements, operations, routines);
+						}
+						else NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid Conditional \"" + matcher.group() + "\"");
 					}
+					else NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid Conditional \"" + matcher.group() + "\"");
 				}
 				catch (Exception e){ e.printStackTrace();}
-				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid Conditional \"" + matcher.group() + "\"");
 			}
 			return null;
 		}

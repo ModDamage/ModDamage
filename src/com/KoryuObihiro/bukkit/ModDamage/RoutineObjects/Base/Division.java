@@ -35,7 +35,7 @@ public class Division extends Routine
 			DynamicInteger match = DynamicInteger.getNew(matcher.group(2));
 			if(match != null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Division: " + matcher.group(1));
+				ModDamage.addToLogRecord(OutputPreset.INFO, "Division" + (matcher.group(1) != null?" (additive)":"") + ": " + matcher.group(2));
 				return new Division(matcher.group(), match, matcher.group(1) != null);
 			}
 			return null;
