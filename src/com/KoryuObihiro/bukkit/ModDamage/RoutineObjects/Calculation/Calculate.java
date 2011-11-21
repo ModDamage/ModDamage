@@ -1,12 +1,12 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
@@ -40,17 +40,20 @@ public class Calculate extends NestedRoutine
 		@Override
 		public Calculate getNew(Matcher matcher, Object nestedContent)
 		{
-			ModDamage.addToLogRecord(DebugSetting.NORMAL, "Nested: Calculate", LoadState.SUCCESS);
-			ModDamage.indentation++;
-			LoadState[] stateMachine = { LoadState.SUCCESS };
-			List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
-			ModDamage.indentation--;
-			if(stateMachine[0].equals(LoadState.SUCCESS))
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Nested: Calculate");
+			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+			List<Routine> routines = new ArrayList<Routine>();
+			if(!RoutineAliaser.parseRoutines(routines, nestedContent))
 			{
-				ModDamage.addToLogRecord(DebugSetting.NORMAL, "End Calculate", LoadState.SUCCESS);
+				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+				ModDamage.addToLogRecord(OutputPreset.INFO, "End Calculate");
 				return new Calculate(matcher.group(), routines);
 			}
-			else ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: bad routines under Calculate", LoadState.SUCCESS);
+			else
+			{
+				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: bad routines under Calculate");
+			}
 			return null;
 		}
 	}

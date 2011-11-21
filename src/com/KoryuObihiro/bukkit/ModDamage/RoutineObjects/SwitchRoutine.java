@@ -11,13 +11,13 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.DebugSetting;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions.PlayerGroupSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerGroupSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ConditionSwitch;
@@ -45,20 +45,18 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 			//get the case first, see if it refers to anything valid
 			CaseInfoClass matchedCase = matchCase(switchCase);
 			
-			ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-			ModDamage.addToLogRecord(DebugSetting.NORMAL, " case: \"" + switchCase + "\"", LoadState.SUCCESS);
+			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+			ModDamage.addToLogRecord(OutputPreset.INFO, " case: \"" + switchCase + "\"");
 
 			//then grab the routines
-			ModDamage.indentation++;
-			LoadState[] stateMachine = { LoadState.SUCCESS };
-			List<Routine> routines = RoutineAliaser.parse(rawSwitchStatements.get(switchCase), stateMachine);
-			ModDamage.indentation--;
-			switchStatements.put(matchedCase, stateMachine[0].equals(LoadState.FAILURE)?null:routines);
-			
-			if(stateMachine[0].equals(LoadState.SUCCESS))
-				ModDamage.addToLogRecord(DebugSetting.VERBOSE, " End case \"" + switchCase + "\"", LoadState.SUCCESS);
-			else ModDamage.addToLogRecord(DebugSetting.NORMAL, " Invalid content in case \"" + switchCase + "\"", LoadState.SUCCESS);
-			ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+			List<Routine> routines = new ArrayList<Routine>();
+			if(!RoutineAliaser.parseRoutines(routines, rawSwitchStatements.get(switchCase)))
+			{
+				switchStatements.put(matchedCase, routines);
+				ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, " End case \"" + switchCase + "\"");
+			}	
+			else ModDamage.addToLogRecord(OutputPreset.FAILURE, " Invalid content in case \"" + switchCase + "\"");
+			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 			//Check if the case is valid
 			if(!caseIsSane(matchedCase))
 				caseFailed = true;
@@ -117,8 +115,8 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 			{
 				if(switchMatcher.matches())
 				{
-					ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-					ModDamage.addToLogRecord(DebugSetting.NORMAL, "Switch: \"" + switchMatcher.group() + "\"", LoadState.SUCCESS);
+					ModDamage.addToLogRecord(OutputPreset.INFO, "Switch: \"" + switchMatcher.group() + "\"");
+					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 					for(Pattern pattern : registeredSwitchRoutines.keySet())
 					{
 						Matcher matcher = pattern.matcher(switchMatcher.group(1));
@@ -133,25 +131,25 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 								{
 									if(routine.isLoaded)
 									{
-										ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Switch \"" + switchMatcher.group() + "\"", LoadState.SUCCESS);
-										ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+										ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "End Switch \"" + switchMatcher.group() + "\"");
+										ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 										return routine;
 									}
 									else 
 										for(String caseName : routine.failedCases)
-											ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid case \"" + caseName + "\"", LoadState.FAILURE);
+											ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: invalid case \"" + caseName + "\"");
 								}
 							}
 							else
 							{
-								ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: unexpected nested content " + nestedContent.toString() + " in Switch routine \"" + switchMatcher + "\"", LoadState.FAILURE);
-								ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unexpected nested content " + nestedContent.toString() + " in Switch routine \"" + switchMatcher + "\"");
+								ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 							}
 							break;
 						}
 					}
 				}
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid Switch \"" + switchMatcher.group() + "\"" + (ModDamage.getDebugSetting().equals(DebugSetting.VERBOSE)?"\n":""), LoadState.FAILURE);
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: invalid Switch \"" + switchMatcher.group() + "\"" + (ModDamage.getDebugSetting().equals(DebugSetting.VERBOSE)?"\n":""));
 			}
 			return null;
 		}

@@ -1,9 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo.EventInfoType;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicEntityString.EntityStringPropertyMatch;
 
 public class DynamicString
@@ -25,14 +23,6 @@ public class DynamicString
 			protected String getString(TargetEventInfo eventInfo)
 			{
 				return eventInfo.world.getEnvironment().name();
-			}
-		},
-		Event_RangedElement
-		{
-			@Override
-			protected String getString(TargetEventInfo eventInfo)
-			{
-				return (eventInfo.type.equals(EventInfoType.PROJECTILE) && ((ProjectileEventInfo)eventInfo).rangedElement != null?((ProjectileEventInfo)eventInfo).rangedElement.name():null).toString();//FIXME null.toString() does what?
 			}
 		};
 		

@@ -5,8 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 
@@ -24,9 +23,9 @@ public class ElementAliaser extends CollectionAliaser<ModDamageElement>
 		ModDamageElement value = matchNonAlias(key);
 		if(!value.equals(ModDamageElement.UNKNOWN)) return Arrays.asList(value);
 		{
-			ModDamage.indentation++;
-			ModDamage.addToLogRecord(DebugSetting.QUIET, "No matching " + name + " alias or value \"" + key + "\"", LoadState.FAILURE);
-			ModDamage.indentation--;
+			ModDamage.changeIndentation(true);
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "No matching " + name + " alias or value \"" + key + "\"");
+			ModDamage.changeIndentation(false);
 		}
 		return new ArrayList<ModDamageElement>();
 	}

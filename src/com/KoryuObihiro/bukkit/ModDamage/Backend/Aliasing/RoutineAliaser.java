@@ -6,8 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
@@ -17,30 +16,31 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 	private static final long serialVersionUID = -2744471820826321788L;
 	public RoutineAliaser(){ super("Routine");}
 	
-	public boolean completeAlias(String key, List<?> values)
+	@Override
+	public boolean completeAlias(String key, Object values)
 	{
-		key = "_" + key;
-		ModDamage.addToLogRecord(DebugSetting.NORMAL, "Adding " + name + " alias \"" + key + "\"", LoadState.SUCCESS);
-		
-		ModDamage.indentation++;
-		if(values.toString().contains(key))
-			ModDamage.addToLogRecord(DebugSetting.NORMAL, "Warning: \"" + key + "\" is self-referential!", LoadState.NOT_LOADED);
-		LoadState[] addStateMachine = {LoadState.SUCCESS};
-		
-		ModDamage.indentation++;
-		List<Routine> matchedItems = parse(values, addStateMachine);
-		ModDamage.indentation--;
-		
-		if(!addStateMachine[0].equals(LoadState.SUCCESS))
+		if(values instanceof List)
 		{
-			ModDamage.addToLogRecord(DebugSetting.QUIET, "Error adding value " + values.toString(), loadState);
-			ModDamage.indentation--;
-			return false;
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Adding " + name + " alias \"" + key + "\"");
+			if(values.toString().contains(key))
+			{
+				ModDamage.changeIndentation(true);
+				ModDamage.addToLogRecord(OutputPreset.WARNING, "Warning: \"" + key + "\" is self-referential!");
+				ModDamage.changeIndentation(false);
+			}
+			
+			List<Routine> matchedItems = new ArrayList<Routine>();
+			if(!parseRoutines(matchedItems, values))
+			{
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error adding value " + values.toString());
+				return false;
+			}
+			
+			this.get(key).addAll(matchedItems);
+			return true;
 		}
-		ModDamage.indentation--;
-		
-		this.get(key).addAll(matchedItems);
-		return true;
+		ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error adding alias \"" + key + "\" - unrecognized value \"" + values.toString() + "\"");
+		return false;
 	}
 
 	@Override
@@ -54,11 +54,17 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 	protected Routine matchNonAlias(String key){ return null;}
 	
 	//Parse routine strings recursively
-	@SuppressWarnings("unchecked")
-	public static List<Routine> parse(Object object, LoadState[] resultingState)
+	public static boolean parseRoutines(List<Routine> target, Object object)
 	{
-		LoadState currentState = LoadState.SUCCESS;
-		List<Routine> routines = new ArrayList<Routine>();
+		ModDamage.changeIndentation(true);
+		boolean returnResult = recursivelyParseRoutines(target, object);
+		ModDamage.changeIndentation(false);
+		return returnResult;
+	}
+	@SuppressWarnings("unchecked")
+	private static boolean recursivelyParseRoutines(List<Routine> target, Object object)
+	{
+		boolean encounteredError = false;
 		if(object != null)
 		{
 			if(object instanceof String)
@@ -68,19 +74,23 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 					Collection<Routine> aliasedRoutines = AliasManager.matchRoutineAlias((String)object);
 					if(aliasedRoutines != null)
 					{
-						ModDamage.addToLogRecord(DebugSetting.NORMAL, "Alias: \"" + ((String)object).substring(1) + "\"", LoadState.SUCCESS);
-						routines.addAll(aliasedRoutines);
+						ModDamage.addToLogRecord(OutputPreset.INFO, "Alias: \"" + ((String)object).substring(1) + "\"");
+						target.addAll(aliasedRoutines);
 					}
-					else ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid routine alias " + ((String)object).substring(1), LoadState.FAILURE);
-				}
-				if(routines.isEmpty())
-				{
-					Routine routine = Routine.getNew((String)object);
-					if(routine != null) routines.add(routine);
 					else
 					{
-						currentState = LoadState.FAILURE;
-						ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid base routine " + " \"" + (String)object + "\"", currentState);
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid routine alias " + ((String)object).substring(1));
+						encounteredError = true;
+					}
+				}
+				else
+				{
+					Routine routine = Routine.getNew((String)object);
+					if(routine != null) target.add(routine);
+					else
+					{
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid base routine " + " \"" + (String)object + "\"");
+						encounteredError = true;
 					}
 				}
 			}
@@ -92,41 +102,33 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 					{
 						Object nestedContent = someHashMap.get(key);
 						NestedRoutine routine = NestedRoutine.getNew(key, nestedContent);
-						if(routine != null) routines.add(routine);
-						else currentState = LoadState.FAILURE;
+						if(routine != null) target.add(routine);
+						else
+						{
+							encounteredError = true;
+							break;
+						}
 					}
-				else
-				{
-					ModDamage.addToLogRecord(DebugSetting.QUIET, "Parse error: bad nested routine \"" + someHashMap.toString() + "\"", LoadState.FAILURE);
-					currentState = LoadState.FAILURE;			
-				}
+				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: bad nested routine \"" + someHashMap.toString() + "\"");
 			}
 			else if(object instanceof List)
 				for(Object nestedObject : (List<Object>)object)
 				{
-					LoadState[] stateMachine = { LoadState.SUCCESS };
-					List<Routine> someRoutines = parse(nestedObject, stateMachine);
-					if(stateMachine[0].equals(LoadState.SUCCESS))
-						routines.addAll(someRoutines);
-					else currentState = LoadState.FAILURE;
+					if(!recursivelyParseRoutines(target, nestedObject))
+						encounteredError = true;
 				}
 			else
 			{
-				currentState = LoadState.FAILURE;
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "Parse error: did not recognize object " + object.toString() + " of type " + object.getClass().getName(), LoadState.FAILURE);
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: did not recognize object " + object.toString() + " of type " + object.getClass().getName());
+				encounteredError = true;
 			}
 		}
 		else
 		{
-			currentState = LoadState.FAILURE;
-			ModDamage.addToLogRecord(DebugSetting.QUIET, "Parse error: null", currentState);
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: null");
+			encounteredError = true;
 		}
-		if(currentState.equals(LoadState.FAILURE) || routines.isEmpty())
-		{
-			resultingState[0] = LoadState.FAILURE;
-			routines.clear();
-		}
-		return routines;
+		return !encounteredError;
 	}
 
 	@Override

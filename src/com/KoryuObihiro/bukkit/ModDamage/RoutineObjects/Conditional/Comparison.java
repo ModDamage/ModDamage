@@ -4,8 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
@@ -36,7 +35,7 @@ public class Comparison extends ConditionalStatement
 			for(ComparisonType type : ComparisonType.values())
 				if(key.equalsIgnoreCase(type.name()))
 					return type;
-			ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid comparison \"" + key + "\"", LoadState.FAILURE);
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid comparison \"" + key + "\"");
 			return null;
 		}
 		public boolean compare(int operand1, int operand2)

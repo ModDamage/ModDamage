@@ -2,6 +2,7 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Blaze;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Cow;
@@ -9,15 +10,17 @@ import org.bukkit.entity.Creature;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Egg;
+import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Fish;
 import org.bukkit.entity.Flying;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Giant;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
+import org.bukkit.entity.MushroomCow;
+import org.bukkit.entity.NPC;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
@@ -26,14 +29,17 @@ import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Silverfish;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
+import org.bukkit.entity.SmallFireball;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Squid;
+import org.bukkit.entity.ThrownPotion;
+import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration;
 
 public enum ModDamageElement 
 {
@@ -45,7 +51,7 @@ public enum ModDamageElement
 				COW(ANIMAL, CreatureType.COW),
 				PIG(ANIMAL, CreatureType.PIG),
 				SHEEP(ANIMAL, CreatureType.SHEEP),
-				//SNOWGOLEM(ANIMAL),TODO Future release
+				//SNOWMAN(ANIMAL, CreatureType.SNOWMAN),//FIXME Not part of Bukkit yet?
 				SQUID(ANIMAL, CreatureType.SQUID),
 				WOLF(ANIMAL, CreatureType.WOLF),
 					WOLF_WILD(WOLF, CreatureType.WOLF),
@@ -55,20 +61,20 @@ public enum ModDamageElement
 			HUMAN(LIVING),
 				PLAYER(HUMAN),
 				NPC(HUMAN, CreatureType.MONSTER),//TODO Does this work?
-				//VILLAGER(HUMAN),TODO Future release
+					VILLAGER(NPC, CreatureType.VILLAGER),
 			
 			MOB(LIVING),
-				//BLAZE(MOB),TODO Future release
+				BLAZE(MOB, CreatureType.BLAZE),
 				CAVESPIDER(MOB, CreatureType.CAVE_SPIDER),
 				CREEPER(MOB, CreatureType.CREEPER),
 					CREEPER_CHARGED(CREEPER, CreatureType.CREEPER),
 					CREEPER_NORMAL(CREEPER, CreatureType.CREEPER),
-				//DRAGON(MOB),TODO Future release
+				ENDER_DRAGON(MOB, CreatureType.ENDER_DRAGON),
 				ENDERMAN(MOB, CreatureType.ENDERMAN),
 				GHAST(MOB, CreatureType.GHAST),
 				GIANT(MOB, CreatureType.GIANT),
 				//MAGMACUBE(MOB),TODO Future release
-				//MOOSHROM(MOB),TODO Future release
+				MUSHROOM_COW(MOB, CreatureType.MUSHROOM_COW),
 				SILVERFISH(MOB, CreatureType.SILVERFISH),
 				SKELETON(MOB, CreatureType.SKELETON),
 				SLIME(MOB, CreatureType.SLIME),
@@ -103,7 +109,9 @@ public enum ModDamageElement
 				ARROW(PROJECTILE),
 				EGG(PROJECTILE),
 				FIREBALL(PROJECTILE),
+					FIREBALL_SMALL(FIREBALL),
 				FISHINGROD(PROJECTILE),
+				POTION(PROJECTILE),
 				SNOWBALL(PROJECTILE),
 			
 			TRAP(NONLIVING),
@@ -171,11 +179,12 @@ public enum ModDamageElement
 	
 	public static ModDamageElement matchRangedElement(Projectile projectile)
 	{
-		if(projectile instanceof Arrow)		return ARROW;
-		if(projectile instanceof Egg)		return EGG;
-		if(projectile instanceof Fireball)	return FIREBALL;
-		if(projectile instanceof Fish)		return FISHINGROD; 
-		if(projectile instanceof Snowball)	return SNOWBALL;
+		if(projectile instanceof Arrow)			return ARROW;
+		if(projectile instanceof Egg)			return EGG;
+		if(projectile instanceof Fireball)		return projectile instanceof SmallFireball?FIREBALL_SMALL:FIREBALL;
+		if(projectile instanceof Fish)			return FISHINGROD; 
+		if(projectile instanceof Snowball)		return SNOWBALL;
+		if(projectile instanceof ThrownPotion)	return POTION;
 		return null;
 	}
 	
@@ -214,55 +223,55 @@ public enum ModDamageElement
 		{
 			if(entity instanceof Animals) 
 			{
-				if(entity instanceof Chicken) 	return CHICKEN;
-				if(entity instanceof Cow) 		return COW; 
-				if(entity instanceof Pig) 		return PIG;
-				//if(entity instanceof Mooshrom)	return MOOSHROM;
-				if(entity instanceof Sheep) 	return SHEEP;
-				//if(entity instanceof SnowGolem)	return SNOWGOLEM;
+				if(entity instanceof Chicken) 		return CHICKEN;
+				if(entity instanceof Cow) 			return COW; 
+				if(entity instanceof Pig) 			return PIG;
+				if(entity instanceof MushroomCow)	return MUSHROOM_COW;
+				if(entity instanceof Sheep) 		return SHEEP;
+				//if(entity instanceof Snowman)		return SNOWMAN; //FIXME Not part of Bukkit yet?
 				if(entity instanceof Wolf)
 				{
 					if(((Wolf)entity).getOwner() != null) return WOLF_TAME;
-					if(((Wolf)entity).isAngry()) return WOLF_ANGRY;
+					if(((Wolf)entity).isAngry()) 	return WOLF_ANGRY;
 					return WOLF_WILD;
 				}
 			}
 			if(entity instanceof Monster) 
 			{
-				if(entity instanceof CaveSpider)return CAVESPIDER;
-				if(entity instanceof Creeper)	return ((Creeper)entity).isPowered()?CREEPER_CHARGED:CREEPER_NORMAL;
-				//if(entity instanceof Dragon) return DRAGON;
-				if(entity instanceof Enderman)	return ENDERMAN;
-				if(entity instanceof Giant) 	return GIANT;
-				if(entity instanceof Silverfish)return SILVERFISH;
-				if(entity instanceof Skeleton)	return SKELETON;
+				if(entity instanceof CaveSpider)	return CAVESPIDER;
+				if(entity instanceof Creeper)		return ((Creeper)entity).isPowered()?CREEPER_CHARGED:CREEPER_NORMAL;
+				if(entity instanceof EnderDragon)	return ENDER_DRAGON;
+				if(entity instanceof Enderman)		return ENDERMAN;
+				if(entity instanceof Giant) 		return GIANT;
+				if(entity instanceof Silverfish)	return SILVERFISH;
+				if(entity instanceof Skeleton)		return SKELETON;
 				if(entity instanceof Spider)
 				{
 					if(entity.getPassenger() != null) return SPIDER_JOCKEY;
 					return SPIDER_RIDERLESS; 
 				}
-				if(entity instanceof Zombie) 	return (entity instanceof PigZombie?ZOMBIEPIGMAN:ZOMBIE);
+				if(entity instanceof Zombie) 		return (entity instanceof PigZombie?ZOMBIEPIGMAN:ZOMBIE);
 			}
 			//if(entity instanceof WaterMob) - Uncomment when there's more watermobs. :P
-				if(entity instanceof Squid) 	return SQUID;
+				if(entity instanceof Squid) 		return SQUID;
 		}
 		if(entity instanceof Flying) 
 		{
-			//if(entity instanceof Blaze)			return BLAZE;
-			//if(entity instanceof Dragon)			return DRAGON;
-			if(entity instanceof Ghast)			return GHAST;
+			if(entity instanceof Blaze)				return BLAZE;
+			if(entity instanceof Ghast)				return GHAST;
 		}
 			
-		if(entity instanceof HumanEntity)		return (entity instanceof Player)?PLAYER:NPC;
-		ModDamage.log.severe("[ModDamage] Uncaught mob type " + entity.getClass().getName() + " for an event!");
+		if(entity instanceof Player)				return PLAYER;
+		if(entity instanceof NPC)					return entity instanceof Villager?VILLAGER:NPC;//TODO Fix this if/when Villager is not the only kind of NPC.
+		PluginConfiguration.log.severe("[ModDamage] Uncaught mob type " + entity.getClass().getName() + " for an event!");
 		return UNKNOWN;
 	}
 	
 	public static ModDamageElement matchElement(String nodeName)
 	{
-		for(ModDamageElement element : values())
-			if(element.name().equalsIgnoreCase(nodeName))
-				return element;
+		ModDamageElement element = ModDamageElement.valueOf(nodeName.toUpperCase());
+		if(element != null)	
+			return element;
 		return UNKNOWN;
 	}
 }

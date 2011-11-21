@@ -5,8 +5,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 
 public class ParentheticalParser
 {
@@ -19,7 +18,7 @@ public class ParentheticalParser
 			{
 				boolean returnValue = doTokenize(input.toCharArray(), termRegex, operatorRegex, newTermMethod, newOperatorMethod, terms, operators);
 				if(!returnValue)
-					ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: \"" + input + "\" is not a valid expression.", LoadState.FAILURE);
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + input + "\" is not a valid expression.");
 				return returnValue;
 			}
 			catch(Exception e)
@@ -154,8 +153,8 @@ public class ParentheticalParser
 		return !failFlag;
 	}
 	
-	private static void logError(String message)//FIXME Add to ModDamage main?
+	private static void logError(String message)
 	{
-		ModDamage.addToLogRecord(DebugSetting.QUIET, "Parse error: " + message, LoadState.FAILURE);
+		ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: " + message);
 	}
 }

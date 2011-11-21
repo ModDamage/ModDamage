@@ -7,8 +7,7 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
@@ -79,7 +78,7 @@ public class DynamicInteger extends DynamicString
 	{
 		if(routines != null && !routines.isEmpty())
 			return new DynamicRoutineInteger(routines, false);
-		ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: attempted to use invalid routine list for a dynamic integer reference.", LoadState.FAILURE);//shouldn't happen
+		ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: attempted to use invalid routine list for a dynamic integer reference.");//shouldn't happen
 		return null;
 	}
 	
@@ -145,12 +144,12 @@ public class DynamicInteger extends DynamicString
 							{
 								DynamicPlayerInteger yayMatch = new DynamicPlayerInteger(EntityReference.match(matches[0]), match, isNegative);
 								if(yayMatch.propertyMatch.usesMcMMO && ExternalPluginManager.getMcMMOPlugin() == null)
-									ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: attempted to use McMMO-dependent player property without McMMO.", LoadState.FAILURE);
+									ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: attempted to use McMMO-dependent player property without McMMO.");
 								else return yayMatch;
 							}
 					}
 				}
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "Warning: unrecognized integer reference \"" + string + "\".", LoadState.FAILURE);
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Warning: unrecognized integer reference \"" + string + "\".");
 			}
 		}
 		return null;

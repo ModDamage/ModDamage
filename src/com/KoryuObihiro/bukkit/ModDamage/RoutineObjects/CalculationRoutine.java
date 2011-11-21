@@ -1,13 +1,13 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
@@ -44,7 +44,6 @@ abstract public class CalculationRoutine extends NestedRoutine
 	
 	public static void register()
 	{
-		//Routine.registerBase(CalculationRoutine.class, calculationPattern); FIXME 0.9.6
 		registeredCalculations.clear();
 		NestedRoutine.registerRoutine(calculationPattern, new RoutineBuilder());
 		registeredCalculations.clear();
@@ -69,28 +68,25 @@ abstract public class CalculationRoutine extends NestedRoutine
 		{
 			if(calculationMatcher.group() != null && nestedContent != null)
 			{
-				ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Calculation: \"" + calculationMatcher.group() + "\"", LoadState.SUCCESS);
+				ModDamage.addToLogRecord(OutputPreset.INFO, "Calculation: \"" + calculationMatcher.group() + "\"");
+				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 				for(Pattern pattern : registeredCalculations.keySet())
 				{
 					Matcher matcher = pattern.matcher(calculationMatcher.group());
 					if(matcher.matches())
 					{
-						ModDamage.indentation++;
-						LoadState[] stateMachine = { LoadState.SUCCESS };
-						List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
-						ModDamage.indentation--;
-						if(!stateMachine[0].equals(LoadState.FAILURE))
+						List<Routine> routines = new ArrayList<Routine>();
+						if(!RoutineAliaser.parseRoutines(routines, nestedContent))
 						{
 							DynamicInteger match = DynamicInteger.getNew(routines);
-							ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Calculation \"" + matcher.group() + "\"", LoadState.SUCCESS);
-							ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+							ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "End Calculation \"" + matcher.group() + "\"");
 							return registeredCalculations.get(pattern).getNew(matcher, match);
 						}
 					}
 				}
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid Calculation \"" + calculationMatcher.group() + "\"", LoadState.FAILURE);
-				ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid Calculation \"" + calculationMatcher.group() + "\"");
 			}
 			return null;
 		}

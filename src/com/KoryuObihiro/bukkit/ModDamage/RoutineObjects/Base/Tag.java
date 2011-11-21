@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class Tag extends Routine
@@ -43,7 +44,10 @@ public class Tag extends Routine
 		public Tag getNew(Matcher matcher)
 		{
 			if(EntityReference.isValid(matcher.group(2)))
+			{
+				ModDamage.addToLogRecord(OutputPreset.INFO, (matcher.group(1) == null?"Untag":"Tag") + ": " + matcher.group(2) + ", " + matcher.group(3));
 				return new Tag(matcher.group(), matcher.group(3).toLowerCase(), EntityReference.match(matcher.group(2)), matcher.group(1) == null);
+			}
 			return null;
 		}
 	}

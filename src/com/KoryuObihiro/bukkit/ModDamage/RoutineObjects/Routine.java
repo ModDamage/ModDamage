@@ -5,8 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRoll;
@@ -17,6 +16,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Tag;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Delay;
 
 abstract public class Routine
 {
@@ -54,7 +54,7 @@ abstract public class Routine
 	protected static <BuilderClass> void registerRoutine(HashMap<Pattern, BuilderClass> registry, Pattern pattern, BuilderClass builder)
 	{
 		if(pattern != null && builder != null) registry.put(pattern, builder);
-		else ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: could not load builder for the " + builder.getClass().getEnclosingClass().getSimpleName() + " routine.", LoadState.FAILURE);
+		else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: could not load builder for the " + builder.getClass().getEnclosingClass().getSimpleName() + " routine.");
 	}
 	
 	public static Routine getNew(String string)
@@ -74,7 +74,7 @@ abstract public class Routine
 				if(matcher.matches())
 					return registeredBaseRoutines.get(pattern).getNew(matcher);
 			}
-			ModDamage.addToLogRecord(DebugSetting.QUIET, " No match found for nested routine \"" + anyMatcher.group() + "\"", LoadState.FAILURE);		
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for nested routine \"" + anyMatcher.group() + "\"");
 			return null;
 		}
 	}

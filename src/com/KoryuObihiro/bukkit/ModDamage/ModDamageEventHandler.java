@@ -20,8 +20,8 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.AttackerEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ProjectileEventInfo;
@@ -46,42 +46,50 @@ enum ModDamageEventHandler
 	
 	protected static void reload()
 	{
-		ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Loading routines...", LoadState.SUCCESS);
-		ModDamage.indentation++;
+		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading routines...");
+		ModDamage.changeIndentation(true);
 		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
 		{
 			eventType.routines.clear();
-			ModDamage.indentation++;
-			Object nestedContent = ModDamage.getConfigMap().get(ConfigLibrary.getCaseInsensitiveKey(ModDamage.getConfigMap(), eventType.name()));
+			ModDamage.changeIndentation(true);
+			Object nestedContent = ModDamage.getPluginConfiguration().getConfigMap().get(PluginConfiguration.getCaseInsensitiveKey(ModDamage.getPluginConfiguration().getConfigMap(), eventType.name()));//XXX This is nasty. Change it.
 			if(nestedContent != null)
 			{
-				ModDamage.addToLogRecord(DebugSetting.NORMAL, eventType.name() + " configuration:", LoadState.SUCCESS);
-				ModDamage.indentation++;
-				LoadState[] stateMachine = { LoadState.SUCCESS };//We use a single-cell array here because the enum is assigned later.
-				List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
-				ModDamage.indentation--;
-				eventType.specificLoadState = stateMachine[0];
-				
-				if(!routines.isEmpty() && !eventType.specificLoadState.equals(LoadState.FAILURE))
+				ModDamage.addToLogRecord(OutputPreset.INFO, eventType.name() + " configuration:");
+				List<Routine> routines = new ArrayList<Routine>();
+				eventType.specificLoadState = RoutineAliaser.parseRoutines(routines, nestedContent)?LoadState.SUCCESS:LoadState.FAILURE;
+				if(eventType.specificLoadState.equals(LoadState.SUCCESS))
 					eventType.routines.addAll(routines);
 			}
 			else eventType.specificLoadState = LoadState.NOT_LOADED;
 			switch(eventType.specificLoadState)
 			{
 				case NOT_LOADED:
-				ModDamage.addToLogRecord(DebugSetting.VERBOSE, eventType.name() + " configuration not found.", LoadState.NOT_LOADED);
+				ModDamage.addToLogRecord(OutputPreset.WARNING, eventType.name() + " configuration not found.");
 					break;
 				case FAILURE:
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "Error in " + eventType.name() + " configuration.", LoadState.FAILURE);
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error in " + eventType.name() + " configuration.");
 					break;
 				case SUCCESS:
-				ModDamage.addToLogRecord(DebugSetting.NORMAL, "End " + eventType.name() + " configuration.", LoadState.SUCCESS);
+				ModDamage.addToLogRecord(OutputPreset.INFO, "End " + eventType.name() + " configuration.");
 					break;
 			}
-			ModDamage.indentation--;
+			ModDamage.changeIndentation(false);
 			state = LoadState.combineStates(state, eventType.specificLoadState);
 		}
-		ModDamage.indentation--;
+		ModDamage.changeIndentation(false);
+		switch(state)
+		{
+			case NOT_LOADED:
+				ModDamage.addToLogRecord(OutputPreset.WARNING, "No routines loaded! Are any routines defined?");
+				break;
+			case FAILURE:
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "One or more errors occurred while loading routines.");
+				break;
+			case SUCCESS:
+				ModDamage.addToLogRecord(OutputPreset.INFO, "Routines loaded!");
+				break;
+		}
 	}
 	
 	static ModDamagePlayerListener playerListener = new ModDamagePlayerListener();
@@ -119,7 +127,7 @@ enum ModDamageEventHandler
 						event.setDamage(eventInfo.eventValue);
 						event.setCancelled(event.getDamage() <= 0);
 					}
-					else  ModDamage.log.severe("[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + "] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
+					else  PluginConfiguration.log.severe("[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + "] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
 				}
 		}
 		

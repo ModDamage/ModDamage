@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 
 import org.bukkit.World.Environment;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine.SingleValueSwitchRoutine;
@@ -19,7 +18,7 @@ public class EnvironmentSwitch extends SingleValueSwitchRoutine<Environment>
 	@Override
 	protected Environment getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.world.getEnvironment();}
 	@Override
-	protected Collection<Environment> matchCase(String switchCase){ return Arrays.asList(ModDamage.matchEnvironment(switchCase));}
+	protected Collection<Environment> matchCase(String switchCase){ return Arrays.asList(Environment.valueOf(switchCase.toUpperCase()));}
 	
 	public static void register()
 	{

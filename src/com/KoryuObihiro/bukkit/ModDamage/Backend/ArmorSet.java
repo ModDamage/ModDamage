@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 
 public class ArmorSet 
 {
@@ -28,7 +28,7 @@ public class ArmorSet
 		{
 			material = equipment[i].getType();
 			if(!ArmorSet.put(material, armorSet))
-				ModDamage.log.severe("Invalid ArmorSet loaded from player \"" + player.getName() + "\" while attempting to add material of type " + material.name() + "!");
+				PluginConfiguration.log.severe("Invalid ArmorSet loaded from player \"" + player.getName() + "\" while attempting to add material of type " + material.name() + "!");
 		}
 	}
 	
@@ -43,12 +43,12 @@ public class ArmorSet
 			if(!put(Material.matchMaterial(part), materials))
 			{
 				failFlag = true;
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "Unrecognized armor part \"" + part + "\"", LoadState.FAILURE);
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized armor part \"" + part + "\"");
 				break;
 			}
 		if(failFlag)
 		{
-			ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid ArmorSet \"" + armorSetString + "\"", LoadState.FAILURE);
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid ArmorSet \"" + armorSetString + "\"");
 			return null;
 		}
 		else return new ArmorSet(materials);

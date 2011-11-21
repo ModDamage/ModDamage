@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 
 import org.bukkit.World.Environment;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
@@ -31,7 +30,7 @@ public class WorldEnvironment extends ConditionalStatement
 		@Override
 		public WorldEnvironment getNew(Matcher matcher)
 		{
-			Environment environment = ModDamage.matchEnvironment(matcher.group(2));
+			Environment environment = Environment.valueOf(matcher.group(2).toUpperCase());
 			if(environment != null)
 				return new WorldEnvironment(matcher.group(1).equalsIgnoreCase("!"), environment);
 			return null;

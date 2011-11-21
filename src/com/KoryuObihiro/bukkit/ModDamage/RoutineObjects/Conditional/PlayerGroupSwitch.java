@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Permissions;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;

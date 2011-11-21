@@ -6,14 +6,14 @@ import java.util.LinkedHashMap;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 
-import com.KoryuObihiro.bukkit.ModDamage.ConfigLibrary;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageItemStack;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Message.DynamicMessage;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Message.DynamicMessage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public enum AliasManager
@@ -35,10 +35,7 @@ public enum AliasManager
 	private static LoadState state;
 	private AliasManager(Aliaser<?, ?> aliaser){ this.aliaser = aliaser;}
 	
-	public static LoadState getState()
-	{
-		return state;
-	}
+	public static LoadState getState(){ return state;}
 
 	public static void setState(LoadState state)
 	{
@@ -49,15 +46,14 @@ public enum AliasManager
 	public static void reload()
 	{
 		for(AliasManager aliasType : AliasManager.values())
-			aliasType.getAliaser().clear();
-		ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Loading aliases...", LoadState.SUCCESS);
+			aliasType.aliaser.clear();
+		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading aliases...");
 
-		ModDamage.indentation++;
-		for(String configKeys : ModDamage.getConfigMap().keySet())
+		for(String configKeys : ModDamage.getPluginConfiguration().getConfigMap().keySet())
 			if(configKeys.equalsIgnoreCase(nodeName))
 			{
-				//TODO get aliases node
-				LinkedHashMap<String, Object> aliasesNode = ConfigLibrary.getStringMap(nodeName, ModDamage.getConfigMap().get(nodeName));
+				ModDamage.changeIndentation(true);
+				LinkedHashMap<String, Object> aliasesNode = ModDamage.getPluginConfiguration().castToStringMap(nodeName, ModDamage.getPluginConfiguration().getConfigMap().get(nodeName));
 				if(aliasesNode != null)
 				{
 					LinkedHashMap<String, Object> rawAliases;
@@ -65,64 +61,55 @@ public enum AliasManager
 						for(String key : aliasesNode.keySet())
 							if(key.equalsIgnoreCase(aliasType.name()))
 							{
-								rawAliases = ConfigLibrary.getStringMap(aliasType.name(), aliasesNode.get(key));
-								aliasType.setSpecificLoadState(aliasType.getAliaser().load(rawAliases));
-								setState(LoadState.combineStates(getState(), aliasType.getSpecificLoadState()));
+								rawAliases = ModDamage.getPluginConfiguration().castToStringMap(aliasType.name(), aliasesNode.get(key));
+								if(rawAliases != null)
+								{
+									aliasType.specificLoadState = aliasType.aliaser.load(rawAliases);
+									setState(LoadState.combineStates(getState(), aliasType.getSpecificLoadState()));
+								}
 								break;
 							}
 				}
-				switch(getState())
+				ModDamage.changeIndentation(false);
+				switch(state)
 				{
 					case NOT_LOADED:
-						ModDamage.addToLogRecord(DebugSetting.VERBOSE, "No aliases loaded! Are any aliases defined?", getState());
+						ModDamage.addToLogRecord(OutputPreset.WARNING, "No aliases loaded! Are any aliases defined?");
 						break;
 					case FAILURE:
-						ModDamage.addToLogRecord(DebugSetting.QUIET, "One or more errors occurred while loading aliases.", getState());
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, "One or more errors occurred while loading aliases.");
 						break;
 					case SUCCESS:
-						ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Aliases loaded!", getState());
+						ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliases loaded!");
 						break;
 				}
 				return;
 				//TODO Add log recording
 			}
-		ModDamage.indentation--;
-		ModDamage.addToLogRecord(DebugSetting.VERBOSE, "No Aliases node found.", LoadState.NOT_LOADED);
-	}
-
-	public Aliaser<?, ?> getAliaser()
-	{
-		return aliaser;
+		ModDamage.addToLogRecord(OutputPreset.WARNING, "No Aliases node found.");
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Collection<ArmorSet> matchArmorAlias(String key){ return (Collection<ArmorSet>)AliasManager.Armor.getAliaser().matchAlias(key);}
+	public static Collection<ArmorSet> matchArmorAlias(String key){ return (Collection<ArmorSet>)AliasManager.Armor.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
-	public static Collection<Biome> matchBiomeAlias(String key){ return (Collection<Biome>)AliasManager.Biome.getAliaser().matchAlias(key);}
+	public static Collection<Biome> matchBiomeAlias(String key){ return (Collection<Biome>)AliasManager.Biome.aliaser.matchAlias(key);}
+	public static ConditionalStatement matchConditionAlias(String key){ return (ConditionalStatement)AliasManager.Condition.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
-	public static Collection<ModDamageElement> matchElementAlias(String key){ return (Collection<ModDamageElement>)AliasManager.Element.getAliaser().matchAlias(key);}
+	public static Collection<ModDamageElement> matchElementAlias(String key){ return (Collection<ModDamageElement>)AliasManager.Element.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
-	public static Collection<String> matchGroupAlias(String key){ return (Collection<String>)AliasManager.Group.getAliaser().matchAlias(key);}
+	public static Collection<String> matchGroupAlias(String key){ return (Collection<String>)AliasManager.Group.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
-	public static Collection<ModDamageItemStack> matchItemAlias(String key){ return (Collection<ModDamageItemStack>)AliasManager.Item.getAliaser().matchAlias(key);}
+	public static Collection<ModDamageItemStack> matchItemAlias(String key){ return (Collection<ModDamageItemStack>)AliasManager.Item.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
-	public static Collection<Material> matchMaterialAlias(String key){ return (Collection<Material>)AliasManager.Material.getAliaser().matchAlias(key);}
+	public static Collection<Material> matchMaterialAlias(String key){ return (Collection<Material>)AliasManager.Material.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
-	public static Collection<DynamicMessage> matchMessageAlias(String key){ return (Collection<DynamicMessage>)AliasManager.Message.getAliaser().matchAlias(key);}
+	public static Collection<DynamicMessage> matchMessageAlias(String key){ return (Collection<DynamicMessage>)AliasManager.Message.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
-	public static Collection<String> matchRegionAlias(String key){ return (Collection<String>)AliasManager.Region.getAliaser().matchAlias(key);}
+	public static Collection<String> matchRegionAlias(String key){ return (Collection<String>)AliasManager.Region.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
-	public static Collection<Routine> matchRoutineAlias(String key){ return (Collection<Routine>)AliasManager.Routine.getAliaser().matchAlias(key);}
+	public static Collection<Routine> matchRoutineAlias(String key){ return (Collection<Routine>)AliasManager.Routine.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
-	public static Collection<String> matchWorldAlias(String key){ return (Collection<String>)AliasManager.World.getAliaser().matchAlias(key);}
+	public static Collection<String> matchWorldAlias(String key){ return (Collection<String>)AliasManager.World.aliaser.matchAlias(key);}
 
-	public LoadState getSpecificLoadState()
-	{
-		return specificLoadState;
-	}
-
-	public void setSpecificLoadState(LoadState specificLoadState)
-	{
-		this.specificLoadState = specificLoadState;
-	}
+	public LoadState getSpecificLoadState(){ return specificLoadState;}
 }

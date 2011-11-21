@@ -4,10 +4,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class DiceRoll extends RandomRoutine 
@@ -48,13 +47,13 @@ public class DiceRoll extends RandomRoutine
 				DynamicInteger match = DynamicInteger.getNew(matcher.group(2));
 				if(match != null)
 				{
-					ModDamage.addToLogRecord(DebugSetting.NORMAL, "Dice Roll: " + matcher.group(1), LoadState.SUCCESS);
+					ModDamage.addToLogRecord(OutputPreset.INFO, "Dice Roll: " + matcher.group(1));
 					return new DiceRoll(matcher.group(), match);
 				}
 			}
 			else
 			{
-				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Dice Roll: roll existing", LoadState.SUCCESS);
+				ModDamage.addToLogRecord(OutputPreset.INFO, "Dice Roll: roll existing");
 				return new DiceRoll(matcher.group());
 			}
 			return null;

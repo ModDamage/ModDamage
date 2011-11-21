@@ -1,8 +1,8 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.SingleValueAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedConditionalStatement;
 
 public class ConditionAliaser extends SingleValueAliaser<ConditionalStatement> 
 {
@@ -11,7 +11,7 @@ public class ConditionAliaser extends SingleValueAliaser<ConditionalStatement>
 	public ConditionAliaser() {super("Condition");}
 
 	@Override
-	protected ConditionalStatement matchNonAlias(String key){ return ConditionalRoutine.getNewTerm("(" + key + ")");}
+	protected ConditionalStatement matchNonAlias(String key){ return NestedConditionalStatement.getNew("(" + key + ")");}
 
 	@Override
 	protected String getObjectName(ConditionalStatement statement){ return "\"" + statement.toString() + "\"";}

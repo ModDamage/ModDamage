@@ -9,13 +9,12 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageItemStack;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class EntityItem extends Routine
@@ -90,7 +89,7 @@ public class EntityItem extends Routine
 			Collection<ModDamageItemStack> items = AliasManager.matchItemAlias(matcher.group(3));
 			if(EntityReference.isValid(matcher.group(1)) && !items.isEmpty())
 			{
-				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Item (" + matcher.group(2).toLowerCase() + "): " + matcher.group(1) + ", " + matcher.group(3), LoadState.SUCCESS);
+				ModDamage.addToLogRecord(OutputPreset.INFO, "Item (" + matcher.group(2).toLowerCase() + "): " + matcher.group(1) + ", " + matcher.group(3));
 				return new EntityItem(matcher.group(), EntityReference.match(matcher.group(1)), ItemAction.valueOf(matcher.group(2).toUpperCase()), items);
 			}
 			return null;

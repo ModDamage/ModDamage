@@ -1,5 +1,6 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -7,11 +8,12 @@ import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class Delay extends NestedRoutine
 {	
@@ -40,22 +42,18 @@ public class Delay extends NestedRoutine
 			{
 				if(matcher.matches())
 				{
-					ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
-					ModDamage.addToLogRecord(DebugSetting.NORMAL, "Delay: \"" + matcher.group() + "\"", LoadState.SUCCESS);
-
-					ModDamage.indentation++;
-					LoadState[] stateMachine = { LoadState.SUCCESS };
-					List<Routine> routines = RoutineAliaser.parse(nestedContent, stateMachine);
-					ModDamage.indentation--;
-					if(!stateMachine[0].equals(LoadState.FAILURE))
+					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+					ModDamage.addToLogRecord(OutputPreset.INFO, "Delay: \"" + matcher.group() + "\"");
+					List<Routine> routines = new ArrayList<Routine>();
+					if(!RoutineAliaser.parseRoutines(routines, nestedContent))
 					{
 						DynamicInteger numberMatch = DynamicInteger.getNew(matcher.group(1));
 						if(numberMatch != null)
 						{
-							ModDamage.addToLogRecord(DebugSetting.VERBOSE, "End Delay \"" + matcher.group() + "\"\n", LoadState.SUCCESS);
+							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "End Delay \"" + matcher.group() + "\"\n");
 							return new Delay(matcher.group(), numberMatch, routines);
 						}
-						else ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid Delay \"" + matcher.group() + "\"", LoadState.FAILURE);
+						else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid Delay \"" + matcher.group() + "\"");
 					}
 				}
 			}

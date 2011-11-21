@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 abstract public class ConditionalStatement
@@ -71,7 +70,7 @@ abstract public class ConditionalStatement
 				for(LogicalOperator operation : LogicalOperator.values())
 					if(key.equalsIgnoreCase(operation.name()))
 						return operation;	
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "Invalid comparison operator \"" + key + "\"", LoadState.FAILURE);		
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid comparison operator \"" + key + "\"");		
 			}
 			return null;
 		}

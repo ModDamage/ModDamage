@@ -4,8 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
@@ -42,7 +41,7 @@ public final class ChangeProperty extends CalculationRoutine
 			{
 				if(targetPropertyMatch.isSettable())
 					return new ChangeProperty(matcher.group(), routines, targetPropertyMatch, matcher.group(2).equalsIgnoreCase("add"));
-				else ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: Property \"" + matcher.group(3) + "\" of \"" + matcher.group(1) + "\" is not modifiable." , LoadState.FAILURE);
+				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: Property \"" + matcher.group(3) + "\" of \"" + matcher.group(1) + "\" is not modifiable.");
 			}
 			return null;
 		}

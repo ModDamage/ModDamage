@@ -22,9 +22,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.yaml.snakeyaml.Yaml;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
-
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 
 public class ModDamageTagger
 {
@@ -51,9 +50,9 @@ public class ModDamageTagger
 			{
 				if(!file.exists())
 				{
-					ModDamage.addToLogRecord(DebugSetting.NORMAL, "No tags file found at " + file.getAbsolutePath() + ", generating a new one...", LoadState.NOT_LOADED);
+					ModDamage.addToLogRecord(OutputPreset.INFO, "No tags file found at " + file.getAbsolutePath() + ", generating a new one...");
 					if(!file.getParentFile().mkdirs() && !file.createNewFile())
-						ModDamage.addToLogRecord(DebugSetting.QUIET, "Couldn't make new tags file! Tags will not have persistence between reloads.", LoadState.FAILURE);
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Couldn't make new tags file! Tags will not have persistence between reloads.");
 				}
 				reader = new FileInputStream(file);
 				Object tagFileObject = yaml.load(reader);
@@ -77,18 +76,18 @@ public class ModDamageTagger
 									UUID uuid = UUID.fromString(uuidString);
 									if(uuid != null)
 										uuids.add(uuid);
-									else ModDamage.addToLogRecord(DebugSetting.QUIET, "Could not read entity ID " + uuidString + " for tag \"" + tag + "\".", LoadState.NOT_LOADED);
+									else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read entity ID " + uuidString + " for tag \"" + tag + "\".");
 								}
 								if(!uuids.isEmpty()) tags.put(tag, uuids);
-								else ModDamage.addToLogRecord(DebugSetting.VERBOSE, "No entity IDs added for tag \"" + tag + "\" in tags.yml.", LoadState.NOT_LOADED);
+								else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "No entity IDs added for tag \"" + tag + "\" in tags.yml.");
 							}
-							else ModDamage.addToLogRecord(DebugSetting.QUIET, "Could not read tag list for tag \"" + tag + "\".", LoadState.NOT_LOADED);
+							else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read tag list for tag \"" + tag + "\".");
 						}
 					}
-					else ModDamage.addToLogRecord(DebugSetting.QUIET, "Incorrectly formatted tags.yml. Starting with an empty tag list.", LoadState.NOT_LOADED);
+					else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Incorrectly formatted tags.yml. Starting with an empty tag list.");
 				}
 			}
-			catch(Exception e){ ModDamage.addToLogRecord(DebugSetting.NORMAL, "Error loading tags.yml.", LoadState.FAILURE);}
+			catch(Exception e){ ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error loading tags.yml.");}
 		}
 		else
 		{
@@ -129,7 +128,7 @@ public class ModDamageTagger
 			}
 			catch(ConcurrentModificationException e)
 			{
-				ModDamage.log.warning("Encountered a threading error with tags.");
+				PluginConfiguration.log.warning("Encountered a threading error with tags.");
 			}
 		}
 		protected abstract void doSomething();
@@ -161,7 +160,7 @@ public class ModDamageTagger
 				writer.write(yaml.dump(tempMap));
 				writer.close();
 			}
-			catch (IOException e){ ModDamage.log.warning("Error writing to " + file.getAbsolutePath() + "!");}
+			catch (IOException e){ PluginConfiguration.log.warning("Error writing to " + file.getAbsolutePath() + "!");}
 		}
 	}
 	
@@ -291,6 +290,4 @@ public class ModDamageTagger
 	 * @return LoadState reflecting the file's load state.
 	 */
 	public LoadState getLoadState(){ return file != null?LoadState.SUCCESS:LoadState.NOT_LOADED;}
-	
-	//TODO Design - Make removal tasks keep track of themselves, or serialize?
 }

@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 
 abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, StoredInfoClass>
 {
@@ -27,9 +27,9 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 			return this.get(key);
 		Type value = matchNonAlias(key);
 		if(value != null) return getNewStorageClass(value);
-		ModDamage.indentation++;
-		ModDamage.addToLogRecord(DebugSetting.QUIET, "No matching " + name + " alias or value \"" + key + "\"", LoadState.FAILURE);
-		ModDamage.indentation--;
+		ModDamage.changeIndentation(true);
+		ModDamage.addToLogRecord(OutputPreset.FAILURE, "No matching " + name + " alias or value \"" + key + "\"");
+		ModDamage.changeIndentation(false);
 		return getDefaultValue();
 	}
 
@@ -54,7 +54,7 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 	{
 		loadState = LoadState.NOT_LOADED;
 		this.loadState = LoadState.SUCCESS;
-		ModDamage.addToLogRecord(DebugSetting.VERBOSE, this.name + " aliases found, parsing...", LoadState.SUCCESS);
+		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, this.name + " aliases found, parsing...");
 		Set<String> foundAliases = rawAliases.keySet();
 		if(!foundAliases.isEmpty())
 		{
@@ -67,13 +67,13 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 					if(!this.completeAlias("_" + alias, rawAliases.get(alias)))
 						this.loadState = LoadState.FAILURE;
 				}
-				else ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Found empty " + this.name.toLowerCase() + " alias \"" + alias + "\", ignoring...", LoadState.NOT_LOADED);
+				else ModDamage.addToLogRecord(OutputPreset.WARNING, "Found empty " + this.name.toLowerCase() + " alias \"" + alias + "\", ignoring...");
 			}
 			for(String alias : this.keySet())
 				if(this.get(alias) == null)
 					this.remove(alias);
 		}
-		else ModDamage.addToLogRecord(DebugSetting.VERBOSE, "No " + this.name + " aliases node found.", LoadState.NOT_LOADED);
+		else ModDamage.addToLogRecord(OutputPreset.WARNING, "No " + this.name + " aliases node found.");
 		return loadState;	
 	}
 	
@@ -93,11 +93,11 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 				Type matchedItem = matchAlias((String)nestedContent);
 				if(matchedItem != null)
 				{
-					ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Adding value \"" + getObjectName(matchedItem) + "\"", LoadState.SUCCESS);
+					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding value \"" + getObjectName(matchedItem) + "\"");
 					this.put(key, matchedItem);
 				}
 			}
-			ModDamage.addToLogRecord(DebugSetting.QUIET, "Error adding alias \"" + key + "\" - unrecognized value \"" + nestedContent.toString() + "\"", LoadState.FAILURE);
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error adding alias \"" + key + "\" - unrecognized value \"" + nestedContent.toString() + "\"");
 			return false;
 		}
 
@@ -116,8 +116,8 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 			boolean failFlag = false;
 			HashSet<InfoType> matchedItems = new HashSet<InfoType>();
 			List<String> foundValues = new ArrayList<String>();
-			ModDamage.addToLogRecord(DebugSetting.NORMAL, "Adding " + name + " alias \"" + key + "\"", LoadState.SUCCESS);
-			ModDamage.indentation++;
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Adding " + name + " alias \"" + key + "\"");
+			ModDamage.changeIndentation(true);
 			if(nestedContent instanceof String)
 			{
 				foundValues.add(((String)nestedContent));
@@ -128,12 +128,12 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 				{
 					if(object instanceof String)
 						foundValues.add(((String)object));
-					else ModDamage.addToLogRecord(DebugSetting.QUIET, "Unrecognized object " + nestedContent.toString(), LoadState.FAILURE);
+					else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized object " + nestedContent.toString());
 				}
 			}
 			else
 			{
-				ModDamage.addToLogRecord(DebugSetting.QUIET, "Unrecognized object " + nestedContent.toString(), LoadState.FAILURE);
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized object " + nestedContent.toString());
 				return false;
 			}
 			
@@ -146,21 +146,21 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 					{
 						if(!matchedItems.contains(value))
 						{
-							ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Adding value \"" + getObjectName(value) + "\"", LoadState.SUCCESS);
+							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding value \"" + getObjectName(value) + "\"");
 							matchedItems.add(value);
 						}
-						else ModDamage.addToLogRecord(DebugSetting.NORMAL, "Warning: duplicate value \"" + getObjectName(value) + "\" - ignoring.", LoadState.NOT_LOADED);
+						else ModDamage.addToLogRecord(OutputPreset.WARNING, "Duplicate value \"" + getObjectName(value) + "\" - ignoring.");
 					}
 				}
 				else if(key.equalsIgnoreCase((String)listedValue))
-					ModDamage.addToLogRecord(DebugSetting.NORMAL, "Warning: self-referential value \"" + key + "\" - ignoring.", LoadState.NOT_LOADED);
+					ModDamage.addToLogRecord(OutputPreset.WARNING, "Self-referential value \"" + key + "\" - ignoring.");
 				else
 				{
-					ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: invalid value \"" + (String)listedValue + "\" - ignoring.", LoadState.FAILURE);
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: invalid value \"" + (String)listedValue + "\" - ignoring.");
 					failFlag = true;//debug output already handled in failed matchAlias
 				}
 			}
-			ModDamage.indentation--;
+			ModDamage.changeIndentation(false);
 			if(!failFlag) this.get(key).addAll(matchedItems);
 			return !failFlag;
 		}

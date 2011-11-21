@@ -4,10 +4,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.CalculationRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
@@ -39,7 +38,7 @@ public class Set extends CalculationRoutine
 			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1));
 			if(match1 != null)
 			{
-				ModDamage.addToLogRecord(DebugSetting.NORMAL, "Set: " + matcher.group(1), LoadState.SUCCESS);
+				ModDamage.addToLogRecord(OutputPreset.INFO, "Set: " + matcher.group(1));
 				return new Set(matcher.group(), match1);
 			}
 			return null;

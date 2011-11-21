@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.mcMMO;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation;
 
 import org.bukkit.entity.Player;
 

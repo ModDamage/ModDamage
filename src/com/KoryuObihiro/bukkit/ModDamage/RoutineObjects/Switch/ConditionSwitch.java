@@ -5,10 +5,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
-
+//FIXME Do I work?
 public class ConditionSwitch extends SwitchRoutine<TargetEventInfo, ConditionalStatement>
 {
 	public ConditionSwitch(String configString, LinkedHashMap<String, Object> switchLabels)
@@ -26,7 +26,7 @@ public class ConditionSwitch extends SwitchRoutine<TargetEventInfo, ConditionalS
 	}
 	
 	@Override
-	protected ConditionalStatement matchCase(String switchCase){ return ConditionalRoutine.getNewTerm("(" + switchCase + ")");}
+	protected ConditionalStatement matchCase(String switchCase){ return AliasManager.matchConditionAlias(switchCase);}
 	
 	public static void register()
 	{

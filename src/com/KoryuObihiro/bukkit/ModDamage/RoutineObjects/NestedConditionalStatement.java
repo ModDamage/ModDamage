@@ -10,6 +10,9 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.ParentheticalParser;
 
 public final class NestedConditionalStatement extends ConditionalStatement
 {
+	private static final Pattern syntax = Pattern.compile("(!?)\\((.*)\\)", Pattern.CASE_INSENSITIVE);
+	private static final StatementBuilder builder = new StatementBuilder();
+
 	final List<ConditionalStatement> statements;
 	final List<LogicalOperator> operators;
 	private NestedConditionalStatement(boolean inverted, List<ConditionalStatement> statements, List<LogicalOperator> operators)
@@ -27,7 +30,7 @@ public final class NestedConditionalStatement extends ConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)\\((.*)\\)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
+		ConditionalRoutine.registerConditionalStatement(syntax, builder);
 	}
 	
 	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
@@ -50,5 +53,16 @@ public final class NestedConditionalStatement extends ConditionalStatement
 			}
 			return null;
 		}
+	}
+	
+	public static NestedConditionalStatement getNew(String string)
+	{
+		if(string != null)
+		{
+			Matcher matcher = syntax.matcher(string);
+			if(matcher.matches())
+				return builder.getNew(matcher);
+		}
+		return null;
 	}
 }

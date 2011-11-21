@@ -5,8 +5,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Delay;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Knockback;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Message;
 
 public abstract class NestedRoutine extends Routine
 {
@@ -20,6 +22,7 @@ public abstract class NestedRoutine extends Routine
 		registeredNestedRoutines.clear();
 		Delay.register();
 		Message.register();
+		Knockback.register();
 		CalculationRoutine.register();
 		ConditionalRoutine.register();
 		SwitchRoutine.register();
@@ -47,7 +50,7 @@ public abstract class NestedRoutine extends Routine
 				if(matcher.matches())
 					return registeredNestedRoutines.get(pattern).getNew(matcher, nestedContent);
 			}
-			ModDamage.addToLogRecord(DebugSetting.QUIET, " No match found for nested routine \"" + anyMatcher.group() + "\"", LoadState.FAILURE);		
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for nested routine \"" + anyMatcher.group() + "\"");		
 			return null;
 		}
 	}

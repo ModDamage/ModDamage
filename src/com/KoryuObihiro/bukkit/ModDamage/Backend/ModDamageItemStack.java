@@ -6,9 +6,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 
 public class ModDamageItemStack
 {
@@ -47,7 +46,7 @@ public class ModDamageItemStack
 			for(Material someMaterial : Material.values())
 				if(parts[0].equalsIgnoreCase(someMaterial.name()))
 					material = someMaterial;
-			if(material == null) ModDamage.addToLogRecord(DebugSetting.QUIET, "Error: unable to match material \"" + parts[0] + "\"", LoadState.FAILURE);
+			if(material == null) ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unable to match material \"" + parts[0] + "\"");
 			DynamicInteger integer = DynamicInteger.getNew(parts[1]);
 			if(material != null && integer != null)
 				return new ModDamageItemStack(material, integer);

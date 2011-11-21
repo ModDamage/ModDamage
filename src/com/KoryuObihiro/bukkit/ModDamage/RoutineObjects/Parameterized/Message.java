@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,13 +10,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.DebugSetting;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage.LoadState;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicString;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class Message extends NestedRoutine 
 {	
@@ -62,18 +63,11 @@ public class Message extends NestedRoutine
 	private enum MessageType
 	{
 		ENTITY, WORLD, SERVER;
-		
 		protected static MessageType match(String key)
 		{
-			for(MessageType messageType : MessageType.values())
-			{
-				if(messageType.equals(MessageType.ENTITY)) continue;
-				if(key.equalsIgnoreCase(messageType.name()))
-					return messageType;
-			}
 			if(EntityReference.isValid(key))
 				return ENTITY;
-			return null;
+			else return MessageType.valueOf(key);
 		}
 	}
 	
@@ -88,21 +82,21 @@ public class Message extends NestedRoutine
 		
 		public DynamicMessage(String message)
 		{
-			ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 			Matcher integerMatcher = stringReplacePattern.matcher(message);
 			while(integerMatcher.matches())
 			{
 				DynamicString match = DynamicString.getNew(integerMatcher.group(2));
 				if(match != null)
 				{
-					ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Matched dynamic integer: \"" + match.toString() + "\"", LoadState.SUCCESS);
+					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Matched dynamic integer: \"" + match.toString() + "\"");
 					message = integerMatcher.group(1) + insertionCharacter + integerMatcher.group(3);
 					matches.add(match);
 					integerMatcher = stringReplacePattern.matcher(message);
 				}
 				else
 				{
-					//ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Reference not found, marking invalid.", LoadState.SUCCESS);
+					//ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Reference not found, marking invalid.");
 					message = integerMatcher.group(1) + "INVALID" + integerMatcher.group(3);
 					integerMatcher = stringReplacePattern.matcher(message);
 				}
@@ -110,12 +104,12 @@ public class Message extends NestedRoutine
 			Matcher colorMatcher = colorReplacePattern.matcher(message);
 			while(colorMatcher.matches())
 			{
-				ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Matched color " + colorMatcher.group(2) + "", LoadState.SUCCESS);
+				ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Matched color " + colorMatcher.group(2) + "");
 				message = colorMatcher.group(1) + String.format("\u00A7%s", colorMatcher.group(2)) + colorMatcher.group(3);
 				colorMatcher = colorReplacePattern.matcher(message);
 			}
 			
-			ModDamage.addToLogRecord(DebugSetting.VERBOSE, "Resulting Message string: \"" + message + "\"", LoadState.SUCCESS);
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Resulting Message string: \"" + message + "\"");
 			this.message = message;
 		}
 		
@@ -168,17 +162,20 @@ public class Message extends NestedRoutine
 				Collection<DynamicMessage> messages = AliasManager.matchMessageAlias(matcher.group(2));
 				if(!messages.isEmpty() && messageType != null)
 				{
-					reportContents(messages);
+					Message routine = null;
 					switch(messageType)
 					{
 						case ENTITY:
-							return new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
+							routine = new Message(matcher.group(), EntityReference.match(matcher.group(1)), messages);
+							break;
 						case WORLD:
 						case SERVER:
-							return new Message(matcher.group(), messageType, messages);
+							routine = new Message(matcher.group(), messageType, messages);
 					}
+					routine.reportContents();
+					return routine;
 				}
-				else ModDamage.addToLogRecord(DebugSetting.QUIET, "Message content \"" + matcher.group(3) + "\" is invalid.", LoadState.NOT_LOADED);
+				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Message content \"" + matcher.group(3) + "\" is invalid.");
 			}
 			return null;
 		}
@@ -215,7 +212,7 @@ public class Message extends NestedRoutine
 					}
 					if(!failFlag)
 					{
-						reportContents(messages);
+						routine.reportContents();
 						return routine;
 					}
 				}	
@@ -223,18 +220,23 @@ public class Message extends NestedRoutine
 			return null;
 		}
 	}
-	private static void reportContents(Collection<DynamicMessage> messages)
+	private void reportContents()
 	{
 		if(messages instanceof List)
 		{
+			String routineString = "Message (" + (entityReference != null?entityReference.toString():messageType.name()) + ")";
 			List<DynamicMessage> messageList = (List<DynamicMessage>)messages;
-			ModDamage.addToLogRecord(DebugSetting.NORMAL, "Message: \"" + messageList.get(0).toString() + "\"" , LoadState.SUCCESS);
-			ModDamage.indentation++;
-			for(int i = 1; i < messages.size(); i++)
-				ModDamage.addToLogRecord(DebugSetting.NORMAL, "- \"" + messageList.get(i).toString() + "\"" , LoadState.SUCCESS);
-			ModDamage.indentation--;
+			if(messages.size() > 1)
+			{
+				ModDamage.addToLogRecord(OutputPreset.INFO, routineString + ":" );
+				ModDamage.changeIndentation(true);
+				for(int i = 0; i < messages.size(); i++)
+					ModDamage.addToLogRecord(OutputPreset.INFO, "- \"" + messageList.get(i).toString() + "\"" );
+				ModDamage.changeIndentation(false);
+			}
+			else ModDamage.addToLogRecord(OutputPreset.INFO, routineString + ": \"" + messageList.get(0).toString() + "\"" );
 		}
-		else ModDamage.addToLogRecord(DebugSetting.QUIET, "Fatal: messages are not in a linked data structure!", LoadState.FAILURE);//shouldn't happen
-		ModDamage.addToLogRecord(DebugSetting.CONSOLE, "", LoadState.SUCCESS);
+		else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Fatal: messages are not in a linked data structure!");//shouldn't happen
+		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 	}
 }
