@@ -51,7 +51,6 @@ enum ModDamageEventHandler
 		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
 		{
 			eventType.routines.clear();
-			ModDamage.changeIndentation(true);
 			Object nestedContent = ModDamage.getPluginConfiguration().getConfigMap().get(PluginConfiguration.getCaseInsensitiveKey(ModDamage.getPluginConfiguration().getConfigMap(), eventType.name()));//XXX This is nasty. Change it.
 			if(nestedContent != null)
 			{
@@ -74,7 +73,6 @@ enum ModDamageEventHandler
 				ModDamage.addToLogRecord(OutputPreset.INFO, "End " + eventType.name() + " configuration.");
 					break;
 			}
-			ModDamage.changeIndentation(false);
 			state = LoadState.combineStates(state, eventType.specificLoadState);
 		}
 		ModDamage.changeIndentation(false);

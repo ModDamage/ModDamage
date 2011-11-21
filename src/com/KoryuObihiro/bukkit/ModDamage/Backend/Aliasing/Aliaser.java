@@ -27,9 +27,7 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 			return this.get(key);
 		Type value = matchNonAlias(key);
 		if(value != null) return getNewStorageClass(value);
-		ModDamage.changeIndentation(true);
 		ModDamage.addToLogRecord(OutputPreset.FAILURE, "No matching " + name + " alias or value \"" + key + "\"");
-		ModDamage.changeIndentation(false);
 		return getDefaultValue();
 	}
 

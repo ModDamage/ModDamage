@@ -46,7 +46,10 @@ public enum AliasManager
 	public static void reload()
 	{
 		for(AliasManager aliasType : AliasManager.values())
+		{
 			aliasType.aliaser.clear();
+			aliasType.specificLoadState = LoadState.NOT_LOADED;
+		}
 		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading aliases...");
 
 		for(String configKeys : ModDamage.getPluginConfiguration().getConfigMap().keySet())

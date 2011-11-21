@@ -74,7 +74,7 @@ abstract public class Routine
 				if(matcher.matches())
 					return registeredBaseRoutines.get(pattern).getNew(matcher);
 			}
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for nested routine \"" + anyMatcher.group() + "\"");
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for base routine \"" + anyMatcher.group() + "\"");
 			return null;
 		}
 	}
