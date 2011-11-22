@@ -229,7 +229,7 @@ public class PluginConfiguration
 		{
 			try
 			{
-				if(!configFile.createNewFile())
+				if(!configFile.getParentFile().mkdirs() || !configFile.createNewFile())
 				{
 					log.severe("Fatal error: could not create config.yml.");
 					return false;
@@ -359,16 +359,15 @@ public class PluginConfiguration
 		}
 		else
 		{
-			// TODO 0.9.6 - Unify the placement, output according to the RoutineManager and the AliasManager.
 			player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Config Overview: " + LoadState.pluginState.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
 			player.sendMessage(ChatColor.AQUA + "Aliases:    " + AliasManager.getState().statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + ModDamageEventHandler.state.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:        " + AliasManager.Armor.getSpecificLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Damage: " + ModDamageEventHandler.Damage.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Element:     " + AliasManager.Element.getSpecificLoadState().statusString() + "       " + ChatColor.DARK_GREEN + "Death:  " + ModDamageEventHandler.Death.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Group:        " + AliasManager.Group.getSpecificLoadState().statusString() + "     " + ChatColor.DARK_GREEN + "Food:  " + ModDamageEventHandler.Food.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Material:    " + AliasManager.Material.getSpecificLoadState().statusString() + "      " + ChatColor.DARK_GREEN + "ProjectileHit:  " + ModDamageEventHandler.ProjectileHit.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Message:   " + AliasManager.Message.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Spawn:  " + ModDamageEventHandler.Spawn.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Region:   " + AliasManager.Region.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Tame:  " + ModDamageEventHandler.Tame.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:   " + AliasManager.Routine.getSpecificLoadState().statusString() + "        Condition:  " + AliasManager.Routine.getSpecificLoadState().statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:     " + AliasManager.Armor.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Damage: " + ModDamageEventHandler.Damage.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Element:   " + AliasManager.Element.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Death:  " + ModDamageEventHandler.Death.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Group:     " + AliasManager.Group.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Food:  " + ModDamageEventHandler.Food.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Material:   " + AliasManager.Material.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "ProjectileHit:  " + ModDamageEventHandler.ProjectileHit.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Message:  " + AliasManager.Message.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Spawn:  " + ModDamageEventHandler.Spawn.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Region:     " + AliasManager.Region.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Tame:  " + ModDamageEventHandler.Tame.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:    " + AliasManager.Routine.getSpecificLoadState().statusString() + ChatColor.DARK_AQUA + "        Condition:  " + AliasManager.Routine.getSpecificLoadState().statusString());
 			String bottomString = null;
 			switch(LoadState.pluginState)
 			{
