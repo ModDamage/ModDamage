@@ -52,9 +52,7 @@ public class DynamicString
 			for(EntityStringPropertyMatch match : EntityStringPropertyMatch.values())
 				if(matches[1].equalsIgnoreCase(match.name()))
 					return new DynamicEntityString(EntityReference.match(matches[0]), match);
-		DynamicInteger dynamicInteger = DynamicInteger.getNew(string);
-		if(dynamicInteger != null) return dynamicInteger;
-		return null;
+		return DynamicInteger.getNew(string);
 	}
 	
 	@Override

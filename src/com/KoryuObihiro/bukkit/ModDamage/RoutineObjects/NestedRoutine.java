@@ -1,6 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,7 +13,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Message;
 public abstract class NestedRoutine extends Routine
 {
 	private static RoutineBuilder builder = new RoutineBuilder();
-	private static HashMap<Pattern, RoutineBuilder> registeredNestedRoutines = new HashMap<Pattern, RoutineBuilder>();
+	private static LinkedHashMap<Pattern, RoutineBuilder> registeredNestedRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
 
 	protected NestedRoutine(String configString){ super(configString);}
 	

@@ -263,6 +263,7 @@ public class ExternalPluginManager
 	{
 		permissionsManager = PermissionsManager.reload();
 		regionsManager = RegionsManager.reload();
+		mcMMOplugin = (mcMMO) Bukkit.getPluginManager().getPlugin("mcMMO");
 		reloadModDamageRoutines();
 	}
 }

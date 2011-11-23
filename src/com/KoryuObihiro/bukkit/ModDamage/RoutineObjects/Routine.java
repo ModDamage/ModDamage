@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +23,7 @@ abstract public class Routine
 {
 	protected static final Pattern anyPattern = Pattern.compile(".*");
 	private static final RoutineBuilder builder = new RoutineBuilder();
-	private static final HashMap<Pattern, RoutineBuilder> registeredBaseRoutines = new HashMap<Pattern, RoutineBuilder>();
+	private static final LinkedHashMap<Pattern, RoutineBuilder> registeredBaseRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
 	
 	protected static String statementPart = "!?[\\w_\\.\\*]+";
 	

@@ -11,6 +11,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
@@ -20,9 +21,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 //FIXME Do I work?
 public class Knockback extends ParameterizedRoutine
-{
-	protected static final int velocityMultiplier = 10;
-	
+{	
 	protected final EntityReference entityReference;
 	protected final boolean usingParameterized;
 
@@ -44,30 +43,49 @@ public class Knockback extends ParameterizedRoutine
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{
+		int temp = eventInfo.eventValue;
 		Entity firstEntity = entityReference.getEntity(eventInfo);
 		Entity secondEntity = entityReference.getEntityOther(eventInfo);
 		
-		int relativeXDiff = (int)(firstEntity.getLocation().getX() - secondEntity.getLocation().getX());
-		int relativeZDiff = (int)(firstEntity.getLocation().getZ() - secondEntity.getLocation().getZ());
-
-		int firstIntegerValue = integers.get(0).getValue(eventInfo);
-		
-		if(usingParameterized)
+		double relativeXDiff = 0, relativeZDiff = 0;
+		if(secondEntity != null)
 		{
-			//make these masks
-			relativeXDiff /= Math.abs(relativeXDiff);
-			relativeZDiff /= Math.abs(relativeZDiff);
-			firstEntity.setVelocity(firstEntity.getVelocity().add(new Vector(relativeXDiff * firstIntegerValue * velocityMultiplier, integers.get(1).getValue(eventInfo) * velocityMultiplier, relativeZDiff * firstIntegerValue * velocityMultiplier)));			
+			relativeXDiff = (firstEntity.getLocation().getX() - secondEntity.getLocation().getX());
+			relativeZDiff = (firstEntity.getLocation().getZ() - secondEntity.getLocation().getZ());
 		}
 		else
 		{
+			Vector vector = firstEntity.getLocation().getDirection();
+			relativeXDiff = vector.getX();
+			relativeZDiff = relativeXDiff = vector.getZ();
+			PluginConfiguration.log.info("Direction: " + vector.toString());//TODO REMOVE ME
+		}
+
+		int firstIntegerValue = integers.get(0).getValue(eventInfo);
+		eventInfo.eventValue = temp;
+		
+		if(usingParameterized)
+		{
+			Vector vector = firstEntity.getVelocity().add(new Vector(relativeXDiff * firstIntegerValue, integers.get(1).getValue(eventInfo), relativeZDiff * firstIntegerValue));
+			PluginConfiguration.log.info("Knockback: " + vector.toString());//TODO REMOVE ME
+			firstEntity.setVelocity(vector);			
+			eventInfo.eventValue = temp;
+		}
+		else if(secondEntity != null)
+		{
 			double multiplier = Math.abs(firstEntity.getLocation().getX() - secondEntity.getLocation().getX()) + Math.abs(firstEntity.getLocation().getY() - secondEntity.getLocation().getY()) + Math.abs(firstEntity.getLocation().getZ() - secondEntity.getLocation().getZ());
 			multiplier *= multiplier;
-			multiplier = firstIntegerValue / multiplier * velocityMultiplier;
+			multiplier = firstIntegerValue / multiplier;
 			
 			int relativeYDiff = (int)(firstEntity.getLocation().getY() - secondEntity.getLocation().getY());
 			
-			firstEntity.setVelocity(firstEntity.getVelocity().add(new Vector((relativeXDiff * relativeXDiff) * multiplier, (relativeYDiff * relativeYDiff) * multiplier, (relativeZDiff * relativeZDiff) * multiplier)));//TODO Use some trig here?
+			relativeXDiff *= relativeXDiff != 0?relativeXDiff * (relativeXDiff/Math.abs(relativeXDiff)):0;
+			relativeYDiff *= relativeYDiff != 0?relativeYDiff * (relativeYDiff/Math.abs(relativeYDiff)):0;
+			relativeZDiff *= relativeZDiff != 0?relativeZDiff * (relativeZDiff/Math.abs(relativeZDiff)):0;
+			
+			Vector vector = firstEntity.getVelocity().add(new Vector(relativeXDiff * multiplier, relativeYDiff * multiplier, relativeZDiff * multiplier));
+			PluginConfiguration.log.info("Knockback: " + vector.toString());//TODO REMOVE ME
+			firstEntity.setVelocity(vector);//TODO Use some trig here?
 		}
 	}
 	

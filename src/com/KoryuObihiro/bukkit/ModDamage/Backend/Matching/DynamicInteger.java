@@ -16,6 +16,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicPlayerInteger.P
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicServerInteger.ServerPropertyMatch;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicWorldInteger.WorldPropertyMatch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.gmail.nossr50.datatypes.SkillType;
 
 public class DynamicInteger extends DynamicString
 {
@@ -136,6 +137,21 @@ public class DynamicInteger extends DynamicString
 					}
 					else if(EntityReference.isValid(matches[0]))
 					{
+						if(matches[1].toUpperCase().startsWith("SKILL_"))//TODO Make this more dynamic when necessary.
+						{
+							if(ExternalPluginManager.getMcMMOPlugin() != null)
+							{
+								String skillString = matches[1].substring(6);
+								for(SkillType skillType : SkillType.values())
+									if(skillString.equalsIgnoreCase(skillType.name()))
+										return new DynamicMcMMOInteger(EntityReference.match(matches[0]), skillType, isNegative);
+							}
+							else//TODO Merge with a single boolean?
+							{
+								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: attempting to use McMMO-dependent player property without McMMO!");
+								return null;
+							}
+						}
 						for(EntityIntegerPropertyMatch match : EntityIntegerPropertyMatch.values())
 							if(matches[1].equalsIgnoreCase(match.name()))
 								return new DynamicEntityInteger(EntityReference.match(matches[0]), match, isNegative);
@@ -144,12 +160,15 @@ public class DynamicInteger extends DynamicString
 							{
 								DynamicPlayerInteger yayMatch = new DynamicPlayerInteger(EntityReference.match(matches[0]), match, isNegative);
 								if(yayMatch.propertyMatch.usesMcMMO && ExternalPluginManager.getMcMMOPlugin() == null)
-									ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: attempted to use McMMO-dependent player property without McMMO.");
+								{
+									ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: attempting to use McMMO-dependent player property without McMMO!");
+									return null;
+								}
 								else return yayMatch;
 							}
 					}
 				}
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Warning: unrecognized integer reference \"" + string + "\".");
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized integer reference \"" + string + "\".");
 			}
 		}
 		return null;

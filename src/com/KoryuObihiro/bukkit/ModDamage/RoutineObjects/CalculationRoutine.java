@@ -1,7 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,10 +17,11 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityExplod
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHurt;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySpawn;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityUnknownHurt;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.McMMOChangeSkill;
 
 abstract public class CalculationRoutine extends NestedRoutine 
 {
-	private static HashMap<Pattern, CalculationBuilder> registeredCalculations = new HashMap<Pattern, CalculationBuilder>();
+	private static LinkedHashMap<Pattern, CalculationBuilder> registeredCalculations = new LinkedHashMap<Pattern, CalculationBuilder>();
 	protected final static Pattern calculationPattern = Pattern.compile("((?:([\\*\\w]+)effect\\." + Routine.statementPart + "))", Pattern.CASE_INSENSITIVE);
 	
 	protected final DynamicInteger value;
@@ -46,6 +47,10 @@ abstract public class CalculationRoutine extends NestedRoutine
 		registeredCalculations.clear();
 		NestedRoutine.registerRoutine(calculationPattern, new RoutineBuilder());
 		registeredCalculations.clear();
+		
+		McMMOChangeSkill.register();
+
+		
 		Calculate.register();
 		ChangeProperty.register();
 		EntityItem.register();
@@ -82,7 +87,7 @@ abstract public class CalculationRoutine extends NestedRoutine
 						}
 						else
 						{
-							NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid content in Calculation \"" + calculationMatcher.group() + "\"");
+							NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Bad content in Calculation \"" + calculationMatcher.group() + "\"");
 							return null;
 						}
 					}

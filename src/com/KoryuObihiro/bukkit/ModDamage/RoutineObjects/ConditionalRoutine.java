@@ -1,7 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,17 +22,17 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTagged
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityTypeEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityWearing;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EntityWielding;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventEnvironment;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventHasRangedElement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerGroupEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerHasItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerPermissionEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventEnvironment;
 
 public class ConditionalRoutine extends NestedRoutine
 {
-	private static HashMap<Pattern, StatementBuilder> registeredConditionalStatements = new HashMap<Pattern, StatementBuilder>();
+	private static LinkedHashMap<Pattern, StatementBuilder> registeredConditionalStatements = new LinkedHashMap<Pattern, StatementBuilder>();
 	
 	protected static final String conditionalStatementPart = "!?(.*|\\(.*\\))";
 
@@ -122,7 +122,7 @@ public class ConditionalRoutine extends NestedRoutine
 							NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End Conditional \"" + matcher.group() + "\"");
 							return new ConditionalRoutine(matcher.group(), !matcher.group(1).equalsIgnoreCase("if"), statements, operations, routines);
 						}
-						else NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid Conditional \"" + matcher.group() + "\"");
+						else NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Bad content in Conditional \"" + matcher.group() + "\"");
 					}
 					else NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid Conditional \"" + matcher.group() + "\"");
 				}

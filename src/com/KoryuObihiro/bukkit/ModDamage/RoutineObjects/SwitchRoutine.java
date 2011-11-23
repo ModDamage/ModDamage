@@ -2,7 +2,6 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -28,7 +27,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
 
 public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends NestedRoutine 
 {
-	private static HashMap<Pattern, SwitchBuilder> registeredSwitchRoutines = new HashMap<Pattern, SwitchBuilder>();
+	private static LinkedHashMap<Pattern, SwitchBuilder> registeredSwitchRoutines = new LinkedHashMap<Pattern, SwitchBuilder>();
 	
 	protected final LinkedHashMap<CaseInfoClass, List<Routine>> switchStatements;
 	public final boolean isLoaded;
