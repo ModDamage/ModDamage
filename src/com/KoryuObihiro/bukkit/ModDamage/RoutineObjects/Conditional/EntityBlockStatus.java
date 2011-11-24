@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,8 +34,8 @@ public class EntityBlockStatus extends EntityConditionalStatement
 	}
 	
 	final BlockStatusType statusType;
-	final HashSet<Material> materials;
-	protected EntityBlockStatus(boolean inverted, EntityReference entityReference, BlockStatusType statusType, HashSet<Material> materials)
+	final Collection<Material> materials;
+	protected EntityBlockStatus(boolean inverted, EntityReference entityReference, BlockStatusType statusType, Collection<Material> materials)
 	{
 		super(inverted, entityReference);
 		this.statusType = statusType;
@@ -50,34 +51,34 @@ public class EntityBlockStatus extends EntityConditionalStatement
 	
 	private enum BlockStatusType
 	{
-		OnBlock
+		On
 		{
 			@Override
-			public boolean isTrue(HashSet<Material> materials, Entity entity)
+			public boolean isTrue(Collection<Material> materials, Entity entity)
 			{
 				return materials.contains(entity.getLocation().add(0, -1, 0).getBlock().getType());
 			}
 		},
-		OverBlock
+		Over
 		{
 			@Override
-			public boolean isTrue(HashSet<Material> materials, Entity entity)
+			public boolean isTrue(Collection<Material> materials, Entity entity)
 			{
 				return searchVertically(false, materials, entity);
 			}
 		},
-		UnderBlock
+		Under
 		{
 			@Override
-			public boolean isTrue(HashSet<Material> materials, Entity entity)
+			public boolean isTrue(Collection<Material> materials, Entity entity)
 			{
 				return searchVertically(true, materials, entity);
 			}
 		};
 		
-		abstract public boolean isTrue(HashSet<Material> materials, Entity entity);
+		abstract public boolean isTrue(Collection<Material> materials, Entity entity);
 		
-		private static boolean searchVertically(boolean goingUp, HashSet<Material> materials, Entity entity)
+		private static boolean searchVertically(boolean goingUp, Collection<Material> materials, Entity entity)
 		{
 			//TODO Indefinite - Integrate into a special library. :D
 			Material thisMaterial = null;
@@ -119,7 +120,7 @@ public class EntityBlockStatus extends EntityConditionalStatement
 			for(BlockStatusType type : BlockStatusType.values())
 				if(matcher.group(3).equalsIgnoreCase(type.name()))
 						statusType = type;
-			HashSet<Material> materials = new HashSet<Material>(AliasManager.matchMaterialAlias(matcher.group(4)));
+			Collection<Material> materials = AliasManager.matchMaterialAlias(matcher.group(4));
 			if(EntityReference.isValid(matcher.group(2)) && statusType != null)
 				return new EntityBlockStatus(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), statusType, materials);
 			return null;
