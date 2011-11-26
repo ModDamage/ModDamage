@@ -28,7 +28,7 @@ public class EntityRegion extends EntityConditionalStatement
 	{
 		Collection<String> entityRegions = getRegions(eventInfo);
 		for(String region : entityRegions)
-			if(inclusiveComparison?regions.contains(region):(entityRegions.size() == 1 && regions.containsAll(entityRegions)))
+			if(inclusiveComparison?regions.contains(region):(entityRegions.size() == regions.size() && regions.containsAll(entityRegions)))
 				return true;
 		return false;
 	}
