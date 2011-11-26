@@ -40,8 +40,9 @@ public class EntityBiome extends EntityConditionalStatement
 		public EntityBiome getNew(Matcher matcher)
 		{
 			Collection<Biome> biomes = AliasManager.matchBiomeAlias(matcher.group(3));
-			if(!biomes.isEmpty() && EntityReference.isValid(matcher.group(2)))
-				return new EntityBiome(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), biomes);
+			EntityReference reference = EntityReference.match(matcher.group(2));
+			if(!biomes.isEmpty() && reference != null)
+				return new EntityBiome(matcher.group(1).equalsIgnoreCase("!"), reference, biomes);
 			return null;
 		}
 	}

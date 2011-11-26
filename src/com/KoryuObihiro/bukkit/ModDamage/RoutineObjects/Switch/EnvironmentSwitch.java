@@ -2,7 +2,7 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,7 +14,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine.SingleValu
 
 public class EnvironmentSwitch extends SingleValueSwitchRoutine<Environment>
 {	
-	public EnvironmentSwitch(String configString, LinkedHashMap<String, Object> switchStatements){ super(configString, switchStatements);}
+	public EnvironmentSwitch(String configString, List<String> switchCases, List<Object> nestedContents){ super(configString, switchCases, nestedContents);}
 	@Override
 	protected Environment getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.world.getEnvironment();}
 	@Override
@@ -27,9 +27,9 @@ public class EnvironmentSwitch extends SingleValueSwitchRoutine<Environment>
 	protected static class RoutineBuilder extends SwitchRoutine.SwitchBuilder
 	{
 		@Override
-		public EnvironmentSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+		public EnvironmentSwitch getNew(Matcher matcher, List<String> switchCases, List<Object> nestedContents)
 		{
-			return new EnvironmentSwitch(matcher.group(), switchStatements);
+			return new EnvironmentSwitch(matcher.group(), switchCases, nestedContents);
 		}
 	}
 }

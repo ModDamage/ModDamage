@@ -36,7 +36,8 @@ public class PlayerPermissionEvaluation extends EntityConditionalStatement
 		@Override
 		public PlayerPermissionEvaluation getNew(Matcher matcher)
 		{
-			if(EntityReference.isValid(matcher.group(2)))
+			EntityReference reference = EntityReference.match(matcher.group(2));
+			if(reference != null)
 				return new PlayerPermissionEvaluation(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), matcher.group(3));
 			return null;
 		}

@@ -1,7 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,9 +12,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine.SingleValu
 
 public class WorldSwitch extends SingleValueSwitchRoutine<String>
 {	
-	public WorldSwitch(String configString, LinkedHashMap<String, Object> switchStatements)
+	public WorldSwitch(String configString, List<String> switchCases, List<Object> nestedContents)
 	{ 
-		super(configString, switchStatements);
+		super(configString, switchCases, nestedContents);
 	}
 	@Override
 	protected String getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.world.getName();}
@@ -29,9 +29,9 @@ public class WorldSwitch extends SingleValueSwitchRoutine<String>
 	protected static class RoutineBuilder extends SwitchRoutine.SwitchBuilder
 	{
 		@Override
-		public WorldSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+		public WorldSwitch getNew(Matcher matcher, List<String> switchCases, List<Object> nestedContents)
 		{
-			return new WorldSwitch(matcher.group(), switchStatements);
+			return new WorldSwitch(matcher.group(), switchCases, nestedContents);
 		}
 	}
 }

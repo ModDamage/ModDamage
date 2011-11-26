@@ -65,7 +65,8 @@ public class Message extends NestedRoutine
 		ENTITY, WORLD, SERVER;
 		protected static MessageType match(String key)
 		{
-			if(EntityReference.isValid(key))
+			EntityReference reference = EntityReference.match(key);
+			if(reference != null)
 				return ENTITY;
 			else return MessageType.valueOf(key);
 		}

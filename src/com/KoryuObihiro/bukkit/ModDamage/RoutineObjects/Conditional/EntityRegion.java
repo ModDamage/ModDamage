@@ -50,9 +50,10 @@ public class EntityRegion extends EntityConditionalStatement
 		@Override
 		public EntityRegion getNew(Matcher matcher)
 		{
-			Collection<String> regions = AliasManager.matchRegionAlias(matcher.group(3));
-			if(!regions.isEmpty() && EntityReference.isValid(matcher.group(2)))
-				return new EntityRegion(matcher.group(1).equalsIgnoreCase("!"), matcher.group(3).endsWith("only"), EntityReference.match(matcher.group(2)), regions);
+			Collection<String> regions = AliasManager.matchRegionAlias(matcher.group(4));
+			EntityReference reference = EntityReference.match(matcher.group(2));
+			if(!regions.isEmpty() && reference != null)
+				return new EntityRegion(matcher.group(1).equalsIgnoreCase("!"), matcher.group(3).endsWith("only"), reference, regions);
 			return null;
 		}
 	}

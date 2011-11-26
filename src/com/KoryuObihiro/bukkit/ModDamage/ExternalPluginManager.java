@@ -14,6 +14,7 @@ import org.bukkit.plugin.Plugin;
 
 import ru.tehkode.permissions.PermissionManager;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage.ModDamageExtension;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.elbukkit.api.elregions.elRegionsPlugin;

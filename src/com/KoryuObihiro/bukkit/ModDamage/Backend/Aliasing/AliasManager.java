@@ -56,19 +56,11 @@ public enum AliasManager
 				ModDamage.changeIndentation(true);
 				LinkedHashMap<String, Object> aliasesMap = ModDamage.getPluginConfiguration().castToStringMap(nodeName, ModDamage.getPluginConfiguration().getConfigMap().get(nodeName));
 				if(aliasesMap != null)
-				{
-					LinkedHashMap<String, Object> rawAliases = null;
 					for(AliasManager aliasType : AliasManager.values())
 					{
-						PluginConfiguration.getCaseInsensitiveKey(aliasesMap, aliasType.name());
-						for(String key : aliasesMap.keySet())
-							if(key.equalsIgnoreCase(aliasType.name()))
-								rawAliases = ModDamage.getPluginConfiguration().castToStringMap(aliasType.name(), aliasesMap.get(key));
-						aliasType.specificLoadState = aliasType.aliaser.load(rawAliases);
+						aliasType.specificLoadState = aliasType.aliaser.load(ModDamage.getPluginConfiguration().castToStringMap(aliasType.name(), PluginConfiguration.getCaseInsensitiveValue(aliasesMap, aliasType.name())));
 						state = LoadState.combineStates(state, aliasType.getSpecificLoadState());
-						rawAliases = null;
 					}
-				}
 				ModDamage.changeIndentation(false);
 				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 				switch(state)

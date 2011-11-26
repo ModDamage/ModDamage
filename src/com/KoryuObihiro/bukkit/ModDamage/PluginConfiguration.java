@@ -100,11 +100,14 @@ public class PluginConfiguration
 		}
 	}
 
-	public static String getCaseInsensitiveKey(LinkedHashMap<String, Object> map, String key)
+	public static Object getCaseInsensitiveValue(LinkedHashMap<String, Object> map, String key)
 	{
+		String caseInsensitiveKey = null;
 		for(String someKey : map.keySet())
 			if(someKey.equalsIgnoreCase(key))
-				return someKey;
+				caseInsensitiveKey = someKey;
+		if(caseInsensitiveKey != null)
+			return map.get(caseInsensitiveKey);
 		return null;
 	}
 
@@ -182,7 +185,7 @@ public class PluginConfiguration
 		}
 
 		// load debug settings
-		Object debugObject = configMap.get(getCaseInsensitiveKey(configMap, "debugging"));
+		Object debugObject = getCaseInsensitiveValue(configMap, "debugging");
 		if(debugObject != null)
 		{
 			DebugSetting debugSetting = DebugSetting.valueOf(debugObject.toString().toUpperCase());

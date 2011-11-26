@@ -132,8 +132,9 @@ public class EntityStatus extends EntityConditionalStatement
 				for(StatusType type : StatusType.values())
 					if(matcher.group(3).equalsIgnoreCase(type.name()))
 							statusType = type;
-				if(EntityReference.isValid(matcher.group(2)) && statusType != null)
-					return new EntityStatus(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), statusType);
+				EntityReference reference = EntityReference.match(matcher.group(2));
+				if(reference != null && statusType != null)
+					return new EntityStatus(matcher.group(1).equalsIgnoreCase("!"), reference, statusType);
 			}
 			return null;
 		}

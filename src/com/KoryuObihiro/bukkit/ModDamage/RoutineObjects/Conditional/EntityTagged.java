@@ -34,8 +34,9 @@ public class EntityTagged extends EntityConditionalStatement
 		@Override
 		public EntityTagged getNew(Matcher matcher)
 		{
-			if(EntityReference.isValid(matcher.group(2)))
-				return new EntityTagged(matcher.group(1).equals("!"), EntityReference.match(matcher.group(2)), matcher.group(3).toLowerCase());
+			EntityReference reference = EntityReference.match(matcher.group(2));
+			if(reference != null)
+				return new EntityTagged(matcher.group(1).equals("!"), reference, matcher.group(3).toLowerCase());
 			return null;
 		}
 	}

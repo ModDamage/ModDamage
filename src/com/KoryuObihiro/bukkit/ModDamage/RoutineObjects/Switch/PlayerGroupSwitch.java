@@ -1,7 +1,6 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,9 +14,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine.EntityMult
 
 public class PlayerGroupSwitch extends EntityMultipleTraitSwitchRoutine<String>
 {
-	public PlayerGroupSwitch(String configString, LinkedHashMap<String, Object> switchStatements, EntityReference entityReference)
+	public PlayerGroupSwitch(String configString, List<String> switchCases, List<Object> nestedContents, EntityReference entityReference)
 	{
-		super(configString, switchStatements, ModDamageElement.PLAYER, entityReference);
+		super(configString, switchCases, nestedContents, ModDamageElement.PLAYER, entityReference);
 	}
 	
 	@Override
@@ -34,10 +33,11 @@ public class PlayerGroupSwitch extends EntityMultipleTraitSwitchRoutine<String>
 	protected static class RoutineBuilder extends SwitchRoutine.SwitchBuilder
 	{
 		@Override
-		public PlayerGroupSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+		public PlayerGroupSwitch getNew(Matcher matcher, List<String> switchCases, List<Object> nestedContents)
 		{
-			if(EntityReference.isValid(matcher.group(1)))
-				return new PlayerGroupSwitch(matcher.group(), switchStatements, EntityReference.match(matcher.group(1)));
+			EntityReference reference = EntityReference.match(matcher.group(1));
+			if(reference != null)
+				return new PlayerGroupSwitch(matcher.group(), switchCases, nestedContents, reference);
 			return null;
 		}
 	}

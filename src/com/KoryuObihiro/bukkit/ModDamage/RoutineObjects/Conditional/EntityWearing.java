@@ -43,8 +43,9 @@ public class EntityWearing extends EntityConditionalStatement
 		public EntityWearing getNew(Matcher matcher)
 		{
 			Collection<ArmorSet> armorSet = AliasManager.matchArmorAlias(matcher.group(4));
-			if(!armorSet.isEmpty() && EntityReference.isValid(matcher.group(2)))
-				return new EntityWearing(matcher.group(1).equalsIgnoreCase("!"), matcher.group(3).endsWith("only"), EntityReference.match(matcher.group(2)), armorSet);
+			EntityReference reference = EntityReference.match(matcher.group(2));
+			if(!armorSet.isEmpty() && reference != null)
+				return new EntityWearing(matcher.group(1).equalsIgnoreCase("!"), matcher.group(3).endsWith("only"), reference, armorSet);
 			return null;
 		}
 	}

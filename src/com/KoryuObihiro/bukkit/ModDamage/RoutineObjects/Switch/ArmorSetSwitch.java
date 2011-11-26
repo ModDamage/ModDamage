@@ -1,7 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,9 +15,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine.EntitySing
 
 public class ArmorSetSwitch extends EntitySingleTraitSwitchRoutine<ArmorSet>
 {
-	public ArmorSetSwitch(String configString, EntityReference entityReference, LinkedHashMap<String, Object> switchStatements)
+	public ArmorSetSwitch(String configString, EntityReference entityReference, List<String> switchCases, List<Object> nestedContents)
 	{ 
-		super(configString, switchStatements, ModDamageElement.PLAYER, entityReference);
+		super(configString, switchCases, nestedContents, ModDamageElement.PLAYER, entityReference);
 	}
 
 	@Override
@@ -48,10 +48,11 @@ public class ArmorSetSwitch extends EntitySingleTraitSwitchRoutine<ArmorSet>
 	protected static class RoutineBuilder extends SwitchRoutine.SwitchBuilder
 	{
 		@Override
-		public ArmorSetSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+		public ArmorSetSwitch getNew(Matcher matcher, List<String> switchCases, List<Object> nestedContents)
 		{
-			if(EntityReference.isValid(matcher.group(1)))
-				return new ArmorSetSwitch(matcher.group(), EntityReference.match(matcher.group(1)), switchStatements);
+			EntityReference reference = EntityReference.match(matcher.group(1));
+			if(reference != null)
+				return new ArmorSetSwitch(matcher.group(), reference, switchCases, nestedContents);
 			return null;
 		}
 	}

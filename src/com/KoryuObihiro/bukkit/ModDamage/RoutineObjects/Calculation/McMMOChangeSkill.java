@@ -42,8 +42,11 @@ public class McMMOChangeSkill extends McMMOCalculationRoutine
 		{
 			for(SkillType skillType : SkillType.values())
 				if(matcher.group(3).equalsIgnoreCase(skillType.name()))
-					if(EntityReference.isValid(matcher.group(1)))
-						return new McMMOChangeSkill(matcher.group(), EntityReference.match(matcher.group(1)), routines, skillType, matcher.group(2).equalsIgnoreCase("add"));				
+				{
+					EntityReference reference = EntityReference.match(matcher.group(1));
+					if(reference != null)
+						return new McMMOChangeSkill(matcher.group(), reference, routines, skillType, matcher.group(2).equalsIgnoreCase("add"));
+				}
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid McMMO skill \"" + matcher.group(3) + "\"");
 			return null;
 		}

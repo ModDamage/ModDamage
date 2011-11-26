@@ -38,6 +38,7 @@ public class ModDamage extends JavaPlugin
 	// -find a way to give players ownership of an explosion?
 	// -Deregister when Bukkit supports!
 	protected static PluginConfiguration configuration;
+	protected static List<ModDamageExtension> extensions = new ArrayList<ModDamageExtension>();
 
 	public static boolean isEnabled = false;
 	private static final String errorString_Permissions = chatPrepend(ChatColor.RED) + "You don't have access to that command.";
@@ -68,7 +69,7 @@ public class ModDamage extends JavaPlugin
 	public void onDisable()
 	{
 		tagger.close();
-		configuration.printToLog(Level.INFO, "[" + this.getDescription().getName() + "] disabled.");
+		configuration.printToLog(Level.INFO, "Disabled.");
 	}
 	
 	public void reload(boolean reloadingAll)
@@ -81,8 +82,8 @@ public class ModDamage extends JavaPlugin
 			LinkedHashMap<String, Object> tagConfigurationTree = configuration.castToStringMap("Tagging", configuration.getConfigMap().get("Tagging"));
 			if(tagConfigurationTree != null)
 			{
-				String[] tagConfigStrings = { PluginConfiguration.getCaseInsensitiveKey(tagConfigurationTree, "interval-save"), PluginConfiguration.getCaseInsensitiveKey(tagConfigurationTree, "interval-clean") };
-				Object[] tagConfigObjects =	{ tagConfigurationTree.get(tagConfigStrings[0]), tagConfigurationTree.get(tagConfigStrings[1]) };
+				String[] tagConfigStrings = { "interval-save", "interval-clean" };
+				Object[] tagConfigObjects =	{PluginConfiguration.getCaseInsensitiveValue(tagConfigurationTree, tagConfigStrings[0]), PluginConfiguration.getCaseInsensitiveValue(tagConfigurationTree, tagConfigStrings[1]) };
 				for(int i = 0; i < tagConfigObjects.length; i++)
 				{
 					if(tagConfigObjects[i] != null)
@@ -94,6 +95,9 @@ public class ModDamage extends JavaPlugin
 				}
 			}
 			tagger = new ModDamageTagger(new File(this.getDataFolder(), "tags.yml"), tagConfigIntegers[0], tagConfigIntegers[1]);
+			
+			for(ModDamageExtension extension : extensions)
+				extension.reloadRoutines();
 		}
 	}
 
@@ -289,4 +293,16 @@ public class ModDamage extends JavaPlugin
 	public static ModDamageTagger getTagger(){ return tagger;}
 
 	public static PluginConfiguration getPluginConfiguration(){ return configuration;}
+	
+///////////////// EXTERNAL PLUGINS
+	
+	public interface ModDamageExtension
+	{
+		public void reloadRoutines();//Register routines with the Routine/NestedRoutine libraries.
+	}
+	public static void registerExtension(ModDamageExtension extension)
+	{
+		if(extensions.contains(extension))
+			extensions.add(extension);
+	}
 }

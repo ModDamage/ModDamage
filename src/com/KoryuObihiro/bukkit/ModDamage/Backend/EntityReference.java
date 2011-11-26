@@ -13,36 +13,22 @@ import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 
 public enum EntityReference
 {
-	Target, Projectile, Attacker;//TODO Merge this with the EventInfoType enum?
+	TARGET, PROJECTILE, ATTACKER;//TODO Merge this with the EventInfoType enum?
 	
 //Use these when building routines.
-	public static boolean isValid(String string)
-	{
-		return isValid(string, false);
-	}
-	public static boolean isValid(String string, boolean suppressWarning)
-	{
-		for(EntityReference reference : EntityReference.values())
-			if(string.equalsIgnoreCase(reference.name()))
-				return true;
-		if(!suppressWarning) ModDamage.addToLogRecord(OutputPreset.FAILURE, "String \"" + string + "\" is not a valid entity reference.");
-		return false;
-	}
-	
 	public static EntityReference match(String string)
 	{
-		for(EntityReference reference : EntityReference.values())
-			if(string.equalsIgnoreCase(reference.name()))
-				return reference;
-		return null;
+		EntityReference reference = EntityReference.valueOf(string.toUpperCase());
+		if(reference == null) ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + string + "\" is not a valid entity reference.");
+		return reference;
 	}
 //Stuff for matching info.
 	public ArmorSet getArmorSet(TargetEventInfo eventInfo) 
 	{
 		switch(this)
 		{
-			case Target: return eventInfo.armorSet_target;
-			case Attacker: 
+			case TARGET: return eventInfo.armorSet_target;
+			case ATTACKER: 
 				if(eventInfo.type.equals(EventInfoType.ATTACKER)) 
 					return ((AttackerEventInfo)eventInfo).armorSet_attacker;
 		}
@@ -53,9 +39,9 @@ public enum EntityReference
 	{
 		switch(this)
 		{
-			case Target: return eventInfo.element_target;
-			case Projectile: return ((ProjectileEventInfo)eventInfo).rangedElement;
-			case Attacker: 
+			case TARGET: return eventInfo.element_target;
+			case PROJECTILE: return ((ProjectileEventInfo)eventInfo).rangedElement;
+			case ATTACKER: 
 				if(eventInfo.type.equals(EventInfoType.ATTACKER)) 
 					return ((AttackerEventInfo)eventInfo).element_attacker;
 		}
@@ -66,9 +52,9 @@ public enum EntityReference
 	{
 		switch(this)
 		{
-			case Target: return eventInfo.entity_target;
-			case Projectile: return (eventInfo.type.equals(EventInfoType.PROJECTILE))?((ProjectileEventInfo)eventInfo).projectile:null;
-			case Attacker: return (eventInfo.type.equals(EventInfoType.ATTACKER))?((AttackerEventInfo)eventInfo).entity_attacker:null;
+			case TARGET: return eventInfo.entity_target;
+			case PROJECTILE: return (eventInfo.type.equals(EventInfoType.PROJECTILE))?((ProjectileEventInfo)eventInfo).projectile:null;
+			case ATTACKER: return (eventInfo.type.equals(EventInfoType.ATTACKER))?((AttackerEventInfo)eventInfo).entity_attacker:null;
 		}
 		return null;//shouldn't happen.
 	}
@@ -77,17 +63,17 @@ public enum EntityReference
 	{
 		switch(this)
 		{
-			case Target:
+			case TARGET:
 				switch(eventInfo.type)
 				{
 					case PROJECTILE:	return ((ProjectileEventInfo)eventInfo).projectile;
 					case ATTACKER:		return ((AttackerEventInfo)eventInfo).entity_attacker;
 				}
 				break;
-			case Projectile:
+			case PROJECTILE:
 				if(eventInfo.type.equals(EventInfoType.ATTACKER)) return ((AttackerEventInfo)eventInfo).entity_attacker;
 				break;
-			case Attacker:
+			case ATTACKER:
 				return eventInfo.entity_target;
 		}
 		return null;
@@ -98,8 +84,8 @@ public enum EntityReference
 	{
 		switch(this)
 		{
-			case Target: return eventInfo.groups_target;
-			case Attacker: 
+			case TARGET: return eventInfo.groups_target;
+			case ATTACKER: 
 				if(eventInfo.type.equals(EventInfoType.ATTACKER)) 
 					return ((AttackerEventInfo)eventInfo).groups_attacker;
 		}
@@ -110,8 +96,8 @@ public enum EntityReference
 	{
 		switch(this)
 		{
-			case Target: return eventInfo.materialInHand_target;
-			case Attacker: 
+			case TARGET: return eventInfo.materialInHand_target;
+			case ATTACKER: 
 				if(eventInfo.type.equals(EventInfoType.ATTACKER))
 					return ((AttackerEventInfo)eventInfo).materialInHand_attacker;
 		}

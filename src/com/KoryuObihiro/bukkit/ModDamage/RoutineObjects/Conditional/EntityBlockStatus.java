@@ -121,8 +121,9 @@ public class EntityBlockStatus extends EntityConditionalStatement
 				if(matcher.group(3).equalsIgnoreCase(type.name()))
 						statusType = type;
 			Collection<Material> materials = AliasManager.matchMaterialAlias(matcher.group(4));
-			if(EntityReference.isValid(matcher.group(2)) && statusType != null)
-				return new EntityBlockStatus(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), statusType, materials);
+			EntityReference reference = EntityReference.match(matcher.group(2));
+			if(reference != null && statusType != null)
+				return new EntityBlockStatus(matcher.group(1).equalsIgnoreCase("!"), reference, statusType, materials);
 			return null;
 		}
 	}

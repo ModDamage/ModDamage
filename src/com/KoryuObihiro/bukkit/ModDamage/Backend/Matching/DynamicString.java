@@ -48,7 +48,8 @@ public class DynamicString
 			if(commonAttempt.equalsIgnoreCase(property.name()))
 				return new DynamicString(property);
 		String[] matches = string.split("\\.");
-		if(matches.length == 2 && EntityReference.isValid(matches[0], true))
+		EntityReference reference = EntityReference.valueOf(matches[0].toUpperCase());
+		if(matches.length == 2 && reference != null)
 			for(EntityStringPropertyMatch match : EntityStringPropertyMatch.values())
 				if(matches[1].equalsIgnoreCase(match.name()))
 					return new DynamicEntityString(EntityReference.match(matches[0]), match);

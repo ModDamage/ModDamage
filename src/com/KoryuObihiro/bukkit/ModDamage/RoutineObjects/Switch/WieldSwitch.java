@@ -1,7 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,9 +16,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine.EntitySing
 
 public class WieldSwitch extends EntitySingleTraitSwitchRoutine<Material>
 {
-	public WieldSwitch(String configString, EntityReference entityReference, LinkedHashMap<String, Object> switchStatements) 
+	public WieldSwitch(String configString, EntityReference entityReference, List<String> switchCases, List<Object> nestedContents) 
 	{
-		super(configString, switchStatements, ModDamageElement.LIVING, entityReference);
+		super(configString, switchCases, nestedContents, ModDamageElement.LIVING, entityReference);
 	}
 	@Override
 	protected Material getRelevantInfo(TargetEventInfo eventInfo){ return entityReference.getMaterial(eventInfo);}
@@ -35,10 +35,11 @@ public class WieldSwitch extends EntitySingleTraitSwitchRoutine<Material>
 	protected static class RoutineBuilder extends SwitchRoutine.SwitchBuilder
 	{
 		@Override
-		public WieldSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+		public WieldSwitch getNew(Matcher matcher, List<String> switchCases, List<Object> nestedContents)
 		{
-			if(EntityReference.isValid(matcher.group(1)))
-				return new WieldSwitch(matcher.group(), EntityReference.match(matcher.group(1)), switchStatements);
+			EntityReference reference = EntityReference.match(matcher.group(1));
+			if(reference != null)
+				return new WieldSwitch(matcher.group(), reference, switchCases, nestedContents);
 			return null;
 		}
 	}

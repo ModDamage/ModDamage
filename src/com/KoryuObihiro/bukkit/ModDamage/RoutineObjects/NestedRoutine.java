@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Delay;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.EntityItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Knockback;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Message;
 
@@ -21,6 +22,7 @@ public abstract class NestedRoutine extends Routine
 	{
 		registeredNestedRoutines.clear();
 		Delay.register();
+		EntityItem.register();
 		Message.register();
 		Knockback.register();
 		CalculationRoutine.register();

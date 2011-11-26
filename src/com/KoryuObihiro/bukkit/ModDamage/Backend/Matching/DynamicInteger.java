@@ -135,7 +135,7 @@ public class DynamicInteger extends DynamicString
 							if(matches[1].equalsIgnoreCase(match.name()))
 								return new DynamicServerInteger(match, isNegative);
 					}
-					else if(EntityReference.isValid(matches[0]))
+					else if(EntityReference.valueOf(matches[0]) != null)
 					{
 						if(matches[1].toUpperCase().startsWith("SKILL_"))//TODO Make this more dynamic when necessary.
 						{

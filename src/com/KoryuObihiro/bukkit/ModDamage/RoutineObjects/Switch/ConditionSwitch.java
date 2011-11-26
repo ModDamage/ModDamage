@@ -1,6 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,9 +11,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine;
 //FIXME Do I work?
 public class ConditionSwitch extends SwitchRoutine<TargetEventInfo, ConditionalStatement>
 {
-	public ConditionSwitch(String configString, LinkedHashMap<String, Object> switchLabels)
+	public ConditionSwitch(String configString, List<String> switchCases, List<Object> nestedContents)
 	{
-		super(configString, switchLabels);
+		super(configString, switchCases, nestedContents);
 	}
 
 	@Override
@@ -30,15 +30,15 @@ public class ConditionSwitch extends SwitchRoutine<TargetEventInfo, ConditionalS
 	
 	public static void register()
 	{
-		SwitchRoutine.registerSwitch(Pattern.compile("(condition|if)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		SwitchRoutine.registerSwitch(Pattern.compile("(?:condition|if)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends SwitchRoutine.SwitchBuilder
 	{
 		@Override
-		public ConditionSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+		public ConditionSwitch getNew(Matcher matcher, List<String> switchCases, List<Object> nestedContents)
 		{
-			return new ConditionSwitch(matcher.group(), switchStatements);
+			return new ConditionSwitch(matcher.group(), switchCases, nestedContents);
 		}
 	}
 }

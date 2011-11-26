@@ -53,7 +53,7 @@ enum ModDamageEventHandler
 		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
 		{
 			eventType.routines.clear();
-			Object nestedContent = ModDamage.getPluginConfiguration().getConfigMap().get(PluginConfiguration.getCaseInsensitiveKey(ModDamage.getPluginConfiguration().getConfigMap(), eventType.name()));//XXX This is nasty. Change it.
+			Object nestedContent = PluginConfiguration.getCaseInsensitiveValue(ModDamage.getPluginConfiguration().getConfigMap(), eventType.name());
 			if(nestedContent != null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
@@ -209,6 +209,7 @@ enum ModDamageEventHandler
 			    switch(primaryElement)
 			    {
 			    	case LIVING:
+			    	case EXPLOSION_ENTITY:
 			    	case PROJECTILE:
 						if(event instanceof EntityDamageByEntityEvent)
 						{
@@ -222,10 +223,10 @@ enum ModDamageEventHandler
 								else if(event_EE.getCause().equals(DamageCause.PROJECTILE))//FIXME Necessary?
 					    			return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.DISPENSER, projectile, rangedElement, event.getDamage());
 							}
-							else if(event_EE.getDamager() != null) return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), (LivingEntity)event_EE.getDamager(), ModDamageElement.matchMobType((LivingEntity)event_EE.getDamager()), null, null, event.getDamage());
+							else if(event_EE.getDamager() instanceof LivingEntity) return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), (LivingEntity)event_EE.getDamager(), ModDamageElement.matchMobType((LivingEntity)event_EE.getDamager()), null, null, event.getDamage());
 						}
-			    	case UNKNOWN: break;
 					default: return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, primaryElement, null, null, event.getDamage());
+			    	case UNKNOWN: break;
 			    }
 			}
 		    return null;

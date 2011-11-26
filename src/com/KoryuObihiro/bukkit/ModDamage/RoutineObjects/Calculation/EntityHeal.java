@@ -38,8 +38,9 @@ public class EntityHeal extends EntityCalculationRoutine
 		@Override
 		public EntityHeal getNew(Matcher matcher, DynamicInteger match)
 		{
-			if(EntityReference.isValid(matcher.group(1)))
-				return new EntityHeal(matcher.group(), EntityReference.match(matcher.group(1)), match);
+			EntityReference reference = EntityReference.match(matcher.group(1));
+			if(reference != null)
+				return new EntityHeal(matcher.group(), reference, match);
 			return null;
 		}
 	}

@@ -1,7 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,9 +16,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.SwitchRoutine.EntitySing
 
 public class BiomeSwitch extends EntitySingleTraitSwitchRoutine<Biome>
 {
-	public BiomeSwitch(String configString, EntityReference entityReference, LinkedHashMap<String, Object> switchLabels)
+	public BiomeSwitch(String configString, EntityReference entityReference, List<String> switchCases, List<Object> nestedContents)
 	{
-		super(configString, switchLabels, ModDamageElement.GENERIC, entityReference);//XXX Optimization - check for generic first?
+		super(configString, switchCases, nestedContents, ModDamageElement.GENERIC, entityReference);//XXX Optimization - check for generic first?
 	}
 	@Override
 	protected Biome getRelevantInfo(TargetEventInfo eventInfo){ return getRelevantEntity(eventInfo).getLocation().getBlock().getBiome();}
@@ -35,10 +35,11 @@ public class BiomeSwitch extends EntitySingleTraitSwitchRoutine<Biome>
 	protected static class RoutineBuilder extends SwitchRoutine.SwitchBuilder
 	{
 		@Override
-		public BiomeSwitch getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements)
+		public BiomeSwitch getNew(Matcher matcher, List<String> switchCases, List<Object> nestedContents)
 		{
-			if(EntityReference.isValid(matcher.group(1)))
-				return new BiomeSwitch(matcher.group(), EntityReference.match(matcher.group(1)), switchStatements);
+			EntityReference reference = EntityReference.match(matcher.group(1));
+			if(reference != null)
+				return new BiomeSwitch(matcher.group(), reference, switchCases, nestedContents);
 			return null;
 		}
 	}

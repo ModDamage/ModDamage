@@ -42,11 +42,12 @@ public class Tag extends Routine
 	{
 		@Override
 		public Tag getNew(Matcher matcher)
-		{
-			if(EntityReference.isValid(matcher.group(2)))
+		{//TODO 0.9.6 - timed tag
+			EntityReference reference = EntityReference.match(matcher.group(2));
+			if(reference != null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, (matcher.group(1) == null?"Untag":"Tag") + ": " + matcher.group(2) + ", " + matcher.group(3));
-				return new Tag(matcher.group(), matcher.group(3).toLowerCase(), EntityReference.match(matcher.group(2)), matcher.group(1) == null);
+				return new Tag(matcher.group(), matcher.group(3).toLowerCase(), reference, matcher.group(1) == null);
 			}
 			return null;
 		}

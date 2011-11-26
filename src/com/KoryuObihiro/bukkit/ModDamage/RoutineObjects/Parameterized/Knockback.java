@@ -11,7 +11,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
@@ -20,7 +19,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 //FIXME Do I work?
-public class Knockback extends ParameterizedRoutine
+public class Knockback extends ParameterizedIntegerRoutine
 {	
 	protected final EntityReference entityReference;
 	protected final boolean usingParameterized;
@@ -53,12 +52,12 @@ public class Knockback extends ParameterizedRoutine
 			relativeXDiff = (firstEntity.getLocation().getX() - secondEntity.getLocation().getX());
 			relativeZDiff = (firstEntity.getLocation().getZ() - secondEntity.getLocation().getZ());
 		}
+		
 		else
 		{
 			Vector vector = firstEntity.getLocation().getDirection();
 			relativeXDiff = vector.getX();
 			relativeZDiff = relativeXDiff = vector.getZ();
-			PluginConfiguration.log.info("Direction: " + vector.toString());//TODO REMOVE ME
 		}
 
 		int firstIntegerValue = integers.get(0).getValue(eventInfo);
@@ -67,7 +66,6 @@ public class Knockback extends ParameterizedRoutine
 		if(usingParameterized)
 		{
 			Vector vector = firstEntity.getVelocity().add(new Vector(relativeXDiff * firstIntegerValue, integers.get(1).getValue(eventInfo), relativeZDiff * firstIntegerValue));
-			PluginConfiguration.log.info("Knockback: " + vector.toString());//TODO REMOVE ME
 			firstEntity.setVelocity(vector);			
 			eventInfo.eventValue = temp;
 		}
@@ -84,7 +82,6 @@ public class Knockback extends ParameterizedRoutine
 			relativeZDiff *= relativeZDiff != 0?relativeZDiff * (relativeZDiff/Math.abs(relativeZDiff)):0;
 			
 			Vector vector = firstEntity.getVelocity().add(new Vector(relativeXDiff * multiplier, relativeYDiff * multiplier, relativeZDiff * multiplier));
-			PluginConfiguration.log.info("Knockback: " + vector.toString());//TODO REMOVE ME
 			firstEntity.setVelocity(vector);//TODO Use some trig here?
 		}
 	}
@@ -96,22 +93,22 @@ public class Knockback extends ParameterizedRoutine
 		@Override
 		public Knockback getNew(Matcher matcher, Object nestedContent)
 		{
-			boolean entityMatches = EntityReference.isValid(matcher.group(1));
+			EntityReference reference = EntityReference.match(matcher.group(1));
 			if(nestedContent instanceof LinkedHashMap)
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "KnockBack (parameterized): ");
 				
 				List<DynamicInteger> integers = new ArrayList<DynamicInteger>();
-				if(ParameterizedRoutine.getParameters(integers, (LinkedHashMap<String, Object>)nestedContent, "X", "Y") && entityMatches)
-					return new Knockback(matcher.group(), integers.get(0), integers.get(1), EntityReference.match(matcher.group(1)));
+				if(ParameterizedIntegerRoutine.getRoutineParameters(integers, ModDamage.getPluginConfiguration().castToStringMap("Knockback routine", nestedContent), "X", "Y") && reference != null)
+					return new Knockback(matcher.group(), integers.get(0), integers.get(1), reference);
 				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "");
 			}
 			else
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "KnockBack: ");
 				List<Routine> routines = new ArrayList<Routine>();
-				if(RoutineAliaser.parseRoutines(routines, nestedContent) && entityMatches)
-					return new Knockback(matcher.group(), routines, EntityReference.match(matcher.group(1)));
+				if(RoutineAliaser.parseRoutines(routines, nestedContent) && reference != null)
+					return new Knockback(matcher.group(), routines, reference);
 			}
 			return null;
 		}

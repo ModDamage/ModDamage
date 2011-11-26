@@ -10,7 +10,6 @@ import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.EntityItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.Calculate;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.ChangeProperty;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityExplode;
@@ -18,6 +17,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHurt;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySpawn;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityUnknownHurt;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.McMMOChangeSkill;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.EntityItem;
 
 abstract public class CalculationRoutine extends NestedRoutine 
 {

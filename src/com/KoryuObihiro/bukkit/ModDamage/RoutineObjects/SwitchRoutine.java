@@ -16,12 +16,13 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerGroupSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ArmorSetSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.BiomeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.ConditionSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EntityTypeSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.EnvironmentSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.PlayerGroupSwitch;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WeightedSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WieldSwitch;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Switch.WorldSwitch;
 
@@ -29,47 +30,56 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 {
 	private static LinkedHashMap<Pattern, SwitchBuilder> registeredSwitchRoutines = new LinkedHashMap<Pattern, SwitchBuilder>();
 	
-	protected final LinkedHashMap<CaseInfoClass, List<Routine>> switchStatements;
+	protected final List<CaseInfoClass> switchCases = new ArrayList<CaseInfoClass>();
+	protected final List<List<Routine>> switchRoutines = new ArrayList<List<Routine>>();
 	public final boolean isLoaded;
 	public final List<String> failedCases = new ArrayList<String>();
 	
 	//TODO Definitely not as efficient as it could be. Refactor?
-	protected SwitchRoutine(String configString, LinkedHashMap<String, Object> rawSwitchStatements)
+	protected SwitchRoutine(String configString, List<String> switchCases, List<Object> nestedContents)
 	{
 		super(configString);
-		this.switchStatements = new LinkedHashMap<CaseInfoClass, List<Routine>>();
 		boolean caseFailed = false;
-		for(String switchCase : rawSwitchStatements.keySet())
+		for(int i = 0; i < switchCases.size(); i++)
 		{
 			//get the case first, see if it refers to anything valid
-			CaseInfoClass matchedCase = matchCase(switchCase);
-			NestedRoutine.paddedLogRecord(OutputPreset.INFO, " case: \"" + switchCase + "\"");
+			String switchCase = switchCases.get(i);
+			CaseInfoClass matchedCase = matchCase(switchCases.get(i));
+			if(caseIsSane(matchedCase))
+				NestedRoutine.paddedLogRecord(OutputPreset.INFO, " case: \"" + switchCase + "\"");
+			else
+			{
+				NestedRoutine.paddedLogRecord(OutputPreset.INFO, " case (failed): \"" + switchCase + "\"");
+				caseFailed = true;
+			}
 			//then grab the routines
 			List<Routine> routines = new ArrayList<Routine>();
-			if(RoutineAliaser.parseRoutines(routines, rawSwitchStatements.get(switchCase)))
+			if(RoutineAliaser.parseRoutines(routines, nestedContents.get(i)))
 			{
-				switchStatements.put(matchedCase, routines);
+				this.switchCases.add(matchedCase);
+				this.switchRoutines.add(routines);
 				NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, " End case \"" + switchCase + "\"");
 			}	
-			else NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, " Invalid content in case \"" + switchCase + "\"");
-			//Check if the case is valid
-			if(!caseIsSane(matchedCase))
+			else
+			{
+				NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, " Invalid content in case \"" + switchCase + "\"");
 				caseFailed = true;
+			}
 		}
 		isLoaded = !caseFailed;
 	}
 	
-	protected boolean caseIsSane(CaseInfoClass someCase){ return someCase != null && switchStatements.get(someCase) != null;}
+	protected boolean caseIsSane(CaseInfoClass someCase){ return someCase != null;}
 	
 	@Override
 	public void run(TargetEventInfo eventInfo) 
 	{
 		EventInfoClass info = getRelevantInfo(eventInfo);
 		if(info != null)
-			for(CaseInfoClass infoKey : switchStatements.keySet())
-				if(compare(info, infoKey))
+			for(int i = 0; i < switchCases.size(); i++)
+				if(compare(info, switchCases.get(i)))
 				{
-					for(Routine routine : switchStatements.get(infoKey))
+					for(Routine routine : switchRoutines.get(i))
 						routine.run(eventInfo);
 					break;
 				}
@@ -94,6 +104,7 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 		PlayerGroupSwitch.register();
 		WieldSwitch.register();
 		WorldSwitch.register();
+		WeightedSwitch.register();
 	}
 
 	protected static void registerSwitch(Pattern syntax, SwitchBuilder builder)
@@ -103,6 +114,7 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 	
 	protected final static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{
+		@SuppressWarnings("unchecked")
 		@Override
 		public SwitchRoutine<?, ?> getNew(Matcher switchMatcher, Object nestedContent)
 		{
@@ -116,33 +128,52 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 						Matcher matcher = pattern.matcher(switchMatcher.group(1));
 						if(matcher.matches())
 						{
-							@SuppressWarnings("unchecked")
-							LinkedHashMap<String, Object> switchCases = (nestedContent instanceof LinkedHashMap?(LinkedHashMap<String, Object>)nestedContent:null);
-							if(switchCases != null)
+							if(nestedContent != null && nestedContent instanceof List)
 							{
-								SwitchRoutine<?, ?> routine = registeredSwitchRoutines.get(pattern).getNew(matcher, switchCases);
-								if(routine != null)
+								List<?> rawSwitchCases = (List<?>)nestedContent;
+								List<String> switchCases = new ArrayList<String>();
+								List<Object> nestedContents = new ArrayList<Object>();
+								boolean finished = true;
+								for(Object object : rawSwitchCases)
 								{
-									if(routine.isLoaded)
+									if((object instanceof LinkedHashMap) && ((LinkedHashMap<?, ?>)object).size() == 1)
 									{
-										NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End Switch \"" + switchMatcher.group() + "\"");
-										return routine;
+										LinkedHashMap<String, Object> tempMap = ((LinkedHashMap<String, Object>)object);
+										for(String string : tempMap.keySet())
+										{
+											switchCases.add(string);
+											nestedContents.add(tempMap.get(string));
+										}
 									}
 									else 
 									{
-										ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-										ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid contents of Switch \"" + switchMatcher.group() + "\"");
-										for(String caseName : routine.failedCases)
-											ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: invalid case \"" + caseName + "\"");
-										ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+										finished = false;
+										break;
+									}
+								}
+								if(finished)
+								{
+									SwitchRoutine<?, ?> routine = registeredSwitchRoutines.get(pattern).getNew(matcher, switchCases, nestedContents);
+									if(routine != null)
+									{
+										if(routine.isLoaded)
+										{
+											NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End Switch \"" + switchMatcher.group() + "\"");
+											return routine;
+										}
+										else 
+										{
+											ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+											ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid contents of Switch \"" + switchMatcher.group() + "\"");
+											for(String caseName : routine.failedCases)
+												ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: invalid case \"" + caseName + "\"");
+											ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+										}
 									}
 								}
 							}
-							else
-							{
-								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unexpected nested content " + nestedContent.toString() + " in Switch routine \"" + switchMatcher + "\"");
-								ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-							}
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unexpected nested content " + nestedContent.toString() + " in Switch routine \"" + switchMatcher + "\"");
+							ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 							break;
 						}
 					}
@@ -155,15 +186,15 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 	
 	abstract protected static class SwitchBuilder
 	{
-		abstract protected SwitchRoutine<?, ?> getNew(Matcher matcher, LinkedHashMap<String, Object> switchStatements);
+		abstract protected SwitchRoutine<?, ?> getNew(Matcher matcher, List<String> switchCases, List<Object> nesteContents);
 	}
 	
 	abstract public static class SingleValueSwitchRoutine<Type> extends SwitchRoutine<Type, Collection<Type>>
 	{
 
-		protected SingleValueSwitchRoutine(String configString, LinkedHashMap<String, Object> rawSwitchStatements)
+		protected SingleValueSwitchRoutine(String configString, List<String> switchCases, List<Object> nestedContents)
 		{
-			super(configString, rawSwitchStatements);
+			super(configString, switchCases, nestedContents);
 		}
 
 		@Override
@@ -180,9 +211,9 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 	{
 		protected final ModDamageElement necessaryElement;
 		protected final EntityReference entityReference;
-		protected EntitySingleTraitSwitchRoutine(String configString, LinkedHashMap<String, Object> switchStatements, ModDamageElement necessaryElement, EntityReference entityReference) 
+		protected EntitySingleTraitSwitchRoutine(String configString, List<String> switchCases, List<Object> nestedContents, ModDamageElement necessaryElement, EntityReference entityReference) 
 		{
-			super(configString, switchStatements);
+			super(configString, switchCases, nestedContents);
 			this.necessaryElement = necessaryElement;
 			this.entityReference = entityReference;
 		}
@@ -199,9 +230,9 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 	{
 		protected final ModDamageElement necessaryElement;
 		protected final EntityReference entityReference;
-		protected EntityMultipleTraitSwitchRoutine(String configString, LinkedHashMap<String, Object> switchStatements, ModDamageElement necessaryElement, EntityReference entityReference) 
+		protected EntityMultipleTraitSwitchRoutine(String configString, List<String> switchCases, List<Object> nestedContents, ModDamageElement necessaryElement, EntityReference entityReference) 
 		{
-			super(configString, switchStatements);
+			super(configString, switchCases, nestedContents);
 			this.necessaryElement = necessaryElement;
 			this.entityReference = entityReference;
 		}

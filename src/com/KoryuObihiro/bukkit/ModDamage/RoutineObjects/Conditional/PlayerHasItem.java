@@ -61,8 +61,9 @@ public class PlayerHasItem extends EntityConditionalStatement
 		public PlayerHasItem getNew(Matcher matcher)
 		{
 			Collection<ModDamageItemStack> items = AliasManager.matchItemAlias(matcher.group(4));
-			if(EntityReference.isValid(matcher.group(2)) && !items.isEmpty())
-				return new PlayerHasItem(matcher.group(1).equals("!"), EntityReference.match(matcher.group(2)), matcher.group(3).equalsIgnoreCase("allitems"), items);
+			EntityReference reference = EntityReference.match(matcher.group(2));
+			if(reference != null && !items.isEmpty())
+				return new PlayerHasItem(matcher.group(1).equals("!"), reference, matcher.group(3).equalsIgnoreCase("allitems"), items);
 			return null;
 		}
 	}

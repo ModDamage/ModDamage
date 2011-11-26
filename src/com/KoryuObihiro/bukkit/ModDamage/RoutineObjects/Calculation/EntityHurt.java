@@ -45,8 +45,9 @@ public class EntityHurt extends EntityCalculationRoutine
 		@Override
 		public EntityHurt getNew(Matcher matcher, DynamicInteger match)
 		{
-			if(EntityReference.isValid(matcher.group(1)))
-				return new EntityHurt(matcher.group(), EntityReference.match(matcher.group(1)), match);
+			EntityReference reference = EntityReference.match(matcher.group(1));
+			if(reference != null)
+				return new EntityHurt(matcher.group(), reference, match);
 			return null;
 		}
 	}

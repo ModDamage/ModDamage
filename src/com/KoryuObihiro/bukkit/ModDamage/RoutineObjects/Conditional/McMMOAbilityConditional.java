@@ -119,8 +119,9 @@ public class McMMOAbilityConditional extends McMMOConditionalStatement
 				if(matcher.group(3).equalsIgnoreCase(ability.name()))
 					mcMMOability = ability;
 			if(mcMMOability == null) ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid McMMO ability \"" + matcher.group(3) + "\"");
-			if(EntityReference.isValid(matcher.group(2)) & mcMMOability != null)
-				return new McMMOAbilityConditional(matcher.group(1).equalsIgnoreCase("!"), EntityReference.match(matcher.group(2)), mcMMOability);
+			EntityReference reference = EntityReference.match(matcher.group(2));
+			if(reference != null & mcMMOability != null)
+				return new McMMOAbilityConditional(matcher.group(1).equalsIgnoreCase("!"), reference, mcMMOability);
 			return null;
 		}
 	}
