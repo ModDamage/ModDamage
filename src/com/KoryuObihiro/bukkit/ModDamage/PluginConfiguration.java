@@ -115,7 +115,7 @@ public class PluginConfiguration
 		this.oldestSupportedBuild = oldestSupportedBuild;
 	}
 
-	public void reload(boolean reloadingAll)
+	public boolean reload(boolean reloadingAll)
 	{
 		long reloadStartTime = System.nanoTime();
 		LoadState.pluginState = LoadState.NOT_LOADED;
@@ -136,19 +136,27 @@ public class PluginConfiguration
 				stream = new FileInputStream(configFile);
 				configObject = yaml.load(stream);
 				stream.close();
-				if(configObject == null) writeDefaults();
+				if(configObject == null)
+				{
+					if(!writeDefaults())
+						return false;
+				}
 				else configMap = castToStringMap("config.yml", configObject);
 			}
-			catch (FileNotFoundException e){ writeDefaults();}
-			catch (IOException e){ log.severe("Fatal: could not close config.yml!");}
+			catch (FileNotFoundException e)
+			{
+				if(!writeDefaults())
+					return false;
+			}
+			catch (IOException e){ printToLog(Level.SEVERE, "Fatal: could not close config.yml!");}
 			catch (YAMLException e)
 			{
 				// TODO 0.9.7 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not
 				// auto-load config.
-				addToLogRecord(OutputPreset.FAILURE, "Error in YAML configuration. Please use valid YAML in config.yml.");
-				e.printStackTrace();
+				addToLogRecord(OutputPreset.FAILURE, logPrepend() + "Error in YAML configuration. Please use valid YAML in config.yml.");
+				addToLogRecord(OutputPreset.FAILURE, e.toString());
 				LoadState.pluginState = LoadState.FAILURE;
-				return;
+				return false;
 			}
 		}
 
@@ -218,6 +226,7 @@ public class PluginConfiguration
 		}
 
 		addToLogRecord(OutputPreset.INFO_VERBOSE, "Reload operation took " + (System.nanoTime() - reloadStartTime) + " nanoseconds.");
+		return true;
 	}
 
 	private boolean writeDefaults()

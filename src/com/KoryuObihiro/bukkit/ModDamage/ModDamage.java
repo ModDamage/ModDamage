@@ -68,13 +68,12 @@ public class ModDamage extends JavaPlugin
 	public void onDisable()
 	{
 		tagger.close();
-		PluginConfiguration.log.info("[" + this.getDescription().getName() + "] disabled.");
+		configuration.printToLog(Level.INFO, "[" + this.getDescription().getName() + "] disabled.");
 	}
 	
 	public void reload(boolean reloadingAll)
 	{
-		configuration.reload(reloadingAll);
-		if(reloadingAll)
+		if(configuration.reload(reloadingAll) && reloadingAll)
 		{
 			if(tagger != null) tagger.close();
 
@@ -271,8 +270,8 @@ public class ModDamage extends JavaPlugin
 		}
 		else
 		{
-			if(forError) PluginConfiguration.log.info("Error: invalid command syntax.");
-			PluginConfiguration.log.info("ModDamage commands:\n" + "/moddamage | /md - bring up this help message\n" + "/md check - check configuration\n" + "/md debug [debugType] - change debugging type (quiet, normal, verbose)\n" + "/md disable - disable ModDamage\n" + "/md enable - enable ModDamage\n" + "/md reload - reload configuration");
+			if(forError) configuration.printToLog(Level.SEVERE, "Error: invalid command syntax.");
+			configuration.printToLog(Level.INFO, "ModDamage commands:\n" + "/moddamage | /md - bring up this help message\n" + "/md check - check configuration\n" + "/md debug [debugType] - change debugging type (quiet, normal, verbose)\n" + "/md disable - disable ModDamage\n" + "/md enable - enable ModDamage\n" + "/md reload - reload configuration");
 		}
 	}
 
