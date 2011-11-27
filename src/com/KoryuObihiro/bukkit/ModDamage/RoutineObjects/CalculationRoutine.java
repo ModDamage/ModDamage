@@ -3,6 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,9 +75,9 @@ abstract public class CalculationRoutine extends NestedRoutine
 			if(calculationMatcher.group() != null && nestedContent != null)
 			{
 				NestedRoutine.paddedLogRecord(OutputPreset.INFO, "Calculation: \"" + calculationMatcher.group() + "\"");
-				for(Pattern pattern : registeredCalculations.keySet())
+				for(Entry<Pattern, CalculationBuilder> entry : registeredCalculations.entrySet())
 				{
-					Matcher matcher = pattern.matcher(calculationMatcher.group());
+					Matcher matcher = entry.getKey().matcher(calculationMatcher.group());
 					if(matcher.matches())
 					{
 						List<Routine> routines = new ArrayList<Routine>();
@@ -84,7 +85,7 @@ abstract public class CalculationRoutine extends NestedRoutine
 						{
 							DynamicInteger match = DynamicInteger.getNew(routines);
 							NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End Calculation \"" + calculationMatcher.group() + "\"");
-							return registeredCalculations.get(pattern).getNew(matcher, match);
+							return entry.getValue().getNew(matcher, match);
 						}
 						else
 						{

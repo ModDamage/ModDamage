@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -123,9 +124,9 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 				if(switchMatcher.matches())
 				{
 					NestedRoutine.paddedLogRecord(OutputPreset.INFO, "Switch: \"" + switchMatcher.group() + "\"");
-					for(Pattern pattern : registeredSwitchRoutines.keySet())
+					for(Entry<Pattern, SwitchBuilder> entry : registeredSwitchRoutines.entrySet())
 					{
-						Matcher matcher = pattern.matcher(switchMatcher.group(1));
+						Matcher matcher = entry.getKey().matcher(switchMatcher.group(1));
 						if(matcher.matches())
 						{
 							if(nestedContent != null && nestedContent instanceof List)
@@ -139,11 +140,8 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 									if((object instanceof LinkedHashMap) && ((LinkedHashMap<?, ?>)object).size() == 1)
 									{
 										LinkedHashMap<String, Object> tempMap = ((LinkedHashMap<String, Object>)object);
-										for(String string : tempMap.keySet())
-										{
-											switchCases.add(string);
-											nestedContents.add(tempMap.get(string));
-										}
+										switchCases.addAll(tempMap.keySet());
+										nestedContents.addAll(tempMap.values());
 									}
 									else 
 									{
@@ -153,7 +151,7 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 								}
 								if(finished)
 								{
-									SwitchRoutine<?, ?> routine = registeredSwitchRoutines.get(pattern).getNew(matcher, switchCases, nestedContents);
+									SwitchRoutine<?, ?> routine = entry.getValue().getNew(matcher, switchCases, nestedContents);
 									if(routine != null)
 									{
 										if(routine.isLoaded)

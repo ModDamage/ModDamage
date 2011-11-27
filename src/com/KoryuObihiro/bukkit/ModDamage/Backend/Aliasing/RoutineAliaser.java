@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
@@ -98,10 +99,9 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 			{
 				LinkedHashMap<String, Object> someHashMap = (LinkedHashMap<String, Object>)object;
 				if(someHashMap.keySet().size() == 1)
-					for(String key : someHashMap.keySet())//A properly-formatted nested routine is a LinkedHashMap with only one key.
+					for(Entry<String, Object> entry : someHashMap.entrySet())//A properly-formatted nested routine is a LinkedHashMap with only one key.
 					{
-						Object nestedContent = someHashMap.get(key);
-						NestedRoutine routine = NestedRoutine.getNew(key, nestedContent);
+						NestedRoutine routine = NestedRoutine.getNew(entry.getKey(), entry.getValue());
 						if(routine != null) target.add(routine);
 						else
 						{

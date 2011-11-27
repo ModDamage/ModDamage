@@ -3,6 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,11 +62,11 @@ public class ConditionalRoutine extends NestedRoutine
 	{
 		if(string != null)
 		{
-			for(Pattern pattern : registeredConditionalStatements.keySet())
+			for(Entry<Pattern, StatementBuilder> entry : registeredConditionalStatements.entrySet())
 			{
-				Matcher matcher = pattern.matcher(string);
+				Matcher matcher = entry.getKey().matcher(string);
 				if(matcher.matches())
-					return registeredConditionalStatements.get(pattern).getNew(matcher);
+					return entry.getValue().getNew(matcher);
 			}
 		}
 		return null;

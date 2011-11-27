@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,11 +47,11 @@ public abstract class NestedRoutine extends Routine
 	{
 		public NestedRoutine getNew(Matcher anyMatcher, Object nestedContent)
 		{
-			for(Pattern pattern : registeredNestedRoutines.keySet())
+			for(Entry<Pattern, RoutineBuilder> entry : registeredNestedRoutines.entrySet())
 			{
-				Matcher matcher = pattern.matcher(anyMatcher.group());
+				Matcher matcher = entry.getKey().matcher(anyMatcher.group());
 				if(matcher.matches())
-					return registeredNestedRoutines.get(pattern).getNew(matcher, nestedContent);
+					return entry.getValue().getNew(matcher, nestedContent);
 			}
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for nested routine \"" + anyMatcher.group() + "\"");		
 			return null;

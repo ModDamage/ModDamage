@@ -2,6 +2,7 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -14,8 +15,8 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageItemStack;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Message.DynamicMessage;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Message.DynamicMessage;
 
 public enum AliasManager
 {
@@ -50,16 +51,17 @@ public enum AliasManager
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading aliases...");
 
-		for(String configKeys : ModDamage.getPluginConfiguration().getConfigMap().keySet())
-			if(configKeys.equalsIgnoreCase(nodeName))
+		for(Entry<String, Object> configEntry : ModDamage.getPluginConfiguration().getConfigMap().entrySet())
+			if(configEntry.getKey().equalsIgnoreCase(nodeName))
 			{
 				ModDamage.changeIndentation(true);
-				LinkedHashMap<String, Object> aliasesMap = ModDamage.getPluginConfiguration().castToStringMap(nodeName, ModDamage.getPluginConfiguration().getConfigMap().get(nodeName));
+				LinkedHashMap<String, Object> aliasesMap = ModDamage.getPluginConfiguration().castToStringMap(nodeName, configEntry.getValue());
 				if(aliasesMap != null)
 					for(AliasManager aliasType : AliasManager.values())
 					{
-						aliasType.specificLoadState = aliasType.aliaser.load(ModDamage.getPluginConfiguration().castToStringMap(aliasType.name(), PluginConfiguration.getCaseInsensitiveValue(aliasesMap, aliasType.name())));
-						state = LoadState.combineStates(state, aliasType.getSpecificLoadState());
+						LinkedHashMap<String, Object> aliasEntry = ModDamage.getPluginConfiguration().castToStringMap(aliasType.name(), PluginConfiguration.getCaseInsensitiveValue(aliasesMap, aliasType.name()));
+						if(aliasEntry != null)
+							aliasType.specificLoadState = aliasType.aliaser.load(ModDamage.getPluginConfiguration().castToStringMap(aliasType.name(), aliasEntry));
 					}
 				ModDamage.changeIndentation(false);
 				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");

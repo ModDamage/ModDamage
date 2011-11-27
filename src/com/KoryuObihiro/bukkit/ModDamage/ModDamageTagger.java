@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -63,25 +63,24 @@ public class ModDamageTagger
 					{
 						@SuppressWarnings("unchecked")
 						LinkedHashMap<String, Object> tagMap = (LinkedHashMap<String, Object>)tagFileObject;
-						for(String tag : tagMap.keySet())
+						for(Entry<String, Object> entry : tagMap.entrySet())
 						{
-							if(tagMap.get(tag) instanceof List)
+							if(entry.getValue() instanceof List)
 							{
 								HashSet<UUID> uuids = new HashSet<UUID>();
 								
 								@SuppressWarnings("unchecked")
-								List<String> uuidStrings = (List<String>)tagMap.get(tag);
+								List<String> uuidStrings = (List<String>)entry.getValue();
 								for(String uuidString : uuidStrings)
 								{
 									UUID uuid = UUID.fromString(uuidString);
-									if(uuid != null)
-										uuids.add(uuid);
-									else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read entity ID " + uuidString + " for tag \"" + tag + "\".");
+									if(uuid != null) uuids.add(uuid);
+									else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read entity ID " + uuidString + " for tag \"" + entry + "\".");
 								}
-								if(!uuids.isEmpty()) tags.put(tag, uuids);
-								else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "No entity IDs added for tag \"" + tag + "\" in tags.yml.");
+								if(!uuids.isEmpty()) tags.put(entry.getKey(), uuids);
+								else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "No entity IDs added for tag \"" + entry + "\" in tags.yml.");
 							}
-							else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read tag list for tag \"" + tag + "\".");
+							else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read tag list for tag \"" + entry + "\".");
 						}
 					}
 					else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Incorrectly formatted tags.yml. Starting with an empty tag list.");
@@ -144,15 +143,12 @@ public class ModDamageTagger
 		if(file != null)
 		{
 			LinkedHashMap<String, List<String>> tempMap = new LinkedHashMap<String, List<String>>();
-			Set<String> keys = tags.keySet();
-			synchronized(tags)
+			for(Entry<String, HashSet<UUID>> entry : tags.entrySet())
 			{
-				for(String tag : keys)
-				{
-					tempMap.put(tag, new ArrayList<String>());
-					for(UUID entityID : tags.get(tag))
-						tempMap.get(tag).add(entityID.toString());
-				}
+				List<String> convertedUUIDS = new ArrayList<String>();
+				for(UUID entityID : entry.getValue())
+					convertedUUIDS.add(entityID.toString());
+				tempMap.put(entry.getKey(), convertedUUIDS);
 			}
 			try
 			{
@@ -224,13 +220,9 @@ public class ModDamageTagger
 	{
 		List<String> entityTags = new ArrayList<String>();
 		int id = entity.getEntityId();
-		Set<String> keys = tags.keySet();
-		synchronized(tags)
-		{	
-			for(String tag : keys)
-				if(tags.get(tag).contains(id))
-					entityTags.add(tag);
-		}
+		for(Entry<String, HashSet<UUID>> entry : tags.entrySet())
+			if(entry.getValue().contains(id))
+				entityTags.add(entry.getKey());
 		return entityTags;
 	}
 	
@@ -254,14 +246,10 @@ public class ModDamageTagger
 		for(World world : Bukkit.getWorlds())
 			for(Entity entity : world.getEntities())
 				ids.add(entity.getUniqueId());
-		Set<String> keys = tags.keySet();
-		synchronized(tags)
-		{	
-			for(String tag : keys)
-				for(UUID id : tags.get(tag))
-					if(!ids.contains(id))
-						tags.get(tag).remove(id);
-		}
+		for(HashSet<UUID> tagList : tags.values())
+			for(UUID id : tagList)
+				if(!ids.contains(id))
+					tagList.remove(id);
 		//clean up the tasks
 		HashSet<Integer> bukkitTaskIDs = new HashSet<Integer>();
 		List<BukkitTask> bukkitTasks = Bukkit.getScheduler().getPendingTasks();

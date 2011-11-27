@@ -2,6 +2,7 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,11 +68,11 @@ abstract public class Routine
 	{
 		public Routine getNew(Matcher anyMatcher)
 		{
-			for(Pattern pattern : registeredBaseRoutines.keySet())
+			for(Entry<Pattern, RoutineBuilder> entry : registeredBaseRoutines.entrySet())
 			{
-				Matcher matcher = pattern.matcher(anyMatcher.group());
+				Matcher matcher = entry.getKey().matcher(anyMatcher.group());
 				if(matcher.matches())
-					return registeredBaseRoutines.get(pattern).getNew(matcher);
+					return entry.getValue().getNew(matcher);
 			}
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for base routine \"" + anyMatcher.group() + "\"");
 			return null;

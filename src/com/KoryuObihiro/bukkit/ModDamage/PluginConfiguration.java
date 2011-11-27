@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -102,12 +103,9 @@ public class PluginConfiguration
 
 	public static Object getCaseInsensitiveValue(LinkedHashMap<String, Object> map, String key)
 	{
-		String caseInsensitiveKey = null;
-		for(String someKey : map.keySet())
-			if(someKey.equalsIgnoreCase(key))
-				caseInsensitiveKey = someKey;
-		if(caseInsensitiveKey != null)
-			return map.get(caseInsensitiveKey);
+		for(Entry<String, Object> entry : map.entrySet())
+			if(entry.getKey().equalsIgnoreCase(key))
+				return entry.getValue();
 		return null;
 	}
 
