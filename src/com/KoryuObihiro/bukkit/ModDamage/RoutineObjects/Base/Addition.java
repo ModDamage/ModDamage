@@ -22,7 +22,7 @@ public class Addition extends Routine
 	
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile(DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(?:add\\.|(?:\\+|\\-)[^\\+\\-]).+", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static final class RoutineBuilder extends Routine.RoutineBuilder
@@ -32,10 +32,13 @@ public class Addition extends Routine
 		{ 
 			if(matcher != null)
 			{
-				DynamicInteger match = DynamicInteger.getNew(matcher.group(1));
+				String string = matcher.group().startsWith("+")?matcher.group().substring(1):matcher.group();
+				if(string.toLowerCase().startsWith("add."))
+					string = string.substring(4);
+				DynamicInteger match = DynamicInteger.getNew(string);
 				if(match != null)
 				{
-					ModDamage.addToLogRecord(OutputPreset.INFO, "Add: " + matcher.group(1));
+					ModDamage.addToLogRecord(OutputPreset.INFO, "Add: " + matcher.group());
 					return new Addition(matcher.group(), match);
 				}
 			}

@@ -210,7 +210,7 @@ public class ExternalPluginManager
 				regionsPlugin = ((elRegionsPlugin)plugin);
 			}
 		},
-		Worldguard
+		WorldGuard
 		{
 			private GlobalRegionManager regionManager = null;
 			

@@ -24,7 +24,7 @@ public class Division extends Routine
 	
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("div(?:ide)?(_add)?\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(?:div(?:ide)?(_add)?\\.|\\\\|/)(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends Routine.RoutineBuilder

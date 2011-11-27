@@ -13,6 +13,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.Calculate;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.ChangeProperty;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityExplode;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHeal;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHurt;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySpawn;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityUnknownHurt;
@@ -50,11 +51,11 @@ abstract public class CalculationRoutine extends NestedRoutine
 		
 		McMMOChangeSkill.register();
 
-		
 		Calculate.register();
 		ChangeProperty.register();
 		EntityItem.register();
 		EntityExplode.register();
+		EntityHeal.register();
 		EntityHurt.register();
 		EntitySpawn.register();
 		EntityUnknownHurt.register();
