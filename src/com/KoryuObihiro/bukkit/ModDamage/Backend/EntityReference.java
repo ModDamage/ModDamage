@@ -8,8 +8,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo.EventInfoType;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo.EventInfoType;
 
 public enum EntityReference
 {
@@ -18,9 +18,11 @@ public enum EntityReference
 //Use these when building routines.
 	public static EntityReference match(String string)
 	{
-		EntityReference reference = EntityReference.valueOf(string.toUpperCase());
-		if(reference == null) ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + string + "\" is not a valid entity reference.");
-		return reference;
+		for(EntityReference reference : EntityReference.values())
+			if(reference.name().equalsIgnoreCase(string))
+				return reference;
+		ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + string + "\" is not a valid entity reference.");
+		return null;
 	}
 //Stuff for matching info.
 	public ArmorSet getArmorSet(TargetEventInfo eventInfo) 

@@ -68,7 +68,11 @@ public class Message extends NestedRoutine
 			EntityReference reference = EntityReference.match(key);
 			if(reference != null)
 				return ENTITY;
-			else return MessageType.valueOf(key);
+			else
+				for(MessageType type : MessageType.values())
+					if(type != MessageType.ENTITY && type.name().equalsIgnoreCase(key))
+						return type;
+			return null;
 		}
 	}
 	
@@ -97,7 +101,7 @@ public class Message extends NestedRoutine
 				}
 				else
 				{
-					//ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Reference not found, marking invalid.");
+					ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Reference not found, marking invalid.");
 					message = integerMatcher.group(1) + "INVALID" + integerMatcher.group(3);
 					integerMatcher = stringReplacePattern.matcher(message);
 				}
@@ -135,20 +139,16 @@ public class Message extends NestedRoutine
 		@Override
 		public String toString()//TODO Algorithm is retarded, but not sure how else to do it at this point.
 		{
-			int currentCount = matches.size() - 1;
 			String displayString = message;
-			while(displayString.contains(insertionCharacter))
-			{
-				displayString = displayString.replaceFirst(insertionCharacter, "%" + matches.get(currentCount).toString() + "%");
-				currentCount--;
-			}
+			for(int i = matches.size() - 1; i > 0; i--)
+				displayString = displayString.replaceFirst(insertionCharacter, "%" + matches.get(i).toString() + "%");
 			return displayString;
 		}
 	}
 	
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("message\\.(\\w+)\\.(.*)", Pattern.CASE_INSENSITIVE), new BaseRoutineBuilder());//"debug\\.(server|(?:world(\\.[a-z0-9]+))|(?:player\\.[a-z0-9]+))\\.(_[a-z0-9]+)"
+		Routine.registerRoutine(Pattern.compile("message\\.(\\w+)\\.(.+)", Pattern.CASE_INSENSITIVE), new BaseRoutineBuilder());//"debug\\.(server|(?:world(\\.[a-z0-9]+))|(?:player\\.[a-z0-9]+))\\.(_[a-z0-9]+)"
 		NestedRoutine.registerRoutine(Pattern.compile("message.(\\w+)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
 	}
 	
@@ -176,7 +176,7 @@ public class Message extends NestedRoutine
 					routine.reportContents();
 					return routine;
 				}
-				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Message content \"" + matcher.group(3) + "\" is invalid.");
+				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: Message content is invalid.");
 			}
 			return null;
 		}

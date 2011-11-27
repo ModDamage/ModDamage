@@ -15,7 +15,7 @@ public class RegionAliaser extends CollectionAliaser<String>
 	protected String matchNonAlias(String key)
 	{
 		if(!ExternalPluginManager.getRegionsManager().getAllRegions().contains(key))
-			ModDamage.addToLogRecord(OutputPreset.WARNING, "Warning: region \"" + key + "\" does not currently exist.");
+			ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Warning: region \"" + key + "\" does not currently exist.");
 		return key;
 	}
 

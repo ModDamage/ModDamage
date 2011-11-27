@@ -88,7 +88,8 @@ public class PluginConfiguration
 		FAILURE(DebugSetting.QUIET, ChatColor.RED, Level.SEVERE),
 		INFO(DebugSetting.NORMAL, ChatColor.GREEN, Level.INFO),
 		INFO_VERBOSE(DebugSetting.VERBOSE, ChatColor.AQUA, Level.INFO),
-		WARNING(DebugSetting.VERBOSE, ChatColor.YELLOW, Level.WARNING);
+		WARNING(DebugSetting.VERBOSE, ChatColor.YELLOW, Level.WARNING),
+		WARNING_STRONG(DebugSetting.NORMAL, ChatColor.YELLOW, Level.WARNING);
 		
 		protected final DebugSetting debugSetting;
 		protected final ChatColor color;

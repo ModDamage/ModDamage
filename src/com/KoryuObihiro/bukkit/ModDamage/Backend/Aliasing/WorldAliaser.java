@@ -18,8 +18,11 @@ public class WorldAliaser extends CollectionAliaser<String>
 	@Override
 	protected String matchNonAlias(String key)
 	{
-		if(Bukkit.getWorld(key) == null) 
-			ModDamage.addToLogRecord(OutputPreset.WARNING, "Warning: world \"" + key + "\" does not currently exist.");
+		if(Bukkit.getWorld(key) == null)
+		{
+			ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Warning: world \"" + key + "\" does not currently exist.");
+			return key;
+		}
 		return Bukkit.getWorld(key).getName();
 	}
 
