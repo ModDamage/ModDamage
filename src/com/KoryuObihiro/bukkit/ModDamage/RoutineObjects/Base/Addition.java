@@ -22,7 +22,7 @@ public class Addition extends Routine
 	
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("(?:add\\.|(?:\\+|\\-)[^\\+\\-]).+", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(?:add\\..|(?:\\+|\\-)[^\\+\\-]).*", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static final class RoutineBuilder extends Routine.RoutineBuilder

@@ -221,6 +221,7 @@ public class Message extends NestedRoutine
 			return null;
 		}
 	}
+	
 	private void reportContents()
 	{
 		if(messages instanceof List)

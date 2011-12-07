@@ -41,6 +41,12 @@ public class EntityStatus extends EntityConditionalStatement
 	final StatusType statusType;
 	private enum StatusType
 	{
+		
+		/*Blocking(ModDamageElement.PLAYER)
+		{
+			@Override
+			public boolean isTrue(Entity entity){ return ((Player)entity).is() <= 0;}
+		},FIXME Get this into Bukkit if not already present.*/
 		Drowning(ModDamageElement.LIVING)
 		{
 			@Override
