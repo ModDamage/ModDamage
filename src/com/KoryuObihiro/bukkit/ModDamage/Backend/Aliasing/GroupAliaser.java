@@ -10,7 +10,7 @@ public class GroupAliaser extends CollectionAliaser<String>
 
 	@Override
 	protected String matchNonAlias(String key){ return key;}
-
+	
 	@Override
 	protected String getObjectName(String groupName){ return "\"" + (groupName.length() > 8?groupName.substring(0, 8):groupName) + "\"";}
 }

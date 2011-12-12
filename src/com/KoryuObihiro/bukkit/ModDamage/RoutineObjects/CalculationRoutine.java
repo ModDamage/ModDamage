@@ -16,10 +16,10 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.ChangeProper
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityExplode;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHeal;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityHurt;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityItemAction;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntitySpawn;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.EntityUnknownHurt;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Calculation.McMMOChangeSkill;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.EntityItem;
 
 abstract public class CalculationRoutine extends NestedRoutine 
 {
@@ -54,7 +54,7 @@ abstract public class CalculationRoutine extends NestedRoutine
 
 		Calculate.register();
 		ChangeProperty.register();
-		EntityItem.register();
+		EntityItemAction.register();
 		EntityExplode.register();
 		EntityHeal.register();
 		EntityHurt.register();

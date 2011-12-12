@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
+import org.bukkit.enchantments.Enchantment;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration;
@@ -24,6 +25,7 @@ public enum AliasManager
 	Biome(new BiomeAliaser()),
 	Condition(new ConditionAliaser()),
 	Element(new ElementAliaser()),
+	Enchantment(new EnchantmentAliaser()),
 	Item(new ItemAliaser()),
 	Group(new GroupAliaser()),
 	Material(new MaterialAliaser()),
@@ -78,7 +80,6 @@ public enum AliasManager
 						break;
 				}
 				return;
-				//TODO Add log recording
 			}
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		ModDamage.addToLogRecord(OutputPreset.WARNING, "No Aliases node found.");
@@ -91,6 +92,8 @@ public enum AliasManager
 	public static ConditionalStatement matchConditionAlias(String key){ return (ConditionalStatement)AliasManager.Condition.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
 	public static Collection<ModDamageElement> matchElementAlias(String key){ return (Collection<ModDamageElement>)AliasManager.Element.aliaser.matchAlias(key);}
+	@SuppressWarnings("unchecked")
+	public static Collection<Enchantment> matchEnchantmentAlias(String key){ return (Collection<Enchantment>)AliasManager.Enchantment.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
 	public static Collection<String> matchGroupAlias(String key){ return (Collection<String>)AliasManager.Group.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")

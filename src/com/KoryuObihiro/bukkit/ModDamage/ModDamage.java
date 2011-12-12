@@ -31,8 +31,6 @@ public class ModDamage extends JavaPlugin
 {
 	public final static int oldestSupportedBuild = 1337;
 	// TODO 0.9.6 Command for autogen world/entitytype switches?
-	// TODO 0.9.6 Autogen empty aliasing nodes
-	// FIXME Change conditional term builders to use aliasing!
 	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
 	// -AoE clearance, block search nearby for Material?
 	// -find a way to give players ownership of an explosion?

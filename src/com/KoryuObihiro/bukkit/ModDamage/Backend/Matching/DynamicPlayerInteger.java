@@ -47,13 +47,13 @@ public class DynamicPlayerInteger extends DynamicInteger
 			@Override
 			public Integer getValue(Player player) 
 			{
-				return player.getExperience();
+				return (int)player.getExp() * 100;
 			}
 			
 			@Override
 			public void setValue(Player player, int value) 
 			{
-				player.setExperience(value);
+				player.setExp(value / 100);
 			}
 		},
 		FoodLevel(true)

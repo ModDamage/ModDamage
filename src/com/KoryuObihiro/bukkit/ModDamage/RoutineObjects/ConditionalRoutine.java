@@ -27,6 +27,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventEnviron
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventHasProjectile;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.EventWorldEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerGroupEvaluation;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerHasEnchantment;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerHasItem;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.PlayerPermissionEvaluation;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Conditional.ServerOnlineMode;
@@ -91,6 +92,7 @@ public class ConditionalRoutine extends NestedRoutine
 		EventWorldEvaluation.register();
 		PlayerGroupEvaluation.register();
 		PlayerHasItem.register();
+		PlayerHasEnchantment.register();
 		PlayerPermissionEvaluation.register();
 		//Event
 		EventHasProjectile.register();
