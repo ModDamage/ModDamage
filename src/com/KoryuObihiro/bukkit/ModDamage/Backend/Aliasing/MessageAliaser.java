@@ -1,13 +1,11 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Message.DynamicMessage;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Parameterized.Message.DynamicMessage;
 
 public class MessageAliaser extends CollectionAliaser<DynamicMessage> 
 {
-	private static final long serialVersionUID = 7539931612104625797L;
-
-	public MessageAliaser() {super("Message");}
+	public MessageAliaser() {super(AliasManager.Message.name());}
 	@Override
 	protected DynamicMessage matchNonAlias(String key){ return new DynamicMessage(key);}
 	@Override

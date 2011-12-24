@@ -9,15 +9,14 @@ import java.util.regex.Pattern;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Addition;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.DiceRoll;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Division;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.IntervalRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Multiplication;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Set;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.Tag;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Delay;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base.ValueChangeRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Parameterized.Delay;
 
 abstract public class Routine
 {
@@ -30,19 +29,18 @@ abstract public class Routine
 	final String configString;
 	protected Routine(String configString){ this.configString = configString;}
 	public final String getConfigString(){ return configString;}
-	abstract public void run(TargetEventInfo eventInfo);
+	abstract public void run(final TargetEventInfo eventInfo);
 	
 	public static void registerVanillaRoutines()
 	{
 		registeredBaseRoutines.clear();		
-		Addition.register();
+		ValueChangeRoutine.register();
 		Delay.register();
 		DiceRoll.register();
 		Division.register();
 		IntervalRange.register();
 		LiteralRange.register();
 		Multiplication.register();
-		Set.register();
 		Tag.register();
 	}
 	
@@ -57,7 +55,7 @@ abstract public class Routine
 		else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: could not load builder for the " + builder.getClass().getEnclosingClass().getSimpleName() + " routine.");
 	}
 	
-	public static Routine getNew(String string)
+	public static Routine getNew(final String string)
 	{
 		Matcher matcher = anyPattern.matcher(string);
 		matcher.matches();
@@ -66,15 +64,19 @@ abstract public class Routine
 	
 	protected static class RoutineBuilder
 	{
-		public Routine getNew(Matcher anyMatcher)
+		public Routine getNew(Matcher matcher)
 		{
 			for(Entry<Pattern, RoutineBuilder> entry : registeredBaseRoutines.entrySet())
 			{
-				Matcher matcher = entry.getKey().matcher(anyMatcher.group());
-				if(matcher.matches())
-					return entry.getValue().getNew(matcher);
+				Matcher anotherMatcher = entry.getKey().matcher(matcher.group());
+				if(anotherMatcher.matches())
+				{
+					Routine routine = entry.getValue().getNew(anotherMatcher);
+					if(routine != null)
+						return routine;
+				}
 			}
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for base routine \"" + anyMatcher.group() + "\"");
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for base routine \"" + matcher.group() + "\"");
 			return null;
 		}
 	}

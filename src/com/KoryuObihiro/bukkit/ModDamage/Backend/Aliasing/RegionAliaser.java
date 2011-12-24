@@ -7,9 +7,7 @@ import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 
 public class RegionAliaser extends CollectionAliaser<String> 
 {
-	private static final long serialVersionUID = 6446417315016119118L;
-
-	public RegionAliaser() {super("Region");}
+	public RegionAliaser() {super(AliasManager.Region.name());}
 
 	@Override
 	protected String matchNonAlias(String key)

@@ -13,9 +13,9 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 
-abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, StoredInfoClass>
+abstract public class Aliaser<Type, StoredInfoClass>
 {
-	private static final long serialVersionUID = -5035446508507898319L;
+	protected HashMap<String, StoredInfoClass> thisMap = new HashMap<String, StoredInfoClass>();
 	final String name;
 	protected LoadState loadState;
 	
@@ -23,8 +23,8 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 	
 	public StoredInfoClass matchAlias(String key)
 	{
-		if(this.containsKey(key))
-			return this.get(key);
+		if(thisMap.containsKey(key))
+			return thisMap.get(key);
 		Type value = matchNonAlias(key);
 		if(value != null) return getNewStorageClass(value);
 		ModDamage.addToLogRecord(OutputPreset.FAILURE, "No matching " + name + " alias or value \"" + key + "\"");
@@ -41,16 +41,15 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 
 	public LoadState getLoadState(){ return this.loadState;}
 	
-	@Override
 	public void clear()
 	{
-		super.clear();
+		thisMap.clear();
 		loadState = LoadState.NOT_LOADED;
 	}
 	
-	public LoadState load(LinkedHashMap<String, Object> rawAliases)
+	public void load(LinkedHashMap<String, Object> rawAliases)
 	{
-		loadState = LoadState.NOT_LOADED;
+		clear();
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		if(rawAliases != null)
 		{
@@ -60,7 +59,7 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 				loadState = LoadState.SUCCESS;
 				ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, this.name + " aliases found, parsing...");
 				for(String alias : foundAliases)
-					this.put("_" + alias, getDefaultValue());
+					thisMap.put("_" + alias, getDefaultValue());
 				for(String alias : foundAliases)
 				{
 					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
@@ -71,26 +70,21 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 					}
 					else ModDamage.addToLogRecord(OutputPreset.WARNING, "Found empty " + this.name.toLowerCase() + " alias \"" + alias + "\", ignoring...");
 				}
-				for(String alias : this.keySet())
-					if(this.get(alias) == null)
-						this.remove(alias);
+				for(String alias : thisMap.keySet())
+					if(thisMap.get(alias) == null)
+						thisMap.remove(alias);
 			}
 			else
 			{
 				ModDamage.addToLogRecord(OutputPreset.WARNING, "Found " + this.name + " aliases node, but it was empty.");
 			}
 		}
-		else
-		{
-			ModDamage.addToLogRecord(OutputPreset.WARNING, "No " + this.name + " aliases node found.");
-		}
-		return loadState;	
+		else ModDamage.addToLogRecord(OutputPreset.WARNING, "No " + this.name + " aliases node found.");
 	}
 	
 	abstract protected StoredInfoClass getNewStorageClass(Type value);
 	protected StoredInfoClass getDefaultValue(){ return null;}
 
-	@SuppressWarnings("serial")
 	abstract public static class SingleValueAliaser<Type> extends Aliaser<Type, Type>
 	{
 		SingleValueAliaser(String name){ super(name);}
@@ -104,7 +98,7 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 				if(matchedItem != null)
 				{
 					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding value \"" + getObjectName(matchedItem) + "\"");
-					this.put(key, matchedItem);
+					thisMap.put(key, matchedItem);
 				}
 			}
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error adding alias \"" + key + "\" - unrecognized value \"" + nestedContent.toString() + "\"");
@@ -115,7 +109,6 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 		protected Type getNewStorageClass(Type value){ return null;}
 	}
 	
-	@SuppressWarnings("serial")
 	abstract public static class CollectionAliaser<InfoType> extends Aliaser<InfoType, Collection<InfoType>>
 	{
 		CollectionAliaser(String name){ super(name);}
@@ -171,7 +164,7 @@ abstract public class Aliaser<Type, StoredInfoClass> extends HashMap<String, Sto
 				}
 			}
 			ModDamage.changeIndentation(false);
-			if(!failFlag) this.get(key).addAll(matchedItems);
+			if(!failFlag) thisMap.get(key).addAll(matchedItems);
 			return !failFlag;
 		}
 		@Override @SuppressWarnings("unchecked")

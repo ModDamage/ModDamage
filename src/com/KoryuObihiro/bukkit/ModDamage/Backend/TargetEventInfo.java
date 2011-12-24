@@ -13,8 +13,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
 
 public class TargetEventInfo implements Cloneable
 {
-	public final EventInfoType type;
-	public enum EventInfoType{ ATTACKER, PROJECTILE, TARGET;}
+	public final EntityReference type;//Since the complexiy of events is currently linear, we can use this enum.
 	
 	public int eventValue;
 	public final World world;
@@ -28,7 +27,7 @@ public class TargetEventInfo implements Cloneable
 //CONSTRUCTORS
 	public TargetEventInfo(LivingEntity entity, ModDamageElement eventElement_target, int eventValue)
 	{
-		this.type = EventInfoType.TARGET;
+		this.type = EntityReference.TARGET;
 		this.eventValue = eventValue;
 		this.entity_target = entity;
 		this.element_target = eventElement_target;
@@ -48,7 +47,7 @@ public class TargetEventInfo implements Cloneable
 		
 		this.world = entity.getWorld();	
 	}
-	protected TargetEventInfo(LivingEntity entity, ModDamageElement element, int eventValue, EventInfoType type) 
+	protected TargetEventInfo(LivingEntity entity, ModDamageElement element, int eventValue, EntityReference type) 
 	{
 		this.type = type;
 		this.eventValue = eventValue;
@@ -73,7 +72,7 @@ public class TargetEventInfo implements Cloneable
 	
 	public TargetEventInfo(World world, ModDamageElement element, int eventValue) 
 	{
-		this.type = EventInfoType.PROJECTILE;
+		this.type = EntityReference.PROJECTILE;
 		this.eventValue = eventValue;
 		this.entity_target = null;
 		this.element_target = element;
@@ -86,7 +85,7 @@ public class TargetEventInfo implements Cloneable
 	
 	protected TargetEventInfo(LivingEntity entity, World world, ModDamageElement element, Material material, ArmorSet armorSet, List<String> groups, int eventValue)
 	{
-		this.type = EventInfoType.TARGET;
+		this.type = EntityReference.TARGET;
 		this.eventValue = eventValue;
 		this.entity_target = entity;
 		this.element_target = element;

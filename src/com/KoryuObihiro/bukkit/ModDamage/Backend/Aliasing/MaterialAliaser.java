@@ -6,9 +6,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAlia
 
 public class MaterialAliaser extends CollectionAliaser<Material> 
 {
-	private static final long serialVersionUID = -557230493957602224L;
-
-	public MaterialAliaser() {super("Material");}
+	public MaterialAliaser() {super(AliasManager.Material.name());}
 
 	@Override
 	protected Material matchNonAlias(String key){ return Material.matchMaterial(key);}

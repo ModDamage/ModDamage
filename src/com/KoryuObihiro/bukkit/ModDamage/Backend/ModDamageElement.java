@@ -370,11 +370,11 @@ public enum ModDamageElement
 		return UNKNOWN;
 	}
 	
-	public static ModDamageElement matchElement(String nodeName)
+	public static ModDamageElement matchElement(String string)
 	{
-		ModDamageElement element = ModDamageElement.valueOf(nodeName.toUpperCase());
-		if(element != null)	
-			return element;
+		for(ModDamageElement element : ModDamageElement.values())
+			if(string.equalsIgnoreCase(element.name()))
+				return element;
 		return UNKNOWN;
 	}
 	

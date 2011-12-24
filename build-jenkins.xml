@@ -2,11 +2,9 @@
 	
 <!-- START PREDEFINED -->
 	<property environment="env"/>
-	
 	<property name="sourceFolder" location="src"/>
 	<property name="buildFolder" location="bin"/>
 	<property name="dependencyFolder" location="src/resource"/>
-	
 <!-- END PREDEFINED -->	
 	
 	<target name="init">
@@ -24,9 +22,9 @@
 		<javac srcdir="${sourceFolder}" destdir="${buildFolder}" classpathref="project.classpath" source="1.6" target="1.6" debug="on"/>
 	</target>
 
-	<!-- Append Jenkins build number if a blank Jenkins key is present. -->
+	<!-- Append Jenkins build number. -->
 	<target name="addJenkinsBuild" depends="compile">
-		<replaceregexp file="plugin.yml" match="^version: (.*)test\sbuild$" replace="version: \1test build ${env.BUILD_NUMBER}" byline="true"/>
+		<replaceregexp file="plugin.yml" match="^version:(.*)$" replace="version: \1(build ${env.BUILD_NUMBER})" byline="true"/>
 	</target>
 	
 	<!-- Slap the JAR together. -->
@@ -43,6 +41,7 @@
 		</jar>
 	</target>
 
+    <!-- Made the JAR, so get rid of the excess .class files. -->
 	<target name="clean" depends="jar">
 		<echo message="Deleting .class files..."/>
 		<delete dir="${buildFolder}"/>

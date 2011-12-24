@@ -15,8 +15,8 @@ import org.bukkit.plugin.Plugin;
 import ru.tehkode.permissions.PermissionManager;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.ModDamageExtension;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.NestedRoutine;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.elbukkit.api.elregions.region.Region;
 import com.elbukkit.api.elregions.region.RegionManager;
@@ -30,7 +30,7 @@ import de.bananaco.permissions.Permissions;
 
 public class ExternalPluginManager
 {
-	private static final List<String> emptyList = new ArrayList<String>();
+	private static final List<String> emptyList = Arrays.asList();
 	
 	private static List<ModDamageExtension> registeredPlugins = new ArrayList<ModDamageExtension>();
 	private static void reloadModDamageRoutines()
@@ -58,15 +58,6 @@ public class ExternalPluginManager
 		PermissionsEx
 		{
 			PermissionManager permissionManager = null;
-			
-			@Override
-			public boolean hasPermission(Player player, String permission)
-			{
-				if(player != null)
-					return player.isOp() || permissionManager.has(player, permission) ;
-				return false;
-			}
-			
 			@Override
 			public List<String> getGroups(Player player)
 			{
@@ -129,12 +120,11 @@ public class ExternalPluginManager
 		private static String version;
 		public boolean hasPermission(Player player, String permission)
 		{
-			return player.isOp() || player.hasPermission(permission);
+			if(player != null)
+				return player.isOp() || player.hasPermission(permission);
+			return false;
 		}
-		public List<String> getGroups(Player player)
-		{
-			return emptyList;
-		}
+		public List<String> getGroups(Player player){ return emptyList;}
 
 		public static PermissionsManager reload()
 		{

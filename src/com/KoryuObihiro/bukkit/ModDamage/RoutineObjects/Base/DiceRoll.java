@@ -7,54 +7,47 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
 public class DiceRoll extends RandomRoutine 
 {
-	protected final boolean isAdditive;
-	protected final DynamicInteger rollValue;
-	protected DiceRoll(String configString)
+	protected DiceRoll(String configString, ValueChangeType changeType)
 	{
-		super(configString);
-		this.rollValue = DynamicInteger.getNew("event.value");
-		this.isAdditive = false;
+		super(configString, changeType, DynamicInteger.getNew("event.value"));
 	}
-	protected DiceRoll(String configString, DynamicInteger rollValue) 
+	protected DiceRoll(String configString, ValueChangeType changeType, DynamicInteger rollValue) 
 	{
-		super(configString);
-		this.rollValue = rollValue;
-		this.isAdditive = true;
+		super(configString, changeType, rollValue);
 	}
 
 	@Override
-	public void run(TargetEventInfo eventInfo)
+	public int getValue(TargetEventInfo eventInfo)
 	{
-		eventInfo.eventValue = (isAdditive?eventInfo.eventValue:0) +  Math.abs(random.nextInt()%(rollValue.getValue(eventInfo) + 1));
+		return  Math.abs(random.nextInt()%(number.getValue(eventInfo) + 1));
 	}
 	
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("roll(?:\\.(" + DynamicInteger.dynamicIntegerPart + "))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		ValueChangeRoutine.registerRoutine(Pattern.compile("roll(?:\\.(" + DynamicInteger.dynamicIntegerPart + "))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	protected static class RoutineBuilder extends ValueChangeRoutine.ValueBuilder
 	{
 		@Override
-		public DiceRoll getNew(Matcher matcher)
+		public DiceRoll getNew(Matcher matcher, ValueChangeType changeType)
 		{ 
 			if(!matcher.group(1).equalsIgnoreCase(""))
 			{
 				DynamicInteger match = DynamicInteger.getNew(matcher.group(2));
 				if(match != null)
 				{
-					ModDamage.addToLogRecord(OutputPreset.INFO, "Dice Roll: " + matcher.group(1));
-					return new DiceRoll(matcher.group(), match);
+					ModDamage.addToLogRecord(OutputPreset.INFO, "Dice Roll" + changeType.getStringAppend() + ": " + matcher.group(1));
+					return new DiceRoll(matcher.group(), changeType, match);
 				}
 			}
 			else
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Dice Roll: roll existing");
-				return new DiceRoll(matcher.group());
+				return new DiceRoll(matcher.group(), changeType);
 			}
 			return null;
 		}

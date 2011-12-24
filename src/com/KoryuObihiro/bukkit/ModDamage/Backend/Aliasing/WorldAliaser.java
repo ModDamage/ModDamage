@@ -11,9 +11,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAlia
 
 public class WorldAliaser extends CollectionAliaser<String> 
 {
-	private static final long serialVersionUID = 6446417315016119118L;
-
-	public WorldAliaser() {super("World");}
+	public WorldAliaser() {super(AliasManager.World.name());}
 
 	@Override
 	protected String matchNonAlias(String key)

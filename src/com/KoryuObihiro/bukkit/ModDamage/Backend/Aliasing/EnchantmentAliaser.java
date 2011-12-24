@@ -6,9 +6,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAlia
 
 public class EnchantmentAliaser extends CollectionAliaser<Enchantment> 
 {
-	private static final long serialVersionUID = 1304321966061887438L;
-
-	public EnchantmentAliaser(){ super("Enchantment");}
+	public EnchantmentAliaser(){ super(AliasManager.Enchantment.name());}
 
 	@Override
 	protected Enchantment matchNonAlias(String key)

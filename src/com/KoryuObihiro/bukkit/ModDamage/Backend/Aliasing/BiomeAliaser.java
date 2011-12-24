@@ -6,9 +6,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAlia
 
 public class BiomeAliaser extends CollectionAliaser<Biome> 
 {
-	private static final long serialVersionUID = 7448767002533858908L;
-	
-	public BiomeAliaser(){ super("Biome");}
+	public BiomeAliaser(){ super(AliasManager.Biome.name());}
 	@Override
 	protected Biome matchNonAlias(String key){ return Biome.valueOf(key.toUpperCase());}
 	@Override

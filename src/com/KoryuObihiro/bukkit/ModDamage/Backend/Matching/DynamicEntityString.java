@@ -7,6 +7,7 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.TypeNameAliaser;
 
 public class DynamicEntityString extends DynamicString
 {
@@ -60,7 +61,7 @@ public class DynamicEntityString extends DynamicString
 			@Override
 			protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
 			{
-				return entityReference.getElement(eventInfo).name();//TODO See the enum for the name property.
+				return TypeNameAliaser.getStaticInstance().toString(entityReference.getElement(eventInfo));
 			}
 		},
 		Wielding(true)
@@ -74,10 +75,7 @@ public class DynamicEntityString extends DynamicString
 		
 		boolean requiresPlayer = false;
 		private EntityStringPropertyMatch(){}
-		private EntityStringPropertyMatch(boolean requiresPlayer)
-		{
-			this.requiresPlayer = true;
-		}
+		private EntityStringPropertyMatch(boolean requiresPlayer){ this.requiresPlayer = true;}
 		
 		abstract protected String getString(TargetEventInfo eventInfo, EntityReference entityReference);
 	}

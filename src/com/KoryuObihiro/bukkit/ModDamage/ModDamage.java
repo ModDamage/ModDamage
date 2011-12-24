@@ -14,6 +14,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamageEventHandler.ModDamageEntityListener;
@@ -29,7 +30,7 @@ import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
  */
 public class ModDamage extends JavaPlugin
 {
-	public final static int oldestSupportedBuild = 1337;
+	public final static int oldestSupportedBuild = 1597;
 	// TODO 0.9.6 Command for autogen world/entitytype switches?
 	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
 	// -AoE clearance, block search nearby for Material?
@@ -115,9 +116,9 @@ public class ModDamage extends JavaPlugin
 		return true;
 	}
 
-	private enum PluginCommand// FIXME TEST!
+	private enum PluginCommand
 	{
-		CHECK(false, "\\s(?:check|c)(\\s\\d+)?")
+		CHECK(false, "\\sc(?:heck)?(\\s\\d+)?")
 		{
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
@@ -139,7 +140,7 @@ public class ModDamage extends JavaPlugin
 				}
 			}
 		},
-		DEBUG(false, "\\sdebug(\\s\\w+)?")
+		DEBUG(false, "\\sd(?:ebug)?(\\s\\w+)?")
 		{
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
@@ -154,7 +155,7 @@ public class ModDamage extends JavaPlugin
 				else configuration.toggleDebugging(player);
 			}
 		},
-		RELOAD(false, "\\s(?:reload|r)(\\sall)?")
+		RELOAD(false, "\\sr(:?eload)?(\\sall)?")
 		{
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
@@ -177,7 +178,7 @@ public class ModDamage extends JavaPlugin
 					}
 			}
 		},
-		STATUS(false, "\\s(?:enable|disable)")
+		STATUS(false, "\\s(?:en|dis)able")
 		{
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
@@ -185,7 +186,7 @@ public class ModDamage extends JavaPlugin
 				ModDamage.setPluginStatus(player, matcher.group().equalsIgnoreCase(" enable"));
 			}
 		},
-		TAGS(true, "\\s(?:tags|t)\\s(clear|save)")
+		TAGS(true, "\\st(?:ags)?\\s(clear|save)")
 		{
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
@@ -298,9 +299,10 @@ public class ModDamage extends JavaPlugin
 	{
 		public void reloadRoutines();//Register routines with the Routine/NestedRoutine libraries.
 	}
-	public static void registerExtension(ModDamageExtension extension)
+	public static void registerExtension(ModDamageExtension extension, PluginDescriptionFile description)
 	{
-		if(extensions.contains(extension))
+		if(!extensions.contains(extension))
 			extensions.add(extension);
+		configuration.addToLogRecord(OutputPreset.CONSTANT, configuration.logPrepend() + "Found extension: " + description.getName() + " version " + description.getVersion() + ", by " + description.getAuthors().toString());
 	}
 }

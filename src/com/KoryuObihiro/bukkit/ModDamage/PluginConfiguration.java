@@ -29,11 +29,14 @@ import org.yaml.snakeyaml.error.YAMLException;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.PermissionsManager;
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.RegionsManager;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 
-//TODO Deprecate LoadState, reduce the size of DebugSetting
 public class PluginConfiguration
 {
+	protected static final String configString_defaultConfigPath = "config.yml";
+
+	
 	public final int oldestSupportedBuild;
 	public final static Logger log = Logger.getLogger("Minecraft");
 	private final Plugin plugin;
@@ -47,7 +50,7 @@ public class PluginConfiguration
 	private List<OutputPreset> configStrings_ingameFilters = new ArrayList<OutputPreset>();
 	public static int indentation = 0;
 
-	protected DebugSetting currentSetting = DebugSetting.NORMAL;
+	protected DebugSetting currentSetting = DebugSetting.VERBOSE;
 	public static enum DebugSetting
 	{
 		QUIET, NORMAL, CONSOLE, VERBOSE;
@@ -101,7 +104,15 @@ public class PluginConfiguration
 			this.level = level;
 		}
 	}
-
+	
+	public static boolean hasCaseInsensitiveValue(LinkedHashMap<String, Object> map, String key)
+	{
+		for(String mapKey : map.keySet())
+			if(mapKey.equalsIgnoreCase(key))
+				return true;
+		return false;
+	}
+	
 	public static Object getCaseInsensitiveValue(LinkedHashMap<String, Object> map, String key)
 	{
 		for(Entry<String, Object> entry : map.entrySet())
@@ -113,7 +124,7 @@ public class PluginConfiguration
 	public PluginConfiguration(Plugin plugin, int oldestSupportedBuild)
 	{
 		this.plugin = plugin;
-		this.configFile = new File(plugin.getDataFolder(), "config.yml");
+		this.configFile = new File(plugin.getDataFolder(), "" + configString_defaultConfigPath + "");
 		this.oldestSupportedBuild = oldestSupportedBuild;
 	}
 
@@ -143,19 +154,19 @@ public class PluginConfiguration
 					if(!writeDefaults())
 						return false;
 				}
-				else configMap = castToStringMap("config.yml", configObject);
+				else configMap = castToStringMap(configString_defaultConfigPath, configObject);
 			}
 			catch (FileNotFoundException e)
 			{
 				if(!writeDefaults())
 					return false;
 			}
-			catch (IOException e){ printToLog(Level.SEVERE, "Fatal: could not close config.yml!");}
+			catch (IOException e){ printToLog(Level.SEVERE, "Fatal: could not close " + configString_defaultConfigPath + "!");}
 			catch (YAMLException e)
 			{
 				// TODO 0.9.7 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not
 				// auto-load config.
-				addToLogRecord(OutputPreset.FAILURE, logPrepend() + "Error in YAML configuration. Please use valid YAML in config.yml.");
+				addToLogRecord(OutputPreset.FAILURE, logPrepend() + "Error in YAML configuration. Please use valid YAML in " + configString_defaultConfigPath + ".");
 				addToLogRecord(OutputPreset.FAILURE, e.toString());
 				LoadState.pluginState = LoadState.FAILURE;
 				return false;
@@ -165,13 +176,15 @@ public class PluginConfiguration
 		if(reloadingAll)
 		{
 			ExternalPluginManager.reload();
-			if(ExternalPluginManager.getPermissionsManager().equals(PermissionsManager.SUPERPERMS))
-				addToLogRecord(OutputPreset.WARNING, "[" + plugin.getDescription().getName() + "] No permissions plugin found.");
-			else addToLogRecord(OutputPreset.CONSTANT, "[" + plugin.getDescription().getName() + "] Permissions: " + ExternalPluginManager.getPermissionsManager().name() + " v" + ExternalPluginManager.getPermissionsManager().getVersion());
-			if(ExternalPluginManager.getRegionsManager().equals(RegionsManager.NONE))
-				addToLogRecord(OutputPreset.WARNING, "[" + plugin.getDescription().getName() + "] No regional plugins found.");
-			else addToLogRecord(OutputPreset.CONSTANT, "[" + plugin.getDescription().getName() + "] Regions: " + ExternalPluginManager.getRegionsManager().name() + " v" + ExternalPluginManager.getRegionsManager().getVersion());
-
+			if(ExternalPluginManager.getPermissionsManager() == PermissionsManager.SUPERPERMS)
+				addToLogRecord(OutputPreset.INFO_VERBOSE, logPrepend() + "No permissions plugin found.");
+			else addToLogRecord(OutputPreset.CONSTANT, logPrepend() + "Permissions: " + ExternalPluginManager.getPermissionsManager().name() + " v" + ExternalPluginManager.getPermissionsManager().getVersion());
+			if(ExternalPluginManager.getRegionsManager() == RegionsManager.NONE)
+				addToLogRecord(OutputPreset.INFO_VERBOSE, logPrepend() + "No regional plugins found.");
+			else addToLogRecord(OutputPreset.CONSTANT, logPrepend() + "Regions: " + ExternalPluginManager.getRegionsManager().name() + " v" + ExternalPluginManager.getRegionsManager().getVersion());
+			if(ExternalPluginManager.getMcMMOPlugin() == null)
+				addToLogRecord(OutputPreset.INFO_VERBOSE, logPrepend() + "mcMMO plugin not found.");
+			else addToLogRecord(OutputPreset.CONSTANT, logPrepend() + "mcMMO: Using version " + ExternalPluginManager.getMcMMOPlugin().getDescription().getVersion());
 		// Bukkit build check
 			String string = Bukkit.getVersion();
 			Matcher matcher = Pattern.compile(".*b([0-9]+)jnks.*", Pattern.CASE_INSENSITIVE).matcher(string);
@@ -180,32 +193,51 @@ public class PluginConfiguration
 				if(Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
 					addToLogRecord(OutputPreset.FAILURE, "Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of " + plugin.getDescription().getName() + ". Please update your current Bukkit installation.");
 			}
-			else addToLogRecord(OutputPreset.FAILURE, logPrepend() + "Either this is a nonstandard/custom build, or the Bukkit builds system has changed. Either way, don't blame Koryu if stuff breaks.");
+			else addToLogRecord(OutputPreset.WARNING_STRONG, logPrepend() + "Unable to read Bukkit build - is this a modified version of Bukkit?.");
 		}
 
-		// load debug settings
+	// load debug settings
 		Object debugObject = getCaseInsensitiveValue(configMap, "debugging");
 		if(debugObject != null)
 		{
-			DebugSetting debugSetting = DebugSetting.valueOf(debugObject.toString().toUpperCase());
-			switch(debugSetting)
+			String configuration_debug = debugObject.toString().toUpperCase();
+			currentSetting = null;
+			for(DebugSetting setting : DebugSetting.values())
+				if(configuration_debug.equalsIgnoreCase(setting.name()))
+					currentSetting = setting;
+			switch(currentSetting)
 			{
 				case QUIET:
-					log.info(logPrepend() + "\"Quiet\" mode active - suppressing noncritical debug messages and warnings.");
+					addToLogRecord(OutputPreset.INFO, "\"Quiet\" mode active - suppressing noncritical debug messages and warnings.");
 					break;
 				case NORMAL:
-					log.info(logPrepend() + "Debugging active.");
+					addToLogRecord(OutputPreset.INFO, "Debugging active.");
 					break;
 				case VERBOSE:
-					log.info(logPrepend() + "Verbose debugging active.");
+					addToLogRecord(OutputPreset.INFO, "Verbose debugging active.");
 					break;
 				default:
-					log.info(logPrepend() + "Debug string \"" + debugObject.toString() + "\" not recognized - defaulting to \"normal\".");
-					debugSetting = DebugSetting.NORMAL;
+					addToLogRecord(OutputPreset.WARNING_STRONG, "Debug string \"" + debugObject.toString() + "\" not recognized - defaulting to \"normal\".");
+					currentSetting = DebugSetting.NORMAL;
 					break;
 			}
-			currentSetting = debugSetting;
 		}
+		
+		// load Death message setting
+		ModDamageEventHandler.disableDeathMessages = false;
+		debugObject = getCaseInsensitiveValue(configMap, ModDamageEventHandler.disableDeathMessages_configString);
+		if(debugObject != null)
+		{
+			if(debugObject instanceof Boolean)
+			{
+				if((Boolean)debugObject)
+					ModDamageEventHandler.disableDeathMessages = true;
+			}
+			else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: expected boolean value for disable-deathmessages, but got an " + debugObject.getClass().getName());
+		}
+		if(ModDamageEventHandler.disableDeathMessages)
+			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla death messages disabled.");
+		else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla death messages enabled.");
 		
 		// Aliasing
 		AliasManager.reload();
@@ -233,7 +265,7 @@ public class PluginConfiguration
 
 	private boolean writeDefaults()
 	{
-		addToLogRecord(OutputPreset.INFO, logPrepend() + "No configuration file found! Writing a blank config...");
+		addToLogRecord(OutputPreset.INFO, logPrepend() + "No configuration file found! Writing a blank config in " + configString_defaultConfigPath + "...");
 
 		//FIXME Could be better.
 		if(!configFile.exists())
@@ -242,13 +274,13 @@ public class PluginConfiguration
 			{
 				if(!configFile.getParentFile().mkdirs() || !configFile.createNewFile())
 				{
-					log.severe("Fatal error: could not create config.yml.");
+					printToLog(Level.SEVERE, "Fatal error: could not create " + configString_defaultConfigPath + ".");
 					return false;
 				}
 			}
 			catch (IOException e)
 			{
-				log.severe("Error: could not create new config.yml.");
+				printToLog(Level.SEVERE, "Error: could not create new " + configString_defaultConfigPath + ".");
 				e.printStackTrace();
 				return false;
 			}
@@ -259,17 +291,20 @@ public class PluginConfiguration
 		for(AliasManager aliasType : AliasManager.values())
 		{
 			outputString += newline + "    " + aliasType.name() + ":";
-			if(aliasType.equals(AliasManager.Material))
+			switch(aliasType)
 			{
-				String[][] toolAliases = { { "axe", "hoe", "pickaxe", "spade", "sword" }, { "WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_" } };
-				for(String toolType : toolAliases[0])
-				{
-					outputString += newline + "        " + toolType + ":";
-					for(String toolMaterial : toolAliases[1])
-						outputString += newline + "            - '" + toolMaterial + toolType.toUpperCase() + "'";
-				}
+				case Material:
+					String[][] toolAliases = { { "axe", "hoe", "pickaxe", "spade", "sword" }, { "WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_" } };
+					for(String toolType : toolAliases[0])
+					{
+						outputString += newline + "        " + toolType + ":";
+						for(String toolMaterial : toolAliases[1])
+							outputString += newline + "            - '" + toolMaterial + toolType.toUpperCase() + "'";
+					}
+				case TypeName:
+					for(ModDamageElement element : ModDamageElement.values())
+						outputString += newline + "        " + element.name() + ": " + element.name().substring(0, 1) + element.name().substring(1).toLowerCase();
 			}
-			//TODO Add more defaults?
 		}
 
 		outputString += newline + newline + "#Events";
@@ -278,10 +313,11 @@ public class PluginConfiguration
 
 		outputString += newline + newline + "#Miscellaneous configuration";
 		outputString += newline + "debugging: normal";
+		outputString += newline + ModDamageEventHandler.disableDeathMessages_configString + ": false";
 		outputString += newline + "Tagging: #These intervals should be tinkered with ONLY ifyou understand the implications.";
 		outputString += newline + "    interval-save: " + ModDamageTagger.defaultInterval;
 		outputString += newline + "    interval-clean: " + ModDamageTagger.defaultInterval;
-		printToLog(Level.INFO, "Completed auto-generation of config.yml.");
+		printToLog(Level.INFO, "Completed auto-generation of " + configString_defaultConfigPath + ".");
 
 		try
 		{
@@ -290,12 +326,12 @@ public class PluginConfiguration
 			writer.close();
 
 			FileInputStream stream = new FileInputStream(configFile);
-			configMap = castToStringMap("config.yml", (new Yaml()).load(stream));
+			configMap = castToStringMap("" + configString_defaultConfigPath + "", (new Yaml()).load(stream));
 			stream.close();
 		}
 		catch (IOException e)
 		{
-			log.severe("Error writing to config.yml.");
+			printToLog(Level.SEVERE, "Error writing to " + configString_defaultConfigPath + ".");
 		}
 		return true;
 	}
@@ -373,7 +409,7 @@ public class PluginConfiguration
 			player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Config Overview: " + LoadState.pluginState.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
 			player.sendMessage(ChatColor.AQUA + "Aliases:    " + AliasManager.getState().statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + ModDamageEventHandler.state.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:     " + AliasManager.Armor.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Damage: " + ModDamageEventHandler.Damage.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Element:   " + AliasManager.Element.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Death:  " + ModDamageEventHandler.Death.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Element:   " + AliasManager.Type.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Death:  " + ModDamageEventHandler.Death.specificLoadState.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Group:     " + AliasManager.Group.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Food:  " + ModDamageEventHandler.Food.specificLoadState.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Material:   " + AliasManager.Material.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "ProjectileHit:  " + ModDamageEventHandler.ProjectileHit.specificLoadState.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Message:  " + AliasManager.Message.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Spawn:  " + ModDamageEventHandler.Spawn.specificLoadState.statusString());
@@ -425,7 +461,7 @@ public class PluginConfiguration
 					currentSetting = setting;
 				}
 				else if(player != null)
-					player.sendMessage(ModDamage.chatPrepend(ChatColor.RED) + "Couldn't save changes to config.yml.");
+					player.sendMessage(ModDamage.chatPrepend(ChatColor.RED) + "Couldn't save changes to " + configString_defaultConfigPath + ".");
 			}
 			else ModDamage.sendMessage(player, "Debug already set to " + setting.name().toLowerCase() + "!", ChatColor.RED);
 		}
@@ -472,7 +508,7 @@ public class PluginConfiguration
 		return true;
 	}
 	
-	private String logPrepend(){ return "[" + plugin.getDescription().getName() + "] ";}
+	public String logPrepend(){ return "[" + plugin.getDescription().getName() + "] ";}
 	public void printToLog(Level level, String message){ log.log(level, "[" + plugin.getDescription().getName() + "] " + message);}
 
 	public LinkedHashMap<String, Object> getConfigMap(){ return configMap;}

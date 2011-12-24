@@ -9,13 +9,12 @@ import java.util.Map.Entry;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.NestedRoutine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.NestedRoutine;
 
 public class RoutineAliaser extends CollectionAliaser<Routine> 
 {
-	private static final long serialVersionUID = -2744471820826321788L;
-	public RoutineAliaser(){ super("Routine");}
+	public RoutineAliaser(){ super(AliasManager.Routine.name());}
 	
 	@Override
 	public boolean completeAlias(String key, Object values)
@@ -37,7 +36,7 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 				return false;
 			}
 			
-			this.get(key).addAll(matchedItems);
+			thisMap.get(key).addAll(matchedItems);
 			return true;
 		}
 		ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error adding alias \"" + key + "\" - unrecognized value \"" + values.toString() + "\"");
@@ -47,7 +46,7 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 	@Override
 	public Collection<Routine> matchAlias(String key)
 	{
-		return this.containsKey(key)?this.get(key):null;
+		return thisMap.containsKey(key)?thisMap.get(key):null;
 	}
 	
 	@Override
@@ -109,7 +108,7 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 							break;
 						}
 					}
-				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: bad nested routine \"" + someHashMap.toString() + "\"");
+				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: invalid nested routine \"" + someHashMap.toString() + "\"");
 			}
 			else if(object instanceof List)
 				for(Object nestedObject : (List<Object>)object)

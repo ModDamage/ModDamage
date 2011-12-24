@@ -4,9 +4,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAlia
 
 public class GroupAliaser extends CollectionAliaser<String> 
 {
-	private static final long serialVersionUID = 7539931612104625797L;
-
-	public GroupAliaser() {super("Group");}
+	public GroupAliaser() {super(AliasManager.Group.name());}
 
 	@Override
 	protected String matchNonAlias(String key){ return key;}

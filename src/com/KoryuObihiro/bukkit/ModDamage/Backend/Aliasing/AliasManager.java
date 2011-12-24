@@ -15,41 +15,46 @@ import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageItemStack;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.ConditionalStatement;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Parameterized.Message.DynamicMessage;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Parameterized.Message.DynamicMessage;
 
 public enum AliasManager
 {
-	Armor(new ArmorAliaser()),
-	Biome(new BiomeAliaser()),
-	Condition(new ConditionAliaser()),
-	Element(new ElementAliaser()),
-	Enchantment(new EnchantmentAliaser()),
-	Item(new ItemAliaser()),
-	Group(new GroupAliaser()),
-	Material(new MaterialAliaser()),
-	Message(new MessageAliaser()),
-	Region(new RegionAliaser()),
-	Routine(new RoutineAliaser()),
-	World(new WorldAliaser());
+	Armor(ArmorAliaser.class),
+	Biome(BiomeAliaser.class),
+	Condition(ConditionAliaser.class),
+	Enchantment(EnchantmentAliaser.class),
+	Item(ItemAliaser.class),
+	Group(GroupAliaser.class),
+	Material(MaterialAliaser.class),
+	Message(MessageAliaser.class),
+	Region(RegionAliaser.class),
+	Routine(RoutineAliaser.class),
+	Type(TypeAliaser.class),
+	TypeName(TypeNameAliaser.class),
+	World(WorldAliaser.class);
 	
-	private final Aliaser<?, ?> aliaser;
-	private LoadState specificLoadState;
+	private Aliaser<?, ?> aliaser;
+	private Class<? extends Aliaser<?, ?>> clazz;
 	private static LoadState state;
-	private AliasManager(Aliaser<?, ?> aliaser){ this.aliaser = aliaser;}
+	private AliasManager(Class<? extends Aliaser<?, ?>> clazz){ this.clazz = clazz;}
+	
+	static
+	{
+		for(AliasManager aliasType : AliasManager.values())
+			try{ aliasType.aliaser = aliasType.clazz.newInstance();}
+			catch (InstantiationException e){ e.printStackTrace();}
+			catch (IllegalAccessException e){ e.printStackTrace();}
+	}
 	
 	public static LoadState getState(){ return state;}
 
 	public static final String nodeName = "Aliases";
 	public static void reload()
 	{
-		for(AliasManager aliasType : AliasManager.values())
-		{
-			aliasType.aliaser.clear();
-			state = LoadState.NOT_LOADED;
-			aliasType.specificLoadState = LoadState.NOT_LOADED;
-		}
+		state = LoadState.NOT_LOADED;
+		
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading aliases...");
 
@@ -63,7 +68,7 @@ public enum AliasManager
 					{
 						LinkedHashMap<String, Object> aliasEntry = ModDamage.getPluginConfiguration().castToStringMap(aliasType.name(), PluginConfiguration.getCaseInsensitiveValue(aliasesMap, aliasType.name()));
 						if(aliasEntry != null)
-							aliasType.specificLoadState = aliasType.aliaser.load(ModDamage.getPluginConfiguration().castToStringMap(aliasType.name(), aliasEntry));
+							aliasType.aliaser.load(ModDamage.getPluginConfiguration().castToStringMap(aliasType.name(), aliasEntry));
 					}
 				ModDamage.changeIndentation(false);
 				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
@@ -91,8 +96,6 @@ public enum AliasManager
 	public static Collection<Biome> matchBiomeAlias(String key){ return (Collection<Biome>)AliasManager.Biome.aliaser.matchAlias(key);}
 	public static ConditionalStatement matchConditionAlias(String key){ return (ConditionalStatement)AliasManager.Condition.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
-	public static Collection<ModDamageElement> matchElementAlias(String key){ return (Collection<ModDamageElement>)AliasManager.Element.aliaser.matchAlias(key);}
-	@SuppressWarnings("unchecked")
 	public static Collection<Enchantment> matchEnchantmentAlias(String key){ return (Collection<Enchantment>)AliasManager.Enchantment.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
 	public static Collection<String> matchGroupAlias(String key){ return (Collection<String>)AliasManager.Group.aliaser.matchAlias(key);}
@@ -107,7 +110,9 @@ public enum AliasManager
 	@SuppressWarnings("unchecked")
 	public static Collection<Routine> matchRoutineAlias(String key){ return (Collection<Routine>)AliasManager.Routine.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
+	public static Collection<ModDamageElement> matchTypeAlias(String key){ return (Collection<ModDamageElement>)AliasManager.Type.aliaser.matchAlias(key);}
+	@SuppressWarnings("unchecked")
 	public static Collection<String> matchWorldAlias(String key){ return (Collection<String>)AliasManager.World.aliaser.matchAlias(key);}
 
-	public LoadState getSpecificLoadState(){ return specificLoadState;}
+	public LoadState getSpecificLoadState(){ return aliaser.loadState;}
 }

@@ -23,7 +23,7 @@ public class AttackerEventInfo extends ProjectileEventInfo
 //CONSTRUCTORS
 	public AttackerEventInfo(LivingEntity eventEntity_target, ModDamageElement eventElement_target, LivingEntity eventEntity_attacker, ModDamageElement eventElement_attacker, Projectile eventEntity_projectile, ModDamageElement rangedElement, int eventDamage) 
 	{
-		super(eventEntity_target, eventElement_target, eventEntity_projectile, rangedElement, eventDamage, EventInfoType.ATTACKER);
+		super(eventEntity_target, eventElement_target, eventEntity_projectile, rangedElement, eventDamage, EntityReference.ATTACKER);
 		
 		entity_attacker = eventEntity_attacker;
 		element_attacker = eventElement_attacker;

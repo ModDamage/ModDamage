@@ -7,36 +7,31 @@ import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
-public class Division extends Routine 
+public class Division extends ValueChangeRoutine 
 {
-	protected DynamicInteger divideValue;
-	protected final boolean isAdditive;
-	public Division(String configString, DynamicInteger value, boolean isAdditive)
+	public Division(String configString, ValueChangeType changeType, DynamicInteger value)
 	{
-		super(configString);
-		divideValue = value;
-		this.isAdditive = isAdditive;
+		super(configString, changeType, value);
 	}
 	@Override
-	public void run(TargetEventInfo eventInfo){ eventInfo.eventValue = isAdditive?eventInfo.eventValue:0 + eventInfo.eventValue/divideValue.getValue(eventInfo);}
+	public int getValue(TargetEventInfo eventInfo){ return eventInfo.eventValue/number.getValue(eventInfo);}
 	
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("(?:div(?:ide)?(_add)?\\.|\\\\|/)(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		ValueChangeRoutine.registerRoutine(Pattern.compile("(?:div(?:ide)?\\.|\\\\|/)(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	protected static class RoutineBuilder extends ValueChangeRoutine.ValueBuilder
 	{
 		@Override
-		public Division getNew(Matcher matcher)
+		public Division getNew(Matcher matcher, ValueChangeType changeType)
 		{ 
-			DynamicInteger match = DynamicInteger.getNew(matcher.group(2));
+			DynamicInteger match = DynamicInteger.getNew(matcher.group(1));
 			if(match != null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Division" + (matcher.group(1) != null?" (additive)":"") + ": " + matcher.group(2));
-				return new Division(matcher.group(), match, matcher.group(1) != null);
+				ModDamage.addToLogRecord(OutputPreset.INFO, "Division" + changeType.getStringAppend() + ": " + matcher.group(1));
+				return new Division(matcher.group(), changeType, match);
 			}
 			return null;
 		}

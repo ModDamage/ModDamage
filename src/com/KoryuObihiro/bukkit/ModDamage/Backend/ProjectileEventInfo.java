@@ -13,7 +13,7 @@ public class ProjectileEventInfo extends TargetEventInfo
 	public final Projectile projectile;
 	
 //CONSTRUCTORS
-	protected ProjectileEventInfo(LivingEntity eventEntity_target, ModDamageElement eventElement_target, Projectile eventEntity_projectile, ModDamageElement rangedElement, int eventDamage, EventInfoType type) 
+	protected ProjectileEventInfo(LivingEntity eventEntity_target, ModDamageElement eventElement_target, Projectile eventEntity_projectile, ModDamageElement rangedElement, int eventDamage, EntityReference type) 
 	{
 		super(eventEntity_target, eventElement_target, eventDamage, type);
 

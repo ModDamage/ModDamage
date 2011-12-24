@@ -5,9 +5,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAlia
 
 public class ItemAliaser extends CollectionAliaser<ModDamageItemStack> 
 {
-	private static final long serialVersionUID = 1693391099291070076L;
-
-	public ItemAliaser() {super("Item");}
+	public ItemAliaser() {super(AliasManager.Item.name());}
 	@Override
 	protected ModDamageItemStack matchNonAlias(String key){ return ModDamageItemStack.getNew(key);}
 	@Override

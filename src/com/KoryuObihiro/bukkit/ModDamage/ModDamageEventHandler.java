@@ -16,6 +16,7 @@ import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityTameEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -32,6 +33,9 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 enum ModDamageEventHandler
 {
 	Damage, Death, Food, ProjectileHit, Spawn, Tame;
+
+	protected static final String disableDeathMessages_configString = "disable-deathmessages";
+	public static boolean disableDeathMessages = false;
 	
 	public void runRoutines(TargetEventInfo eventInfo)
 	{
@@ -46,6 +50,9 @@ enum ModDamageEventHandler
 	
 	protected static void reload()
 	{
+		if(disableDeathMessages)
+			ModDamage.addToLogRecord(OutputPreset.CONSTANT, ModDamage.getPluginConfiguration().logPrepend() + "Vanilla player death messages disabled.");
+		else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, ModDamage.getPluginConfiguration().logPrepend() + "Vanilla player death messages enabled.");
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading routines...");
 		state = LoadState.NOT_LOADED;
@@ -116,6 +123,7 @@ enum ModDamageEventHandler
 
 	static class ModDamageEntityListener extends EntityListener
 	{	
+		
 	//// DAMAGE ////
 		@Override
 		public void onEntityDamage(EntityDamageEvent event)
@@ -140,9 +148,12 @@ enum ModDamageEventHandler
 		{
 			if(ModDamage.isEnabled && event.getEntity() instanceof LivingEntity)
 			{
+				if(event instanceof PlayerDeathEvent && disableDeathMessages)
+					((PlayerDeathEvent)event).setDeathMessage(null);
+					
 			    AttackerEventInfo eventInfo = getDamageEventInfo(((LivingEntity)event.getEntity()).getLastDamageCause());
 				if(eventInfo != null)
-					Death.runRoutines(eventInfo);		
+					Death.runRoutines(eventInfo);
 			}
 		}
 	

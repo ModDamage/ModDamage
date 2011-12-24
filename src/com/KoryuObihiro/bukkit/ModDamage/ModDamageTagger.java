@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,8 +28,11 @@ import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 
 public class ModDamageTagger
 {
+	public static final String configString_save = "interval-save";
+	public static final String configString_clean = "interval-clean";
 	public static final int defaultInterval = 120 * 20;
-	private final Map<String, HashSet<UUID>> tags = Collections.synchronizedMap(new LinkedHashMap<String, HashSet<UUID>>());
+	
+	private final Map<String, HashMap<UUID, Integer>> tags = Collections.synchronizedMap(new LinkedHashMap<String, HashMap<UUID, Integer>>());
 	
 	private final HashSet<Integer> pendingTaskIDs = new HashSet<Integer>();
 	private long saveInterval;
@@ -65,22 +69,27 @@ public class ModDamageTagger
 						LinkedHashMap<String, Object> tagMap = (LinkedHashMap<String, Object>)tagFileObject;
 						for(Entry<String, Object> entry : tagMap.entrySet())
 						{
-							if(entry.getValue() instanceof List)
+							if(entry.getValue() instanceof LinkedHashMap)
 							{
-								HashSet<UUID> uuids = new HashSet<UUID>();
+								HashMap<UUID, Integer> uuidMap = new HashMap<UUID, Integer>();
 								
 								@SuppressWarnings("unchecked")
-								List<String> uuidStrings = (List<String>)entry.getValue();
-								for(String uuidString : uuidStrings)
+								LinkedHashMap<String, Object> rawUuidMap = (LinkedHashMap<String, Object>)entry.getValue();
+								for(Entry<String, Object> tagEntry : rawUuidMap.entrySet())
 								{
-									UUID uuid = UUID.fromString(uuidString);
-									if(uuid != null) uuids.add(uuid);
-									else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read entity ID " + uuidString + " for tag \"" + entry + "\".");
+									UUID uuid = UUID.fromString(tagEntry.getKey());
+									Integer integer = tagEntry.getValue() != null && tagEntry.getValue() instanceof Integer?(Integer)tagEntry.getValue():null;
+									if(uuid != null)
+									{
+										if(integer != null) uuidMap.put(uuid, integer);
+										else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read value for entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
+									}
+									else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
 								}
-								if(!uuids.isEmpty()) tags.put(entry.getKey(), uuids);
+								if(!uuidMap.isEmpty()) tags.put(entry.getKey(), uuidMap);
 								else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "No entity IDs added for tag \"" + entry + "\" in tags.yml.");
 							}
-							else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read tag list for tag \"" + entry + "\".");
+							else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read nested content under tag \"" + entry.getKey() + "\".");
 						}
 					}
 					else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Incorrectly formatted tags.yml. Starting with an empty tag list.");
@@ -143,11 +152,11 @@ public class ModDamageTagger
 		if(file != null)
 		{
 			LinkedHashMap<String, List<String>> tempMap = new LinkedHashMap<String, List<String>>();
-			for(Entry<String, HashSet<UUID>> entry : tags.entrySet())
+			for(Entry<String, HashMap<UUID, Integer>> entry : tags.entrySet())
 			{
 				List<String> convertedUUIDS = new ArrayList<String>();
-				for(UUID entityID : entry.getValue())
-					convertedUUIDS.add(entityID.toString());
+				for(UUID uuid : entry.getValue().keySet())
+					convertedUUIDS.add(uuid.toString());
 				tempMap.put(entry.getKey(), convertedUUIDS);
 			}
 			try
@@ -164,24 +173,11 @@ public class ModDamageTagger
 	/**
 	 * Add the entity's UUID to a tag. A new tag is made if it doesn't already exist.
 	 */
-	public synchronized void addTag(String tag, Entity entity)
+	public synchronized void addTag(String tag, Entity entity, int tagValue)
 	{
 		if(!tags.containsKey(tag))
-			tags.put(tag, new HashSet<UUID>());
-		if(!tags.get(tag).contains(entity.getUniqueId()))
-			tags.get(tag).add(entity.getUniqueId());
-	}
-	
-	/**
-	 * Identical to {@link void addTag(String tag, Entity entity) [addTag]}, except
-	 *  a delayed task is initiated to remove the UUID from this tag after the specified duration.
-	 * 
-	 * @param tagDuration the delay for removing the tag, in Minecraft ticks.
-	 */
-	public synchronized void addTag(String tag, Entity entity, long tagDuration)
-	{
-		addTag(tag, entity);
-		Bukkit.getScheduler().scheduleSyncDelayedTask(Bukkit.getPluginManager().getPlugin("ModDamage"), new ModDamageTagRemoveTask(tag, entity), tagDuration);
+			tags.put(tag, new HashMap<UUID, Integer>());
+		tags.get(tag).put(entity.getUniqueId(), tagValue);
 	}
 	
 	public class ModDamageTagRemoveTask implements Runnable
@@ -209,7 +205,7 @@ public class ModDamageTagger
 	 */
 	public synchronized boolean isTagged(Entity entity, String tag)
 	{
-		return tags.containsKey(tag)?tags.get(tag).contains(entity.getUniqueId()):false;
+		return tags.containsKey(tag)?tags.get(tag).containsKey(entity.getUniqueId()):false;
 	}
 	
 	/**
@@ -220,10 +216,17 @@ public class ModDamageTagger
 	{
 		List<String> entityTags = new ArrayList<String>();
 		int id = entity.getEntityId();
-		for(Entry<String, HashSet<UUID>> entry : tags.entrySet())
-			if(entry.getValue().contains(id))
+		for(Entry<String, HashMap<UUID, Integer>> entry : tags.entrySet())
+			if(entry.getValue().containsKey(id))
 				entityTags.add(entry.getKey());
 		return entityTags;
+	}
+	
+	public synchronized Integer getTagValue(Entity entity, String tag)
+	{
+		if(isTagged(entity, tag))
+			return tags.get(tag).get(entity.getUniqueId());
+		return null;
 	}
 	
 	/**
@@ -246,8 +249,8 @@ public class ModDamageTagger
 		for(World world : Bukkit.getWorlds())
 			for(Entity entity : world.getEntities())
 				ids.add(entity.getUniqueId());
-		for(HashSet<UUID> tagList : tags.values())
-			for(UUID id : tagList)
+		for(HashMap<UUID, Integer> tagList : tags.values())
+			for(UUID id : tagList.keySet())
 				if(!ids.contains(id))
 					tagList.remove(id);
 		//clean up the tasks

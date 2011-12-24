@@ -5,9 +5,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.Aliaser.CollectionAlia
 
 public class ArmorAliaser extends CollectionAliaser<ArmorSet> 
 {
-	private static final long serialVersionUID = 1304321966061887438L;
-
-	public ArmorAliaser(){ super("Armor");}
+	public ArmorAliaser(){ super(AliasManager.Armor.name());}
 	@Override
 	protected ArmorSet matchNonAlias(String key){ return ArmorSet.getNew(key);}
 	@Override
