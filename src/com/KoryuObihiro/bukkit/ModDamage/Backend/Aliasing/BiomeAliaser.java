@@ -8,7 +8,13 @@ public class BiomeAliaser extends CollectionAliaser<Biome>
 {
 	public BiomeAliaser(){ super(AliasManager.Biome.name());}
 	@Override
-	protected Biome matchNonAlias(String key){ return Biome.valueOf(key.toUpperCase());}
+	protected Biome matchNonAlias(String key)
+	{
+		for(Biome biome : Biome.values())
+			if(key.equalsIgnoreCase(biome.name()))
+				return biome;
+		return null;
+	}
 	@Override
 	protected String getObjectName(Biome object){ return object.name();}
 }

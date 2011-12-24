@@ -136,53 +136,56 @@ public class DynamicInteger extends DynamicString
 							if(matches[1].equalsIgnoreCase(match.name()))
 								return new DynamicServerInteger(match, isNegative);
 					}
-					else if(EntityReference.valueOf(matches[0].toUpperCase()) != null)//TODO Could this break?
+					else
 					{
 						EntityReference entityReference = EntityReference.match(matches[0]);
-						if(matches[1].equalsIgnoreCase("SKILL"))//TODO Make this more dynamic when necessary.
+						if(entityReference != null)
 						{
-							if(ExternalPluginManager.getMcMMOPlugin() != null)
+							if(matches[1].equalsIgnoreCase("SKILL"))//TODO Make this more dynamic when necessary.
 							{
-								String skillString = matches[2];
-								for(SkillType skillType : SkillType.values())
-									if(skillString.equalsIgnoreCase(skillType.name()))
-										return new DynamicMcMMOInteger(entityReference, skillType, isNegative);
-							}
-							else//TODO Merge with a single boolean?
-							{
-								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: attempting to use McMMO-dependent player property without McMMO!");
-								return null;
-							}
-						}
-						else if(matches[1].equalsIgnoreCase("tagvalue"))
-						{
-							if(matches.length == 2)
-							{
-								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: no tag specified.");
-								return null;
-							}
-							else
-							{
-								String tagname = matches[2];
-								for(int i = 3; i < matches.length; i++)
-									tagname += "_" + matches[i];
-								return new DynamicEntityTagInteger(entityReference, tagname, isNegative);
-							}
-						}
-						for(EntityIntegerPropertyMatch match : EntityIntegerPropertyMatch.values())
-							if(matches[1].equalsIgnoreCase(match.name()))
-								return new DynamicEntityInteger(entityReference, match, isNegative);
-						for(PlayerIntegerPropertyMatch match : PlayerIntegerPropertyMatch.values())
-							if(matches[1].equalsIgnoreCase(match.name()))
-							{
-								DynamicPlayerInteger yayMatch = new DynamicPlayerInteger(entityReference, match, isNegative);
-								if(yayMatch.propertyMatch.usesMcMMO && ExternalPluginManager.getMcMMOPlugin() == null)
+								if(ExternalPluginManager.getMcMMOPlugin() != null)
+								{
+									String skillString = matches[2];
+									for(SkillType skillType : SkillType.values())
+										if(skillString.equalsIgnoreCase(skillType.name()))
+											return new DynamicMcMMOInteger(entityReference, skillType, isNegative);
+								}
+								else//TODO Merge with a single boolean?
 								{
 									ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: attempting to use McMMO-dependent player property without McMMO!");
 									return null;
 								}
-								else return yayMatch;
 							}
+							else if(matches[1].equalsIgnoreCase("tagvalue"))
+							{
+								if(matches.length == 2)
+								{
+									ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: no tag specified.");
+									return null;
+								}
+								else
+								{
+									String tagname = matches[2];
+									for(int i = 3; i < matches.length; i++)
+										tagname += "_" + matches[i];
+									return new DynamicEntityTagInteger(entityReference, tagname, isNegative);
+								}
+							}
+							for(EntityIntegerPropertyMatch match : EntityIntegerPropertyMatch.values())
+								if(matches[1].equalsIgnoreCase(match.name()))
+									return new DynamicEntityInteger(entityReference, match, isNegative);
+							for(PlayerIntegerPropertyMatch match : PlayerIntegerPropertyMatch.values())
+								if(matches[1].equalsIgnoreCase(match.name()))
+								{
+									DynamicPlayerInteger yayMatch = new DynamicPlayerInteger(entityReference, match, isNegative);
+									if(yayMatch.propertyMatch.usesMcMMO && ExternalPluginManager.getMcMMOPlugin() == null)
+									{
+										ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: attempting to use McMMO-dependent player property without McMMO!");
+										return null;
+									}
+									else return yayMatch;
+								}
+						}
 					}
 				}
 				if(outputError) ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized integer reference \"" + string + "\".");
@@ -194,7 +197,7 @@ public class DynamicInteger extends DynamicString
 	@Override
 	public String toString()
 	{
-		return usingStatic?"" + (isNegative?value * -1:value):(isNegative?"-":"" + "event.value");
+		return usingStatic?"" + (isNegative?value * -1:value):(isNegative?"-":"" + "event_value");
 	}
 
 	@Override

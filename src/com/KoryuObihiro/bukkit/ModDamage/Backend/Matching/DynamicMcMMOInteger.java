@@ -37,6 +37,6 @@ public class DynamicMcMMOInteger extends DynamicInteger
 	@Override
 	public String toString()
 	{
-		return isNegative?"-":"" + entityReference.name().toLowerCase() + "." + skillType.name().toLowerCase();
+		return isNegative?"-":"" + entityReference.name().toLowerCase() + "_" + skillType.name().toLowerCase();
 	}
 }

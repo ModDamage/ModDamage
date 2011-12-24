@@ -140,7 +140,7 @@ public class Message extends NestedRoutine
 		public String toString()//TODO Algorithm is retarded, but not sure how else to do it at this point.
 		{
 			String displayString = message;
-			for(int i = matches.size() - 1; i > 0; i--)
+			for(int i = matches.size() - 1; i >= 0; i--)
 				displayString = displayString.replaceFirst(insertionCharacter, "%" + matches.get(i).toString() + "%");
 			return displayString;
 		}

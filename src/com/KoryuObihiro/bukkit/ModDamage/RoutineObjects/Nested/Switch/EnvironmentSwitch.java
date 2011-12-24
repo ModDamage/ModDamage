@@ -18,7 +18,13 @@ public class EnvironmentSwitch extends SingleValueSwitchRoutine<Environment>
 	@Override
 	protected Environment getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo.world.getEnvironment();}
 	@Override
-	protected Collection<Environment> matchCase(String switchCase){ return Arrays.asList(Environment.valueOf(switchCase.toUpperCase()));}
+	protected Collection<Environment> matchCase(String switchCase)
+	{
+		for(Environment environment : Environment.values())
+			if(switchCase.equalsIgnoreCase(environment.name()))
+				return Arrays.asList(environment);
+		return null;
+	}
 	
 	public static void register()
 	{

@@ -97,6 +97,6 @@ public class DynamicEntityString extends DynamicString
 	@Override
 	public String toString()
 	{
-		return entityReference.name().toLowerCase() + "." + propertyMatch.name().toLowerCase();
+		return entityReference.name().toLowerCase() + "_" + propertyMatch.name().toLowerCase();
 	}
 }

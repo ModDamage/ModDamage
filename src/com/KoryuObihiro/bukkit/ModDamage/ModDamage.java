@@ -140,17 +140,20 @@ public class ModDamage extends JavaPlugin
 				}
 			}
 		},
-		DEBUG(false, "\\sd(?:ebug)?(\\s\\w+)?")
+		DEBUG(false, "\\sd(?:ebug)?(?:\\s(\\w+))?")
 		{
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
 			{
 				if(matcher.group(1) != null)
 				{
-					DebugSetting matchedSetting = DebugSetting.valueOf(matcher.group(1).substring(1).toUpperCase());
-					if(matchedSetting != null)
-						configuration.setDebugging(player, matchedSetting);
-					else sendMessage(player, "Invalid debugging mode \"" + matcher.group(1).substring(1) + "\" - modes are \"quiet\", \"normal\", and \"verbose\".", ChatColor.RED);
+					for(DebugSetting setting : DebugSetting.values())
+						if(matcher.group(1).equalsIgnoreCase(setting.name()))
+						{
+							configuration.setDebugging(player, setting);
+							return;
+						}
+					sendMessage(player, "Invalid debugging mode \"" + matcher.group(1).substring(1) + "\" - modes are \"quiet\", \"normal\", and \"verbose\".", ChatColor.RED);
 				}
 				else configuration.toggleDebugging(player);
 			}

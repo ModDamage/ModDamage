@@ -50,9 +50,6 @@ enum ModDamageEventHandler
 	
 	protected static void reload()
 	{
-		if(disableDeathMessages)
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, ModDamage.getPluginConfiguration().logPrepend() + "Vanilla player death messages disabled.");
-		else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, ModDamage.getPluginConfiguration().logPrepend() + "Vanilla player death messages enabled.");
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading routines...");
 		state = LoadState.NOT_LOADED;

@@ -27,5 +27,5 @@ public class DynamicWorldInteger extends DynamicInteger
 	public Integer getValue(TargetEventInfo eventInfo){ return (isNegative?-1:1) * propertyMatch.getProperty(eventInfo);}
 	
 	@Override
-	public String toString(){ return isNegative?"-":"" + "world." + propertyMatch.name().toLowerCase();}
+	public String toString(){ return isNegative?"-":"" + "world_" + propertyMatch.name().toLowerCase();}
 }

@@ -43,12 +43,11 @@ public class DynamicString
 	
 	public static DynamicString getNew(String string)
 	{
-		String commonAttempt = string.replace('.', '_');
 		for(CommonDynamicProperty property : CommonDynamicProperty.values())
-			if(commonAttempt.equalsIgnoreCase(property.name()))
+			if(string.equalsIgnoreCase(property.name()))
 				return new DynamicString(property);
-		String[] matches = string.split("\\.");
-		EntityReference reference = EntityReference.valueOf(matches[0].toUpperCase());
+		String[] matches = string.split("_");
+		EntityReference reference = EntityReference.match(matches[0], false);
 		if(matches.length == 2 && reference != null)
 			for(EntityStringPropertyMatch match : EntityStringPropertyMatch.values())
 				if(matches[1].equalsIgnoreCase(match.name()))
@@ -59,6 +58,6 @@ public class DynamicString
 	@Override
 	public String toString()
 	{
-		return dynamicProperty.name().toLowerCase().replace('_', '.');
+		return dynamicProperty.name().toLowerCase();
 	}
 }

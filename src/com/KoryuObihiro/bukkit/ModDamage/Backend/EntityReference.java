@@ -12,15 +12,16 @@ import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 
 public enum EntityReference
 {
-	TARGET, PROJECTILE, ATTACKER;//TODO Merge this with the EventInfoType enum?
+	TARGET, PROJECTILE, ATTACKER;
 	
 //Use these when building routines.
-	public static EntityReference match(String string)
+	public static EntityReference match(String string){ return match(string, true);}
+	public static EntityReference match(String string, boolean shouldOutput)
 	{
 		for(EntityReference reference : EntityReference.values())
 			if(reference.name().equalsIgnoreCase(string))
 				return reference;
-		ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + string + "\" is not a valid entity reference.");
+		if(shouldOutput) ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + string + "\" is not a valid entity reference.");
 		return null;
 	}
 //Stuff for matching info.

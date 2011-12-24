@@ -30,9 +30,9 @@ public class EventEnvironment extends ConditionalStatement
 		@Override
 		public EventEnvironment getNew(Matcher matcher)
 		{
-			Environment environment = Environment.valueOf(matcher.group(2).toUpperCase());
-			if(environment != null)
-				return new EventEnvironment(matcher.group(1).equalsIgnoreCase("!"), environment);
+			for(Environment environment : Environment.values())
+				if(matcher.group(2).equalsIgnoreCase(environment.name()))
+					return new EventEnvironment(matcher.group(1).equalsIgnoreCase("!"), environment);
 			return null;
 		}
 	}

@@ -24,5 +24,5 @@ public class DynamicServerInteger extends DynamicInteger
 	public Integer getValue(TargetEventInfo eventInfo){ return (isNegative?-1:1) * propertyMatch.getValue();}
 	
 	@Override
-	public String toString(){ return isNegative?"-":"" + "server." + propertyMatch.name().toLowerCase();}
+	public String toString(){ return isNegative?"-":"" + "server_" + propertyMatch.name().toLowerCase();}
 }

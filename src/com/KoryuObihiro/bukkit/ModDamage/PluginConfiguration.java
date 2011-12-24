@@ -177,14 +177,14 @@ public class PluginConfiguration
 		{
 			ExternalPluginManager.reload();
 			if(ExternalPluginManager.getPermissionsManager() == PermissionsManager.SUPERPERMS)
-				addToLogRecord(OutputPreset.INFO_VERBOSE, logPrepend() + "No permissions plugin found.");
-			else addToLogRecord(OutputPreset.CONSTANT, logPrepend() + "Permissions: " + ExternalPluginManager.getPermissionsManager().name() + " v" + ExternalPluginManager.getPermissionsManager().getVersion());
+				addToLogRecord(OutputPreset.INFO_VERBOSE, "Permissions: No permissions plugin found.");
+			else addToLogRecord(OutputPreset.CONSTANT, "Permissions: " + ExternalPluginManager.getPermissionsManager().name() + " v" + ExternalPluginManager.getPermissionsManager().getVersion());
 			if(ExternalPluginManager.getRegionsManager() == RegionsManager.NONE)
-				addToLogRecord(OutputPreset.INFO_VERBOSE, logPrepend() + "No regional plugins found.");
-			else addToLogRecord(OutputPreset.CONSTANT, logPrepend() + "Regions: " + ExternalPluginManager.getRegionsManager().name() + " v" + ExternalPluginManager.getRegionsManager().getVersion());
+				addToLogRecord(OutputPreset.INFO_VERBOSE, "Regions: No regional plugins found.");
+			else addToLogRecord(OutputPreset.CONSTANT, "Regions: " + ExternalPluginManager.getRegionsManager().name() + " v" + ExternalPluginManager.getRegionsManager().getVersion());
 			if(ExternalPluginManager.getMcMMOPlugin() == null)
-				addToLogRecord(OutputPreset.INFO_VERBOSE, logPrepend() + "mcMMO plugin not found.");
-			else addToLogRecord(OutputPreset.CONSTANT, logPrepend() + "mcMMO: Using version " + ExternalPluginManager.getMcMMOPlugin().getDescription().getVersion());
+				addToLogRecord(OutputPreset.INFO_VERBOSE, "mcMMO: Plugin not found.");
+			else addToLogRecord(OutputPreset.CONSTANT, "mcMMO: Using version " + ExternalPluginManager.getMcMMOPlugin().getDescription().getVersion());
 		// Bukkit build check
 			String string = Bukkit.getVersion();
 			Matcher matcher = Pattern.compile(".*b([0-9]+)jnks.*", Pattern.CASE_INSENSITIVE).matcher(string);
@@ -345,7 +345,7 @@ public class PluginConfiguration
 				return (LinkedHashMap<String, Object>)object;
 			addToLogRecord(OutputPreset.FAILURE, "Error: expected map of values for \"" + targetName + "\"");
 		}
-		else addToLogRecord(OutputPreset.WARNING, "Warning: nothing found for \"" + targetName + "\"");
+		else addToLogRecord(OutputPreset.WARNING, "No configuration values found for \"" + targetName + "\"");
 		return null;
 	}
 	

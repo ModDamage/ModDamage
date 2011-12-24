@@ -214,7 +214,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 	@Override
 	public String toString()
 	{
-		return isNegative?"-":"" + entityReference.name().toLowerCase() + "." + propertyMatch.name().toLowerCase();
+		return isNegative?"-":"" + entityReference.name().toLowerCase() + "_" + propertyMatch.name().toLowerCase();
 	}
 
 }
