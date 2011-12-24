@@ -4,9 +4,6 @@
 		<jar destfile="../Minecraft/plugins/ModDamage.jar" update="no">
 			<fileset dir="bin" includes="**/*.class" />
 			<fileset dir="." includes="plugin.yml" />
-			<manifest>
-				<attribute name="Built-By" value="KoryuObihiro"/>
-			</manifest>
 		</jar>
 	</target>
 </project>

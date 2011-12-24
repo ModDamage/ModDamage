@@ -34,7 +34,7 @@
 			<fileset dir="." includes="plugin.yml"/>
 			<manifest>
 				<attribute name="Job" value="${env.JOB_NAME}"/>
-				<attribute name="Built-By" value="Jenkins"/>
+				<attribute name="Built-By" value="ModDamage Jenkins"/>
 				<!-- <attribute name="Version" value="${version}"/> -->
 				<attribute name="Build" value="${env.BUILD_NUMBER}"/> 
 			</manifest>

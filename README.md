@@ -7,10 +7,17 @@ or otherwise unintuitive method of configuration.
 It offers an easy-to-read and granulated solution for changing damage mechanics in common evaluative situations on the fly.
 
 New to MD, and not sure where to start? Read the [Bukkit thread](http://forums.bukkit.org/threads/18043)
-for an introduction, or jump right into the [wiki](https://www.github.com/KoryuObihiro/ModDamage/wiki) to begin!
+for an introduction, or jump right into the [wiki](https://www.github.com/ModDamage/ModDamage/wiki) to begin!
 
-[Planned features, bugs, etc.](https://github.com/KoryuObihiro/ModDamage/issues)
+[Planned features, bugs, etc.](https://github.com/ModDamage/ModDamage/issues)
 
-[Changelog](http://www.github.com/KoryuObihiro/ModDamage/wiki/Changelog)
+[Changelog](http://www.github.com/ModDamage/ModDamage/wiki/Changelog)
 
--[Erich Gubler (AKA KoryuObihiro)] (http://koryuobihiro.github.com), creator of ModDamage
+The ModDamage Team
+--------------------
+
+* [Erich Gubler (AKA KoryuObihiro)](http://koryuobihiro.github.com), creator of ModDamage
+
+* [Spudstabber](http://forums.bukkit.org/members/spudstabber.90603233/), maintainer
+
+* [ricochet1k](http://forums.bukkit.org/members/ricochet1k.9439/), maintaner
