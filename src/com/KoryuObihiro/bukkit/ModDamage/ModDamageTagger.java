@@ -40,7 +40,7 @@ public class ModDamageTagger
 	private Integer saveTaskID;
 	private Integer cleanTaskID;
 
-	private final File file;
+	final File file;
 	private InputStream reader = null;
 	private FileWriter writer = null;
 	private Yaml yaml = new Yaml();

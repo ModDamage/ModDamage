@@ -73,7 +73,7 @@ public class ModDamage extends JavaPlugin
 	
 	public void reload(boolean reloadingAll)
 	{
-		if(configuration.reload(reloadingAll) && reloadingAll)
+		if((configuration.reload(reloadingAll) && reloadingAll) || !tagger.file.exists())
 		{
 			if(tagger != null) tagger.close();
 

@@ -34,10 +34,9 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 public class PluginConfiguration
 {
 	protected static final String configString_defaultConfigPath = "config.yml";
-
-	
-	public final int oldestSupportedBuild;
 	public final static Logger log = Logger.getLogger("Minecraft");
+
+	public final int oldestSupportedBuild;
 	private final Plugin plugin;
 	private final File configFile;
 	private int configPages = 0;
@@ -123,7 +122,7 @@ public class PluginConfiguration
 	public PluginConfiguration(Plugin plugin, int oldestSupportedBuild)
 	{
 		this.plugin = plugin;
-		this.configFile = new File(plugin.getDataFolder(), "" + configString_defaultConfigPath + "");
+		this.configFile = new File(plugin.getDataFolder(), configString_defaultConfigPath);
 		this.oldestSupportedBuild = oldestSupportedBuild;
 	}
 
@@ -272,7 +271,8 @@ public class PluginConfiguration
 		{
 			try
 			{
-				if(!configFile.getParentFile().mkdirs() || !configFile.createNewFile())
+				
+				if(!(configFile.getParentFile().exists() || configFile.getParentFile().mkdirs()) || !configFile.createNewFile())
 				{
 					printToLog(Level.SEVERE, "Fatal error: could not create " + configString_defaultConfigPath + ".");
 					return false;
