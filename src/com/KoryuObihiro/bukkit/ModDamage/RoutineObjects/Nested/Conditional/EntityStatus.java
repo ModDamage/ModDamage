@@ -19,6 +19,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatem
 
 public class EntityStatus extends EntityConditionalStatement
 {
+	protected static final double magic_MinFallSpeed = 0.1d;
 	private static final List<Material> waterList = Arrays.asList(Material.WATER, Material.STATIONARY_WATER);
 
 	public static final HashSet<Material> goThroughThese = new HashSet<Material>();
@@ -67,7 +68,7 @@ public class EntityStatus extends EntityConditionalStatement
 		Falling
 		{
 			@Override
-			public boolean isTrue(Entity entity){ return entity.getFallDistance() > 0;}
+			public boolean isTrue(Entity entity){ return entity.getVelocity().getY() > magic_MinFallSpeed;}
 		},
 		OnFire
 		{
