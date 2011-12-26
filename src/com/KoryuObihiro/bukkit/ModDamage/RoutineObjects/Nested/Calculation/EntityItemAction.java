@@ -31,7 +31,7 @@ public class EntityItemAction extends EntityCalculationRoutine
 				World world = entity.getWorld();
 				for(int i = 0; i < quantity; i++)
 					for(ModDamageItemStack item : items)
-					world.dropItem(entity.getLocation(), item.toItemStack());
+					world.dropItemNaturally(entity.getLocation(), item.toItemStack());
 			}
 		},
 		GIVE(true)

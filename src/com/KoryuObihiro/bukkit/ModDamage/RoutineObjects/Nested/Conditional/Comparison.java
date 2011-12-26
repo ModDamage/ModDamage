@@ -3,8 +3,6 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
@@ -28,29 +26,38 @@ public class Comparison extends ConditionalStatement
 
 	private enum ComparisonType
 	{ 
-		EQUALS, NOTEQUALS, LESSTHAN, LESSTHANEQUALS, GREATERTHAN, GREATERTHANEQUALS;
-	
-		public static ComparisonType match(String key)
+		EQUALS
 		{
-			for(ComparisonType type : ComparisonType.values())
-				if(key.equalsIgnoreCase(type.name()))
-					return type;
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid comparison \"" + key + "\"");
-			return null;
-		}
-		public boolean compare(int operand1, int operand2)
+			@Override
+			public boolean compare(int operand1, int operand2){ return operand1 == operand2;}
+		},
+		NOTEQUALS
 		{
-			switch(this)
-			{
-				case EQUALS:			return operand1 == operand2;
-				case NOTEQUALS:			return operand1 != operand2;
-				case LESSTHAN:			return operand1 < operand2;
-				case LESSTHANEQUALS:	return operand1 <= operand2;
-				case GREATERTHAN:		return operand1 > operand2;
-				case GREATERTHANEQUALS:	return operand1 >= operand2;
-				default:				return false;
-			}
-		}
+			@Override
+			public boolean compare(int operand1, int operand2){ return operand1 != operand2;}
+		},
+		LESSTHAN
+		{
+			@Override
+			public boolean compare(int operand1, int operand2){ return operand1 < operand2;}
+		},
+		LESSTHANEQUALS
+		{
+			@Override
+			public boolean compare(int operand1, int operand2){ return operand1 <= operand2;}
+		},
+		GREATERTHAN
+		{
+			@Override
+			public boolean compare(int operand1, int operand2){ return operand1 > operand2;}
+		},
+		GREATERTHANEQUALS
+		{
+			@Override
+			public boolean compare(int operand1, int operand2){ return operand1 >= operand2;}
+		};
+		
+		abstract public boolean compare(int operand1, int operand2);
 	}
 
 	protected static String comparisonPart;
@@ -72,7 +79,7 @@ public class Comparison extends ConditionalStatement
 		public Comparison getNew(Matcher matcher)
 		{
 			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(2)), match2 = DynamicInteger.getNew(matcher.group(4));
-			ComparisonType comparisonType = ComparisonType.match(matcher.group(3));
+			ComparisonType comparisonType = ComparisonType.valueOf(matcher.group(3).toUpperCase());//Should be safe
 			if(comparisonType != null && match1 != null && match2 != null)
 				return new Comparison(matcher.group(1).equalsIgnoreCase("!"), match1, match2, comparisonType);
 			return null;

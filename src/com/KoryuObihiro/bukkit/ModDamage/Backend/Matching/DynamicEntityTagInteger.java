@@ -3,17 +3,14 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching;
 import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.ModDamageTagger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 
 public class DynamicEntityTagInteger extends DynamicInteger
-{
-	protected static final ModDamageTagger tagger = ModDamage.getTagger();
-	
+{	
 	protected final EntityReference entityReference;
 	protected final String tag;
-	
 	
 	DynamicEntityTagInteger(EntityReference reference, String tag, boolean isNegative)
 	{
@@ -25,14 +22,18 @@ public class DynamicEntityTagInteger extends DynamicInteger
 	@Override
 	public Integer getValue(TargetEventInfo eventInfo)
 	{
-		Entity entity = entityReference.getEntity(eventInfo);
-		return tagger.isTagged(entity, tag)?(isNegative?-1:1) * tagger.getTagValue(entity, tag):0;
+		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.LIVING))
+		{
+			Entity entity = entityReference.getEntity(eventInfo);
+			return ModDamage.getTagger().isTagged(entity, tag)?(isNegative?-1:1) * ModDamage.getTagger().getTagValue(entity, tag):0;
+		}
+		return 0;
 	}
 	
 	@Override
 	public void setValue(TargetEventInfo eventInfo, int value)
 	{
-		tagger.addTag(tag, entityReference.getEntity(eventInfo), value);
+		ModDamage.getTagger().addTag(tag, entityReference.getEntity(eventInfo), value);
 	}
 	
 	@Override

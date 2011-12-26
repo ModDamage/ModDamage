@@ -163,7 +163,7 @@ public class ModDamage extends JavaPlugin
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
 			{
-				boolean reloadingAll = matcher.group(1).equalsIgnoreCase(" all");
+				boolean reloadingAll = matcher.group(1) != null;
 				if(player != null) configuration.printToLog(Level.INFO, "Reload initiated by user " + player.getName() + "...");
 				plugin.reload(reloadingAll);
 				if(player != null)
