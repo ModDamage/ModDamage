@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -193,7 +194,7 @@ abstract public class Aliaser<Type, StoredInfoClass>
 		@Override
 		protected Collection<InfoType> getDefaultValue(){ return new ArrayList<InfoType>();}
 		
-		@Override @Deprecated
-		protected Collection<InfoType> getNewStorageClass(InfoType value){ return null;}
+		@Override @SuppressWarnings("unchecked")
+		protected Collection<InfoType> getNewStorageClass(InfoType value){ return Arrays.asList(value);}
 	}
 }

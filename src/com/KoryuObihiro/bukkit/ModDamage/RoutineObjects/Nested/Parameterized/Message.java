@@ -1,6 +1,7 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Parameterized;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -43,20 +44,28 @@ public class Message extends NestedRoutine
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{
+		List<Player> players = null;
 		switch(messageType)
 		{
 			case ENTITY:
-				if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
-					DynamicMessage.sendMessages(messages, eventInfo, (Player)entityReference.getEntity(eventInfo));
+				players = (entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER)?Arrays.asList((Player)entityReference.getEntity(eventInfo)):Arrays.<Player>asList());
 				break;
 			case WORLD:
-				for(Player player : eventInfo.world.getPlayers())
-					DynamicMessage.sendMessages(messages, eventInfo, player);
+				players = eventInfo.world.getPlayers();
 				break;
 			case SERVER:
-				for(Player player : Bukkit.getOnlinePlayers())
-					DynamicMessage.sendMessages(messages, eventInfo, player);
+				players = Arrays.asList(Bukkit.getOnlinePlayers());
 				break;
+		}
+		
+		if(!players.isEmpty())
+		{
+			List<String> strings = new ArrayList<String>();
+			for(DynamicMessage message :  messages)
+				strings.add(message.getMessage(eventInfo));
+			for(Player player : players)
+				for(String string : strings)
+					player.sendMessage(string);
 		}
 	}
 	
@@ -117,7 +126,7 @@ public class Message extends NestedRoutine
 			this.message = message;
 		}
 		
-		private void sendMessage(TargetEventInfo eventInfo, Player player)
+		public String getMessage(TargetEventInfo eventInfo)
 		{
 			int currentCount = matches.size() - 1;
 			String displayString = message;
@@ -126,13 +135,7 @@ public class Message extends NestedRoutine
 				displayString = displayString.replaceFirst(insertionCharacter, matches.get(currentCount).getString(eventInfo) + "");
 				currentCount--;
 			}
-			player.sendMessage(displayString);
-		}
-		
-		public static void sendMessages(Collection<DynamicMessage> messages, TargetEventInfo eventInfo, Player player)
-		{
-			for(DynamicMessage message : messages)
-				message.sendMessage(eventInfo, player);
+			return displayString;
 		}
 		
 		@Override
