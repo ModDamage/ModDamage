@@ -133,6 +133,7 @@ public class PluginConfiguration
 		LoadState.pluginState = LoadState.NOT_LOADED;
 
 		configStrings_ingame.clear();
+		configStrings_ingameFilters.clear();
 		configStrings_console.clear();
 		configStrings_consoleFilters.clear();
 
