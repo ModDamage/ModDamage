@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.DebugSetting;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.LoadState;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
@@ -31,7 +32,7 @@ public class TypeNameAliaser extends Aliaser<ModDamageElement, List<String>>
 	@Override
 	public void load(LinkedHashMap<String, Object> rawAliases)
 	{
-		this.loadState = LoadState.NOT_LOADED;
+		clear();
 		
 		boolean failFlag = false;
 		ModDamageElement element = null;
@@ -50,28 +51,52 @@ public class TypeNameAliaser extends Aliaser<ModDamageElement, List<String>>
 				}
 				else if(entry.getValue() instanceof List)
 				{
-					ModDamage.addToLogRecord(OutputPreset.INFO, "Aliases multiple strings for type " + element.name());
+					List<?> someList = (List<?>)entry.getValue();
+					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, (someList.size() > 1?"Aliasing multiple strings for type " + element.name():"Aliasing type " + element.name() +  " as \"" + name + "\""));
+					
 					ModDamage.changeIndentation(true);
-					for(Object object : (List<?>)entry.getValue())
+					for(Object object : someList)
 						if(object instanceof String)
 						{
-							String name = (String)entry.getValue();
+							String name = (String)object;
 							thisMap.get(element).add(name);
 							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding item \"" + name + "\"");
 						}
+						else if(object instanceof List)
+						{
+							for(Object anotherObject : ((List<?>)object))
+							{
+								if(anotherObject instanceof String)
+								{
+									thisMap.get(element).add(((String)anotherObject));
+									ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding item \"" + name + "\"");
+								}
+								else
+								{
+									ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized object " + anotherObject.toString());
+									failFlag = true;
+								}
+							}
+						}
 					ModDamage.changeIndentation(false);
 				}
-				failFlag = true;
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid content in alias for type " + element.name() + ": " + entry.getValue().toString());
+				else
+				{
+					failFlag = true;
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid content in alias for type " + element.name() + ": " + entry.getValue().toString());
+				}
 			}
 			else ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Unknown type \"" + entry.getKey() + "\"");//Only a warning because some users may preempt updated mob types
 		}
 		if(failFlag) loadState = LoadState.FAILURE;
+		if(loadState == LoadState.SUCCESS && !ModDamage.getDebugSetting().shouldOutput(DebugSetting.VERBOSE))
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Aliasing names for one or more Types");
 	}
 
 	@Override
 	public void clear()
 	{
+		loadState = LoadState.NOT_LOADED;
 		for(List<String> names : thisMap.values())
 			names.clear();
 	}
@@ -79,7 +104,7 @@ public class TypeNameAliaser extends Aliaser<ModDamageElement, List<String>>
 	public String toString(ModDamageElement element)
 	{
 		List<String> names = thisMap.get(element);
-		return names.isEmpty()?names.get(random.nextInt(names.size())):element.name();
+		return !names.isEmpty()?names.get(random.nextInt(names.size())):element.name();
 	}
 	
 	@Deprecated

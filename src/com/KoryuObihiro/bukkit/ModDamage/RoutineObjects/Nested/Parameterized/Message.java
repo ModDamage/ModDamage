@@ -65,13 +65,12 @@ public class Message extends NestedRoutine
 		ENTITY, WORLD, SERVER;
 		protected static MessageType match(String key)
 		{
+			for(MessageType type : MessageType.values())
+				if(type != MessageType.ENTITY && type.name().equalsIgnoreCase(key))
+					return type;
 			EntityReference reference = EntityReference.match(key);
 			if(reference != null)
 				return ENTITY;
-			else
-				for(MessageType type : MessageType.values())
-					if(type != MessageType.ENTITY && type.name().equalsIgnoreCase(key))
-						return type;
 			return null;
 		}
 	}
@@ -94,15 +93,15 @@ public class Message extends NestedRoutine
 				DynamicString match = DynamicString.getNew(integerMatcher.group(2));
 				if(match != null)
 				{
-					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Matched dynamic integer: \"" + match.toString() + "\"");
+					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Matched dynamic string: \"" + match.toString() + "\"");
 					message = integerMatcher.group(1) + insertionCharacter + integerMatcher.group(3);
 					matches.add(match);
 					integerMatcher = stringReplacePattern.matcher(message);
 				}
 				else
 				{
-					ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Reference not found, marking invalid.");
-					message = integerMatcher.group(1) + "INVALID" + integerMatcher.group(3);
+					ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Dynamic string not found, marking invalid.");
+					message = integerMatcher.group(1) + "$INVALID$" + integerMatcher.group(3);
 					integerMatcher = stringReplacePattern.matcher(message);
 				}
 			}

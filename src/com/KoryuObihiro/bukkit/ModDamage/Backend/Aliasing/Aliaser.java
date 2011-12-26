@@ -131,13 +131,17 @@ abstract public class Aliaser<Type, StoredInfoClass>
 				{
 					if(object instanceof String)
 						foundValues.add(((String)object));
-					else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized object " + nestedContent.toString());
+					else
+					{
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized object " + nestedContent.toString());
+						failFlag = true;
+					}
 				}
 			}
 			else
 			{
 				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized object " + nestedContent.toString());
-				return false;
+				failFlag = true;
 			}
 			
 			for(Object listedValue : foundValues)

@@ -138,6 +138,6 @@ public class ConditionalRoutine extends NestedRoutine
 	
 	public static void registerConditionalStatement(Pattern syntax, StatementBuilder builder)
 	{
-		Routine.registerRoutine(registeredConditionalStatements, syntax, builder);
+		Routine.addBuilderToRegistry(registeredConditionalStatements, syntax, builder);
 	}
 }

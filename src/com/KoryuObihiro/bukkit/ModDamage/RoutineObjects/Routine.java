@@ -24,8 +24,6 @@ abstract public class Routine
 	private static final RoutineBuilder builder = new RoutineBuilder();
 	private static final LinkedHashMap<Pattern, RoutineBuilder> registeredBaseRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
 	
-	protected static String statementPart = "!?[\\w_\\.\\*]+";
-	
 	final String configString;
 	protected Routine(String configString){ this.configString = configString;}
 	public final String getConfigString(){ return configString;}
@@ -46,10 +44,10 @@ abstract public class Routine
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)
 	{
-		registerRoutine(registeredBaseRoutines, pattern, builder);
+		addBuilderToRegistry(registeredBaseRoutines, pattern, builder);
 	}
 	
-	protected static <BuilderClass> void registerRoutine(HashMap<Pattern, BuilderClass> registry, Pattern pattern, BuilderClass builder)
+	protected static <BuilderClass> void addBuilderToRegistry(HashMap<Pattern, BuilderClass> registry, Pattern pattern, BuilderClass builder)
 	{
 		if(pattern != null && builder != null) registry.put(pattern, builder);
 		else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: could not load builder for the " + builder.getClass().getEnclosingClass().getSimpleName() + " routine.");

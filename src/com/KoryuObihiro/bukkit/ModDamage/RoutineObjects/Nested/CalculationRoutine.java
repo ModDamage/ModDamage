@@ -25,7 +25,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.McMMO
 abstract public class CalculationRoutine extends NestedRoutine 
 {
 	private static LinkedHashMap<Pattern, CalculationBuilder> registeredCalculations = new LinkedHashMap<Pattern, CalculationBuilder>();
-	protected final static Pattern calculationPattern = Pattern.compile("((?:([\\*\\w]+)effect\\." + Routine.statementPart + "))", Pattern.CASE_INSENSITIVE);
+	protected final static Pattern calculationPattern = Pattern.compile("((?:([\\*\\w]+)effect\\.(.*)))", Pattern.CASE_INSENSITIVE);
 	
 	protected final DynamicInteger value;
 	
@@ -49,7 +49,6 @@ abstract public class CalculationRoutine extends NestedRoutine
 	{
 		registeredCalculations.clear();
 		NestedRoutine.registerRoutine(calculationPattern, new RoutineBuilder());
-		registeredCalculations.clear();
 		
 		McMMOChangeSkill.register();
 
@@ -65,7 +64,7 @@ abstract public class CalculationRoutine extends NestedRoutine
 
 	public static void registerRoutine(Pattern syntax, CalculationBuilder builder)
 	{
-		Routine.registerRoutine(registeredCalculations, syntax, builder);
+		Routine.addBuilderToRegistry(registeredCalculations, syntax, builder);
 	}
 	
 	protected static final class RoutineBuilder extends NestedRoutine.RoutineBuilder

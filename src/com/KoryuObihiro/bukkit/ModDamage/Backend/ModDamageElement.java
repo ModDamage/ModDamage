@@ -108,7 +108,7 @@ public enum ModDamageElement
 				SILVERFISH(MOB, CreatureType.SILVERFISH),
 				SKELETON(MOB, CreatureType.SKELETON),
 				SLIME(MOB, CreatureType.SLIME),
-					SLIME_HUGE (SLIME, CreatureType.SLIME)
+					SLIME_HUGE(SLIME, CreatureType.SLIME)
 					{
 						@Override
 						public LivingEntity spawnCreature(Location location)
@@ -118,7 +118,7 @@ public enum ModDamageElement
 							return slime;
 						}
 					},
-					SLIME_LARGE (SLIME, CreatureType.SLIME)
+					SLIME_LARGE(SLIME, CreatureType.SLIME)
 					{
 						@Override
 						public LivingEntity spawnCreature(Location location)
@@ -219,24 +219,11 @@ public enum ModDamageElement
 	public static final int SIZE_MEDIUM = 1;
 	public static final int SIZE_SMALL = 0;
 	
-	/* TODO 0.9.7
-	private String displayName = null;
-	
-	static
-	{
-		for(ModDamageElement element : ModDamageElement.values())
-			if(element.displayName == null)
-			{
-				if(element.)
-			}
-	}
-	*/
-	
 	private final ModDamageElement genericElement;
 	private final CreatureType creatureType;
-	ModDamageElement(ModDamageElement parentElement) 
+	ModDamageElement(ModDamageElement genericElement) 
 	{
-		this.genericElement = parentElement;
+		this.genericElement = genericElement;
 		this.creatureType = null;
 	}
 	ModDamageElement(ModDamageElement genericElement, CreatureType creatureType) 

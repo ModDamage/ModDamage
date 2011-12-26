@@ -29,7 +29,6 @@ import org.yaml.snakeyaml.error.YAMLException;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.PermissionsManager;
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager.RegionsManager;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 
 public class PluginConfiguration
@@ -50,7 +49,7 @@ public class PluginConfiguration
 	private List<OutputPreset> configStrings_ingameFilters = new ArrayList<OutputPreset>();
 	public static int indentation = 0;
 
-	protected DebugSetting currentSetting = DebugSetting.VERBOSE;
+	DebugSetting currentSetting = DebugSetting.VERBOSE;
 	public static enum DebugSetting
 	{
 		QUIET, NORMAL, CONSOLE, VERBOSE;
@@ -201,11 +200,11 @@ public class PluginConfiguration
 		if(debugObject != null)
 		{
 			String configuration_debug = debugObject.toString().toUpperCase();
-			currentSetting = null;
+			this.currentSetting = null;
 			for(DebugSetting setting : DebugSetting.values())
 				if(configuration_debug.equalsIgnoreCase(setting.name()))
-					currentSetting = setting;
-			switch(currentSetting)
+					this.currentSetting = setting;
+			switch(getDebugSetting())
 			{
 				case QUIET:
 					addToLogRecord(OutputPreset.INFO, "\"Quiet\" mode active - suppressing noncritical debug messages and warnings.");
@@ -218,7 +217,7 @@ public class PluginConfiguration
 					break;
 				default:
 					addToLogRecord(OutputPreset.WARNING_STRONG, "Debug string \"" + debugObject.toString() + "\" not recognized - defaulting to \"normal\".");
-					currentSetting = DebugSetting.NORMAL;
+					this.currentSetting = DebugSetting.NORMAL;
 					break;
 			}
 		}
@@ -301,9 +300,7 @@ public class PluginConfiguration
 						for(String toolMaterial : toolAliases[1])
 							outputString += newline + "            - '" + toolMaterial + toolType.toUpperCase() + "'";
 					}
-				case TypeName:
-					for(ModDamageElement element : ModDamageElement.values())
-						outputString += newline + "        " + element.name() + ": " + element.name().substring(0, 1) + element.name().substring(1).toLowerCase();
+					break;
 			}
 		}
 
@@ -311,10 +308,10 @@ public class PluginConfiguration
 		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
 			outputString += newline + eventType.name() + ":";
 
-		outputString += newline + newline + "#Miscellaneous configuration";
+		outputString += newline + "#Miscellaneous configuration";
 		outputString += newline + "debugging: normal";
 		outputString += newline + ModDamageEventHandler.disableDeathMessages_configString + ": false";
-		outputString += newline + "Tagging: #These intervals should be tinkered with ONLY ifyou understand the implications.";
+		outputString += newline + "Tagging: #These intervals should be tinkered with ONLY if you understand the implications.";
 		outputString += newline + "    interval-save: " + ModDamageTagger.defaultInterval;
 		outputString += newline + "    interval-clean: " + ModDamageTagger.defaultInterval;
 		printToLog(Level.INFO, "Completed auto-generation of " + configString_defaultConfigPath + ".");
@@ -379,7 +376,7 @@ public class PluginConfiguration
 		configStrings_console.add(nestIndentation + message);
 		configStrings_consoleFilters.add(preset);
 
-		if(currentSetting.shouldOutput(preset.debugSetting))
+		if(getDebugSetting().shouldOutput(preset.debugSetting))
 			log.log(preset.level, nestIndentation + message);
 	}
 
@@ -389,7 +386,7 @@ public class PluginConfiguration
 		if(player == null)
 		{
 			for(int i = 0; i < configStrings_console.size(); i++)
-				if(currentSetting.shouldOutput(configStrings_consoleFilters.get(i).debugSetting))
+				if(getDebugSetting().shouldOutput(configStrings_consoleFilters.get(i).debugSetting))
 					log.log(configStrings_consoleFilters.get(i).level, configStrings_console.get(i));
 			return true;
 		}
@@ -399,7 +396,7 @@ public class PluginConfiguration
 			{
 				player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Log Record: (" + pageNumber + "/" + configPages + ")");
 				for(int i = (9 * (pageNumber - 1)); i < (configStrings_ingame.size() < (9 * pageNumber) ? configStrings_ingame.size() : (9 * pageNumber)); i++)
-					if(!configStrings_ingameFilters.get(i).equals(OutputPreset.CONSOLE_ONLY) && currentSetting.shouldOutput(configStrings_ingameFilters.get(i).debugSetting))
+					if(!configStrings_ingameFilters.get(i).equals(OutputPreset.CONSOLE_ONLY) && getDebugSetting().shouldOutput(configStrings_ingameFilters.get(i).debugSetting))
 						player.sendMessage(configStrings_ingame.get(i));
 				return true;
 			}
@@ -435,7 +432,7 @@ public class PluginConfiguration
 
 	public void toggleDebugging(Player player)
 	{
-		switch(currentSetting)
+		switch(getDebugSetting())
 		{
 			case QUIET:
 				setDebugging(player, DebugSetting.NORMAL);
@@ -453,12 +450,12 @@ public class PluginConfiguration
 	{
 		if(setting != null)
 		{
-			if(!currentSetting.equals(setting))
+			if(!getDebugSetting().equals(setting))
 			{
 				if(replaceOrAppendInFile(configFile, "debugging:.*", "debugging: " + setting.name().toLowerCase()))
 				{
-					ModDamage.sendMessage(player, "Changed debug from " + currentSetting.name().toLowerCase() + " to " + setting.name().toLowerCase(), ChatColor.GREEN);
-					currentSetting = setting;
+					ModDamage.sendMessage(player, "Changed debug from " + getDebugSetting().name().toLowerCase() + " to " + setting.name().toLowerCase(), ChatColor.GREEN);
+					this.currentSetting = setting;
 				}
 				else if(player != null)
 					player.sendMessage(ModDamage.chatPrepend(ChatColor.RED) + "Couldn't save changes to " + configString_defaultConfigPath + ".");
@@ -512,4 +509,9 @@ public class PluginConfiguration
 	public void printToLog(Level level, String message){ log.log(level, "[" + plugin.getDescription().getName() + "] " + message);}
 
 	public LinkedHashMap<String, Object> getConfigMap(){ return configMap;}
+
+	public DebugSetting getDebugSetting()
+	{
+		return currentSetting;
+	}
 }

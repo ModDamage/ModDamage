@@ -1,8 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,8 +17,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageItemStack;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.NestedRoutine;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
 
 public class EntityItemAction extends EntityCalculationRoutine
 {
@@ -89,21 +86,20 @@ public class EntityItemAction extends EntityCalculationRoutine
 
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.(give|drop|take)Item(?:\\.(.*))", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		CalculationRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.(give|drop|take)Item\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static class RoutineBuilder extends CalculationRoutine.CalculationBuilder
 	{
 		@Override
-		public EntityItemAction getNew(Matcher matcher, Object nestedContent)
+		public EntityItemAction getNew(Matcher matcher, DynamicInteger integer)
 		{
-			List<Routine> routines = new ArrayList<Routine>();
 			Collection<ModDamageItemStack> items = AliasManager.matchItemAlias(matcher.group(3));
-			EntityReference reference = EntityReference.match(matcher.group(2));
+			EntityReference reference = EntityReference.match(matcher.group(1));
 			if(reference != null && !items.isEmpty())
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Item (" + matcher.group(2).toLowerCase() + "): " + matcher.group(1) + ", " + matcher.group(3));
-				return new EntityItemAction(matcher.group(), reference, DynamicInteger.getNew(routines), ItemAction.valueOf(matcher.group(2).toUpperCase()), items);
+				return new EntityItemAction(matcher.group(), reference, integer, ItemAction.valueOf(matcher.group(2).toUpperCase()), items);
 			}
 			return null;
 		}
