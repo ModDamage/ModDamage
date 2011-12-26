@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
@@ -35,15 +36,21 @@ public class PlayerHasItem extends EntityConditionalStatement
 			if(strict)
 			{
 				for(ModDamageItemStack item : items)
-					if(!((Player)entityReference.getEntity(eventInfo)).getInventory().contains(item.toItemStack()))
+				{
+					ItemStack temp = item.toItemStack();
+					if(!((Player)entityReference.getEntity(eventInfo)).getInventory().contains(temp.getType(), temp.getAmount()))
 						return false;
+				}
 				return true;
 			}
 			else
 			{
 				for(ModDamageItemStack item : items)
-					if(((Player)entityReference.getEntity(eventInfo)).getInventory().contains(item.toItemStack()))
+				{
+					ItemStack temp = item.toItemStack();
+					if(((Player)entityReference.getEntity(eventInfo)).getInventory().contains(temp.getType(), temp.getAmount()))
 						return true;
+				}
 				return false;
 			}
 		}
