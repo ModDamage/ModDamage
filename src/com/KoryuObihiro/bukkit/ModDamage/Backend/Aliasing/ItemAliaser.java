@@ -10,5 +10,4 @@ public class ItemAliaser extends CollectionAliaser<ModDamageItemStack>
 	protected ModDamageItemStack matchNonAlias(String key){ return ModDamageItemStack.getNew(key);}
 	@Override
 	protected String getObjectName(ModDamageItemStack object){ return object.toString();}
-
 }

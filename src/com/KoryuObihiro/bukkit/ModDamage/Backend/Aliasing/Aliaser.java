@@ -1,7 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -171,9 +170,30 @@ abstract public class Aliaser<Type, StoredInfoClass>
 			if(!failFlag) thisMap.get(key).addAll(matchedItems);
 			return !failFlag;
 		}
-		@Override @SuppressWarnings("unchecked")
-		protected Collection<InfoType> getNewStorageClass(InfoType value){ return Arrays.asList(value);}
+		
+		@Override
+		public Collection<InfoType> matchAlias(String key)
+		{
+			if(thisMap.containsKey(key))
+				return thisMap.get(key);
+			
+			boolean failFlag = false;
+			List<InfoType> values = new ArrayList<InfoType>();
+			for(String valueString : key.split(","))
+			{
+				InfoType value = matchNonAlias(valueString);
+				if(value != null) values.add(value);
+				else failFlag = true;
+			}
+			if(!failFlag && !values.isEmpty()) return values;
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "No matching " + name + " alias or value \"" + key + "\"");
+			return getDefaultValue();
+		}
+
 		@Override
 		protected Collection<InfoType> getDefaultValue(){ return new ArrayList<InfoType>();}
+		
+		@Override @Deprecated
+		protected Collection<InfoType> getNewStorageClass(InfoType value){ return null;}
 	}
 }
