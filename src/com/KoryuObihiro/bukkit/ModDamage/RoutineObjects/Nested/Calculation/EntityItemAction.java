@@ -9,8 +9,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageItemStack;
@@ -98,7 +96,7 @@ public class EntityItemAction extends EntityCalculationRoutine
 			EntityReference reference = EntityReference.match(matcher.group(1));
 			if(reference != null && !items.isEmpty())
 			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Item (" + matcher.group(2).toLowerCase() + "): " + matcher.group(1) + ", " + matcher.group(3));
+				//ModDamage.addToLogRecord(OutputPreset.INFO, "Item (" + matcher.group(2).toLowerCase() + "): " + matcher.group(1) + ", " + matcher.group(3));
 				return new EntityItemAction(matcher.group(), reference, integer, ItemAction.valueOf(matcher.group(2).toUpperCase()), items);
 			}
 			return null;
