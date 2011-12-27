@@ -21,6 +21,7 @@ import org.bukkit.entity.Flying;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Giant;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.NPC;
@@ -34,6 +35,7 @@ import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.SmallFireball;
 import org.bukkit.entity.Snowball;
+import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Squid;
 import org.bukkit.entity.ThrownPotion;
@@ -317,7 +319,7 @@ public enum ModDamageElement
 				if(entity instanceof Pig) 			return PIG;
 				if(entity instanceof MushroomCow)	return MUSHROOM_COW;
 				if(entity instanceof Sheep) 		return SHEEP;
-				//if(entity instanceof Snowman)		return SNOWMAN; //FIXME Not part of Bukkit yet?
+				if(entity instanceof Snowman)		return SNOWMAN; 
 				if(entity instanceof Wolf)
 				{
 					if(((Wolf)entity).getOwner() != null) return WOLF_TAME;
@@ -332,6 +334,7 @@ public enum ModDamageElement
 				if(entity instanceof Creeper)		return ((Creeper)entity).isPowered()?CREEPER_CHARGED:CREEPER_NORMAL;
 				if(entity instanceof Enderman)		return ENDERMAN;
 				if(entity instanceof Giant) 		return GIANT;
+				if(entity instanceof MagmaCube) 	return MAGMA_CUBE;
 				if(entity instanceof Silverfish)	return SILVERFISH;
 				if(entity instanceof Skeleton)		return SKELETON;
 				if(entity instanceof Spider)
