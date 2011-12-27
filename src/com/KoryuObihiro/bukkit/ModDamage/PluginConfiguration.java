@@ -33,8 +33,8 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 
 public class PluginConfiguration
 {
-	protected static final String configString_defaultConfigPath = "config.yml";
 	public final static Logger log = Logger.getLogger("Minecraft");
+	protected static final String configString_defaultConfigPath = "config.yml";
 
 	public final int oldestSupportedBuild;
 	private final Plugin plugin;
@@ -138,7 +138,7 @@ public class PluginConfiguration
 
 		addToLogRecord(OutputPreset.CONSTANT, "[" + plugin.getDescription().getName() + "] v" + plugin.getDescription().getVersion() + " loading...");
 
-		// scope this...because I think it looks nicer. :P
+		// scope this...because it looks nicer?
 		{
 			Object configObject = null;
 			FileInputStream stream;
@@ -265,8 +265,6 @@ public class PluginConfiguration
 	private boolean writeDefaults()
 	{
 		addToLogRecord(OutputPreset.INFO, logPrepend() + "No configuration file found! Writing a blank config in " + configString_defaultConfigPath + "...");
-
-		//FIXME Could be better.
 		if(!configFile.exists())
 		{
 			try
@@ -309,7 +307,7 @@ public class PluginConfiguration
 		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
 			outputString += newline + eventType.name() + ":";
 
-		outputString += newline + "#Miscellaneous configuration";
+		outputString += newline + newline +  "#Miscellaneous configuration";
 		outputString += newline + "debugging: normal";
 		outputString += newline + ModDamageEventHandler.disableDeathMessages_configString + ": false";
 		outputString += newline + "Tagging: #These intervals should be tinkered with ONLY if you understand the implications.";

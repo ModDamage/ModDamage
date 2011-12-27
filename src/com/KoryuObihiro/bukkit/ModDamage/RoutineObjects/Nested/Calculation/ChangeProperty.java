@@ -36,7 +36,7 @@ public final class ChangeProperty extends CalculationRoutine
 		@Override
 		public ChangeProperty getNew(Matcher matcher, DynamicInteger routines)
 		{
-			DynamicInteger targetPropertyMatch = DynamicInteger.getNew(matcher.group(1) + "." + matcher.group(3));
+			DynamicInteger targetPropertyMatch = DynamicInteger.getNew(matcher.group(1) + "_" + matcher.group(3));
 			if(targetPropertyMatch != null)
 			{
 				if(targetPropertyMatch.isSettable())

@@ -31,7 +31,6 @@ import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 public class ModDamage extends JavaPlugin
 {
 	public final static int oldestSupportedBuild = 1597;
-	// TODO 0.9.6 Command for autogen world/entitytype switches?
 	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
 	// -AoE clearance, block search nearby for Material?
 	// -find a way to give players ownership of an explosion?
@@ -81,7 +80,7 @@ public class ModDamage extends JavaPlugin
 			LinkedHashMap<String, Object> tagConfigurationTree = configuration.castToStringMap("Tagging", configuration.getConfigMap().get("Tagging"));
 			if(tagConfigurationTree != null)
 			{
-				String[] tagConfigStrings = { "interval-save", "interval-clean" };
+				String[] tagConfigStrings = { ModDamageTagger.configString_save, ModDamageTagger.configString_clean };
 				Object[] tagConfigObjects =	{PluginConfiguration.getCaseInsensitiveValue(tagConfigurationTree, tagConfigStrings[0]), PluginConfiguration.getCaseInsensitiveValue(tagConfigurationTree, tagConfigStrings[1]) };
 				for(int i = 0; i < tagConfigObjects.length; i++)
 				{

@@ -54,7 +54,7 @@ public enum ModDamageElement
 				COW(ANIMAL, CreatureType.COW),
 				PIG(ANIMAL, CreatureType.PIG),
 				SHEEP(ANIMAL, CreatureType.SHEEP),
-				//SNOWMAN(ANIMAL, CreatureType.SNOWMAN),//FIXME Not part of Bukkit yet?
+				SNOWMAN(ANIMAL, CreatureType.SNOWMAN),
 				SQUID(ANIMAL, CreatureType.SQUID),
 				WOLF(ANIMAL, CreatureType.WOLF),
 					WOLF_WILD(WOLF, CreatureType.WOLF),
@@ -74,14 +74,14 @@ public enum ModDamageElement
 						public LivingEntity spawnCreature(Location location)
 						{
 							Wolf wolf = ((Wolf)location.getWorld().spawnCreature(location, this.getCreatureType()));
-							wolf.setTamed(true);//FIXME WTF Does this do? XD
+							wolf.setTamed(true);//FIXME Who would this belong to?
 							return wolf;
 						}
 					},
 				
 			HUMAN(LIVING),
 				PLAYER(HUMAN),
-				NPC(HUMAN, CreatureType.MONSTER),//TODO Does this work?
+				NPC(HUMAN, CreatureType.MONSTER),//FIXME Does this work?
 					VILLAGER(NPC, CreatureType.VILLAGER),
 			
 			MOB(LIVING),
@@ -103,7 +103,7 @@ public enum ModDamageElement
 				ENDERMAN(MOB, CreatureType.ENDERMAN),
 				GHAST(MOB, CreatureType.GHAST),
 				GIANT(MOB, CreatureType.GIANT),
-				//MAGMACUBE(MOB),TODO Future release
+				MAGMA_CUBE(MOB, CreatureType.MAGMA_CUBE),
 				MUSHROOM_COW(MOB, CreatureType.MUSHROOM_COW),
 				SILVERFISH(MOB, CreatureType.SILVERFISH),
 				SKELETON(MOB, CreatureType.SKELETON),
@@ -370,6 +370,6 @@ public enum ModDamageElement
 	{
 		if(creatureType != null)
 			return location.getWorld().spawnCreature(location, creatureType);
-		else throw new IllegalArgumentException("Cannot spawn abstract element" + name() + "!");
+		else throw new IllegalArgumentException("Cannot spawn " + (this.matchesType(LIVING)?"nonliving":"abstract living") + " element" + name() + "!");
 	}
 }
