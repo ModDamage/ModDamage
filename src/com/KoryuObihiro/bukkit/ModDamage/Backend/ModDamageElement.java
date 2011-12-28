@@ -319,7 +319,6 @@ public enum ModDamageElement
 				if(entity instanceof Pig) 			return PIG;
 				if(entity instanceof MushroomCow)	return MUSHROOM_COW;
 				if(entity instanceof Sheep) 		return SHEEP;
-				if(entity instanceof Snowman)		return SNOWMAN; 
 				if(entity instanceof Wolf)
 				{
 					if(((Wolf)entity).getOwner() != null) return WOLF_TAME;
@@ -346,6 +345,7 @@ public enum ModDamageElement
 			}
 			//if(entity instanceof WaterMob) - Uncomment when there's more watermobs. :P
 				if(entity instanceof Squid) 		return SQUID;
+			if(entity instanceof Snowman)		return SNOWMAN;
 		}
 		if(entity instanceof Flying) 
 		{
