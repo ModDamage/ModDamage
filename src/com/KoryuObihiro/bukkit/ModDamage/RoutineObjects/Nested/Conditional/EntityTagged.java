@@ -26,7 +26,7 @@ public class EntityTagged extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+)\\.istagged\\.(\\w+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(.*)\\.istagged\\.(.*)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
 	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder

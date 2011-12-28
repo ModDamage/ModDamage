@@ -51,7 +51,7 @@ public class Tag extends Routine
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("(un)?tag\\.(\\w+)\\.(\\w+)(?:\\.(.*))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(un)?tag\\.(.*)\\.(.*)(?:\\.(.*))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
@@ -59,34 +59,38 @@ public class Tag extends Routine
 		@Override
 		public Tag getNew(Matcher matcher)
 		{
-			EntityReference reference = EntityReference.match(matcher.group(2));
-			if(reference != null)
+			if(matcher.group(3).matches("\\w+"))
 			{
-				if(matcher.group(1) == null)
+				EntityReference reference = EntityReference.match(matcher.group(2));
+				if(reference != null)
 				{
-					if(matcher.group(4) == null)
+					if(matcher.group(1) == null)
 					{
-						ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(2) + ", " + matcher.group(3) + ", " + defaultValue);
-						return new Tag(matcher.group(), matcher.group(3).toLowerCase(), reference, null);
+						if(matcher.group(4) == null)
+						{
+							ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(2) + ", " + matcher.group(3) + ", " + defaultValue);
+							return new Tag(matcher.group(), matcher.group(3).toLowerCase(), reference, null);
+						}
+						else
+						{
+							DynamicInteger integer = DynamicInteger.getNew(matcher.group(4));
+							if(integer != null)
+							{
+								ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(2) + ", " + matcher.group(3) + ", " + integer.toString());
+								return new Tag(matcher.group(), matcher.group(3).toLowerCase(), reference, integer);
+							}
+						}
 					}
 					else
 					{
-						DynamicInteger integer = DynamicInteger.getNew(matcher.group(4));
-						if(integer != null)
-						{
-							ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(2) + ", " + matcher.group(3) + ", " + integer.toString());
-							return new Tag(matcher.group(), matcher.group(3).toLowerCase(), reference, integer);
-						}
+						if(matcher.group(4) != null)
+							ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Warning: Ignoring value \"" + matcher.group(4) + "\"; unused for untagging.");
+						ModDamage.addToLogRecord(OutputPreset.INFO, "Untag: " + matcher.group(2) + ", " + matcher.group(3));
+						return new Tag(matcher.group(), matcher.group(3).toLowerCase(), reference);
 					}
 				}
-				else
-				{
-					if(matcher.group(4) != null)
-						ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Warning: Ignoring value \"" + matcher.group(4) + "\"; unused for untagging.");
-					ModDamage.addToLogRecord(OutputPreset.INFO, "Untag: " + matcher.group(2) + ", " + matcher.group(3));
-					return new Tag(matcher.group(), matcher.group(3).toLowerCase(), reference);
-				}
 			}
+			else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: tag \"" + matcher.group(3) + "\" should only be alphanumeric characters.");
 			return null;
 		}
 	}

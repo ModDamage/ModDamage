@@ -37,7 +37,7 @@ public class EntityHurt extends EntityCalculationRoutine
 
 	public static void register()
 	{
-		CalculationRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.hurt", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		CalculationRoutine.registerRoutine(Pattern.compile("(.*)effect\\.hurt", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends CalculationRoutine.CalculationBuilder

@@ -125,7 +125,7 @@ public class EntityStatus extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+)\\.is(\\w+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(.*)\\.is(.*)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
 	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder

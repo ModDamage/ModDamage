@@ -80,7 +80,6 @@ public class EntityBlockStatus extends EntityConditionalStatement
 		
 		private static boolean searchVertically(boolean goingUp, Collection<Material> materials, Entity entity)
 		{
-			//TODO Indefinite - Integrate into a special library. :D
 			Material thisMaterial = null;
 			int i = entity.getLocation().getBlockX();
 			int k = entity.getLocation().getBlockZ();
@@ -108,7 +107,7 @@ public class EntityBlockStatus extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+)\\.is(\\w+)block\\.(\\w+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(.*)\\.is(\\w+)block\\.(.*)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
 	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder

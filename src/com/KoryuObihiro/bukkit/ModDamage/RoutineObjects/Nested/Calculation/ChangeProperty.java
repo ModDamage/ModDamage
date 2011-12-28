@@ -28,7 +28,7 @@ public final class ChangeProperty extends CalculationRoutine
 	
 	public static void register()
 	{
-		CalculationRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.(set|add)(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		CalculationRoutine.registerRoutine(Pattern.compile("(.*)effect\\.(set|add)(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends CalculationRoutine.CalculationBuilder

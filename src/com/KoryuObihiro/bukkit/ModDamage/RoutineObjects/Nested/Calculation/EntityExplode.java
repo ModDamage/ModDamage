@@ -26,7 +26,7 @@ public class EntityExplode extends EntityCalculationRoutine
 	
 	public static void register()
 	{
-		CalculationRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.explode", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		CalculationRoutine.registerRoutine(Pattern.compile("(.*)effect\\.explode", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends CalculationRoutine.CalculationBuilder

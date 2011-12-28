@@ -32,7 +32,7 @@ public class McMMOChangeSkill extends McMMOCalculationRoutine
 
 	public static void register()
 	{
-		CalculationRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.(set|add)skill\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		CalculationRoutine.registerRoutine(Pattern.compile("(.*)effect\\.(set|add)skill\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends CalculationRoutine.CalculationBuilder

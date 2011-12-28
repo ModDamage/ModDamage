@@ -37,7 +37,7 @@ public class ConditionalRoutine extends NestedRoutine
 {
 	private static LinkedHashMap<Pattern, StatementBuilder> registeredConditionalStatements = new LinkedHashMap<Pattern, StatementBuilder>();
 	
-	protected static final String conditionalStatementPart = "!?(.*|\\(.*\\))";
+	protected static final String conditionalStatementPart = "!?(.+)";
 
 	protected final boolean inverted;
 	protected final List<ConditionalStatement> statements;

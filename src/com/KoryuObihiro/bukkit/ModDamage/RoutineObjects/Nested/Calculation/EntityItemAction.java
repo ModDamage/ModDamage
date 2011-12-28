@@ -84,7 +84,7 @@ public class EntityItemAction extends EntityCalculationRoutine
 
 	public static void register()
 	{
-		CalculationRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.(give|drop|take)Item\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		CalculationRoutine.registerRoutine(Pattern.compile("(.*)effect\\.(give|drop|take)Item\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends CalculationRoutine.CalculationBuilder
