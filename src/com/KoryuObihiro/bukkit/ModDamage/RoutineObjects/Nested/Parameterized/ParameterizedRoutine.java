@@ -43,7 +43,7 @@ public abstract class ParameterizedRoutine extends NestedRoutine
 			if(RoutineAliaser.parseRoutines(routines, routinesObject))
 				return DynamicInteger.getNew(routines);
 		}
-		else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not find expected parameter \"Quantity\"");
+		else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not find expected parameter \""+parameter+"\"");
 		return null;
 	}
 
