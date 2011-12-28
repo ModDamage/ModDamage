@@ -43,7 +43,7 @@ public class PlayerHasEnchantment extends EntityConditionalStatement
 		@Override
 		public PlayerHasEnchantment getNew(Matcher matcher)
 		{
-			Collection<Enchantment> enchantments = AliasManager.matchEnchantmentAlias(matcher.group(4));
+			Collection<Enchantment> enchantments = AliasManager.matchEnchantmentAlias(matcher.group(3));
 			EntityReference reference = EntityReference.match(matcher.group(2));
 			if(reference != null && !enchantments.isEmpty())
 				return new PlayerHasEnchantment(matcher.group(1).equals("!"), reference, enchantments);
