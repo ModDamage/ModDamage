@@ -1,7 +1,8 @@
 name: ModDamage
 main: com.KoryuObihiro.bukkit.ModDamage.ModDamage
 version: 1.0 test build
-authors: [KoryuObihiro]
+author: [KoryuObihiro]
+authors: [Spudstabber, ricochet1k]
 description: |
     Completely customize damage in Bukkit with ModDamage!
 commands:
