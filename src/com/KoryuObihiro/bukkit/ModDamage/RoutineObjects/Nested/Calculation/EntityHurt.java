@@ -4,10 +4,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
@@ -22,15 +24,25 @@ public class EntityHurt extends EntityCalculationRoutine
 	}
 
 	@Override
-	protected void doCalculation(TargetEventInfo eventInfo, int input)
+	protected void doCalculation(final TargetEventInfo eventInfo, final int input)
 	{
 		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.LIVING))
 		{
-			LivingEntity entity = (LivingEntity)entityReference.getEntity(eventInfo);
-			if(entityReference.getEntityOther(eventInfo) != null)
+			final LivingEntity target = (LivingEntity) entityReference.getEntity(eventInfo);
+			final Entity from = entityReference.getEntityOther(eventInfo);
+			if(from != null && target.getHealth() > 0 && !target.isDead())
 			{
-				Bukkit.getPluginManager().callEvent(new EntityDamageByEntityEvent(entityReference.getEntityOther(eventInfo), entity, DamageCause.ENTITY_ATTACK, input));
-				entity.damage(input);
+				Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(from, target, DamageCause.ENTITY_ATTACK, input);
+							Bukkit.getPluginManager().callEvent(event);
+							if (!event.isCancelled())
+								target.damage(event.getDamage());
+						}
+					});
 			}
 		}
 	}

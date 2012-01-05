@@ -37,7 +37,7 @@ public class PluginConfiguration
 	protected static final String configString_defaultConfigPath = "config.yml";
 
 	public final int oldestSupportedBuild;
-	private final Plugin plugin;
+	public final Plugin plugin;
 	private final File configFile;
 	private int configPages = 0;
 	private LinkedHashMap<String, Object> configMap;

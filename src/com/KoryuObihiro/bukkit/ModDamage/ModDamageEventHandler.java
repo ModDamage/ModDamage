@@ -125,8 +125,11 @@ enum ModDamageEventHandler
 		@Override
 		public void onEntityDamage(EntityDamageEvent event)
 		{
+			if (!ModDamage.isEnabled) return;
 			if(!event.isCancelled() && (event.getEntity() instanceof LivingEntity)) 
-				if(ModDamage.isEnabled && ((LivingEntity)event.getEntity()).getNoDamageTicks() <= 40L)//TODO Does this wor
+			{
+				LivingEntity le = (LivingEntity)event.getEntity();
+				if(le.getNoDamageTicks() <= le.getMaximumNoDamageTicks()/2)
 				{
 					AttackerEventInfo eventInfo = getDamageEventInfo(event);
 					if(eventInfo != null)
@@ -137,6 +140,7 @@ enum ModDamageEventHandler
 					}
 					else  PluginConfiguration.log.severe("[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + "] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
 				}
+			}
 		}
 		
 	////DEATH ////
