@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,7 +13,109 @@ import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 
 public enum EntityReference
 {
-	TARGET, PROJECTILE, ATTACKER;
+	TARGET
+	{
+		public ArmorSet getArmorSet(TargetEventInfo eventInfo) 
+		{
+			if(eventInfo.type.equals(EntityReference.ATTACKER)) 
+				return ((AttackerEventInfo)eventInfo).armorSet_attacker;
+			return null;
+		}
+		
+		public ModDamageElement getElement(TargetEventInfo eventInfo) 
+		{
+			return eventInfo.element_target;
+		}
+		
+		public Entity getEntity(TargetEventInfo eventInfo)
+		{
+			return eventInfo.entity_target;
+		}
+		
+		public Entity getEntityOther(TargetEventInfo eventInfo)
+		{
+			switch(eventInfo.type)
+			{
+				case PROJECTILE:	return ((ProjectileEventInfo)eventInfo).projectile;
+				case ATTACKER:		return ((AttackerEventInfo)eventInfo).entity_attacker;
+			}
+			return null;
+		}
+
+		public List<String> getGroups(TargetEventInfo eventInfo) 
+		{
+			return eventInfo.groups_target;
+		}
+
+		public Material getMaterial(TargetEventInfo eventInfo)
+		{
+			return eventInfo.materialInHand_target;
+		}
+	},
+	PROJECTILE
+	{
+		public ArmorSet getArmorSet(TargetEventInfo eventInfo) 
+		{
+			return null;
+		}
+		
+		public ModDamageElement getElement(TargetEventInfo eventInfo) 
+		{
+			return (eventInfo instanceof ProjectileEventInfo)? ((ProjectileEventInfo)eventInfo).rangedElement : null;
+		}
+		
+		public Entity getEntity(TargetEventInfo eventInfo)
+		{
+			return (eventInfo instanceof ProjectileEventInfo)? ((ProjectileEventInfo)eventInfo).projectile : null;
+		}
+		
+		public Entity getEntityOther(TargetEventInfo eventInfo)
+		{
+			return (eventInfo instanceof AttackerEventInfo)? ((AttackerEventInfo)eventInfo).entity_attacker : null;
+		}
+
+		public List<String> getGroups(TargetEventInfo eventInfo) 
+		{
+			return new ArrayList<String>();
+		}
+
+		public Material getMaterial(TargetEventInfo eventInfo)
+		{
+			return null;
+		}
+	},
+	ATTACKER
+	{
+		public ArmorSet getArmorSet(TargetEventInfo eventInfo) 
+		{
+			return (eventInfo instanceof AttackerEventInfo)? ((AttackerEventInfo)eventInfo).armorSet_attacker : null;
+		}
+		
+		public ModDamageElement getElement(TargetEventInfo eventInfo) 
+		{
+			return (eventInfo instanceof AttackerEventInfo)? ((AttackerEventInfo)eventInfo).element_attacker : null;
+		}
+		
+		public Entity getEntity(TargetEventInfo eventInfo)
+		{
+			return (eventInfo instanceof AttackerEventInfo)? ((AttackerEventInfo)eventInfo).entity_attacker : null;
+		}
+		
+		public Entity getEntityOther(TargetEventInfo eventInfo)
+		{
+			return eventInfo.entity_target;
+		}
+
+		public List<String> getGroups(TargetEventInfo eventInfo) 
+		{
+			return (eventInfo instanceof AttackerEventInfo)? ((AttackerEventInfo)eventInfo).groups_attacker : new ArrayList<String>();
+		}
+
+		public Material getMaterial(TargetEventInfo eventInfo)
+		{
+			return (eventInfo instanceof AttackerEventInfo)? ((AttackerEventInfo)eventInfo).materialInHand_attacker : null;
+		}
+	};
 	
 //Use these when building routines.
 	public static EntityReference match(String string){ return match(string, true);}
@@ -25,89 +128,22 @@ public enum EntityReference
 		return null;
 	}
 //Stuff for matching info.
-	public ArmorSet getArmorSet(TargetEventInfo eventInfo) 
-	{
-		switch(this)
-		{
-			case TARGET: return eventInfo.armorSet_target;
-			case ATTACKER: 
-				if(eventInfo.type.equals(EntityReference.ATTACKER)) 
-					return ((AttackerEventInfo)eventInfo).armorSet_attacker;
-		}
-		return null;
-	}
+	public abstract ArmorSet getArmorSet(TargetEventInfo eventInfo);
 	
-	public ModDamageElement getElement(TargetEventInfo eventInfo) 
-	{
-		switch(this)
-		{
-			case TARGET:		return eventInfo.element_target;
-			case PROJECTILE:	return ((ProjectileEventInfo)eventInfo).rangedElement;
-			case ATTACKER: 
-				if(eventInfo.type.equals(EntityReference.ATTACKER)) 
-					return ((AttackerEventInfo)eventInfo).element_attacker;
-		}
-		return null;
-	}
+	public abstract ModDamageElement getElement(TargetEventInfo eventInfo);
 	
-	public Entity getEntity(TargetEventInfo eventInfo)
-	{
-		switch(this)
-		{
-			case TARGET:		return eventInfo.entity_target;
-			case PROJECTILE:	return (eventInfo.type == this)?((ProjectileEventInfo)eventInfo).projectile:null;
-			case ATTACKER:		return (eventInfo.type == this)?((AttackerEventInfo)eventInfo).entity_attacker:null;
-		}
-		return null;//shouldn't happen.
-	}
+	public abstract Entity getEntity(TargetEventInfo eventInfo);
 	
-	public Entity getEntityOther(TargetEventInfo eventInfo)
-	{
-		switch(this)
-		{
-			case TARGET:
-				switch(eventInfo.type)
-				{
-					case PROJECTILE:	return ((ProjectileEventInfo)eventInfo).projectile;
-					case ATTACKER:		return ((AttackerEventInfo)eventInfo).entity_attacker;
-				}
-				break;
-			case PROJECTILE:
-				if(eventInfo.type == ATTACKER) return ((AttackerEventInfo)eventInfo).entity_attacker;
-				break;
-			case ATTACKER:
-				return eventInfo.entity_target;
-		}
-		return null;
-	}
+	public abstract Entity getEntityOther(TargetEventInfo eventInfo);
 
-	//XXX A lot of repetitive logic. :\
-	public List<String> getGroups(TargetEventInfo eventInfo) 
-	{
-		switch(this)
-		{
-			case TARGET: return eventInfo.groups_target;
-			case ATTACKER: 
-				if(eventInfo.type == (ATTACKER))
-					return ((AttackerEventInfo)eventInfo).groups_attacker;
-		}
-		return Arrays.asList();
-	}
+	public abstract List<String> getGroups(TargetEventInfo eventInfo);
 
-	public Material getMaterial(TargetEventInfo eventInfo)
-	{
-		switch(this)
-		{
-			case TARGET: return eventInfo.materialInHand_target;
-			case ATTACKER: 
-				if(eventInfo.type == ATTACKER)
-					return ((AttackerEventInfo)eventInfo).materialInHand_attacker;
-		}
-		return null;
-	}
+	public abstract Material getMaterial(TargetEventInfo eventInfo);
 
 	public String getName(TargetEventInfo eventInfo) 
 	{
-		return this.getElement(eventInfo).matchesType(ModDamageElement.PLAYER)?((Player)this.getEntity(eventInfo)).getName():null;
+		if (getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
+			return ((Player)this.getEntity(eventInfo)).getName();
+		return null;
 	}
 }
