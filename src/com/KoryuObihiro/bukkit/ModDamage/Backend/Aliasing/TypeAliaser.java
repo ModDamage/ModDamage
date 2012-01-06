@@ -19,12 +19,13 @@ public class TypeAliaser extends CollectionAliaser<ModDamageElement>
 		if(thisMap.containsKey(key))
 			return thisMap.get(key);
 		ModDamageElement value = matchNonAlias(key);
-		if(!value.equals(ModDamageElement.UNKNOWN)) return Arrays.asList(value);
-		{
-			ModDamage.changeIndentation(true);
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "No matching " + name + " alias or value \"" + key + "\"");
-			ModDamage.changeIndentation(false);
-		}
+		if(value != ModDamageElement.UNKNOWN)
+			return Arrays.asList(value);
+		
+		ModDamage.changeIndentation(true);
+		ModDamage.addToLogRecord(OutputPreset.FAILURE, "No matching " + name + " alias or value \"" + key + "\"");
+		ModDamage.changeIndentation(false);
+		
 		return new ArrayList<ModDamageElement>();
 	}
 	
