@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -122,27 +121,21 @@ public class ModDamageTagger
 			}
 		}
 		Plugin modDamage = Bukkit.getPluginManager().getPlugin("ModDamage");
-		saveTaskID = Bukkit.getScheduler().scheduleAsyncRepeatingTask(modDamage, new ModDamageTagSaveTask(), saveInterval, saveInterval);
-		cleanTaskID = Bukkit.getScheduler().scheduleAsyncRepeatingTask(modDamage, new ModDamageTagCleanTask(), cleanInterval, cleanInterval);	
-	}
-	
-	private abstract class ModDamageTagTask implements Runnable//FIXME This shouldn't be necessary, if we're handling syncing right. The problem is...we're not. :(
-	{
-		@Override public void run()
-		{
-			try
+		
+		saveTaskID = Bukkit.getScheduler().scheduleAsyncRepeatingTask(modDamage, new Runnable(){
+			@Override public void run()
 			{
-				doSomething();
+				save();
 			}
-			catch(ConcurrentModificationException e)
+		}, saveInterval, saveInterval);
+		
+		cleanTaskID = Bukkit.getScheduler().scheduleAsyncRepeatingTask(modDamage, new Runnable(){
+			@Override public void run()
 			{
-				PluginConfiguration.log.warning("Encountered a threading error with tags.");
+				cleanUp();
 			}
-		}
-		protected abstract void doSomething();
+		}, cleanInterval, cleanInterval);	
 	}
-	private class ModDamageTagSaveTask extends ModDamageTagTask{ @Override protected void doSomething(){ save();}}
-	private class ModDamageTagCleanTask extends ModDamageTagTask{ @Override protected void doSomething(){ cleanUp();}}
 	
 	/**
 	 * Saves all tags to a file.
@@ -250,7 +243,7 @@ public class ModDamageTagger
 			for(Entity entity : world.getEntities())
 				ids.add(entity.getUniqueId());
 		for(HashMap<UUID, Integer> tagList : tags.values())
-			for(UUID id : tagList.keySet())
+			for(UUID id : Collections.unmodifiableSet(tagList.keySet()))
 				if(!ids.contains(id))
 					tagList.remove(id);
 		//clean up the tasks
