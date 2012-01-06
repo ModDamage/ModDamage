@@ -40,17 +40,30 @@ public class ModDamageItemStack
 	public static ModDamageItemStack getNew(String string)
 	{
 		String[] parts = string.split("\\*");
-		if(parts.length == 2)
+		if (parts.length == 0 || parts.length > 2) return null;
+		
+		Material material;
+		//for(Material someMaterial : Material.values())
+		//	if(parts[0].equalsIgnoreCase(someMaterial.name()))
+		//		material = someMaterial;
+		try
 		{
-			Material material = null;
-			for(Material someMaterial : Material.values())
-				if(parts[0].equalsIgnoreCase(someMaterial.name()))
-					material = someMaterial;
-			if(material == null) ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unable to match material \"" + parts[0] + "\"");
-			DynamicInteger integer = DynamicInteger.getNew(parts[1]);
-			if(material != null && integer != null)
-				return new ModDamageItemStack(material, integer);
+			material = Material.valueOf(parts[0].toUpperCase());
 		}
+		catch (IllegalArgumentException e){
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unable to match material \"" + parts[0] + "\"");
+			return null;
+		}
+		
+		DynamicInteger integer;
+		if(parts.length == 2)
+			integer = DynamicInteger.getNew(parts[1]);
+		else
+			integer = DynamicInteger.getNew("1");
+			
+		if(material != null && integer != null)
+			return new ModDamageItemStack(material, integer);
+		
 		return null;
 	}
 
