@@ -69,8 +69,7 @@ public class EntityItemAction extends EntityCalculationRoutine
 	}
 	
 	@Override
-	public void run(TargetEventInfo eventInfo) 
-	{
+	protected void doCalculation(TargetEventInfo eventInfo, int input){
 		if(!action.requiresPlayer || entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
 		{
 			for(ModDamageItemStack item : items)
@@ -78,9 +77,6 @@ public class EntityItemAction extends EntityCalculationRoutine
 			action.doAction(entityReference.getEntity(eventInfo), items, value.getValue(eventInfo));
 		}
 	}
-
-	@Override
-	protected void doCalculation(TargetEventInfo eventInfo, int input){}
 
 	public static void register()
 	{
