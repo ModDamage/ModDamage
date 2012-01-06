@@ -75,10 +75,10 @@ public class Comparison extends ConditionalStatement
 	protected static Map<String, ComparisonType> nameMap;
 	static
 	{
-		nameMap = new HashMap<String, Comparison.ComparisonType>();
+		nameMap = new HashMap<String, ComparisonType>();
 		
-		comparisonPart = "(?:";
-		operatorPart = "(?:";
+		comparisonPart = "";
+		operatorPart = "";
 		for(ComparisonType comparisonType : ComparisonType.values())
 		{
 			comparisonPart += comparisonType.name() + "|";
@@ -86,14 +86,14 @@ public class Comparison extends ConditionalStatement
 			operatorPart += comparisonType.operator + "|";
 			nameMap.put(comparisonType.operator, comparisonType);
 		}
-		comparisonPart = comparisonPart.substring(0, comparisonPart.length() - 1) + ")";
-		operatorPart = operatorPart.substring(0, operatorPart.length() - 1) + ")";
+		comparisonPart = comparisonPart.substring(0, comparisonPart.length() - 1);
+		operatorPart = operatorPart.substring(0, operatorPart.length() - 1);
 		
 		nameMap = Collections.unmodifiableMap(nameMap);
 	}
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)([\\w.]*)(\\." + comparisonPart + "\\.|\\s*" + operatorPart + "\\s*)([\\w.]*)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)([\\w.]*)(?:\\.(" + comparisonPart + ")\\.|\\s*(" + operatorPart + ")\\s*)([\\w.]*)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
 	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
@@ -101,8 +101,10 @@ public class Comparison extends ConditionalStatement
 		@Override
 		public Comparison getNew(Matcher matcher)
 		{
-			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(2)), match2 = DynamicInteger.getNew(matcher.group(4));
-			ComparisonType comparisonType = nameMap.get(matcher.group(3).toUpperCase());
+			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(2)), match2 = DynamicInteger.getNew(matcher.group(5));
+			String op = matcher.group(3);
+			if (op == null) op = matcher.group(4);
+			ComparisonType comparisonType = nameMap.get(op.toUpperCase());
 			if(comparisonType != null && match1 != null && match2 != null)
 				return new Comparison(matcher.group(1).equalsIgnoreCase("!"), match1, match2, comparisonType);
 			return null;
