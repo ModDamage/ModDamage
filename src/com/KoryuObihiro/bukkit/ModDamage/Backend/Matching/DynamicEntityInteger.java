@@ -147,15 +147,20 @@ public class DynamicEntityInteger extends DynamicInteger
 	@Override
 	public Integer getValue(TargetEventInfo eventInfo)
 	{
-		if(entityReference.getElement(eventInfo).matchesType(propertyMatch.requiredElement))
-			return (isNegative?-1:1) * propertyMatch.getValue(entityReference.getEntity(eventInfo));
+		ModDamageElement element = entityReference.getElement(eventInfo);
+		Entity entity = entityReference.getEntity(eventInfo);
+		if(element != null && entity != null && element.matchesType(propertyMatch.requiredElement))
+			return (isNegative?-1:1) * propertyMatch.getValue(entity);
 		return 0;//Shouldn't happen.
 	}
 	
 	@Override
 	public void setValue(TargetEventInfo eventInfo, int value)
 	{
-		if(propertyMatch.settable && entityReference.getElement(eventInfo).matchesType(propertyMatch.requiredElement))
+		if(!propertyMatch.settable) return;
+		
+		ModDamageElement element = entityReference.getElement(eventInfo);
+		if (element != null && element.matchesType(propertyMatch.requiredElement))
 			propertyMatch.setValue(entityReference.getEntity(eventInfo), value);
 	}
 	
