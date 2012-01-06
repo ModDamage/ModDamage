@@ -1,5 +1,8 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,51 +29,71 @@ public class Comparison extends ConditionalStatement
 
 	private enum ComparisonType
 	{ 
-		EQUALS
+		EQUALS("==")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 == operand2;}
 		},
-		NOTEQUALS
+		NOTEQUALS("!=")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 != operand2;}
 		},
-		LESSTHAN
+		LESSTHAN("<")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 < operand2;}
 		},
-		LESSTHANEQUALS
+		LESSTHANEQUALS("<=")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 <= operand2;}
 		},
-		GREATERTHAN
+		GREATERTHAN(">")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 > operand2;}
 		},
-		GREATERTHANEQUALS
+		GREATERTHANEQUALS(">=")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 >= operand2;}
 		};
 		
+		public final String operator;
+		
+		private ComparisonType(String op)
+		{
+			operator = op;
+		}
+		
 		abstract public boolean compare(int operand1, int operand2);
 	}
 
 	protected static String comparisonPart;
+	protected static String operatorPart;
+	protected static Map<String, ComparisonType> nameMap;
 	static
 	{
-		comparisonPart = "(";
+		nameMap = new HashMap<String, Comparison.ComparisonType>();
+		
+		comparisonPart = "(?:";
+		operatorPart = "(?:";
 		for(ComparisonType comparisonType : ComparisonType.values())
+		{
 			comparisonPart += comparisonType.name() + "|";
+			nameMap.put(comparisonType.name(), comparisonType);
+			operatorPart += comparisonType.operator + "|";
+			nameMap.put(comparisonType.operator, comparisonType);
+		}
 		comparisonPart = comparisonPart.substring(0, comparisonPart.length() - 1) + ")";
+		operatorPart = operatorPart.substring(0, operatorPart.length() - 1) + ")";
+		
+		nameMap = Collections.unmodifiableMap(nameMap);
 	}
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)([\\w.]*)\\." + comparisonPart + "\\.([\\w.]*)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
+		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)([\\w.]*)(\\." + comparisonPart + "\\.|\\s*" + operatorPart + "\\s*)([\\w.]*)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
 	}
 	
 	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
@@ -79,7 +102,7 @@ public class Comparison extends ConditionalStatement
 		public Comparison getNew(Matcher matcher)
 		{
 			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(2)), match2 = DynamicInteger.getNew(matcher.group(4));
-			ComparisonType comparisonType = ComparisonType.valueOf(matcher.group(3).toUpperCase());//Should be safe
+			ComparisonType comparisonType = nameMap.get(matcher.group(3).toUpperCase());
 			if(comparisonType != null && match1 != null && match2 != null)
 				return new Comparison(matcher.group(1).equalsIgnoreCase("!"), match1, match2, comparisonType);
 			return null;
