@@ -66,13 +66,15 @@ public class ModDamage extends JavaPlugin
 	@Override
 	public void onDisable()
 	{
-		tagger.close();
+		if (tagger != null) tagger.close();
 		configuration.printToLog(Level.INFO, "Disabled.");
 	}
 	
 	public void reload(boolean reloadingAll)
 	{
-		if((configuration.reload(reloadingAll) && reloadingAll) || !tagger.file.exists())
+		File taggerFile = (tagger != null)? tagger.file : new File(this.getDataFolder(), "tags.yml");
+		
+		if((configuration.reload(reloadingAll) && reloadingAll) || !taggerFile.exists())
 		{
 			if(tagger != null) tagger.close();
 
@@ -92,7 +94,7 @@ public class ModDamage extends JavaPlugin
 					}
 				}
 			}
-			tagger = new ModDamageTagger(new File(this.getDataFolder(), "tags.yml"), tagConfigIntegers[0], tagConfigIntegers[1]);
+			tagger = new ModDamageTagger(taggerFile, tagConfigIntegers[0], tagConfigIntegers[1]);
 			
 			for(ModDamageExtension extension : extensions)
 				extension.reloadRoutines();
