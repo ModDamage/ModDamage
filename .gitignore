@@ -1,0 +1,6 @@
+.gitignore
+.classpath
+.project
+.externalToolBuilders
+bin
+ModDamage.jar
