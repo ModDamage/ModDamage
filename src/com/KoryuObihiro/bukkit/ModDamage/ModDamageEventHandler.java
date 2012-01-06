@@ -154,7 +154,11 @@ enum ModDamageEventHandler
 					
 			    AttackerEventInfo eventInfo = getDamageEventInfo(((LivingEntity)event.getEntity()).getLastDamageCause());
 				if(eventInfo != null)
+				{
+					eventInfo.eventValue = event.getDroppedExp();
 					Death.runRoutines(eventInfo);
+					event.setDroppedExp(eventInfo.eventValue);
+				}
 			}
 		}
 	
