@@ -19,7 +19,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
 import org.yaml.snakeyaml.Yaml;
 
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.LoadState;
@@ -33,7 +32,6 @@ public class ModDamageTagger
 	
 	private final Map<String, HashMap<UUID, Integer>> tags = Collections.synchronizedMap(new LinkedHashMap<String, HashMap<UUID, Integer>>());
 	
-	private final HashSet<Integer> pendingTaskIDs = new HashSet<Integer>();
 	private long saveInterval;
 	private long cleanInterval;
 	private Integer saveTaskID;
@@ -243,17 +241,9 @@ public class ModDamageTagger
 			for(Entity entity : world.getEntities())
 				ids.add(entity.getUniqueId());
 		for(HashMap<UUID, Integer> tagList : tags.values())
-			for(UUID id : Collections.unmodifiableSet(tagList.keySet()))
+			for(UUID id : new HashSet<UUID>(tagList.keySet()))
 				if(!ids.contains(id))
 					tagList.remove(id);
-		//clean up the tasks
-		HashSet<Integer> bukkitTaskIDs = new HashSet<Integer>();
-		List<BukkitTask> bukkitTasks = Bukkit.getScheduler().getPendingTasks();
-		for(BukkitTask task : bukkitTasks)
-			bukkitTaskIDs.add(task.getTaskId());
-		for(Integer taskID : pendingTaskIDs)
-			if(!bukkitTaskIDs.contains(taskID))
-				pendingTaskIDs.remove(taskID);
 	}
 	
 	/**
