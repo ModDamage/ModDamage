@@ -27,7 +27,7 @@ public class EventHasProjectile extends ConditionalStatement
 		@Override
 		public EventHasProjectile getNew(Matcher matcher)
 		{
-			return new EventHasProjectile(matcher.group(1).equalsIgnoreCase("!"));
+			return new EventHasProjectile(matcher.group(1).equals("!"));
 		}
 	}
 }

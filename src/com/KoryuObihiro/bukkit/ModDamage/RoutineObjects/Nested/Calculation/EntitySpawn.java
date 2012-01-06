@@ -24,9 +24,11 @@ public class EntitySpawn extends EntityCalculationRoutine
 	protected void doCalculation(TargetEventInfo eventInfo, int input) 
 	{
 		Entity entity = entityReference.getEntity(eventInfo);
+		if (entity == null)
+			entity = EntityReference.TARGET.getEntity(eventInfo);
 		if(input > 0)
 			for(int i = 0; i < input; i++)
-				spawnElement.spawnCreature((entity != null?entity:EntityReference.TARGET.getEntity(eventInfo)).getLocation());//TODO 0.9.7 - What if I try to spawn a Wolf_Angry? :<
+				spawnElement.spawnCreature(entity.getLocation());
 	}
 	
 	public static void register()
