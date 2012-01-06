@@ -12,7 +12,7 @@ public class DiceRoll extends RandomRoutine
 {
 	protected DiceRoll(String configString, ValueChangeType changeType)
 	{
-		super(configString, changeType, DynamicInteger.getNew("event.value"));
+		super(configString, changeType, DynamicInteger.getNew("event_value"));
 	}
 	protected DiceRoll(String configString, ValueChangeType changeType, DynamicInteger rollValue) 
 	{
