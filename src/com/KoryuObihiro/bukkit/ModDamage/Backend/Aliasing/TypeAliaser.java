@@ -30,7 +30,7 @@ public class TypeAliaser extends CollectionAliaser<ModDamageElement>
 	}
 	
 	@Override
-	protected ModDamageElement matchNonAlias(String key){ return ModDamageElement.matchElement(key);}
+	protected ModDamageElement matchNonAlias(String key){ return ModDamageElement.getElementNamed(key);}
 
 	@Override
 	protected String getObjectName(ModDamageElement object){ return object.name();}

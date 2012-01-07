@@ -41,7 +41,7 @@ public class EntitySpawn extends EntityCalculationRoutine
 		@Override
 		public EntitySpawn getNew(Matcher matcher, DynamicInteger match)
 		{
-			ModDamageElement element = ModDamageElement.matchElement(matcher.group(2));
+			ModDamageElement element = ModDamageElement.getElementNamed(matcher.group(2));
 			EntityReference reference = EntityReference.match(matcher.group(1));
 			if(element != null && element.canSpawnCreature() && reference != null)
 				return new EntitySpawn(matcher.group(), reference, element, match);

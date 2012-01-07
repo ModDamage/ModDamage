@@ -39,7 +39,7 @@ public class TypeNameAliaser extends Aliaser<ModDamageElement, List<String>>
 		for(Entry<String, Object> entry : rawAliases.entrySet())
 		{
 			this.loadState = LoadState.SUCCESS;
-			element = ModDamageElement.matchElement(entry.getKey());
+			element = ModDamageElement.getElementNamed(entry.getKey());
 			if(element != null)
 			{
 				if(entry.getValue() instanceof String)

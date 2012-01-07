@@ -169,7 +169,7 @@ enum ModDamageEventHandler
 			if(ModDamage.isEnabled && !event.isCancelled() && event.getRegainReason().equals(RegainReason.SATIATED))
 			{
 				LivingEntity entity = (LivingEntity)event.getEntity();
-				TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), event.getAmount());
+				TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.getElementFor(entity), event.getAmount());
 				Food.runRoutines(eventInfo);
 			}
 		}
@@ -181,10 +181,10 @@ enum ModDamageEventHandler
 			if(ModDamage.isEnabled)
 			{
 				Projectile projectile = (Projectile)event.getEntity();
-				ModDamageElement rangedElement = ModDamageElement.matchRangedElement(projectile);
+				ModDamageElement rangedElement = ModDamageElement.getElementFor(projectile);
 				ProjectileEventInfo eventInfo = null;
 				if(projectile.getShooter() != null)
-					eventInfo = new ProjectileEventInfo(projectile.getShooter(), ModDamageElement.matchMobType(projectile.getShooter()), projectile, rangedElement, 0);
+					eventInfo = new ProjectileEventInfo(projectile.getShooter(), ModDamageElement.getElementFor(projectile.getShooter()), projectile, rangedElement, 0);
 				else eventInfo = new ProjectileEventInfo(projectile.getWorld(), ModDamageElement.DISPENSER, projectile, rangedElement, 0);
 				ProjectileHit.runRoutines(eventInfo);
 			}
@@ -197,7 +197,7 @@ enum ModDamageEventHandler
 			if(ModDamage.isEnabled && !event.isCancelled())
 			{
 				LivingEntity entity = (LivingEntity)event.getEntity();
-				TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.matchMobType(entity), entity.getHealth());
+				TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.getElementFor(entity), entity.getHealth());
 				Spawn.runRoutines(eventInfo);
 				entity.setHealth(eventInfo.eventValue);
 				event.setCancelled(entity.getHealth() <= 0);
@@ -210,7 +210,7 @@ enum ModDamageEventHandler
 		{
 			if(ModDamage.isEnabled)
 			{
-				AttackerEventInfo eventInfo = new AttackerEventInfo((LivingEntity)event.getEntity(), ModDamageElement.WOLF_TAME, (LivingEntity)event.getOwner(), ModDamageElement.matchMobType((LivingEntity)event.getOwner()), null, null, 0);
+				AttackerEventInfo eventInfo = new AttackerEventInfo((LivingEntity)event.getEntity(), ModDamageElement.WOLF_TAME, (LivingEntity)event.getOwner(), ModDamageElement.getElementFor((LivingEntity)event.getOwner()), null, null, 0);
 				Tame.runRoutines(eventInfo);
 			}
 		}
@@ -221,7 +221,7 @@ enum ModDamageEventHandler
 			if(event != null)
 			{
 	    		LivingEntity ent_damaged = (LivingEntity)event.getEntity();
-				ModDamageElement primaryElement = ModDamageElement.matchEventElement(event.getCause());
+				ModDamageElement primaryElement = ModDamageElement.getElementFor(event.getCause());
 			    switch(primaryElement)
 			    {
 			    	case LIVING:
@@ -233,15 +233,15 @@ enum ModDamageEventHandler
 							if(event_EE.getDamager() instanceof Projectile)
 							{
 								Projectile projectile = (Projectile)event_EE.getDamager();
-								ModDamageElement rangedElement = ModDamageElement.matchRangedElement(projectile);
+								ModDamageElement rangedElement = ModDamageElement.getElementFor(projectile);
 								if(projectile.getShooter() != null)
-									return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), projectile.getShooter(), ModDamageElement.matchMobType(projectile.getShooter()), projectile, rangedElement, event.getDamage());
+									return new AttackerEventInfo(ent_damaged, ModDamageElement.getElementFor(ent_damaged), projectile.getShooter(), ModDamageElement.getElementFor(projectile.getShooter()), projectile, rangedElement, event.getDamage());
 								else if(event_EE.getCause().equals(DamageCause.PROJECTILE))//FIXME Necessary?
-					    			return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, ModDamageElement.DISPENSER, projectile, rangedElement, event.getDamage());
+					    			return new AttackerEventInfo(ent_damaged, ModDamageElement.getElementFor(ent_damaged), null, ModDamageElement.DISPENSER, projectile, rangedElement, event.getDamage());
 							}
-							else if(event_EE.getDamager() instanceof LivingEntity) return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), (LivingEntity)event_EE.getDamager(), ModDamageElement.matchMobType((LivingEntity)event_EE.getDamager()), null, null, event.getDamage());
+							else if(event_EE.getDamager() instanceof LivingEntity) return new AttackerEventInfo(ent_damaged, ModDamageElement.getElementFor(ent_damaged), (LivingEntity)event_EE.getDamager(), ModDamageElement.getElementFor((LivingEntity)event_EE.getDamager()), null, null, event.getDamage());
 						}
-					default: return new AttackerEventInfo(ent_damaged, ModDamageElement.matchMobType(ent_damaged), null, primaryElement, null, null, event.getDamage());
+					default: return new AttackerEventInfo(ent_damaged, ModDamageElement.getElementFor(ent_damaged), null, primaryElement, null, null, event.getDamage());
 			    	case UNKNOWN: break;
 			    }
 			}
