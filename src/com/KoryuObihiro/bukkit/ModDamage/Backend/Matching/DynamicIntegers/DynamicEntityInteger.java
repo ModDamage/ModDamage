@@ -1,12 +1,17 @@
-package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching;
+package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Slime;
 
+import com.KoryuObihiro.bukkit.ModDamage.Utils;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 
 public class DynamicEntityInteger extends DynamicInteger
 {
@@ -134,24 +139,41 @@ public class DynamicEntityInteger extends DynamicInteger
 		
 		abstract public int getValue(Entity entity);
 		public void setValue(Entity entity, int value){}
-		
 	}
 	
-	DynamicEntityInteger(EntityReference reference, EntityIntegerPropertyMatch propertyMatch, boolean isNegative)
+	public static void register()
 	{
-		super(isNegative, propertyMatch.settable);
+		DynamicInteger.register(
+				Pattern.compile("("+ Utils.joinBy("|", EntityReference.values()) +")_("+ 
+									 Utils.joinBy("|", EntityIntegerPropertyMatch.values()) +")", Pattern.CASE_INSENSITIVE),
+				new DynamicIntegerBuilder()
+				{
+					@Override
+					public DIResult getNewFromFront(Matcher matcher, String rest)
+					{
+						return new DIResult(new DynamicEntityInteger(
+								EntityReference.valueOf(matcher.group(1).toUpperCase()), 
+								EntityIntegerPropertyMatch.valueOf(matcher.group(2).toUpperCase())), rest);
+					}
+				});
+	}
+	
+	DynamicEntityInteger(EntityReference reference, EntityIntegerPropertyMatch propertyMatch)
+	{
 		this.entityReference = reference;
 		this.propertyMatch = propertyMatch;
 	}
 	
 	@Override
-	public Integer getValue(TargetEventInfo eventInfo)
+	public int getValue(TargetEventInfo eventInfo)
 	{
 		ModDamageElement element = entityReference.getElement(eventInfo);
 		Entity entity = entityReference.getEntity(eventInfo);
+		
 		if(element != null && entity != null && element.matchesType(propertyMatch.requiredElement))
-			return (isNegative?-1:1) * propertyMatch.getValue(entity);
-		return 0;//Shouldn't happen.
+			return propertyMatch.getValue(entity);
+		
+		return 0; //Shouldn't happen.
 	}
 	
 	@Override
@@ -165,8 +187,14 @@ public class DynamicEntityInteger extends DynamicInteger
 	}
 	
 	@Override
+	public boolean isSettable()
+	{
+		return propertyMatch.settable;
+	}
+	
+	@Override
 	public String toString()
 	{
-		return isNegative?"-":"" + entityReference.name().toLowerCase() + "_" + propertyMatch.name().toLowerCase();
+		return entityReference.name().toLowerCase() + "_" + propertyMatch.name().toLowerCase();
 	}
 }

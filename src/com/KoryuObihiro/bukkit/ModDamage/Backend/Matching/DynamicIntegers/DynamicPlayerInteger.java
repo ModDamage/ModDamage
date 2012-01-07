@@ -1,15 +1,37 @@
-package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching;
+package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
+import com.KoryuObihiro.bukkit.ModDamage.Utils;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 
 public class DynamicPlayerInteger extends DynamicInteger
 {
+	public static void register()
+	{
+		DynamicInteger.register(
+				Pattern.compile("("+ Utils.joinBy("|", EntityReference.values()) +")_("+ 
+									 Utils.joinBy("|", PlayerIntegerPropertyMatch.values()) +")", Pattern.CASE_INSENSITIVE),
+				new DynamicIntegerBuilder()
+				{
+					@Override
+					public DIResult getNewFromFront(Matcher matcher, String rest)
+					{
+						return new DIResult(new DynamicPlayerInteger(
+								EntityReference.valueOf(matcher.group(1).toUpperCase()), 
+								PlayerIntegerPropertyMatch.valueOf(matcher.group(2).toUpperCase())), rest);
+					}
+				});
+	}
+	
 	protected final EntityReference entityReference;
 	protected final PlayerIntegerPropertyMatch propertyMatch;
 	public enum PlayerIntegerPropertyMatch
@@ -17,7 +39,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 		BleedTicks(true, true)
 		{
 			@Override
-			public Integer getValue(Player player) 
+			public int getValue(Player player) 
 			{
 				return ExternalPluginManager.getMcMMOPlugin().getPlayerProfile(player).getBleedTicks();
 			}
@@ -31,7 +53,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 		Exhaustion(true)
 		{
 			@Override
-			public Integer getValue(Player player) 
+			public int getValue(Player player) 
 			{
 				return (int)player.getExhaustion();
 			}
@@ -45,7 +67,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 		Experience(true)
 		{
 			@Override
-			public Integer getValue(Player player) 
+			public int getValue(Player player) 
 			{
 				return (int)player.getExp() * 100;
 			}
@@ -59,7 +81,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 		FoodLevel(true)
 		{
 			@Override
-			public Integer getValue(Player player) 
+			public int getValue(Player player) 
 			{
 				return player.getFoodLevel();
 			}
@@ -73,7 +95,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 		GameMode(true)
 		{
 			@Override
-			public Integer getValue(Player player) 
+			public int getValue(Player player) 
 			{
 				return player.getGameMode().getValue();
 			}
@@ -87,7 +109,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 		Mana(true, true)
 		{
 			@Override
-			public Integer getValue(Player player) 
+			public int getValue(Player player) 
 			{
 				return ExternalPluginManager.getMcMMOPlugin().getPlayerProfile(player).getCurrentMana();
 			}
@@ -101,7 +123,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 		MaxMana(false, true)
 		{
 			@Override
-			public Integer getValue(Player player) 
+			public int getValue(Player player) 
 			{
 				return ExternalPluginManager.getMcMMOPlugin().getPlayerProfile(player).getMaxMana();
 			}
@@ -109,7 +131,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 		Saturation(true)
 		{
 			@Override
-			public Integer getValue(Player player) 
+			public int getValue(Player player) 
 			{
 				return (int)player.getSaturation();
 			}
@@ -123,7 +145,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 		SleepTicks
 		{
 			@Override
-			public Integer getValue(Player player) 
+			public int getValue(Player player) 
 			{
 				return player.getSleepTicks();
 			}
@@ -131,7 +153,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 		TotalExperience(true)
 		{
 			@Override
-			public Integer getValue(Player player) 
+			public int getValue(Player player) 
 			{
 				return player.getTotalExperience();
 			}
@@ -145,7 +167,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 		WieldMaterial(true)
 		{
 			@Override
-			public Integer getValue(Player player) 
+			public int getValue(Player player) 
 			{
 				return player.getItemInHand().getTypeId();
 			}
@@ -159,7 +181,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 		WieldQuantity(true)
 		{
 			@Override
-			public Integer getValue(Player player) 
+			public int getValue(Player player) 
 			{
 				return player.getItemInHand().getAmount();
 			}
@@ -184,24 +206,23 @@ public class DynamicPlayerInteger extends DynamicInteger
 			this.usesMcMMO = usesMcMMO;
 		}
 		
-		abstract public Integer getValue(Player player);
+		abstract public int getValue(Player player);
 		
 		public void setValue(Player player, int value) {}
 	}
 	
-	DynamicPlayerInteger(EntityReference reference, PlayerIntegerPropertyMatch propertyMatch, boolean isNegative)
+	DynamicPlayerInteger(EntityReference reference, PlayerIntegerPropertyMatch propertyMatch)
 	{
-		super(isNegative, propertyMatch.settable);
 		this.entityReference = reference;
 		this.propertyMatch = propertyMatch;
 	}
 	
 	@Override
-	public Integer getValue(TargetEventInfo eventInfo)
+	public int getValue(TargetEventInfo eventInfo)
 	{
 		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
-			return (isNegative?-1:1) * propertyMatch.getValue((Player)entityReference.getEntity(eventInfo));
-		return null;
+			return propertyMatch.getValue((Player)entityReference.getEntity(eventInfo));
+		return 0;
 	}
 	
 	@Override
@@ -212,9 +233,15 @@ public class DynamicPlayerInteger extends DynamicInteger
 	}
 	
 	@Override
+	public boolean isSettable()
+	{
+		return propertyMatch.settable;
+	}
+	
+	@Override
 	public String toString()
 	{
-		return isNegative?"-":"" + entityReference.name().toLowerCase() + "_" + propertyMatch.name().toLowerCase();
+		return entityReference.name().toLowerCase() + "_" + propertyMatch.name().toLowerCase();
 	}
 
 }
