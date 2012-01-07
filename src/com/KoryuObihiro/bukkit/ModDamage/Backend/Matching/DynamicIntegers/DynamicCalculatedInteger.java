@@ -53,6 +53,14 @@ public class DynamicCalculatedInteger extends DynamicInteger
 			{
 				return (int)Math.pow(operand_1, operand_2);
 			}
+		},
+		MODULUS("%")
+		{
+			@Override
+			int operate(int operand_1, int operand_2)
+			{
+				return operand_1 % operand_2;
+			}
 		};
 		
 		final public String operatorRegex;
