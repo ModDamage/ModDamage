@@ -39,6 +39,11 @@ public class DynamicWorldInteger extends DynamicInteger
 			@Override protected void setValue(TargetEventInfo eventInfo, int value){
 				eventInfo.world.setTime(value);
 			}
+		},
+		Seed(false) {
+			@Override protected int getValue(TargetEventInfo eventInfo){
+				return (int)eventInfo.world.getSeed();
+			}
 		};
 		
 		public boolean settable = false;
