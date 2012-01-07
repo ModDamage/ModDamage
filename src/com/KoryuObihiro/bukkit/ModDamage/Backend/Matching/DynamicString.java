@@ -58,6 +58,6 @@ public class DynamicString
 	@Override
 	public String toString()
 	{
-		return dynamicProperty.name().toLowerCase();
+		return dynamicProperty == null? "null" : dynamicProperty.name().toLowerCase();
 	}
 }
