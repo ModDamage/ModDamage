@@ -371,7 +371,7 @@ public enum ModDamageElement
 	
 	public static ModDamageElement getElementFor(Object obj)
 	{
-		if(obj == null) throw new IllegalArgumentException("Object cannot be null for matchType method!");
+		if(obj == null) throw new IllegalArgumentException("Object cannot be null for getElementFor method!");
 		ModDamageElement mde = byClass.get(obj.getClass());
 		if (mde == null)
 		{
@@ -379,7 +379,7 @@ public enum ModDamageElement
 			if (mde != null) 
 			{
 				byClass.put(obj.getClass(), mde);
-				//ModDamage.getPluginConfiguration().printToLog(Level.INFO, "matchType " + obj.getClass() + " -> " + mde);
+				//ModDamage.getPluginConfiguration().printToLog(Level.INFO, "getElementFor " + obj.getClass() + " -> " + mde);
 			}
 		}
 		if (mde != null) return mde.getMostSpecificType(obj);
