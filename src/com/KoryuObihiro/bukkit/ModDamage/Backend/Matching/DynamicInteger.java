@@ -15,6 +15,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicCalculatedInteger;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicEnchantmentInteger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicEntityInteger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicEntityTagInteger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicEventInteger;
@@ -89,6 +90,7 @@ public abstract class DynamicInteger extends DynamicString
 		
 		ConstantInteger.register();
 		DynamicCalculatedInteger.register();
+		DynamicEnchantmentInteger.register();
 		DynamicEntityInteger.register();
 		DynamicEntityTagInteger.register();
 		DynamicEventInteger.register();
