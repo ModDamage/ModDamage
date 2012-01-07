@@ -1,7 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Material;
@@ -121,29 +120,23 @@ public enum EntityReference
 	public static EntityReference match(String string){ return match(string, true);}
 	public static EntityReference match(String string, boolean shouldOutput)
 	{
-		for(EntityReference reference : EntityReference.values())
-			if(reference.name().equalsIgnoreCase(string))
-				return reference;
-		if(shouldOutput) ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + string + "\" is not a valid entity reference.");
-		return null;
+		EntityReference reference = EntityReference.valueOf(string.toUpperCase());
+		if(shouldOutput && reference == null) ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + string + "\" is not a valid entity reference.");
+		return reference;
 	}
-//Stuff for matching info.
-	public abstract ArmorSet getArmorSet(TargetEventInfo eventInfo);
 	
-	public abstract ModDamageElement getElement(TargetEventInfo eventInfo);
-	
-	public abstract Entity getEntity(TargetEventInfo eventInfo);
-	
-	public abstract Entity getEntityOther(TargetEventInfo eventInfo);
-
-	public abstract List<String> getGroups(TargetEventInfo eventInfo);
-
-	public abstract Material getMaterial(TargetEventInfo eventInfo);
-
 	public String getName(TargetEventInfo eventInfo) 
 	{
 		if (getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
 			return ((Player)this.getEntity(eventInfo)).getName();
 		return null;
 	}
+	
+//Stuff for matching info.
+	public abstract ArmorSet getArmorSet(TargetEventInfo eventInfo);
+	public abstract ModDamageElement getElement(TargetEventInfo eventInfo);
+	public abstract Entity getEntity(TargetEventInfo eventInfo);
+	public abstract Entity getEntityOther(TargetEventInfo eventInfo);
+	public abstract List<String> getGroups(TargetEventInfo eventInfo);
+	public abstract Material getMaterial(TargetEventInfo eventInfo);
 }
