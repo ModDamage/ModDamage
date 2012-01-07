@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
+import com.KoryuObihiro.bukkit.ModDamage.Utils;
 
 public enum EntityReference
 {
@@ -115,6 +116,8 @@ public enum EntityReference
 			return (eventInfo instanceof AttackerEventInfo)? ((AttackerEventInfo)eventInfo).materialInHand_attacker : null;
 		}
 	};
+	
+	public static final String regexString = Utils.joinBy("|", EntityReference.values());
 	
 //Use these when building routines.
 	public static EntityReference match(String string){ return match(string, true);}
