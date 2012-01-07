@@ -15,6 +15,7 @@ import org.bukkit.plugin.Plugin;
 import ru.tehkode.permissions.PermissionManager;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage.ModDamageExtension;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.NestedRoutine;
 import com.elbukkit.api.elregions.elRegionsPlugin;
@@ -35,9 +36,9 @@ public class ExternalPluginManager
 	private static List<ModDamageExtension> registeredPlugins = new ArrayList<ModDamageExtension>();
 	private static void reloadModDamageRoutines()
 	{
-	//register vanilla MD routines
 		Routine.registerVanillaRoutines();
 		NestedRoutine.registerVanillaRoutines();
+		DynamicInteger.registerAllIntegers();
 		
 		for(ModDamageExtension plugin : registeredPlugins)
 			plugin.reloadRoutines();
