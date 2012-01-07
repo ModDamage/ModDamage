@@ -1,5 +1,9 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.KoryuObihiro.bukkit.ModDamage.Utils;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicEntityString.EntityStringPropertyMatch;
@@ -41,6 +45,8 @@ public class DynamicString
 		return dynamicProperty.getString(eventInfo);
 	}
 	
+	private static Pattern entityStringPattern = Pattern.compile("("+ EntityReference.regexString +")_("+ Utils.joinBy("|", EntityStringPropertyMatch.values()) +")", Pattern.CASE_INSENSITIVE);
+	
 	public static DynamicString getNew(String string)
 	{
 		try {
@@ -48,13 +54,11 @@ public class DynamicString
 		}
 		catch (IllegalArgumentException e) {}
 		
-		String[] matches = string.split("_");
-		EntityReference reference = EntityReference.match(matches[0], false);
-		try {
-			if(matches.length == 2 && reference != null)
-				return new DynamicEntityString(reference, EntityStringPropertyMatch.valueOf(matches[1]));
+		Matcher matcher = entityStringPattern.matcher(string);
+		if (matcher.matches())
+		{
+			return new DynamicEntityString(EntityReference.match(matcher.group(1).toUpperCase(), false), EntityStringPropertyMatch.valueOf(matcher.group(2).toUpperCase()));
 		}
-		catch (IllegalArgumentException e) {}
 		
 		return DynamicInteger.getNew(string);
 	}

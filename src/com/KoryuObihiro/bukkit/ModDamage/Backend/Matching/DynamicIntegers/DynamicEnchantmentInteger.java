@@ -76,9 +76,17 @@ public class DynamicEnchantmentInteger extends DynamicInteger
 	
 	public static void register()
 	{
+		String enchantmentRegexString = "";
+		boolean first = true;
+		for (Enchantment enchantment : Enchantment.values())
+		{
+			if (first) first = false;
+			else enchantmentRegexString += "|";
+			enchantmentRegexString += enchantment.getName();
+		}
 		DynamicInteger.register(
 				Pattern.compile("("+ EntityReference.regexString +")(?:_("+ EnchantmentItemSlot.regexString
-						+"))?_enchantmentlevel_("+ Utils.joinBy("|", Enchantment.values()) +")", Pattern.CASE_INSENSITIVE),
+						+"))?_enchantmentlevel_("+ enchantmentRegexString +")", Pattern.CASE_INSENSITIVE),
 				new DynamicIntegerBuilder()
 				{
 					@Override
