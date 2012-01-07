@@ -25,9 +25,16 @@ public class DynamicMcMMOInteger extends DynamicInteger
 					@Override
 					public DIResult getNewFromFront(Matcher matcher, String rest)
 					{
-						return new DIResult(new DynamicMcMMOInteger(
-								EntityReference.valueOf(matcher.group(1).toUpperCase()), 
-								SkillType.valueOf(matcher.group(2).toUpperCase())), rest);
+						try
+						{
+							return new DIResult(new DynamicMcMMOInteger(
+									EntityReference.valueOf(matcher.group(1).toUpperCase()), 
+									SkillType.valueOf(matcher.group(2).toUpperCase())), rest);
+						}
+						catch (IllegalArgumentException e)
+						{
+							return null;
+						}
 					}
 				});
 	}

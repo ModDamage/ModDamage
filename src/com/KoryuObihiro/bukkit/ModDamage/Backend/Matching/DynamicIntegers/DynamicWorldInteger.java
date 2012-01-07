@@ -27,12 +27,12 @@ public class DynamicWorldInteger extends DynamicInteger
 	protected final WorldPropertyMatch propertyMatch;
 	enum WorldPropertyMatch
 	{
-		OnlinePlayers(false) {
+		ONLINEPLAYERS(false) {
 			@Override protected int getValue(TargetEventInfo eventInfo){
 				return eventInfo.world.getPlayers().size();
 			}
 		},
-		Time(true) {
+		TIME(true) {
 			@Override protected int getValue(TargetEventInfo eventInfo){
 				return (int)eventInfo.world.getTime();
 			}
@@ -40,7 +40,7 @@ public class DynamicWorldInteger extends DynamicInteger
 				eventInfo.world.setTime(value);
 			}
 		},
-		Seed(false) {
+		SEED(false) {
 			@Override protected int getValue(TargetEventInfo eventInfo){
 				return (int)eventInfo.world.getSeed();
 			}

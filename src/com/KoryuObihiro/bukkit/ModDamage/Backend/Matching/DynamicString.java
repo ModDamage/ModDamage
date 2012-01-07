@@ -9,7 +9,7 @@ public class DynamicString
 	final CommonDynamicProperty dynamicProperty;
 	public enum CommonDynamicProperty
 	{
-		Event_World
+		EVENT_WORLD
 		{
 			@Override
 			protected String getString(TargetEventInfo eventInfo)
@@ -17,7 +17,7 @@ public class DynamicString
 				return eventInfo.world.getName();
 			}
 		},
-		Event_Environment
+		EVENT_ENVIRONMENT
 		{
 			@Override
 			protected String getString(TargetEventInfo eventInfo)
@@ -43,15 +43,19 @@ public class DynamicString
 	
 	public static DynamicString getNew(String string)
 	{
-		for(CommonDynamicProperty property : CommonDynamicProperty.values())
-			if(string.equalsIgnoreCase(property.name()))
-				return new DynamicString(property);
+		try {
+			return new DynamicString(CommonDynamicProperty.valueOf(string.toUpperCase()));
+		}
+		catch (IllegalArgumentException e) {}
+		
 		String[] matches = string.split("_");
 		EntityReference reference = EntityReference.match(matches[0], false);
-		if(matches.length == 2 && reference != null)
-			for(EntityStringPropertyMatch match : EntityStringPropertyMatch.values())
-				if(matches[1].equalsIgnoreCase(match.name()))
-					return new DynamicEntityString(EntityReference.match(matches[0]), match);
+		try {
+			if(matches.length == 2 && reference != null)
+				return new DynamicEntityString(reference, EntityStringPropertyMatch.valueOf(matches[1]));
+		}
+		catch (IllegalArgumentException e) {}
+		
 		return DynamicInteger.getNew(string);
 	}
 	

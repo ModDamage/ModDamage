@@ -1,5 +1,6 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
@@ -16,7 +17,7 @@ public class DynamicEntityString extends DynamicString
 	
 	public enum EntityStringPropertyMatch
 	{
-		ArmorSet(true)
+		ARMORSET(true)
 		{
 			@Override
 			protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
@@ -24,7 +25,7 @@ public class DynamicEntityString extends DynamicString
 				return entityReference.getArmorSet(eventInfo).toString();
 			}
 		},
-		Group(true)
+		GROUP(true)
 		{
 			@Override
 			protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
@@ -32,15 +33,16 @@ public class DynamicEntityString extends DynamicString
 				return entityReference.getGroups(eventInfo).toString();
 			}
 		},
-		Name(true)
+		NAME(true)
 		{
 			@Override
 			protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
 			{
-				return (entityReference.getEntity(eventInfo) instanceof Player?((Player)entityReference.getEntity(eventInfo)).getName():null).toString();
+				Entity entity = entityReference.getEntity(eventInfo);
+				return entity instanceof Player?((Player)entity).getName():"";
 			}
 		},
-		Region
+		REGIONS
 		{
 			@Override
 			protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
@@ -48,7 +50,7 @@ public class DynamicEntityString extends DynamicString
 				return ExternalPluginManager.getRegionsManager().getRegions(entityReference.getEntity(eventInfo).getLocation()).toString();
 			}
 		},
-		Tag
+		TAGS
 		{
 			@Override
 			protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
@@ -56,7 +58,7 @@ public class DynamicEntityString extends DynamicString
 				return ModDamage.getTagger().getTags(entityReference.getEntity(eventInfo)).toString();
 			}
 		},
-		Type
+		TYPE
 		{
 			@Override
 			protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
@@ -64,7 +66,7 @@ public class DynamicEntityString extends DynamicString
 				return TypeNameAliaser.getStaticInstance().toString(entityReference.getElement(eventInfo));
 			}
 		},
-		Wielding(true)
+		WIELDING(true)
 		{
 			@Override
 			protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
@@ -89,7 +91,7 @@ public class DynamicEntityString extends DynamicString
 	@Override
 	public String getString(TargetEventInfo eventInfo)
 	{
-		if(propertyMatch.equals(EntityStringPropertyMatch.Type) || (entityReference.getEntity(eventInfo) != null && (!propertyMatch.requiresPlayer || entityReference.getElement(eventInfo).equals(ModDamageElement.PLAYER))))
+		if(propertyMatch.equals(EntityStringPropertyMatch.TYPE) || (entityReference.getEntity(eventInfo) != null && (!propertyMatch.requiresPlayer || entityReference.getElement(eventInfo).equals(ModDamageElement.PLAYER))))
 			return propertyMatch.getString(eventInfo, entityReference);
 		return null;
 	}

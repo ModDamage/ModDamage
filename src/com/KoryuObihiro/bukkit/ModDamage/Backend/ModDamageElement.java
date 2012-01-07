@@ -391,9 +391,11 @@ public enum ModDamageElement
 	
 	public static ModDamageElement getElementNamed(String string)
 	{
-		ModDamageElement mde = ModDamageElement.valueOf(string.toUpperCase());
-		if (mde != null) return mde;
-		return UNKNOWN;
+		try
+		{
+			return ModDamageElement.valueOf(string.toUpperCase());
+		} catch (IllegalArgumentException e) { }
+		return null;
 	}
 	
 	private static ModDamageElement matchByInterfaces(List<Class<?>> interfaces)

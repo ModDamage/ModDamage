@@ -36,7 +36,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 	protected final PlayerIntegerPropertyMatch propertyMatch;
 	public enum PlayerIntegerPropertyMatch
 	{
-		BleedTicks(true, true)
+		BLEEDTICKS(true, true)
 		{
 			@Override
 			public int getValue(Player player) 
@@ -50,7 +50,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 				ExternalPluginManager.getMcMMOPlugin().getPlayerProfile(player).setBleedTicks(value);
 			}
 		},
-		Exhaustion(true)
+		EXHAUSTION(true)
 		{
 			@Override
 			public int getValue(Player player) 
@@ -64,7 +64,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 				player.setExhaustion(value);
 			}
 		},
-		Experience(true)
+		EXPERIENCE(true)
 		{
 			@Override
 			public int getValue(Player player) 
@@ -78,7 +78,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 				player.setExp(value / 100);
 			}
 		},
-		FoodLevel(true)
+		FOODLEVEL(true)
 		{
 			@Override
 			public int getValue(Player player) 
@@ -92,7 +92,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 				player.setFoodLevel(value);
 			}
 		},
-		GameMode(true)
+		GAMEMODE(true)
 		{
 			@Override
 			public int getValue(Player player) 
@@ -106,7 +106,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 				player.setGameMode(org.bukkit.GameMode.getByValue(value));
 			}
 		},
-		Mana(true, true)
+		MANA(true, true)
 		{
 			@Override
 			public int getValue(Player player) 
@@ -120,7 +120,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 				ExternalPluginManager.getMcMMOPlugin().getPlayerProfile(player).setMana(value);
 			}
 		},
-		MaxMana(false, true)
+		MAXMANA(false, true)
 		{
 			@Override
 			public int getValue(Player player) 
@@ -128,7 +128,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 				return ExternalPluginManager.getMcMMOPlugin().getPlayerProfile(player).getMaxMana();
 			}
 		},
-		Saturation(true)
+		SATURATION(true)
 		{
 			@Override
 			public int getValue(Player player) 
@@ -142,7 +142,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 				player.setSaturation(value);
 			}
 		},
-		SleepTicks
+		SLEEPTICKS
 		{
 			@Override
 			public int getValue(Player player) 
@@ -150,7 +150,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 				return player.getSleepTicks();
 			}
 		},
-		TotalExperience(true)
+		TOTALEXPERIENCE(true)
 		{
 			@Override
 			public int getValue(Player player) 
@@ -164,7 +164,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 				player.setTotalExperience(value);
 			}
 		},
-		WieldMaterial(true)
+		WIELDMATERIAL(true)
 		{
 			@Override
 			public int getValue(Player player) 
@@ -178,7 +178,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 				player.setItemInHand(new ItemStack(value, player.getItemInHand().getAmount()));
 			}
 		},
-		WieldQuantity(true)
+		WIELDQUANTITY(true)
 		{
 			@Override
 			public int getValue(Player player) 

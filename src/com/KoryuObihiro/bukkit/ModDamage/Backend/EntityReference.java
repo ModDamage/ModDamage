@@ -120,9 +120,14 @@ public enum EntityReference
 	public static EntityReference match(String string){ return match(string, true);}
 	public static EntityReference match(String string, boolean shouldOutput)
 	{
-		EntityReference reference = EntityReference.valueOf(string.toUpperCase());
-		if(shouldOutput && reference == null) ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + string + "\" is not a valid entity reference.");
-		return reference;
+		try
+		{
+			return EntityReference.valueOf(string.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			if(shouldOutput)
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + string + "\" is not a valid entity reference.");
+		}
+		return null;
 	}
 	
 	public String getName(TargetEventInfo eventInfo) 

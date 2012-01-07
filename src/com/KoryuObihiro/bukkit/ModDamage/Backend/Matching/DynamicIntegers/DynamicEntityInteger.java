@@ -19,7 +19,7 @@ public class DynamicEntityInteger extends DynamicInteger
 	private final EntityIntegerPropertyMatch propertyMatch;
 	public enum EntityIntegerPropertyMatch
 	{
-		AirTicks(true, ModDamageElement.LIVING)
+		AIRTICKS(true, ModDamageElement.LIVING)
 		{
 			@Override
 			public int getValue(Entity entity)
@@ -33,7 +33,7 @@ public class DynamicEntityInteger extends DynamicInteger
 				((LivingEntity)entity).setRemainingAir(value);
 			}
 		},
-		FallDistance(false, ModDamageElement.LIVING)
+		FALLDISTANCE(false, ModDamageElement.LIVING)
 		{
 			@Override
 			public int getValue(Entity entity)
@@ -41,7 +41,7 @@ public class DynamicEntityInteger extends DynamicInteger
 				return (int) ((LivingEntity)entity).getFallDistance();
 			}
 		},
-		FireTicks(true, ModDamageElement.LIVING)
+		FIRETICKS(true, ModDamageElement.LIVING)
 		{
 			@Override
 			public int getValue(Entity entity)
@@ -55,7 +55,7 @@ public class DynamicEntityInteger extends DynamicInteger
 				((LivingEntity)entity).setFireTicks(value);
 			}
 		},
-		Health(true, ModDamageElement.LIVING)
+		HEALTH(true, ModDamageElement.LIVING)
 		{
 			@Override
 			public int getValue(Entity entity)
@@ -69,7 +69,7 @@ public class DynamicEntityInteger extends DynamicInteger
 				((LivingEntity)entity).setHealth(value);
 			}
 		},
-		Light
+		LIGHT
 		{
 			@Override
 			public int getValue(Entity entity)
@@ -77,7 +77,7 @@ public class DynamicEntityInteger extends DynamicInteger
 				return entity.getLocation().getBlock().getLightLevel();
 			}
 		},
-		NoDamageTicks(false, ModDamageElement.LIVING)
+		NODAMAGETICKS(false, ModDamageElement.LIVING)
 		{
 			@Override
 			public int getValue(Entity entity)
@@ -85,7 +85,7 @@ public class DynamicEntityInteger extends DynamicInteger
 				return ((LivingEntity)entity).getNoDamageTicks();
 			}
 		},
-		Size(true, ModDamageElement.SLIME)
+		SIZE(true, ModDamageElement.SLIME)
 		{
 			@Override
 			public int getValue(Entity entity)
