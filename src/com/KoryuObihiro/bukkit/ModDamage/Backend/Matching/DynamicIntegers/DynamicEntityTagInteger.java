@@ -17,7 +17,7 @@ public class DynamicEntityTagInteger extends DynamicInteger
 	public static void register()
 	{
 		DynamicInteger.register(
-				Pattern.compile("("+ Utils.joinBy("|", EntityReference.values()) +")_tagvalue(_\\w+)", Pattern.CASE_INSENSITIVE),
+				Pattern.compile("("+ Utils.joinBy("|", EntityReference.values()) +")_tagvalue_(\\w+)", Pattern.CASE_INSENSITIVE),
 				new DynamicIntegerBuilder()
 				{
 					@Override
