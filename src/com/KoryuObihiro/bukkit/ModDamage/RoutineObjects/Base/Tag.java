@@ -3,6 +3,8 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Base;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.Entity;
+
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
@@ -41,11 +43,17 @@ public class Tag extends Routine
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{
-		if(entityReference.getEntity(eventInfo) != null)
+		Entity entity = entityReference.getEntity(eventInfo);
+		if(entity != null)
 		{
 			if(setting)
-				ModDamage.getTagger().addTag(tag, entityReference.getEntity(eventInfo), integer != null?integer.getValue(eventInfo):defaultValue);
-			else ModDamage.getTagger().removeTag(tag, entityReference.getEntity(eventInfo));
+			{
+				int value = defaultValue;
+				if (integer != null) value = integer.getValue(eventInfo);
+				ModDamage.getTagger().addTag(tag, entity, value);
+			}
+			else
+				ModDamage.getTagger().removeTag(tag, entity);
 		}
 	}
 
