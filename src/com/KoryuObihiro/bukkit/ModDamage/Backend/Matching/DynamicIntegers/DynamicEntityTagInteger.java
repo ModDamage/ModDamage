@@ -66,6 +66,6 @@ public class DynamicEntityTagInteger extends DynamicInteger
 	@Override
 	public String toString()
 	{
-		return entityReference.name().toLowerCase() + "_tagvalue" + tag;
+		return entityReference.name().toLowerCase() + "_tagvalue_" + tag;
 	}
 }
