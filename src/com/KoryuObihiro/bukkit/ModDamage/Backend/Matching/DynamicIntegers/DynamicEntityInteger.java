@@ -77,6 +77,14 @@ public class DynamicEntityInteger extends DynamicInteger
 				return entity.getLocation().getBlock().getLightLevel();
 			}
 		},
+		MAXHEALTH(false, ModDamageElement.LIVING)
+		{
+			@Override
+			public int getValue(Entity entity)
+			{
+				return ((LivingEntity)entity).getMaxHealth();
+			}
+		},
 		NODAMAGETICKS(false, ModDamageElement.LIVING)
 		{
 			@Override
