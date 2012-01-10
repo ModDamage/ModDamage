@@ -106,6 +106,14 @@ public class DynamicPlayerInteger extends DynamicInteger
 				player.setGameMode(org.bukkit.GameMode.getByValue(value));
 			}
 		},
+		LEVEL
+		{
+			@Override
+			public int getValue(Player player)
+			{
+				return player.getLevel();
+			}
+		},
 		MANA(true, true)
 		{
 			@Override
