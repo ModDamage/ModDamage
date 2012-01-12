@@ -19,8 +19,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.McMMO
 
 abstract public class CalculationRoutine extends NestedRoutine 
 {
-	//private static LinkedHashMap<Pattern, CalculationBuilder> registeredCalculations = new LinkedHashMap<Pattern, CalculationBuilder>();
-	
 	protected final DynamicInteger value;
 	
 	protected CalculationRoutine(String configString, DynamicInteger value)
