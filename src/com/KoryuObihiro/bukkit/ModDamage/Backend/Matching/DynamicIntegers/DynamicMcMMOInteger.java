@@ -6,11 +6,13 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
+import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.Utils;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.datatypes.SkillType;
 
@@ -31,10 +33,11 @@ public class DynamicMcMMOInteger extends DynamicInteger
 									EntityReference.valueOf(matcher.group(1).toUpperCase()), 
 									SkillType.valueOf(matcher.group(2).toUpperCase())), rest);
 						}
-						catch (IllegalArgumentException e)
-						{
-							return null;
+						catch (IllegalArgumentException e) { }
+						catch (NoClassDefFoundError e) {
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "McMMO has changed. Please notify the ModDamage developers.");
 						}
+						return null;
 					}
 				});
 	}
@@ -64,6 +67,6 @@ public class DynamicMcMMOInteger extends DynamicInteger
 	@Override
 	public String toString()
 	{
-		return entityReference.name().toLowerCase() + "_SKILL_" + skillType.name().toLowerCase();
+		return entityReference.name().toLowerCase() + "_skill_" + skillType.name().toLowerCase();
 	}
 }
