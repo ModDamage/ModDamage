@@ -25,10 +25,9 @@ public class EntitySpawn extends EntityCalculationRoutine
 	{
 		Entity entity = entityReference.getEntity(eventInfo);
 		if (entity == null)
-			entity = EntityReference.TARGET.getEntity(eventInfo);
-		if(input > 0)
-			for(int i = 0; i < input; i++)
-				spawnElement.spawnCreature(entity.getLocation());
+			return; //entity = EntityReference.TARGET.getEntity(eventInfo);
+		for(int i = 0; i < input; i++)
+			spawnElement.spawnCreature(entity.getLocation());
 	}
 	
 	public static void register()
