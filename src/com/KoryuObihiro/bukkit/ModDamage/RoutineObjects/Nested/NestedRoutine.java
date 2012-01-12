@@ -28,6 +28,7 @@ public abstract class NestedRoutine extends Routine
 		CalculationRoutine.register();
 		ConditionalRoutine.register();
 		SwitchRoutine.register();
+		EntitySpawn.register();
 	}
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)
