@@ -39,10 +39,12 @@ public class EntitySpawn extends NestedRoutine
 		
 		LivingEntity newEntity = spawnElement.spawnCreature(entity.getLocation());
 		
-		TargetEventInfo newEventInfo = new TargetEventInfo(newEntity, ModDamageElement.getElementFor(newEntity), eventInfo.eventValue);
+		TargetEventInfo newEventInfo = new TargetEventInfo(newEntity, ModDamageElement.getElementFor(newEntity), newEntity.getHealth());
 		
 		for (Routine routine : routines)
 			routine.run(newEventInfo);
+		
+		newEntity.setHealth(newEventInfo.eventValue);
 	}
 	
 	public static void register()
