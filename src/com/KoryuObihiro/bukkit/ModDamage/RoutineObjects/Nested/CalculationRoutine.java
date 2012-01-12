@@ -1,11 +1,8 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
@@ -22,7 +19,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.McMMO
 
 abstract public class CalculationRoutine extends NestedRoutine 
 {
-	private static LinkedHashMap<Pattern, CalculationBuilder> registeredCalculations = new LinkedHashMap<Pattern, CalculationBuilder>();
+	//private static LinkedHashMap<Pattern, CalculationBuilder> registeredCalculations = new LinkedHashMap<Pattern, CalculationBuilder>();
 	
 	protected final DynamicInteger value;
 	
@@ -57,31 +54,24 @@ abstract public class CalculationRoutine extends NestedRoutine
 	protected static abstract class CalculationBuilder extends NestedRoutine.RoutineBuilder
 	{
 		@Override
-		public final CalculationRoutine getNew(Matcher calculationMatcher, Object nestedContent)
+		public final CalculationRoutine getNew(Matcher matcher, Object nestedContent)
 		{
-			if(calculationMatcher.group() != null && nestedContent != null)
+			if(matcher.group() != null && nestedContent != null)
 			{
-				NestedRoutine.paddedLogRecord(OutputPreset.INFO, "Calculation: \"" + calculationMatcher.group() + "\"");
-				for(Entry<Pattern, CalculationBuilder> entry : registeredCalculations.entrySet())
+				NestedRoutine.paddedLogRecord(OutputPreset.INFO, "Calculation: \"" + matcher.group() + "\"");
+				
+				List<Routine> routines = new ArrayList<Routine>();
+				if(RoutineAliaser.parseRoutines(routines, nestedContent))
 				{
-					Matcher matcher = entry.getKey().matcher(calculationMatcher.group());
-					if(matcher.matches())
-					{
-						List<Routine> routines = new ArrayList<Routine>();
-						if(RoutineAliaser.parseRoutines(routines, nestedContent))
-						{
-							DynamicInteger match = DynamicInteger.getNew(routines);
-							NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End Calculation \"" + calculationMatcher.group() + "\"");
-							return entry.getValue().getNew(matcher, match);
-						}
-						else
-						{
-							NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Bad content in Calculation \"" + calculationMatcher.group() + "\"");
-							return null;
-						}
-					}
+					DynamicInteger integer = DynamicInteger.getNew(routines);
+					CalculationRoutine calc = getNew(matcher, integer);
+					NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End Calculation \"" + matcher.group() + "\"");
+					return calc;
 				}
-				NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid Calculation \"" + calculationMatcher.group() + "\"");
+				else
+				{
+					NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Bad content in Calculation \"" + matcher.group() + "\"");
+				}
 			}
 			return null;
 		}
