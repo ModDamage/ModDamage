@@ -12,7 +12,6 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.Calculate;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.ChangeProperty;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.EntityExplode;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.EntityHeal;
@@ -24,7 +23,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.McMMO
 abstract public class CalculationRoutine extends NestedRoutine 
 {
 	private static LinkedHashMap<Pattern, CalculationBuilder> registeredCalculations = new LinkedHashMap<Pattern, CalculationBuilder>();
-	protected final static Pattern calculationPattern = Pattern.compile("(.*)effect\\.(.*)", Pattern.CASE_INSENSITIVE);
 	
 	protected final DynamicInteger value;
 	
@@ -46,29 +44,20 @@ abstract public class CalculationRoutine extends NestedRoutine
 	
 	public static void register()
 	{
-		registeredCalculations.clear();
-		NestedRoutine.registerRoutine(calculationPattern, new RoutineBuilder());
-		
 		McMMOChangeSkill.register();
 
-		Calculate.register();
 		ChangeProperty.register();
 		EntityItemAction.register();
 		EntityExplode.register();
 		EntityHeal.register();
 		EntityHurt.register();
 		EntityUnknownHurt.register();
-	}	
-
-	public static void registerRoutine(Pattern pattern, CalculationBuilder builder)
-	{
-		registeredCalculations.put(pattern, builder);
 	}
 	
-	protected static final class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static abstract class CalculationBuilder extends NestedRoutine.RoutineBuilder
 	{
 		@Override
-		public CalculationRoutine getNew(Matcher calculationMatcher, Object nestedContent)
+		public final CalculationRoutine getNew(Matcher calculationMatcher, Object nestedContent)
 		{
 			if(calculationMatcher.group() != null && nestedContent != null)
 			{
@@ -96,10 +85,7 @@ abstract public class CalculationRoutine extends NestedRoutine
 			}
 			return null;
 		}
-	}
-	
-	abstract protected static class CalculationBuilder
-	{
+		
 		abstract public CalculationRoutine getNew(Matcher matcher, DynamicInteger integer);
 	}
 }

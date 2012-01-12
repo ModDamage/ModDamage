@@ -51,7 +51,11 @@ public abstract class NestedRoutine extends Routine
 			{
 				Matcher matcher = entry.getKey().matcher(anyMatcher.group());
 				if(matcher.matches())
-					return entry.getValue().getNew(matcher, nestedContent);
+				{
+					NestedRoutine nr = entry.getValue().getNew(matcher, nestedContent);
+					if (nr != null)
+						return nr;
+				}
 			}
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for nested routine \"" + anyMatcher.group() + "\"");		
 			return null;
