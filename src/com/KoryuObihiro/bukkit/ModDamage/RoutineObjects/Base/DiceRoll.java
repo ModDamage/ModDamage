@@ -22,7 +22,7 @@ public class DiceRoll extends RandomRoutine
 	@Override
 	public int getValue(TargetEventInfo eventInfo)
 	{
-		return  Math.abs(random.nextInt()%(number.getValue(eventInfo) + 1));
+		return Math.abs(random.nextInt()%(number.getValue(eventInfo) + 1));
 	}
 	
 	public static void register()
