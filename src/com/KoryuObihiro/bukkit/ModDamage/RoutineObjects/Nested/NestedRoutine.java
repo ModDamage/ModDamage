@@ -33,7 +33,7 @@ public abstract class NestedRoutine extends Routine
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)
 	{
-		Routine.addBuilderToRegistry(registeredNestedRoutines, pattern, builder);
+		registeredNestedRoutines.put(pattern, builder);
 	}
 	
 	public static NestedRoutine getNew(String key, Object nestedContent)

@@ -86,7 +86,7 @@ public class ValueChangeRoutine extends Routine
 		}
 	}
 	
-	public static void registerRoutine(Pattern pattern, ValueBuilder builder){ Routine.addBuilderToRegistry(builders, pattern, builder);}
+	public static void registerRoutine(Pattern pattern, ValueBuilder builder){ builders.put(pattern, builder);}
 	public static abstract class ValueBuilder
 	{
 		public abstract ValueChangeRoutine getNew(final Matcher matcher, final ValueChangeType changeType);

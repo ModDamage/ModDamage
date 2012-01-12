@@ -111,7 +111,7 @@ public abstract class SwitchRoutine<EventInfoClass, CaseInfoClass> extends Neste
 
 	protected static void registerSwitch(Pattern syntax, SwitchBuilder builder)
 	{
-		Routine.addBuilderToRegistry(registeredSwitchRoutines, syntax, builder);
+		registeredSwitchRoutines.put(syntax, builder);
 	}
 	
 	protected final static class RoutineBuilder extends NestedRoutine.RoutineBuilder

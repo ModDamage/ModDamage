@@ -1,6 +1,5 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -44,13 +43,7 @@ abstract public class Routine
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)
 	{
-		addBuilderToRegistry(registeredBaseRoutines, pattern, builder);
-	}
-	
-	protected static <BuilderClass> void addBuilderToRegistry(HashMap<Pattern, BuilderClass> registry, Pattern pattern, BuilderClass builder)
-	{
-		if(pattern != null && builder != null) registry.put(pattern, builder);
-		else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: could not load builder for the " + builder.getClass().getEnclosingClass().getSimpleName() + " routine.");
+		registeredBaseRoutines.put(pattern, builder);
 	}
 	
 	public static Routine getNew(final String string)

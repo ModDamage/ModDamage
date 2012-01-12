@@ -18,7 +18,6 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.Entit
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.EntityHeal;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.EntityHurt;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.EntityItemAction;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.EntitySpawn;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.EntityUnknownHurt;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Calculation.McMMOChangeSkill;
 
@@ -58,13 +57,12 @@ abstract public class CalculationRoutine extends NestedRoutine
 		EntityExplode.register();
 		EntityHeal.register();
 		EntityHurt.register();
-		EntitySpawn.register();
 		EntityUnknownHurt.register();
 	}	
 
-	public static void registerRoutine(Pattern syntax, CalculationBuilder builder)
+	public static void registerRoutine(Pattern pattern, CalculationBuilder builder)
 	{
-		Routine.addBuilderToRegistry(registeredCalculations, syntax, builder);
+		registeredCalculations.put(pattern, builder);
 	}
 	
 	protected static final class RoutineBuilder extends NestedRoutine.RoutineBuilder
