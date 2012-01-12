@@ -2,6 +2,8 @@ package com.KoryuObihiro.bukkit.ModDamage;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -10,6 +12,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -296,6 +299,19 @@ public class ModDamage extends JavaPlugin
 	public static ModDamageTagger getTagger(){ return tagger;}
 
 	public static PluginConfiguration getPluginConfiguration(){ return configuration;}
+	
+	public static final HashSet<Material> goThroughThese = new HashSet<Material>(Arrays.asList(
+			Material.AIR,
+			Material.GLASS,
+			Material.LADDER,
+			Material.TORCH,
+			Material.REDSTONE_TORCH_ON,
+			Material.REDSTONE_TORCH_OFF,
+			Material.STONE_BUTTON,
+			Material.SIGN_POST,
+			Material.WALL_SIGN,
+			Material.FIRE,
+			Material.LEVER));
 	
 ///////////////// EXTERNAL PLUGINS
 	

@@ -6,10 +6,10 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.SwitchRoutine;
 //FIXME Do I work?
-public class ConditionSwitch extends SwitchRoutine<TargetEventInfo, ConditionalStatement>
+public class ConditionSwitch extends SwitchRoutine<TargetEventInfo, Conditional>
 {
 	public ConditionSwitch(String configString, List<String> switchCases, List<Object> nestedContents)
 	{
@@ -20,13 +20,13 @@ public class ConditionSwitch extends SwitchRoutine<TargetEventInfo, ConditionalS
 	protected TargetEventInfo getRelevantInfo(TargetEventInfo eventInfo){ return eventInfo;}
 	
 	@Override
-	protected boolean compare(TargetEventInfo eventInfo, ConditionalStatement caseStatement)
+	protected boolean compare(TargetEventInfo eventInfo, Conditional caseStatement)
 	{
-		return caseStatement.condition(eventInfo);
+		return caseStatement.evaluate(eventInfo);
 	}
 	
 	@Override
-	protected ConditionalStatement matchCase(String switchCase){ return AliasManager.matchConditionAlias(switchCase);}
+	protected Conditional matchCase(String switchCase){ return AliasManager.matchConditionAlias(switchCase);}
 	
 	public static void register()
 	{

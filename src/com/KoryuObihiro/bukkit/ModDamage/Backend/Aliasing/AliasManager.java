@@ -16,7 +16,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.ArmorSet;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageItemStack;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Parameterized.Message.DynamicMessage;
 
 public enum AliasManager
@@ -94,7 +94,7 @@ public enum AliasManager
 	public static Collection<ArmorSet> matchArmorAlias(String key){ return (Collection<ArmorSet>)AliasManager.Armor.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
 	public static Collection<Biome> matchBiomeAlias(String key){ return (Collection<Biome>)AliasManager.Biome.aliaser.matchAlias(key);}
-	public static ConditionalStatement matchConditionAlias(String key){ return (ConditionalStatement)AliasManager.Condition.aliaser.matchAlias(key);}
+	public static Conditional matchConditionAlias(String key){ return (Conditional)AliasManager.Condition.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")
 	public static Collection<Enchantment> matchEnchantmentAlias(String key){ return (Collection<Enchantment>)AliasManager.Enchantment.aliaser.matchAlias(key);}
 	@SuppressWarnings("unchecked")

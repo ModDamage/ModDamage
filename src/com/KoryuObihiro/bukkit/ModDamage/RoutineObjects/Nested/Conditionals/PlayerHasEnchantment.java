@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditionals;
 
 import java.util.Collection;
 import java.util.regex.Matcher;
@@ -11,20 +11,21 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
 
-public class PlayerHasEnchantment extends EntityConditionalStatement
+public class PlayerHasEnchantment extends Conditional
 {
+	public static final Pattern pattern = Pattern.compile("(\\w+)\\.hasenchantment\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	final EntityReference entityReference;
 	protected final Collection<Enchantment> enchantments;
-	public PlayerHasEnchantment(boolean inverted, EntityReference entityReference, Collection<Enchantment> enchantments)
+	public PlayerHasEnchantment(EntityReference entityReference, Collection<Enchantment> enchantments)
 	{
-		super(inverted, entityReference);
+		this.entityReference = entityReference;
 		this.enchantments = enchantments;
 	}
 
 	@Override
-	public boolean condition(TargetEventInfo eventInfo)
+	public boolean evaluate(TargetEventInfo eventInfo)
 	{
 		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
 			for(Enchantment enchantment : enchantments)
@@ -35,18 +36,20 @@ public class PlayerHasEnchantment extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+)\\.hasenchantment\\.(\\w+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
+		Conditional.register(new ConditionalBuilder());
 	}
 	
-	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
-	{	
+	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
+	{
+		public ConditionalBuilder() { super(pattern); }
+
 		@Override
 		public PlayerHasEnchantment getNew(Matcher matcher)
 		{
 			Collection<Enchantment> enchantments = AliasManager.matchEnchantmentAlias(matcher.group(3));
 			EntityReference reference = EntityReference.match(matcher.group(2));
 			if(reference != null && !enchantments.isEmpty())
-				return new PlayerHasEnchantment(matcher.group(1).equals("!"), reference, enchantments);
+				return new PlayerHasEnchantment(reference, enchantments);
 			return null;
 		}
 	}

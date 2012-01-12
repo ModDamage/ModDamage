@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditionals;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,22 +9,23 @@ import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
 
-public class EntityRegion extends EntityConditionalStatement
+public class EntityRegion extends Conditional
 {
+	public static final Pattern pattern = Pattern.compile("(\\w+)\\.inregion(only)?.(\\w+)", Pattern.CASE_INSENSITIVE);
+	final EntityReference entityReference;
 	final boolean inclusiveComparison;
 	final Collection<String> regions;
-	public EntityRegion(boolean inverted, boolean inclusiveComparison, EntityReference entityReference, Collection<String> regions)
+	public EntityRegion(boolean inclusiveComparison, EntityReference entityReference, Collection<String> regions)
 	{
-		super(inverted, entityReference);
+		this.entityReference = entityReference;
 		this.inclusiveComparison = inclusiveComparison;
 		this.regions = regions;		
 	}
 
 	@Override
-	public boolean condition(TargetEventInfo eventInfo)
+	public boolean evaluate(TargetEventInfo eventInfo)
 	{
 		Collection<String> entityRegions = getRegions(eventInfo);
 		for(String region : entityRegions)
@@ -42,18 +43,20 @@ public class EntityRegion extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+)\\.in(region|regiononly).(\\w+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
+		Conditional.register(new ConditionalBuilder());
 	}
 	
-	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
-	{	
+	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
+	{
+		public ConditionalBuilder() { super(pattern); }
+
 		@Override
 		public EntityRegion getNew(Matcher matcher)
 		{
-			Collection<String> regions = AliasManager.matchRegionAlias(matcher.group(4));
-			EntityReference reference = EntityReference.match(matcher.group(2));
+			EntityReference reference = EntityReference.match(matcher.group(1));
+			Collection<String> regions = AliasManager.matchRegionAlias(matcher.group(3));
 			if(!regions.isEmpty() && reference != null)
-				return new EntityRegion(matcher.group(1).equalsIgnoreCase("!"), matcher.group(3).endsWith("only"), reference, regions);
+				return new EntityRegion(matcher.group(2) != null, reference, regions);
 			return null;
 		}
 	}

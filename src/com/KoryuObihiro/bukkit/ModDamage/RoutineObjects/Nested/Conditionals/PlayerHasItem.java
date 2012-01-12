@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditionals;
 
 import java.util.Collection;
 import java.util.regex.Matcher;
@@ -12,22 +12,23 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageItemStack;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
 
-public class PlayerHasItem extends EntityConditionalStatement
+public class PlayerHasItem extends Conditional
 {
+	public static final Pattern pattern = Pattern.compile("(\\w+)\\.has((?:all)?items|item)\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
+	final EntityReference entityReference;
 	private final boolean strict;
 	private final Collection<ModDamageItemStack> items;
-	public PlayerHasItem(boolean inverted, EntityReference entityReference, boolean strict, Collection<ModDamageItemStack> items)
+	public PlayerHasItem(EntityReference entityReference, boolean strict, Collection<ModDamageItemStack> items)
 	{
-		super(inverted, entityReference);
+		this.entityReference = entityReference;
 		this.strict = strict;
 		this.items = items;
 	}
 
 	@Override
-	public boolean condition(TargetEventInfo eventInfo)
+	public boolean evaluate(TargetEventInfo eventInfo)
 	{
 		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
 		{
@@ -59,18 +60,20 @@ public class PlayerHasItem extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+)\\.has((?:all)?items|item)\\.([\\w*]+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
+		Conditional.register(new ConditionalBuilder());
 	}
 	
-	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
-	{	
+	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
+	{
+		public ConditionalBuilder() { super(pattern); }
+
 		@Override
 		public PlayerHasItem getNew(Matcher matcher)
 		{
-			Collection<ModDamageItemStack> items = AliasManager.matchItemAlias(matcher.group(4));
-			EntityReference reference = EntityReference.match(matcher.group(2));
+			EntityReference reference = EntityReference.match(matcher.group(1));
+			Collection<ModDamageItemStack> items = AliasManager.matchItemAlias(matcher.group(3));
 			if(reference != null && !items.isEmpty())
-				return new PlayerHasItem(matcher.group(1).equals("!"), reference, matcher.group(3).equalsIgnoreCase("allitems"), items);
+				return new PlayerHasItem(reference, matcher.group(2).equalsIgnoreCase("allitems"), items);
 			return null;
 		}
 	}

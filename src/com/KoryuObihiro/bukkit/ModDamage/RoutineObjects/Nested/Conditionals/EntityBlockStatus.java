@@ -1,4 +1,4 @@
-package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
+package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditionals;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,11 +12,11 @@ import org.bukkit.entity.LivingEntity;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.AliasManager;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.ConditionalStatement;
+import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
 
-public class EntityBlockStatus extends EntityConditionalStatement
+public class EntityBlockStatus extends Conditional
 {
+	public static final Pattern pattern = Pattern.compile("(\\w+)\\.is(\\w+)block\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	public static final HashSet<Material> goThroughThese = new HashSet<Material>();
 	
 	static
@@ -33,16 +33,17 @@ public class EntityBlockStatus extends EntityConditionalStatement
 		goThroughThese.add(Material.LEVER);
 	}
 	
+	final EntityReference entityReference;
 	final BlockStatusType statusType;
 	final Collection<Material> materials;
-	protected EntityBlockStatus(boolean inverted, EntityReference entityReference, BlockStatusType statusType, Collection<Material> materials)
+	protected EntityBlockStatus(EntityReference entityReference, BlockStatusType statusType, Collection<Material> materials)
 	{
-		super(inverted, entityReference);
+		this.entityReference = entityReference;
 		this.statusType = statusType;
 		this.materials = materials;
 	}
 	@Override
-	public boolean condition(TargetEventInfo eventInfo)
+	public boolean evaluate(TargetEventInfo eventInfo)
 	{
 		if(entityReference.getEntity(eventInfo) != null)
 			return statusType.isTrue(materials, entityReference.getEntity(eventInfo));
@@ -107,22 +108,24 @@ public class EntityBlockStatus extends EntityConditionalStatement
 	
 	public static void register()
 	{
-		ConditionalRoutine.registerConditionalStatement(Pattern.compile("(!?)(\\w+)\\.is(\\w+)block\\.(\\w+)", Pattern.CASE_INSENSITIVE), new StatementBuilder());
+		Conditional.register(new ConditionalBuilder());
 	}
 	
-	protected static class StatementBuilder extends ConditionalStatement.StatementBuilder
-	{	
+	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
+	{
+		public ConditionalBuilder() { super(pattern); }
+
 		@Override
 		public EntityBlockStatus getNew(Matcher matcher)
 		{
 			BlockStatusType statusType = null;
 			for(BlockStatusType type : BlockStatusType.values())
-				if(matcher.group(3).equalsIgnoreCase(type.name()))
+				if(matcher.group(2).equalsIgnoreCase(type.name()))
 						statusType = type;
-			Collection<Material> materials = AliasManager.matchMaterialAlias(matcher.group(4));
-			EntityReference reference = EntityReference.match(matcher.group(2));
+			Collection<Material> materials = AliasManager.matchMaterialAlias(matcher.group(3));
+			EntityReference reference = EntityReference.match(matcher.group(1));
 			if(reference != null && statusType != null)
-				return new EntityBlockStatus(matcher.group(1).equalsIgnoreCase("!"), reference, statusType, materials);
+				return new EntityBlockStatus(reference, statusType, materials);
 			return null;
 		}
 	}
