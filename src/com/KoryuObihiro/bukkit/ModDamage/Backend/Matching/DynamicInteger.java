@@ -21,6 +21,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.Dynami
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicEventInteger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicMcMMOInteger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicPlayerInteger;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicPlayerItemInteger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicRoutineInteger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicServerInteger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicWorldInteger;
@@ -96,6 +97,7 @@ public abstract class DynamicInteger extends DynamicString
 		DynamicEventInteger.register();
 		DynamicMcMMOInteger.register();
 		DynamicPlayerInteger.register();
+		DynamicPlayerItemInteger.register();
 		DynamicServerInteger.register();
 		DynamicWorldInteger.register();
 		NegativeInteger.register();
