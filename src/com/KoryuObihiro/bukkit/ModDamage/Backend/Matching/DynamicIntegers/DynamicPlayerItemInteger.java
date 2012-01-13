@@ -3,6 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,7 +19,8 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 	{
 		DynamicInteger.register(
 				Pattern.compile("("+ Utils.joinBy("|", EntityReference.values()) +")_("+ 
-									 Utils.joinBy("|", PlayerItemTarget.values()) +")_durability", Pattern.CASE_INSENSITIVE),
+									 Utils.joinBy("|", PlayerItemTarget.values()) +")_("+ 
+									 Utils.joinBy("|", ItemAttribute.values()) +")", Pattern.CASE_INSENSITIVE),
 				new DynamicIntegerBuilder()
 				{
 					@Override
@@ -26,7 +28,8 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 					{
 						return new DIResult(new DynamicPlayerItemInteger(
 								EntityReference.valueOf(matcher.group(1).toUpperCase()), 
-								PlayerItemTarget.valueOf(matcher.group(2).toUpperCase())), rest);
+								PlayerItemTarget.valueOf(matcher.group(2).toUpperCase()),
+								ItemAttribute.valueOf(matcher.group(3).toUpperCase())), rest);
 					}
 				});
 	}
@@ -61,13 +64,45 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 		public abstract ItemStack getItem(Player player);
 	}
 	
+	enum ItemAttribute {
+		DURABILITY(true) {
+			@Override
+			public int getAttribute(ItemStack item)
+			{
+				return item.getDurability();
+			}
+			@Override
+			public void setAttribute(ItemStack item, int attr)
+			{
+				item.setDurability((short) attr);
+			}
+		},
+		MAX_DURABILITY {
+			@Override
+			public int getAttribute(ItemStack item)
+			{
+				CraftItemStack citem = (CraftItemStack) item;
+				return citem.getHandle().getItem().getMaxDurability();
+			}
+		};
+		
+		boolean settable = false;
+		private ItemAttribute() {}
+		private ItemAttribute(boolean settable) { this.settable = settable; }
+		public abstract int getAttribute(ItemStack item);
+		public void setAttribute(ItemStack item, int attr){}
+		
+	}
+	
 	EntityReference entityReference;
 	PlayerItemTarget playerItemTarget;
+	ItemAttribute itemAttribute;
 
-	public DynamicPlayerItemInteger(EntityReference entityReference, PlayerItemTarget playerItemTarget)
+	public DynamicPlayerItemInteger(EntityReference entityReference, PlayerItemTarget playerItemTarget, ItemAttribute itemAttribute)
 	{
 		this.entityReference = entityReference;
 		this.playerItemTarget = playerItemTarget;
+		this.itemAttribute = itemAttribute;
 	}
 
 	@Override
@@ -75,7 +110,7 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 	{
 		Entity entity = entityReference.getEntity(eventInfo);
 		if (entity instanceof Player)
-			return playerItemTarget.getItem((Player)entity).getDurability();
+			return itemAttribute.getAttribute(playerItemTarget.getItem((Player)entity));
 		return 0;
 	}
 	
@@ -84,13 +119,13 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 	{
 		Entity entity = entityReference.getEntity(eventInfo);
 		if (entity instanceof Player)
-			playerItemTarget.getItem((Player)entity).setDurability((short) value);
+			itemAttribute.setAttribute(playerItemTarget.getItem((Player)entity), value);
 	}
 	
 	@Override
 	public boolean isSettable()
 	{
-		return true;
+		return itemAttribute.settable;
 	}
 
 }
