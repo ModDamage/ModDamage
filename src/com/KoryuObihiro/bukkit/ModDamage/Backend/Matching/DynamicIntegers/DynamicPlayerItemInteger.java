@@ -66,23 +66,45 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 	
 	enum ItemAttribute {
 		DURABILITY(true) {
-			@Override
-			public int getAttribute(ItemStack item)
-			{
+			public int getAttribute(ItemStack item) {
 				return item.getDurability();
 			}
-			@Override
-			public void setAttribute(ItemStack item, int attr)
-			{
+			public void setAttribute(ItemStack item, int attr) {
 				item.setDurability((short) attr);
 			}
 		},
+		DATA(true) {
+			public int getAttribute(ItemStack item) {
+				return item.getData().getData();
+			}
+			public void setAttribute(ItemStack item, int attr) {
+				item.getData().setData((byte) attr);
+			}
+		},
+		AMOUNT(true) {
+			public int getAttribute(ItemStack item) {
+				return item.getAmount();
+			}
+			public void setAttribute(ItemStack item, int attr) {
+				item.setAmount(attr);
+			}
+		},
+		MAX_AMOUNT {
+			public int getAttribute(ItemStack item) {
+				return item.getMaxStackSize();
+			}
+		},
+		TYPE(true) {
+			public int getAttribute(ItemStack item) {
+				return item.getTypeId();
+			}
+			public void setAttribute(ItemStack item, int attr) {
+				item.setTypeId(attr);
+			}
+		},
 		MAX_DURABILITY {
-			@Override
-			public int getAttribute(ItemStack item)
-			{
-				CraftItemStack citem = (CraftItemStack) item;
-				return citem.getHandle().getItem().getMaxDurability();
+			public int getAttribute(ItemStack item) {
+				return ((CraftItemStack) item).getHandle().getItem().getMaxDurability();
 			}
 		};
 		
