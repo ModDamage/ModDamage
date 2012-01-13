@@ -14,8 +14,6 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.CalculationRoutine;
-import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.NestedRoutine;
 
 public class EntitySpawn extends NestedRoutine
 {
@@ -49,7 +47,7 @@ public class EntitySpawn extends NestedRoutine
 	
 	public static void register()
 	{
-		CalculationRoutine.registerRoutine(Pattern.compile("(.*)effect\\.spawn\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(.*)effect\\.spawn\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
