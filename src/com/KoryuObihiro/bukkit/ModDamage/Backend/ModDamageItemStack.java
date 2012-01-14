@@ -1,40 +1,75 @@
 package com.KoryuObihiro.bukkit.ModDamage.Backend;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 
 public class ModDamageItemStack
 {
 	public static final String itemStackPart = "(\\w+\\*" + DynamicInteger.dynamicIntegerPart + ")";
 	final Material material;
-	final DynamicInteger number;
-	private int lastValue;
+	final DynamicInteger amount;
+	private Map<Enchantment, DynamicInteger> enchantments;
+	private int lastAmount;
+	private Map<Enchantment, Integer> lastEnchants;
 	
 	private ModDamageItemStack(Material material, DynamicInteger number)
 	{
 		this.material = material;
-		this.number = number;
+		this.amount = number;
+	}
+	
+	public void addEnchantment(Enchantment enchantment, DynamicInteger level)
+	{
+		if (enchantments == null)
+		{
+			enchantments = new HashMap<Enchantment, DynamicInteger>(2);
+			lastEnchants = new HashMap<Enchantment, Integer>(2);
+		}
+		enchantments.put(enchantment, level);
 	}
 	
 	public void updateAmount(TargetEventInfo eventInfo)
 	{
-		lastValue = number.getValue(eventInfo);
+		lastAmount = amount.getValue(eventInfo);
+		if (enchantments != null)
+		{
+			for (Entry<Enchantment, DynamicInteger> entry : enchantments.entrySet())
+				lastEnchants.put(entry.getKey(), entry.getValue().getValue(eventInfo));
+		}
 	}
 	
 	public boolean contains(ItemStack itemStack)
 	{
-		return material.equals(itemStack.getType()) && lastValue >= itemStack.getAmount();
+		return material.equals(itemStack.getType()) && lastAmount >= itemStack.getAmount();
 	}
 	
 	public ItemStack toItemStack()
 	{
-		return new ItemStack(material, lastValue);
+		ItemStack item = new ItemStack(material, lastAmount);
+		
+		if (lastEnchants != null)
+		{
+			try
+			{
+				item.addEnchantments(lastEnchants);
+			}
+			catch (IllegalArgumentException e)
+			{
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, e.getMessage());
+			}
+		}
+		
+		return item;
 	}
 	
 	public static ModDamageItemStack getNew(String string)
@@ -82,6 +117,6 @@ public class ModDamageItemStack
 	@Override
 	public String toString()
 	{
-		return material.name() + "*" + number.toString();
+		return material.name() + "*" + amount.toString();
 	}
 }

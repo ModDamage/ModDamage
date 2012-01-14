@@ -180,11 +180,14 @@ abstract public class Aliaser<Type, StoredInfoClass>
 			
 			boolean failFlag = false;
 			List<InfoType> values = new ArrayList<InfoType>();
-			for(String valueString : key.split(","))
+			if (key != null)
 			{
-				InfoType value = matchNonAlias(valueString);
-				if(value != null) values.add(value);
-				else failFlag = true;
+				for(String valueString : key.split(","))
+				{
+					InfoType value = matchNonAlias(valueString);
+					if(value != null) values.add(value);
+					else failFlag = true;
+				}
 			}
 			if(!failFlag && !values.isEmpty()) return values;
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "No matching " + name + " alias or value \"" + key + "\"");

@@ -69,27 +69,28 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 		{
 			if(object instanceof String)
 			{
-				if(((String)object).startsWith("_"))
+				String string = (String) object;
+				if((string).startsWith("_"))
 				{
-					Collection<Routine> aliasedRoutines = AliasManager.matchRoutineAlias((String)object);
+					Collection<Routine> aliasedRoutines = AliasManager.matchRoutineAlias(string);
 					if(aliasedRoutines != null)
 					{
-						ModDamage.addToLogRecord(OutputPreset.INFO, "Alias: \"" + ((String)object).substring(1) + "\"");
+						ModDamage.addToLogRecord(OutputPreset.INFO, "Alias: \"" + string.substring(1) + "\"");
 						target.addAll(aliasedRoutines);
 					}
 					else
 					{
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid routine alias " + ((String)object).substring(1));
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid routine alias " + string.substring(1));
 						encounteredError = true;
 					}
 				}
 				else
 				{
-					Routine routine = Routine.getNew((String)object);
+					Routine routine = Routine.getNew(string);
 					if(routine != null) target.add(routine);
 					else
 					{
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid base routine " + " \"" + (String)object + "\"");
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid base routine " + " \"" + string + "\"");
 						encounteredError = true;
 					}
 				}
