@@ -12,7 +12,7 @@ import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
 
 public class EntityWearing extends Conditional
 {
-	public static final Pattern pattern = Pattern.compile("(!?)(\\w+)\\.wearing(only)?\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("(\\w+)\\.wearing(only)?\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
 	final EntityReference entityReference;
 	final boolean inclusiveComparison;
 	final Collection<ArmorSet> armorSets;
