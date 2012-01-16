@@ -96,7 +96,11 @@ public class DynamicCalculatedInteger extends DynamicInteger
 					public DIResult getNewFromFront(Matcher m, String rest)
 					{
 						DIResult leftDir = DynamicInteger.getIntegerFromFront(rest);
-						if (leftDir == null) return null;
+						if (leftDir == null)
+						{
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+rest+"\"");
+							return null;
+						}
 						
 						Matcher matcher = ArithmeticOperator.operatorPattern.matcher(leftDir.rest);
 						if (!matcher.lookingAt())
@@ -106,10 +110,18 @@ public class DynamicCalculatedInteger extends DynamicInteger
 						}
 						
 						DIResult rightDir = DynamicInteger.getIntegerFromFront(leftDir.rest.substring(matcher.end()));
-						if (rightDir == null) return null;
+						if (rightDir == null)
+						{
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+leftDir.rest.substring(matcher.end())+"\"");
+							return null;
+						}
 						
 						Matcher endMatcher = endPattern.matcher(rightDir.rest);
-						if (!endMatcher.lookingAt()) return null;
+						if (!endMatcher.lookingAt())
+						{
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Missing close paren: \""+rightDir.rest+"\"");
+							return null;
+						}
 						
 						return new DIResult(new DynamicCalculatedInteger(
 								leftDir.integer, ArithmeticOperator.operatorMap.get(matcher.group(1)), rightDir.integer), rightDir.rest.substring(endMatcher.end()));
