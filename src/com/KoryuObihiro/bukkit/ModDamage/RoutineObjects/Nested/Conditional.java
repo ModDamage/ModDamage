@@ -100,7 +100,6 @@ abstract public class Conditional
 	{
 		registeredConditionals.clear();
 		Chance.register();
-		Comparison.register();
 		InvertConditional.register();
 		NestedConditional.register();
 		//Entity
@@ -123,6 +122,8 @@ abstract public class Conditional
 		EventEnvironment.register();
 		//Server
 		ServerOnlineMode.register();
+		//Other
+		Comparison.register();
 	}
 	
 	public static class CResult
