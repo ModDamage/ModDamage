@@ -25,6 +25,7 @@ import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.Dynami
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicRoutineInteger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicServerInteger;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.DynamicWorldInteger;
+import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.Function;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers.NegativeInteger;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Routine;
 
@@ -101,6 +102,7 @@ public abstract class DynamicInteger extends DynamicString
 		DynamicServerInteger.register();
 		DynamicWorldInteger.register();
 		NegativeInteger.register();
+		Function.register();
 		
 		DynamicInteger.register(Pattern.compile("_\\w+"),
 				new DynamicIntegerBuilder()
