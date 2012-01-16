@@ -59,6 +59,10 @@ public abstract class DynamicInteger extends DynamicString
 	
 	public static DIResult getIntegerFromFront(String string)
 	{
+		Matcher m = whitespace.matcher(string);
+		if (m.lookingAt())
+			string = string.substring(m.end());
+		
 		for(Entry<Pattern, DynamicIntegerBuilder> entry : registeredIntegers.entrySet())
 		{
 			Matcher matcher = entry.getKey().matcher(string);
