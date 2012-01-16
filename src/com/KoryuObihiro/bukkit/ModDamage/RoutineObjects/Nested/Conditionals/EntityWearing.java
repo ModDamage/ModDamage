@@ -14,12 +14,12 @@ public class EntityWearing extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.wearing(only)?\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
 	final EntityReference entityReference;
-	final boolean inclusiveComparison;
+	final boolean only;
 	final Collection<ArmorSet> armorSets;
-	public EntityWearing(boolean inclusiveComparison, EntityReference entityReference, Collection<ArmorSet> armorSets)
+	public EntityWearing(EntityReference entityReference, boolean only, Collection<ArmorSet> armorSets)
 	{  
 		this.entityReference = entityReference;
-		this.inclusiveComparison = inclusiveComparison;
+		this.only = only;
 		this.armorSets = armorSets;
 	}
 	@Override
@@ -28,7 +28,7 @@ public class EntityWearing extends Conditional
 		ArmorSet playerSet = entityReference.getArmorSet(eventInfo);
 		if(playerSet != null)
 			for(ArmorSet armorSet : armorSets)
-				if(inclusiveComparison?armorSet.equals(playerSet):armorSet.contains(playerSet))
+				if(only? armorSet.equals(playerSet) : armorSet.contains(playerSet))
 					return true;
 		return false;
 	}
@@ -48,7 +48,7 @@ public class EntityWearing extends Conditional
 			EntityReference reference = EntityReference.match(matcher.group(1));
 			Collection<ArmorSet> armorSet = AliasManager.matchArmorAlias(matcher.group(3));
 			if(!armorSet.isEmpty() && reference != null)
-				return new EntityWearing(matcher.group(2) != null, reference, armorSet);
+				return new EntityWearing(reference, matcher.group(2) != null, armorSet);
 			return null;
 		}
 	}

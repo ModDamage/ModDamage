@@ -17,9 +17,7 @@ public enum EntityReference
 	{
 		public ArmorSet getArmorSet(TargetEventInfo eventInfo) 
 		{
-			if(eventInfo.type.equals(EntityReference.ATTACKER)) 
-				return ((AttackerEventInfo)eventInfo).armorSet_attacker;
-			return null;
+			return eventInfo.armorSet_target;
 		}
 		
 		public ModDamageElement getElement(TargetEventInfo eventInfo) 
