@@ -13,22 +13,31 @@ public class ArmorSet
 	private boolean hasSomething = false;
 	protected final Material[] armorSet;
 	
-	public ArmorSet(){ armorSet = new Material[4];}
+	public ArmorSet(){ armorSet = new Material[4]; }
 	public ArmorSet(Material[] materials)
 	{
 		assert(materials.length == 4);
 		armorSet = materials;
+		for (Material material : armorSet)
+		{
+			if (material != null && material != Material.AIR)
+			{
+				hasSomething = true;
+				break;
+			}
+		}
 	}
 	public ArmorSet(Player player)
 	{
 		armorSet = new Material[4];
-		Material material;
-		ItemStack[] equipment = player.getInventory().getArmorContents();
-		for(int i = 0; i < equipment.length; i++)
+		ItemStack[] armor = player.getInventory().getArmorContents();
+		for(int i = 0; i < armor.length; i++)
 		{
-			material = equipment[i].getType();
+			Material material = armor[i].getType();
 			if(!ArmorSet.put(material, armorSet))
 				PluginConfiguration.log.severe("Invalid ArmorSet loaded from player \"" + player.getName() + "\" while attempting to add material of type " + material.name() + "!");
+			if (material != null && material != Material.AIR)
+				hasSomething = true;
 		}
 	}
 	
@@ -57,32 +66,13 @@ public class ArmorSet
 	private static boolean put(Material material, Material[] armorArray)
 	{
 		ArmorElement armorType = ArmorElement.matchElement(material);
-		if(armorType != null)
-			switch(armorType)
-			{
-				case EMPTY: return true;
-				case HELMET:
-					if(armorArray[0] == null) armorArray[0] = material;
-					else return false;
-					return true;
-					
-				case CHESTPLATE:
-					if(armorArray[1] == null) armorArray[1] = material;
-					else return false;
-					return true;
-					
-				case LEGGINGS:
-					if(armorArray[2] == null) armorArray[2] = material;
-					else return false;
-					return true;
-					
-				case BOOTS:
-					if(armorArray[3] == null) armorArray[3] = material;
-					else return false;
-					return true;
-			}
-		return false;
+		if (armorType == null) return false;
+		if (armorType == ArmorElement.EMPTY) return true;
 		
+		if(armorArray[armorType.index] != null)
+			return false;
+		armorArray[armorType.index] = material;
+		return true;
 	}
 	
 	private Material get(int i){ return armorSet[i];}
@@ -131,7 +121,10 @@ public class ArmorSet
 	
 	private enum ArmorElement
 	{
-		EMPTY, HELMET, CHESTPLATE, LEGGINGS, BOOTS;
+		EMPTY(-1), HELMET(0), CHESTPLATE(1), LEGGINGS(2), BOOTS(3);
+		
+		public final int index;
+		private ArmorElement(int index) { this.index = index; }
 		
 		private static ArmorElement matchElement(Material material)
 		{
