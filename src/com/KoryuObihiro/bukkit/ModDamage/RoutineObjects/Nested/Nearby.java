@@ -75,7 +75,7 @@ public class Nearby extends NestedRoutine
 			DynamicInteger radius = DynamicInteger.getNew(matcher.group(3));
 			List<Routine> routines = new ArrayList<Routine>();
 			if (RoutineAliaser.parseRoutines(routines, nestedContent))
-				if(element != null && element.canSpawnCreature() && reference != null)
+				if(element != null && reference != null && radius != null)
 					return new Nearby(matcher.group(), reference, element, radius, routines);
 			return null;
 		}
