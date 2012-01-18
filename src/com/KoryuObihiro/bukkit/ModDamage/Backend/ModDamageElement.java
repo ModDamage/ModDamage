@@ -322,7 +322,7 @@ public enum ModDamageElement
 	
 	private final ModDamageElement genericElement;
 	private final CreatureType creatureType;
-	private final Class<?>[] myClasses;
+	public final Class<?>[] myClasses;
 	private List<ModDamageElement> subElements;
 	
 	ModDamageElement(ModDamageElement genericElement, Class<?>... myClasses) 
