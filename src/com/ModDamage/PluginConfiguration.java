@@ -20,16 +20,15 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 
-import com.ModDamage.Backend.Aliasing.AliasManager;
 import com.ModDamage.ExternalPluginManager.PermissionsManager;
 import com.ModDamage.ExternalPluginManager.RegionsManager;
+import com.ModDamage.Backend.Aliasing.AliasManager;
 
 public class PluginConfiguration
 {
@@ -185,7 +184,7 @@ public class PluginConfiguration
 				addToLogRecord(OutputPreset.INFO_VERBOSE, "mcMMO: Plugin not found.");
 			else addToLogRecord(OutputPreset.CONSTANT, "mcMMO: Using version " + ExternalPluginManager.getMcMMOPlugin().getDescription().getVersion());
 		// Bukkit build check
-			String string = Bukkit.getVersion();
+			/*String string = Bukkit.getVersion();
 			Matcher matcher = Pattern.compile(".*b([0-9]+)jnks.*", Pattern.CASE_INSENSITIVE).matcher(string);
 			if(matcher.matches())
 			{
@@ -193,6 +192,7 @@ public class PluginConfiguration
 					addToLogRecord(OutputPreset.FAILURE, "Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of " + plugin.getDescription().getName() + ". Please update your current Bukkit installation.");
 			}
 			else addToLogRecord(OutputPreset.WARNING_STRONG, logPrepend() + "Unable to read Bukkit build - is this a modified version of Bukkit?.");
+			*/
 		}
 
 	// load debug settings
@@ -245,20 +245,22 @@ public class PluginConfiguration
 		ModDamageEventHandler.reload();
 
 		LoadState.pluginState = LoadState.combineStates(ModDamageEventHandler.state, AliasManager.getState());
+		
+		String timer = "(" + (System.nanoTime() - reloadStartTime)/1000 + " μs) ";
+		
 		switch(LoadState.pluginState)
 		{
 			case NOT_LOADED:
-				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + "No configuration loaded.");
+				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "No configuration loaded.");
 				break;
 			case FAILURE:
-				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + "Loaded configuration with one or more errors.");
+				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Loaded configuration with one or more errors.");
 				break;
 			case SUCCESS:
-				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + "Finished loading configuration.");
+				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Finished loading configuration.");
 				break;
 		}
 
-		addToLogRecord(OutputPreset.INFO_VERBOSE, "Reload operation took " + (System.nanoTime() - reloadStartTime) + " nanoseconds.");
 		return true;
 	}
 
