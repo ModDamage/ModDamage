@@ -3,6 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
 
@@ -15,9 +16,10 @@ public class DynamicEventInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DIResult getNewFromFront(Matcher matcher, String rest)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
 					{
-						return new DIResult(new DynamicEventInteger(), rest);
+						sm.accept();
+						return new DynamicEventInteger();
 					}
 				});
 	}

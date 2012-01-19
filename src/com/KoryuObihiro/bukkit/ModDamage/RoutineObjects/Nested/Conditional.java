@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditionals.Chance;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditionals.Comparison;
@@ -39,54 +40,56 @@ abstract public class Conditional
 	{
 		if(string == null) return null;
 		
-		CResult res = getNewFromFront(string);
-		if (res == null)
+		StringMatcher sm = new StringMatcher(string);
+		
+		Conditional conditional = getNewFromFront(sm.spawn());
+		if (conditional == null)
 		{
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unmatched conditional \"" + string + "\"");
 			return null;
 		}
 		
-		if (!whitespace.matcher(res.rest).matches())
+		if (!sm.matchesAll(whitespace))
 		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unmatched stuff after conditional: \"" + res.rest + "\"");
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unmatched stuff after conditional: \"" + sm.string + "\"");
 			return null;
 		}
 		
-		return res.conditional;
+		return conditional;
 	}
 	
-	protected static CResult getNewFromFront(String string)
+	protected static Conditional getNewFromFront(StringMatcher sm)
 	{
-		if(string == null) return null;
+		if(sm == null) return null;
 		
-		CResult res = null;
+		Conditional conditional = null;
 		for(ConditionalBuilder builder : registeredConditionals)
 		{
-			res = builder.getNewFromFront(string);
-			if (res != null) break;
+			conditional = builder.getNewFromFront(sm.spawn());
+			if (conditional != null) break;
 		}
 		
-		if (res == null)
+		if (conditional == null)
 		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad conditional at the beginning of: \"" + string + "\"");
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad conditional at the beginning of: \"" + sm.string + "\"");
 			return null;
 		}
 		
-		Matcher matcher = CompoundConditional.LogicalOperator.pattern.matcher(res.rest);
-		if (matcher.lookingAt())
+		Matcher matcher = sm.matchFront(CompoundConditional.LogicalOperator.pattern);
+		if (matcher != null)
 		{
 			LogicalOperator operator = LogicalOperator.match(matcher.group(1));
 			
-			CResult res2 = getNewFromFront(res.rest.substring(matcher.end()));
+			Conditional right = getNewFromFront(sm);
 			
-			if (res2 == null)
+			if (right == null)
 				return null;
 			
-			res2.conditional = new CompoundConditional(res.conditional, operator, res2.conditional);
-			return res2;
+			return new CompoundConditional(conditional, operator, right);
 		}
 		
-		return res;
+		sm.accept();
+		return conditional;
 	}
 	
 	private static List<ConditionalBuilder> registeredConditionals = new ArrayList<ConditionalBuilder>();
@@ -103,12 +106,12 @@ abstract public class Conditional
 		InvertConditional.register();
 		NestedConditional.register();
 		//Entity
+		EntityType.register();
 		EntityBiome.register();
 		EntityBlockStatus.register();
 		EntityRegion.register();
 		EntityStatus.register();
 		EntityTagged.register();
-		EntityType.register();
 		EntityWearing.register();
 		EntityWielding.register();
 		PlayerGroupEvaluation.register();
@@ -147,7 +150,7 @@ abstract public class Conditional
 	
 	abstract protected static class ConditionalBuilder
 	{
-		public abstract CResult getNewFromFront(String string);
+		public abstract Conditional getNewFromFront(StringMatcher sm);
 	}
 	
 	abstract protected static class SimpleConditionalBuilder extends ConditionalBuilder
@@ -159,14 +162,17 @@ abstract public class Conditional
 			this.pattern = pattern;
 		}
 		
-		public final CResult getNewFromFront(String string)
+		public final Conditional getNewFromFront(StringMatcher sm)
 		{
-			Matcher matcher = pattern.matcher(string);
-			if (matcher.lookingAt())
+			Matcher matcher = sm.matchFront(pattern);
+			if (matcher != null)
 			{
 				Conditional conditional = getNew(matcher);
 				if (conditional != null)
-					return new CResult(conditional, string.substring(matcher.end()));
+				{
+					sm.accept();
+					return conditional;
+				}
 			}
 			return null;
 		}

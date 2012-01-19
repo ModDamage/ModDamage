@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
@@ -93,38 +94,37 @@ public class DynamicCalculatedInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DIResult getNewFromFront(Matcher m, String rest)
+					public DynamicInteger getNewFromFront(Matcher m, StringMatcher sm)
 					{
-						DIResult leftDir = DynamicInteger.getIntegerFromFront(rest);
-						if (leftDir == null)
+						DynamicInteger left = DynamicInteger.getIntegerFromFront(sm.spawn());
+						if (left == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+rest+"\"");
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+sm.string+"\"");
 							return null;
 						}
 						
-						Matcher matcher = ArithmeticOperator.operatorPattern.matcher(leftDir.rest);
-						if (!matcher.lookingAt())
+						Matcher matcher = sm.matchFront(ArithmeticOperator.operatorPattern);
+						if (matcher == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Couldn't match operator: \""+leftDir.rest+"\"");
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Couldn't match operator: \""+sm.string+"\"");
 							return null;
 						}
 						
-						DIResult rightDir = DynamicInteger.getIntegerFromFront(leftDir.rest.substring(matcher.end()));
-						if (rightDir == null)
+						DynamicInteger right = DynamicInteger.getIntegerFromFront(sm.spawn());
+						if (right == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+leftDir.rest.substring(matcher.end())+"\"");
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+sm.string+"\"");
 							return null;
 						}
 						
-						Matcher endMatcher = endPattern.matcher(rightDir.rest);
-						if (!endMatcher.lookingAt())
+						if (sm.matchFront(endPattern) == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Missing close paren: \""+rightDir.rest+"\"");
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Missing close paren: \""+sm.string+"\"");
 							return null;
 						}
 						
-						return new DIResult(new DynamicCalculatedInteger(
-								leftDir.integer, ArithmeticOperator.operatorMap.get(matcher.group(1)), rightDir.integer), rightDir.rest.substring(endMatcher.end()));
+						sm.accept();
+						return new DynamicCalculatedInteger(left, ArithmeticOperator.operatorMap.get(matcher.group(1)), right);
 					}
 				});
 	}

@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.Utils;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
@@ -57,20 +58,21 @@ public abstract class DynamicInteger extends DynamicString
 		return null;
 	}
 	
-	public static DIResult getIntegerFromFront(String string)
+	public static DynamicInteger getIntegerFromFront(StringMatcher sm)
 	{
-		Matcher m = whitespace.matcher(string);
-		if (m.lookingAt())
-			string = string.substring(m.end());
+		sm.matchFront(whitespace);
 		
 		for(Entry<Pattern, DynamicIntegerBuilder> entry : registeredIntegers.entrySet())
 		{
-			Matcher matcher = entry.getKey().matcher(string);
-			if(matcher.lookingAt())
+			Matcher matcher = sm.matchFront(entry.getKey());
+			if(matcher != null)
 			{
-				DIResult dir = entry.getValue().getNewFromFront(matcher, string.substring(matcher.end()));
+				DynamicInteger dir = entry.getValue().getNewFromFront(matcher, sm.spawn());
 				if(dir != null)
+				{
+					sm.accept();
 					return dir;
+				}
 			}
 		}
 		return null;
@@ -79,15 +81,16 @@ public abstract class DynamicInteger extends DynamicString
 	public static DynamicInteger getNew(String string){ return getNew(string, true);}
 	public static DynamicInteger getNew(String string, boolean outputError)
 	{
-		DIResult dir = getIntegerFromFront(string);
+		StringMatcher sm = new StringMatcher(string);
+		DynamicInteger integer = getIntegerFromFront(sm.spawn());
 		if (outputError)
 		{
-			if (dir == null)
+			if (integer == null)
 				ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for dynamic integer \"" + string + "\"");
-			else if (!dir.rest.isEmpty() && !whitespace.matcher(dir.rest).matches())
-				ModDamage.addToLogRecord(OutputPreset.WARNING, " Extra junk found after dynamic integer \"" + dir.rest + "\"");
+			else if (!sm.string.isEmpty() && !whitespace.matcher(sm.string).matches())
+				ModDamage.addToLogRecord(OutputPreset.WARNING, " Extra junk found after dynamic integer \"" + sm.string + "\"");
 		}
-		return (dir != null)? dir.integer : null;
+		return integer;
 	}
 	
 	public static void registerAllIntegers()
@@ -112,9 +115,10 @@ public abstract class DynamicInteger extends DynamicString
 				new DynamicIntegerBuilder()
 					{
 						@Override
-						public DIResult getNewFromFront(Matcher matcher, String rest)
+						public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
 						{
-							return new DIResult(DynamicInteger.getNew(AliasManager.matchRoutineAlias(matcher.group())), rest);
+							sm.accept();
+							return DynamicInteger.getNew(AliasManager.matchRoutineAlias(matcher.group()));
 						}
 					});
 	}
@@ -126,22 +130,9 @@ public abstract class DynamicInteger extends DynamicString
 		registeredIntegers.put(pattern, dib);
 	}
 	
-	/** this class is used to return 2 values from a DynamicIntegerBuilder **/
-	public final static class DIResult 
-	{
-		public DynamicInteger integer;
-		public String rest;
-		
-		public DIResult(DynamicInteger di, String r)
-		{
-			integer = di;
-			rest = r;
-		}
-	}
-	
 	abstract public static class DynamicIntegerBuilder
 	{
-		abstract public DIResult getNewFromFront(Matcher matcher, String rest);
+		abstract public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm);
 	}
 
 	@Override

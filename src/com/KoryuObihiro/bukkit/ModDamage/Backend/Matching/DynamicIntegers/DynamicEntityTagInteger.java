@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.Utils;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
@@ -21,11 +22,11 @@ public class DynamicEntityTagInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DIResult getNewFromFront(Matcher matcher, String rest)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
 					{
-						return new DIResult(new DynamicEntityTagInteger(
+						return new DynamicEntityTagInteger(
 								EntityReference.valueOf(matcher.group(1).toUpperCase()), 
-								matcher.group(2)), rest);
+								matcher.group(2));
 					}
 				});
 	}

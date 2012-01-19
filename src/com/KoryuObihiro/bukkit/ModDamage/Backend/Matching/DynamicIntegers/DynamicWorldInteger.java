@@ -3,6 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicIntegers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.Utils;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
@@ -16,10 +17,10 @@ public class DynamicWorldInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DIResult getNewFromFront(Matcher matcher, String rest)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
 					{
-						return new DIResult(new DynamicWorldInteger(
-								WorldPropertyMatch.valueOf(matcher.group(1).toUpperCase())), rest);
+						return new DynamicWorldInteger(
+								WorldPropertyMatch.valueOf(matcher.group(1).toUpperCase()));
 					}
 				});
 	}

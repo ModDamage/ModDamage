@@ -7,10 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
-import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger.DIResult;
-import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
 
 public class Comparison extends Conditional
@@ -104,22 +104,22 @@ public class Comparison extends Conditional
 	protected static class ConditionalBuilder extends Conditional.ConditionalBuilder
 	{
 		@Override
-		public CResult getNewFromFront(String string)
+		public Conditional getNewFromFront(StringMatcher sm)
 		{
-			DIResult res1 = DynamicInteger.getIntegerFromFront(string);
-			if (res1 == null) return null;
+			DynamicInteger left = DynamicInteger.getIntegerFromFront(sm.spawn());
+			if (left == null) return null;
 			
 			ComparisonType comparisonType;
 			
-			Matcher matcher = operatorPattern.matcher(res1.rest);
-			if (matcher.lookingAt())
+			Matcher matcher = sm.matchFront(operatorPattern);
+			if (matcher != null)
 			{
 				comparisonType = ComparisonType.nameMap.get(matcher.group(1));
 			}
 			else
 			{
-				matcher = namePattern.matcher(res1.rest);
-				if (matcher.lookingAt())
+				matcher = sm.matchFront(namePattern);
+				if (matcher != null)
 				{
 					comparisonType = ComparisonType.nameMap.get(matcher.group(1).toUpperCase());
 					
@@ -129,18 +129,19 @@ public class Comparison extends Conditional
 					return null;
 			}
 			
-			String after = res1.rest.substring(matcher.end());
-			
-			DIResult res2 = DynamicInteger.getIntegerFromFront(after);
-			if (res2 == null)
+			DynamicInteger right = DynamicInteger.getIntegerFromFront(sm.spawn());
+			if (right == null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \"" + after + "\"");
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \"" + sm.string + "\"");
 				return null;
 			}
 			
 			
 			if(comparisonType != null)
-				return new CResult(new Comparison(res1.integer, comparisonType, res2.integer), res2.rest);
+			{
+				sm.accept();
+				return new Comparison(left, comparisonType, right);
+			}
 			return null;
 		}
 	}

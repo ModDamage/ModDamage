@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import com.KoryuObihiro.bukkit.ModDamage.ExternalPluginManager;
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.Utils;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
@@ -25,13 +26,15 @@ public class DynamicMcMMOInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DIResult getNewFromFront(Matcher matcher, String rest)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
 					{
 						try
 						{
-							return new DIResult(new DynamicMcMMOInteger(
+							DynamicInteger integer = new DynamicMcMMOInteger(
 									EntityReference.valueOf(matcher.group(1).toUpperCase()), 
-									SkillType.valueOf(matcher.group(2).toUpperCase())), rest);
+									SkillType.valueOf(matcher.group(2).toUpperCase()));
+							sm.accept();
+							return integer;
 						}
 						catch (IllegalArgumentException e) { }
 						catch (NoClassDefFoundError e) {

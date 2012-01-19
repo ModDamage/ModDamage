@@ -7,6 +7,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.Utils;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
@@ -90,14 +91,15 @@ public class DynamicEnchantmentInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DIResult getNewFromFront(Matcher matcher, String rest)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
 					{
+						sm.accept();
 						String slot = matcher.group(2);
 						if (slot == null) slot = "ANY";
-						return new DIResult(new DynamicEnchantmentInteger(
+						return new DynamicEnchantmentInteger(
 								EntityReference.valueOf(matcher.group(1).toUpperCase()), 
 								EnchantmentItemSlot.valueOf(slot.toUpperCase()),
-								Enchantment.getByName(matcher.group(3).toUpperCase())), rest);
+								Enchantment.getByName(matcher.group(3).toUpperCase()));
 					}
 				});
 	}

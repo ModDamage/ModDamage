@@ -8,6 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.Utils;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
@@ -24,12 +25,13 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DIResult getNewFromFront(Matcher matcher, String rest)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
 					{
-						return new DIResult(new DynamicPlayerItemInteger(
+						sm.accept();
+						return new DynamicPlayerItemInteger(
 								EntityReference.valueOf(matcher.group(1).toUpperCase()), 
 								PlayerItemTarget.valueOf(matcher.group(2).toUpperCase()),
-								ItemAttribute.valueOf(matcher.group(3).toUpperCase())), rest);
+								ItemAttribute.valueOf(matcher.group(3).toUpperCase()));
 					}
 				});
 	}

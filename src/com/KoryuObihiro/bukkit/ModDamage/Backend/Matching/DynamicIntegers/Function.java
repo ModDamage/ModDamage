@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
@@ -85,7 +86,7 @@ public class Function extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DIResult getNewFromFront(Matcher m, String rest)
+					public DynamicInteger getNewFromFront(Matcher m, StringMatcher sm)
 					{
 						FunctionType ftype = FunctionType.match(m.group(1));
 						if (ftype == null)
@@ -97,28 +98,24 @@ public class Function extends DynamicInteger
 						List<DynamicInteger> args = new ArrayList<DynamicInteger>();
 						while (true)
 						{
-							DIResult dir = DynamicInteger.getIntegerFromFront(rest);
-							if (dir == null)
+							DynamicInteger arg = DynamicInteger.getIntegerFromFront(sm.spawn());
+							if (arg == null)
 							{
-								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \"" + rest + "\"");
+								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \"" + sm.string + "\"");
 								return null;
 							}
 							
-							args.add(dir.integer);
-							rest = dir.rest;
+							args.add(arg);
 							
-							Matcher matcher = commaPattern.matcher(rest);
-							if (matcher.lookingAt())
-								rest = rest.substring(matcher.end());
-							else
+							if (sm.matchFront(commaPattern) == null)
 								break;
 						}
 						
 						
-						Matcher endMatcher = endPattern.matcher(rest);
-						if (!endMatcher.lookingAt())
+						Matcher endMatcher = sm.matchFront(endPattern);
+						if (endMatcher == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Missing end paren: \"" + rest + "\"");
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Missing end paren: \"" + sm.string + "\"");
 							return null;
 						}
 						
@@ -128,7 +125,8 @@ public class Function extends DynamicInteger
 							return null;
 						}
 						
-						return new DIResult(new Function(ftype, args), rest.substring(endMatcher.end()));
+						sm.accept();
+						return new Function(ftype, args);
 					}
 				});
 	}

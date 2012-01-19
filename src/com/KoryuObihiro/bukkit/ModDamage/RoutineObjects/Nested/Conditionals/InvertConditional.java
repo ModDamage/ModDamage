@@ -3,6 +3,7 @@ package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditionals;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
 
@@ -31,15 +32,18 @@ public class InvertConditional extends Conditional
 	protected static class ConditionalBuilder extends Conditional.ConditionalBuilder
 	{
 		@Override
-		public CResult getNewFromFront(String string)
+		public Conditional getNewFromFront(StringMatcher sm)
 		{
-			Matcher matcher = pattern.matcher(string);
-			if (!matcher.lookingAt()) return null;
+			Matcher matcher = sm.matchFront(pattern);
+			if (matcher == null) return null;
 			
-			CResult res = Conditional.getNewFromFront(string.substring(matcher.end()));
+			Conditional conditional = Conditional.getNewFromFront(sm.spawn());
 			
-			if (res != null)
-				return new CResult(new InvertConditional(res.conditional), res.rest);
+			if (conditional != null)
+			{
+				sm.accept();
+				return new InvertConditional(conditional);
+			}
 			
 			return null;
 		}

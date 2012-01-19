@@ -7,6 +7,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Slime;
 
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.Utils;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.EntityReference;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.ModDamageElement;
@@ -157,11 +158,12 @@ public class DynamicEntityInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DIResult getNewFromFront(Matcher matcher, String rest)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
 					{
-						return new DIResult(new DynamicEntityInteger(
+						sm.accept();
+						return new DynamicEntityInteger(
 								EntityReference.valueOf(matcher.group(1).toUpperCase()), 
-								EntityIntegerPropertyMatch.valueOf(matcher.group(2).toUpperCase())), rest);
+								EntityIntegerPropertyMatch.valueOf(matcher.group(2).toUpperCase()));
 					}
 				});
 	}

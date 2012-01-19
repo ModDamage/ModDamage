@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.Utils;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.TargetEventInfo;
 import com.KoryuObihiro.bukkit.ModDamage.Backend.Matching.DynamicInteger;
@@ -18,10 +19,10 @@ public class DynamicServerInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DIResult getNewFromFront(Matcher matcher, String rest)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
 					{
-						return new DIResult(new DynamicServerInteger(
-								ServerPropertyMatch.valueOf(matcher.group(1).toUpperCase())), rest);
+						return new DynamicServerInteger(
+								ServerPropertyMatch.valueOf(matcher.group(1).toUpperCase()));
 					}
 				});
 	}

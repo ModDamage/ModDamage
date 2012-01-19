@@ -1,10 +1,10 @@
 package com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditionals;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.KoryuObihiro.bukkit.ModDamage.ModDamage;
 import com.KoryuObihiro.bukkit.ModDamage.PluginConfiguration.OutputPreset;
+import com.KoryuObihiro.bukkit.ModDamage.StringMatcher;
 import com.KoryuObihiro.bukkit.ModDamage.RoutineObjects.Nested.Conditional;
 
 public abstract class NestedConditional extends Conditional
@@ -20,23 +20,20 @@ public abstract class NestedConditional extends Conditional
 	static class ConditionalBuilder extends Conditional.ConditionalBuilder
 	{
 		@Override
-		public CResult getNewFromFront(String string)
+		public Conditional getNewFromFront(StringMatcher sm)
 		{
-			Matcher matcher = openPattern.matcher(string);
-			if (!matcher.lookingAt()) return null;
+			if (!sm.matchesFront(openPattern)) return null;
 			
-			CResult res = Conditional.getNewFromFront(string.substring(matcher.end()));
+			Conditional conditional = Conditional.getNewFromFront(sm.spawn());
 			
-			matcher = closePattern.matcher(res.rest);
-			if (!matcher.lookingAt())
+			if (!sm.matchesFront(closePattern))
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Missing closing paren here: \"" + res.rest + "\"");
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Missing closing paren here: \"" + sm.string + "\"");
 				return null;
 			}
 			
-			res.rest = res.rest.substring(matcher.end());
-			
-			return res;
+			sm.accept();
+			return conditional;
 		}
 	}
 }
