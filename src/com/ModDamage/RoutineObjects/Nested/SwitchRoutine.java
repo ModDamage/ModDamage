@@ -17,12 +17,14 @@ public class SwitchRoutine extends NestedRoutine
 {
 	protected final List<Conditional> switchCases = new ArrayList<Conditional>();
 	protected final List<List<Routine>> switchRoutines = new ArrayList<List<Routine>>();
+	protected final boolean all;
 	public final boolean isLoaded;
 	public final List<String> failedCases = new ArrayList<String>();
 	
-	protected SwitchRoutine(String configString, String switchType, List<String> switchCases, List<Object> nestedContents)
+	protected SwitchRoutine(String configString, String switchType, boolean all, List<String> switchCases, List<Object> nestedContents)
 	{
 		super(configString);
+		this.all = all;
 		boolean caseFailed = false;
 		for(int i = 0; i < switchCases.size(); i++)
 		{
@@ -61,13 +63,13 @@ public class SwitchRoutine extends NestedRoutine
 			{
 				for(Routine routine : switchRoutines.get(i))
 					routine.run(eventInfo);
-				return;
+				if (!all) return;
 			}
 	}
 	
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("switch\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("switch(all)?\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected final static class RoutineBuilder extends NestedRoutine.RoutineBuilder
@@ -102,7 +104,7 @@ public class SwitchRoutine extends NestedRoutine
 					}
 					if(finished)
 					{
-						SwitchRoutine routine = new SwitchRoutine(switchMatcher.group(), switchMatcher.group(1), switchCases, nestedContents);
+						SwitchRoutine routine = new SwitchRoutine(switchMatcher.group(), switchMatcher.group(2), switchMatcher.group(1) != null, switchCases, nestedContents);
 						if(routine.isLoaded)
 						{
 							NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End switch \"" + switchMatcher.group() + "\"");
