@@ -19,7 +19,7 @@ public class Delay extends NestedRoutine
 {	
 	protected final DynamicInteger delay;
 	protected final List<Routine> routines;
-	protected static final Pattern delayPattern = Pattern.compile("delay\\." + DynamicInteger.dynamicIntegerPart, Pattern.CASE_INSENSITIVE);
+	protected static final Pattern delayPattern = Pattern.compile("delay\\.(.*)", Pattern.CASE_INSENSITIVE);
 	public Delay(String configString, DynamicInteger delayValue, List<Routine> routines)
 	{
 		super(configString);
@@ -29,7 +29,7 @@ public class Delay extends NestedRoutine
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{ 
-		Bukkit.getScheduler().scheduleAsyncDelayedTask(Bukkit.getPluginManager().getPlugin("ModDamage"), new DelayedRunnable(eventInfo.clone()), delay.getValue(eventInfo));
+		Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, new DelayedRunnable(eventInfo.clone()), delay.getValue(eventInfo));
 	}
 		
 	public static void register(){ NestedRoutine.registerRoutine(delayPattern, new RoutineBuilder());}
