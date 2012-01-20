@@ -9,11 +9,11 @@ import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.RoutineObjects.Nested.CalculationRoutine;
 
-public final class ChangeProperty extends CalculationRoutine
+public final class OldChangeProperty extends CalculationRoutine
 {	
 	protected final DynamicInteger targetPropertyMatch;
 	protected final boolean additive;
-	public ChangeProperty(String configString, DynamicInteger value, DynamicInteger targetPropertyMatch, boolean additive)
+	public OldChangeProperty(String configString, DynamicInteger value, DynamicInteger targetPropertyMatch, boolean additive)
 	{
 		super(configString, value);
 		this.targetPropertyMatch = targetPropertyMatch;
@@ -34,13 +34,16 @@ public final class ChangeProperty extends CalculationRoutine
 	protected static class RoutineBuilder extends CalculationRoutine.CalculationBuilder
 	{	
 		@Override
-		public ChangeProperty getNew(Matcher matcher, DynamicInteger routines)
+		public OldChangeProperty getNew(Matcher matcher, DynamicInteger routines)
 		{
 			DynamicInteger targetPropertyMatch = DynamicInteger.getNew(matcher.group(1) + "_" + matcher.group(3));
 			if(targetPropertyMatch != null)
 			{
 				if(targetPropertyMatch.isSettable())
-					return new ChangeProperty(matcher.group(), routines, targetPropertyMatch, matcher.group(2).equalsIgnoreCase("add"));
+				{
+					ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "This form is deprecated. Please use 'set."+ matcher.group(1) + "_" + matcher.group(3) +"' instead.");
+					return new OldChangeProperty(matcher.group(), routines, targetPropertyMatch, matcher.group(2).equalsIgnoreCase("add"));
+				}
 				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: Property \"" + matcher.group(3) + "\" of \"" + matcher.group(1) + "\" is not modifiable.");
 			}
 			return null;

@@ -30,6 +30,7 @@ public abstract class NestedRoutine extends Routine
 		EntitySpawn.register();
 		EntityItemAction.register();
 		Nearby.register();
+		ChangeProperty.register();
 	}
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)

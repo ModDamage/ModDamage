@@ -138,12 +138,17 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 		return 0;
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void setValue(TargetEventInfo eventInfo, int value)
 	{
 		Entity entity = entityReference.getEntity(eventInfo);
 		if (entity instanceof Player)
-			itemAttribute.setAttribute(playerItemTarget.getItem((Player)entity), value);
+		{
+			Player player = (Player)entity;
+			itemAttribute.setAttribute(playerItemTarget.getItem(player), value);
+			player.updateInventory();
+		}
 	}
 	
 	@Override

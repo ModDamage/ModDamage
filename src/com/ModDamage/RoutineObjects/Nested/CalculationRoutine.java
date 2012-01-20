@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.RoutineObjects.Routine;
-import com.ModDamage.RoutineObjects.Nested.Calculation.ChangeProperty;
 import com.ModDamage.RoutineObjects.Nested.Calculation.EntityExplode;
 import com.ModDamage.RoutineObjects.Nested.Calculation.EntityHeal;
 import com.ModDamage.RoutineObjects.Nested.Calculation.EntityHurt;
 import com.ModDamage.RoutineObjects.Nested.Calculation.EntityUnknownHurt;
 import com.ModDamage.RoutineObjects.Nested.Calculation.McMMOChangeSkill;
+import com.ModDamage.RoutineObjects.Nested.Calculation.OldChangeProperty;
 
 abstract public class CalculationRoutine extends NestedRoutine 
 {
@@ -40,7 +40,7 @@ abstract public class CalculationRoutine extends NestedRoutine
 	{
 		McMMOChangeSkill.register();
 
-		ChangeProperty.register();
+		OldChangeProperty.register();
 		EntityItemAction.register();
 		EntityExplode.register();
 		EntityHeal.register();
