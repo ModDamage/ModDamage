@@ -7,32 +7,37 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.Parse.StringMatcher;
 
 public class DynamicEnchantmentInteger extends DynamicInteger
 {	
 	public enum EnchantmentItemSlot
 	{
-		ANY {
+		ANY(false) {
 			@Override int getEnchantmentLevel(Player player, Enchantment enchantment)
 			{
 				return Math.max(HELD.getEnchantmentLevel(player, enchantment), 
 								ARMOR.getEnchantmentLevel(player, enchantment));
 			}
 		},
-		HELD {
+		HELD(true) {
 			@Override int getEnchantmentLevel(Player player, Enchantment enchantment)
 			{
 				ItemStack item = player.getItemInHand();
 				return item == null? 0 : item.getEnchantmentLevel(enchantment);
 			}
+			@Override void setEnchantmentLevel(Player player, Enchantment enchantment, int level)
+			{
+				ItemStack item = player.getItemInHand();
+				if (item != null) item.addEnchantment(enchantment, level);
+			}
 		},
-		ARMOR {
+		ARMOR(false) {
 			@Override int getEnchantmentLevel(Player player, Enchantment enchantment)
 			{
 				return Math.max(HELMET.getEnchantmentLevel(player, enchantment), 
@@ -41,36 +46,64 @@ public class DynamicEnchantmentInteger extends DynamicInteger
 							    BOOTS.getEnchantmentLevel(player, enchantment))));
 			}
 		},
-		HELMET {
+		HELMET(true) {
 			@Override int getEnchantmentLevel(Player player, Enchantment enchantment)
 			{
 				ItemStack item = player.getInventory().getHelmet();
 				return item == null? 0 : item.getEnchantmentLevel(enchantment);
 			}
+			@Override void setEnchantmentLevel(Player player, Enchantment enchantment, int level)
+			{
+				ItemStack item = player.getInventory().getHelmet();
+				if (item != null) item.addEnchantment(enchantment, level);
+			}
 		},
-		CHESTPLATE {
+		CHESTPLATE(true) {
 			@Override int getEnchantmentLevel(Player player, Enchantment enchantment)
 			{
 				ItemStack item = player.getInventory().getChestplate();
 				return item == null? 0 : item.getEnchantmentLevel(enchantment);
 			}
+			@Override void setEnchantmentLevel(Player player, Enchantment enchantment, int level)
+			{
+				ItemStack item = player.getInventory().getChestplate();
+				if (item != null) item.addEnchantment(enchantment, level);
+			}
 		},
-		LEGGINGS {
+		LEGGINGS(true) {
 			@Override int getEnchantmentLevel(Player player, Enchantment enchantment)
 			{
 				ItemStack item = player.getInventory().getLeggings();
 				return item == null? 0 : item.getEnchantmentLevel(enchantment);
 			}
+			@Override void setEnchantmentLevel(Player player, Enchantment enchantment, int level)
+			{
+				ItemStack item = player.getInventory().getLeggings();
+				if (item != null) item.addEnchantment(enchantment, level);
+			}
 		},
-		BOOTS {
+		BOOTS(true) {
 			@Override int getEnchantmentLevel(Player player, Enchantment enchantment)
 			{
 				ItemStack item = player.getInventory().getBoots();
 				return item == null? 0 : item.getEnchantmentLevel(enchantment);
 			}
+			@Override void setEnchantmentLevel(Player player, Enchantment enchantment, int level)
+			{
+				ItemStack item = player.getInventory().getBoots();
+				if (item != null) item.addEnchantment(enchantment, level);
+			}
 		};
 		
+		public final boolean settable;
+		
+		private EnchantmentItemSlot(boolean settable)
+		{
+			this.settable = settable;
+		}
+		
 		abstract int getEnchantmentLevel(Player player, Enchantment enchantment);
+		void setEnchantmentLevel(Player player, Enchantment enchantment, int level) {}
 		
 		public static final String regexString = Utils.joinBy("|", EnchantmentItemSlot.values());
 	}
@@ -125,6 +158,26 @@ public class DynamicEnchantmentInteger extends DynamicInteger
 			return itemSlot.getEnchantmentLevel(player, enchantment);
 		}
 		return 0;
+	}
+	
+	@Override
+	public void setValue(TargetEventInfo eventInfo, int value)
+	{
+		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
+		{
+			Player player = (Player)entityReference.getEntity(eventInfo);
+			
+			// lock the enchantment value inside an acceptable range
+			value = Math.min(Math.max(enchantment.getStartLevel(), value), enchantment.getMaxLevel());
+			
+			itemSlot.setEnchantmentLevel(player, enchantment, value);
+		}
+	}
+	
+	@Override
+	public boolean isSettable()
+	{
+		return itemSlot.settable;
 	}
 	
 	@Override
