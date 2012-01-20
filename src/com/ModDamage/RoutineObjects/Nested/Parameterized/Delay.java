@@ -45,7 +45,7 @@ public class Delay extends NestedRoutine
 					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 					ModDamage.addToLogRecord(OutputPreset.INFO, "Delay: \"" + matcher.group() + "\"");
 					List<Routine> routines = new ArrayList<Routine>();
-					if(!RoutineAliaser.parseRoutines(routines, nestedContent))
+					if(RoutineAliaser.parseRoutines(routines, nestedContent))
 					{
 						DynamicInteger numberMatch = DynamicInteger.getNew(matcher.group(1));
 						if(numberMatch != null)
