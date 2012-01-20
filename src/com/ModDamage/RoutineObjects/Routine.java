@@ -6,8 +6,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.TargetEventInfo;
+import com.ModDamage.RoutineObjects.Base.AliasedRoutine;
 import com.ModDamage.RoutineObjects.Base.DiceRoll;
 import com.ModDamage.RoutineObjects.Base.Division;
 import com.ModDamage.RoutineObjects.Base.IntervalRange;
@@ -31,8 +32,9 @@ abstract public class Routine
 	
 	public static void registerVanillaRoutines()
 	{
-		registeredBaseRoutines.clear();		
+		registeredBaseRoutines.clear();
 		ValueChangeRoutine.register();
+		AliasedRoutine.register();
 		Delay.register();
 		DiceRoll.register();
 		Division.register();

@@ -28,8 +28,9 @@ public class Delay extends NestedRoutine
 	}
 	@Override
 	public void run(TargetEventInfo eventInfo)
-	{ 
-		Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, new DelayedRunnable(eventInfo.clone()), delay.getValue(eventInfo));
+	{
+		DelayedRunnable dr = new DelayedRunnable(eventInfo.clone());
+		Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, dr, delay.getValue(eventInfo));
 	}
 		
 	public static void register(){ NestedRoutine.registerRoutine(delayPattern, new RoutineBuilder());}

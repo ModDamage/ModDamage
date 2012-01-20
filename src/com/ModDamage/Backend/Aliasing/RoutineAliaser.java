@@ -70,29 +70,13 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 			if(object instanceof String)
 			{
 				String string = (String) object;
-				if((string).startsWith("_"))
-				{
-					Collection<Routine> aliasedRoutines = AliasManager.matchRoutineAlias(string);
-					if(aliasedRoutines != null)
-					{
-						ModDamage.addToLogRecord(OutputPreset.INFO, "Alias: \"" + string.substring(1) + "\"");
-						target.addAll(aliasedRoutines);
-					}
-					else
-					{
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid routine alias " + string.substring(1));
-						encounteredError = true;
-					}
-				}
+				
+				Routine routine = Routine.getNew(string);
+				if(routine != null) target.add(routine);
 				else
 				{
-					Routine routine = Routine.getNew(string);
-					if(routine != null) target.add(routine);
-					else
-					{
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid base routine " + " \"" + string + "\"");
-						encounteredError = true;
-					}
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid base routine " + " \"" + string + "\"");
+					encounteredError = true;
 				}
 			}
 			else if(object instanceof LinkedHashMap)
