@@ -13,6 +13,7 @@ import com.ModDamage.RoutineObjects.Base.Division;
 import com.ModDamage.RoutineObjects.Base.IntervalRange;
 import com.ModDamage.RoutineObjects.Base.LiteralRange;
 import com.ModDamage.RoutineObjects.Base.Multiplication;
+import com.ModDamage.RoutineObjects.Base.PlayEffectRoutine;
 import com.ModDamage.RoutineObjects.Base.Tag;
 import com.ModDamage.RoutineObjects.Base.ValueChangeRoutine;
 import com.ModDamage.RoutineObjects.Nested.Parameterized.Delay;
@@ -39,6 +40,7 @@ abstract public class Routine
 		LiteralRange.register();
 		Multiplication.register();
 		Tag.register();
+		PlayEffectRoutine.register();
 	}
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)
