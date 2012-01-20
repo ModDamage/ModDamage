@@ -54,7 +54,6 @@ public abstract class DynamicInteger extends DynamicString
 	{
 		if(routines != null && !routines.isEmpty())
 			return new DynamicRoutineInteger(routines);
-		ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: attempted to use invalid routine list for a dynamic integer reference.");//shouldn't happen
 		return null;
 	}
 	
