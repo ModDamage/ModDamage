@@ -3,9 +3,9 @@ package com.ModDamage.Backend.Matching.DynamicIntegers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.Parse.StringMatcher;
 
 public class DynamicEventInteger extends DynamicInteger
 {
@@ -29,6 +29,18 @@ public class DynamicEventInteger extends DynamicInteger
 	public int getValue(TargetEventInfo eventInfo)
 	{
 		return eventInfo.eventValue;
+	}
+	
+	@Override
+	public void setValue(TargetEventInfo eventInfo, int value)
+	{
+		eventInfo.eventValue = value;
+	}
+	
+	@Override
+	public boolean isSettable()
+	{
+		return true;
 	}
 
 }
