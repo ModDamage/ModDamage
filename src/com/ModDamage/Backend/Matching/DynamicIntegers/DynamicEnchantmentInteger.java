@@ -7,12 +7,12 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
-import com.ModDamage.Parse.StringMatcher;
 
 public class DynamicEnchantmentInteger extends DynamicInteger
 {	
