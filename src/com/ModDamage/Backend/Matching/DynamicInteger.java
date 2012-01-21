@@ -28,7 +28,7 @@ import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicWorldInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.Function;
 import com.ModDamage.Backend.Matching.DynamicIntegers.NegativeInteger;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.RoutineObjects.Routine;
+import com.ModDamage.Routines.Routine;
 
 public abstract class DynamicInteger extends DynamicString
 {

@@ -9,8 +9,8 @@ import java.util.Map.Entry;
 import com.ModDamage.ModDamage;
 import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.RoutineObjects.Routine;
-import com.ModDamage.RoutineObjects.Nested.NestedRoutine;
+import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Nested.NestedRoutine;
 
 public class RoutineAliaser extends CollectionAliaser<Routine> 
 {

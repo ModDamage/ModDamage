@@ -28,7 +28,7 @@ import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.RoutineObjects.Routine;
+import com.ModDamage.Routines.Routine;
 
 enum ModDamageEventHandler
 {
@@ -136,7 +136,7 @@ enum ModDamageEventHandler
 					{
 						Damage.runRoutines(eventInfo);
 						event.setDamage(eventInfo.eventValue);
-						event.setCancelled(event.getDamage() <= 0);
+						//event.setCancelled(event.getDamage() <= 0);
 					}
 					else  PluginConfiguration.log.severe("[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + "] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
 				}

@@ -5,7 +5,7 @@ import java.util.Collection;
 import com.ModDamage.ModDamage;
 import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.RoutineObjects.Nested.Parameterized.Message.DynamicMessage;
+import com.ModDamage.Routines.Nested.Parameterized.Message.DynamicMessage;
 
 public class MessageAliaser extends CollectionAliaser<DynamicMessage> 
 {

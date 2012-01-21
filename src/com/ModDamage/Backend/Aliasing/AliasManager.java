@@ -15,9 +15,9 @@ import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.RoutineObjects.Routine;
-import com.ModDamage.RoutineObjects.Nested.Conditional;
-import com.ModDamage.RoutineObjects.Nested.Parameterized.Message.DynamicMessage;
+import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Nested.Conditional;
+import com.ModDamage.Routines.Nested.Parameterized.Message.DynamicMessage;
 
 public enum AliasManager
 {

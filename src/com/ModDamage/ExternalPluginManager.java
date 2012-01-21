@@ -16,8 +16,8 @@ import ru.tehkode.permissions.PermissionManager;
 
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.ModDamage.ModDamageExtension;
-import com.ModDamage.RoutineObjects.Routine;
-import com.ModDamage.RoutineObjects.Nested.NestedRoutine;
+import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Nested.NestedRoutine;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.elbukkit.api.elregions.region.Region;
 import com.elbukkit.api.elregions.region.RegionManager;

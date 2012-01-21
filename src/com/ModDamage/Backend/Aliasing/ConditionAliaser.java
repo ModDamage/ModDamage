@@ -1,7 +1,7 @@
 package com.ModDamage.Backend.Aliasing;
 
 import com.ModDamage.Backend.Aliasing.Aliaser.SingleValueAliaser;
-import com.ModDamage.RoutineObjects.Nested.Conditional;
+import com.ModDamage.Routines.Nested.Conditional;
 
 public class ConditionAliaser extends SingleValueAliaser<Conditional> 
 {

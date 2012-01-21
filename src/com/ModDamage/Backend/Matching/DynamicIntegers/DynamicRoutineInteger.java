@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
-import com.ModDamage.RoutineObjects.Routine;
+import com.ModDamage.Routines.Routine;
 
 public class DynamicRoutineInteger extends DynamicInteger
 {
