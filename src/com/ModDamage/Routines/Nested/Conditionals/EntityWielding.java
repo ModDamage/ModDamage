@@ -9,11 +9,10 @@ import org.bukkit.Material;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.AliasManager;
-import com.ModDamage.Routines.Nested.Conditional;
 
 public class EntityWielding extends Conditional 
 {
-	public static final Pattern pattern = Pattern.compile("(\\w+)\\.wielding\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("(\\w+)\\.wielding\\.([\\w,]+)", Pattern.CASE_INSENSITIVE);
 	final EntityReference entityReference;
 	final Collection<Material> materials;
 	public EntityWielding(EntityReference entityReference, Collection<Material> materials)
