@@ -9,6 +9,7 @@ import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Nested.Conditionals.Conditional;
 import com.ModDamage.Routines.Nested.Conditionals.InvertConditional;
 
 public class ConditionalRoutine extends NestedRoutine

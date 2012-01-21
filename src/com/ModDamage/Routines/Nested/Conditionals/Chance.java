@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
-import com.ModDamage.Routines.Nested.Conditional;
 
 public class Chance extends Conditional
 {

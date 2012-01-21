@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Routines.Nested.Conditional;
 
 public class InvertConditional extends Conditional
 {

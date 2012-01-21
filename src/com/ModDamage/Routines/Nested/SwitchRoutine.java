@@ -12,6 +12,7 @@ import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Nested.Conditionals.Conditional;
 
 public class SwitchRoutine extends NestedRoutine 
 {

@@ -1,4 +1,4 @@
-package com.ModDamage.Routines.Nested;
+package com.ModDamage.Routines.Nested.Conditionals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,29 +8,8 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Routines.Nested.Conditionals.Chance;
-import com.ModDamage.Routines.Nested.Conditionals.Comparison;
-import com.ModDamage.Routines.Nested.Conditionals.CompoundConditional;
-import com.ModDamage.Routines.Nested.Conditionals.EntityBiome;
-import com.ModDamage.Routines.Nested.Conditionals.EntityBlockStatus;
-import com.ModDamage.Routines.Nested.Conditionals.EntityRegion;
-import com.ModDamage.Routines.Nested.Conditionals.EntityStatus;
-import com.ModDamage.Routines.Nested.Conditionals.EntityTagged;
-import com.ModDamage.Routines.Nested.Conditionals.EntityType;
-import com.ModDamage.Routines.Nested.Conditionals.EntityWearing;
-import com.ModDamage.Routines.Nested.Conditionals.EntityWielding;
-import com.ModDamage.Routines.Nested.Conditionals.EventEnvironment;
-import com.ModDamage.Routines.Nested.Conditionals.EventHasProjectile;
-import com.ModDamage.Routines.Nested.Conditionals.EventWorld;
-import com.ModDamage.Routines.Nested.Conditionals.InvertConditional;
-import com.ModDamage.Routines.Nested.Conditionals.NestedConditional;
-import com.ModDamage.Routines.Nested.Conditionals.PlayerGroupEvaluation;
-import com.ModDamage.Routines.Nested.Conditionals.PlayerHasEnchantment;
-import com.ModDamage.Routines.Nested.Conditionals.PlayerHasItem;
-import com.ModDamage.Routines.Nested.Conditionals.PlayerPermissionEvaluation;
-import com.ModDamage.Routines.Nested.Conditionals.ServerOnlineMode;
 import com.ModDamage.Routines.Nested.Conditionals.CompoundConditional.LogicalOperator;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 
 abstract public class Conditional
 {
@@ -155,7 +134,7 @@ abstract public class Conditional
 	
 	abstract protected static class SimpleConditionalBuilder extends ConditionalBuilder
 	{
-		Pattern pattern;
+		private Pattern pattern;
 		
 		public SimpleConditionalBuilder(Pattern pattern)
 		{

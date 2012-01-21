@@ -6,7 +6,6 @@ import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Routines.Nested.Conditional;
 import com.gmail.nossr50.mcMMO;
 
 public abstract class McMMOConditionalStatement extends Conditional

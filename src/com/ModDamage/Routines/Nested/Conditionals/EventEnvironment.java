@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 import org.bukkit.World.Environment;
 
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Routines.Nested.Conditional;
 
 public class EventEnvironment extends Conditional 
 {

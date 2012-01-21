@@ -15,7 +15,6 @@ import com.ModDamage.Utils;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Routines.Nested.Conditional;
 
 public class EntityStatus extends Conditional
 {

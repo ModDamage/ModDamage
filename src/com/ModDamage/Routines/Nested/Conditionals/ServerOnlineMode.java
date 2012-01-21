@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Routines.Nested.Conditional;
 
 public class ServerOnlineMode extends Conditional
 {

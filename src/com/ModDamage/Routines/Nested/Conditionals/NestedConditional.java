@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Routines.Nested.Conditional;
 
 public abstract class NestedConditional extends Conditional
 {

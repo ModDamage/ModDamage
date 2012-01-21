@@ -12,7 +12,6 @@ import org.bukkit.entity.LivingEntity;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.AliasManager;
-import com.ModDamage.Routines.Nested.Conditional;
 
 public class EntityBlockStatus extends Conditional
 {

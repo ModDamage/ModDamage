@@ -11,7 +11,6 @@ import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Routines.Nested.Conditional;
 
 public class Comparison extends Conditional
 {

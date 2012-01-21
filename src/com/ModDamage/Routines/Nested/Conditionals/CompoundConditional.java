@@ -6,7 +6,6 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Routines.Nested.Conditional;
 
 public class CompoundConditional extends Conditional
 {

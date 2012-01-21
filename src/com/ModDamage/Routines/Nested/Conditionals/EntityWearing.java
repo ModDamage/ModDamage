@@ -8,7 +8,6 @@ import com.ModDamage.Backend.ArmorSet;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.AliasManager;
-import com.ModDamage.Routines.Nested.Conditional;
 
 public class EntityWearing extends Conditional
 {
