@@ -5,7 +5,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 
 public class ArmorSet 
@@ -34,10 +33,15 @@ public class ArmorSet
 		for(int i = 0; i < armor.length; i++)
 		{
 			Material material = armor[i].getType();
-			if(!ArmorSet.put(material, armorSet))
-				PluginConfiguration.log.severe("Invalid ArmorSet loaded from player \"" + player.getName() + "\" while attempting to add material of type " + material.name() + "!");
-			if (material != null && material != Material.AIR)
-				hasSomething = true;
+			if(ArmorSet.put(material, armorSet))
+			{
+				if (material != null && material != Material.AIR)
+					hasSomething = true;
+			}
+			//// This can happen when players are wearing odd blocks on their head.
+			//else
+			//	PluginConfiguration.log.severe("Invalid ArmorSet loaded from player \"" + player.getName() + "\" while attempting to add material of type " + material.name() + "!");
+			
 		}
 	}
 	
