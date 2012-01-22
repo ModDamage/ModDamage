@@ -1,6 +1,5 @@
 package com.ModDamage.Backend.Matching;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -8,11 +7,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicCalculatedInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicEnchantmentInteger;
@@ -27,8 +27,7 @@ import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicServerInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicWorldInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.Function;
 import com.ModDamage.Backend.Matching.DynamicIntegers.NegativeInteger;
-import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Routines;
 
 public abstract class DynamicInteger extends DynamicString
 {
@@ -50,7 +49,7 @@ public abstract class DynamicInteger extends DynamicString
 	public boolean isSettable(){ return false; }
 	public void setValue(TargetEventInfo eventInfo, int value) { }
 	
-	public static DynamicInteger getNew(Collection<Routine> routines) 
+	public static DynamicInteger getNew(Routines routines) 
 	{
 		if(routines != null && !routines.isEmpty())
 			return new DynamicRoutineInteger(routines);
@@ -117,7 +116,7 @@ public abstract class DynamicInteger extends DynamicString
 						public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
 						{
 							sm.accept();
-							return DynamicInteger.getNew(AliasManager.matchRoutineAlias(matcher.group()));
+							return DynamicInteger.getNew(RoutineAliaser.match(matcher.group()));
 						}
 					});
 	}

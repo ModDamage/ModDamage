@@ -13,13 +13,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Backend.Aliasing.ItemAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Routines.Routine;
 
 public class EntityItemAction extends NestedRoutine
@@ -112,7 +112,7 @@ public class EntityItemAction extends NestedRoutine
 		public EntityItemAction getNew(Matcher matcher, Object nestedContent)
 		{
 			EntityReference reference = EntityReference.match(matcher.group(1));
-			Collection<ModDamageItemStack> items = AliasManager.matchItemAlias(matcher.group(3));
+			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3));
 			if(reference != null && !items.isEmpty())
 			{
 				if (nestedContent != null)

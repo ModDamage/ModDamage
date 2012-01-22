@@ -1,11 +1,16 @@
 package com.ModDamage.Backend.Aliasing;
 
+import java.util.Collection;
+
 import org.bukkit.block.Biome;
 
 import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 
 public class BiomeAliaser extends CollectionAliaser<Biome> 
 {
+	static BiomeAliaser aliaser = new BiomeAliaser();
+	public static Collection<Biome> match(String string) { return aliaser.matchAlias(string); }
+	
 	public BiomeAliaser(){ super(AliasManager.Biome.name());}
 	@Override
 	protected Biome matchNonAlias(String key)

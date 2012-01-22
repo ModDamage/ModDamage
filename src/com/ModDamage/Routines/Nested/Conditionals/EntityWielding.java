@@ -8,7 +8,7 @@ import org.bukkit.Material;
 
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Backend.Aliasing.MaterialAliaser;
 
 public class EntityWielding extends Conditional 
 {
@@ -35,7 +35,7 @@ public class EntityWielding extends Conditional
 		@Override
 		public EntityWielding getNew(Matcher matcher)
 		{
-			Collection<Material> matchedItems = AliasManager.matchMaterialAlias(matcher.group(2));
+			Collection<Material> matchedItems = MaterialAliaser.match(matcher.group(2));
 			if(!matchedItems.isEmpty())
 				return new EntityWielding(EntityReference.match(matcher.group(1)), matchedItems);
 			return null;

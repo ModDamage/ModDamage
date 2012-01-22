@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Backend.Aliasing.WorldAliaser;
 
 public class EventWorld extends Conditional
 {
@@ -30,7 +30,7 @@ public class EventWorld extends Conditional
 		@Override
 		public EventWorld getNew(Matcher matcher)
 		{
-			Collection<String> worlds = AliasManager.matchWorldAlias(matcher.group(1));
+			Collection<String> worlds = WorldAliaser.match(matcher.group(1));
 			if(!worlds.isEmpty())
 				return new EventWorld(worlds);
 			return null;

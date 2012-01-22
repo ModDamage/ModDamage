@@ -11,7 +11,7 @@ import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Backend.Aliasing.ItemAliaser;
 
 public class PlayerHasItem extends Conditional
 {
@@ -70,7 +70,7 @@ public class PlayerHasItem extends Conditional
 		public PlayerHasItem getNew(Matcher matcher)
 		{
 			EntityReference reference = EntityReference.match(matcher.group(1));
-			Collection<ModDamageItemStack> items = AliasManager.matchItemAlias(matcher.group(3));
+			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3));
 			if(reference != null && !items.isEmpty())
 				return new PlayerHasItem(reference, matcher.group(2).equalsIgnoreCase("allitems"), items);
 			return null;

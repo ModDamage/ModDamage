@@ -1,22 +1,20 @@
 package com.ModDamage.Routines.Nested;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Routines;
 import com.ModDamage.Routines.Nested.Conditionals.Conditional;
 import com.ModDamage.Routines.Nested.Conditionals.InvertConditional;
 
 public class ConditionalRoutine extends NestedRoutine
 {
 	protected final Conditional conditional;
-	protected final List<Routine> routines;
-	private ConditionalRoutine(String configString, Conditional conditional, List<Routine> routines)
+	protected final Routines routines;
+	private ConditionalRoutine(String configString, Conditional conditional, Routines routines)
 	{
 		super(configString);
 		this.conditional = conditional;
@@ -27,8 +25,7 @@ public class ConditionalRoutine extends NestedRoutine
 	public void run(TargetEventInfo eventInfo)
 	{
 		if(conditional.evaluate(eventInfo))
-			for(Routine routine : routines)
-				routine.run(eventInfo);
+			routines.run(eventInfo);
 	}
 	
 	
@@ -60,8 +57,8 @@ public class ConditionalRoutine extends NestedRoutine
 			
 			//try
 			//{
-			List<Routine> routines = new ArrayList<Routine>();
-			if(RoutineAliaser.parseRoutines(routines, nestedContent))
+			Routines routines = RoutineAliaser.parseRoutines(nestedContent);
+			if(routines != null)
 			{
 				NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End conditional \"" + matcher.group() + "\"");
 				return new ConditionalRoutine(matcher.group(), conditional, routines);

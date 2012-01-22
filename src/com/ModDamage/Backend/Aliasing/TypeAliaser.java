@@ -5,12 +5,15 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 
 public class TypeAliaser extends CollectionAliaser<ModDamageElement> 
 {
+	static TypeAliaser aliaser = new TypeAliaser();
+	public static Collection<ModDamageElement> match(String string) { return aliaser.matchAlias(string); }
+	
 	public TypeAliaser() {super(AliasManager.Type.name());}
 
 	@Override

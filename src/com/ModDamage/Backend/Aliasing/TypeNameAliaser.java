@@ -8,13 +8,16 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.ModDamageElement;
 
 public class TypeNameAliaser extends Aliaser<ModDamageElement, List<String>> 
 {
+	static TypeNameAliaser aliaser = new TypeNameAliaser();
+	//public static List<String> match(String string) { return aliaser.matchAlias(string); }
+	
 	protected HashMap<ModDamageElement, List<String>> thisMap = new HashMap<ModDamageElement, List<String>>();
 	
 	private static TypeNameAliaser staticInstance = new TypeNameAliaser();

@@ -1,14 +1,12 @@
 package com.ModDamage.Routines.Nested;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
-import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Routines;
 import com.ModDamage.Routines.Nested.Calculation.EntityExplode;
 import com.ModDamage.Routines.Nested.Calculation.EntityHeal;
 import com.ModDamage.Routines.Nested.Calculation.EntityHurt;
@@ -57,8 +55,8 @@ abstract public class CalculationRoutine extends NestedRoutine
 			{
 				NestedRoutine.paddedLogRecord(OutputPreset.INFO, "Calculation: \"" + matcher.group() + "\"");
 				
-				List<Routine> routines = new ArrayList<Routine>();
-				if(RoutineAliaser.parseRoutines(routines, nestedContent))
+				Routines routines = RoutineAliaser.parseRoutines(nestedContent);
+				if(routines != null)
 				{
 					DynamicInteger integer = DynamicInteger.getNew(routines);
 					CalculationRoutine calc = getNew(matcher, integer);

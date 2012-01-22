@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Backend.Aliasing.TypeAliaser;
 
 public class EntityType extends Conditional
 {
@@ -42,7 +42,7 @@ public class EntityType extends Conditional
 		@Override
 		public EntityType getNew(Matcher matcher)
 		{
-			Collection<ModDamageElement> elements = AliasManager.matchTypeAlias(matcher.group(2));
+			Collection<ModDamageElement> elements = TypeAliaser.match(matcher.group(2));
 			if(!elements.isEmpty())
 				return new EntityType(EntityReference.match(matcher.group(1)), elements);
 			return null;

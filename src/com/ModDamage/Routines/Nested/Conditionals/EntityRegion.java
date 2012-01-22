@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Backend.Aliasing.RegionAliaser;
 
 public class EntityRegion extends Conditional
 {
@@ -53,7 +53,7 @@ public class EntityRegion extends Conditional
 		public EntityRegion getNew(Matcher matcher)
 		{
 			EntityReference reference = EntityReference.match(matcher.group(1));
-			Collection<String> regions = AliasManager.matchRegionAlias(matcher.group(3));
+			Collection<String> regions = RegionAliaser.match(matcher.group(3));
 			if(!regions.isEmpty() && reference != null)
 				return new EntityRegion(matcher.group(2) != null, reference, regions);
 			return null;

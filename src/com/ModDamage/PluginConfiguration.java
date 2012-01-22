@@ -286,7 +286,7 @@ public class PluginConfiguration
 			}
 		}
 
-		String outputString = "#Auto-generated config at " + (new Date()).toString() + "." + newline + "#See the [wiki](https://github.com/KoryuObihiro/ModDamage/wiki) for more information." + newline + AliasManager.nodeName + ":";
+		String outputString = "#Auto-generated config at " + (new Date()).toString() + "." + newline + "#See the [wiki](https://github.com/KoryuObihiro/ModDamage/wiki) for more information." + newline + "Aliases:";
 
 		for(AliasManager aliasType : AliasManager.values())
 		{
@@ -412,7 +412,7 @@ public class PluginConfiguration
 			player.sendMessage(ChatColor.DARK_AQUA + "   Material:   " + AliasManager.Material.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "ProjectileHit:  " + ModDamageEventHandler.ProjectileHit.specificLoadState.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Message:  " + AliasManager.Message.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Spawn:  " + ModDamageEventHandler.Spawn.specificLoadState.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Region:     " + AliasManager.Region.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Tame:  " + ModDamageEventHandler.Tame.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:    " + AliasManager.Routine.getSpecificLoadState().statusString() + ChatColor.DARK_AQUA + "        Condition:  " + AliasManager.Routine.getSpecificLoadState().statusString());
+			//player.sendMessage(ChatColor.DARK_AQUA + "   Routine:    " + AliasManager.Routine.getSpecificLoadState().statusString() + ChatColor.DARK_AQUA + "        Condition:  " + AliasManager.Routine.getSpecificLoadState().statusString());
 			String bottomString = null;
 			switch(LoadState.pluginState)
 			{

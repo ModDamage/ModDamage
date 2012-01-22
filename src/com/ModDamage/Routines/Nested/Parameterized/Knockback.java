@@ -1,7 +1,6 @@
 package com.ModDamage.Routines.Nested.Parameterized;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -11,78 +10,67 @@ import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
-import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Routines;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 //FIXME Do I work?
-public class Knockback extends ParameterizedIntegerRoutine
+public class Knockback extends ParameterizedRoutine
 {	
 	protected final EntityReference entityReference;
 	protected final boolean usingParameterized;
+	
+	protected final DynamicInteger strength;
+	protected final DynamicInteger horizInteger, verticalInteger;
 
-	protected Knockback(String configString, List<Routine> routines, EntityReference entityReference)
+	protected Knockback(String configString, Routines routines, EntityReference entityReference)
 	{
-		super(configString, Arrays.asList(DynamicInteger.getNew(routines)));
+		super(configString);
 		this.usingParameterized = false;
 		this.entityReference = entityReference;
+		this.strength = DynamicInteger.getNew(routines);
+		horizInteger = verticalInteger = null;
 	}
 
 
-	protected Knockback(String configString, DynamicInteger xReference, DynamicInteger yReference, EntityReference entityReference)
+	protected Knockback(String configString, DynamicInteger xInteger, DynamicInteger yInteger, EntityReference entityReference)
 	{
-		super(configString, Arrays.asList(xReference, yReference));
+		super(configString);
 		this.usingParameterized = true;
 		this.entityReference = entityReference;
+		this.strength = null;
+		this.horizInteger = xInteger;
+		this.verticalInteger = yInteger;
 	}
 
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{
-		int temp = eventInfo.eventValue;
 		Entity firstEntity = entityReference.getEntity(eventInfo);
 		Entity secondEntity = entityReference.getEntityOther(eventInfo);
 		
-		double relativeXDiff = 0, relativeZDiff = 0;
+		Vector vector;
 		if(secondEntity != null)
-		{
-			relativeXDiff = (firstEntity.getLocation().getX() - secondEntity.getLocation().getX());
-			relativeZDiff = (firstEntity.getLocation().getZ() - secondEntity.getLocation().getZ());
-		}
-		
+			vector = firstEntity.getLocation().toVector().subtract(secondEntity.getLocation().toVector());
 		else
-		{
-			Vector vector = firstEntity.getLocation().getDirection();
-			relativeXDiff = vector.getX();
-			relativeZDiff = relativeXDiff = vector.getZ();
-		}
+			vector = firstEntity.getLocation().getDirection();
 
-		int firstIntegerValue = integers.get(0).getValue(eventInfo);
-		eventInfo.eventValue = temp;
+		int temp = eventInfo.eventValue;
 		
 		if(usingParameterized)
 		{
-			Vector vector = firstEntity.getVelocity().add(new Vector(relativeXDiff * firstIntegerValue, integers.get(1).getValue(eventInfo), relativeZDiff * firstIntegerValue));
-			firstEntity.setVelocity(vector);			
+			int horizValue = horizInteger.getValue(eventInfo);
+			int verticalValue = verticalInteger.getValue(eventInfo);
+			Vector newVector = firstEntity.getVelocity().add(new Vector(vector.getX() * horizValue, verticalValue, vector.getZ() * horizValue));
+			firstEntity.setVelocity(newVector);			
 			eventInfo.eventValue = temp;
 		}
 		else if(secondEntity != null)
 		{
-			double multiplier = Math.abs(firstEntity.getLocation().getX() - secondEntity.getLocation().getX()) + Math.abs(firstEntity.getLocation().getY() - secondEntity.getLocation().getY()) + Math.abs(firstEntity.getLocation().getZ() - secondEntity.getLocation().getZ());
-			multiplier *= multiplier;
-			multiplier = firstIntegerValue / multiplier;
-			
-			int relativeYDiff = (int)(firstEntity.getLocation().getY() - secondEntity.getLocation().getY());
-			
-			relativeXDiff *= relativeXDiff != 0?relativeXDiff * (relativeXDiff/Math.abs(relativeXDiff)):0;
-			relativeYDiff *= relativeYDiff != 0?relativeYDiff * (relativeYDiff/Math.abs(relativeYDiff)):0;
-			relativeZDiff *= relativeZDiff != 0?relativeZDiff * (relativeZDiff/Math.abs(relativeZDiff)):0;
-			
-			Vector vector = firstEntity.getVelocity().add(new Vector(relativeXDiff * multiplier, relativeYDiff * multiplier, relativeZDiff * multiplier));
-			firstEntity.setVelocity(vector);//TODO Use some trig here?
+			firstEntity.setVelocity(firstEntity.getVelocity().add(vector.multiply(strength.getValue(eventInfo))));
 		}
 	}
 	
@@ -99,15 +87,16 @@ public class Knockback extends ParameterizedIntegerRoutine
 				ModDamage.addToLogRecord(OutputPreset.INFO, "KnockBack (parameterized): ");
 				
 				List<DynamicInteger> integers = new ArrayList<DynamicInteger>();
-				if(ParameterizedIntegerRoutine.getRoutineParameters(integers, ModDamage.getPluginConfiguration().castToStringMap("Knockback routine", nestedContent), "X", "Y") && reference != null)
+				if(ParameterizedRoutine.getRoutineParameters(integers, ModDamage.getPluginConfiguration().castToStringMap("Knockback routine", nestedContent), "X", "Y") && reference != null)
 					return new Knockback(matcher.group(), integers.get(0), integers.get(1), reference);
-				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "");
+				else
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, "");
 			}
 			else
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "KnockBack: ");
-				List<Routine> routines = new ArrayList<Routine>();
-				if(RoutineAliaser.parseRoutines(routines, nestedContent) && reference != null)
+				Routines routines = RoutineAliaser.parseRoutines(nestedContent);
+				if(routines != null && reference != null)
 					return new Knockback(matcher.group(), routines, reference);
 			}
 			return null;

@@ -1,16 +1,20 @@
 package com.ModDamage.Backend.Aliasing;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 
 import org.bukkit.Bukkit;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 
 public class WorldAliaser extends CollectionAliaser<String> 
 {
+	static WorldAliaser aliaser = new WorldAliaser();
+	public static Collection<String> match(String string) { return aliaser.matchAlias(string); }
+	
 	public WorldAliaser() {super(AliasManager.World.name());}
 
 	@Override

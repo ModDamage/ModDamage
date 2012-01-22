@@ -1,20 +1,21 @@
 package com.ModDamage.Backend.Aliasing;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Routines;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 
-public class RoutineAliaser extends CollectionAliaser<Routine> 
+public class RoutineAliaser extends Aliaser<Routine, Routines> 
 {
-	public RoutineAliaser(){ super(AliasManager.Routine.name());}
+	static RoutineAliaser aliaser = new RoutineAliaser();
+	public static Routines match(String string) { return aliaser.matchAlias(string); }
+	
+	public RoutineAliaser(){ super("Routine");}
 	
 	@Override
 	public boolean completeAlias(String key, Object values)
@@ -29,14 +30,14 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 				ModDamage.changeIndentation(false);
 			}
 			
-			List<Routine> matchedItems = new ArrayList<Routine>();
-			if(!parseRoutines(matchedItems, values))
+			Routines routines = parseRoutines(values);
+			if(routines == null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error adding value " + values.toString());
 				return false;
 			}
 			
-			thisMap.get(key).addAll(matchedItems);
+			thisMap.put(key, routines);
 			return true;
 		}
 		ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error adding alias \"" + key + "\" - unrecognized value \"" + values.toString() + "\"");
@@ -44,9 +45,9 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 	}
 
 	@Override
-	public Collection<Routine> matchAlias(String key)
+	public Routines matchAlias(String key)
 	{
-		return thisMap.containsKey(key)?thisMap.get(key):null;
+		return thisMap.get(key);
 	}
 	
 	@Override
@@ -54,12 +55,14 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 	protected Routine matchNonAlias(String key){ return null;}
 	
 	//Parse routine strings recursively
-	public static boolean parseRoutines(List<Routine> target, Object object)
+	public static Routines parseRoutines(Object object)
 	{
+		Routines routines = new Routines();
 		ModDamage.changeIndentation(true);
-		boolean returnResult = recursivelyParseRoutines(target, object);
+		boolean returnResult = recursivelyParseRoutines(routines.routines, object);
 		ModDamage.changeIndentation(false);
-		return returnResult;
+		if (!returnResult) return null;
+		return routines;
 	}
 	@SuppressWarnings("unchecked")
 	private static boolean recursivelyParseRoutines(List<Routine> target, Object object)
@@ -117,4 +120,10 @@ public class RoutineAliaser extends CollectionAliaser<Routine>
 
 	@Override
 	protected String getObjectName(Routine routine){ return routine.getClass().getSimpleName();}
+
+	@Override
+	protected Routines getNewStorageClass(Routine value)
+	{
+		return new Routines();
+	}
 }

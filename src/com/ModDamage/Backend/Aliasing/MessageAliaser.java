@@ -3,12 +3,15 @@ package com.ModDamage.Backend.Aliasing;
 import java.util.Collection;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 import com.ModDamage.Routines.Nested.Parameterized.Message.DynamicMessage;
 
 public class MessageAliaser extends CollectionAliaser<DynamicMessage> 
 {
+	static MessageAliaser aliaser = new MessageAliaser();
+	public static Collection<DynamicMessage> match(String string) { return aliaser.matchAlias(string); }
+	
 	public MessageAliaser() {super(AliasManager.Message.name());}
 	@Override
 	protected DynamicMessage matchNonAlias(String key){ return new DynamicMessage(key);}

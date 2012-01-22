@@ -1,13 +1,12 @@
 package com.ModDamage.Routines;
 
-import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 
 public class AliasedRoutine extends Routine
 {
@@ -22,10 +21,9 @@ public class AliasedRoutine extends Routine
 	@Override
 	public void run(TargetEventInfo eventInfo)
 	{
-		Collection<Routine> aliasedRoutines = AliasManager.matchRoutineAlias(alias);
-		if (aliasedRoutines != null)
-			for (Routine routine : aliasedRoutines)
-				routine.run(eventInfo);
+		Routines routines = RoutineAliaser.match(alias);
+		if (routines != null)
+			routines.run(eventInfo);
 	}
 
 	public static void register()
@@ -39,7 +37,7 @@ public class AliasedRoutine extends Routine
 		public AliasedRoutine getNew(Matcher matcher)
 		{
 			String alias = matcher.group();
-			Collection<Routine> aliasedRoutines = AliasManager.matchRoutineAlias(alias);
+			Routines aliasedRoutines = RoutineAliaser.match(alias);
 			if(aliasedRoutines != null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Routine Alias: \"" + alias + "\"");

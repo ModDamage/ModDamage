@@ -7,17 +7,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Routines.Routine;
+import com.ModDamage.Backend.TargetEventInfo;
+import com.ModDamage.Backend.Aliasing.RoutineAliaser;
+import com.ModDamage.Routines.Routines;
 import com.ModDamage.Routines.Nested.Conditionals.Conditional;
 
 public class SwitchRoutine extends NestedRoutine 
 {
 	protected final List<Conditional> switchCases = new ArrayList<Conditional>();
-	protected final List<List<Routine>> switchRoutines = new ArrayList<List<Routine>>();
+	protected final List<Routines> switchRoutines = new ArrayList<Routines>();
 	protected final boolean all;
 	public final boolean isLoaded;
 	public final List<String> failedCases = new ArrayList<String>();
@@ -40,8 +40,8 @@ public class SwitchRoutine extends NestedRoutine
 				caseFailed = true;
 			}
 			//then grab the routines
-			List<Routine> routines = new ArrayList<Routine>();
-			if(RoutineAliaser.parseRoutines(routines, nestedContents.get(i)))
+			Routines routines = RoutineAliaser.parseRoutines(nestedContents.get(i));
+			if(routines != null)
 			{
 				this.switchCases.add(matchedCase);
 				this.switchRoutines.add(routines);
@@ -62,8 +62,7 @@ public class SwitchRoutine extends NestedRoutine
 		for(int i = 0; i < switchCases.size(); i++)
 			if(switchCases.get(i).evaluate(eventInfo))
 			{
-				for(Routine routine : switchRoutines.get(i))
-					routine.run(eventInfo);
+				switchRoutines.get(i).run(eventInfo);
 				if (!all) return;
 			}
 	}

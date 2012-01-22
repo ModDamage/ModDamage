@@ -1,7 +1,5 @@
 package com.ModDamage.Routines.Nested;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,13 +8,13 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
-import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Routines;
 
 public final class ChangeProperty extends NestedRoutine
 {	
-	final List<Routine> routines;
+	final Routines routines;
 	protected final DynamicInteger targetPropertyMatch;
-	public ChangeProperty(String configString, List<Routine> routines, DynamicInteger targetPropertyMatch)
+	public ChangeProperty(String configString, Routines routines, DynamicInteger targetPropertyMatch)
 	{
 		super(configString);
 		this.routines = routines;
@@ -29,8 +27,7 @@ public final class ChangeProperty extends NestedRoutine
 		int savedEventValue = eventInfo.eventValue;
 		
 		eventInfo.eventValue = targetPropertyMatch.getValue(eventInfo);
-		for(Routine routine : routines)
-			routine.run(eventInfo);
+		routines.run(eventInfo);
 		targetPropertyMatch.setValue(eventInfo, eventInfo.eventValue);
 		
 		eventInfo.eventValue = savedEventValue;
@@ -47,8 +44,8 @@ public final class ChangeProperty extends NestedRoutine
 		public ChangeProperty getNew(Matcher matcher, Object nestedContent)
 		{
 			DynamicInteger targetPropertyMatch = DynamicInteger.getNew(matcher.group(1));
-			List<Routine> routines = new ArrayList<Routine>();
-			if(targetPropertyMatch != null && RoutineAliaser.parseRoutines(routines, nestedContent))
+			Routines routines = RoutineAliaser.parseRoutines(nestedContent);
+			if(targetPropertyMatch != null && routines != null)
 			{
 				if(targetPropertyMatch.isSettable())
 					return new ChangeProperty(matcher.group(), routines, targetPropertyMatch);

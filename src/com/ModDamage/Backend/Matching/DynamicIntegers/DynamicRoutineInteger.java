@@ -1,16 +1,14 @@
 package com.ModDamage.Backend.Matching.DynamicIntegers;
 
-import java.util.Collection;
-
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
-import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Routines;
 
 public class DynamicRoutineInteger extends DynamicInteger
 {
-	private final Collection<Routine> routines;
+	private final Routines routines;
 	
-	public DynamicRoutineInteger(Collection<Routine> routines)
+	public DynamicRoutineInteger(Routines routines)
 	{
 		this.routines = routines;
 	}
@@ -21,8 +19,7 @@ public class DynamicRoutineInteger extends DynamicInteger
 		int oldvalue = eventInfo.eventValue;
 		eventInfo.eventValue = 0;
 		
-		for(Routine routine : routines)
-			routine.run(eventInfo);
+		routines.run(eventInfo);
 		
 		int value = eventInfo.eventValue;
 		eventInfo.eventValue = oldvalue;

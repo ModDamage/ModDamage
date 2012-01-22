@@ -8,7 +8,7 @@ import org.bukkit.block.Biome;
 
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Backend.Aliasing.BiomeAliaser;
 
 public class EntityBiome extends Conditional
 {
@@ -41,7 +41,7 @@ public class EntityBiome extends Conditional
 		@Override
 		public EntityBiome getNew(Matcher matcher)
 		{
-			Collection<Biome> biomes = AliasManager.matchBiomeAlias(matcher.group(2));
+			Collection<Biome> biomes = BiomeAliaser.match(matcher.group(2));
 			EntityReference reference = EntityReference.match(matcher.group(1));
 			if(!biomes.isEmpty() && reference != null)
 				return new EntityBiome(reference, biomes);

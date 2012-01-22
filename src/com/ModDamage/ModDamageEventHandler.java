@@ -1,8 +1,5 @@
 package com.ModDamage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -21,14 +18,14 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
+import com.ModDamage.PluginConfiguration.LoadState;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.AttackerEventInfo;
 import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.ProjectileEventInfo;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.ModDamage.PluginConfiguration.LoadState;
-import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Routines;
 
 enum ModDamageEventHandler
 {
@@ -39,10 +36,10 @@ enum ModDamageEventHandler
 	
 	public void runRoutines(TargetEventInfo eventInfo)
 	{
-		for(Routine routine : routines)
-			routine.run(eventInfo);
+		if (routines != null)
+			routines.run(eventInfo);
 	}
-	protected final List<Routine> routines = new ArrayList<Routine>();
+	protected Routines routines = null;
 	protected LoadState specificLoadState = LoadState.NOT_LOADED;
 	protected static LoadState state = LoadState.NOT_LOADED;
 	
@@ -56,16 +53,15 @@ enum ModDamageEventHandler
 		ModDamage.changeIndentation(true);
 		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
 		{
-			eventType.routines.clear();
 			Object nestedContent = PluginConfiguration.getCaseInsensitiveValue(ModDamage.getPluginConfiguration().getConfigMap(), eventType.name());
 			if(nestedContent != null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 				ModDamage.addToLogRecord(OutputPreset.INFO, eventType.name() + " configuration:");
-				List<Routine> routines = new ArrayList<Routine>();
-				eventType.specificLoadState = RoutineAliaser.parseRoutines(routines, nestedContent)?LoadState.SUCCESS:LoadState.FAILURE;
+				Routines routines = RoutineAliaser.parseRoutines(nestedContent);
+				eventType.specificLoadState = routines != null? LoadState.SUCCESS : LoadState.FAILURE;
 				if(eventType.specificLoadState.equals(LoadState.SUCCESS))
-					eventType.routines.addAll(routines);
+					eventType.routines = routines;
 			}
 			else eventType.specificLoadState = LoadState.NOT_LOADED;
 			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");

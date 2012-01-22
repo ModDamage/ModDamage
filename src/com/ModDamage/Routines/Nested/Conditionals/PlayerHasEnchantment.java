@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Backend.Aliasing.EnchantmentAliaser;
 
 public class PlayerHasEnchantment extends Conditional
 {
@@ -45,7 +45,7 @@ public class PlayerHasEnchantment extends Conditional
 		@Override
 		public PlayerHasEnchantment getNew(Matcher matcher)
 		{
-			Collection<Enchantment> enchantments = AliasManager.matchEnchantmentAlias(matcher.group(2));
+			Collection<Enchantment> enchantments = EnchantmentAliaser.match(matcher.group(2));
 			EntityReference reference = EntityReference.match(matcher.group(1));
 			if(reference != null && !enchantments.isEmpty())
 				return new PlayerHasEnchantment(reference, enchantments);

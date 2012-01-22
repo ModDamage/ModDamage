@@ -11,12 +11,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Backend.Aliasing.MessageAliaser;
 import com.ModDamage.Backend.Matching.DynamicString;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 
@@ -162,7 +162,7 @@ public class Message extends NestedRoutine
 			if(matcher != null)
 			{
 				MessageType messageType = MessageType.match(matcher.group(1));
-				Collection<DynamicMessage> messages = AliasManager.matchMessageAlias(matcher.group(2));
+				Collection<DynamicMessage> messages = MessageAliaser.match(matcher.group(2));
 				if(!messages.isEmpty() && messageType != null)
 				{
 					Message routine = null;
@@ -200,7 +200,7 @@ public class Message extends NestedRoutine
 					{
 						if(!(object instanceof String))
 							failFlag = true;
-						messages.addAll(AliasManager.matchMessageAlias((String)object));
+						messages.addAll(MessageAliaser.match((String)object));
 					}
 					
 					Message routine = null;

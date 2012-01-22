@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.Backend.ArmorSet;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Backend.Aliasing.ArmorAliaser;
 
 public class EntityWearing extends Conditional
 {
@@ -45,7 +45,7 @@ public class EntityWearing extends Conditional
 		public EntityWearing getNew(Matcher matcher)
 		{
 			EntityReference reference = EntityReference.match(matcher.group(1));
-			Collection<ArmorSet> armorSet = AliasManager.matchArmorAlias(matcher.group(3));
+			Collection<ArmorSet> armorSet = ArmorAliaser.match(matcher.group(3));
 			if(!armorSet.isEmpty() && reference != null)
 				return new EntityWearing(reference, matcher.group(2) != null, armorSet);
 			return null;

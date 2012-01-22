@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Backend.Aliasing.GroupAliaser;
 
 public class PlayerGroupEvaluation extends Conditional
 {
@@ -39,7 +39,7 @@ public class PlayerGroupEvaluation extends Conditional
 		@Override
 		public PlayerGroupEvaluation getNew(Matcher matcher)
 		{
-			Collection<String> matchedGroups = AliasManager.matchGroupAlias(matcher.group(2));
+			Collection<String> matchedGroups = GroupAliaser.match(matcher.group(2));
 			if(!matchedGroups.isEmpty())
 				return new PlayerGroupEvaluation(EntityReference.match(matcher.group(1)), matchedGroups);
 			return null;

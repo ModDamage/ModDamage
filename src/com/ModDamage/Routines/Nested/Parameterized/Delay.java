@@ -1,26 +1,24 @@
 package com.ModDamage.Routines.Nested.Parameterized;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
-import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Routines;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 
 public class Delay extends NestedRoutine
 {	
 	protected final DynamicInteger delay;
-	protected final List<Routine> routines;
+	protected final Routines routines;
 	protected static final Pattern delayPattern = Pattern.compile("delay\\.(.*)", Pattern.CASE_INSENSITIVE);
-	public Delay(String configString, DynamicInteger delayValue, List<Routine> routines)
+	public Delay(String configString, DynamicInteger delayValue, Routines routines)
 	{
 		super(configString);
 		this.delay = delayValue;
@@ -45,8 +43,8 @@ public class Delay extends NestedRoutine
 				{
 					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 					ModDamage.addToLogRecord(OutputPreset.INFO, "Delay: \"" + matcher.group() + "\"");
-					List<Routine> routines = new ArrayList<Routine>();
-					if(RoutineAliaser.parseRoutines(routines, nestedContent))
+					Routines routines = RoutineAliaser.parseRoutines(nestedContent);
+					if(routines != null)
 					{
 						DynamicInteger numberMatch = DynamicInteger.getNew(matcher.group(1));
 						if(numberMatch != null)
@@ -73,8 +71,7 @@ public class Delay extends NestedRoutine
 		@Override
 		public void run()//Runnable
 		{
-			for(Routine routine : routines)
-				routine.run(eventInfo);
+			routines.run(eventInfo);
 		}
 	}
 }
