@@ -4,7 +4,7 @@
 	<property environment="env"/>
 	<property name="sourceFolder" location="src"/>
 	<property name="buildFolder" location="bin"/>
-	<property name="dependencyFolder" location="src/resource"/>
+	<property name="dependencyFolder" location="resource"/>
 <!-- END PREDEFINED -->	
 	
 	<target name="init">
