@@ -12,7 +12,7 @@ import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 
 public class WorldAliaser extends CollectionAliaser<String> 
 {
-	static WorldAliaser aliaser = new WorldAliaser();
+	public static WorldAliaser aliaser = new WorldAliaser();
 	public static Collection<String> match(String string) { return aliaser.matchAlias(string); }
 	
 	public WorldAliaser() {super(AliasManager.World.name());}

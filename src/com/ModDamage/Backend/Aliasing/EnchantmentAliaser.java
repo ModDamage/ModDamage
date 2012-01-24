@@ -8,7 +8,7 @@ import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 
 public class EnchantmentAliaser extends CollectionAliaser<Enchantment> 
 {
-	static EnchantmentAliaser aliaser = new EnchantmentAliaser();
+	public static EnchantmentAliaser aliaser = new EnchantmentAliaser();
 	public static Collection<Enchantment> match(String string) { return aliaser.matchAlias(string); }
 	
 	public EnchantmentAliaser(){ super(AliasManager.Enchantment.name());}

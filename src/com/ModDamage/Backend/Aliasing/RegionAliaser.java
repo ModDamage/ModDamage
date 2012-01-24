@@ -9,7 +9,7 @@ import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 
 public class RegionAliaser extends CollectionAliaser<String> 
 {
-	static RegionAliaser aliaser = new RegionAliaser();
+	public static RegionAliaser aliaser = new RegionAliaser();
 	public static Collection<String> match(String string) { return aliaser.matchAlias(string); }
 	
 	public RegionAliaser() {super(AliasManager.Region.name());}

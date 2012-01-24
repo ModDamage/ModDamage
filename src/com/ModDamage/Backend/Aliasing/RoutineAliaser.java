@@ -12,7 +12,7 @@ import com.ModDamage.Routines.Nested.NestedRoutine;
 
 public class RoutineAliaser extends Aliaser<Routine, Routines> 
 {
-	static RoutineAliaser aliaser = new RoutineAliaser();
+	public static RoutineAliaser aliaser = new RoutineAliaser();
 	public static Routines match(String string) { return aliaser.matchAlias(string); }
 	
 	public RoutineAliaser(){ super("Routine");}

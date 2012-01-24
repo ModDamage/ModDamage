@@ -8,7 +8,7 @@ import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 
 public class BiomeAliaser extends CollectionAliaser<Biome> 
 {
-	static BiomeAliaser aliaser = new BiomeAliaser();
+	public static BiomeAliaser aliaser = new BiomeAliaser();
 	public static Collection<Biome> match(String string) { return aliaser.matchAlias(string); }
 	
 	public BiomeAliaser(){ super(AliasManager.Biome.name());}

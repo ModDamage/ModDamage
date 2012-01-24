@@ -5,7 +5,7 @@ import com.ModDamage.Routines.Nested.Conditionals.Conditional;
 
 public class ConditionAliaser extends SingleValueAliaser<Conditional> 
 {
-	static ConditionAliaser aliaser = new ConditionAliaser();
+	public static ConditionAliaser aliaser = new ConditionAliaser();
 	public static Conditional match(String string) { return aliaser.matchAlias(string); }
 	
 	public ConditionAliaser() {super(AliasManager.Condition.name());}

@@ -9,7 +9,7 @@ import com.ModDamage.Routines.Nested.Parameterized.Message.DynamicMessage;
 
 public class MessageAliaser extends CollectionAliaser<DynamicMessage> 
 {
-	static MessageAliaser aliaser = new MessageAliaser();
+	public static MessageAliaser aliaser = new MessageAliaser();
 	public static Collection<DynamicMessage> match(String string) { return aliaser.matchAlias(string); }
 	
 	public MessageAliaser() {super(AliasManager.Message.name());}

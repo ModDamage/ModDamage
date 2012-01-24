@@ -6,7 +6,7 @@ import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 
 public class GroupAliaser extends CollectionAliaser<String> 
 {
-	static GroupAliaser aliaser = new GroupAliaser();
+	public static GroupAliaser aliaser = new GroupAliaser();
 	public static Collection<String> match(String string) { return aliaser.matchAlias(string); }
 	
 	public GroupAliaser() {super(AliasManager.Group.name());}

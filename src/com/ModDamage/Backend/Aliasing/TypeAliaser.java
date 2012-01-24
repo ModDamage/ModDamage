@@ -11,7 +11,7 @@ import com.ModDamage.Backend.Aliasing.Aliaser.CollectionAliaser;
 
 public class TypeAliaser extends CollectionAliaser<ModDamageElement> 
 {
-	static TypeAliaser aliaser = new TypeAliaser();
+	public static TypeAliaser aliaser = new TypeAliaser();
 	public static Collection<ModDamageElement> match(String string) { return aliaser.matchAlias(string); }
 	
 	public TypeAliaser() {super(AliasManager.Type.name());}

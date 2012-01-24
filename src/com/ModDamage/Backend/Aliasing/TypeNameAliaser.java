@@ -15,7 +15,7 @@ import com.ModDamage.Backend.ModDamageElement;
 
 public class TypeNameAliaser extends Aliaser<ModDamageElement, List<String>> 
 {
-	static TypeNameAliaser aliaser = new TypeNameAliaser();
+	public static TypeNameAliaser aliaser = new TypeNameAliaser();
 	//public static List<String> match(String string) { return aliaser.matchAlias(string); }
 	
 	protected HashMap<ModDamageElement, List<String>> thisMap = new HashMap<ModDamageElement, List<String>>();
