@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -95,17 +94,20 @@ public class ModDamageTagger
 										continue;
 									}
 									
-									UUID uuid = UUID.fromString(tagEntry.getKey());
-									
-									if(uuid != null)
-									{
-										Entity entity = entities.get(uuid);
-										if (entity != null) entityMap.put(entity, integer);
-									}
-									else if (tagEntry.getKey().startsWith("player:"))
+									if (tagEntry.getKey().startsWith("player:"))
 										playerMap.put(Bukkit.getOfflinePlayer(tagEntry.getKey().substring(7)), integer);
 									else
-										ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
+									{
+										try
+										{
+											Entity entity = entities.get(UUID.fromString(tagEntry.getKey()));
+											if (entity != null) entityMap.put(entity, integer);
+										}
+										catch (IllegalArgumentException e)
+										{
+											ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
+										}
+									}
 								}
 								if(!entityMap.isEmpty())
 									entityTags.put(entry.getKey(), entityMap);
@@ -118,7 +120,7 @@ public class ModDamageTagger
 					else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Incorrectly formatted tags.yml. Starting with an empty tag list.");
 				}
 			}
-			catch(Exception e){ ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error loading tags.yml.");}
+			catch(Exception e){ ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error loading tags.yml: "+e.toString());}
 		}
 		else
 		{
@@ -328,14 +330,7 @@ public class ModDamageTagger
 			tagList.keySet().retainAll(entities);
 			if (tagList.size() != oldSize) dirty = true;
 		}
-		
-		Set<OfflinePlayer> offlinePlayers = new HashSet<OfflinePlayer>(Arrays.asList(Bukkit.getServer().getOfflinePlayers()));
-		for(Map<OfflinePlayer, Integer> tagList : playerTags.values())
-		{
-			int oldSize = tagList.size();
-			tagList.keySet().retainAll(offlinePlayers);
-			if (tagList.size() != oldSize) dirty = true;
-		}
+		// Don't clean up offline player tags
 	}
 	
 	/**
