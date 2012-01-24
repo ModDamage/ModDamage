@@ -6,16 +6,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
@@ -28,9 +30,10 @@ public class ModDamageTagger
 {
 	public static final String configString_save = "interval-save";
 	public static final String configString_clean = "interval-clean";
-	public static final int defaultInterval = 120 * 20;
+	public static final int defaultInterval = 10 * 20;
 	
-	private final Map<String, HashMap<UUID, Integer>> tags = Collections.synchronizedMap(new LinkedHashMap<String, HashMap<UUID, Integer>>());
+	private final Map<String, Map<Entity, Integer>> entityTags = Collections.synchronizedMap(new HashMap<String, Map<Entity, Integer>>());
+	private final Map<String, Map<OfflinePlayer, Integer>> playerTags = Collections.synchronizedMap(new HashMap<String, Map<OfflinePlayer, Integer>>());
 	
 	private long saveInterval;
 	private long cleanInterval;
@@ -60,31 +63,54 @@ public class ModDamageTagger
 				reader.close();
 				if(tagFileObject != null)
 				{
-					if(tagFileObject instanceof LinkedHashMap)
+					if(tagFileObject instanceof Map)
 					{
+						Map<UUID, Entity> entities = new HashMap<UUID, Entity>();
+						for(World world : Bukkit.getWorlds())
+						{
+							for (Entity entity : world.getEntities())
+								if (!(entity instanceof OfflinePlayer))
+									entities.put(entity.getUniqueId(), entity);
+						}
+						
+						
 						@SuppressWarnings("unchecked")
-						LinkedHashMap<String, Object> tagMap = (LinkedHashMap<String, Object>)tagFileObject;
+						Map<String, Object> tagMap = (Map<String, Object>)tagFileObject;
 						for(Entry<String, Object> entry : tagMap.entrySet())
 						{
-							if(entry.getValue() instanceof LinkedHashMap)
+							if(entry.getValue() instanceof Map)
 							{
-								HashMap<UUID, Integer> uuidMap = new HashMap<UUID, Integer>();
+								HashMap<Entity, Integer> entityMap = new HashMap<Entity, Integer>();
+								HashMap<OfflinePlayer, Integer> playerMap = new HashMap<OfflinePlayer, Integer>();
 								
 								@SuppressWarnings("unchecked")
-								LinkedHashMap<String, Object> rawUuidMap = (LinkedHashMap<String, Object>)entry.getValue();
+								Map<String, Object> rawUuidMap = (Map<String, Object>)entry.getValue();
 								for(Entry<String, Object> tagEntry : rawUuidMap.entrySet())
 								{
+									Integer integer = tagEntry.getValue() != null && tagEntry.getValue() instanceof Integer? 
+											(Integer)tagEntry.getValue() : null;
+									if (integer == null) 
+									{
+										ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read value for entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
+										continue;
+									}
+									
 									UUID uuid = UUID.fromString(tagEntry.getKey());
-									Integer integer = tagEntry.getValue() != null && tagEntry.getValue() instanceof Integer?(Integer)tagEntry.getValue():null;
+									
 									if(uuid != null)
 									{
-										if(integer != null) uuidMap.put(uuid, integer);
-										else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read value for entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
+										Entity entity = entities.get(uuid);
+										if (entity != null) entityMap.put(entity, integer);
 									}
-									else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
+									else if (tagEntry.getKey().startsWith("player:"))
+										playerMap.put(Bukkit.getOfflinePlayer(tagEntry.getKey().substring(7)), integer);
+									else
+										ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
 								}
-								if(!uuidMap.isEmpty()) tags.put(entry.getKey(), uuidMap);
-								else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "No entity IDs added for tag \"" + entry + "\" in tags.yml.");
+								if(!entityMap.isEmpty())
+									entityTags.put(entry.getKey(), entityMap);
+								if(!playerMap.isEmpty())
+									playerTags.put(entry.getKey(), playerMap);
 							}
 							else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read nested content under tag \"" + entry.getKey() + "\".");
 						}
@@ -135,20 +161,29 @@ public class ModDamageTagger
 		}, cleanInterval, cleanInterval);	
 	}
 	
+	private boolean dirty = false;
+	
 	/**
 	 * Saves all tags to a file.
 	 */
 	public synchronized void save()
 	{
-		if(file != null)
+		if(file != null && dirty)
 		{
-			LinkedHashMap<String, List<String>> tempMap = new LinkedHashMap<String, List<String>>();
-			for(Entry<String, HashMap<UUID, Integer>> entry : tags.entrySet())
+			Map<String, HashMap<String, Integer>> tempMap = new HashMap<String, HashMap<String, Integer>>();
+			for(Entry<String, Map<Entity, Integer>> tagEntry : entityTags.entrySet())
 			{
-				List<String> convertedUUIDS = new ArrayList<String>();
-				for(UUID uuid : entry.getValue().keySet())
-					convertedUUIDS.add(uuid.toString());
-				tempMap.put(entry.getKey(), convertedUUIDS);
+				HashMap<String, Integer> savedEntities = new HashMap<String, Integer>();
+				for(Entry<Entity, Integer> entry : tagEntry.getValue().entrySet())
+					savedEntities.put(entry.getKey().getUniqueId().toString(), entry.getValue());
+				tempMap.put(tagEntry.getKey(), savedEntities);
+			}
+			for(Entry<String, Map<OfflinePlayer, Integer>> tagEntry : playerTags.entrySet())
+			{
+				HashMap<String, Integer> savedPlayers = new HashMap<String, Integer>();
+				for(Entry<OfflinePlayer, Integer> entry : tagEntry.getValue().entrySet())
+					savedPlayers.put("player:"+entry.getKey().getName(), entry.getValue());
+				tempMap.put(tagEntry.getKey(), savedPlayers);
 			}
 			try
 			{
@@ -164,11 +199,25 @@ public class ModDamageTagger
 	/**
 	 * Add the entity's UUID to a tag. A new tag is made if it doesn't already exist.
 	 */
-	public synchronized void addTag(String tag, Entity entity, int tagValue)
+	public synchronized void addTag(Entity entity, String tag, int tagValue)
 	{
-		if(!tags.containsKey(tag))
-			tags.put(tag, new HashMap<UUID, Integer>());
-		tags.get(tag).put(entity.getUniqueId(), tagValue);
+		if (entity instanceof OfflinePlayer) 
+		{
+			addTag((OfflinePlayer)entity, tag, tagValue);
+			return;
+		}
+		dirty = true; // only need to save when dirty
+		if(!entityTags.containsKey(tag))
+			entityTags.put(tag, new HashMap<Entity, Integer>());
+		entityTags.get(tag).put(entity, tagValue);
+	}
+	
+	public synchronized void addTag(OfflinePlayer player, String tag, int tagValue)
+	{
+		dirty = true; // only need to save when dirty
+		if(!playerTags.containsKey(tag))
+			playerTags.put(tag, new HashMap<OfflinePlayer, Integer>());
+		playerTags.get(tag).put(player, tagValue);
 	}
 	
 	public class ModDamageTagRemoveTask implements Runnable
@@ -186,7 +235,7 @@ public class ModDamageTagger
 		public void run()
 		{
 			if(entity != null)
-				removeTag(tag, entity);
+				removeTag(entity, tag);
 		}
 	}
 
@@ -196,7 +245,13 @@ public class ModDamageTagger
 	 */
 	public synchronized boolean isTagged(Entity entity, String tag)
 	{
-		return tags.containsKey(tag)?tags.get(tag).containsKey(entity.getUniqueId()):false;
+		if (entity instanceof OfflinePlayer) return isTagged((OfflinePlayer)entity, tag);
+		return entityTags.containsKey(tag) && entityTags.get(tag).containsKey(entity.getUniqueId());
+	}
+	
+	public synchronized boolean isTagged(OfflinePlayer player, String tag)
+	{
+		return playerTags.containsKey(tag) && playerTags.get(tag).containsKey(player);
 	}
 	
 	/**
@@ -205,28 +260,56 @@ public class ModDamageTagger
 	 */
 	public synchronized List<String> getTags(Entity entity)
 	{
-		List<String> entityTags = new ArrayList<String>();
-		int id = entity.getEntityId();
-		for(Entry<String, HashMap<UUID, Integer>> entry : tags.entrySet())
-			if(entry.getValue().containsKey(id))
-				entityTags.add(entry.getKey());
-		return entityTags;
+		if (entity instanceof OfflinePlayer) return getTags((OfflinePlayer)entity);
+		List<String> tagsList = new ArrayList<String>();
+		for(Entry<String, Map<Entity, Integer>> entry : entityTags.entrySet())
+			if(entry.getValue().containsKey(entity))
+				tagsList.add(entry.getKey());
+		return tagsList;
+	}
+	
+	private synchronized List<String> getTags(OfflinePlayer player)
+	{
+		List<String> tagsList = new ArrayList<String>();
+		for(Entry<String, Map<OfflinePlayer, Integer>> entry : playerTags.entrySet())
+			if(entry.getValue().containsKey(player))
+				tagsList.add(entry.getKey());
+		return tagsList;
 	}
 	
 	public synchronized Integer getTagValue(Entity entity, String tag)
 	{
+		if (entity instanceof OfflinePlayer) return getTagValue((OfflinePlayer)entity, tag);
 		if(isTagged(entity, tag))
-			return tags.get(tag).get(entity.getUniqueId());
+			return entityTags.get(tag).get(entity);
+		return null;
+	}
+	
+	public synchronized Integer getTagValue(OfflinePlayer player, String tag)
+	{
+		if(isTagged(player, tag))
+			return playerTags.get(tag).get(player);
 		return null;
 	}
 	
 	/**
 	 * Removes the entity's UUID from a tag, if {@link void generateTag(String tag) [generateTag]} was called correctly.	 * 
 	 */
-	public synchronized void removeTag(String tag, Entity entity)
+	public synchronized void removeTag(Entity entity, String tag)
 	{
-		if(tags.containsKey(tag))
-			tags.get(tag).remove(entity.getEntityId());
+		if (entity instanceof OfflinePlayer) 
+		{
+			removeTag((OfflinePlayer)entity, tag);
+			return;
+		}
+		if(entityTags.containsKey(tag))
+			entityTags.get(tag).remove(entity.getEntityId());
+	}
+	
+	public synchronized void removeTag(OfflinePlayer player, String tag)
+	{
+		if(playerTags.containsKey(tag))
+			playerTags.get(tag).remove(player);
 	}
 	
 	/**
@@ -236,20 +319,29 @@ public class ModDamageTagger
 	public synchronized void cleanUp()
 	{
 		//clean up the entities
-		HashSet<UUID> ids = new HashSet<UUID>();
+		Set<Entity> entities = new HashSet<Entity>();
 		for(World world : Bukkit.getWorlds())
-			for(Entity entity : world.getEntities())
-				ids.add(entity.getUniqueId());
-		for(HashMap<UUID, Integer> tagList : tags.values())
-			for(UUID id : new HashSet<UUID>(tagList.keySet()))
-				if(!ids.contains(id))
-					tagList.remove(id);
+			entities.addAll(world.getEntities());
+		for(Map<Entity, Integer> tagList : entityTags.values())
+		{
+			int oldSize = tagList.size();
+			tagList.keySet().retainAll(entities);
+			if (tagList.size() != oldSize) dirty = true;
+		}
+		
+		Set<OfflinePlayer> offlinePlayers = new HashSet<OfflinePlayer>(Arrays.asList(Bukkit.getServer().getOfflinePlayers()));
+		for(Map<OfflinePlayer, Integer> tagList : playerTags.values())
+		{
+			int oldSize = tagList.size();
+			tagList.keySet().retainAll(offlinePlayers);
+			if (tagList.size() != oldSize) dirty = true;
+		}
 	}
 	
 	/**
 	 * Only the ModDamage main should use this method.
 	 */
-	public synchronized void clear(){ tags.clear();}
+	public synchronized void clear(){ entityTags.clear(); playerTags.clear(); }
 	
 	/**
 	 * This is used in the ModDamage main to finish any file IO.
@@ -263,5 +355,5 @@ public class ModDamageTagger
 	/**
 	 * @return LoadState reflecting the file's load state.
 	 */
-	public LoadState getLoadState(){ return file != null?LoadState.SUCCESS:LoadState.NOT_LOADED;}
+	public LoadState getLoadState(){ return file != null? LoadState.SUCCESS : LoadState.NOT_LOADED;}
 }

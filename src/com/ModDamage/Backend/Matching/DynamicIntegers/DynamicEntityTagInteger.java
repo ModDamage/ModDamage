@@ -55,7 +55,7 @@ public class DynamicEntityTagInteger extends DynamicInteger
 	@Override
 	public void setValue(TargetEventInfo eventInfo, int value)
 	{
-		ModDamage.getTagger().addTag(tag, entityReference.getEntity(eventInfo), value);
+		ModDamage.getTagger().addTag(entityReference.getEntity(eventInfo), tag, value);
 	}
 	
 	@Override

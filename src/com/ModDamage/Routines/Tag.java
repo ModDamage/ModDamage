@@ -49,10 +49,10 @@ public class Tag extends Routine
 			{
 				int value = defaultValue;
 				if (integer != null) value = integer.getValue(eventInfo);
-				ModDamage.getTagger().addTag(tag, entity, value);
+				ModDamage.getTagger().addTag(entity, tag, value);
 			}
 			else
-				ModDamage.getTagger().removeTag(tag, entity);
+				ModDamage.getTagger().removeTag(entity, tag);
 		}
 	}
 

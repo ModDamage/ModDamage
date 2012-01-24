@@ -81,7 +81,7 @@ public class ModDamage extends JavaPlugin
 		{
 			if(tagger != null) tagger.close();
 
-			long[] tagConfigIntegers = { ModDamageTagger.defaultInterval, ModDamageTagger.defaultInterval };
+			long[] tagConfigIntegers = { ModDamageTagger.defaultInterval, ModDamageTagger.defaultInterval * 4 };
 			LinkedHashMap<String, Object> tagConfigurationTree = configuration.castToStringMap("Tagging", configuration.getConfigMap().get("Tagging"));
 			if(tagConfigurationTree != null)
 			{
