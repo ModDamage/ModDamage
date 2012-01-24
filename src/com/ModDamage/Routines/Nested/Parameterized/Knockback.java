@@ -62,11 +62,13 @@ public class Knockback extends ParameterizedRoutine
 		
 		if(usingParameterized)
 		{
-			int horizValue = horizInteger.getValue(eventInfo);
-			int verticalValue = verticalInteger.getValue(eventInfo);
-			Vector newVector = firstEntity.getVelocity().add(new Vector(vector.getX() * horizValue, verticalValue, vector.getZ() * horizValue));
-			firstEntity.setVelocity(newVector);			
+			double horizValue = ((float)horizInteger.getValue(eventInfo)) / 10.0;
 			eventInfo.eventValue = temp;
+			double verticalValue = ((float)verticalInteger.getValue(eventInfo)) / 10.0;
+			eventInfo.eventValue = temp;
+			
+			firstEntity.setVelocity(firstEntity.getVelocity().add(
+					new Vector(vector.getX() * horizValue, verticalValue, vector.getZ() * horizValue)));
 		}
 		else if(secondEntity != null)
 		{
