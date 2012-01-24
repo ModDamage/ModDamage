@@ -195,8 +195,10 @@ enum ModDamageEventHandler
 				LivingEntity entity = (LivingEntity)event.getEntity();
 				TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.getElementFor(entity), entity.getHealth());
 				Spawn.runRoutines(eventInfo);
-				entity.setHealth(eventInfo.eventValue);
-				event.setCancelled(entity.getHealth() <= 0);
+				if (eventInfo.eventValue > 0)
+					entity.setHealth(eventInfo.eventValue);
+				else
+					event.setCancelled(true);
 			}
 		}
 		
