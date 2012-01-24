@@ -126,4 +126,10 @@ public class RoutineAliaser extends Aliaser<Routine, Routines>
 	{
 		return new Routines();
 	}
+	
+	@Override
+	protected Routines getDefaultValue()
+	{
+		return new Routines();
+	}
 }
