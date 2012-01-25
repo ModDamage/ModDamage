@@ -42,5 +42,10 @@ public class DynamicEventInteger extends DynamicInteger
 	{
 		return true;
 	}
-
+	
+	@Override
+	public String toString()
+	{
+		return "event_value";
+	}
 }
