@@ -109,7 +109,7 @@ public abstract class DynamicInteger extends DynamicString
 		NegativeInteger.register();
 		Function.register();
 		
-		DynamicInteger.register(Pattern.compile("_\\w+"),
+		/*DynamicInteger.register(Pattern.compile("_\\w+"),
 				new DynamicIntegerBuilder()
 					{
 						@Override
@@ -118,7 +118,7 @@ public abstract class DynamicInteger extends DynamicString
 							sm.accept();
 							return DynamicInteger.getNew(RoutineAliaser.match(matcher.group()));
 						}
-					});
+					});*/
 	}
 	
 	private static Map<Pattern, DynamicIntegerBuilder> registeredIntegers = new HashMap<Pattern, DynamicIntegerBuilder>();
