@@ -248,7 +248,7 @@ public class ModDamageTagger
 	public synchronized boolean isTagged(Entity entity, String tag)
 	{
 		if (entity instanceof OfflinePlayer) return isTagged((OfflinePlayer)entity, tag);
-		return entityTags.containsKey(tag) && entityTags.get(tag).containsKey(entity.getUniqueId());
+		return entityTags.containsKey(tag) && entityTags.get(tag).containsKey(entity);
 	}
 	
 	public synchronized boolean isTagged(OfflinePlayer player, String tag)
