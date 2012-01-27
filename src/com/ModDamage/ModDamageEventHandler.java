@@ -4,18 +4,19 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import com.ModDamage.PluginConfiguration.LoadState;
@@ -95,13 +96,12 @@ enum ModDamageEventHandler
 		}
 	}
 	
-	static ModDamagePlayerListener playerListener = new ModDamagePlayerListener();
-	static ModDamageEntityListener entityListener = new ModDamageEntityListener();
+	static ModDamageEventListener eventListener = new ModDamageEventListener();
 	
-	static class ModDamagePlayerListener extends PlayerListener
+	static class ModDamageEventListener implements Listener
 	{
 	//// SPAWN ////
-		@Override
+		@EventHandler(priority=EventPriority.HIGHEST)
 		public void onPlayerRespawn(PlayerRespawnEvent event)
 		{
 			if(ModDamage.isEnabled)
@@ -111,14 +111,10 @@ enum ModDamageEventHandler
 				Spawn.runRoutines(eventInfo);
 				player.setHealth(eventInfo.eventValue);
 			}
-		}
-	}
-
-	static class ModDamageEntityListener extends EntityListener
-	{	
+		}	
 		
 	//// DAMAGE ////
-		@Override
+		@EventHandler(priority=EventPriority.HIGHEST)
 		public void onEntityDamage(EntityDamageEvent event)
 		{
 			if (!ModDamage.isEnabled) return;
@@ -140,7 +136,7 @@ enum ModDamageEventHandler
 		}
 		
 	////DEATH ////
-		@Override
+		@EventHandler(priority=EventPriority.HIGHEST)
 		public void onEntityDeath(EntityDeathEvent event)
 		{
 			if(ModDamage.isEnabled && event.getEntity() instanceof LivingEntity)
@@ -159,7 +155,7 @@ enum ModDamageEventHandler
 		}
 	
 	//// FOOD ////
-		@Override
+		@EventHandler(priority=EventPriority.HIGHEST)
 		public void onEntityRegainHealth(EntityRegainHealthEvent event)
 		{
 			if(ModDamage.isEnabled && !event.isCancelled() && event.getRegainReason().equals(RegainReason.SATIATED))
@@ -171,7 +167,7 @@ enum ModDamageEventHandler
 		}
 		
 	//// PROJECTILE HIT ////
-		@Override
+		@EventHandler(priority=EventPriority.HIGHEST)
 		public void onProjectileHit(ProjectileHitEvent event)
 		{
 			if(ModDamage.isEnabled)
@@ -187,7 +183,7 @@ enum ModDamageEventHandler
 		}
 		
 	//// SPAWN ////
-		@Override
+		@EventHandler(priority=EventPriority.HIGHEST)
 		public void onCreatureSpawn(CreatureSpawnEvent event)
 		{ 
 			if(ModDamage.isEnabled && !event.isCancelled())
@@ -203,7 +199,7 @@ enum ModDamageEventHandler
 		}
 		
 	////TAME ////
-		@Override
+		@EventHandler(priority=EventPriority.HIGHEST)
 		public void onEntityTame(EntityTameEvent event)
 		{
 			if(ModDamage.isEnabled)

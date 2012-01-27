@@ -16,11 +16,9 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.ModDamage.ModDamageEventHandler.ModDamageEntityListener;
 import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
@@ -51,14 +49,7 @@ public class ModDamage extends JavaPlugin
 	public void onEnable()
 	{
 		// register plugin-related stuff with the server's plugin manager
-		ModDamageEntityListener entityListener = ModDamageEventHandler.entityListener;
-		Bukkit.getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Highest, this);
-		Bukkit.getPluginManager().registerEvent(Event.Type.PROJECTILE_HIT, entityListener, Event.Priority.Highest, this);
-		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_TAME, entityListener, Event.Priority.Highest, this);
-		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Highest, this);
-		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, entityListener, Event.Priority.Highest, this);
-		Bukkit.getPluginManager().registerEvent(Event.Type.ENTITY_REGAIN_HEALTH, entityListener, Event.Priority.Highest, this);
-		Bukkit.getPluginManager().registerEvent(Event.Type.PLAYER_RESPAWN, ModDamageEventHandler.playerListener, Event.Priority.Highest, this);
+		Bukkit.getPluginManager().registerEvents(ModDamageEventHandler.eventListener, this);
 		
 		PluginCommand.setPlugin(this);
 		configuration = new PluginConfiguration(this, oldestSupportedBuild);
