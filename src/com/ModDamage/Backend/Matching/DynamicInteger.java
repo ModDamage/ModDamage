@@ -12,7 +12,6 @@ import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicCalculatedInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicEnchantmentInteger;
