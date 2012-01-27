@@ -244,6 +244,7 @@ public enum ModDamageElement
 		NONLIVING(GENERIC),
 			NATURE(NONLIVING),
 				CACTUS(NATURE),
+				CUSTOM(NATURE),
 				DROWNING(NATURE),
 				EXPLOSION(NATURE),
 					EXPLOSION_ENTITY(EXPLOSION),
@@ -253,6 +254,8 @@ public enum ModDamageElement
 				BURN(NATURE),
 				LAVA(NATURE),
 				LIGHTNING(NATURE),
+				MAGIC(NATURE),
+				POISON(NATURE),
 				STARVATION(NATURE),
 				SUFFOCATION(NATURE),
 				SUICIDE(NATURE),
@@ -276,22 +279,25 @@ public enum ModDamageElement
 			{
 				switch((DamageCause)obj)
 				{
-					case BLOCK_EXPLOSION:   return EXPLOSION_BLOCK;
-					case CONTACT: 			return CACTUS;
-					case DROWNING: 			return DROWNING;
-					case ENTITY_ATTACK:		return LIVING;
-					case ENTITY_EXPLOSION: 	return EXPLOSION_ENTITY;
-					case FALL: 				return FALL;
-					case FIRE: 				return FIRE;
-					case FIRE_TICK:			return BURN;
-					case LAVA: 				return LAVA;
-					case LIGHTNING: 		return LIGHTNING;
-					case PROJECTILE:		return PROJECTILE;
-					case STARVATION:		return STARVATION;
-					case SUFFOCATION: 		return SUFFOCATION;
-					case SUICIDE:			return SUICIDE;
-					case VOID: 				return VOID;
-					default: 				return UNKNOWN;//shouldn't happen
+				case CONTACT: 			return CACTUS;
+				case ENTITY_ATTACK:		return LIVING;
+				case PROJECTILE:		return PROJECTILE;
+				case SUFFOCATION: 		return SUFFOCATION;
+				case FALL: 				return FALL;
+				case FIRE: 				return FIRE;
+				case FIRE_TICK:			return BURN;
+				case LAVA: 				return LAVA;
+				case DROWNING: 			return DROWNING;
+				case BLOCK_EXPLOSION:   return EXPLOSION_BLOCK;
+				case ENTITY_EXPLOSION: 	return EXPLOSION_ENTITY;
+				case VOID: 				return VOID;
+				case LIGHTNING: 		return LIGHTNING;
+				case SUICIDE:			return SUICIDE;
+				case STARVATION:		return STARVATION;
+				case POISON: 			return POISON;
+				case MAGIC:				return MAGIC;
+				case CUSTOM:			return CUSTOM;
+				default: 				return UNKNOWN;//shouldn't happen
 				}
 			}
 		};
