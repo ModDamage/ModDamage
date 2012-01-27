@@ -6,14 +6,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -31,11 +29,11 @@ public class ModDamageTagger
 	public static final String configString_clean = "interval-clean";
 	public static final int defaultInterval = 10 * 20;
 	
-	private final Map<String, Map<Entity, Integer>> entityTags = Collections.synchronizedMap(new HashMap<String, Map<Entity, Integer>>());
-	private final Map<String, Map<OfflinePlayer, Integer>> playerTags = Collections.synchronizedMap(new HashMap<String, Map<OfflinePlayer, Integer>>());
+	private final Map<String, Map<Entity, Integer>> entityTags = new HashMap<String, Map<Entity, Integer>>();
+	private final Map<String, Map<OfflinePlayer, Integer>> playerTags = new HashMap<String, Map<OfflinePlayer, Integer>>();
 	
 	private long saveInterval;
-	private long cleanInterval;
+	//private long cleanInterval;
 	private Integer saveTaskID;
 	private Integer cleanTaskID;
 
@@ -79,8 +77,8 @@ public class ModDamageTagger
 						{
 							if(entry.getValue() instanceof Map)
 							{
-								HashMap<Entity, Integer> entityMap = new HashMap<Entity, Integer>();
-								HashMap<OfflinePlayer, Integer> playerMap = new HashMap<OfflinePlayer, Integer>();
+								Map<Entity, Integer> entityMap = new WeakHashMap<Entity, Integer>();
+								Map<OfflinePlayer, Integer> playerMap = new HashMap<OfflinePlayer, Integer>();
 								
 								@SuppressWarnings("unchecked")
 								Map<String, Object> rawUuidMap = (Map<String, Object>)entry.getValue();
@@ -128,7 +126,7 @@ public class ModDamageTagger
 			cleanTaskID = null;
 		}
 		this.saveInterval = saveInterval;
-		this.cleanInterval = cleanInterval;
+		//this.cleanInterval = cleanInterval;
 		reload(false);
 	}
 	
@@ -136,7 +134,7 @@ public class ModDamageTagger
 	
 	private synchronized void reload(boolean initialized)
 	{
-		cleanUp();
+		//cleanUp();
 		save();
 		if(initialized)
 		{
@@ -155,12 +153,13 @@ public class ModDamageTagger
 			}
 		}, saveInterval, saveInterval);
 		
-		cleanTaskID = Bukkit.getScheduler().scheduleAsyncRepeatingTask(modDamage, new Runnable(){
+		/// Cleanups are no longer necessary because of the use of WeakHashMaps
+		/*cleanTaskID = Bukkit.getScheduler().scheduleAsyncRepeatingTask(modDamage, new Runnable(){
 			@Override public void run()
 			{
 				cleanUp();
 			}
-		}, cleanInterval, cleanInterval);	
+		}, cleanInterval, cleanInterval);*/
 	}
 	
 	private boolean dirty = false;
@@ -172,7 +171,7 @@ public class ModDamageTagger
 	{
 		if(file != null && dirty)
 		{
-			Map<String, HashMap<String, Integer>> tempMap = new HashMap<String, HashMap<String, Integer>>();
+			Map<String, Map<String, Integer>> tempMap = new HashMap<String, Map<String, Integer>>();
 			for(Entry<String, Map<Entity, Integer>> tagEntry : entityTags.entrySet())
 			{
 				HashMap<String, Integer> savedEntities = new HashMap<String, Integer>();
@@ -210,7 +209,7 @@ public class ModDamageTagger
 		}
 		dirty = true; // only need to save when dirty
 		if(!entityTags.containsKey(tag))
-			entityTags.put(tag, new HashMap<Entity, Integer>());
+			entityTags.put(tag, new WeakHashMap<Entity, Integer>());
 		entityTags.get(tag).put(entity, tagValue);
 	}
 	
@@ -318,7 +317,7 @@ public class ModDamageTagger
 	 * This method checks whether or not the number of tagged entities exceeds the number of entities in the server,
 	 * and if so removes entities that no longer exist.
 	 */
-	public synchronized void cleanUp()
+	/*public synchronized void cleanUp()
 	{
 		//clean up the entities
 		Set<Entity> entities = new HashSet<Entity>();
@@ -331,7 +330,7 @@ public class ModDamageTagger
 			if (tagList.size() != oldSize) dirty = true;
 		}
 		// Don't clean up offline player tags
-	}
+	}*/
 	
 	/**
 	 * Only the ModDamage main should use this method.
@@ -343,7 +342,7 @@ public class ModDamageTagger
 	 */
 	public synchronized void close()
 	{
-		cleanUp();
+		//cleanUp();
 		save();
 	}
 	
