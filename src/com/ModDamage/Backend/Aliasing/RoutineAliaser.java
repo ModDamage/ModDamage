@@ -21,42 +21,6 @@ public class RoutineAliaser extends Aliaser<Object, Object>
 	
 	public RoutineAliaser() { super("Routine"); }
 	
-	private static class AliasInfoPair {
-		private final String alias;
-		private final EventInfo info;
-		
-		public AliasInfoPair(String alias, EventInfo info)
-		{
-			this.alias = alias;
-			this.info = info;
-		}
-
-		@Override
-		public int hashCode()
-		{
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + alias.hashCode();
-			result = prime * result + info.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj)
-		{
-			if (this == obj) return true;
-			if (obj == null) return false;
-			if (getClass() != obj.getClass()) return false;
-			AliasInfoPair other = (AliasInfoPair) obj;
-			if (!alias.equals(other.alias)) return false;
-			if (!info.equals(other.info)) return false;
-			return true;
-		}
-	}
-	
-	public final Map<AliasInfoPair, Routines> aliasedRoutines = new HashMap<AliasInfoPair, Routines>();
-	
-	
 	public boolean completeAlias(String key, Object values)
 	{
 		if(values instanceof List)
@@ -86,10 +50,10 @@ public class RoutineAliaser extends Aliaser<Object, Object>
 		else runnable.run();
 	}
 	
-
+	public final Map<InfoOtherPair<String>, Routines> aliasedRoutines = new HashMap<InfoOtherPair<String>, Routines>();
 	public Routines matchAlias(String alias, EventInfo info)
 	{
-		AliasInfoPair infoPair = new AliasInfoPair(alias, info);
+		InfoOtherPair<String> infoPair = new InfoOtherPair<String>(alias, info);
 		if (aliasedRoutines.containsKey(infoPair)) return aliasedRoutines.get(infoPair);
 		
 		
