@@ -9,28 +9,29 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.EntityReference;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.MaterialAliaser;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class EntityBlockStatus extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.is(\\w+)block\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
-	final EntityReference entityReference;
+	final DataRef<Entity> entityRef;
 	final BlockStatusType statusType;
 	final Collection<Material> materials;
-	protected EntityBlockStatus(EntityReference entityReference, BlockStatusType statusType, Collection<Material> materials)
+	protected EntityBlockStatus(DataRef<Entity> entityRef, BlockStatusType statusType, Collection<Material> materials)
 	{
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
 		this.statusType = statusType;
 		this.materials = materials;
 	}
 	@Override
-	public boolean evaluate(TargetEventInfo eventInfo)
+	public boolean evaluate(EventData data)
 	{
-		if(entityReference.getEntity(eventInfo) != null)
-			return statusType.isTrue(materials, entityReference.getEntity(eventInfo));
+		if(entityRef.get(data) != null)
+			return statusType.isTrue(materials, entityRef.get(data));
 		return false;
 	}
 	
@@ -100,16 +101,16 @@ public class EntityBlockStatus extends Conditional
 		public ConditionalBuilder() { super(pattern); }
 
 		@Override
-		public EntityBlockStatus getNew(Matcher matcher)
+		public EntityBlockStatus getNew(Matcher matcher, EventInfo info)
 		{
 			BlockStatusType statusType = null;
 			for(BlockStatusType type : BlockStatusType.values())
 				if(matcher.group(2).equalsIgnoreCase(type.name()))
 						statusType = type;
 			Collection<Material> materials = MaterialAliaser.match(matcher.group(3));
-			EntityReference reference = EntityReference.match(matcher.group(1));
-			if(reference != null && statusType != null)
-				return new EntityBlockStatus(reference, statusType, materials);
+			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+			if(entityRef != null && statusType != null)
+				return new EntityBlockStatus(entityRef, statusType, materials);
 			return null;
 		}
 	}

@@ -4,35 +4,48 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.Backend.TargetEventInfo;
+import org.bukkit.World;
+
 import com.ModDamage.Backend.Aliasing.WorldAliaser;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class EventWorld extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("event\\.world\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	
 	protected final Collection<String> worlds;
-	public EventWorld(Collection<String> worlds)
+	final DataRef<World> worldRef;
+
+	public EventWorld(Collection<String> worlds, DataRef<World> worldRef)
 	{
 		this.worlds = worlds;
+		this.worldRef = worldRef;
 	}
+
 	@Override
-	public boolean evaluate(TargetEventInfo eventInfo){ return worlds.contains(eventInfo.world.getName());}
-	
+	public boolean evaluate(EventData data)
+	{
+		return worlds.contains(worldRef.get(data).getName());
+	}
+
 	public static void register()
 	{
 		Conditional.register(new ConditionalBuilder());
 	}
-	
+
 	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
 	{
 		public ConditionalBuilder() { super(pattern); }
 
 		@Override
-		public EventWorld getNew(Matcher matcher)
+		public EventWorld getNew(Matcher matcher, EventInfo info)
 		{
 			Collection<String> worlds = WorldAliaser.match(matcher.group(1));
-			if(!worlds.isEmpty())
-				return new EventWorld(worlds);
+			DataRef<World> worldRef = info.get(World.class, "world");
+			if (!worlds.isEmpty() && worldRef != null)
+				return new EventWorld(worlds, worldRef);
 			return null;
 		}
 	}

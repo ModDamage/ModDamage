@@ -1,6 +1,8 @@
 package com.ModDamage;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -10,7 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
@@ -21,30 +22,239 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Backend.AttackerEventInfo;
 import com.ModDamage.Backend.ModDamageElement;
-import com.ModDamage.Backend.ProjectileEventInfo;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Routines.Routines;
 
 enum ModDamageEventHandler
 {
-	Damage, Death, Food, ProjectileHit, Spawn, Tame;
+	Damage(
+		new SimpleEventInfo(
+			Entity.class, ModDamageElement.class, 		"attacker", "target-other",
+			Projectile.class, ModDamageElement.class, 	"projectile",
+			Entity.class, ModDamageElement.class, 		"target", "attacker-other",
+			World.class,								"world",
+			ModDamageElement.class, 					"damage", // e.g. damage.type.FIRE
+			Integer.class, 								"damage", "-default"),
+			
+		new Listener(){
+			@SuppressWarnings("unused")
+			@EventHandler(priority=EventPriority.HIGHEST)
+			public void onEntityDamage(EntityDamageEvent event)
+			{
+				if (!ModDamage.isEnabled) return;
+				if(!event.isCancelled() && (event.getEntity() instanceof LivingEntity)) 
+				{
+					LivingEntity le = (LivingEntity)event.getEntity();
+					if(le.getNoDamageTicks() <= le.getMaximumNoDamageTicks()/2)
+					{
+						EventData data = getDamageEventData(event);
+						if(data != null)
+						{
+							Damage.runRoutines(data);
+							event.setDamage(data.getMy(Integer.class, 8));
+							//event.setCancelled(event.getDamage() <= 0);
+						}
+						else PluginConfiguration.log.severe("[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + 
+								"] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
+					}
+				}
+			}
+		}),
+	
+	Death(
+		Damage.eventInfo.chain(new SimpleEventInfo(
+			Integer.class, "experience", "-default")),
+			
+		new Listener() {
+			@SuppressWarnings("unused")
+			@EventHandler(priority=EventPriority.HIGHEST)
+			public void onEntityDeath(EntityDeathEvent event)
+			{
+				if(ModDamage.isEnabled)
+				{
+					if(disableDeathMessages && event instanceof PlayerDeathEvent)
+						((PlayerDeathEvent)event).setDeathMessage(null);
+						
+					Entity entity = event.getEntity();
+					
+				    EventData damageData = getDamageEventData(((LivingEntity) entity).getLastDamageCause());
+				    
+					if(damageData == null) // for instance, /butcher often does this
+						damageData = Damage.eventInfo.makeData(
+								null, ModDamageElement.UNKNOWN,
+								null, null,
+								entity, ModDamageElement.getElementFor(entity),
+								entity.getWorld(),
+								ModDamageElement.UNKNOWN,
+								0
+								);
+					
+					EventData data = Death.eventInfo.makeChainedData(damageData, event.getDroppedExp());
+					Death.runRoutines(data);
+					event.setDroppedExp(data.getMy(Integer.class, 0));
+				}
+			}
+		}),
+	
+	Heal(
+		new SimpleEventInfo(
+			Entity.class, ModDamageElement.class, 	"entity",
+			World.class,							"world",
+			RegainReason.class, 					"heal", // e.g. heal.type.EATING
+			Integer.class, 							"heal_amount", "-default"),
+			
+		new Listener() {
+			@SuppressWarnings("unused")
+			@EventHandler(priority=EventPriority.HIGHEST)
+			public void onEntityRegainHealth(EntityRegainHealthEvent event)
+			{
+				if(ModDamage.isEnabled && !event.isCancelled())
+				{
+					Entity entity = event.getEntity();
+					EventData data = Heal.eventInfo.makeData(
+							entity, ModDamageElement.getElementFor(entity),
+							entity.getWorld(),
+							event.getRegainReason(),
+							event.getAmount());
+					
+					Heal.runRoutines(data);
+					
+					int amount = data.getMy(Integer.class, 4);
+					if (amount <= 0)
+						event.setCancelled(true);
+					else
+						event.setAmount(amount);
+				}
+			}
+		}),
+	
+	ProjectileHit(
+		new SimpleEventInfo(
+			Entity.class, ModDamageElement.class, 		"shooter",
+			Projectile.class, ModDamageElement.class, 	"projectile",
+			World.class,								"world"),
+			
+		new Listener() {
+			@SuppressWarnings("unused")
+			@EventHandler(priority=EventPriority.HIGHEST)
+			public void onProjectileHit(ProjectileHitEvent event)
+			{
+				if(ModDamage.isEnabled)
+				{
+					Projectile projectile = (Projectile)event.getEntity();
+					LivingEntity shooter = projectile.getShooter();
+					
+					EventData data = ProjectileHit.eventInfo.makeData(
+							shooter, (shooter != null)? ModDamageElement.getElementFor(shooter)
+													  : ModDamageElement.DISPENSER,
+							projectile, ModDamageElement.getElementFor(projectile),
+							projectile.getWorld());
+					
+					ProjectileHit.runRoutines(data);
+				}
+			}
+		}),
+	
+	Spawn(
+		new SimpleEventInfo(
+			Entity.class, ModDamageElement.class, 	"entity",
+			World.class,							"world",
+			Integer.class, 							"health", "-default"),
+			
+		new Listener() {
+			@SuppressWarnings("unused")
+			@EventHandler(priority=EventPriority.HIGHEST)
+			public void onPlayerRespawn(PlayerRespawnEvent event)
+			{
+				if(ModDamage.isEnabled)
+				{
+					Player player = event.getPlayer();
+					EventData data = Spawn.eventInfo.makeData(
+							player, ModDamageElement.PLAYER, // entity
+							player.getWorld(),
+							player.getMaxHealth() // health
+							);
+					
+					Spawn.runRoutines(data);
+					
+					player.setHealth(data.getMy(Integer.class, 2));
+				}
+			}
+			
+			@SuppressWarnings("unused")
+			@EventHandler(priority=EventPriority.HIGHEST)
+			public void onCreatureSpawn(CreatureSpawnEvent event)
+			{ 
+				if(ModDamage.isEnabled && !event.isCancelled())
+				{
+					LivingEntity entity = (LivingEntity)event.getEntity();
+					EventData data = Spawn.eventInfo.makeData(
+							entity, ModDamageElement.getElementFor(entity),
+							entity.getWorld(),
+							entity.getHealth());
+					
+					Spawn.runRoutines(data);
+					
+					int newHealth = data.getMy(Integer.class, 3);
+					if (newHealth > 0)
+						entity.setHealth(newHealth);
+					else
+						event.setCancelled(true);
+				}
+			}
+		}),
+			
+	Tame(
+		new SimpleEventInfo(
+			Entity.class, ModDamageElement.class, 	"entity",
+			Entity.class, ModDamageElement.class, 	"tamer",
+			World.class,							"world"),
+			
+		new Listener() {
+			@SuppressWarnings("unused")
+			@EventHandler(priority=EventPriority.HIGHEST)
+			public void onEntityTame(EntityTameEvent event)
+			{
+				if(ModDamage.isEnabled)
+				{
+					LivingEntity entity = (LivingEntity)event.getEntity();
+					LivingEntity owner = (LivingEntity)event.getOwner();
+					EventData data = Tame.eventInfo.makeData(
+							entity, ModDamageElement.getElementFor(entity),
+							owner, ModDamageElement.getElementFor(owner),
+							entity.getWorld());
+					
+					Tame.runRoutines(data);
+				}
+			}
+		});
+	
+	private final EventInfo eventInfo;
+	public final Listener listener;
+	
+	private ModDamageEventHandler(EventInfo eventInfo, Listener listener)
+	{
+		this.eventInfo = eventInfo;
+		this.listener = listener;
+	}
 
 	protected static final String disableDeathMessages_configString = "disable-deathmessages";
 	public static boolean disableDeathMessages = false;
 	
-	public void runRoutines(TargetEventInfo eventInfo)
+	public void runRoutines(EventData data)
 	{
 		if (routines != null)
-			routines.run(eventInfo);
+			routines.run(data);
 	}
 	protected Routines routines = null;
 	protected LoadState specificLoadState = LoadState.NOT_LOADED;
 	protected static LoadState state = LoadState.NOT_LOADED;
 	
-	protected LoadState getState(){ return specificLoadState;}
+	protected LoadState getState(){ return specificLoadState; }
 	
 	protected static void reload()
 	{
@@ -59,7 +269,7 @@ enum ModDamageEventHandler
 			{
 				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 				ModDamage.addToLogRecord(OutputPreset.INFO, eventType.name() + " configuration:");
-				Routines routines = RoutineAliaser.parseRoutines(nestedContent);
+				Routines routines = RoutineAliaser.parseRoutines(nestedContent, eventType.eventInfo);
 				eventType.specificLoadState = routines != null? LoadState.SUCCESS : LoadState.FAILURE;
 				if(eventType.specificLoadState.equals(LoadState.SUCCESS))
 					eventType.routines = routines;
@@ -69,13 +279,13 @@ enum ModDamageEventHandler
 			switch(eventType.specificLoadState)
 			{
 				case NOT_LOADED:
-				ModDamage.addToLogRecord(OutputPreset.WARNING, eventType.name() + " configuration not found.");
+					ModDamage.addToLogRecord(OutputPreset.WARNING, eventType.name() + " configuration not found.");
 					break;
 				case FAILURE:
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error in " + eventType.name() + " configuration.");
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error in " + eventType.name() + " configuration.");
 					break;
 				case SUCCESS:
-				ModDamage.addToLogRecord(OutputPreset.INFO, "End " + eventType.name() + " configuration.");
+					ModDamage.addToLogRecord(OutputPreset.INFO, "End " + eventType.name() + " configuration.");
 					break;
 			}
 			state = LoadState.combineStates(state, eventType.specificLoadState);
@@ -96,150 +306,51 @@ enum ModDamageEventHandler
 		}
 	}
 	
-	static ModDamageEventListener eventListener = new ModDamageEventListener();
-	
-	static class ModDamageEventListener implements Listener
+	static EventData getDamageEventData(EntityDamageEvent event)
 	{
-	//// SPAWN ////
-		@EventHandler(priority=EventPriority.HIGHEST)
-		public void onPlayerRespawn(PlayerRespawnEvent event)
-		{
-			if(ModDamage.isEnabled)
-			{
-				Player player = event.getPlayer();
-				TargetEventInfo eventInfo = new TargetEventInfo(player, ModDamageElement.PLAYER, player.getMaxHealth());
-				Spawn.runRoutines(eventInfo);
-				player.setHealth(eventInfo.eventValue);
-			}
-		}	
+		if (event == null) return null;
 		
-	//// DAMAGE ////
-		@EventHandler(priority=EventPriority.HIGHEST)
-		public void onEntityDamage(EntityDamageEvent event)
+		ModDamageElement damageElement = ModDamageElement.getElementFor(event.getCause());
+		
+		Entity attacker = null;
+		ModDamageElement attackerElement = null;
+		Projectile projectile = null;
+		ModDamageElement projectileElement = null;
+		Entity target = event.getEntity();
+		ModDamageElement targetElement = ModDamageElement.getElementFor(target);
+		World world = target.getWorld();
+		
+		if(event instanceof EntityDamageByEntityEvent)
 		{
-			if (!ModDamage.isEnabled) return;
-			if(!event.isCancelled() && (event.getEntity() instanceof LivingEntity)) 
+			EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
+			Entity damager = event_EE.getDamager();
+			
+			if(damager instanceof Projectile)
 			{
-				LivingEntity le = (LivingEntity)event.getEntity();
-				if(le.getNoDamageTicks() <= le.getMaximumNoDamageTicks()/2)
-				{
-					AttackerEventInfo eventInfo = getDamageEventInfo(event);
-					if(eventInfo != null)
-					{
-						Damage.runRoutines(eventInfo);
-						event.setDamage(eventInfo.eventValue);
-						//event.setCancelled(event.getDamage() <= 0);
-					}
-					else  PluginConfiguration.log.severe("[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + "] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
-				}
+				projectile = (Projectile)damager;
+				
+				attacker = projectile.getShooter();
+				
+				if(attacker == null)
+					attackerElement = ModDamageElement.DISPENSER;
+			}
+			else
+			{
+				attacker = damager;
 			}
 		}
 		
-	////DEATH ////
-		@EventHandler(priority=EventPriority.HIGHEST)
-		public void onEntityDeath(EntityDeathEvent event)
-		{
-			if(ModDamage.isEnabled && event.getEntity() instanceof LivingEntity)
-			{
-				if(event instanceof PlayerDeathEvent && disableDeathMessages)
-					((PlayerDeathEvent)event).setDeathMessage(null);
-					
-			    AttackerEventInfo eventInfo = getDamageEventInfo(((LivingEntity)event.getEntity()).getLastDamageCause());
-				if(eventInfo != null)
-				{
-					eventInfo.eventValue = event.getDroppedExp();
-					Death.runRoutines(eventInfo);
-					event.setDroppedExp(eventInfo.eventValue);
-				}
-			}
-		}
-	
-	//// FOOD ////
-		@EventHandler(priority=EventPriority.HIGHEST)
-		public void onEntityRegainHealth(EntityRegainHealthEvent event)
-		{
-			if(ModDamage.isEnabled && !event.isCancelled() && event.getRegainReason().equals(RegainReason.SATIATED))
-			{
-				LivingEntity entity = (LivingEntity)event.getEntity();
-				TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.getElementFor(entity), event.getAmount());
-				Food.runRoutines(eventInfo);
-			}
-		}
+		if (attacker != null)
+			attackerElement = ModDamageElement.getElementFor(attacker);
+		if (projectile != null)
+			projectileElement = ModDamageElement.getElementFor(projectile);
 		
-	//// PROJECTILE HIT ////
-		@EventHandler(priority=EventPriority.HIGHEST)
-		public void onProjectileHit(ProjectileHitEvent event)
-		{
-			if(ModDamage.isEnabled)
-			{
-				Projectile projectile = (Projectile)event.getEntity();
-				ModDamageElement rangedElement = ModDamageElement.getElementFor(projectile);
-				ProjectileEventInfo eventInfo = null;
-				if(projectile.getShooter() != null)
-					eventInfo = new ProjectileEventInfo(projectile.getShooter(), ModDamageElement.getElementFor(projectile.getShooter()), projectile, rangedElement, 0);
-				else eventInfo = new ProjectileEventInfo(projectile.getWorld(), ModDamageElement.DISPENSER, projectile, rangedElement, 0);
-				ProjectileHit.runRoutines(eventInfo);
-			}
-		}
-		
-	//// SPAWN ////
-		@EventHandler(priority=EventPriority.HIGHEST)
-		public void onCreatureSpawn(CreatureSpawnEvent event)
-		{ 
-			if(ModDamage.isEnabled && !event.isCancelled())
-			{
-				LivingEntity entity = (LivingEntity)event.getEntity();
-				TargetEventInfo eventInfo = new TargetEventInfo(entity, ModDamageElement.getElementFor(entity), entity.getHealth());
-				Spawn.runRoutines(eventInfo);
-				if (eventInfo.eventValue > 0)
-					entity.setHealth(eventInfo.eventValue);
-				else
-					event.setCancelled(true);
-			}
-		}
-		
-	////TAME ////
-		@EventHandler(priority=EventPriority.HIGHEST)
-		public void onEntityTame(EntityTameEvent event)
-		{
-			if(ModDamage.isEnabled)
-			{
-				AttackerEventInfo eventInfo = new AttackerEventInfo((LivingEntity)event.getEntity(), ModDamageElement.WOLF_TAME, (LivingEntity)event.getOwner(), ModDamageElement.getElementFor((LivingEntity)event.getOwner()), null, null, 0);
-				Tame.runRoutines(eventInfo);
-			}
-		}
-		
-	//// HELPER FUNCTIONS ////
-		private AttackerEventInfo getDamageEventInfo(EntityDamageEvent event)
-		{
-			if(event != null)
-			{
-	    		LivingEntity ent_damaged = (LivingEntity)event.getEntity();
-				ModDamageElement primaryElement = ModDamageElement.getElementFor(event.getCause());
-			    switch(primaryElement)
-			    {
-			    	case LIVING:
-			    	case EXPLOSION_ENTITY:
-			    	case PROJECTILE:
-						if(event instanceof EntityDamageByEntityEvent)
-						{
-							EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
-							if(event_EE.getDamager() instanceof Projectile)
-							{
-								Projectile projectile = (Projectile)event_EE.getDamager();
-								ModDamageElement rangedElement = ModDamageElement.getElementFor(projectile);
-								if(projectile.getShooter() != null)
-									return new AttackerEventInfo(ent_damaged, ModDamageElement.getElementFor(ent_damaged), projectile.getShooter(), ModDamageElement.getElementFor(projectile.getShooter()), projectile, rangedElement, event.getDamage());
-								else if(event_EE.getCause().equals(DamageCause.PROJECTILE))//FIXME Necessary?
-					    			return new AttackerEventInfo(ent_damaged, ModDamageElement.getElementFor(ent_damaged), null, ModDamageElement.DISPENSER, projectile, rangedElement, event.getDamage());
-							}
-							else if(event_EE.getDamager() instanceof LivingEntity) return new AttackerEventInfo(ent_damaged, ModDamageElement.getElementFor(ent_damaged), (LivingEntity)event_EE.getDamager(), ModDamageElement.getElementFor((LivingEntity)event_EE.getDamager()), null, null, event.getDamage());
-						}
-					default: return new AttackerEventInfo(ent_damaged, ModDamageElement.getElementFor(ent_damaged), null, primaryElement, null, null, event.getDamage());
-			    	case UNKNOWN: break;
-			    }
-			}
-		    return null;
-		}
+	    return Damage.eventInfo.makeData(
+	    		attacker, attackerElement,
+	    		projectile, projectileElement,
+	    		target, targetElement,
+	    		world,
+	    		damageElement,
+	    		event.getDamage());
 	}
 };

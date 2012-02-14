@@ -11,7 +11,7 @@ public class BiomeAliaser extends CollectionAliaser<Biome>
 	public static BiomeAliaser aliaser = new BiomeAliaser();
 	public static Collection<Biome> match(String string) { return aliaser.matchAlias(string); }
 	
-	public BiomeAliaser(){ super(AliasManager.Biome.name());}
+	public BiomeAliaser(){ super(AliasManager.Biome.name()); }
 	@Override
 	protected Biome matchNonAlias(String key)
 	{
@@ -20,6 +20,6 @@ public class BiomeAliaser extends CollectionAliaser<Biome>
 				return biome;
 		return null;
 	}
-	@Override
-	protected String getObjectName(Biome object){ return object.name();}
+	//@Override
+	//protected String getObjectName(Biome object){ return object.name(); }
 }

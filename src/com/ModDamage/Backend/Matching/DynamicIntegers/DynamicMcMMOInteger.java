@@ -3,17 +3,18 @@ package com.ModDamage.Backend.Matching.DynamicIntegers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.ModDamage;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Utils;
-import com.ModDamage.Backend.EntityReference;
-import com.ModDamage.Backend.ModDamageElement;
-import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.datatypes.SkillType;
 
@@ -22,19 +23,22 @@ public class DynamicMcMMOInteger extends DynamicInteger
 	public static void register()
 	{
 		DynamicInteger.register(
-				Pattern.compile("("+ Utils.joinBy("|", EntityReference.values()) +")_SKILL_(\\w+)", Pattern.CASE_INSENSITIVE),
+				Pattern.compile("([a-z]+)_SKILL_(\\w+)", Pattern.CASE_INSENSITIVE),
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
 					{
 						try
 						{
-							DynamicInteger integer = new DynamicMcMMOInteger(
-									EntityReference.valueOf(matcher.group(1).toUpperCase()), 
-									SkillType.valueOf(matcher.group(2).toUpperCase()));
-							sm.accept();
-							return integer;
+							String name = matcher.group(1).toLowerCase();
+							DataRef<Entity> entityRef = info.get(Entity.class, name);
+							DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+							if (entityRef == null || entityElementRef == null) return null;
+							
+							return sm.acceptIf(new DynamicMcMMOInteger(
+									entityRef, entityElementRef,
+									SkillType.valueOf(matcher.group(2).toUpperCase())));
 						}
 						catch (IllegalArgumentException e) { }
 						catch (NoClassDefFoundError e) {
@@ -47,22 +51,24 @@ public class DynamicMcMMOInteger extends DynamicInteger
 	
 	//protected static mcMMO mcMMOplugin;
 	protected final SkillType skillType;
-	protected final EntityReference entityReference;
+	protected final DataRef<Entity> entityRef;
+	protected final DataRef<ModDamageElement> entityElementRef;
 	
-	DynamicMcMMOInteger(EntityReference reference, SkillType skillType)
+	DynamicMcMMOInteger(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, SkillType skillType)
 	{
-		this.entityReference = reference;
+		this.entityRef = entityRef;
+		this.entityElementRef = entityElementRef;
 		this.skillType = skillType;
 	}
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public int getValue(EventData data)
 	{
-		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
+		if(entityElementRef.get(data).matchesType(ModDamageElement.PLAYER))
 		{
 			mcMMO mcMMOplugin = ExternalPluginManager.getMcMMOPlugin();
 			if(mcMMOplugin != null)
-				return mcMMOplugin.getPlayerProfile(((Player)entityReference.getEntity(eventInfo))).getSkillLevel(skillType);
+				return mcMMOplugin.getPlayerProfile(((Player)entityRef.get(data))).getSkillLevel(skillType);
 		}
 		return 0;
 	}
@@ -70,6 +76,6 @@ public class DynamicMcMMOInteger extends DynamicInteger
 	@Override
 	public String toString()
 	{
-		return entityReference.name().toLowerCase() + "_skill_" + skillType.name().toLowerCase();
+		return /*FIXME entityIndex.name().toLowerCase() +*/ "_skill_" + skillType.name().toLowerCase();
 	}
 }

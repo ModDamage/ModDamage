@@ -5,30 +5,34 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.EnchantmentAliaser;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class PlayerHasEnchantment extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.hasenchantment\\.(\\w+)", Pattern.CASE_INSENSITIVE);
-	final EntityReference entityReference;
+	final DataRef<Entity> entityRef;
+	final DataRef<ModDamageElement> entityElementRef;
 	protected final Collection<Enchantment> enchantments;
-	public PlayerHasEnchantment(EntityReference entityReference, Collection<Enchantment> enchantments)
+	public PlayerHasEnchantment(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, Collection<Enchantment> enchantments)
 	{
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
+		this.entityElementRef = entityElementRef;
 		this.enchantments = enchantments;
 	}
 
 	@Override
-	public boolean evaluate(TargetEventInfo eventInfo)
+	public boolean evaluate(EventData data)
 	{
-		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
+		if(entityElementRef.get(data).matchesType(ModDamageElement.PLAYER))
 			for(Enchantment enchantment : enchantments)
-				if(((Player)entityReference.getEntity(eventInfo)).getItemInHand().containsEnchantment(enchantment))
+				if(((Player)entityRef.get(data)).getItemInHand().containsEnchantment(enchantment))
 					return true;
 		return false;
 	}
@@ -43,12 +47,14 @@ public class PlayerHasEnchantment extends Conditional
 		public ConditionalBuilder() { super(pattern); }
 
 		@Override
-		public PlayerHasEnchantment getNew(Matcher matcher)
+		public PlayerHasEnchantment getNew(Matcher matcher, EventInfo info)
 		{
 			Collection<Enchantment> enchantments = EnchantmentAliaser.match(matcher.group(2));
-			EntityReference reference = EntityReference.match(matcher.group(1));
-			if(reference != null && !enchantments.isEmpty())
-				return new PlayerHasEnchantment(reference, enchantments);
+			String name = matcher.group(1).toLowerCase();
+			DataRef<Entity> entityRef = info.get(Entity.class, name);
+			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+			if(entityRef != null && !enchantments.isEmpty())
+				return new PlayerHasEnchantment(entityRef, entityElementRef, enchantments);
 			return null;
 		}
 	}

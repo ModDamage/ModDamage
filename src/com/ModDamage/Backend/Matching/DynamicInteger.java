@@ -1,6 +1,6 @@
 package com.ModDamage.Backend.Matching;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -9,9 +9,6 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
-import com.ModDamage.Utils;
-import com.ModDamage.Backend.EntityReference;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicCalculatedInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicEnchantmentInteger;
@@ -26,6 +23,8 @@ import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicServerInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicWorldInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.Function;
 import com.ModDamage.Backend.Matching.DynamicIntegers.NegativeInteger;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Routines.Routines;
 
 public abstract class DynamicInteger extends DynamicString
@@ -36,35 +35,35 @@ public abstract class DynamicInteger extends DynamicString
 	public static final String dynamicIntegerPart_silent;
 	static
 	{
-		String tempString = "(?:"+Utils.joinBy("|", EntityReference.values()) + "event|world|server)";
-		dynamicIntegerPart = "(-?(?:[0-9]+|(?:" + tempString + "_\\w+)|(?:_\\w+)|(?:\\(.*\\))))";//FIXME The greediness at the end blocks all 
+		dynamicIntegerPart = "(-?(?:[0-9]+|(?:[a-z]+_\\w+)|(?:_\\w+)|(?:\\(.*\\))))";//FIXME The greediness at the end blocks all 
 		dynamicIntegerPart_silent = "(?:" + dynamicIntegerPart.substring(1); 
 	}
 	//private static final Pattern dynamicIntegerPattern = Pattern.compile(dynamicIntegerPart, Pattern.CASE_INSENSITIVE);
 	
 	
-	public abstract int getValue(TargetEventInfo eventInfo);
+	public abstract int getValue(EventData data);
 	
 	public boolean isSettable(){ return false; }
-	public void setValue(TargetEventInfo eventInfo, int value) { }
+	public void setValue(EventData data, int value) { }
 	
-	public static DynamicInteger getNew(Routines routines) 
+	public static DynamicInteger getNew(Routines routines, EventInfo info) 
 	{
 		if(routines != null && !routines.isEmpty())
-			return new DynamicRoutineInteger(routines);
+			return new DynamicRoutineInteger(routines, info);
 		return null;
 	}
 	
-	public static DynamicInteger getIntegerFromFront(StringMatcher sm)
+	public static DynamicInteger getIntegerFromFront(StringMatcher sm, EventInfo info)
 	{
 		sm.matchFront(whitespace);
 		
 		for(Entry<Pattern, DynamicIntegerBuilder> entry : registeredIntegers.entrySet())
 		{
-			Matcher matcher = sm.matchFront(entry.getKey());
+			StringMatcher sm2 = sm.spawn();
+			Matcher matcher = sm2.matchFront(entry.getKey());
 			if(matcher != null)
 			{
-				DynamicInteger dir = entry.getValue().getNewFromFront(matcher, sm.spawn());
+				DynamicInteger dir = entry.getValue().getNewFromFront(matcher, sm2, info);
 				if(dir != null)
 				{
 					sm.accept();
@@ -75,11 +74,11 @@ public abstract class DynamicInteger extends DynamicString
 		return null;
 	}
 	
-	public static DynamicInteger getNew(String string){ return getNew(string, true);}
-	public static DynamicInteger getNew(String string, boolean outputError)
+	public static DynamicInteger getNew(String string, EventInfo info){ return getNew(string, info, true); }
+	public static DynamicInteger getNew(String string, EventInfo info, boolean outputError)
 	{
 		StringMatcher sm = new StringMatcher(string);
-		DynamicInteger integer = getIntegerFromFront(sm.spawn());
+		DynamicInteger integer = getIntegerFromFront(sm.spawn(), info);
 		if (outputError)
 		{
 			if (integer == null)
@@ -99,7 +98,6 @@ public abstract class DynamicInteger extends DynamicString
 		DynamicEnchantmentInteger.register();
 		DynamicEntityInteger.register();
 		DynamicEntityTagInteger.register();
-		DynamicEventInteger.register();
 		DynamicMcMMOInteger.register();
 		DynamicPlayerInteger.register();
 		DynamicPlayerItemInteger.register();
@@ -107,12 +105,13 @@ public abstract class DynamicInteger extends DynamicString
 		DynamicWorldInteger.register();
 		NegativeInteger.register();
 		Function.register();
+		DynamicEventInteger.register();
 		
 		/*DynamicInteger.register(Pattern.compile("_\\w+"),
 				new DynamicIntegerBuilder()
 					{
 						@Override
-						public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
+						public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
 						{
 							sm.accept();
 							return DynamicInteger.getNew(RoutineAliaser.match(matcher.group()));
@@ -120,7 +119,7 @@ public abstract class DynamicInteger extends DynamicString
 					});*/
 	}
 	
-	private static Map<Pattern, DynamicIntegerBuilder> registeredIntegers = new HashMap<Pattern, DynamicIntegerBuilder>();
+	private static Map<Pattern, DynamicIntegerBuilder> registeredIntegers = new LinkedHashMap<Pattern, DynamicIntegerBuilder>();
 	
 	public static void register(Pattern pattern, DynamicIntegerBuilder dib)
 	{
@@ -129,9 +128,9 @@ public abstract class DynamicInteger extends DynamicString
 	
 	abstract public static class DynamicIntegerBuilder
 	{
-		abstract public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm);
+		abstract public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info);
 	}
 
 	@Override
-	public String getString(TargetEventInfo eventInfo){ return ""+getValue(eventInfo);}
+	public String getString(EventData data){ return ""+getValue(data); }
 }

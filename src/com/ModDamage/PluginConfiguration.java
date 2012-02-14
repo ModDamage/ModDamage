@@ -64,9 +64,9 @@ public class PluginConfiguration
 		NOT_LOADED(ChatColor.GRAY + "NO  "), FAILURE(ChatColor.RED + "FAIL"), SUCCESS(ChatColor.GREEN + "YES ");
 
 		private String string;
-		private LoadState(String string){ this.string = string;}
+		private LoadState(String string){ this.string = string; }
 
-		public String statusString(){ return string;}
+		public String statusString(){ return string; }
 
 		public static LoadState combineStates(LoadState... states)
 		{
@@ -159,7 +159,7 @@ public class PluginConfiguration
 				if(!writeDefaults())
 					return false;
 			}
-			catch (IOException e){ printToLog(Level.SEVERE, "Fatal: could not close " + configString_defaultConfigPath + "!");}
+			catch (IOException e){ printToLog(Level.SEVERE, "Fatal: could not close " + configString_defaultConfigPath + "!"); }
 			catch (YAMLException e)
 			{
 				// TODO 0.9.7 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not
@@ -408,11 +408,11 @@ public class PluginConfiguration
 			player.sendMessage(ChatColor.AQUA + "Aliases:    " + AliasManager.getState().statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + ModDamageEventHandler.state.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:     " + AliasManager.Armor.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Damage: " + ModDamageEventHandler.Damage.specificLoadState.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Element:   " + AliasManager.Type.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Death:  " + ModDamageEventHandler.Death.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Group:     " + AliasManager.Group.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Food:  " + ModDamageEventHandler.Food.specificLoadState.statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Group:     " + AliasManager.Group.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Heal:  " + ModDamageEventHandler.Heal.specificLoadState.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Material:   " + AliasManager.Material.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "ProjectileHit:  " + ModDamageEventHandler.ProjectileHit.specificLoadState.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Message:  " + AliasManager.Message.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Spawn:  " + ModDamageEventHandler.Spawn.specificLoadState.statusString());
 			player.sendMessage(ChatColor.DARK_AQUA + "   Region:     " + AliasManager.Region.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Tame:  " + ModDamageEventHandler.Tame.specificLoadState.statusString());
-			//player.sendMessage(ChatColor.DARK_AQUA + "   Routine:    " + AliasManager.Routine.getSpecificLoadState().statusString() + ChatColor.DARK_AQUA + "        Condition:  " + AliasManager.Routine.getSpecificLoadState().statusString());
+			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:    " + AliasManager.Routine.getSpecificLoadState().statusString());
 			String bottomString = null;
 			switch(LoadState.pluginState)
 			{
@@ -506,10 +506,10 @@ public class PluginConfiguration
 		return true;
 	}
 	
-	public String logPrepend(){ return "[" + plugin.getDescription().getName() + "] ";}
-	public void printToLog(Level level, String message){ log.log(level, "[" + plugin.getDescription().getName() + "] " + message);}
+	public String logPrepend(){ return "[" + plugin.getDescription().getName() + "] "; }
+	public void printToLog(Level level, String message){ log.log(level, "[" + plugin.getDescription().getName() + "] " + message); }
 
-	public LinkedHashMap<String, Object> getConfigMap(){ return configMap;}
+	public LinkedHashMap<String, Object> getConfigMap(){ return configMap; }
 
 	public DebugSetting getDebugSetting()
 	{

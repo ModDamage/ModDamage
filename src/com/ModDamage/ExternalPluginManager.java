@@ -14,8 +14,8 @@ import org.bukkit.plugin.Plugin;
 
 import ru.tehkode.permissions.PermissionManager;
 
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.ModDamage.ModDamageExtension;
+import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 import com.elbukkit.api.elregions.elRegionsPlugin;
@@ -45,10 +45,10 @@ public class ExternalPluginManager
 	}
 	
 	private static mcMMO mcMMOplugin;
-	public static mcMMO getMcMMOPlugin(){ return mcMMOplugin;}
+	public static mcMMO getMcMMOPlugin(){ return mcMMOplugin; }
 	
 	private static PermissionsManager permissionsManager = PermissionsManager.SUPERPERMS;
-	public static PermissionsManager getPermissionsManager(){ return permissionsManager;}
+	public static PermissionsManager getPermissionsManager(){ return permissionsManager; }
 	public enum PermissionsManager
 	{
 		SUPERPERMS
@@ -125,7 +125,7 @@ public class ExternalPluginManager
 				return player.isOp() || player.hasPermission(permission);
 			return false;
 		}
-		public List<String> getGroups(Player player){ return emptyList;}
+		public List<String> getGroups(Player player){ return emptyList; }
 
 		public static PermissionsManager reload()
 		{
@@ -145,11 +145,11 @@ public class ExternalPluginManager
 		}
 		abstract protected void reload(Plugin plugin);
 		
-		public String getVersion(){ return version;}
+		public String getVersion(){ return version; }
 	}
 	
 	private static RegionsManager regionsManager = null;
-	public static RegionsManager getRegionsManager(){ return regionsManager;}
+	public static RegionsManager getRegionsManager(){ return regionsManager; }
 	public enum RegionsManager
 	{
 		NONE
@@ -158,10 +158,10 @@ public class ExternalPluginManager
 			public void reload(Plugin plugin){}
 
 			@Override
-			public List<String> getRegions(Location location){ return emptyList;}
+			public List<String> getRegions(Location location){ return emptyList; }
 			
 			@Override
-			public List<String> getAllRegions(){ return emptyList;}
+			public List<String> getAllRegions(){ return emptyList; }
 		},
 		elRegions
 		{
@@ -248,7 +248,7 @@ public class ExternalPluginManager
 			return RegionsManager.NONE;
 		}
 		abstract protected void reload(Plugin plugin);
-		public String getVersion(){ return version;}
+		public String getVersion(){ return version; }
 	}
 	
 	public static void reload()

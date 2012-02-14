@@ -7,55 +7,62 @@ import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.StringMatcher;
-import com.ModDamage.Utils;
-import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class DynamicEntityTagInteger extends DynamicInteger
 {	
 	public static void register()
 	{
 		DynamicInteger.register(
-				Pattern.compile("("+ Utils.joinBy("|", EntityReference.values()) +")_tagvalue_(\\w+)", Pattern.CASE_INSENSITIVE),
+				Pattern.compile("([a-z]+)_tag(?:value)?_(\\w+)", Pattern.CASE_INSENSITIVE),
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
 					{
-						return new DynamicEntityTagInteger(
-								EntityReference.valueOf(matcher.group(1).toUpperCase()), 
-								matcher.group(2));
+						String name = matcher.group(1).toLowerCase();
+						DataRef<Entity> entityRef = info.get(Entity.class, name);
+						DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+						if (entityRef == null || entityElementRef == null) return null;
+						
+						return sm.acceptIf(new DynamicEntityTagInteger(
+								entityRef, entityElementRef,
+								matcher.group(2)));
 					}
 				});
 	}
 	
-	protected final EntityReference entityReference;
+	protected final DataRef<Entity> entityRef;
+	protected final DataRef<ModDamageElement> entityElementRef;
 	protected final String tag;
 	
-	DynamicEntityTagInteger(EntityReference reference, String tag)
+	DynamicEntityTagInteger(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, String tag)
 	{
-		this.entityReference = reference;
+		this.entityRef = entityRef;
+		this.entityElementRef = entityElementRef;
 		this.tag = tag;
 	}
 	
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public int getValue(EventData data)
 	{
-		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.LIVING))
+		if(entityElementRef.get(data).matchesType(ModDamageElement.LIVING))
 		{
-			Entity entity = entityReference.getEntity(eventInfo);
+			Entity entity = entityRef.get(data);
 			return ModDamage.getTagger().isTagged(entity, tag)? ModDamage.getTagger().getTagValue(entity, tag) : 0;
 		}
 		return 0;
 	}
 	
 	@Override
-	public void setValue(TargetEventInfo eventInfo, int value)
+	public void setValue(EventData data, int value)
 	{
-		ModDamage.getTagger().addTag(entityReference.getEntity(eventInfo), tag, value);
+		ModDamage.getTagger().addTag(entityRef.get(data), tag, value);
 	}
 	
 	@Override
@@ -67,6 +74,6 @@ public class DynamicEntityTagInteger extends DynamicInteger
 	@Override
 	public String toString()
 	{
-		return entityReference.name().toLowerCase() + "_tagvalue_" + tag;
+		return entityRef + "_tag_" + tag;
 	}
 }

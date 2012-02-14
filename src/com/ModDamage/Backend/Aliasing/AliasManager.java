@@ -2,6 +2,7 @@ package com.ModDamage.Backend.Aliasing;
 
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration;
@@ -12,7 +13,6 @@ public enum AliasManager
 {
 	Armor(ArmorAliaser.class),
 	Biome(BiomeAliaser.class),
-	Condition(ConditionAliaser.class),
 	Enchantment(EnchantmentAliaser.class),
 	Item(ItemAliaser.class),
 	Group(GroupAliaser.class),
@@ -24,7 +24,7 @@ public enum AliasManager
 	TypeName(TypeNameAliaser.class),
 	World(WorldAliaser.class);
 	
-	private static LoadState state;
+	private static LoadState state = LoadState.NOT_LOADED;
 	public static LoadState getState() { return state; }
 	
 	private final Class<? extends Aliaser<?, ?>> aliaserClass;
@@ -39,6 +39,8 @@ public enum AliasManager
 		catch (NoSuchFieldException e) { e.printStackTrace(); }
 		return null;
 	}
+	
+	public static final Pattern aliasPattern = Pattern.compile("_\\w+");
 
 	public static void reload()
 	{
@@ -79,5 +81,5 @@ public enum AliasManager
 		ModDamage.addToLogRecord(OutputPreset.WARNING, "No Aliases node found.");
 	}
 	
-	public LoadState getSpecificLoadState(){ return getAliaser().loadState;}
+	public LoadState getSpecificLoadState(){ return getAliaser().loadState; }
 }

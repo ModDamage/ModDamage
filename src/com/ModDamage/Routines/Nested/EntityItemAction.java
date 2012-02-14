@@ -14,12 +14,13 @@ import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.ModDamageItemStack;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.ItemAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Routines.Routine;
 
 public class EntityItemAction extends NestedRoutine
@@ -61,47 +62,54 @@ public class EntityItemAction extends NestedRoutine
 		};
 		
 		protected final boolean requiresPlayer;
-		private ItemAction(boolean requiresPlayer){ this.requiresPlayer = requiresPlayer;}
+		private ItemAction(boolean requiresPlayer){ this.requiresPlayer = requiresPlayer; }
 
 		abstract protected void doAction(Entity entity, Collection<ModDamageItemStack> items, int quantity);
 	}
 	
 	protected final ItemAction action;
 	protected final Collection<ModDamageItemStack> items;
-	protected final EntityReference entityReference;
+	protected final DataRef<Entity> entityRef;
+	protected final DataRef<ModDamageElement> entityElementRef;
 	protected final DynamicInteger quantity;
-	public EntityItemAction(String configString, EntityReference entityReference, ItemAction action, Collection<ModDamageItemStack> items, DynamicInteger quantity)
+	public EntityItemAction(String configString, DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, ItemAction action, Collection<ModDamageItemStack> items, DynamicInteger quantity)
 	{
 		super(configString);
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
+		this.entityElementRef = entityElementRef;
 		this.action = action;
 		this.items = items;
 		this.quantity = quantity;
 	}
 	
 	@Override
-	public void run(TargetEventInfo eventInfo){
-		if(!action.requiresPlayer || entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
+	public void run(EventData data){
+		if(!action.requiresPlayer || entityElementRef.get(data).matchesType(ModDamageElement.PLAYER))
 		{
 			for(ModDamageItemStack item : items)
-				item.updateAmount(eventInfo);
+				item.updateAmount(data);
 			
-			action.doAction(entityReference.getEntity(eventInfo), items, quantity.getValue(eventInfo));
+			action.doAction(entityRef.get(data), items, quantity.getValue(data));
 		}
 	}
 	
 	private static final Pattern enchantPattern = Pattern.compile("enchant\\.(\\w+)\\.(.+)", Pattern.CASE_INSENSITIVE);
 
-	public static void register()
+	
+	private static final NestedRoutineBuilder nrb = new NestedRoutineBuilder();
+	public static void registerRoutine()
 	{
-		final NestedRoutineBuilder nrb = new NestedRoutineBuilder();
 		Routine.registerRoutine(pattern, new Routine.RoutineBuilder()
 			{
-				@Override public Routine getNew(Matcher matcher)
+				@Override public Routine getNew(Matcher matcher, EventInfo info)
 				{
-					return nrb.getNew(matcher, null);
+					return nrb.getNew(matcher, null, info);
 				}
 			});
+	}
+	
+	public static void registerNested()
+	{
 		NestedRoutine.registerRoutine(pattern, nrb);
 	}
 	
@@ -109,11 +117,13 @@ public class EntityItemAction extends NestedRoutine
 	{
 		@SuppressWarnings("unchecked")
 		@Override
-		public EntityItemAction getNew(Matcher matcher, Object nestedContent)
+		public EntityItemAction getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-			EntityReference reference = EntityReference.match(matcher.group(1));
-			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3));
-			if(reference != null && !items.isEmpty())
+			String name = matcher.group(1).toLowerCase();
+			DataRef<Entity> entityRef = info.get(Entity.class, name);
+			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
+			if(entityRef != null && !items.isEmpty())
 			{
 				if (nestedContent != null)
 				{
@@ -134,7 +144,7 @@ public class EntityItemAction extends NestedRoutine
 							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid enchantment: " + enchantMatcher.group(1));
 							return null;
 						}
-						DynamicInteger level = DynamicInteger.getNew(enchantMatcher.group(2));
+						DynamicInteger level = DynamicInteger.getNew(enchantMatcher.group(2), info);
 						
 						for (ModDamageItemStack item : items)
 						{
@@ -145,11 +155,11 @@ public class EntityItemAction extends NestedRoutine
 				
 				DynamicInteger quantity;
 				if (matcher.group(4) != null)
-					quantity = DynamicInteger.getNew(matcher.group(4));
+					quantity = DynamicInteger.getNew(matcher.group(4), info);
 				else
-					quantity = DynamicInteger.getNew("1");
+					quantity = DynamicInteger.getNew("1", info);
 				
-				return new EntityItemAction(matcher.group(), reference, ItemAction.valueOf(matcher.group(2).toUpperCase()), items, quantity);
+				return new EntityItemAction(matcher.group(), entityRef, entityElementRef, ItemAction.valueOf(matcher.group(2).toUpperCase()), items, quantity);
 			}
 			return null;
 		}

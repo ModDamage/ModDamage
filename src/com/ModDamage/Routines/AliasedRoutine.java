@@ -5,25 +5,35 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class AliasedRoutine extends Routine
 {
-	final String alias;
+	//private final EventInfo info;
+	//private final String alias;
+	private Routines routines;
 	
-	public AliasedRoutine(String configString, String alias)
+	public AliasedRoutine(String configString, final EventInfo info, final String alias)
 	{
 		super(configString);
-		this.alias = alias;
+		//this.info = info;
+		//this.alias = alias;
+		
+		// fetch after, to avoid infinite recursion
+		RoutineAliaser.whenDoneParsingAlias(new Runnable() {
+				@Override public void run() {
+					routines = RoutineAliaser.match(alias, info);
+				}
+			});
 	}
 
 	@Override
-	public void run(TargetEventInfo eventInfo)
+	public void run(EventData data)
 	{
-		Routines routines = RoutineAliaser.match(alias);
 		if (routines != null)
-			routines.run(eventInfo);
+			routines.run(data);
 	}
 
 	public static void register()
@@ -34,10 +44,10 @@ public class AliasedRoutine extends Routine
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
 	{
 		@Override
-		public AliasedRoutine getNew(Matcher matcher)
+		public AliasedRoutine getNew(Matcher matcher, EventInfo info)
 		{
 			String alias = matcher.group();
-			Routines aliasedRoutines = RoutineAliaser.match(alias);
+			/*Routines aliasedRoutines = RoutineAliaser.match(alias, info);
 			if(aliasedRoutines != null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Routine Alias: \"" + alias + "\"");
@@ -46,8 +56,9 @@ public class AliasedRoutine extends Routine
 			{
 				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid routine alias: \"" + alias + "\"");
 				return null;
-			}
-			return new AliasedRoutine(matcher.group(), matcher.group());
+			}*/
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Routine Alias: \"" + alias + "\"");
+			return new AliasedRoutine(matcher.group(), info, alias);
 		}
 	}
 

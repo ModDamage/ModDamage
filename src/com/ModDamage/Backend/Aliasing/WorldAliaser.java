@@ -1,6 +1,5 @@
 package com.ModDamage.Backend.Aliasing;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -15,7 +14,7 @@ public class WorldAliaser extends CollectionAliaser<String>
 	public static WorldAliaser aliaser = new WorldAliaser();
 	public static Collection<String> match(String string) { return aliaser.matchAlias(string); }
 	
-	public WorldAliaser() {super(AliasManager.World.name());}
+	public WorldAliaser() {super(AliasManager.World.name()); }
 
 	@Override
 	protected String matchNonAlias(String key)
@@ -28,12 +27,12 @@ public class WorldAliaser extends CollectionAliaser<String>
 		return Bukkit.getWorld(key).getName();
 	}
 
-	@Override
-	protected String getObjectName(String object){ return object;}
+	//@Override
+	//protected String getObjectName(String object){ return object; }
+
+	//@Override
+	//protected HashSet<String> getNewStorageClass(String value){ return new HashSet<String>(Arrays.asList(value)); }
 
 	@Override
-	protected HashSet<String> getNewStorageClass(String value){ return new HashSet<String>(Arrays.asList(value));}
-
-	@Override
-	protected HashSet<String> getDefaultValue(){ return new HashSet<String>();}
+	protected HashSet<String> getDefaultValue(){ return new HashSet<String>(); }
 }

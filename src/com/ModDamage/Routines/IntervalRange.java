@@ -4,23 +4,25 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class IntervalRange extends RandomRoutine 
 {
 	final protected DynamicInteger intervalValue, rangeValue;
-	public IntervalRange(String configString, ValueChangeType changeType, DynamicInteger base, DynamicInteger interval, DynamicInteger interval_range)
+	public IntervalRange(String configString, DataRef<Integer> defaultRef, ValueChangeType changeType, DynamicInteger base, DynamicInteger interval, DynamicInteger interval_range)
 	{ 
-		super(configString, changeType, base);
+		super(configString, defaultRef, changeType, base);
 		intervalValue = interval;
 		rangeValue = interval_range;
 	}
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public int getValue(EventData data)
 	{
-		return number.getValue(eventInfo) + (intervalValue.getValue(eventInfo) * (Math.abs(random.nextInt(rangeValue.getValue(eventInfo) + 1))));
+		return number.getValue(data) + (intervalValue.getValue(data) * (Math.abs(random.nextInt(rangeValue.getValue(data) + 1))));
 	}
 	
 	public static void register()
@@ -31,13 +33,16 @@ public class IntervalRange extends RandomRoutine
 	protected static class RoutineBuilder extends ValueChangeRoutine.ValueBuilder
 	{
 		@Override
-		public IntervalRange getNew(Matcher matcher, ValueChangeType changeType)
+		public IntervalRange getNew(Matcher matcher, ValueChangeType changeType, EventInfo info)
 		{ 
-			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1)), match2 = DynamicInteger.getNew(matcher.group(2)), match3 = DynamicInteger.getNew(matcher.group(3));
-			if(match1 != null && match2 != null && match3 != null)
+			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1), info), 
+						   match2 = DynamicInteger.getNew(matcher.group(2), info), 
+						   match3 = DynamicInteger.getNew(matcher.group(3), info);
+			DataRef<Integer> defaultRef = info.get(Integer.class, "-default");
+			if(match1 != null && match2 != null && match3 != null && defaultRef != null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Interval Range" + changeType.getStringAppend() + ": " + matcher.group(1) + ", " + matcher.group(2) + ", " + matcher.group(3));
-				return new IntervalRange(matcher.group(), changeType, match1, match2, match3);
+				return new IntervalRange(matcher.group(), defaultRef, changeType, match1, match2, match3);
 			}
 			return null;
 		}

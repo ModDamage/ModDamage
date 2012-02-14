@@ -6,22 +6,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Routines.Nested.Conditionals.CompoundConditional.LogicalOperator;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.StringMatcher;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Routines.Nested.Conditionals.CompoundConditional.LogicalOperator;
 
 abstract public class Conditional
 {
 	public static final Pattern whitespace = Pattern.compile("\\s*");
 	
-	public static Conditional getNew(String string)
+	public static Conditional getNew(String string, EventInfo info)
 	{
 		if(string == null) return null;
 		
 		StringMatcher sm = new StringMatcher(string);
 		
-		Conditional conditional = getNewFromFront(sm.spawn());
+		Conditional conditional = getNewFromFront(sm.spawn(), info);
 		if (conditional == null)
 		{
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unmatched conditional \"" + string + "\"");
@@ -37,14 +38,14 @@ abstract public class Conditional
 		return conditional;
 	}
 	
-	protected static Conditional getNewFromFront(StringMatcher sm)
+	protected static Conditional getNewFromFront(StringMatcher sm, EventInfo info)
 	{
 		if(sm == null) return null;
 		
 		Conditional conditional = null;
 		for(ConditionalBuilder builder : registeredConditionals)
 		{
-			conditional = builder.getNewFromFront(sm.spawn());
+			conditional = builder.getNewFromFront(sm.spawn(), info);
 			if (conditional != null) break;
 		}
 		
@@ -59,7 +60,7 @@ abstract public class Conditional
 		{
 			LogicalOperator operator = LogicalOperator.match(matcher.group(1));
 			
-			Conditional right = getNewFromFront(sm);
+			Conditional right = getNewFromFront(sm, info);
 			
 			if (right == null)
 				return null;
@@ -124,12 +125,12 @@ abstract public class Conditional
 	{
 	}
 	
-	public abstract boolean evaluate(TargetEventInfo eventInfo);
+	public abstract boolean evaluate(EventData data);
 	
 	
 	abstract protected static class ConditionalBuilder
 	{
-		public abstract Conditional getNewFromFront(StringMatcher sm);
+		public abstract Conditional getNewFromFront(StringMatcher sm, EventInfo info);
 	}
 	
 	abstract protected static class SimpleConditionalBuilder extends ConditionalBuilder
@@ -141,12 +142,12 @@ abstract public class Conditional
 			this.pattern = pattern;
 		}
 		
-		public final Conditional getNewFromFront(StringMatcher sm)
+		public final Conditional getNewFromFront(StringMatcher sm, EventInfo info)
 		{
 			Matcher matcher = sm.matchFront(pattern);
 			if (matcher != null)
 			{
-				Conditional conditional = getNew(matcher);
+				Conditional conditional = getNew(matcher, info);
 				if (conditional != null)
 				{
 					sm.accept();
@@ -156,6 +157,6 @@ abstract public class Conditional
 			return null;
 		}
 		
-		protected abstract Conditional getNew(Matcher matcher);
+		protected abstract Conditional getNew(Matcher matcher, EventInfo info);
 	}
 }

@@ -4,8 +4,9 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class Chance extends Conditional
 {
@@ -18,7 +19,7 @@ public class Chance extends Conditional
 		this.probability = probability;
 	}
 	@Override
-	public boolean evaluate(TargetEventInfo eventInfo){ return Math.abs(random.nextInt()%101) <= probability.getValue(eventInfo);}
+	public boolean evaluate(EventData data){ return Math.abs(random.nextInt()%101) <= probability.getValue(data); }
 	
 	public static void register()
 	{
@@ -30,9 +31,9 @@ public class Chance extends Conditional
 		public ConditionalBuilder() { super(pattern); }
 
 		@Override
-		public Chance getNew(Matcher matcher)
+		public Chance getNew(Matcher matcher, EventInfo info)
 		{
-			return new Chance(DynamicInteger.getNew(matcher.group(1)));
+			return new Chance(DynamicInteger.getNew(matcher.group(1), info));
 		}
 	}
 }

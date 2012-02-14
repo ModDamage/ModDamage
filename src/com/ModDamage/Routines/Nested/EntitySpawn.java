@@ -6,39 +6,47 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Routines.Routines;
 
 public class EntitySpawn extends NestedRoutine
 {
-	final EntityReference entityReference;
+	final DataRef<Entity> entityRef;
 	final ModDamageElement spawnElement;
 	final Routines routines;
-	public EntitySpawn(String configString, EntityReference entityReference, ModDamageElement spawnElement, Routines routines)
+	public EntitySpawn(String configString, DataRef<Entity> entityRef, ModDamageElement spawnElement, Routines routines)
 	{
 		super(configString);
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
 		this.spawnElement = spawnElement;
 		this.routines = routines;
 	}
+	
+	static EventInfo myInfo = new SimpleEventInfo(
+			Entity.class, "spawned",
+			ModDamageElement.class, "spawned",
+			Integer.class, "health", "-default");
 
 	@Override
-	public void run(TargetEventInfo eventInfo) 
+	public void run(EventData data) 
 	{
-		Entity entity = entityReference.getEntity(eventInfo);
+		Entity entity = entityRef.get(data);
 		if (entity == null)
-			return; //entity = EntityReference.TARGET.getEntity(eventInfo);
+			return; //entity = EntityReference.TARGET.getEntity(data);
 		
 		LivingEntity newEntity = spawnElement.spawnCreature(entity.getLocation());
 		
-		TargetEventInfo newEventInfo = new TargetEventInfo(newEntity, ModDamageElement.getElementFor(newEntity), newEntity.getHealth());
+		EventData newData = myInfo.makeChainedData(data, 
+				newEntity, ModDamageElement.getElementFor(newEntity), newEntity.getHealth());
 		
-		routines.run(newEventInfo);
+		routines.run(newData);
 		
-		newEntity.setHealth(newEventInfo.eventValue);
+		newEntity.setHealth(newData.getMy(Integer.class, 2));
 	}
 	
 	public static void register()
@@ -49,13 +57,15 @@ public class EntitySpawn extends NestedRoutine
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{
 		@Override
-		public EntitySpawn getNew(Matcher matcher, Object nestedContent)
+		public EntitySpawn getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			ModDamageElement element = ModDamageElement.getElementNamed(matcher.group(2));
-			EntityReference reference = EntityReference.match(matcher.group(1));
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent);
-			if(element != null && element.canSpawnCreature() && reference != null && routines != null)
-				return new EntitySpawn(matcher.group(), reference, element, routines);
+			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+
+			EventInfo einfo = info.chain(myInfo);
+			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
+			if(element != null && element.canSpawnCreature() && entityRef != null && routines != null)
+				return new EntitySpawn(matcher.group(), entityRef, element, routines);
 			return null;
 		}
 	}

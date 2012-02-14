@@ -12,17 +12,19 @@ import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.Utils;
-import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
-import com.ModDamage.Backend.TargetEventInfo;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class EntityStatus extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.is("+ Utils.joinBy("|", StatusType.values()) +")", Pattern.CASE_INSENSITIVE);
-	final EntityReference entityReference;
 	protected static final double magic_MinFallSpeed = 0.1d;
 	private static final List<Material> waterList = Arrays.asList(Material.WATER, Material.STATIONARY_WATER);
 
+	final DataRef<Entity> entityRef;
+	final DataRef<ModDamageElement> entityElementRef;
 	final StatusType statusType;
 	private enum StatusType
 	{
@@ -30,12 +32,12 @@ public class EntityStatus extends Conditional
 		/*Blocking(ModDamageElement.PLAYER)
 		{
 			@Override
-			public boolean isTrue(Entity entity){ return ((Player)entity).is() <= 0;}
+			public boolean isTrue(Entity entity){ return ((Player)entity).is() <= 0; }
 		},FIXME Get this into Bukkit if not already present.*/
 		Drowning(ModDamageElement.LIVING)
 		{
 			@Override
-			public boolean isTrue(Entity entity){ return ((LivingEntity)entity).getRemainingAir() <= 0;}
+			public boolean isTrue(Entity entity){ return ((LivingEntity)entity).getRemainingAir() <= 0; }
 		},
 		ExposedToSky
 		{
@@ -52,27 +54,27 @@ public class EntityStatus extends Conditional
 		Falling
 		{
 			@Override
-			public boolean isTrue(Entity entity){ return entity.getVelocity().getY() > magic_MinFallSpeed;}
+			public boolean isTrue(Entity entity){ return entity.getVelocity().getY() > magic_MinFallSpeed; }
 		},
 		OnFire
 		{
 			@Override
-			public boolean isTrue(Entity entity){ return entity.getFireTicks() > 0;}
+			public boolean isTrue(Entity entity){ return entity.getFireTicks() > 0; }
 		},
 		Sleeping(ModDamageElement.PLAYER)
 		{
 			@Override
-			public boolean isTrue(Entity entity){ return ((Player)entity).isSleeping();}
+			public boolean isTrue(Entity entity){ return ((Player)entity).isSleeping(); }
 		},
 		Sneaking(ModDamageElement.PLAYER)
 		{
 			@Override
-			public boolean isTrue(Entity entity){ return ((Player)entity).isSneaking();}
+			public boolean isTrue(Entity entity){ return ((Player)entity).isSneaking(); }
 		},
 		Sprinting(ModDamageElement.PLAYER)
 		{
 			@Override
-			public boolean isTrue(Entity entity){ return ((Player)entity).isSprinting();}
+			public boolean isTrue(Entity entity){ return ((Player)entity).isSprinting(); }
 		},
 		Underwater
 		{
@@ -93,17 +95,18 @@ public class EntityStatus extends Conditional
 		abstract public boolean isTrue(Entity entity);
 	}
 	
-	protected EntityStatus(EntityReference entityReference, StatusType statusType)
+	protected EntityStatus(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, StatusType statusType)
 	{
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
+		this.entityElementRef = entityElementRef;
 		this.statusType = statusType;
 	}
 
 	@Override
-	public boolean evaluate(TargetEventInfo eventInfo)
+	public boolean evaluate(EventData data)
 	{
-		ModDamageElement element = entityReference.getElement(eventInfo);
-		Entity entity = entityReference.getEntity(eventInfo);
+		ModDamageElement element = entityElementRef.get(data);
+		Entity entity = entityRef.get(data);
 		if(element != null && entity != null && element.matchesType(statusType.requiredElement))
 			return statusType.isTrue(entity);
 		return false;
@@ -119,7 +122,7 @@ public class EntityStatus extends Conditional
 		public ConditionalBuilder() { super(pattern); }
 
 		@Override
-		public EntityStatus getNew(Matcher matcher)
+		public EntityStatus getNew(Matcher matcher, EventInfo info)
 		{
 			if(matcher != null)
 			{
@@ -127,9 +130,11 @@ public class EntityStatus extends Conditional
 				for(StatusType type : StatusType.values())
 					if(matcher.group(2).equalsIgnoreCase(type.name()))
 							statusType = type;
-				EntityReference reference = EntityReference.match(matcher.group(1));
-				if(reference != null && statusType != null)
-					return new EntityStatus(reference, statusType);
+				String name = matcher.group(1).toLowerCase();
+				DataRef<Entity> entityRef = info.get(Entity.class, name);
+				DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+				if(entityRef != null && statusType != null)
+					return new EntityStatus(entityRef, entityElementRef, statusType);
 			}
 			return null;
 		}

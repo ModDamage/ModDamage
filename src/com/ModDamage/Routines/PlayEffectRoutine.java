@@ -9,10 +9,11 @@ import org.bukkit.entity.Entity;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Utils;
-import com.ModDamage.Backend.EntityReference;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class PlayEffectRoutine extends Routine
 {
@@ -39,42 +40,42 @@ public class PlayEffectRoutine extends Routine
 		public Integer dataForExtra(String extra) { return null; }
 	}
 	
-	final EntityReference entityReference;
+	final DataRef<Entity> entityRef;
 	final EffectType effectType;
-	final DynamicInteger data;
+	final DynamicInteger effectData;
 	final DynamicInteger radius;
-	protected PlayEffectRoutine(String configString, EntityReference entityReference, EffectType effectType, DynamicInteger data, DynamicInteger radius)
+	protected PlayEffectRoutine(String configString, DataRef<Entity> entityRef, EffectType effectType, DynamicInteger effectData, DynamicInteger radius)
 	{
 		super(configString);
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
 		this.effectType = effectType;
-		this.data = data;
+		this.effectData = effectData;
 		this.radius = radius;
 	}
 
 	@Override
-	public void run(TargetEventInfo eventInfo)
+	public void run(EventData data)
 	{
-		Entity entity = entityReference.getEntity(eventInfo);
+		Entity entity = entityRef.get(data);
 		if (entity == null) return;
 		
 		if (radius == null)
-			entity.getWorld().playEffect(entity.getLocation(), effectType.effect, data.getValue(eventInfo));
+			entity.getWorld().playEffect(entity.getLocation(), effectType.effect, effectData.getValue(data));
 		else
-			entity.getWorld().playEffect(entity.getLocation(), effectType.effect, data.getValue(eventInfo), radius.getValue(eventInfo));
+			entity.getWorld().playEffect(entity.getLocation(), effectType.effect, effectData.getValue(data), radius.getValue(data));
 	}
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("("+EntityReference.regexString+").playeffect.("+EffectType.regexString+")(?:\\.([^.]+))?(?:\\.radius\\.(.+))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("([a-z]+).playeffect.("+EffectType.regexString+")(?:\\.([^.]+))?(?:\\.radius\\.(.+))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
 	{
 		@Override
-		public PlayEffectRoutine getNew(Matcher matcher)
+		public PlayEffectRoutine getNew(Matcher matcher, EventInfo info)
 		{ 
-			EntityReference entityReference = EntityReference.valueOf(matcher.group(1).toUpperCase());
+			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
 			EffectType effectType = EffectType.valueOf(matcher.group(2).toUpperCase());
 			DynamicInteger data;
 			if (matcher.group(3) == null)
@@ -83,7 +84,7 @@ public class PlayEffectRoutine extends Routine
 				Integer ndata = effectType.dataForExtra(matcher.group(3));
 				if (ndata == null)
 				{
-					data = DynamicInteger.getNew(matcher.group(3));
+					data = DynamicInteger.getNew(matcher.group(3), info);
 					
 					if (data == null)
 					{
@@ -98,7 +99,7 @@ public class PlayEffectRoutine extends Routine
 			DynamicInteger radius = null;
 			if (matcher.group(4) != null)
 			{
-				radius = DynamicInteger.getNew(matcher.group(4));
+				radius = DynamicInteger.getNew(matcher.group(4), info);
 				if (radius == null)
 				{
 					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+matcher.group(4)+"\"");
@@ -106,8 +107,8 @@ public class PlayEffectRoutine extends Routine
 				}
 			}
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "PlayEffect: " + entityReference + " " + effectType + " " + data + (radius != null? " " + radius : ""));
-			return new PlayEffectRoutine(matcher.group(), entityReference, effectType, data, radius);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "PlayEffect: " + entityRef + " " + effectType + " " + data + (radius != null? " " + radius : ""));
+			return new PlayEffectRoutine(matcher.group(), entityRef, effectType, data, radius);
 		}
 	}
 }

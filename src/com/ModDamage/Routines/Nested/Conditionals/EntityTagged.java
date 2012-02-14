@@ -3,25 +3,28 @@ package com.ModDamage.Routines.Nested.Conditionals;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.Entity;
+
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.EntityReference;
-import com.ModDamage.Backend.TargetEventInfo;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class EntityTagged extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.istagged\\.(\\w+)", Pattern.CASE_INSENSITIVE);
-	final EntityReference entityReference;
+	final DataRef<Entity> entityRef;
 	private final String tag;
-	public EntityTagged(EntityReference entityReference, String tag)
+	public EntityTagged(DataRef<Entity> entityRef, String tag)
 	{
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
 		this.tag = tag;
 	}
 
 	@Override
-	public boolean evaluate(TargetEventInfo eventInfo)
+	public boolean evaluate(EventData data)
 	{
-		return entityReference.getEntity(eventInfo) != null && ModDamage.getTagger().isTagged(entityReference.getEntity(eventInfo), tag);
+		return entityRef.get(data) != null && ModDamage.getTagger().isTagged(entityRef.get(data), tag);
 	}
 	
 	public static void register()
@@ -34,11 +37,11 @@ public class EntityTagged extends Conditional
 		public ConditionalBuilder() { super(pattern); }
 
 		@Override
-		public EntityTagged getNew(Matcher matcher)
+		public EntityTagged getNew(Matcher matcher, EventInfo info)
 		{
-			EntityReference reference = EntityReference.match(matcher.group(1));
-			if(reference != null)
-				return new EntityTagged(reference, matcher.group(2).toLowerCase());
+			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+			if(entityRef != null)
+				return new EntityTagged(entityRef, matcher.group(2).toLowerCase());
 			return null;
 		}
 	}

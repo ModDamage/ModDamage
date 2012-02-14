@@ -4,41 +4,45 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
 import com.ModDamage.Backend.ModDamageItemStack;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.ItemAliaser;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class PlayerHasItem extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.has((?:all)?items|item)\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
-	final EntityReference entityReference;
-	private final boolean strict;
-	private final Collection<ModDamageItemStack> items;
-	public PlayerHasItem(EntityReference entityReference, boolean strict, Collection<ModDamageItemStack> items)
+	final DataRef<Entity> entityRef;
+	final DataRef<ModDamageElement> entityElementRef;
+	final boolean strict;
+	final Collection<ModDamageItemStack> items;
+	public PlayerHasItem(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, boolean strict, Collection<ModDamageItemStack> items)
 	{
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
+		this.entityElementRef = entityElementRef;
 		this.strict = strict;
 		this.items = items;
 	}
 
 	@Override
-	public boolean evaluate(TargetEventInfo eventInfo)
+	public boolean evaluate(EventData data)
 	{
-		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
+		if(entityElementRef.get(data).matchesType(ModDamageElement.PLAYER))
 		{
 			for(ModDamageItemStack item : items)
-				item.updateAmount(eventInfo);
+				item.updateAmount(data);
 			if(strict)
 			{
 				for(ModDamageItemStack item : items)
 				{
 					ItemStack temp = item.toItemStack();
-					if(!((Player)entityReference.getEntity(eventInfo)).getInventory().contains(temp.getType(), temp.getAmount()))
+					if(!((Player)entityRef.get(data)).getInventory().contains(temp.getType(), temp.getAmount()))
 						return false;
 				}
 				return true;
@@ -48,7 +52,7 @@ public class PlayerHasItem extends Conditional
 				for(ModDamageItemStack item : items)
 				{
 					ItemStack temp = item.toItemStack();
-					if(((Player)entityReference.getEntity(eventInfo)).getInventory().contains(temp.getType(), temp.getAmount()))
+					if(((Player)entityRef.get(data)).getInventory().contains(temp.getType(), temp.getAmount()))
 						return true;
 				}
 				return false;
@@ -67,12 +71,14 @@ public class PlayerHasItem extends Conditional
 		public ConditionalBuilder() { super(pattern); }
 
 		@Override
-		public PlayerHasItem getNew(Matcher matcher)
+		public PlayerHasItem getNew(Matcher matcher, EventInfo info)
 		{
-			EntityReference reference = EntityReference.match(matcher.group(1));
-			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3));
-			if(reference != null && !items.isEmpty())
-				return new PlayerHasItem(reference, matcher.group(2).equalsIgnoreCase("allitems"), items);
+			String name = matcher.group(1).toLowerCase();
+			DataRef<Entity> entityRef = info.get(Entity.class, name);
+			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
+			if(entityRef != null && !items.isEmpty())
+				return new PlayerHasItem(entityRef, entityElementRef, matcher.group(2).equalsIgnoreCase("allitems"), items);
 			return null;
 		}
 	}

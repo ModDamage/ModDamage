@@ -7,9 +7,10 @@ import org.bukkit.Bukkit;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Routines.Routines;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 
@@ -25,17 +26,17 @@ public class Delay extends NestedRoutine
 		this.routines = routines;
 	}
 	@Override
-	public void run(TargetEventInfo eventInfo)
+	public void run(EventData data)
 	{
-		DelayedRunnable dr = new DelayedRunnable(eventInfo.clone());
-		Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, dr, delay.getValue(eventInfo));
+		DelayedRunnable dr = new DelayedRunnable(data.clone());
+		Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, dr, delay.getValue(data));
 	}
 		
-	public static void register(){ NestedRoutine.registerRoutine(delayPattern, new RoutineBuilder());}
+	public static void register(){ NestedRoutine.registerRoutine(delayPattern, new RoutineBuilder()); }
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{
 		@Override
-		public Delay getNew(Matcher matcher, Object nestedContent)
+		public Delay getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			if(matcher != null && nestedContent != null)
 			{
@@ -43,10 +44,10 @@ public class Delay extends NestedRoutine
 				{
 					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 					ModDamage.addToLogRecord(OutputPreset.INFO, "Delay: \"" + matcher.group() + "\"");
-					Routines routines = RoutineAliaser.parseRoutines(nestedContent);
+					Routines routines = RoutineAliaser.parseRoutines(nestedContent, info);
 					if(routines != null)
 					{
-						DynamicInteger numberMatch = DynamicInteger.getNew(matcher.group(1));
+						DynamicInteger numberMatch = DynamicInteger.getNew(matcher.group(1), info);
 						if(numberMatch != null)
 						{
 							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "End Delay \"" + matcher.group() + "\"\n");
@@ -62,16 +63,16 @@ public class Delay extends NestedRoutine
 	
 	private class DelayedRunnable implements Runnable
 	{
-		private final TargetEventInfo eventInfo;
-		private DelayedRunnable(TargetEventInfo eventInfo)
+		private final EventData data;
+		private DelayedRunnable(EventData data)
 		{
-			this.eventInfo = eventInfo;
+			this.data = data;
 		}
 		
 		@Override
 		public void run()//Runnable
 		{
-			routines.run(eventInfo);
+			routines.run(data);
 		}
 	}
 }

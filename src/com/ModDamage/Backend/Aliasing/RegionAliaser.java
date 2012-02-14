@@ -12,7 +12,7 @@ public class RegionAliaser extends CollectionAliaser<String>
 	public static RegionAliaser aliaser = new RegionAliaser();
 	public static Collection<String> match(String string) { return aliaser.matchAlias(string); }
 	
-	public RegionAliaser() {super(AliasManager.Region.name());}
+	public RegionAliaser() { super(AliasManager.Region.name()); }
 
 	@Override
 	protected String matchNonAlias(String key)
@@ -22,6 +22,6 @@ public class RegionAliaser extends CollectionAliaser<String>
 		return key;
 	}
 
-	@Override
-	protected String getObjectName(String object){ return object;}
+	//@Override
+	//protected String getObjectName(String object){ return object; }
 }

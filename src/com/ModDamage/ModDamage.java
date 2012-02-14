@@ -26,7 +26,7 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 /**
  * "ModDamage" for Bukkit
  * 
- * @author Erich Gubler
+ * @authors Erich Gubler, Matt Peterson <ricochet1k@gmail.com>
  * 
  */
 public class ModDamage extends JavaPlugin
@@ -49,7 +49,8 @@ public class ModDamage extends JavaPlugin
 	public void onEnable()
 	{
 		// register plugin-related stuff with the server's plugin manager
-		Bukkit.getPluginManager().registerEvents(ModDamageEventHandler.eventListener, this);
+		for (ModDamageEventHandler eventHandler : ModDamageEventHandler.values())
+			Bukkit.getPluginManager().registerEvents(eventHandler.listener, this);
 		
 		PluginCommand.setPlugin(this);
 		configuration = new PluginConfiguration(this, oldestSupportedBuild);
@@ -225,7 +226,7 @@ public class ModDamage extends JavaPlugin
 		abstract protected void handleCommand(Player player, Matcher matcher);
 
 		private static ModDamage plugin;
-		protected static void setPlugin(ModDamage plugin){ PluginCommand.plugin = plugin;}
+		protected static void setPlugin(ModDamage plugin){ PluginCommand.plugin = plugin; }
 	}
 
 	private static boolean hasPermission(Player player, String permission)
@@ -242,7 +243,7 @@ public class ModDamage extends JavaPlugin
 		else configuration.printToLog(Level.INFO, message);
 	}
 
-	static String chatPrepend(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "] ";}
+	static String chatPrepend(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "] "; }
 
 	private static void setPluginStatus(Player player, boolean status)
 	{
@@ -277,7 +278,7 @@ public class ModDamage extends JavaPlugin
 	}
 
 ///////////////// HELPER FUNCTIONS
-	public static void addToLogRecord(OutputPreset preset, String message){ configuration.addToLogRecord(preset, message);}
+	public static void addToLogRecord(OutputPreset preset, String message){ configuration.addToLogRecord(preset, message); }
 	
 	public static void changeIndentation(boolean forward)
 	{
@@ -285,11 +286,11 @@ public class ModDamage extends JavaPlugin
 		else PluginConfiguration.indentation--;
 	}
 
-	public static DebugSetting getDebugSetting(){ return configuration.currentSetting;}
+	public static DebugSetting getDebugSetting(){ return configuration.currentSetting; }
 
-	public static ModDamageTagger getTagger(){ return tagger;}
+	public static ModDamageTagger getTagger(){ return tagger; }
 
-	public static PluginConfiguration getPluginConfiguration(){ return configuration;}
+	public static PluginConfiguration getPluginConfiguration(){ return configuration; }
 	
 	public static final HashSet<Material> goThroughThese = new HashSet<Material>(Arrays.asList(
 			Material.AIR,

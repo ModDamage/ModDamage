@@ -4,28 +4,35 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class ModDamageItemStack
 {
 	public static final String itemStackPart = "(\\w+\\*" + DynamicInteger.dynamicIntegerPart + ")";
 	final Material material;
-	final DynamicInteger amount;
+	final DynamicInteger data, amount;
 	private Map<Enchantment, DynamicInteger> enchantments;
-	private int lastAmount;
+	private int lastData, lastAmount;
 	private Map<Enchantment, Integer> lastEnchants;
 	
-	private ModDamageItemStack(Material material, DynamicInteger number)
+	private ModDamageItemStack(Material material, DynamicInteger data, DynamicInteger amount)
 	{
 		this.material = material;
-		this.amount = number;
+		this.data = data;
+		this.amount = amount;
 	}
 	
 	public void addEnchantment(Enchantment enchantment, DynamicInteger level)
@@ -38,13 +45,14 @@ public class ModDamageItemStack
 		enchantments.put(enchantment, level);
 	}
 	
-	public void updateAmount(TargetEventInfo eventInfo)
+	public void updateAmount(EventData data)
 	{
-		lastAmount = amount.getValue(eventInfo);
+		lastData = this.data.getValue(data);
+		lastAmount = amount.getValue(data);
 		if (enchantments != null)
 		{
 			for (Entry<Enchantment, DynamicInteger> entry : enchantments.entrySet())
-				lastEnchants.put(entry.getKey(), entry.getValue().getValue(eventInfo));
+				lastEnchants.put(entry.getKey(), entry.getValue().getValue(data));
 		}
 	}
 	
@@ -55,7 +63,7 @@ public class ModDamageItemStack
 	
 	public ItemStack toItemStack()
 	{
-		ItemStack item = new ItemStack(material, lastAmount);
+		ItemStack item = new ItemStack(material, lastAmount, (short) 0, Byte.valueOf((byte) lastData));
 		
 		if (lastEnchants != null)
 		{
@@ -72,34 +80,43 @@ public class ModDamageItemStack
 		return item;
 	}
 	
-	public static ModDamageItemStack getNew(String string)
+	public static final Pattern materialPattern = Pattern.compile("(\\w+)(?=[:*])"); // word followed by : or *
+	
+	public static ModDamageItemStack getNewFromFront(EventInfo info, StringMatcher sm)
 	{
-		String[] parts = string.split("\\*");
-		if (parts.length == 0 || parts.length > 2) return null;
+		Matcher m = sm.matchFront(materialPattern);
+		if (m == null) return null;
 		
 		Material material;
-		//for(Material someMaterial : Material.values())
-		//	if(parts[0].equalsIgnoreCase(someMaterial.name()))
-		//		material = someMaterial;
 		try
 		{
-			material = Material.valueOf(parts[0].toUpperCase());
+			material = Material.valueOf(m.group().toUpperCase());
 		}
 		catch (IllegalArgumentException e){
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unable to match material \"" + parts[0] + "\"");
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unable to match material \"" + m.group() + "\"");
 			return null;
 		}
 		
-		DynamicInteger integer;
-		if(parts.length == 2)
-			integer = DynamicInteger.getNew(parts[1]);
+		DynamicInteger data;
+		if (sm.matchesFront(":"))
+		{
+			data = DynamicInteger.getIntegerFromFront(sm.spawn(), info);
+			if (data == null) return null;
+		}
 		else
-			integer = DynamicInteger.getNew("1");
-			
-		if(material != null && integer != null)
-			return new ModDamageItemStack(material, integer);
+			data = new ConstantInteger(0);
 		
-		return null;
+
+		DynamicInteger amount;
+		if (sm.matchesFront("*"))
+		{
+			amount = DynamicInteger.getIntegerFromFront(sm.spawn(), info);
+			if (amount == null) return null;
+		}
+		else
+			amount = new ConstantInteger(1);
+		
+		return sm.acceptIf(new ModDamageItemStack(material, data, amount));
 	}
 
 	public static ItemStack[] toItemStacks(Collection<ModDamageItemStack> items)

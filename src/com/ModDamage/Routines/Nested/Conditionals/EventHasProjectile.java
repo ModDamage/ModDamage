@@ -3,17 +3,27 @@ package com.ModDamage.Routines.Nested.Conditionals;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.Backend.EntityReference;
-import com.ModDamage.Backend.TargetEventInfo;
+import org.bukkit.entity.Projectile;
+
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class EventHasProjectile extends Conditional 
 {
 	public static final Pattern pattern = Pattern.compile("event\\.hasprojectile", Pattern.CASE_INSENSITIVE);
-	protected EventHasProjectile()
+	
+	final DataRef<Projectile> projectileRef;
+	protected EventHasProjectile(DataRef<Projectile> projectileRef)
 	{
+		this.projectileRef = projectileRef;
 	}
+	
 	@Override
-	public boolean evaluate(TargetEventInfo eventInfo){ return eventInfo.type.equals(EntityReference.PROJECTILE);}
+	public boolean evaluate(EventData data)
+	{
+		return projectileRef.get(data) != null;
+	}
 	
 	public static void register()
 	{
@@ -25,9 +35,10 @@ public class EventHasProjectile extends Conditional
 		public ConditionalBuilder() { super(pattern); }
 
 		@Override
-		public EventHasProjectile getNew(Matcher matcher)
+		public EventHasProjectile getNew(Matcher matcher, EventInfo info)
 		{
-			return new EventHasProjectile();
+			DataRef<Projectile> projectileRef = info.get(Projectile.class, "projectile");
+			return new EventHasProjectile(projectileRef);
 		}
 	}
 }

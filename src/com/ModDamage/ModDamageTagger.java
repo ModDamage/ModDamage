@@ -7,9 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
@@ -118,7 +120,7 @@ public class ModDamageTagger
 					else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Incorrectly formatted tags.yml. Starting with an empty tag list.");
 				}
 			}
-			catch(Exception e){ ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error loading tags.yml: "+e.toString());}
+			catch(Exception e){ ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error loading tags.yml: "+e.toString()); }
 		}
 		else
 		{
@@ -130,7 +132,7 @@ public class ModDamageTagger
 		reload(false);
 	}
 	
-	public void reload(){ reload(true);}
+	public void reload(){ reload(true); }
 	
 	private synchronized void reload(boolean initialized)
 	{
@@ -172,13 +174,23 @@ public class ModDamageTagger
 		if(file != null && dirty)
 		{
 			Map<String, Map<String, Integer>> tempMap = new HashMap<String, Map<String, Integer>>();
+			
+			Set<Entity> entities = new HashSet<Entity>();
+			for (World world : Bukkit.getWorlds())
+				entities.addAll(world.getEntities());
 			for(Entry<String, Map<Entity, Integer>> tagEntry : entityTags.entrySet())
 			{
 				HashMap<String, Integer> savedEntities = new HashMap<String, Integer>();
+				
+				tagEntry.getValue().keySet().retainAll(entities); // simple cleanup operation
+				
 				for(Entry<Entity, Integer> entry : tagEntry.getValue().entrySet())
 					savedEntities.put(entry.getKey().getUniqueId().toString(), entry.getValue());
-				tempMap.put(tagEntry.getKey(), savedEntities);
+				
+				if (!savedEntities.isEmpty())
+					tempMap.put(tagEntry.getKey(), savedEntities);
 			}
+			
 			for(Entry<String, Map<OfflinePlayer, Integer>> tagEntry : playerTags.entrySet())
 			{
 				HashMap<String, Integer> savedPlayers = new HashMap<String, Integer>();
@@ -192,7 +204,7 @@ public class ModDamageTagger
 				writer.write(yaml.dump(tempMap));
 				writer.close();
 			}
-			catch (IOException e){ PluginConfiguration.log.warning("Error writing to " + file.getAbsolutePath() + "!");}
+			catch (IOException e){ PluginConfiguration.log.warning("Error writing to " + file.getAbsolutePath() + "!"); }
 		}
 	}
 	
@@ -208,9 +220,15 @@ public class ModDamageTagger
 			return;
 		}
 		dirty = true; // only need to save when dirty
+		Map<Entity, Integer> emap;
 		if(!entityTags.containsKey(tag))
-			entityTags.put(tag, new WeakHashMap<Entity, Integer>());
-		entityTags.get(tag).put(entity, tagValue);
+		{
+			emap = new WeakHashMap<Entity, Integer>();
+			entityTags.put(tag, emap);
+		}
+		else
+			emap = entityTags.get(tag);
+		emap.put(entity, tagValue);
 	}
 	
 	public synchronized void addTag(OfflinePlayer player, String tag, int tagValue)
@@ -349,5 +367,5 @@ public class ModDamageTagger
 	/**
 	 * @return LoadState reflecting the file's load state.
 	 */
-	public LoadState getLoadState(){ return file != null? LoadState.SUCCESS : LoadState.NOT_LOADED;}
+	public LoadState getLoadState(){ return file != null? LoadState.SUCCESS : LoadState.NOT_LOADED; }
 }

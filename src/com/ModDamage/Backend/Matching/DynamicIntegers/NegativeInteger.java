@@ -4,8 +4,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class NegativeInteger extends DynamicInteger
 {
@@ -16,15 +17,12 @@ public class NegativeInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
 					{
-						DynamicInteger integer = DynamicInteger.getIntegerFromFront(sm.spawn());
-						if (integer != null)
-						{
-							sm.accept();
-							return new NegativeInteger(integer);
-						}
-						return null;
+						DynamicInteger integer = DynamicInteger.getIntegerFromFront(sm.spawn(), info);
+						if (integer == null) return null;
+						
+						return sm.acceptIf(new NegativeInteger(integer));
 					}
 				});
 	}
@@ -37,8 +35,14 @@ public class NegativeInteger extends DynamicInteger
 	}
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public int getValue(EventData data)
 	{
-		return -integer.getValue(eventInfo);
+		return -integer.getValue(data);
+	}
+
+	@Override
+	public String toString()
+	{
+		return "-"+integer;
 	}
 }

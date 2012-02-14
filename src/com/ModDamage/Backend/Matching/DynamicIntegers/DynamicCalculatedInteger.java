@@ -6,10 +6,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class DynamicCalculatedInteger extends DynamicInteger
 {	
@@ -94,9 +95,9 @@ public class DynamicCalculatedInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DynamicInteger getNewFromFront(Matcher m, StringMatcher sm)
+					public DynamicInteger getNewFromFront(Matcher m, StringMatcher sm, EventInfo info)
 					{
-						DynamicInteger left = DynamicInteger.getIntegerFromFront(sm.spawn());
+						DynamicInteger left = DynamicInteger.getIntegerFromFront(sm.spawn(), info);
 						if (left == null)
 						{
 							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+sm.string+"\"");
@@ -110,7 +111,7 @@ public class DynamicCalculatedInteger extends DynamicInteger
 							return null;
 						}
 						
-						DynamicInteger right = DynamicInteger.getIntegerFromFront(sm.spawn());
+						DynamicInteger right = DynamicInteger.getIntegerFromFront(sm.spawn(), info);
 						if (right == null)
 						{
 							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+sm.string+"\"");
@@ -123,8 +124,7 @@ public class DynamicCalculatedInteger extends DynamicInteger
 							return null;
 						}
 						
-						sm.accept();
-						return new DynamicCalculatedInteger(left, ArithmeticOperator.operatorMap.get(matcher.group(1)), right);
+						return sm.acceptIf(new DynamicCalculatedInteger(left, ArithmeticOperator.operatorMap.get(matcher.group(1)), right));
 					}
 				});
 	}
@@ -140,9 +140,9 @@ public class DynamicCalculatedInteger extends DynamicInteger
 	}
 
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public int getValue(EventData data)
 	{
-		return operator.operate(left.getValue(eventInfo), right.getValue(eventInfo));
+		return operator.operate(left.getValue(data), right.getValue(data));
 	}
 	
 	@Override

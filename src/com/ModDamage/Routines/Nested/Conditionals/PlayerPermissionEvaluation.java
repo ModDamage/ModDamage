@@ -3,27 +3,31 @@ package com.ModDamage.Routines.Nested.Conditionals;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ExternalPluginManager;
-import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
-import com.ModDamage.Backend.TargetEventInfo;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class PlayerPermissionEvaluation extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.haspermission\\.(\\w+)", Pattern.CASE_INSENSITIVE);
-	final EntityReference entityReference;
+	final DataRef<Entity> entityRef;
+	final DataRef<ModDamageElement> entityElementRef;
 	final String permission;
-	public PlayerPermissionEvaluation(EntityReference entityReference, String permission)
+	public PlayerPermissionEvaluation(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, String permission)
 	{  
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
+		this.entityElementRef = entityElementRef;
 		this.permission = permission;
 	}
 	@Override
-	public boolean evaluate(TargetEventInfo eventInfo) 
+	public boolean evaluate(EventData data) 
  	{
-		return (entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))?ExternalPluginManager.getPermissionsManager().hasPermission(((Player)entityReference.getEntity(eventInfo)), permission):false;//XXX Include hasPermission in EntityReference?
+		return (entityElementRef.get(data).matchesType(ModDamageElement.PLAYER))?ExternalPluginManager.getPermissionsManager().hasPermission(((Player)entityRef.get(data)), permission):false;//XXX Include hasPermission in EntityReference?
 	}
 	
 	public static void register()
@@ -36,11 +40,13 @@ public class PlayerPermissionEvaluation extends Conditional
 		public ConditionalBuilder() { super(pattern); }
 
 		@Override
-		public PlayerPermissionEvaluation getNew(Matcher matcher)
+		public PlayerPermissionEvaluation getNew(Matcher matcher, EventInfo info)
 		{
-			EntityReference reference = EntityReference.match(matcher.group(1));
-			if(reference != null)
-				return new PlayerPermissionEvaluation(reference, matcher.group(2));
+			String name = matcher.group(1).toLowerCase();
+			DataRef<Entity> entityRef = info.get(Entity.class, name);
+			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+			if(entityRef != null)
+				return new PlayerPermissionEvaluation(entityRef, entityElementRef, matcher.group(2));
 			return null;
 		}
 	}

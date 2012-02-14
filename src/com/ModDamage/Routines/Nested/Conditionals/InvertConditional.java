@@ -4,7 +4,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.TargetEventInfo;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class InvertConditional extends Conditional
 {
@@ -18,9 +19,9 @@ public class InvertConditional extends Conditional
 	}
 	
 	@Override
-	public boolean evaluate(TargetEventInfo eventInfo)
+	public boolean evaluate(EventData data)
 	{
-		return !conditional.evaluate(eventInfo);
+		return !conditional.evaluate(data);
 	}
 	
 	public static void register()
@@ -31,12 +32,12 @@ public class InvertConditional extends Conditional
 	protected static class ConditionalBuilder extends Conditional.ConditionalBuilder
 	{
 		@Override
-		public Conditional getNewFromFront(StringMatcher sm)
+		public Conditional getNewFromFront(StringMatcher sm, EventInfo info)
 		{
 			Matcher matcher = sm.matchFront(pattern);
 			if (matcher == null) return null;
 			
-			Conditional conditional = Conditional.getNewFromFront(sm.spawn());
+			Conditional conditional = Conditional.getNewFromFront(sm.spawn(), info);
 			
 			if (conditional != null)
 			{

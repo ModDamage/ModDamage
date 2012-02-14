@@ -3,12 +3,15 @@ package com.ModDamage.Routines.Nested.Conditionals;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.EntityReference;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 import com.gmail.nossr50.mcMMO;
 
 public class McMMOAbilityConditional extends McMMOConditionalStatement
@@ -92,14 +95,14 @@ public class McMMOAbilityConditional extends McMMOConditionalStatement
 
 		abstract public boolean isActivated(mcMMO mcMMOplugin, Player player);
 	}
-	protected McMMOAbilityConditional(EntityReference entityReference, McMMOAbility ability) 
+	protected McMMOAbilityConditional(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, McMMOAbility ability) 
 	{
-		super(entityReference);
+		super(entityRef, entityElementRef);
 		this.ability = ability;
 	}
 
 	@Override
-	protected boolean evaluate(TargetEventInfo eventInfo, mcMMO mcMMOplugin, Player player)
+	protected boolean evaluate(EventData data, mcMMO mcMMOplugin, Player player)
 	{
 		return ability.isActivated(mcMMOplugin, player);
 	}
@@ -113,16 +116,18 @@ public class McMMOAbilityConditional extends McMMOConditionalStatement
 		public ConditionalBuilder() { super(pattern); }
 
 		@Override
-		public McMMOAbilityConditional getNew(Matcher matcher)
+		public McMMOAbilityConditional getNew(Matcher matcher, EventInfo info)
 		{
 			McMMOAbility mcMMOability = null;
 			for(McMMOAbility ability : McMMOAbility.values())
 				if(matcher.group(2).equalsIgnoreCase(ability.name()))
 					mcMMOability = ability;
 			if(mcMMOability == null) ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid McMMO ability \"" + matcher.group(3) + "\"");
-			EntityReference reference = EntityReference.match(matcher.group(1));
-			if(reference != null & mcMMOability != null)
-				return new McMMOAbilityConditional(reference, mcMMOability);
+			String name = matcher.group(1).toLowerCase();
+			DataRef<Entity> entityRef = info.get(Entity.class, name);
+			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+			if(entityRef != null & mcMMOability != null)
+				return new McMMOAbilityConditional(entityRef, entityElementRef, mcMMOability);
 			return null;
 		}
 	}

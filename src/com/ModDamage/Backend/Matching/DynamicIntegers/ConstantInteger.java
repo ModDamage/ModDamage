@@ -4,8 +4,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class ConstantInteger extends DynamicInteger
 {
@@ -16,10 +17,9 @@ public class ConstantInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
 					{
-						sm.accept();
-						return new ConstantInteger(Integer.parseInt(matcher.group(0)));
+						return sm.acceptIf(new ConstantInteger(Integer.parseInt(matcher.group(0))));
 					}
 				});
 	}
@@ -32,7 +32,7 @@ public class ConstantInteger extends DynamicInteger
 	}
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public int getValue(EventData data)
 	{
 		return constant;
 	}

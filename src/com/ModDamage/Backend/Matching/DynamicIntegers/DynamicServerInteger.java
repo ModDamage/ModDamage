@@ -7,8 +7,9 @@ import org.bukkit.Bukkit;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class DynamicServerInteger extends DynamicInteger
 {
@@ -19,10 +20,10 @@ public class DynamicServerInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
 					{
-						return new DynamicServerInteger(
-								ServerPropertyMatch.valueOf(matcher.group(1).toUpperCase()));
+						return sm.acceptIf(new DynamicServerInteger(
+								ServerPropertyMatch.valueOf(matcher.group(1).toUpperCase())));
 					}
 				});
 	}
@@ -42,7 +43,7 @@ public class DynamicServerInteger extends DynamicInteger
 	}
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo){ return propertyMatch.getValue(); }
+	public int getValue(EventData data){ return propertyMatch.getValue(); }
 	
 	@Override
 	public String toString(){ return "server_" + propertyMatch.name().toLowerCase(); }

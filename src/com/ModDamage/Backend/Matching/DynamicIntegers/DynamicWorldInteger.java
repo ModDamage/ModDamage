@@ -3,10 +3,14 @@ package com.ModDamage.Backend.Matching.DynamicIntegers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.World;
+
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class DynamicWorldInteger extends DynamicInteger
 {
@@ -17,57 +21,68 @@ public class DynamicWorldInteger extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
 					{
-						return new DynamicWorldInteger(
-								WorldPropertyMatch.valueOf(matcher.group(1).toUpperCase()));
+						DataRef<World> worldRef = info.get(World.class, "world");
+						if (worldRef == null) return null;
+						return sm.acceptIf(new DynamicWorldInteger(worldRef,
+								WorldPropertyMatch.valueOf(matcher.group(1).toUpperCase())));
 					}
 				});
 	}
 	
-	protected final WorldPropertyMatch propertyMatch;
 	enum WorldPropertyMatch
 	{
 		ONLINEPLAYERS(false) {
-			@Override protected int getValue(TargetEventInfo eventInfo){
-				return eventInfo.world.getPlayers().size();
+			@Override protected int getValue(World world){
+				return world.getPlayers().size();
 			}
 		},
 		TIME(true) {
-			@Override protected int getValue(TargetEventInfo eventInfo){
-				return (int)eventInfo.world.getTime();
+			@Override protected int getValue(World world){
+				return (int)world.getTime();
 			}
-			@Override protected void setValue(TargetEventInfo eventInfo, int value){
-				eventInfo.world.setTime(value);
+			@Override protected void setValue(World world, int value){
+				world.setTime(value);
 			}
 		},
 		SEED(false) {
-			@Override protected int getValue(TargetEventInfo eventInfo){
-				return (int)eventInfo.world.getSeed();
+			@Override protected int getValue(World world){
+				return (int)world.getSeed();
 			}
 		};
 		
 		public boolean settable = false;
 		private WorldPropertyMatch(boolean settable){ this.settable = settable; }
 		
-		abstract protected int getValue(TargetEventInfo eventInfo);
-		protected void setValue(TargetEventInfo eventInfo, int value) {}
+		abstract protected int getValue(World world);
+		protected void setValue(World world, int value) {}
 	}
 	
-	DynamicWorldInteger(WorldPropertyMatch propertyMatch)
+	final DataRef<World> worldRef;
+	protected final WorldPropertyMatch propertyMatch;
+	
+	DynamicWorldInteger(DataRef<World> worldRef, WorldPropertyMatch propertyMatch)
 	{
+		this.worldRef = worldRef;
 		this.propertyMatch = propertyMatch;
 	}
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo){
-		return propertyMatch.getValue(eventInfo);
+	public int getValue(EventData data)
+	{
+		World world = worldRef.get(data);
+		if (world != null)
+			return propertyMatch.getValue(world);
+		return 0;
 	}
 	
 	@Override
-	public void setValue(TargetEventInfo eventInfo, int value)
+	public void setValue(EventData data, int value)
 	{
-		propertyMatch.setValue(eventInfo, value);
+		World world = worldRef.get(data);
+		if (world != null)
+			propertyMatch.setValue(world, value);
 	}
 	
 	@Override
@@ -77,5 +92,5 @@ public class DynamicWorldInteger extends DynamicInteger
 	}
 	
 	@Override
-	public String toString(){ return "world_" + propertyMatch.name().toLowerCase();}
+	public String toString(){ return "world_" + propertyMatch.name().toLowerCase(); }
 }

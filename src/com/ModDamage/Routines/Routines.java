@@ -3,7 +3,7 @@ package com.ModDamage.Routines;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ModDamage.Backend.TargetEventInfo;
+import com.ModDamage.EventInfo.EventData;
 
 public class Routines
 {
@@ -19,11 +19,11 @@ public class Routines
 		this.routines = routines;
 	}
 	
-	public void run(TargetEventInfo eventInfo)
+	public void run(EventData data)
 	{
 		if (routines != null)
 			for (Routine routine : routines)
-				routine.run(eventInfo);
+				routine.run(data);
 	}
 
 	public boolean isEmpty()

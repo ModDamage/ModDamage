@@ -79,7 +79,7 @@ public class ArmorSet
 		return true;
 	}
 	
-	private Material get(int i){ return armorSet[i];}
+	private Material get(int i){ return armorSet[i]; }
 	
 	public boolean contains(ArmorSet someArmorSet)
 	{
@@ -108,7 +108,7 @@ public class ArmorSet
 		return true;
 	}
 	
-	private boolean isEmpty(){ return !hasSomething;}
+	private boolean isEmpty(){ return !hasSomething; }
 	
 	@Override
 	public String toString()
@@ -121,7 +121,7 @@ public class ArmorSet
 		return output.substring(0, output.length()) + "]";
 	}
 	
-	public Material[] toMaterialArray(){ return armorSet;}
+	public Material[] toMaterialArray(){ return armorSet; }
 	
 	private enum ArmorElement
 	{

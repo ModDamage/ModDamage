@@ -11,11 +11,11 @@ public class MaterialAliaser extends CollectionAliaser<Material>
 	public static MaterialAliaser aliaser = new MaterialAliaser();
 	public static Collection<Material> match(String string) { return aliaser.matchAlias(string); }
 	
-	public MaterialAliaser() {super(AliasManager.Material.name());}
+	public MaterialAliaser() { super(AliasManager.Material.name()); }
 
 	@Override
-	protected Material matchNonAlias(String key){ return Material.matchMaterial(key);}
+	protected Material matchNonAlias(String key){ return Material.matchMaterial(key); }
 
-	@Override
-	protected String getObjectName(Material object){ return object.name();}
+	//@Override
+	//protected String getObjectName(Material object){ return object.name(); }
 }

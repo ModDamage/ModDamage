@@ -1,29 +1,28 @@
 package com.ModDamage.Backend.Matching.DynamicIntegers;
 
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Routines.Routines;
 
 public class DynamicRoutineInteger extends DynamicInteger
 {
 	private final Routines routines;
+	final DataRef<Integer> defaultRef;
 	
-	public DynamicRoutineInteger(Routines routines)
+	public DynamicRoutineInteger(Routines routines, EventInfo info)
 	{
 		this.routines = routines;
+		this.defaultRef = info.get(Integer.class, "-default");
 	}
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public int getValue(EventData data)
 	{
-		int oldvalue = eventInfo.eventValue;
-		eventInfo.eventValue = 0;
+		routines.run(data);
 		
-		routines.run(eventInfo);
-		
-		int value = eventInfo.eventValue;
-		eventInfo.eventValue = oldvalue;
-		return value;
+		return defaultRef.get(data);
 	}
 	
 	@Override

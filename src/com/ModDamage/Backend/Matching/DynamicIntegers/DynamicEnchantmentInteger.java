@@ -4,15 +4,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
-import com.ModDamage.Backend.EntityReference;
-import com.ModDamage.Backend.ModDamageElement;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class DynamicEnchantmentInteger extends DynamicInteger
 {	
@@ -119,55 +120,59 @@ public class DynamicEnchantmentInteger extends DynamicInteger
 			enchantmentRegexString += enchantment.getName();
 		}
 		DynamicInteger.register(
-				Pattern.compile("("+ EntityReference.regexString +")(?:_("+ EnchantmentItemSlot.regexString
+				Pattern.compile("([a-z]+)(?:_("+ EnchantmentItemSlot.regexString
 						+"))?_enchantmentlevel_("+ enchantmentRegexString +")", Pattern.CASE_INSENSITIVE),
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
 					{
-						sm.accept();
+						DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+						if (entityRef == null) return null;
 						String slot = matcher.group(2);
 						if (slot == null) slot = "ANY";
-						return new DynamicEnchantmentInteger(
-								EntityReference.valueOf(matcher.group(1).toUpperCase()), 
+						sm.accept();
+						return sm.acceptIf(new DynamicEnchantmentInteger(
+								entityRef, 
 								EnchantmentItemSlot.valueOf(slot.toUpperCase()),
-								Enchantment.getByName(matcher.group(3).toUpperCase()));
+								Enchantment.getByName(matcher.group(3).toUpperCase())));
 					}
 				});
 	}
 	
-	protected final EntityReference entityReference;
+	protected final DataRef<Entity> entityRef;
 	protected final EnchantmentItemSlot itemSlot;
 	protected final Enchantment enchantment;
 	
-	DynamicEnchantmentInteger(EntityReference reference, EnchantmentItemSlot itemSlot, Enchantment enchantment)
+	DynamicEnchantmentInteger(DataRef<Entity> entityRef, EnchantmentItemSlot itemSlot, Enchantment enchantment)
 	{
-		this.entityReference = reference;
+		this.entityRef = entityRef;
 		this.itemSlot = itemSlot;
 		this.enchantment = enchantment;
 	}
 	
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public int getValue(EventData data)
 	{
-		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
+		Entity entity = entityRef.get(data);
+		if(entity instanceof Player)
 		{
-			Player player = (Player)entityReference.getEntity(eventInfo);
+			Player player = (Player)entity;
 			return itemSlot.getEnchantmentLevel(player, enchantment);
 		}
 		return 0;
 	}
 	
 	@Override
-	public void setValue(TargetEventInfo eventInfo, int value)
+	public void setValue(EventData data, int value)
 	{
-		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
+		Entity entity = entityRef.get(data);
+		if(entity instanceof Player)
 		{
-			Player player = (Player)entityReference.getEntity(eventInfo);
+			Player player = (Player)entity;
 			
-			// lock the enchantment value inside an acceptable range
+			// lock the enchantment value inside the acceptable range
 			value = Math.min(Math.max(enchantment.getStartLevel(), value), enchantment.getMaxLevel());
 			
 			itemSlot.setEnchantmentLevel(player, enchantment, value);
@@ -183,6 +188,6 @@ public class DynamicEnchantmentInteger extends DynamicInteger
 	@Override
 	public String toString()
 	{
-		return entityReference.name().toLowerCase() + "_" + itemSlot.name().toLowerCase() + "_enchantmentlevel_" + enchantment.getName();
+		return entityRef + "_" + itemSlot.name().toLowerCase() + "_enchantmentlevel_" + enchantment.getName();
 	}
 }

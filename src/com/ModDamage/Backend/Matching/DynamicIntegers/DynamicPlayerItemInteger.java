@@ -10,28 +10,32 @@ import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
-import com.ModDamage.Backend.EntityReference;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class DynamicPlayerItemInteger extends DynamicInteger
 {
 	public static void register()
 	{
 		DynamicInteger.register(
-				Pattern.compile("("+ Utils.joinBy("|", EntityReference.values()) +")_("+ 
+				Pattern.compile("([a-z]+)_("+ 
 									 Utils.joinBy("|", PlayerItemTarget.values()) +")_("+ 
 									 Utils.joinBy("|", ItemAttribute.values()) +")", Pattern.CASE_INSENSITIVE),
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
 					{
-						sm.accept();
-						return new DynamicPlayerItemInteger(
-								EntityReference.valueOf(matcher.group(1).toUpperCase()), 
+						String name = matcher.group(1).toLowerCase();
+						DataRef<Entity> entityRef = info.get(Entity.class, name);
+						if (entityRef == null) return null;
+						
+						return sm.acceptIf(new DynamicPlayerItemInteger(
+								entityRef, 
 								PlayerItemTarget.valueOf(matcher.group(2).toUpperCase()),
-								ItemAttribute.valueOf(matcher.group(3).toUpperCase()));
+								ItemAttribute.valueOf(matcher.group(3).toUpperCase())));
 					}
 				});
 	}
@@ -118,21 +122,21 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 		
 	}
 	
-	EntityReference entityReference;
-	PlayerItemTarget playerItemTarget;
-	ItemAttribute itemAttribute;
+	final DataRef<Entity> entityRef;
+	final PlayerItemTarget playerItemTarget;
+	final ItemAttribute itemAttribute;
 
-	public DynamicPlayerItemInteger(EntityReference entityReference, PlayerItemTarget playerItemTarget, ItemAttribute itemAttribute)
+	public DynamicPlayerItemInteger(DataRef<Entity> entityRef, PlayerItemTarget playerItemTarget, ItemAttribute itemAttribute)
 	{
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
 		this.playerItemTarget = playerItemTarget;
 		this.itemAttribute = itemAttribute;
 	}
 
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public int getValue(EventData data)
 	{
-		Entity entity = entityReference.getEntity(eventInfo);
+		Entity entity = entityRef.get(data);
 		if (entity instanceof Player)
 			return itemAttribute.getAttribute(playerItemTarget.getItem((Player)entity));
 		return 0;
@@ -140,9 +144,9 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 	
 	@SuppressWarnings("deprecation")
 	@Override
-	public void setValue(TargetEventInfo eventInfo, int value)
+	public void setValue(EventData data, int value)
 	{
-		Entity entity = entityReference.getEntity(eventInfo);
+		Entity entity = entityRef.get(data);
 		if (entity instanceof Player)
 		{
 			Player player = (Player)entity;
@@ -155,6 +159,12 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 	public boolean isSettable()
 	{
 		return itemAttribute.settable;
+	}
+
+	@Override
+	public String toString()
+	{
+		return /*FIXME: entityReference.name() +*/ "_" + playerItemTarget.name().toLowerCase() + "_" + itemAttribute.name().toLowerCase();
 	}
 
 }

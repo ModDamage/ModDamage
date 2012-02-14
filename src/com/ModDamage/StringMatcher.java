@@ -50,6 +50,12 @@ public class StringMatcher
 		string = null;
 	}
 	
+	public <T> T acceptIf(T obj)
+	{
+		if (obj != null) accept();
+		return obj;
+	}
+	
 	public Matcher matchFront(Pattern pattern)
 	{
 		Matcher m = pattern.matcher(string);
@@ -66,7 +72,7 @@ public class StringMatcher
 		Matcher m = pattern.matcher(string);
 		if (m.matches())
 		{
-			string = null;
+			string = "";
 			return m;
 		}
 		return null;
@@ -80,5 +86,42 @@ public class StringMatcher
 	public boolean matchesAll(Pattern pattern)
 	{
 		return matchAll(pattern) != null;
+	}
+
+
+	public String matchFront(String str)
+	{
+		if (string.startsWith(str))
+		{
+			string = string.substring(str.length());
+			return str;
+		}
+		return null;
+	}
+	
+	public String matchAll(String str)
+	{
+		if (string.equals(str))
+		{
+			string = "";
+			return str;
+		}
+		return null;
+	}
+	
+	public boolean matchesFront(String str)
+	{
+		return matchFront(str) != null;
+	}
+	
+	public boolean matchesAll(String str)
+	{
+		return matchAll(str) != null;
+	}
+
+
+	public boolean isEmpty()
+	{
+		return string == null || string.isEmpty();
 	}
 }

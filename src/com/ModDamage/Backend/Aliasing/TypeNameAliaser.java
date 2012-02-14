@@ -21,7 +21,7 @@ public class TypeNameAliaser extends Aliaser<ModDamageElement, List<String>>
 	protected HashMap<ModDamageElement, List<String>> thisMap = new HashMap<ModDamageElement, List<String>>();
 	
 	private static TypeNameAliaser staticInstance = new TypeNameAliaser();
-	public static TypeNameAliaser getStaticInstance(){ return staticInstance;}
+	public static TypeNameAliaser getStaticInstance(){ return staticInstance; }
 	
 	private static final Random random = new Random();
 
@@ -111,13 +111,13 @@ public class TypeNameAliaser extends Aliaser<ModDamageElement, List<String>>
 	}
 	
 	@Deprecated
-	public List<String> matchAlias(String string){ return null;}
+	public List<String> matchAlias(String string){ return null; }
 	@Deprecated
-	public boolean completeAlias(String key, Object nestedContent){ return false;}
+	public boolean completeAlias(String key, Object nestedContent){ return false; }
 	@Deprecated
-	protected ModDamageElement matchNonAlias(String key){ return null;}
+	protected ModDamageElement matchNonAlias(String key){ return null; }
 	@Deprecated
-	protected String getObjectName(ModDamageElement object){ return null;}
+	protected String getObjectName(ModDamageElement object){ return null; }
 	@Deprecated
-	protected List<String> getNewStorageClass(ModDamageElement value){ return null;}
+	protected List<String> getNewStorageClass(ModDamageElement value){ return null; }
 }

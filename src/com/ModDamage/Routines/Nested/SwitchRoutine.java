@@ -9,8 +9,9 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Routines.Routines;
 import com.ModDamage.Routines.Nested.Conditionals.Conditional;
 
@@ -22,7 +23,7 @@ public class SwitchRoutine extends NestedRoutine
 	public final boolean isLoaded;
 	public final List<String> failedCases = new ArrayList<String>();
 	
-	protected SwitchRoutine(String configString, String switchType, boolean all, List<String> switchCases, List<Object> nestedContents)
+	protected SwitchRoutine(String configString, String switchType, boolean all, EventInfo info, List<String> switchCases, List<Object> nestedContents)
 	{
 		super(configString);
 		this.all = all;
@@ -31,7 +32,7 @@ public class SwitchRoutine extends NestedRoutine
 		{
 			//get the case first, see if it refers to anything valid
 			String switchCase = switchCases.get(i);
-			Conditional matchedCase = Conditional.getNew(switchType + "." + switchCases.get(i));
+			Conditional matchedCase = Conditional.getNew(switchType + "." + switchCases.get(i), info);
 			if(matchedCase != null)
 				NestedRoutine.paddedLogRecord(OutputPreset.INFO, " case: \"" + switchCase + "\"");
 			else
@@ -40,7 +41,7 @@ public class SwitchRoutine extends NestedRoutine
 				caseFailed = true;
 			}
 			//then grab the routines
-			Routines routines = RoutineAliaser.parseRoutines(nestedContents.get(i));
+			Routines routines = RoutineAliaser.parseRoutines(nestedContents.get(i), info);
 			if(routines != null)
 			{
 				this.switchCases.add(matchedCase);
@@ -57,12 +58,12 @@ public class SwitchRoutine extends NestedRoutine
 	}
 	
 	@Override
-	public void run(TargetEventInfo eventInfo) 
+	public void run(EventData data) 
 	{
 		for(int i = 0; i < switchCases.size(); i++)
-			if(switchCases.get(i).evaluate(eventInfo))
+			if(switchCases.get(i).evaluate(data))
 			{
-				switchRoutines.get(i).run(eventInfo);
+				switchRoutines.get(i).run(data);
 				if (!all) return;
 			}
 	}
@@ -76,7 +77,7 @@ public class SwitchRoutine extends NestedRoutine
 	{
 		@SuppressWarnings("unchecked")
 		@Override
-		public SwitchRoutine getNew(Matcher switchMatcher, Object nestedContent)
+		public SwitchRoutine getNew(Matcher switchMatcher, Object nestedContent, EventInfo info)
 		{
 			if(switchMatcher != null && nestedContent != null)
 			{
@@ -104,7 +105,7 @@ public class SwitchRoutine extends NestedRoutine
 					}
 					if(finished)
 					{
-						SwitchRoutine routine = new SwitchRoutine(switchMatcher.group(), switchMatcher.group(2), switchMatcher.group(1) != null, switchCases, nestedContents);
+						SwitchRoutine routine = new SwitchRoutine(switchMatcher.group(), switchMatcher.group(2), switchMatcher.group(1) != null, info, switchCases, nestedContents);
 						if(routine.isLoaded)
 						{
 							NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End switch \"" + switchMatcher.group() + "\"");

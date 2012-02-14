@@ -7,10 +7,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class Comparison extends Conditional
 {
@@ -19,32 +20,32 @@ public class Comparison extends Conditional
 		EQUALS("==")
 		{
 			@Override
-			public boolean compare(int operand1, int operand2){ return operand1 == operand2;}
+			public boolean compare(int operand1, int operand2){ return operand1 == operand2; }
 		},
 		NOTEQUALS("!=")
 		{
 			@Override
-			public boolean compare(int operand1, int operand2){ return operand1 != operand2;}
+			public boolean compare(int operand1, int operand2){ return operand1 != operand2; }
 		},
 		LESSTHAN("<")
 		{
 			@Override
-			public boolean compare(int operand1, int operand2){ return operand1 < operand2;}
+			public boolean compare(int operand1, int operand2){ return operand1 < operand2; }
 		},
 		LESSTHANEQUALS("<=")
 		{
 			@Override
-			public boolean compare(int operand1, int operand2){ return operand1 <= operand2;}
+			public boolean compare(int operand1, int operand2){ return operand1 <= operand2; }
 		},
 		GREATERTHAN(">")
 		{
 			@Override
-			public boolean compare(int operand1, int operand2){ return operand1 > operand2;}
+			public boolean compare(int operand1, int operand2){ return operand1 > operand2; }
 		},
 		GREATERTHANEQUALS(">=")
 		{
 			@Override
-			public boolean compare(int operand1, int operand2){ return operand1 >= operand2;}
+			public boolean compare(int operand1, int operand2){ return operand1 >= operand2; }
 		};
 		
 		public final String operator;
@@ -92,7 +93,7 @@ public class Comparison extends Conditional
 	}
 
 	@Override
-	public boolean evaluate(TargetEventInfo eventInfo) { return comparisonType.compare(operand1.getValue(eventInfo), operand2.getValue(eventInfo));}
+	public boolean evaluate(EventData data) { return comparisonType.compare(operand1.getValue(data), operand2.getValue(data)); }
 
 	
 	public static void register()
@@ -103,9 +104,9 @@ public class Comparison extends Conditional
 	protected static class ConditionalBuilder extends Conditional.ConditionalBuilder
 	{
 		@Override
-		public Conditional getNewFromFront(StringMatcher sm)
+		public Conditional getNewFromFront(StringMatcher sm, EventInfo info)
 		{
-			DynamicInteger left = DynamicInteger.getIntegerFromFront(sm.spawn());
+			DynamicInteger left = DynamicInteger.getIntegerFromFront(sm.spawn(), info);
 			if (left == null) return null;
 			
 			ComparisonType comparisonType;
@@ -128,7 +129,7 @@ public class Comparison extends Conditional
 					return null;
 			}
 			
-			DynamicInteger right = DynamicInteger.getIntegerFromFront(sm.spawn());
+			DynamicInteger right = DynamicInteger.getIntegerFromFront(sm.spawn(), info);
 			if (right == null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \"" + sm.string + "\"");

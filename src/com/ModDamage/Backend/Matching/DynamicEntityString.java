@@ -1,151 +1,175 @@
 package com.ModDamage.Backend.Matching;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.EntityReference;
+import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Utils;
+import com.ModDamage.Backend.ArmorSet;
 import com.ModDamage.Backend.ModDamageElement;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.TypeNameAliaser;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class DynamicEntityString extends DynamicString
 {
-	final EntityReference entityReference;
-	final EntityStringPropertyMatch propertyMatch;
+	private static Pattern entityStringPattern = Pattern.compile("([a-z]+)_("+ Utils.joinBy("|", EntityStringPropertyMatch.values()) +")", Pattern.CASE_INSENSITIVE);
 	
 	public enum EntityStringPropertyMatch
 	{
 		ARMORSET(true)
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				return entityReference.getArmorSet(eventInfo).toString();
+				return new ArmorSet((Player) entity).toString();
 			}
 		},
 		GROUP(true)
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				return entityReference.getGroups(eventInfo).toString();
+				return ExternalPluginManager.getPermissionsManager().getGroups((Player) entity).toString();
 			}
 		},
 		NAME(true)
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				Entity entity = entityReference.getEntity(eventInfo);
-				return entity instanceof Player?((Player)entity).getName():"";
+				return ((Player)entity).getName();
 			}
 		},
 		REGIONS
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				return ExternalPluginManager.getRegionsManager().getRegions(entityReference.getEntity(eventInfo).getLocation()).toString();
+				return ExternalPluginManager.getRegionsManager().getRegions(entity.getLocation()).toString();
 			}
 		},
 		TAGS
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				return ModDamage.getTagger().getTags(entityReference.getEntity(eventInfo)).toString();
+				return ModDamage.getTagger().getTags(entity).toString();
 			}
 		},
 		TYPE
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				return TypeNameAliaser.getStaticInstance().toString(entityReference.getElement(eventInfo));
+				return TypeNameAliaser.getStaticInstance().toString(ModDamageElement.getElementFor(entity));
 			}
 		},
 		WIELDING(true)
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				return entityReference.getMaterial(eventInfo).name();
+				return ((Player) entity).getItemInHand().getType().name();
 			}
 		},
 		ENCHANTMENTS(true)
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				return HELD_ENCHANTMENTS.getString(eventInfo, entityReference) + " " + ARMOR_ENCHANTMENTS.getString(eventInfo, entityReference);
+				return HELD_ENCHANTMENTS.getString(entity) + " " + ARMOR_ENCHANTMENTS.getString(entity);
 			}
 		},
 		HELD_ENCHANTMENTS(true)
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				return ((Player)entityReference.getEntity(eventInfo)).getItemInHand().getEnchantments().toString();
+				return ((Player)entity).getItemInHand().getEnchantments().toString();
 			}
 		},
 		ARMOR_ENCHANTMENTS(true)
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				return HELMET_ENCHANTMENTS.getString(eventInfo, entityReference) + " " + 
-					   CHESTPLATE_ENCHANTMENTS.getString(eventInfo, entityReference) + " " + 
-					   LEGGINGS_ENCHANTMENTS.getString(eventInfo, entityReference) + " " + 
-					   BOOTS_ENCHANTMENTS.getString(eventInfo, entityReference);
+				return HELMET_ENCHANTMENTS.getString(entity) + " " + 
+					   CHESTPLATE_ENCHANTMENTS.getString(entity) + " " + 
+					   LEGGINGS_ENCHANTMENTS.getString(entity) + " " + 
+					   BOOTS_ENCHANTMENTS.getString(entity);
 			}
 		},
 		HELMET_ENCHANTMENTS(true)
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				return ((Player)entityReference.getEntity(eventInfo)).getInventory().getHelmet().getEnchantments().toString();
+				return ((Player)entity).getInventory().getHelmet().getEnchantments().toString();
 			}
 		},
 		CHESTPLATE_ENCHANTMENTS(true)
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				return ((Player)entityReference.getEntity(eventInfo)).getInventory().getChestplate().getEnchantments().toString();
+				return ((Player)entity).getInventory().getChestplate().getEnchantments().toString();
 			}
 		},
 		LEGGINGS_ENCHANTMENTS(true)
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				return ((Player)entityReference.getEntity(eventInfo)).getInventory().getLeggings().getEnchantments().toString();
+				return ((Player)entity).getInventory().getLeggings().getEnchantments().toString();
 			}
 		},
 		BOOTS_ENCHANTMENTS(true)
 		{
-			@Override protected String getString(TargetEventInfo eventInfo, EntityReference entityReference)
+			@Override protected String getString(Entity entity)
 			{
-				return ((Player)entityReference.getEntity(eventInfo)).getInventory().getBoots().getEnchantments().toString();
+				return ((Player)entity).getInventory().getBoots().getEnchantments().toString();
 			}
 		};
 		
 		
-		
 		boolean requiresPlayer = false;
 		private EntityStringPropertyMatch(){}
-		private EntityStringPropertyMatch(boolean requiresPlayer){ this.requiresPlayer = true;}
+		private EntityStringPropertyMatch(boolean requiresPlayer){ this.requiresPlayer = true; }
 		
-		abstract protected String getString(TargetEventInfo eventInfo, EntityReference entityReference);
+		abstract protected String getString(Entity entity);
 	}
 	
-	DynamicEntityString(EntityReference entityReference, EntityStringPropertyMatch propertyMatch)
+
+	final DataRef<Entity> entityRef;
+	final EntityStringPropertyMatch propertyMatch;
+	
+	public DynamicEntityString(DataRef<Entity> entityRef, EntityStringPropertyMatch propertyMatch)
 	{
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
 		this.propertyMatch = propertyMatch;
 	}
 	
 	@Override
-	public String getString(TargetEventInfo eventInfo)
+	public String getString(EventData data)
 	{
-		if(propertyMatch.equals(EntityStringPropertyMatch.TYPE) || (entityReference.getEntity(eventInfo) != null && (!propertyMatch.requiresPlayer || entityReference.getElement(eventInfo).equals(ModDamageElement.PLAYER))))
-			return propertyMatch.getString(eventInfo, entityReference);
+		Entity entity = entityRef.get(data);
+		if(entity != null && (!propertyMatch.requiresPlayer || entity instanceof Player))
+			return propertyMatch.getString(entity);
+		return null;
+	}
+	
+	public static DynamicString getNew(String string, EventInfo info)
+	{
+		Matcher matcher = entityStringPattern.matcher(string);
+		if (matcher.matches())
+		{
+			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+			if (entityRef != null)
+				return new DynamicEntityString(entityRef, EntityStringPropertyMatch.valueOf(matcher.group(2).toUpperCase()));
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown entity reference: "+matcher.group(1));
+			return null;
+		}
+		
 		return null;
 	}
 
 	@Override
 	public String toString()
 	{
-		return entityReference.name().toLowerCase() + "_" + propertyMatch.name().toLowerCase();
+		return /*FIXME entityIndex.name().toLowerCase() +*/ "_" + propertyMatch.name().toLowerCase();
 	}
 }

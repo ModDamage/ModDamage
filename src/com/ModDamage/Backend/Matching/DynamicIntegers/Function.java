@@ -7,10 +7,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
+import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class Function extends DynamicInteger
 {
@@ -66,12 +68,12 @@ public class Function extends DynamicInteger
 	}
 
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public int getValue(EventData data)
 	{
 		int[] argValues = new int[args.size()];
 		
 		for (int i = 0; i < argValues.length; i++)
-			argValues[i] = args.get(i).getValue(eventInfo);
+			argValues[i] = args.get(i).getValue(data);
 		
 		return funcType.evaluate(argValues);
 	}
@@ -86,7 +88,7 @@ public class Function extends DynamicInteger
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DynamicInteger getNewFromFront(Matcher m, StringMatcher sm)
+					public DynamicInteger getNewFromFront(Matcher m, StringMatcher sm, EventInfo info)
 					{
 						FunctionType ftype = FunctionType.match(m.group(1));
 						if (ftype == null)
@@ -98,7 +100,7 @@ public class Function extends DynamicInteger
 						List<DynamicInteger> args = new ArrayList<DynamicInteger>();
 						while (true)
 						{
-							DynamicInteger arg = DynamicInteger.getIntegerFromFront(sm.spawn());
+							DynamicInteger arg = DynamicInteger.getIntegerFromFront(sm.spawn(), info);
 							if (arg == null)
 							{
 								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \"" + sm.string + "\"");
@@ -125,9 +127,15 @@ public class Function extends DynamicInteger
 							return null;
 						}
 						
-						sm.accept();
-						return new Function(ftype, args);
+						return sm.acceptIf(new Function(ftype, args));
 					}
 				});
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public String toString()
+	{
+		return funcType.name().toLowerCase() + "(" + Utils.joinBy(", ", args) + ")";
 	}
 }

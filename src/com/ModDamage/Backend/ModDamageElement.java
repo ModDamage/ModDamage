@@ -62,7 +62,6 @@ public enum ModDamageElement
 				COW(ANIMAL, CreatureType.COW, Cow.class),
 				PIG(ANIMAL, CreatureType.PIG, Pig.class),
 				SHEEP(ANIMAL, CreatureType.SHEEP, Sheep.class),
-				SNOWMAN(ANIMAL, CreatureType.SNOWMAN, Snowman.class),
 				SQUID(ANIMAL, CreatureType.SQUID, Squid.class),
 				WOLF(ANIMAL, CreatureType.WOLF, Wolf.class)
 				{
@@ -240,6 +239,7 @@ public enum ModDamageElement
 						}
 					},
 					ZOMBIEPIGMAN_NORMAL(ZOMBIEPIGMAN, CreatureType.PIG_ZOMBIE),
+			SNOWMAN(LIVING, CreatureType.SNOWMAN, Snowman.class),
 		
 		NONLIVING(GENERIC),
 			NATURE(NONLIVING),
@@ -345,14 +345,14 @@ public enum ModDamageElement
 		if (genericElement != null)
 			genericElement.subElements.add(this);
 	}
-	public ModDamageElement getParentType(){ return genericElement;}
+	public ModDamageElement getParentType(){ return genericElement; }
 
 	public boolean isElementReference(String string)
 	{
 		return getElementNamed(string) != UNKNOWN;
 	}
 	
-	public CreatureType getCreatureType(){ return creatureType;}
+	public CreatureType getCreatureType(){ return creatureType; }
 	
 	//Returns true if this is equals or a subtype of the inputted element
 	public boolean matchesType(ModDamageElement element)
@@ -425,7 +425,7 @@ public enum ModDamageElement
 		return null;
 	}
 	
-	public boolean canSpawnCreature(){ return creatureType != null;}
+	public boolean canSpawnCreature(){ return creatureType != null; }
 	public LivingEntity spawnCreature(Location location)
 	{
 		if(creatureType != null)

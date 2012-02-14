@@ -5,9 +5,11 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Routines.Routines;
 
 public final class ChangeProperty extends NestedRoutine
@@ -20,36 +22,37 @@ public final class ChangeProperty extends NestedRoutine
 		this.routines = routines;
 		this.targetPropertyMatch = targetPropertyMatch;
 	}
+	
+	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "value", "-default");
 
 	@Override
-	public void run(TargetEventInfo eventInfo)
+	public void run(EventData data)
 	{
-		int savedEventValue = eventInfo.eventValue;
+		EventData myData = myInfo.makeChainedData(data, targetPropertyMatch.getValue(data));
 		
-		eventInfo.eventValue = targetPropertyMatch.getValue(eventInfo);
-		routines.run(eventInfo);
-		targetPropertyMatch.setValue(eventInfo, eventInfo.eventValue);
-		
-		eventInfo.eventValue = savedEventValue;
+		routines.run(myData);
+		targetPropertyMatch.setValue(data, myData.getMy(Integer.class, 0));
 	}
 	
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("set\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(?:set|change)\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{	
 		@Override
-		public ChangeProperty getNew(Matcher matcher, Object nestedContent)
+		public ChangeProperty getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-			DynamicInteger targetPropertyMatch = DynamicInteger.getNew(matcher.group(1));
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent);
+			DynamicInteger targetPropertyMatch = DynamicInteger.getNew(matcher.group(1), info);
+			EventInfo einfo = info.chain(myInfo);
+			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			if(targetPropertyMatch != null && routines != null)
 			{
 				if(targetPropertyMatch.isSettable())
 					return new ChangeProperty(matcher.group(), routines, targetPropertyMatch);
-				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: Variable \"" + matcher.group(1) + "\" is read-only.");
+				else
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: Variable \"" + matcher.group(1) + "\" is read-only.");
 			}
 			return null;
 		}

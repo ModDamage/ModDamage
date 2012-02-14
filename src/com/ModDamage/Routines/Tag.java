@@ -6,98 +6,97 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.EntityReference;
-import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.Aliasing.RoutineAliaser;
+import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Routines.Nested.NestedRoutine;
 
-public class Tag extends Routine
+public class Tag extends NestedRoutine
 {
-	public static final int defaultValue = 0;
-	
 	protected final String tag;
-	protected final EntityReference entityReference;
+	protected final DataRef<Entity> entityRef;
 	protected final DynamicInteger integer;
 	
-	private final boolean setting;
-	
-	protected Tag(String configString, String tag, EntityReference entityReference, DynamicInteger integer)
+	protected Tag(String configString, String tag, DataRef<Entity> entityRef, DynamicInteger integer)
 	{
 		super(configString);
 		this.tag = tag;
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
 		this.integer = integer;
-		this.setting = true;
 	}
 	
-	protected Tag(String configString, String tag, EntityReference entityReference)
+	protected Tag(String configString, String tag, DataRef<Entity> entityRef)
 	{
 		super(configString);
 		this.tag = tag;
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
 		this.integer = null;
-		this.setting = false;
 	}
 
 	@Override
-	public void run(TargetEventInfo eventInfo)
+	public void run(EventData data)
 	{
-		Entity entity = entityReference.getEntity(eventInfo);
+		Entity entity = entityRef.get(data);
 		if(entity != null)
 		{
-			if(setting)
+			if(integer != null)
 			{
-				int value = defaultValue;
-				if (integer != null) value = integer.getValue(eventInfo);
-				ModDamage.getTagger().addTag(entity, tag, value);
+				Integer oldTagValue = ModDamage.getTagger().getTagValue(entity, tag);
+				EventData myData = myInfo.makeChainedData(data, oldTagValue == null? 0 : oldTagValue);
+				ModDamage.getTagger().addTag(entity, tag, integer.getValue(myData));
 			}
 			else
 				ModDamage.getTagger().removeTag(entity, tag);
 		}
 	}
 
-	public static void register()
+	public static void registerRoutine()
 	{
-		Routine.registerRoutine(Pattern.compile("(un)?tag\\.([^.]+)\\.([^.]+)(?:\\.(.+))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("untag\\.(\\w+)\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
+	public static void registerNested()
+	{
+		NestedRoutine.registerRoutine(Pattern.compile("tag\\.(\\w+)\\.(\\w+)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
+	}
+	
+	public static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "value", "-default");
 	
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
 	{
 		@Override
-		public Tag getNew(Matcher matcher)
+		public Tag getNew(Matcher matcher, EventInfo info)
 		{
-			if(matcher.group(3).matches("\\w+"))
+			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+			if(entityRef != null)
 			{
-				EntityReference reference = EntityReference.match(matcher.group(2));
-				if(reference != null)
-				{
-					if(matcher.group(1) == null)
-					{
-						if(matcher.group(4) == null)
-						{
-							ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(2) + ", " + matcher.group(3) + ", " + defaultValue);
-							return new Tag(matcher.group(), matcher.group(3).toLowerCase(), reference, null);
-						}
-						else
-						{
-							DynamicInteger integer = DynamicInteger.getNew(matcher.group(4));
-							if(integer != null)
-							{
-								ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(2) + ", " + matcher.group(3) + ", " + integer.toString());
-								return new Tag(matcher.group(), matcher.group(3).toLowerCase(), reference, integer);
-							}
-						}
-					}
-					else
-					{
-						if(matcher.group(4) != null)
-							ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Warning: Ignoring value \"" + matcher.group(4) + "\"; unused for untagging.");
-						ModDamage.addToLogRecord(OutputPreset.INFO, "Untag: " + matcher.group(2) + ", " + matcher.group(3));
-						return new Tag(matcher.group(), matcher.group(3).toLowerCase(), reference);
-					}
-				}
+				ModDamage.addToLogRecord(OutputPreset.INFO, "Untag: " + matcher.group(1) + ", " + matcher.group(2));
+				return new Tag(matcher.group(), matcher.group(2).toLowerCase(), entityRef);
 			}
-			else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: tag \"" + matcher.group(3) + "\" should only be alphanumeric characters.");
+			return null;
+		}
+	}
+	
+	protected static class NestedRoutineBuilder extends NestedRoutine.RoutineBuilder
+	{
+		@Override
+		public Tag getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		{
+			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+			if(entityRef != null)
+			{
+				EventInfo einfo = info.chain(myInfo);
+				Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
+				if(routines == null) return null;
+				DynamicInteger integer = DynamicInteger.getNew(routines, einfo);
+				if(integer == null) return null;
+				
+				ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(1) + ", " + matcher.group(2) + ", " + integer.toString());
+				return new Tag(matcher.group(), matcher.group(2).toLowerCase(), entityRef, integer);
+			}
 			return null;
 		}
 	}

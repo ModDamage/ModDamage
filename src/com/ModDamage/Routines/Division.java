@@ -4,18 +4,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class Division extends ValueChangeRoutine 
 {
-	public Division(String configString, ValueChangeType changeType, DynamicInteger value)
-	{
-		super(configString, changeType, value);
+	public Division(String configString, DataRef<Integer> defaultRef, ValueChangeType changeType, DynamicInteger value)
+	{ 
+		super(configString, defaultRef, changeType, value);
 	}
 	@Override
-	public int getValue(TargetEventInfo eventInfo){ return eventInfo.eventValue/number.getValue(eventInfo);}
+	public int getValue(EventData data){ return defaultRef.get(data) * number.getValue(data); }
 	
 	public static void register()
 	{
@@ -25,13 +27,14 @@ public class Division extends ValueChangeRoutine
 	protected static class RoutineBuilder extends ValueChangeRoutine.ValueBuilder
 	{
 		@Override
-		public Division getNew(Matcher matcher, ValueChangeType changeType)
+		public Division getNew(Matcher matcher, ValueChangeType changeType, EventInfo info)
 		{ 
-			DynamicInteger match = DynamicInteger.getNew(matcher.group(1));
-			if(match != null)
+			DynamicInteger match = DynamicInteger.getNew(matcher.group(1), info);
+			DataRef<Integer> defaultRef = info.get(Integer.class, "-default");
+			if(match != null && defaultRef != null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Division" + changeType.getStringAppend() + ": " + matcher.group(1));
-				return new Division(matcher.group(), changeType, match);
+				return new Division(matcher.group(), defaultRef, changeType, match);
 			}
 			return null;
 		}

@@ -11,7 +11,7 @@ public class EnchantmentAliaser extends CollectionAliaser<Enchantment>
 	public static EnchantmentAliaser aliaser = new EnchantmentAliaser();
 	public static Collection<Enchantment> match(String string) { return aliaser.matchAlias(string); }
 	
-	public EnchantmentAliaser(){ super(AliasManager.Enchantment.name());}
+	public EnchantmentAliaser(){ super(AliasManager.Enchantment.name()); }
 
 	@Override
 	protected Enchantment matchNonAlias(String key)
@@ -22,6 +22,6 @@ public class EnchantmentAliaser extends CollectionAliaser<Enchantment>
 		return null;
 	}
 
-	@Override
-	protected String getObjectName(Enchantment object){ return object.getName();}
+	//@Override
+	//protected String getObjectName(Enchantment object){ return object.getName(); }
 }

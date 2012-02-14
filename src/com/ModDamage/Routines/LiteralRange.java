@@ -4,24 +4,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.TargetEventInfo;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class LiteralRange extends RandomRoutine 
 {
 	final protected DynamicInteger upper;
-	public LiteralRange(String configString, ValueChangeType changeType, DynamicInteger lower, DynamicInteger upper)
+	public LiteralRange(String configString, DataRef<Integer> defaultRef, ValueChangeType changeType, DynamicInteger lower, DynamicInteger upper)
 	{ 
-		super(configString, changeType, lower);
+		super(configString, defaultRef, changeType, lower);
 		this.upper = upper;
 	}
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public int getValue(EventData data)
 	{
-		int lower = number.getValue(eventInfo);
-		return lower + Math.abs(random.nextInt(upper.getValue(eventInfo) - lower + 1));
+		int lower = number.getValue(data);
+		return lower + Math.abs(random.nextInt(upper.getValue(data) - lower + 1));
 	}
 	
 	public static void register()
@@ -32,13 +34,15 @@ public class LiteralRange extends RandomRoutine
 	protected static class RoutineBuilder extends ValueChangeRoutine.ValueBuilder
 	{	
 		@Override
-		public LiteralRange getNew(Matcher matcher, ValueChangeType changeType)
+		public LiteralRange getNew(Matcher matcher, ValueChangeType changeType, EventInfo info)
 		{
-			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1)), match2 = DynamicInteger.getNew(matcher.group(2));
-			if(match1 != null && match2 != null)
+			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1), info), 
+					       match2 = DynamicInteger.getNew(matcher.group(2), info);
+			DataRef<Integer> defaultRef = info.get(Integer.class, "-default");
+			if(match1 != null && match2 != null && defaultRef != null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Literal Range" + changeType.getStringAppend() + ": (" + matcher.group(1) + ", " + matcher.group(2) + ")");
-				return new LiteralRange(matcher.group(), changeType, match1, match2);
+				return new LiteralRange(matcher.group(), defaultRef, changeType, match1, match2);
 			}
 			return null;
 		}

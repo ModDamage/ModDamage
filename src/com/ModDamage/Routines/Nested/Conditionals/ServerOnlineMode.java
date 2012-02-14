@@ -5,7 +5,8 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 
-import com.ModDamage.Backend.TargetEventInfo;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class ServerOnlineMode extends Conditional
 {
@@ -15,7 +16,7 @@ public class ServerOnlineMode extends Conditional
 	}
 	
 	@Override
-	public boolean evaluate(TargetEventInfo eventInfo){ return Bukkit.getOnlineMode();}
+	public boolean evaluate(EventData data){ return Bukkit.getOnlineMode(); }
 	
 	public static void register()
 	{
@@ -27,7 +28,7 @@ public class ServerOnlineMode extends Conditional
 		public ConditionalBuilder() { super(pattern); }
 
 		@Override
-		public ServerOnlineMode getNew(Matcher matcher)
+		public ServerOnlineMode getNew(Matcher matcher, EventInfo info)
 		{
 			return new ServerOnlineMode();
 		}

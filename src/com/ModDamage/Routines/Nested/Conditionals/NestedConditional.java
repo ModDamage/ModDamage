@@ -3,8 +3,9 @@ package com.ModDamage.Routines.Nested.Conditionals;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.StringMatcher;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.StringMatcher;
+import com.ModDamage.EventInfo.EventInfo;
 
 public abstract class NestedConditional extends Conditional
 {
@@ -19,11 +20,11 @@ public abstract class NestedConditional extends Conditional
 	static class ConditionalBuilder extends Conditional.ConditionalBuilder
 	{
 		@Override
-		public Conditional getNewFromFront(StringMatcher sm)
+		public Conditional getNewFromFront(StringMatcher sm, EventInfo info)
 		{
 			if (!sm.matchesFront(openPattern)) return null;
 			
-			Conditional conditional = Conditional.getNewFromFront(sm.spawn());
+			Conditional conditional = Conditional.getNewFromFront(sm.spawn(), info);
 			
 			if (!sm.matchesFront(closePattern))
 			{

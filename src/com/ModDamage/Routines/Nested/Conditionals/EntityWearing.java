@@ -4,27 +4,31 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+
 import com.ModDamage.Backend.ArmorSet;
-import com.ModDamage.Backend.EntityReference;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.ArmorAliaser;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class EntityWearing extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.wearing(only)?\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
-	final EntityReference entityReference;
+	final DataRef<Entity> entityRef;
 	final boolean only;
 	final Collection<ArmorSet> armorSets;
-	public EntityWearing(EntityReference entityReference, boolean only, Collection<ArmorSet> armorSets)
+	public EntityWearing(DataRef<Entity> entityRef, boolean only, Collection<ArmorSet> armorSets)
 	{  
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
 		this.only = only;
 		this.armorSets = armorSets;
 	}
 	@Override
-	public boolean evaluate(TargetEventInfo eventInfo)
+	public boolean evaluate(EventData data)
 	{
-		ArmorSet playerSet = entityReference.getArmorSet(eventInfo);
+		ArmorSet playerSet = new ArmorSet((Player) entityRef.get(data));
 		if(playerSet != null)
 			for(ArmorSet armorSet : armorSets)
 				if(only? armorSet.equals(playerSet) : armorSet.contains(playerSet))
@@ -42,12 +46,12 @@ public class EntityWearing extends Conditional
 		public ConditionalBuilder() { super(pattern); }
 
 		@Override
-		public EntityWearing getNew(Matcher matcher)
+		public EntityWearing getNew(Matcher matcher, EventInfo info)
 		{
-			EntityReference reference = EntityReference.match(matcher.group(1));
+			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
 			Collection<ArmorSet> armorSet = ArmorAliaser.match(matcher.group(3));
-			if(!armorSet.isEmpty() && reference != null)
-				return new EntityWearing(reference, matcher.group(2) != null, armorSet);
+			if(!armorSet.isEmpty() && entityRef != null)
+				return new EntityWearing(entityRef, matcher.group(2) != null, armorSet);
 			return null;
 		}
 	}

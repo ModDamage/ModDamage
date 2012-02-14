@@ -3,37 +3,45 @@ package com.ModDamage.Backend.Matching.DynamicIntegers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
-import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public class DynamicPlayerInteger extends DynamicInteger
 {
 	public static void register()
 	{
 		DynamicInteger.register(
-				Pattern.compile("("+ Utils.joinBy("|", EntityReference.values()) +")_("+ 
+				Pattern.compile("([a-z]+)_("+ 
 									 Utils.joinBy("|", PlayerIntegerPropertyMatch.values()) +")", Pattern.CASE_INSENSITIVE),
 				new DynamicIntegerBuilder()
 				{
 					@Override
-					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm)
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
 					{
-						return new DynamicPlayerInteger(
-								EntityReference.valueOf(matcher.group(1).toUpperCase()), 
-								PlayerIntegerPropertyMatch.valueOf(matcher.group(2).toUpperCase()));
+						String name = matcher.group(1).toLowerCase();
+						DataRef<Entity> entityRef = info.get(Entity.class, name);
+						DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+						if (entityRef == null || entityElementRef == null) return null;
+						
+						return sm.acceptIf(new DynamicPlayerInteger(
+								entityRef, entityElementRef,
+								PlayerIntegerPropertyMatch.valueOf(matcher.group(2).toUpperCase())));
 					}
 				});
 	}
 	
-	protected final EntityReference entityReference;
+	protected final DataRef<Entity> entityRef;
+	protected final DataRef<ModDamageElement> entityElementRef;
 	protected final PlayerIntegerPropertyMatch propertyMatch;
 	public enum PlayerIntegerPropertyMatch
 	{
@@ -220,25 +228,26 @@ public class DynamicPlayerInteger extends DynamicInteger
 		public void setValue(Player player, int value) {}
 	}
 	
-	DynamicPlayerInteger(EntityReference reference, PlayerIntegerPropertyMatch propertyMatch)
+	DynamicPlayerInteger(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, PlayerIntegerPropertyMatch propertyMatch)
 	{
-		this.entityReference = reference;
+		this.entityRef = entityRef;
+		this.entityElementRef = entityElementRef;
 		this.propertyMatch = propertyMatch;
 	}
 	
 	@Override
-	public int getValue(TargetEventInfo eventInfo)
+	public int getValue(EventData data)
 	{
-		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
-			return propertyMatch.getValue((Player)entityReference.getEntity(eventInfo));
+		if(entityElementRef.get(data).matchesType(ModDamageElement.PLAYER))
+			return propertyMatch.getValue((Player)entityRef.get(data));
 		return 0;
 	}
 	
 	@Override
-	public void setValue(TargetEventInfo eventInfo, int value)
+	public void setValue(EventData data, int value)
 	{
-		if(entityReference.getElement(eventInfo).matchesType(ModDamageElement.PLAYER))
-			propertyMatch.setValue((Player)entityReference.getEntity(eventInfo), value);
+		if(entityElementRef.get(data).matchesType(ModDamageElement.PLAYER))
+			propertyMatch.setValue((Player)entityRef.get(data), value);
 	}
 	
 	@Override
@@ -250,7 +259,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 	@Override
 	public String toString()
 	{
-		return entityReference.name().toLowerCase() + "_" + propertyMatch.name().toLowerCase();
+		return entityRef + "_" + propertyMatch.name().toLowerCase();
 	}
 
 }

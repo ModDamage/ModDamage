@@ -6,47 +6,50 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-import com.ModDamage.Backend.AttackerEventInfo;
-import com.ModDamage.Backend.EntityReference;
 import com.ModDamage.Backend.ModDamageElement;
-import com.ModDamage.Backend.TargetEventInfo;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Routines.Routines;
 
 public class Nearby extends NestedRoutine
 {
-	final EntityReference entityReference;
+	final DataRef<Entity> entityRef;
 	final ModDamageElement filterElement;
 	final DynamicInteger radius;
 	final Routines routines;
 
-	protected Nearby(String configString, EntityReference entityReference, ModDamageElement filterElement, DynamicInteger radius, Routines routines)
+	protected Nearby(String configString, DataRef<Entity> entityRef, ModDamageElement filterElement, DynamicInteger radius, Routines routines)
 	{
 		super(configString);
-		this.entityReference = entityReference;
+		this.entityRef = entityRef;
 		this.filterElement = filterElement;
 		this.radius = radius;
 		this.routines = routines;
 	}
 
+	static EventInfo myInfo = new SimpleEventInfo(
+			Entity.class, "nearby",
+			ModDamageElement.class, "nearby");
+	
 	@Override
-	public void run(TargetEventInfo eventInfo)
+	public void run(EventData data)
 	{
 		Class<?>[] entClasses = filterElement.myClasses;
-		LivingEntity entity = (LivingEntity) entityReference.getEntity(eventInfo);
-		ModDamageElement entityElement = ModDamageElement.getElementFor(entity);
-		int r = radius.getValue(eventInfo);
+		LivingEntity entity = (LivingEntity) entityRef.get(data);
+		int r = radius.getValue(data);
 		ENTITIES: for (Entity e : entity.getNearbyEntities(r, r, r))
 		{
 			Class<?> eClass = e.getClass();
 			for (Class<?> entClass : entClasses)
 			{
 				if (entClass.isAssignableFrom(eClass)){
-					// TODO: change entity references in the EventInfo class to something that makes more sense
-					AttackerEventInfo newEventInfo = new AttackerEventInfo((LivingEntity) e, ModDamageElement.getElementFor(e), entity, entityElement, null, ModDamageElement.UNKNOWN, 0);
+					EventData newData = myInfo.makeChainedData(data, e, ModDamageElement.getElementFor(e));
 					
-					routines.run(newEventInfo);
+					routines.run(newData);
 					
 					continue ENTITIES;
 				}
@@ -62,14 +65,16 @@ public class Nearby extends NestedRoutine
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{
 		@Override
-		public Nearby getNew(Matcher matcher, Object nestedContent)
+		public Nearby getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-			EntityReference reference = EntityReference.match(matcher.group(1));
+			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
 			ModDamageElement element = ModDamageElement.getElementNamed(matcher.group(2));
-			DynamicInteger radius = DynamicInteger.getNew(matcher.group(3));
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent);
-			if(element != null && reference != null && radius != null && routines != null)
-				return new Nearby(matcher.group(), reference, element, radius, routines);
+			DynamicInteger radius = DynamicInteger.getNew(matcher.group(3), info);
+
+			EventInfo einfo = info.chain(myInfo);
+			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
+			if(element != null && entityRef != null && radius != null && routines != null)
+				return new Nearby(matcher.group(), entityRef, element, radius, routines);
 			return null;
 		}
 	}

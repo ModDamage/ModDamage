@@ -1,13 +1,12 @@
 package com.ModDamage.Backend.Aliasing;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map.Entry;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.LoadState;
@@ -17,29 +16,31 @@ abstract public class Aliaser<Type, StoredInfoClass>
 {
 	protected HashMap<String, StoredInfoClass> thisMap = new HashMap<String, StoredInfoClass>();
 	final String name;
-	protected LoadState loadState;
+	protected LoadState loadState = LoadState.NOT_LOADED;
 	
-	Aliaser(String name){ this.name = name;}
+	Aliaser(String name){ this.name = name; }
 	
-	public StoredInfoClass matchAlias(String key)
+	/*public StoredInfoClass matchAlias(String key)
 	{
 		if(thisMap.containsKey(key))
 			return thisMap.get(key);
+		return null;
+		/*
 		Type value = matchNonAlias(key);
 		if(value != null) return getNewStorageClass(value);
 		ModDamage.addToLogRecord(OutputPreset.FAILURE, "No matching " + name + " alias or value \"" + key + "\"");
-		return getDefaultValue();
-	}
+		return getDefaultValue();* /
+	}*/
 
 	abstract public boolean completeAlias(String key, Object nestedContent);
 
-	abstract protected Type matchNonAlias(String key);
+	//abstract protected Type matchNonAlias(String key);
 	
-	abstract protected String getObjectName(Type object);
+	//abstract protected String getObjectName(Type object);
 	
-	public String getName(){ return name;}
+	public String getName(){ return name; }
 
-	public LoadState getLoadState(){ return this.loadState;}
+	public LoadState getLoadState(){ return this.loadState; }
 	
 	public void clear()
 	{
@@ -53,41 +54,35 @@ abstract public class Aliaser<Type, StoredInfoClass>
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		if(rawAliases != null)
 		{
-			Set<String> foundAliases = rawAliases.keySet();
-			if(!foundAliases.isEmpty())
+			if(!rawAliases.isEmpty())
 			{
 				loadState = LoadState.SUCCESS;
 				ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, this.name + " aliases found, parsing...");
-				for(String alias : foundAliases)
+				for(String alias : rawAliases.keySet())
 					thisMap.put("_" + alias, getDefaultValue());
-				for(String alias : foundAliases)
+				for(Entry<String, Object> entry : rawAliases.entrySet())
 				{
 					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-					if(rawAliases.get(alias) != null)
+					if(entry.getValue() != null)
 					{
-						if(!this.completeAlias("_" + alias, rawAliases.get(alias)))
+						if(!this.completeAlias("_" + entry.getKey(), entry.getValue()))
 							this.loadState = LoadState.FAILURE;
 					}
-					else ModDamage.addToLogRecord(OutputPreset.WARNING, "Found empty " + this.name.toLowerCase() + " alias \"" + alias + "\", ignoring...");
+					else ModDamage.addToLogRecord(OutputPreset.WARNING, "Found empty " + this.name.toLowerCase() + " alias \"" + entry.getKey() + "\", ignoring...");
 				}
 				for(String alias : thisMap.keySet())
 					if(thisMap.get(alias) == null)
 						thisMap.remove(alias);
 			}
-			else
-			{
-				ModDamage.addToLogRecord(OutputPreset.WARNING, "Found " + this.name + " aliases node, but it was empty.");
-			}
 		}
-		else ModDamage.addToLogRecord(OutputPreset.WARNING, "No " + this.name + " aliases node found.");
 	}
 	
-	abstract protected StoredInfoClass getNewStorageClass(Type value);
-	protected StoredInfoClass getDefaultValue(){ return null;}
+	//abstract protected StoredInfoClass getNewStorageClass(Type value);
+	protected StoredInfoClass getDefaultValue(){ return null; }
 
 	abstract public static class SingleValueAliaser<Type> extends Aliaser<Type, Type>
 	{
-		SingleValueAliaser(String name){ super(name);}
+		SingleValueAliaser(String name){ super(name); }
 
 		@Override
 		public boolean completeAlias(String key, Object nestedContent)
@@ -97,21 +92,35 @@ abstract public class Aliaser<Type, StoredInfoClass>
 				Type matchedItem = matchAlias((String)nestedContent);
 				if(matchedItem != null)
 				{
-					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding value \"" + getObjectName(matchedItem) + "\"");
+					//ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding value \"" + getObjectName(matchedItem) + "\"");
 					thisMap.put(key, matchedItem);
+					return true;
 				}
 			}
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error adding alias \"" + key + "\" - unrecognized value \"" + nestedContent.toString() + "\"");
 			return false;
 		}
+		
+		public Type matchAlias(String key)
+		{
+			if(thisMap.containsKey(key))
+				return thisMap.get(key);
+			
+			
+			Type value = matchNonAlias(key);
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "No matching " + name + " alias or value \"" + key + "\"");
+			return value;
+		}
+		
+		abstract Type matchNonAlias(String string);
 
-		@Override
-		protected Type getNewStorageClass(Type value){ return null;}
+		//@Override
+		//protected Type getNewStorageClass(Type value){ return null; }
 	}
 	
 	abstract public static class CollectionAliaser<InfoType> extends Aliaser<InfoType, Collection<InfoType>>
 	{
-		CollectionAliaser(String name){ super(name);}
+		CollectionAliaser(String name){ super(name); }
 
 		@Override
 		public boolean completeAlias(String key, Object nestedContent)
@@ -153,10 +162,11 @@ abstract public class Aliaser<Type, StoredInfoClass>
 					{
 						if(!matchedItems.contains(value))
 						{
-							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding value \"" + getObjectName(value) + "\"");
+							//ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding value \"" + getObjectName(value) + "\"");
 							matchedItems.add(value);
 						}
-						else ModDamage.addToLogRecord(OutputPreset.WARNING, "Duplicate value \"" + getObjectName(value) + "\" - ignoring.");
+						//else
+						//	ModDamage.addToLogRecord(OutputPreset.WARNING, "Duplicate value \"" + getObjectName(value) + "\" - ignoring.");
 					}
 				}
 				else if(key.equalsIgnoreCase((String)listedValue))
@@ -172,11 +182,12 @@ abstract public class Aliaser<Type, StoredInfoClass>
 			return !failFlag;
 		}
 		
-		@Override
+		//@Override
 		public Collection<InfoType> matchAlias(String key)
 		{
 			if(thisMap.containsKey(key))
 				return thisMap.get(key);
+			
 			
 			boolean failFlag = false;
 			List<InfoType> values = new ArrayList<InfoType>();
@@ -194,10 +205,12 @@ abstract public class Aliaser<Type, StoredInfoClass>
 			return getDefaultValue();
 		}
 
+		abstract protected InfoType matchNonAlias(String valueString);
+
 		@Override
-		protected Collection<InfoType> getDefaultValue(){ return new ArrayList<InfoType>();}
+		protected Collection<InfoType> getDefaultValue(){ return new ArrayList<InfoType>(); }
 		
-		@Override @SuppressWarnings("unchecked")
-		protected Collection<InfoType> getNewStorageClass(InfoType value){ return Arrays.asList(value);}
+		//@Override @SuppressWarnings("unchecked")
+		//protected Collection<InfoType> getNewStorageClass(InfoType value){ return Arrays.asList(value); }
 	}
 }
