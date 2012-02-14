@@ -47,7 +47,8 @@ public class ModDamageItemStack
 	
 	public void updateAmount(EventData data)
 	{
-		lastData = this.data.getValue(data);
+		if (this.data != null)
+			lastData = this.data.getValue(data);
 		lastAmount = amount.getValue(data);
 		if (enchantments != null)
 		{
@@ -80,7 +81,7 @@ public class ModDamageItemStack
 		return item;
 	}
 	
-	public static final Pattern materialPattern = Pattern.compile("(\\w+)(?=[:*])"); // word followed by : or *
+	public static final Pattern materialPattern = Pattern.compile("(\\w+)(?=[:*]|$)"); // word followed by : or *
 	
 	public static ModDamageItemStack getNewFromFront(EventInfo info, StringMatcher sm)
 	{
@@ -104,7 +105,7 @@ public class ModDamageItemStack
 			if (data == null) return null;
 		}
 		else
-			data = new ConstantInteger(0);
+			data = null;
 		
 
 		DynamicInteger amount;

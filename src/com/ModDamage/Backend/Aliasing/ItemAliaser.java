@@ -29,18 +29,22 @@ public class ItemAliaser extends Aliaser<Object, Collection<String>>
 		Collection<String> values = thisMap.get(key);
 		if (values == null)
 		{
-			if (thisMap.containsKey(key))
-				return Arrays.<ModDamageItemStack>asList(); // hmm, not ready yet?
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown alias: \"" + key + "\"");
-			return null;
+			if (key.startsWith("_")) {
+				if (thisMap.containsKey(key))
+					return Arrays.<ModDamageItemStack>asList(); // hmm, not ready yet?
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown alias: \"" + key + "\"");
+				return null;
+			}
+			values = new ArrayList<String>();
+			values.add(key);
 		}
 		
 		List<ModDamageItemStack> items = new ArrayList<ModDamageItemStack>();
 		
 		for (String itemStr : values)
 		{
+			StringMatcher sm = new StringMatcher(itemStr);
 			while(true) {
-				StringMatcher sm = new StringMatcher(itemStr);
 				ModDamageItemStack item = ModDamageItemStack.getNewFromFront(info, sm.spawn());
 				if (item == null) return null;
 				items.add(item);
