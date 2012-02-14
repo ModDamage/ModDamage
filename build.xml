@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="ModDamage" default="jar">
+<project name="ModDamage" default="jar" basedir=".">
 	<target name="jar">
-		<jar destfile="../Minecraft/plugins/ModDamage.jar" update="no">
+		<jar destfile="ModDamage.jar" update="no">
 			<fileset dir="bin" includes="**/*.class" />
 			<fileset dir="." includes="plugin.yml" />
 		</jar>
