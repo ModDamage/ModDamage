@@ -84,6 +84,13 @@ public class RoutineAliaser extends Aliaser<Object, Object>
 		return routines;
 	}
 	
+	@Override
+	public void clear()
+	{
+		super.clear();
+		aliasedRoutines.clear();
+	}
+	
 	//Parse routine strings recursively
 	public static Routines parseRoutines(Object object, EventInfo info)
 	{
@@ -147,19 +154,4 @@ public class RoutineAliaser extends Aliaser<Object, Object>
 		}
 		return !encounteredError;
 	}
-
-	/*@Override
-	protected String getObjectName(Routine routine){ return routine.getClass().getSimpleName(); }
-
-	@Override
-	protected Routines getNewStorageClass(Routine value)
-	{
-		return new Routines();
-	}
-	
-	@Override
-	protected Routines getDefaultValue()
-	{
-		return new Routines();
-	}*/
 }

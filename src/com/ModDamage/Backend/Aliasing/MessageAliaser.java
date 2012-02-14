@@ -42,4 +42,11 @@ public class MessageAliaser extends CollectionAliaser<String>
 	
 	@Override
 	protected String matchNonAlias(String valueString) { return valueString; }
+	
+	@Override
+	public void clear()
+	{
+		super.clear();
+		aliasedMessages.clear();
+	}
 }
