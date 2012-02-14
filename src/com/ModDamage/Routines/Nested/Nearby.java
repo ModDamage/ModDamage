@@ -17,10 +17,10 @@ import com.ModDamage.Routines.Routines;
 
 public class Nearby extends NestedRoutine
 {
-	final DataRef<Entity> entityRef;
-	final ModDamageElement filterElement;
-	final DynamicInteger radius;
-	final Routines routines;
+	private final DataRef<Entity> entityRef;
+	private final ModDamageElement filterElement;
+	private final DynamicInteger radius;
+	private final Routines routines;
 
 	protected Nearby(String configString, DataRef<Entity> entityRef, ModDamageElement filterElement, DynamicInteger radius, Routines routines)
 	{

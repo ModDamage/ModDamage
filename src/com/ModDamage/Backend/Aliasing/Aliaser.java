@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import com.ModDamage.ModDamage;
@@ -14,8 +15,8 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 
 abstract public class Aliaser<Type, StoredInfoClass>
 {
-	protected HashMap<String, StoredInfoClass> thisMap = new HashMap<String, StoredInfoClass>();
-	final String name;
+	protected Map<String, StoredInfoClass> thisMap = new HashMap<String, StoredInfoClass>();
+	protected final String name;
 	protected LoadState loadState = LoadState.NOT_LOADED;
 	
 	Aliaser(String name){ this.name = name; }

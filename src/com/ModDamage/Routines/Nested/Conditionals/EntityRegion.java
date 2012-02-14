@@ -16,9 +16,9 @@ import com.ModDamage.EventInfo.EventInfo;
 public class EntityRegion extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.inregion(only)?.(\\w+)", Pattern.CASE_INSENSITIVE);
-	final DataRef<Entity> entityRef;
-	final boolean inclusiveComparison;
-	final Collection<String> regions;
+	private final DataRef<Entity> entityRef;
+	private final boolean inclusiveComparison;
+	private final Collection<String> regions;
 	public EntityRegion(boolean inclusiveComparison, DataRef<Entity> entityRef, Collection<String> regions)
 	{
 		this.entityRef = entityRef;

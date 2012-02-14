@@ -15,8 +15,8 @@ import com.ModDamage.Routines.Routines;
 
 public class EntityExplode extends NestedRoutine
 {
-	final DataRef<Entity> entityRef;
-	final DynamicInteger strength;
+	private final DataRef<Entity> entityRef;
+	private final DynamicInteger strength;
 	
 	public EntityExplode(String configString, DataRef<Entity> entityRef, DynamicInteger strength)
 	{

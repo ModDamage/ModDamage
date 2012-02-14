@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class EventInfoChain extends EventInfo
 {
-	final EventInfo first, second;
+	private final EventInfo first, second;
 	
 	
 	public EventInfoChain(EventInfo first, EventInfo second)

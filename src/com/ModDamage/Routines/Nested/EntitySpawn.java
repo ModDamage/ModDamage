@@ -16,9 +16,9 @@ import com.ModDamage.Routines.Routines;
 
 public class EntitySpawn extends NestedRoutine
 {
-	final DataRef<Entity> entityRef;
-	final ModDamageElement spawnElement;
-	final Routines routines;
+	private final DataRef<Entity> entityRef;
+	private final ModDamageElement spawnElement;
+	private final Routines routines;
 	public EntitySpawn(String configString, DataRef<Entity> entityRef, ModDamageElement spawnElement, Routines routines)
 	{
 		super(configString);

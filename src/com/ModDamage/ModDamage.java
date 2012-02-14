@@ -197,9 +197,8 @@ public class ModDamage extends JavaPlugin
 			}
 		};
 		
-		final static List<String> commandInstructions = new ArrayList<String>();
-		final boolean needsEnable;
-		final Pattern pattern;
+		private final boolean needsEnable;
+		private final Pattern pattern;
 
 		private PluginCommand(boolean needsEnable, String pattern)
 		{

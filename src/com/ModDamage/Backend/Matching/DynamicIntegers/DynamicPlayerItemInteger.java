@@ -122,9 +122,9 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 		
 	}
 	
-	final DataRef<Entity> entityRef;
-	final PlayerItemTarget playerItemTarget;
-	final ItemAttribute itemAttribute;
+	private final DataRef<Entity> entityRef;
+	private final PlayerItemTarget playerItemTarget;
+	private final ItemAttribute itemAttribute;
 
 	public DynamicPlayerItemInteger(DataRef<Entity> entityRef, PlayerItemTarget playerItemTarget, ItemAttribute itemAttribute)
 	{

@@ -14,7 +14,7 @@ public class EventEnvironment extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("event\\.environment\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	protected final Environment environment;
-	final DataRef<World> worldRef;
+	private final DataRef<World> worldRef;
 	public EventEnvironment(Environment environment, DataRef<World> worldRef)
 	{
 		this.environment = environment;

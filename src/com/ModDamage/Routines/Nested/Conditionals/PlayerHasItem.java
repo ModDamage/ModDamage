@@ -18,10 +18,10 @@ import com.ModDamage.EventInfo.EventInfo;
 public class PlayerHasItem extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.has((?:all)?items|item)\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
-	final DataRef<Entity> entityRef;
-	final DataRef<ModDamageElement> entityElementRef;
-	final boolean strict;
-	final Collection<ModDamageItemStack> items;
+	private final DataRef<Entity> entityRef;
+	private final DataRef<ModDamageElement> entityElementRef;
+	private final boolean strict;
+	private final Collection<ModDamageItemStack> items;
 	public PlayerHasItem(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, boolean strict, Collection<ModDamageItemStack> items)
 	{
 		this.entityRef = entityRef;

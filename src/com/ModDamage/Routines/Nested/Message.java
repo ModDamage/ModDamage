@@ -23,8 +23,8 @@ import com.ModDamage.Routines.Routine;
 
 public class Message extends NestedRoutine 
 {
-	protected final Collection<InterpolatedString> messages;
-	protected final MessageTarget messageTarget;
+	private final Collection<InterpolatedString> messages;
+	private final MessageTarget messageTarget;
 	
 	private Message(String configString, MessageTarget messageTarget, Collection<InterpolatedString> messages)
 	{

@@ -16,8 +16,8 @@ import com.ModDamage.EventInfo.EventInfo;
 public class EntityWielding extends Conditional 
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.wielding\\.([\\w,]+)", Pattern.CASE_INSENSITIVE);
-	final DataRef<Entity> entityRef;
-	final Collection<Material> materials;
+	private final DataRef<Entity> entityRef;
+	private final Collection<Material> materials;
 	public EntityWielding(DataRef<Entity> entityRef, Collection<Material> materials)
 	{  
 		this.entityRef = entityRef;

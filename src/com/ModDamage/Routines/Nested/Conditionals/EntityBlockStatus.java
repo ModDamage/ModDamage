@@ -18,9 +18,9 @@ public class EntityBlockStatus extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.is(\\w+)block\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
-	final DataRef<Entity> entityRef;
-	final BlockStatusType statusType;
-	final Collection<Material> materials;
+	private final DataRef<Entity> entityRef;
+	private final BlockStatusType statusType;
+	private final Collection<Material> materials;
 	protected EntityBlockStatus(DataRef<Entity> entityRef, BlockStatusType statusType, Collection<Material> materials)
 	{
 		this.entityRef = entityRef;

@@ -16,7 +16,7 @@ public class EventWorld extends Conditional
 	public static final Pattern pattern = Pattern.compile("event\\.world\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
 	protected final Collection<String> worlds;
-	final DataRef<World> worldRef;
+	private final DataRef<World> worldRef;
 
 	public EventWorld(Collection<String> worlds, DataRef<World> worldRef)
 	{

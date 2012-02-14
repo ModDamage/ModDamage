@@ -16,9 +16,9 @@ import com.ModDamage.EventInfo.EventInfo;
 public class EntityWearing extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.wearing(only)?\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
-	final DataRef<Entity> entityRef;
-	final boolean only;
-	final Collection<ArmorSet> armorSets;
+	private final DataRef<Entity> entityRef;
+	private final boolean only;
+	private final Collection<ArmorSet> armorSets;
 	public EntityWearing(DataRef<Entity> entityRef, boolean only, Collection<ArmorSet> armorSets)
 	{  
 		this.entityRef = entityRef;

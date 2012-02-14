@@ -28,7 +28,7 @@ public class DynamicEventInteger extends DynamicInteger
 				});
 	}
 	
-	final DataRef<Integer> integerRef;
+	private final DataRef<Integer> integerRef;
 	
 	public DynamicEventInteger(DataRef<Integer> integerRef)
 	{

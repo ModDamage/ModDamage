@@ -15,9 +15,9 @@ import com.ModDamage.EventInfo.EventInfo;
 public class PlayerPermissionEvaluation extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.haspermission\\.(\\w+)", Pattern.CASE_INSENSITIVE);
-	final DataRef<Entity> entityRef;
-	final DataRef<ModDamageElement> entityElementRef;
-	final String permission;
+	private final DataRef<Entity> entityRef;
+	private final DataRef<ModDamageElement> entityElementRef;
+	private final String permission;
 	public PlayerPermissionEvaluation(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, String permission)
 	{  
 		this.entityRef = entityRef;

@@ -31,8 +31,8 @@ public class DynamicWorldString extends DynamicString
 	}
 	
 
-	final WorldProperty worldProperty;
-	final DataRef<World> worldRef;
+	private final WorldProperty worldProperty;
+	private final DataRef<World> worldRef;
 	
 	private DynamicWorldString(WorldProperty dynamicProperty, DataRef<World> worldRef)
 	{

@@ -21,8 +21,8 @@ import com.gmail.nossr50.datatypes.SkillType;
 
 public class McMMOChangeSkill extends NestedRoutine
 {	
-	final DataRef<Entity> entityRef;
-	final DynamicInteger skill_level;
+	private final DataRef<Entity> entityRef;
+	private final DynamicInteger skill_level;
 	protected final SkillType skillType;
 	protected final boolean isAdditive;
 	protected McMMOChangeSkill(String configString, DataRef<Entity> entityRef, DynamicInteger skill_level, SkillType skillType, boolean isAdditive)

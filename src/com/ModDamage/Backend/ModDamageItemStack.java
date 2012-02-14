@@ -22,8 +22,8 @@ import com.ModDamage.EventInfo.EventInfo;
 public class ModDamageItemStack
 {
 	public static final String itemStackPart = "(\\w+\\*" + DynamicInteger.dynamicIntegerPart + ")";
-	final Material material;
-	final DynamicInteger data, amount;
+	private final Material material;
+	private final DynamicInteger data, amount;
 	private Map<Enchantment, DynamicInteger> enchantments;
 	private int lastData, lastAmount;
 	private Map<Enchantment, Integer> lastEnchants;

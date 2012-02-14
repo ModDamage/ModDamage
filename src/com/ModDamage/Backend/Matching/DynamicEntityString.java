@@ -134,8 +134,8 @@ public class DynamicEntityString extends DynamicString
 	}
 	
 
-	final DataRef<Entity> entityRef;
-	final EntityStringPropertyMatch propertyMatch;
+	private final DataRef<Entity> entityRef;
+	private final EntityStringPropertyMatch propertyMatch;
 	
 	public DynamicEntityString(DataRef<Entity> entityRef, EntityStringPropertyMatch propertyMatch)
 	{

@@ -13,7 +13,7 @@ public class EventHasProjectile extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("event\\.hasprojectile", Pattern.CASE_INSENSITIVE);
 	
-	final DataRef<Projectile> projectileRef;
+	private final DataRef<Projectile> projectileRef;
 	protected EventHasProjectile(DataRef<Projectile> projectileRef)
 	{
 		this.projectileRef = projectileRef;

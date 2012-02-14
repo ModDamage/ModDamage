@@ -13,7 +13,7 @@ import com.ModDamage.EventInfo.EventInfo;
 public class EntityTagged extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.istagged\\.(\\w+)", Pattern.CASE_INSENSITIVE);
-	final DataRef<Entity> entityRef;
+	private final DataRef<Entity> entityRef;
 	private final String tag;
 	public EntityTagged(DataRef<Entity> entityRef, String tag)
 	{

@@ -14,7 +14,7 @@ import com.ModDamage.Routines.Routines;
 
 public final class ChangeProperty extends NestedRoutine
 {	
-	final Routines routines;
+	private final Routines routines;
 	protected final DynamicInteger targetPropertyMatch;
 	public ChangeProperty(String configString, Routines routines, DynamicInteger targetPropertyMatch)
 	{

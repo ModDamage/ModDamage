@@ -17,9 +17,9 @@ import com.ModDamage.Routines.Routines;
 
 public class EntityHeal extends NestedRoutine
 {
-	final DataRef<Entity> entityRef;
-	final DataRef<ModDamageElement> entityElementRef;
-	final DynamicInteger heal_amount;
+	private final DataRef<Entity> entityRef;
+	private final DataRef<ModDamageElement> entityElementRef;
+	private final DynamicInteger heal_amount;
 	
 	public EntityHeal(String configString, DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, DynamicInteger heal_amount)
 	{

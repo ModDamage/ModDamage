@@ -74,9 +74,9 @@ public class CompoundConditional extends Conditional
 	}
 	
 	
-	final Conditional left;
-	final LogicalOperator operator;
-	final Conditional right;
+	private final Conditional left;
+	private final LogicalOperator operator;
+	private final Conditional right;
 	public CompoundConditional(Conditional left, LogicalOperator operator, Conditional right)
 	{
 		this.left = left;

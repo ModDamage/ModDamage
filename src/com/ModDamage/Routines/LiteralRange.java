@@ -12,7 +12,7 @@ import com.ModDamage.EventInfo.EventInfo;
 
 public class LiteralRange extends RandomRoutine 
 {
-	final protected DynamicInteger upper;
+	private final DynamicInteger upper;
 	public LiteralRange(String configString, DataRef<Integer> defaultRef, ValueChangeType changeType, DynamicInteger lower, DynamicInteger upper)
 	{ 
 		super(configString, defaultRef, changeType, lower);

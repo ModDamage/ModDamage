@@ -38,9 +38,9 @@ public class ValueChangeRoutine extends Routine
 
 	}
 	
-	final protected ValueChangeType changeType;
-	final protected DynamicInteger number;
-	final DataRef<Integer> defaultRef;
+	private final ValueChangeType changeType;
+	protected final DynamicInteger number;
+	protected final DataRef<Integer> defaultRef;
 	protected ValueChangeRoutine(String configString, DataRef<Integer> defaultRef, ValueChangeType changeType, DynamicInteger number)
 	{
 		super(configString);

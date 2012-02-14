@@ -12,7 +12,7 @@ import com.ModDamage.EventInfo.EventInfo;
 
 public class IntervalRange extends RandomRoutine 
 {
-	final protected DynamicInteger intervalValue, rangeValue;
+	private final DynamicInteger intervalValue, rangeValue;
 	public IntervalRange(String configString, DataRef<Integer> defaultRef, ValueChangeType changeType, DynamicInteger base, DynamicInteger interval, DynamicInteger interval_range)
 	{ 
 		super(configString, defaultRef, changeType, base);

@@ -9,7 +9,7 @@ import com.ModDamage.Routines.Routines;
 public class DynamicRoutineInteger extends DynamicInteger
 {
 	private final Routines routines;
-	final DataRef<Integer> defaultRef;
+	private final DataRef<Integer> defaultRef;
 	
 	public DynamicRoutineInteger(Routines routines, EventInfo info)
 	{

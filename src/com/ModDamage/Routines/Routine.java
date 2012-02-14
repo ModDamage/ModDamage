@@ -19,7 +19,7 @@ abstract public class Routine
 	//private static final RoutineBuilder builder = new RoutineBuilder();
 	private static final Map<Pattern, RoutineBuilder> registeredBaseRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
 	
-	final String configString;
+	private final String configString;
 	protected Routine(String configString){ this.configString = configString; }
 	public final String getConfigString(){ return configString; }
 	abstract public void run(final EventData data);

@@ -17,8 +17,8 @@ import com.ModDamage.EventInfo.EventInfo;
 public class PlayerHasEnchantment extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.hasenchantment\\.(\\w+)", Pattern.CASE_INSENSITIVE);
-	final DataRef<Entity> entityRef;
-	final DataRef<ModDamageElement> entityElementRef;
+	private final DataRef<Entity> entityRef;
+	private final DataRef<ModDamageElement> entityElementRef;
 	protected final Collection<Enchantment> enchantments;
 	public PlayerHasEnchantment(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, Collection<Enchantment> enchantments)
 	{

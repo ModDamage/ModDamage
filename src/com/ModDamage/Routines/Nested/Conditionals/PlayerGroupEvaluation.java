@@ -16,8 +16,8 @@ import com.ModDamage.EventInfo.EventInfo;
 public class PlayerGroupEvaluation extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.group\\.(\\w+)", Pattern.CASE_INSENSITIVE);
-	final DataRef<Entity> entityRef;
-	final Collection<String> groups;
+	private final DataRef<Entity> entityRef;
+	private final Collection<String> groups;
 	public PlayerGroupEvaluation(DataRef<Entity> entityRef, Collection<String> groups)
 	{  
 		this.entityRef = entityRef;

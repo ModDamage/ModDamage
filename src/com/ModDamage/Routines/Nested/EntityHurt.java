@@ -21,10 +21,10 @@ import com.ModDamage.Routines.Routines;
 
 public class EntityHurt extends NestedRoutine
 {
-	final DataRef<Entity> entityRef;
-	final DataRef<ModDamageElement> entityElementRef;
-	final DataRef<Entity> entityOtherRef;
-	final DynamicInteger hurt_amount;
+	private final DataRef<Entity> entityRef;
+	private final DataRef<ModDamageElement> entityElementRef;
+	private final DataRef<Entity> entityOtherRef;
+	private final DynamicInteger hurt_amount;
 	
 	public EntityHurt(String configString, DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, DataRef<Entity> entityOtherRef, DynamicInteger hurt_amount)
 	{

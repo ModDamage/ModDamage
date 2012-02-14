@@ -65,7 +65,7 @@ public class DynamicCalculatedInteger extends DynamicInteger
 			}
 		};
 		
-		final public String operatorRegex;
+		public final String operatorRegex;
 		private ArithmeticOperator(String operatorRegex)
 		{
 			this.operatorRegex = operatorRegex;
@@ -129,9 +129,9 @@ public class DynamicCalculatedInteger extends DynamicInteger
 				});
 	}
 	
-	final DynamicInteger left;
-	final ArithmeticOperator operator;
-	final DynamicInteger right;
+	private final DynamicInteger left;
+	private final ArithmeticOperator operator;
+	private final DynamicInteger right;
 	protected DynamicCalculatedInteger(DynamicInteger left, ArithmeticOperator operator, DynamicInteger right)
 	{
 		this.left = left;

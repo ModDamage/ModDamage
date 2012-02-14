@@ -2,9 +2,9 @@ package com.ModDamage.EventInfo;
 
 public class DataRef<T>
 {
-	final Class<T> cls;
-	final String name;
-	final int index;
+	private final Class<T> cls;
+	private final String name;
+	private final int index;
 	
 	public DataRef(Class<T> cls, String name, int index)
 	{

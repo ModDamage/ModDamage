@@ -59,8 +59,8 @@ public class DynamicWorldInteger extends DynamicInteger
 		protected void setValue(World world, int value) {}
 	}
 	
-	final DataRef<World> worldRef;
-	protected final WorldPropertyMatch propertyMatch;
+	private final DataRef<World> worldRef;
+	private final WorldPropertyMatch propertyMatch;
 	
 	DynamicWorldInteger(DataRef<World> worldRef, WorldPropertyMatch propertyMatch)
 	{

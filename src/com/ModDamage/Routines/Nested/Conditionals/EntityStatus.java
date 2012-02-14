@@ -23,9 +23,9 @@ public class EntityStatus extends Conditional
 	protected static final double magic_MinFallSpeed = 0.1d;
 	private static final List<Material> waterList = Arrays.asList(Material.WATER, Material.STATIONARY_WATER);
 
-	final DataRef<Entity> entityRef;
-	final DataRef<ModDamageElement> entityElementRef;
-	final StatusType statusType;
+	private final DataRef<Entity> entityRef;
+	private final DataRef<ModDamageElement> entityElementRef;
+	private final StatusType statusType;
 	private enum StatusType
 	{
 		

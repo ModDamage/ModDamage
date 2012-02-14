@@ -15,7 +15,7 @@ import com.ModDamage.EventInfo.EventInfo;
 public class EntityBiome extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.biome\\.(\\w+)", Pattern.CASE_INSENSITIVE);
-	final DataRef<Entity> entityRef;
+	private final DataRef<Entity> entityRef;
 	protected final Collection<Biome> biomes;
 	public EntityBiome(DataRef<Entity> entityRef, Collection<Biome> biomes)
 	{ 

@@ -35,15 +35,15 @@ public class PlayEffectRoutine extends Routine
 		
 		public final static String regexString = Utils.joinBy("|", values());
 		
-		final Effect effect;
+		private final Effect effect;
 		private EffectType(Effect effect) { this.effect = effect; }
 		public Integer dataForExtra(String extra) { return null; }
 	}
 	
-	final DataRef<Entity> entityRef;
-	final EffectType effectType;
-	final DynamicInteger effectData;
-	final DynamicInteger radius;
+	private final DataRef<Entity> entityRef;
+	private final EffectType effectType;
+	private final DynamicInteger effectData;
+	private final DynamicInteger radius;
 	protected PlayEffectRoutine(String configString, DataRef<Entity> entityRef, EffectType effectType, DynamicInteger effectData, DynamicInteger radius)
 	{
 		super(configString);
