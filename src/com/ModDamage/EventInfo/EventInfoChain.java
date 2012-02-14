@@ -22,24 +22,30 @@ public class EventInfoChain extends EventInfo
 	}
 
 	@Override
-	public int getIndex(Class<?> cls, String name) { return getIndex(cls, name, true); }
-
-	@Override
-	public int getIndex(Class<?> cls, String name, boolean complain)
+	protected int myGetIndex(Class<?> cls, String name)
 	{
-		int index = second.getIndex(cls, name, false);
+		int index = second.myGetIndex(cls, name);
 		if (index != -1)
 			return index + first.getSize();
-		return first.getIndex(cls, name, complain);
+		return first.myGetIndex(cls, name);
 	}
 
 
-	public Set<String> getAll(Class<?> cls)
+	public Set<String> getAllNames(Class<?> cls)
 	{
 		Set<String> names = new HashSet<String>();
-		names.addAll(first.getAll(cls));
-		names.addAll(second.getAll(cls));
+		names.addAll(first.getAllNames(cls));
+		names.addAll(second.getAllNames(cls));
 		return names;
+	}
+	
+	public Set<String> getAllNames(Class<?> cls, String name)
+	{
+		Set<String> names = first.getAllNames(cls, name);
+		if (names != null) return new HashSet<String>(names);
+		names = second.getAllNames(cls, name);
+		if (names != null) return new HashSet<String>(names);
+		return null;
 	}
 	
 	@Override

@@ -75,7 +75,7 @@ public class EntityHurt extends NestedRoutine
 			String name = matcher.group(1).toLowerCase();
 			DataRef<Entity> entityRef = info.get(Entity.class, name);
 			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
-			String otherName = name.concat("-other");
+			String otherName = "-" + name + "-other";
 			DataRef<Entity> entityOtherRef = info.get(Entity.class, otherName);
 
 			EventInfo einfo = info.chain(myInfo);

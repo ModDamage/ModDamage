@@ -23,6 +23,7 @@ import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicServerInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicWorldInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.Function;
 import com.ModDamage.Backend.Matching.DynamicIntegers.NegativeInteger;
+import com.ModDamage.Backend.Matching.DynamicIntegers.OldEventValueUpgradeHelper;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Routines.Routines;
@@ -106,6 +107,7 @@ public abstract class DynamicInteger extends DynamicString
 		NegativeInteger.register();
 		Function.register();
 		DynamicEventInteger.register();
+		OldEventValueUpgradeHelper.register();
 		
 		/*DynamicInteger.register(Pattern.compile("_\\w+"),
 				new DynamicIntegerBuilder()

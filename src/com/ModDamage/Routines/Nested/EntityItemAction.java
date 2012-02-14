@@ -120,10 +120,10 @@ public class EntityItemAction extends NestedRoutine
 		public EntityItemAction getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
-			DataRef<Entity> entityRef = info.get(Entity.class, name);
-			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+			DataRef<Entity> entityRef = info.get(Entity.class, name); if (entityRef == null) return null;
+			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name); if (entityElementRef == null) return null;
 			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
-			if(entityRef != null && !items.isEmpty())
+			if(items != null && !items.isEmpty())
 			{
 				if (nestedContent != null)
 				{

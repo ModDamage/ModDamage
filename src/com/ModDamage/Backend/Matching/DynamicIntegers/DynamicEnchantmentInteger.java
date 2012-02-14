@@ -131,7 +131,6 @@ public class DynamicEnchantmentInteger extends DynamicInteger
 						if (entityRef == null) return null;
 						String slot = matcher.group(2);
 						if (slot == null) slot = "ANY";
-						sm.accept();
 						return sm.acceptIf(new DynamicEnchantmentInteger(
 								entityRef, 
 								EnchantmentItemSlot.valueOf(slot.toUpperCase()),

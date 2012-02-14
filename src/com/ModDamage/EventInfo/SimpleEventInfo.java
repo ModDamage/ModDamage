@@ -2,13 +2,11 @@ package com.ModDamage.EventInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 
 public class SimpleEventInfo extends EventInfo
 {
@@ -70,13 +68,14 @@ public class SimpleEventInfo extends EventInfo
 		return objIndex;
 	}
 
+	@Override
 	public int getSize()
 	{
 		return size;
 	}
 
-	public int getIndex(Class<?> cls, String name) { return getIndex(cls, name, true); }
-	public int getIndex(Class<?> cls, String name, boolean complain)
+	@Override
+	protected int myGetIndex(Class<?> cls, String name)
 	{
 		Map<String, Integer> argMap = map.get(cls);
 		if (argMap != null) 
@@ -85,18 +84,32 @@ public class SimpleEventInfo extends EventInfo
 			if (integer != null)
 				return integer;
 		}
-		if (complain)
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown "+cls.getSimpleName()+" named '"+ name +"'");
+		
 		return -1;
 	}
-	
-	public Set<String> getAll(Class<?> cls)
+
+	@Override
+	public Set<String> getAllNames(Class<?> cls)
 	{
-		Map<String, Integer> argMap = map.get(cls);
-		if (argMap == null) return null;
+		Map<String, Integer> argMap = map.get(cls); if (argMap == null) return null;
 		return argMap.keySet();
 	}
-	
+
+	@Override
+	public Set<String> getAllNames(Class<?> cls, String name)
+	{
+		int index = getIndex(cls, name, false); if (index == -1) return null;
+		Map<String, Integer> argMap = map.get(cls); // no need to check for null, index will be -1 in that case
+		Set<String> names = new HashSet<String>();
+		
+		for (Entry<String, Integer> entry : argMap.entrySet())
+			if (entry.getValue() == index)
+				names.add(entry.getKey());
+		
+		return names;
+	}
+
+	@Override
 	protected void verify(EventData data)
 	{
 		for (Entry<Class<?>, Map<String, Integer>> entry : map.entrySet())

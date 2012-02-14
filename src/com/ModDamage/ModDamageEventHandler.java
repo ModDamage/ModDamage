@@ -33,9 +33,9 @@ enum ModDamageEventHandler
 {
 	Damage(
 		new SimpleEventInfo(
-			Entity.class, ModDamageElement.class, 		"attacker", "target-other",
+			Entity.class, ModDamageElement.class, 		"attacker", "-target-other",
 			Projectile.class, ModDamageElement.class, 	"projectile",
-			Entity.class, ModDamageElement.class, 		"target", "attacker-other",
+			Entity.class, ModDamageElement.class, 		"target", "-attacker-other",
 			World.class,								"world",
 			ModDamageElement.class, 					"damage", // e.g. damage.type.FIRE
 			Integer.class, 								"damage", "-default"),

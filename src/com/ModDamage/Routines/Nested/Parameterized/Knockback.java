@@ -90,7 +90,7 @@ public class Knockback extends ParameterizedRoutine
 		public Knockback getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase()); if (entityRef == null) return null;
-			DataRef<Entity> entityOtherRef = info.get(Entity.class, matcher.group(1).toLowerCase().concat("-other")); if (entityOtherRef == null) return null;
+			DataRef<Entity> entityOtherRef = info.get(Entity.class, "-" + matcher.group(1).toLowerCase() + "-other"); if (entityOtherRef == null) return null;
 
 			EventInfo einfo = info.chain(myInfo);
 			if(nestedContent instanceof LinkedHashMap)

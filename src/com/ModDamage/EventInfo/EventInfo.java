@@ -2,15 +2,18 @@ package com.ModDamage.EventInfo;
 
 import java.util.Set;
 
+import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
+
 public abstract class EventInfo
 {
 	public abstract int getSize();
 	
 	
-	public abstract int getIndex(Class<?> cls, String name);
-	public abstract int getIndex(Class<?> cls, String name, boolean complain);
+	protected abstract int myGetIndex(Class<?> cls, String name);
 	
-	public abstract Set<String> getAll(Class<?> cls);
+	public abstract Set<String> getAllNames(Class<?> cls);
+	public abstract Set<String> getAllNames(Class<?> cls, String name);
 
 	protected abstract void verify(EventData data);
 	
@@ -25,6 +28,27 @@ public abstract class EventInfo
 		int index = getIndex(cls, name, complain);
 		if (index == -1) return null;
 		return new DataRef<T>(cls, name, index);
+	}
+	
+	public int getIndex(Class<?> cls, String name, boolean complain) {
+		int index = myGetIndex(cls, name);
+		if (complain && index == -1)
+		{
+			StringBuilder names = new StringBuilder();
+			Set<String> allNames = getAllNames(cls);
+			if (allNames != null)
+				for (String n : allNames)
+				{
+					if (!n.startsWith("-"))
+					{
+						if (names.length() > 0)
+							names.append(" or ");
+						names.append(n);
+					}
+				}
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown "+cls.getSimpleName()+" named '"+ name +"'" + (names.length() > 0? ", did you mean " + names + "?" : ""));
+		}
+		return index;
 	}
 	
 	public EventData makeData(Object... objs) { return makeChainedData(null, objs); }
