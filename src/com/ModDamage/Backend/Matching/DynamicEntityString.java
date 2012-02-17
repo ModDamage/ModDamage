@@ -11,7 +11,7 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.ArmorSet;
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.Aliasing.TypeNameAliaser;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -62,7 +62,7 @@ public class DynamicEntityString extends DynamicString
 		{
 			@Override protected String getString(Entity entity)
 			{
-				return TypeNameAliaser.getStaticInstance().toString(ModDamageElement.getElementFor(entity));
+				return TypeNameAliaser.getStaticInstance().toString(EntityType.get(entity));
 			}
 		},
 		WIELDING(true)

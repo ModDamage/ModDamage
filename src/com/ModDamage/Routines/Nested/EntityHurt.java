@@ -10,7 +10,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -22,11 +23,11 @@ import com.ModDamage.Routines.Routines;
 public class EntityHurt extends NestedRoutine
 {
 	private final DataRef<Entity> entityRef;
-	private final DataRef<ModDamageElement> entityElementRef;
+	private final DataRef<EntityType> entityElementRef;
 	private final DataRef<Entity> entityOtherRef;
 	private final DynamicInteger hurt_amount;
 	
-	public EntityHurt(String configString, DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, DataRef<Entity> entityOtherRef, DynamicInteger hurt_amount)
+	public EntityHurt(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, DataRef<Entity> entityOtherRef, DynamicInteger hurt_amount)
 	{
 		super(configString);
 		this.entityRef = entityRef;
@@ -35,18 +36,18 @@ public class EntityHurt extends NestedRoutine
 		this.hurt_amount = hurt_amount;
 	}
 
-	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "hurt_amount", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "hurt_amount", "-default");
 	
 	@Override
 	public void run(EventData data)
 	{
-		if(entityElementRef.get(data).matchesType(ModDamageElement.LIVING))
+		if(entityElementRef.get(data).matches(EntityType.LIVING))
 		{
 			final LivingEntity target = (LivingEntity) entityRef.get(data);
 			final Entity from = entityOtherRef.get(data);
 			if(from != null && target.getHealth() > 0 && !target.isDead())
 			{
-				final EventData myData = myInfo.makeChainedData(data, 0);
+				final EventData myData = myInfo.makeChainedData(data, new IntRef(0));
 				Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, new Runnable()
 					{
 						@Override
@@ -74,7 +75,7 @@ public class EntityHurt extends NestedRoutine
 		{
 			String name = matcher.group(1).toLowerCase();
 			DataRef<Entity> entityRef = info.get(Entity.class, name);
-			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+			DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
 			String otherName = "-" + name + "-other";
 			DataRef<Entity> entityOtherRef = info.get(Entity.class, otherName);
 

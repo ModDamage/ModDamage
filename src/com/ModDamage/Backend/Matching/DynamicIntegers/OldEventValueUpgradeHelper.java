@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.Backend.Matching.DynamicInteger.DynamicIntegerBuilder;
 import com.ModDamage.EventInfo.EventInfo;
@@ -22,7 +23,11 @@ public class OldEventValueUpgradeHelper
 					@Override
 					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
 					{
-						Set<String> names = info.getAllNames(Integer.class, "-default");
+						Set<String> names = info.getAllNames(IntRef.class, "-default");
+						if (names == null)
+						{
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "event_value has been removed and no replacement is available.");
+						}
 						names.remove("-default");
 						for (String name : names)
 						{

@@ -11,6 +11,7 @@ public abstract class EventInfo
 	
 	
 	protected abstract int myGetIndex(Class<?> cls, String name);
+	protected abstract Class<?> getClass(int index);
 	
 	public abstract Set<String> getAllNames(Class<?> cls);
 	public abstract Set<String> getAllNames(Class<?> cls, String name);
@@ -23,11 +24,12 @@ public abstract class EventInfo
 	
 	
 	public <T> DataRef<T> get(Class<T> cls, String name) { return get(cls, name, true); }
+	@SuppressWarnings("unchecked")
 	public <T> DataRef<T> get(Class<T> cls, String name, boolean complain)
 	{
 		int index = getIndex(cls, name, complain);
 		if (index == -1) return null;
-		return new DataRef<T>(cls, name, index);
+		return new DataRef<T>((Class<? extends T>) getClass(index), name, index);
 	}
 	
 	public int getIndex(Class<?> cls, String name, boolean complain) {

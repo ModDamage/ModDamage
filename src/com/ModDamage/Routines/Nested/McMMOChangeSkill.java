@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -34,7 +35,7 @@ public class McMMOChangeSkill extends NestedRoutine
 		this.isAdditive = isAdditive;
 	}
 	
-	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "skill_level", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "skill_level", "-default");
 	
 	@Override
 	public void run(EventData data)
@@ -46,7 +47,7 @@ public class McMMOChangeSkill extends NestedRoutine
 			mcMMO mcMMOplugin = ExternalPluginManager.getMcMMOPlugin();
 			if(mcMMOplugin != null)
 			{
-				EventData myData = myInfo.makeChainedData(data, 0);
+				EventData myData = myInfo.makeChainedData(data, new IntRef(0));
 				
 				mcMMOplugin.getPlayerProfile(player).modifyskill(skillType, 
 						skill_level.getValue(myData) + (isAdditive?mcMMOplugin.getPlayerProfile(player).getSkillLevel(skillType):0));

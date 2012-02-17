@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -18,11 +18,11 @@ import com.ModDamage.Routines.Routines;
 public class Nearby extends NestedRoutine
 {
 	private final DataRef<Entity> entityRef;
-	private final ModDamageElement filterElement;
+	private final EntityType filterElement;
 	private final DynamicInteger radius;
 	private final Routines routines;
 
-	protected Nearby(String configString, DataRef<Entity> entityRef, ModDamageElement filterElement, DynamicInteger radius, Routines routines)
+	protected Nearby(String configString, DataRef<Entity> entityRef, EntityType filterElement, DynamicInteger radius, Routines routines)
 	{
 		super(configString);
 		this.entityRef = entityRef;
@@ -33,7 +33,7 @@ public class Nearby extends NestedRoutine
 
 	static EventInfo myInfo = new SimpleEventInfo(
 			Entity.class, "nearby",
-			ModDamageElement.class, "nearby");
+			EntityType.class, "nearby");
 	
 	@Override
 	public void run(EventData data)
@@ -47,7 +47,7 @@ public class Nearby extends NestedRoutine
 			for (Class<?> entClass : entClasses)
 			{
 				if (entClass.isAssignableFrom(eClass)){
-					EventData newData = myInfo.makeChainedData(data, e, ModDamageElement.getElementFor(e));
+					EventData newData = myInfo.makeChainedData(data, e, EntityType.get(e));
 					
 					routines.run(newData);
 					
@@ -68,7 +68,7 @@ public class Nearby extends NestedRoutine
 		public Nearby getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
-			ModDamageElement element = ModDamageElement.getElementNamed(matcher.group(2));
+			EntityType element = EntityType.getElementNamed(matcher.group(2));
 			DynamicInteger radius = DynamicInteger.getNew(matcher.group(3), info);
 
 			EventInfo einfo = info.chain(myInfo);

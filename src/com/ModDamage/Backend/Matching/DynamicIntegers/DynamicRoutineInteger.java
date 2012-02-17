@@ -1,5 +1,6 @@
 package com.ModDamage.Backend.Matching.DynamicIntegers;
 
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -9,12 +10,12 @@ import com.ModDamage.Routines.Routines;
 public class DynamicRoutineInteger extends DynamicInteger
 {
 	private final Routines routines;
-	private final DataRef<Integer> defaultRef;
+	private final DataRef<IntRef> defaultRef;
 	
 	public DynamicRoutineInteger(Routines routines, EventInfo info)
 	{
 		this.routines = routines;
-		this.defaultRef = info.get(Integer.class, "-default");
+		this.defaultRef = info.get(IntRef.class, "-default");
 	}
 	
 	@Override
@@ -22,7 +23,7 @@ public class DynamicRoutineInteger extends DynamicInteger
 	{
 		routines.run(data);
 		
-		return defaultRef.get(data);
+		return defaultRef.get(data).value;
 	}
 	
 	@Override

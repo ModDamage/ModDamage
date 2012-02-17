@@ -6,7 +6,8 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -17,9 +18,9 @@ import com.ModDamage.Routines.Routines;
 public class EntitySpawn extends NestedRoutine
 {
 	private final DataRef<Entity> entityRef;
-	private final ModDamageElement spawnElement;
+	private final EntityType spawnElement;
 	private final Routines routines;
-	public EntitySpawn(String configString, DataRef<Entity> entityRef, ModDamageElement spawnElement, Routines routines)
+	public EntitySpawn(String configString, DataRef<Entity> entityRef, EntityType spawnElement, Routines routines)
 	{
 		super(configString);
 		this.entityRef = entityRef;
@@ -29,8 +30,8 @@ public class EntitySpawn extends NestedRoutine
 	
 	static EventInfo myInfo = new SimpleEventInfo(
 			Entity.class, "spawned",
-			ModDamageElement.class, "spawned",
-			Integer.class, "health", "-default");
+			EntityType.class, "spawned",
+			IntRef.class, "health", "-default");
 
 	@Override
 	public void run(EventData data) 
@@ -41,12 +42,14 @@ public class EntitySpawn extends NestedRoutine
 		
 		LivingEntity newEntity = spawnElement.spawnCreature(entity.getLocation());
 		
+		IntRef health = new IntRef(newEntity.getHealth());
+		
 		EventData newData = myInfo.makeChainedData(data, 
-				newEntity, ModDamageElement.getElementFor(newEntity), newEntity.getHealth());
+				newEntity, EntityType.get(newEntity), health);
 		
 		routines.run(newData);
 		
-		newEntity.setHealth(newData.getMy(Integer.class, 2));
+		newEntity.setHealth(health.value);
 	}
 	
 	public static void register()
@@ -59,7 +62,7 @@ public class EntitySpawn extends NestedRoutine
 		@Override
 		public EntitySpawn getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-			ModDamageElement element = ModDamageElement.getElementNamed(matcher.group(2));
+			EntityType element = EntityType.getElementNamed(matcher.group(2));
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
 
 			EventInfo einfo = info.chain(myInfo);

@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Entity;
 
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -25,7 +26,7 @@ public class EntityExplode extends NestedRoutine
 		this.strength = strength;
 	}
 	
-	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "strength", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "strength", "-default");
 	
 	@Override
 	public void run(EventData data)

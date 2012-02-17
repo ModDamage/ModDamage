@@ -7,7 +7,7 @@ import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -26,7 +26,7 @@ public class DynamicEntityTagInteger extends DynamicInteger
 					{
 						String name = matcher.group(1).toLowerCase();
 						DataRef<Entity> entityRef = info.get(Entity.class, name);
-						DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+						DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
 						if (entityRef == null || entityElementRef == null) return null;
 						
 						return sm.acceptIf(new DynamicEntityTagInteger(
@@ -37,10 +37,10 @@ public class DynamicEntityTagInteger extends DynamicInteger
 	}
 	
 	protected final DataRef<Entity> entityRef;
-	protected final DataRef<ModDamageElement> entityElementRef;
+	protected final DataRef<EntityType> entityElementRef;
 	protected final String tag;
 	
-	DynamicEntityTagInteger(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, String tag)
+	DynamicEntityTagInteger(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, String tag)
 	{
 		this.entityRef = entityRef;
 		this.entityElementRef = entityElementRef;
@@ -51,7 +51,7 @@ public class DynamicEntityTagInteger extends DynamicInteger
 	@Override
 	public int getValue(EventData data)
 	{
-		if(entityElementRef.get(data).matchesType(ModDamageElement.LIVING))
+		if(entityElementRef.get(data).matches(EntityType.LIVING))
 		{
 			Entity entity = entityRef.get(data);
 			return ModDamage.getTagger().isTagged(entity, tag)? ModDamage.getTagger().getTagValue(entity, tag) : 0;

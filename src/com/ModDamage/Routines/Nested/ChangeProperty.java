@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.EventData;
@@ -23,15 +24,16 @@ public final class ChangeProperty extends NestedRoutine
 		this.targetPropertyMatch = targetPropertyMatch;
 	}
 	
-	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "value", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "value", "-default");
 
 	@Override
 	public void run(EventData data)
 	{
-		EventData myData = myInfo.makeChainedData(data, targetPropertyMatch.getValue(data));
+		IntRef value = new IntRef(targetPropertyMatch.getValue(data));
+		EventData myData = myInfo.makeChainedData(data, value);
 		
 		routines.run(myData);
-		targetPropertyMatch.setValue(data, myData.getMy(Integer.class, 0));
+		targetPropertyMatch.setValue(data, value.value);
 	}
 	
 	public static void register()

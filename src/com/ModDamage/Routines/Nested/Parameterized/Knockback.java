@@ -11,6 +11,7 @@ import org.bukkit.util.Vector;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -52,7 +53,7 @@ public class Knockback extends ParameterizedRoutine
 	}
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Integer.class, "strength", "-default");
+			IntRef.class, "strength", "-default");
 	
 	@Override
 	public void run(EventData data)
@@ -111,7 +112,7 @@ public class Knockback extends ParameterizedRoutine
 				ModDamage.addToLogRecord(OutputPreset.INFO, "KnockBack: ");
 				Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 				if(routines != null)
-					return new Knockback(matcher.group(), routines, info, entityRef, entityOtherRef);
+					return new Knockback(matcher.group(), routines, einfo, entityRef, entityOtherRef);
 			}
 			return null;
 		}

@@ -6,7 +6,8 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -18,10 +19,10 @@ import com.ModDamage.Routines.Routines;
 public class EntityUnknownHurt extends NestedRoutine
 {
 	private final DataRef<Entity> entityRef;
-	private final DataRef<ModDamageElement> entityElementRef;
+	private final DataRef<EntityType> entityElementRef;
 	private final DynamicInteger hurt_amount;
 	
-	public EntityUnknownHurt(String configString, DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, DynamicInteger hurt_amount)
+	public EntityUnknownHurt(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, DynamicInteger hurt_amount)
 	{
 		super(configString);
 		this.entityRef = entityRef;
@@ -29,13 +30,13 @@ public class EntityUnknownHurt extends NestedRoutine
 		this.hurt_amount = hurt_amount;
 	}
 	
-	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "hurt_amount", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "hurt_amount", "-default");
 	
 	@Override
 	public void run(EventData data)
 	{
-		EventData myData = myInfo.makeChainedData(data, 0);
-		if(entityElementRef.get(data).matchesType(ModDamageElement.LIVING))
+		EventData myData = myInfo.makeChainedData(data, new IntRef(0));
+		if(entityElementRef.get(data).matches(EntityType.LIVING))
 			((LivingEntity)entityRef.get(data)).damage(hurt_amount.getValue(myData));
 	}
 
@@ -51,7 +52,7 @@ public class EntityUnknownHurt extends NestedRoutine
 		{
 			String name = matcher.group(1).toLowerCase();
 			DataRef<Entity> entityRef = info.get(Entity.class, name);
-			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+			DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);

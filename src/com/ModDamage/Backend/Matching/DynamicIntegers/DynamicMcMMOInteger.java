@@ -10,7 +10,7 @@ import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -33,7 +33,7 @@ public class DynamicMcMMOInteger extends DynamicInteger
 						{
 							String name = matcher.group(1).toLowerCase();
 							DataRef<Entity> entityRef = info.get(Entity.class, name);
-							DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+							DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
 							if (entityRef == null || entityElementRef == null) return null;
 							
 							return sm.acceptIf(new DynamicMcMMOInteger(
@@ -52,9 +52,9 @@ public class DynamicMcMMOInteger extends DynamicInteger
 	//protected static mcMMO mcMMOplugin;
 	protected final SkillType skillType;
 	protected final DataRef<Entity> entityRef;
-	protected final DataRef<ModDamageElement> entityElementRef;
+	protected final DataRef<EntityType> entityElementRef;
 	
-	DynamicMcMMOInteger(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, SkillType skillType)
+	DynamicMcMMOInteger(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, SkillType skillType)
 	{
 		this.entityRef = entityRef;
 		this.entityElementRef = entityElementRef;
@@ -64,7 +64,7 @@ public class DynamicMcMMOInteger extends DynamicInteger
 	@Override
 	public int getValue(EventData data)
 	{
-		if(entityElementRef.get(data).matchesType(ModDamageElement.PLAYER))
+		if(entityElementRef.get(data).matches(EntityType.PLAYER))
 		{
 			mcMMO mcMMOplugin = ExternalPluginManager.getMcMMOPlugin();
 			if(mcMMOplugin != null)

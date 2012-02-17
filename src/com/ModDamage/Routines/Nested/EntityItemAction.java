@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.Backend.Aliasing.ItemAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
@@ -70,9 +70,9 @@ public class EntityItemAction extends NestedRoutine
 	protected final ItemAction action;
 	protected final Collection<ModDamageItemStack> items;
 	protected final DataRef<Entity> entityRef;
-	protected final DataRef<ModDamageElement> entityElementRef;
+	protected final DataRef<EntityType> entityElementRef;
 	protected final DynamicInteger quantity;
-	public EntityItemAction(String configString, DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, ItemAction action, Collection<ModDamageItemStack> items, DynamicInteger quantity)
+	public EntityItemAction(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, ItemAction action, Collection<ModDamageItemStack> items, DynamicInteger quantity)
 	{
 		super(configString);
 		this.entityRef = entityRef;
@@ -84,7 +84,7 @@ public class EntityItemAction extends NestedRoutine
 	
 	@Override
 	public void run(EventData data){
-		if(!action.requiresPlayer || entityElementRef.get(data).matchesType(ModDamageElement.PLAYER))
+		if(!action.requiresPlayer || entityElementRef.get(data).matches(EntityType.PLAYER))
 		{
 			for(ModDamageItemStack item : items)
 				item.updateAmount(data);
@@ -121,7 +121,7 @@ public class EntityItemAction extends NestedRoutine
 		{
 			String name = matcher.group(1).toLowerCase();
 			DataRef<Entity> entityRef = info.get(Entity.class, name); if (entityRef == null) return null;
-			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name); if (entityElementRef == null) return null;
+			DataRef<EntityType> entityElementRef = info.get(EntityType.class, name); if (entityElementRef == null) return null;
 			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
 			if(items != null && !items.isEmpty())
 			{

@@ -11,11 +11,13 @@ import java.util.Set;
 public class SimpleEventInfo extends EventInfo
 {
 	private final Map<Class<?>, Map<String, Integer>> map;
+	private final List<Class<?>> classes;
 	private final int size;
 	private final int hashCode;
 	
 	public SimpleEventInfo(Object... objs)
 	{
+		this.classes = new ArrayList<Class<?>>();
 		Map<Class<?>, Map<String, Integer>> mmap = new HashMap<Class<?>, Map<String,Integer>>();
 		int objIndex = 0;
 		int i = 0;
@@ -37,6 +39,7 @@ public class SimpleEventInfo extends EventInfo
 				}
 
 				classes.add((Class<?>) obj);
+				this.classes.add((Class<?>) obj);
 			}
 			else // will get a bad cast error from below if it isn't a String, no need to check
 			{
@@ -77,15 +80,24 @@ public class SimpleEventInfo extends EventInfo
 	@Override
 	protected int myGetIndex(Class<?> cls, String name)
 	{
-		Map<String, Integer> argMap = map.get(cls);
-		if (argMap != null) 
+		for (Entry<Class<?>, Map<String, Integer>> entry : map.entrySet())
 		{
-			Integer integer = argMap.get(name);
-			if (integer != null)
-				return integer;
+			if (cls.isAssignableFrom(entry.getKey()))
+			{
+				Integer integer = entry.getValue().get(name);
+				if (integer != null)
+					return integer;
+			}
 		}
 		
 		return -1;
+	}
+	
+	@Override
+	protected Class<?> getClass(int index)
+	{
+		if (index > classes.size()) return null;
+		return classes.get(index);
 	}
 
 	@Override

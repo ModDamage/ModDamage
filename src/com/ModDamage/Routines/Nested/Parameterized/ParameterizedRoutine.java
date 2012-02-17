@@ -6,6 +6,7 @@ import java.util.List;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.EventInfo;
@@ -25,7 +26,7 @@ public abstract class ParameterizedRoutine extends NestedRoutine
 		boolean encounteredError = false;
 		for(String parameter : parameters)
 		{
-			EventInfo myInfo = new SimpleEventInfo(Integer.class, parameter.toLowerCase(), "-default");
+			EventInfo myInfo = new SimpleEventInfo(IntRef.class, parameter.toLowerCase(), "-default");
 			EventInfo einfo = info.chain(myInfo);
 			ModDamage.addToLogRecord(OutputPreset.INFO, parameter + ": ");
 			Routines routines = RoutineAliaser.parseRoutines(PluginConfiguration.getCaseInsensitiveValue(map, parameter), einfo);

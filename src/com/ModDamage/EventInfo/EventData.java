@@ -69,20 +69,6 @@ public class EventData implements Cloneable
 	}
 	
 	
-	public Object getMy(int i)
-	{
-		// no point in doing a bounds check, since they shouldn't ever happen anyway
-		return objects[i];
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <T> T getMy(Class<T> cls, int i)
-	{
-		Object o = getMy(i);
-		if (cls.isInstance(o)) return (T) o;
-		return null;
-	}
-	
 	@Override public EventData clone()
 	{
 		return new EventData(parent, start, objects.clone());

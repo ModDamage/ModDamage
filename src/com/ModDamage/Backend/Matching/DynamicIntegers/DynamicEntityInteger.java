@@ -9,7 +9,7 @@ import org.bukkit.entity.Slime;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -19,7 +19,7 @@ public class DynamicEntityInteger extends DynamicInteger
 {
 	public enum EntityIntegerPropertyMatch
 	{
-		AIRTICKS(true, ModDamageElement.LIVING)
+		AIRTICKS(true, EntityType.LIVING)
 		{
 			@Override public int getValue(Entity entity)
 			{
@@ -31,14 +31,14 @@ public class DynamicEntityInteger extends DynamicInteger
 				((LivingEntity)entity).setRemainingAir(value);
 			}
 		},
-		FALLDISTANCE(false, ModDamageElement.LIVING)
+		FALLDISTANCE(false, EntityType.LIVING)
 		{
 			@Override public int getValue(Entity entity)
 			{
 				return (int) ((LivingEntity)entity).getFallDistance();
 			}
 		},
-		FIRETICKS(true, ModDamageElement.LIVING)
+		FIRETICKS(true, EntityType.LIVING)
 		{
 			@Override public int getValue(Entity entity)
 			{
@@ -50,7 +50,7 @@ public class DynamicEntityInteger extends DynamicInteger
 				((LivingEntity)entity).setFireTicks(value);
 			}
 		},
-		HEALTH(true, ModDamageElement.LIVING)
+		HEALTH(true, EntityType.LIVING)
 		{
 			@Override public int getValue(Entity entity)
 			{
@@ -69,21 +69,21 @@ public class DynamicEntityInteger extends DynamicInteger
 				return entity.getLocation().getBlock().getLightLevel();
 			}
 		},
-		MAXHEALTH(false, ModDamageElement.LIVING)
+		MAXHEALTH(false, EntityType.LIVING)
 		{
 			@Override public int getValue(Entity entity)
 			{
 				return ((LivingEntity)entity).getMaxHealth();
 			}
 		},
-		NODAMAGETICKS(false, ModDamageElement.LIVING)
+		NODAMAGETICKS(false, EntityType.LIVING)
 		{
 			@Override public int getValue(Entity entity)
 			{
 				return ((LivingEntity)entity).getNoDamageTicks();
 			}
 		},
-		SIZE(true, ModDamageElement.SLIME)
+		SIZE(true, EntityType.SLIME)
 		{
 			@Override public int getValue(Entity entity)
 			{
@@ -118,13 +118,13 @@ public class DynamicEntityInteger extends DynamicInteger
 		};
 		
 		public boolean settable = false;
-		private ModDamageElement requiredElement = ModDamageElement.GENERIC;
+		private EntityType requiredElement = EntityType.ENTITY;
 		private EntityIntegerPropertyMatch(){}
 		private EntityIntegerPropertyMatch(boolean settable)
 		{
 			this.settable = settable;
 		}
-		private EntityIntegerPropertyMatch(boolean settable, ModDamageElement requiredElement)
+		private EntityIntegerPropertyMatch(boolean settable, EntityType requiredElement)
 		{
 			this.settable = settable;
 			this.requiredElement = requiredElement;
@@ -135,7 +135,7 @@ public class DynamicEntityInteger extends DynamicInteger
 	}
 	
 	protected final DataRef<Entity> entityRef;
-	protected final DataRef<ModDamageElement> entityElementRef;
+	protected final DataRef<EntityType> entityElementRef;
 	private final EntityIntegerPropertyMatch propertyMatch;
 	
 	public static void register()
@@ -149,7 +149,7 @@ public class DynamicEntityInteger extends DynamicInteger
 					{
 						String name = matcher.group(1).toLowerCase();
 						DataRef<Entity> entityRef = info.get(Entity.class, name);
-						DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+						DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
 						if (entityRef == null || entityElementRef == null) return null;
 						
 						return sm.acceptIf(new DynamicEntityInteger(
@@ -159,7 +159,7 @@ public class DynamicEntityInteger extends DynamicInteger
 				});
 	}
 	
-	DynamicEntityInteger(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, EntityIntegerPropertyMatch propertyMatch)
+	DynamicEntityInteger(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, EntityIntegerPropertyMatch propertyMatch)
 	{
 		this.entityRef = entityRef;
 		this.entityElementRef = entityElementRef;
@@ -170,9 +170,9 @@ public class DynamicEntityInteger extends DynamicInteger
 	public int getValue(EventData data)
 	{
 		Entity entity = entityRef.get(data);
-		ModDamageElement element = entityElementRef.get(data);
+		EntityType element = entityElementRef.get(data);
 		
-		if(element != null && entity != null && element.matchesType(propertyMatch.requiredElement))
+		if(element != null && entity != null && element.matches(propertyMatch.requiredElement))
 			return propertyMatch.getValue(entity);
 		
 		return 0; //Shouldn't happen.
@@ -184,9 +184,9 @@ public class DynamicEntityInteger extends DynamicInteger
 		if(!propertyMatch.settable) return;
 		
 		Entity entity = entityRef.get(data);
-		ModDamageElement element = entityElementRef.get(data);
+		EntityType element = entityElementRef.get(data);
 		
-		if (element != null && element.matchesType(propertyMatch.requiredElement))
+		if (element != null && element.matches(propertyMatch.requiredElement))
 			propertyMatch.setValue(entity, value);
 	}
 	

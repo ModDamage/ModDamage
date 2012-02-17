@@ -29,13 +29,23 @@ public class EventInfoChain extends EventInfo
 			return index + first.getSize();
 		return first.myGetIndex(cls, name);
 	}
+	
+	@Override
+	public Class<?> getClass(int index)
+	{
+		if (index >= first.getSize())
+			return second.getClass(index);
+		return first.getClass(index);
+	}
 
 
 	public Set<String> getAllNames(Class<?> cls)
 	{
 		Set<String> names = new HashSet<String>();
-		names.addAll(first.getAllNames(cls));
-		names.addAll(second.getAllNames(cls));
+		Set<String> tnames = first.getAllNames(cls);
+		if (tnames != null) names.addAll(tnames);
+		tnames = second.getAllNames(cls);
+		if (tnames != null) names.addAll(tnames);
 		return names;
 	}
 	

@@ -7,6 +7,7 @@ import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -46,7 +47,7 @@ public class Tag extends NestedRoutine
 			if(integer != null)
 			{
 				Integer oldTagValue = ModDamage.getTagger().getTagValue(entity, tag);
-				EventData myData = myInfo.makeChainedData(data, oldTagValue == null? 0 : oldTagValue);
+				EventData myData = myInfo.makeChainedData(data, new IntRef(oldTagValue == null? 0 : oldTagValue));
 				ModDamage.getTagger().addTag(entity, tag, integer.getValue(myData));
 			}
 			else
@@ -63,7 +64,7 @@ public class Tag extends NestedRoutine
 		NestedRoutine.registerRoutine(Pattern.compile("tag\\.(\\w+)\\.(\\w+)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
 	}
 	
-	public static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "value", "-default");
+	public static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "value", "-default");
 	
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
 	{

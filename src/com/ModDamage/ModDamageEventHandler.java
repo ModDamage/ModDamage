@@ -14,7 +14,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
@@ -22,8 +21,12 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.DamageType;
+import com.ModDamage.Backend.EntityType;
+import com.ModDamage.Backend.HealType;
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
+import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
@@ -33,14 +36,15 @@ enum ModDamageEventHandler
 {
 	Damage(
 		new SimpleEventInfo(
-			Entity.class, ModDamageElement.class, 		"attacker", "-target-other",
-			Projectile.class, ModDamageElement.class, 	"projectile",
-			Entity.class, ModDamageElement.class, 		"target", "-attacker-other",
-			World.class,								"world",
-			ModDamageElement.class, 					"damage", // e.g. damage.type.FIRE
-			Integer.class, 								"damage", "-default"),
+			Entity.class, EntityType.class, 		"attacker", "-target-other",
+			Projectile.class, EntityType.class, 	"projectile",
+			Entity.class, EntityType.class, 		"target", "-attacker-other",
+			World.class,							"world",
+			DamageType.class, 						"damage", // e.g. damage.type.FIRE
+			IntRef.class, 							"damage", "-default"),
 			
 		new Listener(){
+			DataRef<IntRef> damageRef = new DataRef<IntRef>(IntRef.class, "damage", 8);
 			@SuppressWarnings("unused")
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onEntityDamage(EntityDamageEvent event)
@@ -55,7 +59,7 @@ enum ModDamageEventHandler
 						if(data != null)
 						{
 							Damage.runRoutines(data);
-							event.setDamage(data.getMy(Integer.class, 8));
+							event.setDamage(damageRef.get(data).value);
 							//event.setCancelled(event.getDamage() <= 0);
 						}
 						else PluginConfiguration.log.severe("[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + 
@@ -67,7 +71,7 @@ enum ModDamageEventHandler
 	
 	Death(
 		Damage.eventInfo.chain(new SimpleEventInfo(
-			Integer.class, "experience", "-default")),
+			IntRef.class, "experience", "-default")),
 			
 		new Listener() {
 			@SuppressWarnings("unused")
@@ -85,27 +89,28 @@ enum ModDamageEventHandler
 				    
 					if(damageData == null) // for instance, /butcher often does this
 						damageData = Damage.eventInfo.makeData(
-								null, ModDamageElement.UNKNOWN,
+								null, EntityType.UNKNOWN,
 								null, null,
-								entity, ModDamageElement.getElementFor(entity),
+								entity, EntityType.get(entity),
 								entity.getWorld(),
-								ModDamageElement.UNKNOWN,
-								0
+								DamageType.UNKNOWN,
+								new IntRef(0)
 								);
 					
-					EventData data = Death.eventInfo.makeChainedData(damageData, event.getDroppedExp());
+					IntRef experience = new IntRef(event.getDroppedExp());
+					EventData data = Death.eventInfo.makeChainedData(damageData, experience);
 					Death.runRoutines(data);
-					event.setDroppedExp(data.getMy(Integer.class, 0));
+					event.setDroppedExp(experience.value);
 				}
 			}
 		}),
 	
 	Heal(
 		new SimpleEventInfo(
-			Entity.class, ModDamageElement.class, 	"entity",
-			World.class,							"world",
-			RegainReason.class, 					"heal", // e.g. heal.type.EATING
-			Integer.class, 							"heal_amount", "-default"),
+			Entity.class, EntityType.class,	"entity",
+			World.class,					"world",
+			HealType.class, 				"heal", // e.g. heal.type.EATING
+			IntRef.class, 					"heal_amount", "-default"),
 			
 		new Listener() {
 			@SuppressWarnings("unused")
@@ -115,28 +120,28 @@ enum ModDamageEventHandler
 				if(ModDamage.isEnabled && !event.isCancelled())
 				{
 					Entity entity = event.getEntity();
+					IntRef heal_amount = new IntRef(event.getAmount());
 					EventData data = Heal.eventInfo.makeData(
-							entity, ModDamageElement.getElementFor(entity),
+							entity, EntityType.get(entity),
 							entity.getWorld(),
 							event.getRegainReason(),
-							event.getAmount());
+							heal_amount);
 					
 					Heal.runRoutines(data);
 					
-					int amount = data.getMy(Integer.class, 4);
-					if (amount <= 0)
+					if (heal_amount.value <= 0)
 						event.setCancelled(true);
 					else
-						event.setAmount(amount);
+						event.setAmount(heal_amount.value);
 				}
 			}
 		}),
 	
 	ProjectileHit(
 		new SimpleEventInfo(
-			Entity.class, ModDamageElement.class, 		"shooter",
-			Projectile.class, ModDamageElement.class, 	"projectile",
-			World.class,								"world"),
+			Entity.class, EntityType.class, 	"shooter",
+			Projectile.class, EntityType.class, "projectile",
+			World.class,						"world"),
 			
 		new Listener() {
 			@SuppressWarnings("unused")
@@ -149,9 +154,9 @@ enum ModDamageEventHandler
 					LivingEntity shooter = projectile.getShooter();
 					
 					EventData data = ProjectileHit.eventInfo.makeData(
-							shooter, (shooter != null)? ModDamageElement.getElementFor(shooter)
-													  : ModDamageElement.DISPENSER,
-							projectile, ModDamageElement.getElementFor(projectile),
+							shooter, (shooter != null)? EntityType.get(shooter)
+													  : EntityType.DISPENSER,
+							projectile, EntityType.get(projectile),
 							projectile.getWorld());
 					
 					ProjectileHit.runRoutines(data);
@@ -161,9 +166,9 @@ enum ModDamageEventHandler
 	
 	Spawn(
 		new SimpleEventInfo(
-			Entity.class, ModDamageElement.class, 	"entity",
-			World.class,							"world",
-			Integer.class, 							"health", "-default"),
+			Entity.class, EntityType.class, "entity",
+			World.class,					"world",
+			IntRef.class, 					"health", "-default"),
 			
 		new Listener() {
 			@SuppressWarnings("unused")
@@ -173,15 +178,16 @@ enum ModDamageEventHandler
 				if(ModDamage.isEnabled)
 				{
 					Player player = event.getPlayer();
+					IntRef health = new IntRef(player.getMaxHealth());
 					EventData data = Spawn.eventInfo.makeData(
-							player, ModDamageElement.PLAYER, // entity
+							player, EntityType.PLAYER, // entity
 							player.getWorld(),
-							player.getMaxHealth() // health
+							health
 							);
 					
 					Spawn.runRoutines(data);
 					
-					player.setHealth(data.getMy(Integer.class, 2));
+					player.setHealth(health.value);
 				}
 			}
 			
@@ -192,16 +198,16 @@ enum ModDamageEventHandler
 				if(ModDamage.isEnabled && !event.isCancelled())
 				{
 					LivingEntity entity = (LivingEntity)event.getEntity();
+					IntRef health = new IntRef(entity.getHealth());
 					EventData data = Spawn.eventInfo.makeData(
-							entity, ModDamageElement.getElementFor(entity),
+							entity, EntityType.get(entity),
 							entity.getWorld(),
-							entity.getHealth());
+							health);
 					
 					Spawn.runRoutines(data);
 					
-					int newHealth = data.getMy(Integer.class, 3);
-					if (newHealth > 0)
-						entity.setHealth(newHealth);
+					if (health.value > 0)
+						entity.setHealth(health.value);
 					else
 						event.setCancelled(true);
 				}
@@ -210,8 +216,8 @@ enum ModDamageEventHandler
 			
 	Tame(
 		new SimpleEventInfo(
-			Entity.class, ModDamageElement.class, 	"entity",
-			Entity.class, ModDamageElement.class, 	"tamer",
+			Entity.class, EntityType.class, 	"entity",
+			Entity.class, EntityType.class, 	"tamer",
 			World.class,							"world"),
 			
 		new Listener() {
@@ -224,8 +230,8 @@ enum ModDamageEventHandler
 					LivingEntity entity = (LivingEntity)event.getEntity();
 					LivingEntity owner = (LivingEntity)event.getOwner();
 					EventData data = Tame.eventInfo.makeData(
-							entity, ModDamageElement.getElementFor(entity),
-							owner, ModDamageElement.getElementFor(owner),
+							entity, EntityType.get(entity),
+							owner, EntityType.get(owner),
 							entity.getWorld());
 					
 					Tame.runRoutines(data);
@@ -310,14 +316,14 @@ enum ModDamageEventHandler
 	{
 		if (event == null) return null;
 		
-		ModDamageElement damageElement = ModDamageElement.getElementFor(event.getCause());
+		EntityType damageElement = EntityType.get(event.getCause());
 		
 		Entity attacker = null;
-		ModDamageElement attackerElement = null;
+		EntityType attackerType = null;
 		Projectile projectile = null;
-		ModDamageElement projectileElement = null;
+		EntityType projectileType = null;
 		Entity target = event.getEntity();
-		ModDamageElement targetElement = ModDamageElement.getElementFor(target);
+		EntityType targetType = EntityType.get(target);
 		World world = target.getWorld();
 		
 		if(event instanceof EntityDamageByEntityEvent)
@@ -332,7 +338,7 @@ enum ModDamageEventHandler
 				attacker = projectile.getShooter();
 				
 				if(attacker == null)
-					attackerElement = ModDamageElement.DISPENSER;
+					attackerType = EntityType.DISPENSER;
 			}
 			else
 			{
@@ -341,16 +347,16 @@ enum ModDamageEventHandler
 		}
 		
 		if (attacker != null)
-			attackerElement = ModDamageElement.getElementFor(attacker);
+			attackerType = EntityType.get(attacker);
 		if (projectile != null)
-			projectileElement = ModDamageElement.getElementFor(projectile);
+			projectileType = EntityType.get(projectile);
 		
 	    return Damage.eventInfo.makeData(
-	    		attacker, attackerElement,
-	    		projectile, projectileElement,
-	    		target, targetElement,
+	    		attacker, attackerType,
+	    		projectile, projectileType,
+	    		target, targetType,
 	    		world,
 	    		damageElement,
-	    		event.getDamage());
+	    		new IntRef(event.getDamage()));
 	}
 };

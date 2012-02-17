@@ -86,7 +86,7 @@ abstract public class Conditional
 		InvertConditional.register();
 		NestedConditional.register();
 		//Entity
-		EntityType.register();
+		MatchableType.register();
 		EntityBiome.register();
 		EntityBlockStatus.register();
 		EntityRegion.register();

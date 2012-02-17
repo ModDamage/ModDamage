@@ -11,14 +11,14 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
 
-public class TypeNameAliaser extends Aliaser<ModDamageElement, List<String>> 
+public class TypeNameAliaser extends Aliaser<EntityType, List<String>> 
 {
 	public static TypeNameAliaser aliaser = new TypeNameAliaser();
 	//public static List<String> match(String string) { return aliaser.matchAlias(string); }
 	
-	protected HashMap<ModDamageElement, List<String>> thisMap = new HashMap<ModDamageElement, List<String>>();
+	protected HashMap<EntityType, List<String>> thisMap = new HashMap<EntityType, List<String>>();
 	
 	private static TypeNameAliaser staticInstance = new TypeNameAliaser();
 	public static TypeNameAliaser getStaticInstance(){ return staticInstance; }
@@ -28,7 +28,7 @@ public class TypeNameAliaser extends Aliaser<ModDamageElement, List<String>>
 	TypeNameAliaser()
 	{
 		super(AliasManager.TypeName.name());
-		for(ModDamageElement element : ModDamageElement.values())
+		for(EntityType element : EntityType.values())
 			thisMap.put(element, new ArrayList<String>());
 	}
 	
@@ -38,11 +38,11 @@ public class TypeNameAliaser extends Aliaser<ModDamageElement, List<String>>
 		clear();
 		
 		boolean failFlag = false;
-		ModDamageElement element = null;
+		EntityType element = null;
 		for(Entry<String, Object> entry : rawAliases.entrySet())
 		{
 			this.loadState = LoadState.SUCCESS;
-			element = ModDamageElement.getElementNamed(entry.getKey());
+			element = EntityType.getElementNamed(entry.getKey());
 			if(element != null)
 			{
 				if(entry.getValue() instanceof String)
@@ -104,7 +104,7 @@ public class TypeNameAliaser extends Aliaser<ModDamageElement, List<String>>
 			names.clear();
 	}
 	
-	public String toString(ModDamageElement element)
+	public String toString(EntityType element)
 	{
 		List<String> names = thisMap.get(element);
 		return !names.isEmpty()?names.get(random.nextInt(names.size())):element.name();
@@ -115,9 +115,9 @@ public class TypeNameAliaser extends Aliaser<ModDamageElement, List<String>>
 	@Deprecated
 	public boolean completeAlias(String key, Object nestedContent){ return false; }
 	@Deprecated
-	protected ModDamageElement matchNonAlias(String key){ return null; }
+	protected EntityType matchNonAlias(String key){ return null; }
 	@Deprecated
-	protected String getObjectName(ModDamageElement object){ return null; }
+	protected String getObjectName(EntityType object){ return null; }
 	@Deprecated
-	protected List<String> getNewStorageClass(ModDamageElement value){ return null; }
+	protected List<String> getNewStorageClass(EntityType value){ return null; }
 }

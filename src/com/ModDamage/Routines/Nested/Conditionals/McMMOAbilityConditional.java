@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
@@ -95,7 +95,7 @@ public class McMMOAbilityConditional extends McMMOConditionalStatement
 
 		abstract public boolean isActivated(mcMMO mcMMOplugin, Player player);
 	}
-	protected McMMOAbilityConditional(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, McMMOAbility ability) 
+	protected McMMOAbilityConditional(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, McMMOAbility ability) 
 	{
 		super(entityRef, entityElementRef);
 		this.ability = ability;
@@ -125,7 +125,7 @@ public class McMMOAbilityConditional extends McMMOConditionalStatement
 			if(mcMMOability == null) ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid McMMO ability \"" + matcher.group(3) + "\"");
 			String name = matcher.group(1).toLowerCase();
 			DataRef<Entity> entityRef = info.get(Entity.class, name);
-			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+			DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
 			if(entityRef != null & mcMMOability != null)
 				return new McMMOAbilityConditional(entityRef, entityElementRef, mcMMOability);
 			return null;

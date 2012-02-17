@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.Utils;
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
@@ -24,7 +24,7 @@ public class EntityStatus extends Conditional
 	private static final List<Material> waterList = Arrays.asList(Material.WATER, Material.STATIONARY_WATER);
 
 	private final DataRef<Entity> entityRef;
-	private final DataRef<ModDamageElement> entityElementRef;
+	private final DataRef<EntityType> entityElementRef;
 	private final StatusType statusType;
 	private enum StatusType
 	{
@@ -34,7 +34,7 @@ public class EntityStatus extends Conditional
 			@Override
 			public boolean isTrue(Entity entity){ return ((Player)entity).is() <= 0; }
 		},FIXME Get this into Bukkit if not already present.*/
-		Drowning(ModDamageElement.LIVING)
+		Drowning(EntityType.LIVING)
 		{
 			@Override
 			public boolean isTrue(Entity entity){ return ((LivingEntity)entity).getRemainingAir() <= 0; }
@@ -61,17 +61,17 @@ public class EntityStatus extends Conditional
 			@Override
 			public boolean isTrue(Entity entity){ return entity.getFireTicks() > 0; }
 		},
-		Sleeping(ModDamageElement.PLAYER)
+		Sleeping(EntityType.PLAYER)
 		{
 			@Override
 			public boolean isTrue(Entity entity){ return ((Player)entity).isSleeping(); }
 		},
-		Sneaking(ModDamageElement.PLAYER)
+		Sneaking(EntityType.PLAYER)
 		{
 			@Override
 			public boolean isTrue(Entity entity){ return ((Player)entity).isSneaking(); }
 		},
-		Sprinting(ModDamageElement.PLAYER)
+		Sprinting(EntityType.PLAYER)
 		{
 			@Override
 			public boolean isTrue(Entity entity){ return ((Player)entity).isSprinting(); }
@@ -85,9 +85,9 @@ public class EntityStatus extends Conditional
 			}
 		};
 		
-		protected ModDamageElement requiredElement = ModDamageElement.GENERIC;
+		protected EntityType requiredElement = EntityType.ENTITY;
 		StatusType(){}
-		StatusType(ModDamageElement requiredElement)
+		StatusType(EntityType requiredElement)
 		{
 			this.requiredElement = requiredElement;
 		}
@@ -95,7 +95,7 @@ public class EntityStatus extends Conditional
 		abstract public boolean isTrue(Entity entity);
 	}
 	
-	protected EntityStatus(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, StatusType statusType)
+	protected EntityStatus(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, StatusType statusType)
 	{
 		this.entityRef = entityRef;
 		this.entityElementRef = entityElementRef;
@@ -105,9 +105,9 @@ public class EntityStatus extends Conditional
 	@Override
 	public boolean evaluate(EventData data)
 	{
-		ModDamageElement element = entityElementRef.get(data);
+		EntityType element = entityElementRef.get(data);
 		Entity entity = entityRef.get(data);
-		if(element != null && entity != null && element.matchesType(statusType.requiredElement))
+		if(element != null && entity != null && element.matches(statusType.requiredElement))
 			return statusType.isTrue(entity);
 		return false;
 	}
@@ -132,7 +132,7 @@ public class EntityStatus extends Conditional
 							statusType = type;
 				String name = matcher.group(1).toLowerCase();
 				DataRef<Entity> entityRef = info.get(Entity.class, name);
-				DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+				DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
 				if(entityRef != null && statusType != null)
 					return new EntityStatus(entityRef, entityElementRef, statusType);
 			}

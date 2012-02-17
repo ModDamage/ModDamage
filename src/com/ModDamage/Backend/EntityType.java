@@ -2,7 +2,6 @@ package com.ModDamage.Backend;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,15 +47,14 @@ import org.bukkit.entity.ThrownPotion;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import com.ModDamage.ModDamage;
 
-public enum ModDamageElement 
+public enum EntityType implements Matchable<EntityType>
 {
 	UNKNOWN(null),
-	GENERIC(null, Entity.class),
-		LIVING(GENERIC, LivingEntity.class),
+	ENTITY(null, Entity.class),
+		LIVING(ENTITY, LivingEntity.class),
 			ANIMAL(LIVING, Animals.class),
 				CHICKEN(ANIMAL, CreatureType.CHICKEN, Chicken.class),
 				COW(ANIMAL, CreatureType.COW, Cow.class),
@@ -66,7 +64,7 @@ public enum ModDamageElement
 				WOLF(ANIMAL, CreatureType.WOLF, Wolf.class)
 				{
 					@Override
-					protected ModDamageElement getMostSpecificType(Object obj)
+					protected EntityType getMostSpecificType(Object obj)
 					{
 						Wolf wolf = (Wolf) obj;
 						if (wolf.isTamed()) return WOLF_TAME;
@@ -98,7 +96,7 @@ public enum ModDamageElement
 				
 			HUMAN(LIVING, HumanEntity.class),
 				PLAYER(HUMAN, Player.class),
-				NPC(HUMAN, CreatureType.MONSTER, NPC.class),//FIXME Does this work?
+				NPC(HUMAN, NPC.class),//FIXME Does this work?
 					VILLAGER(NPC, CreatureType.VILLAGER, Villager.class),
 			
 			MOB(LIVING, Monster.class),
@@ -107,7 +105,7 @@ public enum ModDamageElement
 				CREEPER(MOB, CreatureType.CREEPER, Creeper.class)
 				{
 					@Override
-					protected ModDamageElement getMostSpecificType(Object obj)
+					protected EntityType getMostSpecificType(Object obj)
 					{
 						Creeper creeper = (Creeper) obj;
 						if (creeper.isPowered()) return CREEPER_CHARGED;
@@ -136,7 +134,7 @@ public enum ModDamageElement
 				SLIME(MOB, CreatureType.SLIME, Slime.class)
 				{
 					@Override
-					protected ModDamageElement getMostSpecificType(Object obj)
+					protected EntityType getMostSpecificType(Object obj)
 					{
 						switch(((Slime)obj).getSize())
 						{
@@ -201,7 +199,7 @@ public enum ModDamageElement
 				SPIDER(MOB, CreatureType.SPIDER, Spider.class)
 				{
 					@Override
-					protected ModDamageElement getMostSpecificType(Object obj)
+					protected EntityType getMostSpecificType(Object obj)
 					{
 						if(((Spider)obj).getPassenger() != null) return SPIDER_JOCKEY;
 						return SPIDER_RIDERLESS;
@@ -222,7 +220,7 @@ public enum ModDamageElement
 				ZOMBIEPIGMAN(MOB, CreatureType.PIG_ZOMBIE, PigZombie.class)
 				{
 					@Override
-					protected ModDamageElement getMostSpecificType(Object obj)
+					protected EntityType getMostSpecificType(Object obj)
 					{
 						if (((PigZombie)obj).isAngry()) return ZOMBIEPIGMAN_ANGRY;
 						return ZOMBIEPIGMAN_NORMAL;
@@ -241,25 +239,7 @@ public enum ModDamageElement
 					ZOMBIEPIGMAN_NORMAL(ZOMBIEPIGMAN, CreatureType.PIG_ZOMBIE),
 			SNOWMAN(LIVING, CreatureType.SNOWMAN, Snowman.class),
 		
-		NONLIVING(GENERIC),
-			NATURE(NONLIVING),
-				CACTUS(NATURE),
-				CUSTOM(NATURE),
-				DROWNING(NATURE),
-				EXPLOSION(NATURE),
-					EXPLOSION_ENTITY(EXPLOSION),
-					EXPLOSION_BLOCK(EXPLOSION),
-				FALL(NATURE),
-				FIRE(NATURE),
-				BURN(NATURE),
-				LAVA(NATURE),
-				LIGHTNING(NATURE),
-				MAGIC(NATURE),
-				POISON(NATURE),
-				STARVATION(NATURE),
-				SUFFOCATION(NATURE),
-				SUICIDE(NATURE),
-				VOID(NATURE),
+		NONLIVING(ENTITY),
 			PROJECTILE(NONLIVING, Projectile.class),
 				ARROW(PROJECTILE, Arrow.class),
 				EGG(PROJECTILE, Egg.class),
@@ -270,42 +250,12 @@ public enum ModDamageElement
 				SNOWBALL(PROJECTILE, Snowball.class),
 			
 			TRAP(NONLIVING),
-				DISPENSER(TRAP),
-		
-		_DAMAGE_CAUSE(GENERIC, DamageCause.class)
-		{
-			@Override
-			protected ModDamageElement getMostSpecificType(Object obj)
-			{
-				switch((DamageCause)obj)
-				{
-				case CONTACT: 			return CACTUS;
-				case ENTITY_ATTACK:		return LIVING;
-				case PROJECTILE:		return PROJECTILE;
-				case SUFFOCATION: 		return SUFFOCATION;
-				case FALL: 				return FALL;
-				case FIRE: 				return FIRE;
-				case FIRE_TICK:			return BURN;
-				case LAVA: 				return LAVA;
-				case DROWNING: 			return DROWNING;
-				case BLOCK_EXPLOSION:   return EXPLOSION_BLOCK;
-				case ENTITY_EXPLOSION: 	return EXPLOSION_ENTITY;
-				case VOID: 				return VOID;
-				case LIGHTNING: 		return LIGHTNING;
-				case SUICIDE:			return SUICIDE;
-				case STARVATION:		return STARVATION;
-				case POISON: 			return POISON;
-				case MAGIC:				return MAGIC;
-				case CUSTOM:			return CUSTOM;
-				default: 				return UNKNOWN;//shouldn't happen
-				}
-			}
-		};
+				DISPENSER(TRAP);
 	
-	public static Map<Class<?>, ModDamageElement> byClass = new HashMap<Class<?>, ModDamageElement>();
+	private static Map<Class<?>, EntityType> byClass = new HashMap<Class<?>, EntityType>();
 	
 	static {
-		for (ModDamageElement element : ModDamageElement.values())
+		for (EntityType element : EntityType.values())
 		{
 			for (Class<?> myClass : element.myClasses)
 			{
@@ -313,8 +263,6 @@ public enum ModDamageElement
 					ModDamage.getPluginConfiguration().printToLog(Level.SEVERE, "Duplicate " + myClass + ": " + byClass.get(myClass) + ", " + element);
 				byClass.put(myClass, element);
 			}
-			
-			element.subElements = Collections.unmodifiableList(element.subElements);
 		}
 	}
 
@@ -326,99 +274,86 @@ public enum ModDamageElement
 	
 	
 	
-	private final ModDamageElement genericElement;
+	private final EntityType parent;
 	private final CreatureType creatureType;
 	public final Class<?>[] myClasses;
-	private List<ModDamageElement> subElements;
 	
-	ModDamageElement(ModDamageElement genericElement, Class<?>... myClasses) 
+	EntityType(EntityType parent, Class<?>... myClasses) 
 	{
-		this(genericElement, null, myClasses);
+		this(parent, null, myClasses);
 	}
-	ModDamageElement(ModDamageElement genericElement, CreatureType creatureType, Class<?>... myClasses) 
+	EntityType(EntityType parent, CreatureType creatureType, Class<?>... myClasses) 
 	{
-		this.genericElement = genericElement;
+		this.parent = parent;
 		this.creatureType = creatureType;
 		this.myClasses = myClasses;
-		
-		this.subElements = new ArrayList<ModDamageElement>();
-		if (genericElement != null)
-			genericElement.subElements.add(this);
 	}
-	public ModDamageElement getParentType(){ return genericElement; }
 
-	public boolean isElementReference(String string)
-	{
-		return getElementNamed(string) != UNKNOWN;
-	}
 	
 	public CreatureType getCreatureType(){ return creatureType; }
 	
 	//Returns true if this is equals or a subtype of the inputted element
-	public boolean matchesType(ModDamageElement element)
+	public boolean matches(Matchable<?> other)
 	{
-		if(element != null)
+		if (other == null || other.getClass() != EntityType.class) return false;
+		EntityType type = (EntityType)other;
+		
+		
+		EntityType temp = this;
+		while (temp != null)
 		{
-			ModDamageElement temp = this;
-			while (true)
-			{
-				if(temp == element) return true;
-				if (temp == ModDamageElement.GENERIC) return false;
-				temp = temp.getParentType();
-			}
+			if(temp == type) return true;
+			temp = temp.parent;
 		}
 		return false;
 	}
 	
-	protected ModDamageElement getMostSpecificType(Object obj)
+	protected EntityType getMostSpecificType(Object obj)
 	{
 		return this;
 	}
 	
-	public static ModDamageElement getElementFor(Object obj)
+	public static EntityType get(Object obj)
 	{
 		if(obj == null) throw new IllegalArgumentException("Object cannot be null for getElementFor method!");
-		ModDamageElement mde = byClass.get(obj.getClass());
+		Class<?> cls = obj.getClass();
+		EntityType mde = byClass.get(cls);
 		if (mde == null)
 		{
-			mde = ModDamageElement.matchByInterfaces(Arrays.asList(obj.getClass().getInterfaces()));
+			mde = EntityType.matchByInterfaces(Arrays.asList(cls.getInterfaces()));
 			if (mde != null) 
-			{
-				byClass.put(obj.getClass(), mde);
-				//ModDamage.getPluginConfiguration().printToLog(Level.INFO, "getElementFor " + obj.getClass() + " -> " + mde);
-			}
+				byClass.put(cls, mde);
 		}
 		if (mde != null) return mde.getMostSpecificType(obj);
 		
-		ModDamage.getPluginConfiguration().printToLog(Level.SEVERE, "Uncaught type " + obj.getClass().getName() + " for an event!");
+		ModDamage.getPluginConfiguration().printToLog(Level.WARNING, "Uncaught mob type " + obj.getClass().getName() + "!");
+		byClass.put(cls, UNKNOWN);
 		return UNKNOWN;
 	}
 
 	
-	public static ModDamageElement getElementNamed(String string)
+	public static EntityType getElementNamed(String string)
 	{
 		try
 		{
-			return ModDamageElement.valueOf(string.toUpperCase());
+			return EntityType.valueOf(string.toUpperCase());
 		} catch (IllegalArgumentException e) { }
 		return null;
 	}
 	
-	private static ModDamageElement matchByInterfaces(List<Class<?>> interfaces)
+	private static EntityType matchByInterfaces(List<Class<?>> interfaces)
 	{
 		while (interfaces.size() > 0)
 		{
 			for (Class<?> cls : interfaces)
 			{
-				ModDamageElement mde = byClass.get(cls);
+				EntityType mde = byClass.get(cls);
 				if (mde != null) return mde;
 			}
 			
 			List<Class<?>> nextInterfaces = new ArrayList<Class<?>>();
 			for (Class<?> cls : interfaces)
-			{
 				nextInterfaces.addAll(Arrays.asList(cls.getInterfaces()));
-			}
 			interfaces = nextInterfaces;
 		}
 		
@@ -430,6 +365,6 @@ public enum ModDamageElement
 	{
 		if(creatureType != null)
 			return location.getWorld().spawnCreature(location, creatureType);
-		else throw new IllegalArgumentException("Cannot spawn " + (this.matchesType(LIVING)?"nonliving":"abstract living") + " element" + name() + "!");
+		else throw new IllegalArgumentException("Cannot spawn " + (this.matches(LIVING)?"nonliving":"abstract living") + " element" + name() + "!");
 	}
 }

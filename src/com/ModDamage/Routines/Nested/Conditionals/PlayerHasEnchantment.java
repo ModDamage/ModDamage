@@ -8,7 +8,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.Aliasing.EnchantmentAliaser;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -18,9 +18,9 @@ public class PlayerHasEnchantment extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.hasenchantment\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	private final DataRef<Entity> entityRef;
-	private final DataRef<ModDamageElement> entityElementRef;
+	private final DataRef<EntityType> entityElementRef;
 	protected final Collection<Enchantment> enchantments;
-	public PlayerHasEnchantment(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, Collection<Enchantment> enchantments)
+	public PlayerHasEnchantment(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, Collection<Enchantment> enchantments)
 	{
 		this.entityRef = entityRef;
 		this.entityElementRef = entityElementRef;
@@ -30,7 +30,7 @@ public class PlayerHasEnchantment extends Conditional
 	@Override
 	public boolean evaluate(EventData data)
 	{
-		if(entityElementRef.get(data).matchesType(ModDamageElement.PLAYER))
+		if(entityElementRef.get(data).matches(EntityType.PLAYER))
 			for(Enchantment enchantment : enchantments)
 				if(((Player)entityRef.get(data)).getItemInHand().containsEnchantment(enchantment))
 					return true;
@@ -52,7 +52,7 @@ public class PlayerHasEnchantment extends Conditional
 			Collection<Enchantment> enchantments = EnchantmentAliaser.match(matcher.group(2));
 			String name = matcher.group(1).toLowerCase();
 			DataRef<Entity> entityRef = info.get(Entity.class, name);
-			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+			DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
 			if(entityRef != null && !enchantments.isEmpty())
 				return new PlayerHasEnchantment(entityRef, entityElementRef, enchantments);
 			return null;

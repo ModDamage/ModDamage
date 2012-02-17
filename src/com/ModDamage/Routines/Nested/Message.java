@@ -153,11 +153,7 @@ public class Message extends NestedRoutine
 			
 			List<String> strings = new ArrayList<String>();
 			MessageTarget messageTarget = MessageTarget.match(matcher.group(1), info);
-			if(messageTarget == null)
-			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad message target: "+matcher.group(1));
-				return null;
-			}
+			if(messageTarget == null) return null;
 			
 			if (nestedContent instanceof String)
 				strings.add((String)nestedContent);

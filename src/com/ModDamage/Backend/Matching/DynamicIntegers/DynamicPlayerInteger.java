@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -30,7 +30,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 					{
 						String name = matcher.group(1).toLowerCase();
 						DataRef<Entity> entityRef = info.get(Entity.class, name);
-						DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name);
+						DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
 						if (entityRef == null || entityElementRef == null) return null;
 						
 						return sm.acceptIf(new DynamicPlayerInteger(
@@ -41,7 +41,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 	}
 	
 	protected final DataRef<Entity> entityRef;
-	protected final DataRef<ModDamageElement> entityElementRef;
+	protected final DataRef<EntityType> entityElementRef;
 	protected final PlayerIntegerPropertyMatch propertyMatch;
 	public enum PlayerIntegerPropertyMatch
 	{
@@ -228,7 +228,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 		public void setValue(Player player, int value) {}
 	}
 	
-	DynamicPlayerInteger(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, PlayerIntegerPropertyMatch propertyMatch)
+	DynamicPlayerInteger(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, PlayerIntegerPropertyMatch propertyMatch)
 	{
 		this.entityRef = entityRef;
 		this.entityElementRef = entityElementRef;
@@ -238,7 +238,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 	@Override
 	public int getValue(EventData data)
 	{
-		if(entityElementRef.get(data).matchesType(ModDamageElement.PLAYER))
+		if(entityElementRef.get(data).matches(EntityType.PLAYER))
 			return propertyMatch.getValue((Player)entityRef.get(data));
 		return 0;
 	}
@@ -246,7 +246,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 	@Override
 	public void setValue(EventData data, int value)
 	{
-		if(entityElementRef.get(data).matchesType(ModDamageElement.PLAYER))
+		if(entityElementRef.get(data).matches(EntityType.PLAYER))
 			propertyMatch.setValue((Player)entityRef.get(data), value);
 	}
 	

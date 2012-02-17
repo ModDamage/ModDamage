@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -40,8 +41,8 @@ public class ValueChangeRoutine extends Routine
 	
 	private final ValueChangeType changeType;
 	protected final DynamicInteger number;
-	protected final DataRef<Integer> defaultRef;
-	protected ValueChangeRoutine(String configString, DataRef<Integer> defaultRef, ValueChangeType changeType, DynamicInteger number)
+	protected final DataRef<IntRef> defaultRef;
+	protected ValueChangeRoutine(String configString, DataRef<IntRef> defaultRef, ValueChangeType changeType, DynamicInteger number)
 	{
 		super(configString);
 		this.defaultRef = defaultRef;
@@ -51,8 +52,9 @@ public class ValueChangeRoutine extends Routine
 	
 	@Override
 	public final void run(final EventData data){
-		defaultRef.set(data, changeType.changeValue(
-				defaultRef.get(data), getValue(data)));
+		IntRef def = defaultRef.get(data);
+		def.value = changeType.changeValue(
+				def.value, getValue(data));
 	}
 	
 	protected int getValue(EventData data){ return number.getValue(data); }
@@ -89,7 +91,7 @@ public class ValueChangeRoutine extends Routine
 					return entry.getValue().getNew(anotherMatcher, changeType, info);
 			}
 			DynamicInteger integer = DynamicInteger.getNew(matcher.group(2), info, false);
-			DataRef<Integer> defaultRef = info.get(Integer.class, "-default");
+			DataRef<IntRef> defaultRef = info.get(IntRef.class, "-default");
 			if(integer != null && defaultRef != null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, changeType.name() + ": " + matcher.group(2));

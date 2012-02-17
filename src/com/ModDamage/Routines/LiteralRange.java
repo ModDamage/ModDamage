@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -13,7 +14,7 @@ import com.ModDamage.EventInfo.EventInfo;
 public class LiteralRange extends RandomRoutine 
 {
 	private final DynamicInteger upper;
-	public LiteralRange(String configString, DataRef<Integer> defaultRef, ValueChangeType changeType, DynamicInteger lower, DynamicInteger upper)
+	public LiteralRange(String configString, DataRef<IntRef> defaultRef, ValueChangeType changeType, DynamicInteger lower, DynamicInteger upper)
 	{ 
 		super(configString, defaultRef, changeType, lower);
 		this.upper = upper;
@@ -38,7 +39,7 @@ public class LiteralRange extends RandomRoutine
 		{
 			DynamicInteger match1 = DynamicInteger.getNew(matcher.group(1), info), 
 					       match2 = DynamicInteger.getNew(matcher.group(2), info);
-			DataRef<Integer> defaultRef = info.get(Integer.class, "-default");
+			DataRef<IntRef> defaultRef = info.get(IntRef.class, "-default");
 			if(match1 != null && match2 != null && defaultRef != null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Literal Range" + changeType.getStringAppend() + ": (" + matcher.group(1) + ", " + matcher.group(2) + ")");

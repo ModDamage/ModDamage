@@ -8,7 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.ModDamage.Backend.ModDamageElement;
+import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.Backend.Aliasing.ItemAliaser;
 import com.ModDamage.EventInfo.DataRef;
@@ -19,10 +19,10 @@ public class PlayerHasItem extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.has((?:all)?items|item)\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
 	private final DataRef<Entity> entityRef;
-	private final DataRef<ModDamageElement> entityElementRef;
+	private final DataRef<EntityType> entityElementRef;
 	private final boolean strict;
 	private final Collection<ModDamageItemStack> items;
-	public PlayerHasItem(DataRef<Entity> entityRef, DataRef<ModDamageElement> entityElementRef, boolean strict, Collection<ModDamageItemStack> items)
+	public PlayerHasItem(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, boolean strict, Collection<ModDamageItemStack> items)
 	{
 		this.entityRef = entityRef;
 		this.entityElementRef = entityElementRef;
@@ -33,7 +33,7 @@ public class PlayerHasItem extends Conditional
 	@Override
 	public boolean evaluate(EventData data)
 	{
-		if(entityElementRef.get(data).matchesType(ModDamageElement.PLAYER))
+		if(entityElementRef.get(data).matches(EntityType.PLAYER))
 		{
 			for(ModDamageItemStack item : items)
 				item.updateAmount(data);
@@ -75,7 +75,7 @@ public class PlayerHasItem extends Conditional
 		{
 			String name = matcher.group(1).toLowerCase();
 			DataRef<Entity> entityRef = info.get(Entity.class, name); if (entityRef == null) return null;
-			DataRef<ModDamageElement> entityElementRef = info.get(ModDamageElement.class, name); if (entityElementRef == null) return null;
+			DataRef<EntityType> entityElementRef = info.get(EntityType.class, name); if (entityElementRef == null) return null;
 			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
 			if(items != null && !items.isEmpty())
 				return new PlayerHasItem(entityRef, entityElementRef, matcher.group(2).equalsIgnoreCase("allitems"), items);
