@@ -316,7 +316,7 @@ enum ModDamageEventHandler
 	{
 		if (event == null) return null;
 		
-		EntityType damageElement = EntityType.get(event.getCause());
+		DamageType damageElement = DamageType.get(event.getCause());
 		
 		Entity attacker = null;
 		EntityType attackerType = null;
