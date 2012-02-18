@@ -17,6 +17,7 @@ import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import com.ModDamage.PluginConfiguration.LoadState;
@@ -49,7 +50,8 @@ enum ModDamageEventHandler
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onEntityDamage(EntityDamageEvent event)
 			{
-				if (!ModDamage.isEnabled) return;
+				if(!ModDamage.isEnabled || event.isCancelled()) return;
+				
 				if(!event.isCancelled() && (event.getEntity() instanceof LivingEntity)) 
 				{
 					LivingEntity le = (LivingEntity)event.getEntity();
@@ -78,30 +80,29 @@ enum ModDamageEventHandler
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onEntityDeath(EntityDeathEvent event)
 			{
-				if(ModDamage.isEnabled)
-				{
-					if(disableDeathMessages && event instanceof PlayerDeathEvent)
-						((PlayerDeathEvent)event).setDeathMessage(null);
-						
-					Entity entity = event.getEntity();
+				if(!ModDamage.isEnabled) return;
+				
+				if(disableDeathMessages && event instanceof PlayerDeathEvent)
+					((PlayerDeathEvent)event).setDeathMessage(null);
 					
-				    EventData damageData = getDamageEventData(((LivingEntity) entity).getLastDamageCause());
-				    
-					if(damageData == null) // for instance, /butcher often does this
-						damageData = Damage.eventInfo.makeData(
-								null, EntityType.UNKNOWN,
-								null, null,
-								entity, EntityType.get(entity),
-								entity.getWorld(),
-								DamageType.UNKNOWN,
-								new IntRef(0)
-								);
-					
-					IntRef experience = new IntRef(event.getDroppedExp());
-					EventData data = Death.eventInfo.makeChainedData(damageData, experience);
-					Death.runRoutines(data);
-					event.setDroppedExp(experience.value);
-				}
+				Entity entity = event.getEntity();
+				
+			    EventData damageData = getDamageEventData(((LivingEntity) entity).getLastDamageCause());
+			    
+				if(damageData == null) // for instance, /butcher often does this
+					damageData = Damage.eventInfo.makeData(
+							null, EntityType.UNKNOWN,
+							null, null,
+							entity, EntityType.get(entity),
+							entity.getWorld(),
+							DamageType.UNKNOWN,
+							new IntRef(0)
+							);
+				
+				IntRef experience = new IntRef(event.getDroppedExp());
+				EventData data = Death.eventInfo.makeChainedData(damageData, experience);
+				Death.runRoutines(data);
+				event.setDroppedExp(experience.value);
 			}
 		}),
 	
@@ -117,23 +118,22 @@ enum ModDamageEventHandler
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onEntityRegainHealth(EntityRegainHealthEvent event)
 			{
-				if(ModDamage.isEnabled && !event.isCancelled())
-				{
-					Entity entity = event.getEntity();
-					IntRef heal_amount = new IntRef(event.getAmount());
-					EventData data = Heal.eventInfo.makeData(
-							entity, EntityType.get(entity),
-							entity.getWorld(),
-							event.getRegainReason(),
-							heal_amount);
-					
-					Heal.runRoutines(data);
-					
-					if (heal_amount.value <= 0)
-						event.setCancelled(true);
-					else
-						event.setAmount(heal_amount.value);
-				}
+				if(!ModDamage.isEnabled || event.isCancelled()) return;
+				
+				Entity entity = event.getEntity();
+				IntRef heal_amount = new IntRef(event.getAmount());
+				EventData data = Heal.eventInfo.makeData(
+						entity, EntityType.get(entity),
+						entity.getWorld(),
+						event.getRegainReason(),
+						heal_amount);
+				
+				Heal.runRoutines(data);
+				
+				if (heal_amount.value <= 0)
+					event.setCancelled(true);
+				else
+					event.setAmount(heal_amount.value);
 			}
 		}),
 	
@@ -148,19 +148,18 @@ enum ModDamageEventHandler
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onProjectileHit(ProjectileHitEvent event)
 			{
-				if(ModDamage.isEnabled)
-				{
-					Projectile projectile = (Projectile)event.getEntity();
-					LivingEntity shooter = projectile.getShooter();
-					
-					EventData data = ProjectileHit.eventInfo.makeData(
-							shooter, (shooter != null)? EntityType.get(shooter)
-													  : EntityType.DISPENSER,
-							projectile, EntityType.get(projectile),
-							projectile.getWorld());
-					
-					ProjectileHit.runRoutines(data);
-				}
+				if(!ModDamage.isEnabled) return;
+				
+				Projectile projectile = (Projectile)event.getEntity();
+				LivingEntity shooter = projectile.getShooter();
+				
+				EventData data = ProjectileHit.eventInfo.makeData(
+						shooter, (shooter != null)? EntityType.get(shooter)
+												  : EntityType.DISPENSER,
+						projectile, EntityType.get(projectile),
+						projectile.getWorld());
+				
+				ProjectileHit.runRoutines(data);
 			}
 		}),
 	
@@ -175,67 +174,90 @@ enum ModDamageEventHandler
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onPlayerRespawn(PlayerRespawnEvent event)
 			{
-				if(ModDamage.isEnabled)
-				{
-					Player player = event.getPlayer();
-					IntRef health = new IntRef(player.getMaxHealth());
-					EventData data = Spawn.eventInfo.makeData(
-							player, EntityType.PLAYER, // entity
-							player.getWorld(),
-							health
-							);
-					
-					Spawn.runRoutines(data);
-					
-					player.setHealth(health.value);
-				}
+				if(!ModDamage.isEnabled) return;
+				
+				Player player = event.getPlayer();
+				IntRef health = new IntRef(player.getMaxHealth());
+				EventData data = Spawn.eventInfo.makeData(
+						player, EntityType.PLAYER, // entity
+						player.getWorld(),
+						health
+						);
+				
+				Spawn.runRoutines(data);
+				
+				player.setHealth(health.value);
 			}
 			
 			@SuppressWarnings("unused")
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onCreatureSpawn(CreatureSpawnEvent event)
-			{ 
-				if(ModDamage.isEnabled && !event.isCancelled())
-				{
-					LivingEntity entity = (LivingEntity)event.getEntity();
-					IntRef health = new IntRef(entity.getHealth());
-					EventData data = Spawn.eventInfo.makeData(
-							entity, EntityType.get(entity),
-							entity.getWorld(),
-							health);
-					
-					Spawn.runRoutines(data);
-					
-					if (health.value > 0)
-						entity.setHealth(health.value);
-					else
-						event.setCancelled(true);
-				}
+			{
+				if(!ModDamage.isEnabled || event.isCancelled()) return;
+				
+				LivingEntity entity = (LivingEntity)event.getEntity();
+				IntRef health = new IntRef(entity.getHealth());
+				EventData data = Spawn.eventInfo.makeData(
+						entity, EntityType.get(entity),
+						entity.getWorld(),
+						health);
+				
+				Spawn.runRoutines(data);
+				
+				if (health.value > 0)
+					entity.setHealth(health.value);
+				else
+					event.setCancelled(true);
 			}
 		}),
 			
 	Tame(
 		new SimpleEventInfo(
-			Entity.class, EntityType.class, 	"entity",
-			Entity.class, EntityType.class, 	"tamer",
-			World.class,							"world"),
+			Entity.class, EntityType.class, "entity",
+			Entity.class, EntityType.class, "tamer",
+			World.class,					"world"),
 			
 		new Listener() {
 			@SuppressWarnings("unused")
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onEntityTame(EntityTameEvent event)
 			{
-				if(ModDamage.isEnabled)
-				{
-					LivingEntity entity = (LivingEntity)event.getEntity();
-					LivingEntity owner = (LivingEntity)event.getOwner();
-					EventData data = Tame.eventInfo.makeData(
-							entity, EntityType.get(entity),
-							owner, EntityType.get(owner),
-							entity.getWorld());
-					
-					Tame.runRoutines(data);
-				}
+				if(!ModDamage.isEnabled || event.isCancelled()) return;
+				
+				LivingEntity entity = (LivingEntity)event.getEntity();
+				LivingEntity owner = (LivingEntity)event.getOwner();
+				EventData data = Tame.eventInfo.makeData(
+						entity, EntityType.get(entity),
+						owner, EntityType.get(owner),
+						entity.getWorld());
+				
+				Tame.runRoutines(data);
+			}
+		}),
+	
+	PickupExp(
+		new SimpleEventInfo(
+				Player.class, EntityType.class, "player",
+				World.class,					"world",
+				IntRef.class,					"experience"),
+				
+		new Listener() {
+			@SuppressWarnings("unused")
+			@EventHandler(priority=EventPriority.HIGHEST)
+			public void onPickupExperience(PlayerExpChangeEvent event)
+			{
+				if(!ModDamage.isEnabled) return;
+				
+				Player player = event.getPlayer();
+				IntRef experience = new IntRef(event.getAmount());
+				EventData data = Tame.eventInfo.makeData(
+						player, EntityType.get(player),
+						player.getWorld(),
+						experience);
+				
+				PickupExp.runRoutines(data);
+				
+				event.setAmount(experience.value);
 			}
 		});
 	
