@@ -34,7 +34,7 @@ public class EventInfoChain extends EventInfo
 	public Class<?> getClass(int index)
 	{
 		if (index >= first.getSize())
-			return second.getClass(index);
+			return second.getClass(index - first.getSize());
 		return first.getClass(index);
 	}
 
