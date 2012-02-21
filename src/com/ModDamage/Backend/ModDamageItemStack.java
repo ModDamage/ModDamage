@@ -81,7 +81,7 @@ public class ModDamageItemStack
 		return item;
 	}
 	
-	public static final Pattern materialPattern = Pattern.compile("(\\w+)(?=[:*]|$)"); // word followed by : or *
+	public static final Pattern materialPattern = Pattern.compile("(\\w+)(?=[@*]|$)"); // word followed by @ * or nothing
 	
 	public static ModDamageItemStack getNewFromFront(EventInfo info, StringMatcher sm)
 	{
@@ -89,17 +89,32 @@ public class ModDamageItemStack
 		if (m == null) return null;
 		
 		Material material;
-		try
+		String materialName = m.group().toUpperCase();
+		
+		if (materialName.startsWith("ID_"))
 		{
-			material = Material.valueOf(m.group().toUpperCase());
+			try
+			{
+				material = Material.getMaterial(Integer.parseInt(materialName.substring(3)));
+			}
+			catch (NumberFormatException e)
+			{
+				material = null;
+			}
+			
 		}
-		catch (IllegalArgumentException e){
+		else
+		{
+			material = Material.getMaterial(materialName);
+		}
+		if (material == null)
+		{
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unable to match material \"" + m.group() + "\"");
 			return null;
 		}
 		
 		DynamicInteger data;
-		if (sm.matchesFront(":"))
+		if (sm.matchesFront("@"))
 		{
 			data = DynamicInteger.getIntegerFromFront(sm.spawn(), info);
 			if (data == null) return null;
