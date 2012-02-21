@@ -46,7 +46,6 @@ enum ModDamageEventHandler
 			
 		new Listener(){
 			DataRef<IntRef> damageRef = new DataRef<IntRef>(IntRef.class, "damage", 8);
-			@SuppressWarnings("unused")
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onEntityDamage(EntityDamageEvent event)
 			{
@@ -76,7 +75,6 @@ enum ModDamageEventHandler
 			IntRef.class, "experience", "-default")),
 			
 		new Listener() {
-			@SuppressWarnings("unused")
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onEntityDeath(EntityDeathEvent event)
 			{
@@ -114,7 +112,6 @@ enum ModDamageEventHandler
 			IntRef.class, 					"heal_amount", "-default"),
 			
 		new Listener() {
-			@SuppressWarnings("unused")
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onEntityRegainHealth(EntityRegainHealthEvent event)
 			{
@@ -144,7 +141,6 @@ enum ModDamageEventHandler
 			World.class,						"world"),
 			
 		new Listener() {
-			@SuppressWarnings("unused")
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onProjectileHit(ProjectileHitEvent event)
 			{
@@ -170,7 +166,6 @@ enum ModDamageEventHandler
 			IntRef.class, 					"health", "-default"),
 			
 		new Listener() {
-			@SuppressWarnings("unused")
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onPlayerRespawn(PlayerRespawnEvent event)
 			{
@@ -189,7 +184,6 @@ enum ModDamageEventHandler
 				player.setHealth(health.value);
 			}
 			
-			@SuppressWarnings("unused")
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onCreatureSpawn(CreatureSpawnEvent event)
 			{
@@ -218,7 +212,6 @@ enum ModDamageEventHandler
 			World.class,					"world"),
 			
 		new Listener() {
-			@SuppressWarnings("unused")
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onEntityTame(EntityTameEvent event)
 			{
@@ -242,7 +235,6 @@ enum ModDamageEventHandler
 				IntRef.class,					"experience"),
 				
 		new Listener() {
-			@SuppressWarnings("unused")
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onPickupExperience(PlayerExpChangeEvent event)
 			{
