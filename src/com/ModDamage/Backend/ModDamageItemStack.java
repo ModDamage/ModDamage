@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.Aliasing.MaterialAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
 import com.ModDamage.EventInfo.EventData;
@@ -88,30 +89,20 @@ public class ModDamageItemStack
 		Matcher m = sm.matchFront(materialPattern);
 		if (m == null) return null;
 		
-		Material material;
-		String materialName = m.group().toUpperCase();
-		
-		if (materialName.startsWith("ID_"))
-		{
-			try
-			{
-				material = Material.getMaterial(Integer.parseInt(materialName.substring(3)));
-			}
-			catch (NumberFormatException e)
-			{
-				material = null;
-			}
-			
-		}
-		else
-		{
-			material = Material.getMaterial(materialName);
-		}
-		if (material == null)
+		Collection<Material> materials = MaterialAliaser.match(m.group());
+		if (materials == null || materials.size() == 0)
 		{
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unable to match material \"" + m.group() + "\"");
 			return null;
 		}
+		
+		if (materials.size() > 1)
+		{
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: matched too many materials: \"" + m.group() + "\"");
+			return null;
+		}
+		
+		Material material = materials.iterator().next();
 		
 		DynamicInteger data;
 		if (sm.matchesFront("@"))

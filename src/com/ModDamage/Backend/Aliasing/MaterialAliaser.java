@@ -14,7 +14,22 @@ public class MaterialAliaser extends CollectionAliaser<Material>
 	public MaterialAliaser() { super(AliasManager.Material.name()); }
 
 	@Override
-	protected Material matchNonAlias(String key){ return Material.matchMaterial(key); }
+	public Material matchNonAlias(String key)
+	{
+		if (key.toLowerCase().startsWith("id_"))
+		{
+			try
+			{
+				key = key.substring(3);
+				return Material.getMaterial(Integer.parseInt(key));
+			}
+			catch (NumberFormatException e)
+			{
+				return null;
+			}
+		}
+		return Material.matchMaterial(key);
+	}
 
 	//@Override
 	//protected String getObjectName(Material object){ return object.name(); }
