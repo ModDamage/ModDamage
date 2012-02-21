@@ -122,7 +122,7 @@ enum ModDamageEventHandler
 				EventData data = Heal.eventInfo.makeData(
 						entity, EntityType.get(entity),
 						entity.getWorld(),
-						event.getRegainReason(),
+						HealType.get(event.getRegainReason()),
 						heal_amount);
 				
 				Heal.runRoutines(data);
