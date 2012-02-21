@@ -13,6 +13,7 @@ public enum AliasManager
 {
 	Armor(ArmorAliaser.class),
 	Biome(BiomeAliaser.class),
+	Command(CommandAliaser.class),
 	Enchantment(EnchantmentAliaser.class),
 	Item(ItemAliaser.class),
 	Group(GroupAliaser.class),

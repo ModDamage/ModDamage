@@ -37,6 +37,7 @@ public abstract class NestedRoutine extends Routine
 		Nearby.register();
 		ChangeProperty.register();
 		McMMOChangeSkill.register();
+		Command.registerNested();
 	}
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)

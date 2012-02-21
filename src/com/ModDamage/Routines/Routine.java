@@ -10,6 +10,7 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Routines.Nested.Command;
 import com.ModDamage.Routines.Nested.EntityItemAction;
 import com.ModDamage.Routines.Nested.Message;
 
@@ -33,6 +34,7 @@ abstract public class Routine
 		Message.registerRoutine();
 		EntityItemAction.registerRoutine();
 		ValueChangeRoutine.register();
+		Command.registerRoutine();
 	}
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)

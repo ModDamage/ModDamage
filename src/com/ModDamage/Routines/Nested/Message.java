@@ -205,6 +205,5 @@ public class Message extends NestedRoutine
 			else ModDamage.addToLogRecord(OutputPreset.INFO, routineString + ": \"" + messageList.get(0).toString() + "\"" );
 		}
 		else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Fatal: messages are not in a linked data structure!");//shouldn't happen
-		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 	}
 }
