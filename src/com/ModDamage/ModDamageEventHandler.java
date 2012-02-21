@@ -242,7 +242,7 @@ enum ModDamageEventHandler
 				
 				Player player = event.getPlayer();
 				IntRef experience = new IntRef(event.getAmount());
-				EventData data = Tame.eventInfo.makeData(
+				EventData data = PickupExp.eventInfo.makeData(
 						player, EntityType.get(player),
 						player.getWorld(),
 						experience);
