@@ -62,6 +62,13 @@ public class DynamicEntityInteger extends DynamicInteger
 				((LivingEntity)entity).setHealth(value);
 			}
 		},
+		ID
+		{
+			@Override public int getValue(Entity entity)
+			{
+				return entity.getEntityId();
+			}
+		}
 		LIGHT
 		{
 			@Override public int getValue(Entity entity)
@@ -147,6 +154,12 @@ public class DynamicEntityInteger extends DynamicInteger
 		
 		abstract public int getValue(Entity entity);
 		public void setValue(Entity entity, int value){}
+		
+		@Override
+		public String toString()
+		{
+			return name().toLowerCase();
+		}
 	}
 	
 	protected final DataRef<Entity> entityRef;
