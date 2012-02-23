@@ -15,12 +15,12 @@ import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 
-public class DynamicPlayerItemInteger extends DynamicInteger
+public class DynamicItemInteger extends DynamicInteger
 {
 	public static void register()
 	{
 		DynamicInteger.register(
-				Pattern.compile("([a-z]+)_("+ 
+				Pattern.compile("(\\w+)_("+ 
 									 Utils.joinBy("|", PlayerItemTarget.values()) +")_("+ 
 									 Utils.joinBy("|", ItemAttribute.values()) +")", Pattern.CASE_INSENSITIVE),
 				new DynamicIntegerBuilder()
@@ -32,10 +32,27 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 						DataRef<Entity> entityRef = info.get(Entity.class, name);
 						if (entityRef == null) return null;
 						
-						return sm.acceptIf(new DynamicPlayerItemInteger(
+						return sm.acceptIf(new DynamicItemInteger(
 								entityRef, 
 								PlayerItemTarget.valueOf(matcher.group(2).toUpperCase()),
 								ItemAttribute.valueOf(matcher.group(3).toUpperCase())));
+					}
+				});
+		DynamicInteger.register(
+				Pattern.compile("(\\w+)_("+ 
+									 Utils.joinBy("|", ItemAttribute.values()) +")", Pattern.CASE_INSENSITIVE),
+				new DynamicIntegerBuilder()
+				{
+					@Override
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
+					{
+						String name = matcher.group(1).toLowerCase();
+						DataRef<ItemStack> itemRef = info.get(ItemStack.class, name);
+						if (itemRef == null) return null;
+						
+						return sm.acceptIf(new DynamicItemInteger(
+								itemRef, 
+								ItemAttribute.valueOf(matcher.group(2).toUpperCase())));
 					}
 				});
 	}
@@ -122,23 +139,40 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 		
 	}
 	
+
 	private final DataRef<Entity> entityRef;
 	private final PlayerItemTarget playerItemTarget;
+	private final DataRef<ItemStack> itemRef;
 	private final ItemAttribute itemAttribute;
 
-	public DynamicPlayerItemInteger(DataRef<Entity> entityRef, PlayerItemTarget playerItemTarget, ItemAttribute itemAttribute)
+	public DynamicItemInteger(DataRef<Entity> entityRef, PlayerItemTarget playerItemTarget, ItemAttribute itemAttribute)
 	{
 		this.entityRef = entityRef;
 		this.playerItemTarget = playerItemTarget;
 		this.itemAttribute = itemAttribute;
+		this.itemRef = null;
+	}
+	public DynamicItemInteger(DataRef<ItemStack> itemRef, ItemAttribute itemAttribute)
+	{
+		this.entityRef = null;
+		this.playerItemTarget = null;
+		this.itemAttribute = itemAttribute;
+		this.itemRef = itemRef;
 	}
 
 	@Override
 	public int getValue(EventData data)
 	{
-		Entity entity = entityRef.get(data);
-		if (entity instanceof Player)
-			return itemAttribute.getAttribute(playerItemTarget.getItem((Player)entity));
+		if (entityRef != null)
+		{
+			Entity entity = entityRef.get(data);
+			if (entity instanceof Player)
+				return itemAttribute.getAttribute(playerItemTarget.getItem((Player)entity));
+		}
+		else
+		{
+			return itemAttribute.getAttribute(itemRef.get(data));
+		}
 		return 0;
 	}
 	
@@ -146,12 +180,19 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 	@Override
 	public void setValue(EventData data, int value)
 	{
-		Entity entity = entityRef.get(data);
-		if (entity instanceof Player)
+		if (entityRef != null)
 		{
-			Player player = (Player)entity;
-			itemAttribute.setAttribute(playerItemTarget.getItem(player), value);
-			player.updateInventory();
+			Entity entity = entityRef.get(data);
+			if (entity instanceof Player)
+			{
+				Player player = (Player)entity;
+				itemAttribute.setAttribute(playerItemTarget.getItem(player), value);
+				player.updateInventory();
+			}
+		}
+		else
+		{
+			itemAttribute.setAttribute(itemRef.get(data), value);
 		}
 	}
 	
@@ -164,7 +205,9 @@ public class DynamicPlayerItemInteger extends DynamicInteger
 	@Override
 	public String toString()
 	{
-		return /*FIXME: entityReference.name() +*/ "_" + playerItemTarget.name().toLowerCase() + "_" + itemAttribute.name().toLowerCase();
+		if (entityRef != null)
+			return entityRef + "_" + playerItemTarget.name().toLowerCase() + "_" + itemAttribute.name().toLowerCase();
+		return itemRef + "_" + itemAttribute.name().toLowerCase();
 	}
 
 }

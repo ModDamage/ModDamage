@@ -8,8 +8,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
+import com.ModDamage.Backend.EnchantmentsRef;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -111,82 +114,125 @@ public class DynamicEnchantmentInteger extends DynamicInteger
 	
 	public static void register()
 	{
-		String enchantmentRegexString = "";
-		boolean first = true;
-		for (Enchantment enchantment : Enchantment.values())
-		{
-			if (first) first = false;
-			else enchantmentRegexString += "|";
-			enchantmentRegexString += enchantment.getName();
-		}
 		DynamicInteger.register(
-				Pattern.compile("([a-z]+)(?:_("+ EnchantmentItemSlot.regexString
-						+"))?_enchantmentlevel_("+ enchantmentRegexString +")", Pattern.CASE_INSENSITIVE),
+				Pattern.compile("(\\w+)(?:_("+ EnchantmentItemSlot.regexString
+						+"))?_enchant(?:ment)?_?level_(\\w+)", Pattern.CASE_INSENSITIVE),
 				new DynamicIntegerBuilder()
 				{
 					@Override
 					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
 					{
-						DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
-						if (entityRef == null) return null;
+						DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase()); if (entityRef == null) return null;
 						String slot = matcher.group(2);
 						if (slot == null) slot = "ANY";
+						Enchantment enchantment = Enchantment.getByName(matcher.group(3).toUpperCase());
+						if (enchantment == null)
+						{
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown enchantment named \"" + matcher.group(3) + "\"");
+							return null;
+						}
 						return sm.acceptIf(new DynamicEnchantmentInteger(
 								entityRef, 
 								EnchantmentItemSlot.valueOf(slot.toUpperCase()),
-								Enchantment.getByName(matcher.group(3).toUpperCase())));
+								enchantment));
+					}
+				});
+		DynamicInteger.register(
+				Pattern.compile("enchant(?:ment)?_?level_(\\w+)", Pattern.CASE_INSENSITIVE),
+				new DynamicIntegerBuilder()
+				{
+					@Override
+					public DynamicInteger getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
+					{
+						DataRef<EnchantmentsRef> enchantmentsRef = info.get(EnchantmentsRef.class, "-enchantments");
+						if (enchantmentsRef == null) return null;
+						Enchantment enchantment = Enchantment.getByName(matcher.group(1).toUpperCase());
+						if (enchantment == null)
+						{
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown enchantment named \"" + matcher.group(1) + "\"");
+							return null;
+						}
+						return sm.acceptIf(new DynamicEnchantmentInteger(
+								enchantmentsRef,
+								enchantment));
 					}
 				});
 	}
 	
-	protected final DataRef<Entity> entityRef;
-	protected final EnchantmentItemSlot itemSlot;
-	protected final Enchantment enchantment;
+	private final DataRef<Entity> entityRef;
+	private final DataRef<EnchantmentsRef> enchantmentsRef;
+	private final EnchantmentItemSlot itemSlot;
+	private final Enchantment enchantment;
 	
 	DynamicEnchantmentInteger(DataRef<Entity> entityRef, EnchantmentItemSlot itemSlot, Enchantment enchantment)
 	{
 		this.entityRef = entityRef;
 		this.itemSlot = itemSlot;
 		this.enchantment = enchantment;
+		this.enchantmentsRef = null;
 	}
-	
+	DynamicEnchantmentInteger(DataRef<EnchantmentsRef> enchantmentsRef, Enchantment enchantment)
+	{
+		this.entityRef = null;
+		this.itemSlot = null;
+		this.enchantment = enchantment;
+		this.enchantmentsRef = enchantmentsRef;
+	}
 	
 	@Override
 	public int getValue(EventData data)
 	{
-		Entity entity = entityRef.get(data);
-		if(entity instanceof Player)
+		if (entityRef != null)
 		{
-			Player player = (Player)entity;
-			return itemSlot.getEnchantmentLevel(player, enchantment);
+			Entity entity = entityRef.get(data);
+			if(entity instanceof Player)
+			{
+				Player player = (Player)entity;
+				return itemSlot.getEnchantmentLevel(player, enchantment);
+			}
 		}
+		else
+		{
+			Integer level = enchantmentsRef.get(data).map.get(enchantment);
+			return level == null? 0 : level;
+		}
+		
 		return 0;
 	}
 	
 	@Override
 	public void setValue(EventData data, int value)
 	{
-		Entity entity = entityRef.get(data);
-		if(entity instanceof Player)
+		// lock the enchantment value inside the acceptable range
+		value = Math.min(Math.max(enchantment.getStartLevel(), value), enchantment.getMaxLevel());
+		
+		if (entityRef != null)
 		{
-			Player player = (Player)entity;
-			
-			// lock the enchantment value inside the acceptable range
-			value = Math.min(Math.max(enchantment.getStartLevel(), value), enchantment.getMaxLevel());
-			
-			itemSlot.setEnchantmentLevel(player, enchantment, value);
+			Entity entity = entityRef.get(data);
+			if(entity instanceof Player)
+			{
+				Player player = (Player)entity;
+				
+				itemSlot.setEnchantmentLevel(player, enchantment, value);
+			}
+		}
+		else
+		{
+			enchantmentsRef.get(data).map.put(enchantment, value);
 		}
 	}
 	
 	@Override
 	public boolean isSettable()
 	{
-		return itemSlot.settable;
+		return itemSlot != null? itemSlot.settable : true;
 	}
 	
 	@Override
 	public String toString()
 	{
-		return entityRef + "_" + itemSlot.name().toLowerCase() + "_enchantmentlevel_" + enchantment.getName();
+		if (entityRef != null)
+			return entityRef + "_" + itemSlot.name().toLowerCase() + "_enchantmentlevel_" + enchantment.getName();
+		return "enchantmentlevel_" + enchantment.getName();
 	}
 }

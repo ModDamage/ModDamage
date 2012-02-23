@@ -9,6 +9,8 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -19,10 +21,12 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.DamageType;
+import com.ModDamage.Backend.EnchantmentsRef;
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.HealType;
 import com.ModDamage.Backend.IntRef;
@@ -251,7 +255,73 @@ enum ModDamageEventHandler
 				
 				event.setAmount(experience.value);
 			}
-		});
+		}),
+	
+	PrepareEnchant(
+		new SimpleEventInfo(
+				Player.class, EntityType.class, "player",
+				World.class,					"world",
+				ItemStack.class, 				"item",
+				IntRef.class,					"bonus",
+				IntRef.class,					"level_1", "level_2", "level_3"),
+				
+		new Listener() {
+			@EventHandler(priority=EventPriority.HIGHEST)
+			public void onPrepareItemEnchant(PrepareItemEnchantEvent event)
+			{
+				if(!ModDamage.isEnabled) return;
+				
+				Player player = event.getEnchanter();
+				IntRef bonus = new IntRef(event.getEnchantmentBonus());
+				int[] levels = event.getExpLevelCostsOffered();
+				IntRef level_1 = new IntRef(levels[0]);
+				IntRef level_2 = new IntRef(levels[1]);
+				IntRef level_3 = new IntRef(levels[2]);
+				EventData data = PrepareEnchant.eventInfo.makeData(
+						player, EntityType.get(player),
+						player.getWorld(),
+						event.getItem(),
+						bonus,
+						level_1, level_2, level_3
+						);
+				
+				PrepareEnchant.runRoutines(data);
+				
+				levels[0] = level_1.value;
+				levels[1] = level_2.value;
+				levels[2] = level_3.value;
+			}
+		}),
+	
+	Enchant(
+			new SimpleEventInfo(
+					Player.class, EntityType.class, "player",
+					World.class,					"world",
+					ItemStack.class, 				"item",
+					EnchantmentsRef.class,			"-enchantments",
+					IntRef.class,					"level"),
+					
+			new Listener() {
+				@EventHandler(priority=EventPriority.HIGHEST)
+				public void onEnchantItem(EnchantItemEvent event)
+				{
+					if(!ModDamage.isEnabled) return;
+					
+					Player player = event.getEnchanter();
+					IntRef level = new IntRef(event.getExpLevelCost());
+					EventData data = Enchant.eventInfo.makeData(
+							player, EntityType.get(player),
+							player.getWorld(),
+							event.getItem(),
+							new EnchantmentsRef(event.getEnchantsToAdd()),
+							level
+							);
+					
+					Enchant.runRoutines(data);
+					
+					event.setExpLevelCost(level.value);
+				}
+			});
 	
 	private final EventInfo eventInfo;
 	public final Listener listener;

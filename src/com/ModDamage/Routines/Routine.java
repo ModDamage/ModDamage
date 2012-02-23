@@ -33,8 +33,9 @@ abstract public class Routine
 		PlayEffectRoutine.register();
 		Message.registerRoutine();
 		EntityItemAction.registerRoutine();
-		ValueChangeRoutine.register();
 		Command.registerRoutine();
+		ClearEnchantments.register();
+		ValueChangeRoutine.register();
 	}
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)
