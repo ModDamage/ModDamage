@@ -61,7 +61,7 @@ public class ValueChangeRoutine extends Routine
 	
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("(\\+|\\-|set\\.|add\\.|)(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(?:(\\+|add\\.)|(\\-|sub\\.)|(set\\.|=|))(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 		
 		DiceRoll.register();
 		Division.register();
@@ -76,25 +76,25 @@ public class ValueChangeRoutine extends Routine
 		public ValueChangeRoutine getNew(final Matcher matcher, EventInfo info)
 		{
 			ValueChangeType changeType = null;
-			if(matcher.group(1).equalsIgnoreCase("-"))
-				changeType = ValueChangeType.Subtract;
-			else if(matcher.group(1).equalsIgnoreCase("+") || matcher.group(1).equalsIgnoreCase("add."))
+			if(matcher.group(1) != null)
 				changeType = ValueChangeType.Add;
-			else if(matcher.group(1).equalsIgnoreCase("") || matcher.group(1).equalsIgnoreCase("set."))
+			else if(matcher.group(2) != null)
+				changeType = ValueChangeType.Subtract;
+			else if(matcher.group(3) != null)
 				changeType = ValueChangeType.Set;
 			assert(changeType != null);
 			
 			for(Entry<Pattern, ValueBuilder> entry : builders.entrySet())
 			{
-				Matcher anotherMatcher = entry.getKey().matcher(matcher.group(2));
+				Matcher anotherMatcher = entry.getKey().matcher(matcher.group(4));
 				if(anotherMatcher.matches())
 					return entry.getValue().getNew(anotherMatcher, changeType, info);
 			}
-			DynamicInteger integer = DynamicInteger.getNew(matcher.group(2), info, false);
+			DynamicInteger integer = DynamicInteger.getNew(matcher.group(4), info, false);
 			DataRef<IntRef> defaultRef = info.get(IntRef.class, "-default");
 			if(integer != null && defaultRef != null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, changeType.name() + ": " + matcher.group(2));
+				ModDamage.addToLogRecord(OutputPreset.INFO, changeType.name() + ": " + matcher.group(4));
 				return new ValueChangeRoutine(matcher.group(), defaultRef, changeType, integer);
 			}
 			return null;
