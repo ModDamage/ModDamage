@@ -44,9 +44,10 @@ public class EntityWielding extends Conditional
 		@Override
 		public EntityWielding getNew(Matcher matcher, EventInfo info)
 		{
+			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
 			Collection<Material> matchedItems = MaterialAliaser.match(matcher.group(2));
-			if(!matchedItems.isEmpty())
-				return new EntityWielding(info.get(Entity.class, matcher.group(1).toLowerCase()), matchedItems);
+			if(entityRef != null && !matchedItems.isEmpty())
+				return new EntityWielding(entityRef, matchedItems);
 			return null;
 		}
 	}

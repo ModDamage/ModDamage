@@ -50,7 +50,7 @@ public class EntityWearing extends Conditional
 		{
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
 			Collection<ArmorSet> armorSet = ArmorAliaser.match(matcher.group(3));
-			if(!armorSet.isEmpty() && entityRef != null)
+			if(entityRef != null && !armorSet.isEmpty())
 				return new EntityWearing(entityRef, matcher.group(2) != null, armorSet);
 			return null;
 		}
