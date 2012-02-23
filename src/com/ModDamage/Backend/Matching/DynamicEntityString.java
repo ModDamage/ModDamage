@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 
 import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.ArmorSet;
 import com.ModDamage.Backend.EntityType;
@@ -157,10 +156,9 @@ public class DynamicEntityString extends DynamicString
 		Matcher matcher = entityStringPattern.matcher(string);
 		if (matcher.matches())
 		{
-			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase(), false);
 			if (entityRef != null)
 				return new DynamicEntityString(entityRef, EntityStringPropertyMatch.valueOf(matcher.group(2).toUpperCase()));
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown entity reference: "+matcher.group(1));
 			return null;
 		}
 		
