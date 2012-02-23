@@ -24,7 +24,7 @@ public class MessageAliaser extends CollectionAliaser<String>
 		Collection<InterpolatedString> istrings = new ArrayList<InterpolatedString>();
 		
 		for (String str : strings)
-			istrings.add(new InterpolatedString(str, info));
+			istrings.add(new InterpolatedString(str, info, true));
 		
 		aliaser.aliasedMessages.put(infoPair, istrings);
 		

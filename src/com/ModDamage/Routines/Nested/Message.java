@@ -178,7 +178,7 @@ public class Message extends NestedRoutine
 					ModDamage.addToLogRecord(OutputPreset.WARNING, "Unknown message alias: "+string);
 				}
 				
-				messages.add(new InterpolatedString(string, info));
+				messages.add(new InterpolatedString(string, info, true));
 			}
 			
 			

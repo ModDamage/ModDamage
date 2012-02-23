@@ -18,14 +18,18 @@ public class InterpolatedString
 	private final List<InterpolatedPart> parts = new ArrayList<InterpolatedPart>();
 	private int minSize;
 	
-	public InterpolatedString(String message, EventInfo info)
+	public InterpolatedString(String message, EventInfo info, boolean colorize)
 	{
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		Matcher interpolationMatcher = interpolationPattern.matcher(message);
 		int start = 0;
 		while(interpolationMatcher.find(start))
 		{
-			addPart(colorReplace(message.substring(start, interpolationMatcher.start())));
+			String part = message.substring(start, interpolationMatcher.start());
+			if (colorize)
+				part = colorReplace(part);
+			addPart(part);
+			
 			start = interpolationMatcher.end();
 			
 			DynamicString match = DynamicString.getNew(interpolationMatcher.group(1), info);
@@ -40,7 +44,10 @@ public class InterpolatedString
 				addPart(message.substring(interpolationMatcher.start(), interpolationMatcher.end()));
 			}
 		}
-		addPart(message.substring(start));
+		String part = message.substring(start);
+		if (colorize)
+			part = colorReplace(part);
+		addPart(part);
 	}
 	
 	private String colorReplace(String str)

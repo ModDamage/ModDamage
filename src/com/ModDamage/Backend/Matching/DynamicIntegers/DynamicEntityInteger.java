@@ -68,7 +68,7 @@ public class DynamicEntityInteger extends DynamicInteger
 			{
 				return entity.getEntityId();
 			}
-		}
+		},
 		LIGHT
 		{
 			@Override public int getValue(Entity entity)

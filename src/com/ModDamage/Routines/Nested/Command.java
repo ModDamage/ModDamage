@@ -157,7 +157,7 @@ public class Command extends NestedRoutine
 					ModDamage.addToLogRecord(OutputPreset.WARNING, "Unknown command alias: "+string);
 				}
 				
-				commands.add(new InterpolatedString(string, info));
+				commands.add(new InterpolatedString(string, info, false));
 			}
 			
 			

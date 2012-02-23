@@ -34,6 +34,13 @@ public class ModDamageTagger
 	private final Map<String, Map<Entity, Integer>> entityTags = new HashMap<String, Map<Entity, Integer>>();
 	private final Map<String, Map<OfflinePlayer, Integer>> playerTags = new HashMap<String, Map<OfflinePlayer, Integer>>();
 	
+	/**
+	 * World tags are stored differently because there are usually very few worlds
+	 * and potentially many tags.
+	 */
+	private final Map<World, Map<String, Integer>> worldTags = new HashMap<World, Map<String,Integer>>();
+	
+	
 	private long saveInterval;
 	//private long cleanInterval;
 	private Integer saveTaskID;
@@ -54,70 +61,70 @@ public class ModDamageTagger
 				if(!file.exists())
 				{
 					ModDamage.addToLogRecord(OutputPreset.INFO, "No tags file found at " + file.getAbsolutePath() + ", generating a new one...");
-					if(!file.getParentFile().mkdirs() && !file.createNewFile())
+					if(!file.getParentFile().mkdirs() || !file.createNewFile())
+					{
 						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Couldn't make new tags file! Tags will not have persistence between reloads.");
+						return;
+					}
 				}
 				reader = new FileInputStream(file);
 				Object tagFileObject = yaml.load(reader);
 				reader.close();
-				if(tagFileObject != null)
+				if(tagFileObject == null || !(tagFileObject instanceof Map)) return;
+			
+				Map<UUID, Entity> entities = new HashMap<UUID, Entity>();
+				for(World world : Bukkit.getWorlds())
 				{
-					if(tagFileObject instanceof Map)
+					for (Entity entity : world.getEntities())
+						if (!(entity instanceof OfflinePlayer))
+							entities.put(entity.getUniqueId(), entity);
+				}
+				
+				
+				@SuppressWarnings("unchecked")
+				Map<String, Object> tagMap = (Map<String, Object>)tagFileObject;
+				for(Entry<String, Object> entry : tagMap.entrySet())
+				{
+					if(!(entry.getValue() instanceof Map))
 					{
-						Map<UUID, Entity> entities = new HashMap<UUID, Entity>();
-						for(World world : Bukkit.getWorlds())
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read nested content under tag \"" + entry.getKey() + "\".");
+						continue;
+					}
+					
+					Map<Entity, Integer> entityMap = new WeakHashMap<Entity, Integer>();
+					Map<OfflinePlayer, Integer> playerMap = new HashMap<OfflinePlayer, Integer>();
+					
+					@SuppressWarnings("unchecked")
+					Map<String, Object> rawUuidMap = (Map<String, Object>)entry.getValue();
+					for(Entry<String, Object> tagEntry : rawUuidMap.entrySet())
+					{
+						Integer integer = tagEntry.getValue() != null && tagEntry.getValue() instanceof Integer? 
+								(Integer)tagEntry.getValue() : null;
+						if (integer == null) 
 						{
-							for (Entity entity : world.getEntities())
-								if (!(entity instanceof OfflinePlayer))
-									entities.put(entity.getUniqueId(), entity);
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read value for entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
+							continue;
 						}
 						
-						
-						@SuppressWarnings("unchecked")
-						Map<String, Object> tagMap = (Map<String, Object>)tagFileObject;
-						for(Entry<String, Object> entry : tagMap.entrySet())
+						if (tagEntry.getKey().startsWith("player:"))
+							playerMap.put(Bukkit.getOfflinePlayer(tagEntry.getKey().substring(7)), integer);
+						else
 						{
-							if(entry.getValue() instanceof Map)
+							try
 							{
-								Map<Entity, Integer> entityMap = new WeakHashMap<Entity, Integer>();
-								Map<OfflinePlayer, Integer> playerMap = new HashMap<OfflinePlayer, Integer>();
-								
-								@SuppressWarnings("unchecked")
-								Map<String, Object> rawUuidMap = (Map<String, Object>)entry.getValue();
-								for(Entry<String, Object> tagEntry : rawUuidMap.entrySet())
-								{
-									Integer integer = tagEntry.getValue() != null && tagEntry.getValue() instanceof Integer? 
-											(Integer)tagEntry.getValue() : null;
-									if (integer == null) 
-									{
-										ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read value for entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
-										continue;
-									}
-									
-									if (tagEntry.getKey().startsWith("player:"))
-										playerMap.put(Bukkit.getOfflinePlayer(tagEntry.getKey().substring(7)), integer);
-									else
-									{
-										try
-										{
-											Entity entity = entities.get(UUID.fromString(tagEntry.getKey()));
-											if (entity != null) entityMap.put(entity, integer);
-										}
-										catch (IllegalArgumentException e)
-										{
-											ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
-										}
-									}
-								}
-								if(!entityMap.isEmpty())
-									entityTags.put(entry.getKey(), entityMap);
-								if(!playerMap.isEmpty())
-									playerTags.put(entry.getKey(), playerMap);
+								Entity entity = entities.get(UUID.fromString(tagEntry.getKey()));
+								if (entity != null) entityMap.put(entity, integer);
 							}
-							else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read nested content under tag \"" + entry.getKey() + "\".");
+							catch (IllegalArgumentException e)
+							{
+								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
+							}
 						}
 					}
-					else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Incorrectly formatted tags.yml. Starting with an empty tag list.");
+					if(!entityMap.isEmpty())
+						entityTags.put(entry.getKey(), entityMap);
+					if(!playerMap.isEmpty())
+						playerTags.put(entry.getKey(), playerMap);
 				}
 			}
 			catch(Exception e){ ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error loading tags.yml: "+e.toString()); }
@@ -134,7 +141,7 @@ public class ModDamageTagger
 	
 	public void reload(){ reload(true); }
 	
-	private synchronized void reload(boolean initialized)
+	private void reload(boolean initialized)
 	{
 		//cleanUp();
 		save();
@@ -154,14 +161,6 @@ public class ModDamageTagger
 				save();
 			}
 		}, saveInterval, saveInterval);
-		
-		/// Cleanups are no longer necessary because of the use of WeakHashMaps
-		/*cleanTaskID = Bukkit.getScheduler().scheduleAsyncRepeatingTask(modDamage, new Runnable(){
-			@Override public void run()
-			{
-				cleanUp();
-			}
-		}, cleanInterval, cleanInterval);*/
 	}
 	
 	private boolean dirty = false;
@@ -169,39 +168,60 @@ public class ModDamageTagger
 	/**
 	 * Saves all tags to a file.
 	 */
-	public synchronized void save()
+	public void save()
 	{
 		if(file != null && dirty)
 		{
-			Map<String, Map<String, Integer>> tempMap = new HashMap<String, Map<String, Integer>>();
 			
 			Set<Entity> entities = new HashSet<Entity>();
 			for (World world : Bukkit.getWorlds())
 				entities.addAll(world.getEntities());
+
+			Map<String, Map<String, Integer>> entityMap = new HashMap<String, Map<String, Integer>>();
 			for(Entry<String, Map<Entity, Integer>> tagEntry : entityTags.entrySet())
 			{
 				HashMap<String, Integer> savedEntities = new HashMap<String, Integer>();
 				
-				tagEntry.getValue().keySet().retainAll(entities); // simple cleanup operation
+				tagEntry.getValue().keySet().retainAll(entities); // simple cleanup operation, it might not even be necessary
 				
 				for(Entry<Entity, Integer> entry : tagEntry.getValue().entrySet())
 					savedEntities.put(entry.getKey().getUniqueId().toString(), entry.getValue());
 				
 				if (!savedEntities.isEmpty())
-					tempMap.put(tagEntry.getKey(), savedEntities);
+					entityMap.put(tagEntry.getKey(), savedEntities);
 			}
-			
+
+			Map<String, Map<String, Integer>> playerMap = new HashMap<String, Map<String, Integer>>();
 			for(Entry<String, Map<OfflinePlayer, Integer>> tagEntry : playerTags.entrySet())
 			{
 				HashMap<String, Integer> savedPlayers = new HashMap<String, Integer>();
 				for(Entry<OfflinePlayer, Integer> entry : tagEntry.getValue().entrySet())
-					savedPlayers.put("player:"+entry.getKey().getName(), entry.getValue());
-				tempMap.put(tagEntry.getKey(), savedPlayers);
+					savedPlayers.put(entry.getKey().getName(), entry.getValue());
+				playerMap.put(tagEntry.getKey(), savedPlayers);
 			}
+			
+			Map<String, Map<String, Integer>> worldMap = new HashMap<String, Map<String, Integer>>();
+			
+			for (Entry<World, Map<String, Integer>> worldEntry : worldTags.entrySet())
+			{
+				HashMap<String, Integer> savedTags = new HashMap<String, Integer>();
+				for(Entry<String, Integer> entry : worldEntry.getValue().entrySet())
+					savedTags.put(entry.getKey(), entry.getValue());
+				worldMap.put(worldEntry.getKey().getName(), savedTags);
+			}
+			
+			
+			// This type is getting rediculous
+			Map<String, Map<String, Map<String, Integer>>> saveMap = new HashMap<String, Map<String, Map<String, Integer>>>();
+			
+			saveMap.put("entity", entityMap);
+			saveMap.put("player", playerMap);
+			saveMap.put("world", worldMap);
+			
 			try
 			{
 				writer = new FileWriter(file);
-				writer.write(yaml.dump(tempMap));
+				writer.write(yaml.dump(saveMap));
 				writer.close();
 			}
 			catch (IOException e){ PluginConfiguration.log.warning("Error writing to " + file.getAbsolutePath() + "!"); }
@@ -212,7 +232,7 @@ public class ModDamageTagger
 	/**
 	 * Add the entity's UUID to a tag. A new tag is made if it doesn't already exist.
 	 */
-	public synchronized void addTag(Entity entity, String tag, int tagValue)
+	public void addTag(Entity entity, String tag, int tagValue)
 	{
 		if (entity instanceof OfflinePlayer) 
 		{
@@ -220,23 +240,25 @@ public class ModDamageTagger
 			return;
 		}
 		dirty = true; // only need to save when dirty
-		Map<Entity, Integer> emap;
 		if(!entityTags.containsKey(tag))
-		{
-			emap = new WeakHashMap<Entity, Integer>();
-			entityTags.put(tag, emap);
-		}
-		else
-			emap = entityTags.get(tag);
-		emap.put(entity, tagValue);
+			entityTags.put(tag, new WeakHashMap<Entity, Integer>());
+		entityTags.get(tag).put(entity, tagValue);
 	}
 	
-	public synchronized void addTag(OfflinePlayer player, String tag, int tagValue)
+	public void addTag(OfflinePlayer player, String tag, int tagValue)
 	{
 		dirty = true; // only need to save when dirty
 		if(!playerTags.containsKey(tag))
 			playerTags.put(tag, new HashMap<OfflinePlayer, Integer>());
 		playerTags.get(tag).put(player, tagValue);
+	}
+	
+	public void addTag(World world, String tag, int tagValue)
+	{
+		dirty = true; // only need to save when dirty
+		if(!worldTags.containsKey(world))
+			worldTags.put(world, new HashMap<String, Integer>());
+		worldTags.get(world).put(tag, tagValue);
 	}
 	
 	public class ModDamageTagRemoveTask implements Runnable
@@ -262,22 +284,27 @@ public class ModDamageTagger
 	 * Checks if entity has been tagged with the specified tag.
 	 * @return Boolean indicating whether or not the entity was tagged.
 	 */
-	public synchronized boolean isTagged(Entity entity, String tag)
+	public boolean isTagged(Entity entity, String tag)
 	{
 		if (entity instanceof OfflinePlayer) return isTagged((OfflinePlayer)entity, tag);
 		return entityTags.containsKey(tag) && entityTags.get(tag).containsKey(entity);
 	}
 	
-	public synchronized boolean isTagged(OfflinePlayer player, String tag)
+	public boolean isTagged(OfflinePlayer player, String tag)
 	{
 		return playerTags.containsKey(tag) && playerTags.get(tag).containsKey(player);
+	}
+	
+	public boolean isTagged(World world, String tag)
+	{
+		return worldTags.containsKey(world) && worldTags.get(world).containsKey(tag);
 	}
 	
 	/**
 	 * @param entity - The entity whose UUID will be checked for tags.
 	 * @return List of found tags.
 	 */
-	public synchronized List<String> getTags(Entity entity)
+	public List<String> getTags(Entity entity)
 	{
 		if (entity instanceof OfflinePlayer) return getTags((OfflinePlayer)entity);
 		List<String> tagsList = new ArrayList<String>();
@@ -287,7 +314,7 @@ public class ModDamageTagger
 		return tagsList;
 	}
 	
-	private synchronized List<String> getTags(OfflinePlayer player)
+	private List<String> getTags(OfflinePlayer player)
 	{
 		List<String> tagsList = new ArrayList<String>();
 		for(Entry<String, Map<OfflinePlayer, Integer>> entry : playerTags.entrySet())
@@ -296,7 +323,15 @@ public class ModDamageTagger
 		return tagsList;
 	}
 	
-	public synchronized Integer getTagValue(Entity entity, String tag)
+	public List<String> getTags(World world)
+	{
+		Map<String, Integer> map = worldTags.get(world);
+		if (map != null)
+			return new ArrayList<String>(map.keySet());
+		return null;
+	}
+	
+	public Integer getTagValue(Entity entity, String tag)
 	{
 		if (entity instanceof OfflinePlayer) return getTagValue((OfflinePlayer)entity, tag);
 		if(isTagged(entity, tag))
@@ -304,17 +339,24 @@ public class ModDamageTagger
 		return null;
 	}
 	
-	public synchronized Integer getTagValue(OfflinePlayer player, String tag)
+	public Integer getTagValue(OfflinePlayer player, String tag)
 	{
 		if(isTagged(player, tag))
 			return playerTags.get(tag).get(player);
 		return null;
 	}
 	
+	public Integer getTagValue(World world, String tag)
+	{
+		if(isTagged(world, tag))
+			return worldTags.get(world).get(tag);
+		return null;
+	}
+	
 	/**
 	 * Removes the entity's UUID from a tag, if {@link void generateTag(String tag) [generateTag]} was called correctly.	 * 
 	 */
-	public synchronized void removeTag(Entity entity, String tag)
+	public void removeTag(Entity entity, String tag)
 	{
 		if (entity instanceof OfflinePlayer) 
 		{
@@ -325,10 +367,16 @@ public class ModDamageTagger
 			entityTags.get(tag).remove(entity.getEntityId());
 	}
 	
-	public synchronized void removeTag(OfflinePlayer player, String tag)
+	public void removeTag(OfflinePlayer player, String tag)
 	{
 		if(playerTags.containsKey(tag))
 			playerTags.get(tag).remove(player);
+	}
+	
+	public void removeTag(World world, String tag)
+	{
+		if(worldTags.containsKey(world))
+			worldTags.get(world).remove(tag);
 	}
 	
 	/**
@@ -353,12 +401,12 @@ public class ModDamageTagger
 	/**
 	 * Only the ModDamage main should use this method.
 	 */
-	public synchronized void clear(){ entityTags.clear(); playerTags.clear(); }
+	public void clear(){ entityTags.clear(); playerTags.clear(); worldTags.clear(); }
 	
 	/**
 	 * This is used in the ModDamage main to finish any file IO.
 	 */
-	public synchronized void close()
+	public void close()
 	{
 		//cleanUp();
 		save();

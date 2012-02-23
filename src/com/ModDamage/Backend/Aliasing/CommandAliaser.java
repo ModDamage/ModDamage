@@ -24,7 +24,7 @@ public class CommandAliaser extends CollectionAliaser<String>
 		Collection<InterpolatedString> istrings = new ArrayList<InterpolatedString>();
 		
 		for (String str : strings)
-			istrings.add(new InterpolatedString(str, info));
+			istrings.add(new InterpolatedString(str, info, false));
 		
 		aliaser.aliasedCommands.put(infoPair, istrings);
 		
