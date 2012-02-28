@@ -33,7 +33,7 @@ public class EntityExplode extends NestedRoutine
 	{
 		Entity entity = entityRef.get(data);
 		
-		EventData myData = myInfo.makeChainedData(data, 0);
+		EventData myData = myInfo.makeChainedData(data, new IntRef(0));
 		entity.getWorld().createExplosion(entity.getLocation(), strength.getValue(myData)/10.0f);
 	}
 	

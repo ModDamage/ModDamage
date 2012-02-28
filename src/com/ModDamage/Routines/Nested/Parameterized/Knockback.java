@@ -64,14 +64,15 @@ public class Knockback extends ParameterizedRoutine
 		
 		Vector vector = firstEntity.getLocation().toVector().subtract(secondEntity.getLocation().toVector());
 		
-		EventData myData = myInfo.makeChainedData(data, 0);
+		IntRef strengthRef = new IntRef(0);
+		EventData myData = myInfo.makeChainedData(data, strengthRef);
 		
 		if(usingParameterized)
 		{
 			double length = Math.sqrt(Math.pow(vector.getX(), 2) + Math.pow(vector.getZ(), 2));
 			
 			double horizValue = ((float)horizInteger.getValue(myData)) / 10.0;
-			myData.objects[0] = 0;
+			strengthRef.value = 0;
 			double verticalValue = ((float)verticalInteger.getValue(myData)) / 10.0;
 			
 			firstEntity.setVelocity(firstEntity.getVelocity().add(
