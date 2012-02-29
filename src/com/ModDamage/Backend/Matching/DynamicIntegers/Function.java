@@ -37,6 +37,12 @@ public class Function extends DynamicInteger
 			{
 				return Math.abs(params[0]);
 			}
+		},
+		SQRT(1) {
+			@Override public int evaluate(int[] params)
+			{
+				return (int)Math.sqrt(params[0]);
+			}
 		};
 		
 		int minParams, maxParams;
