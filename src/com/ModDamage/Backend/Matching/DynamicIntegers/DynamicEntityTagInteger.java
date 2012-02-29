@@ -31,7 +31,7 @@ public class DynamicEntityTagInteger extends DynamicInteger
 						
 						return sm.acceptIf(new DynamicEntityTagInteger(
 								entityRef, entityElementRef,
-								matcher.group(2)));
+								matcher.group(2).toLowerCase()));
 					}
 				});
 	}
@@ -51,11 +51,10 @@ public class DynamicEntityTagInteger extends DynamicInteger
 	@Override
 	public int getValue(EventData data)
 	{
-		if(entityElementRef.get(data).matches(EntityType.LIVING))
-		{
-			Entity entity = entityRef.get(data);
-			return ModDamage.getTagger().isTagged(entity, tag)? ModDamage.getTagger().getTagValue(entity, tag) : 0;
-		}
+		Entity entity = entityRef.get(data);
+		Integer value = ModDamage.getTagger().getTagValue(entity, tag);
+		if (value != null)
+			return value;
 		return 0;
 	}
 	
