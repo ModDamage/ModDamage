@@ -12,6 +12,7 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnchantmentsRef;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -180,7 +181,7 @@ public class DynamicEnchantmentInteger extends DynamicInteger
 	}
 	
 	@Override
-	public int getValue(EventData data)
+	protected int myGetValue(EventData data) throws BailException
 	{
 		if (entityRef != null)
 		{

@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
@@ -93,7 +94,10 @@ public class Comparison extends Conditional
 	}
 
 	@Override
-	public boolean evaluate(EventData data) { return comparisonType.compare(operand1.getValue(data), operand2.getValue(data)); }
+	protected boolean myEvaluate(EventData data) throws BailException
+	{
+		return comparisonType.compare(operand1.getValue(data), operand2.getValue(data));
+	}
 
 	
 	public static void register()

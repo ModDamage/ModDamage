@@ -7,6 +7,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ExternalPluginManager;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -25,7 +26,7 @@ public class PlayerPermissionEvaluation extends Conditional
 		this.permission = permission;
 	}
 	@Override
-	public boolean evaluate(EventData data) 
+	protected boolean myEvaluate(EventData data) throws BailException
  	{
 		return (entityElementRef.get(data).matches(EntityType.PLAYER))?ExternalPluginManager.getPermissionsManager().hasPermission(((Player)entityRef.get(data)), permission):false;//XXX Include hasPermission in EntityReference?
 	}

@@ -9,6 +9,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.MaterialAliaser;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -28,7 +29,7 @@ public class EntityBlockStatus extends Conditional
 		this.materials = materials;
 	}
 	@Override
-	public boolean evaluate(EventData data)
+	protected boolean myEvaluate(EventData data) throws BailException
 	{
 		if(entityRef.get(data) != null)
 			return statusType.isTrue(materials, entityRef.get(data));

@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 
@@ -67,7 +68,7 @@ public class InterpolatedString
 		minSize += 4; // just a guess, many will be small numbers
 	}
 	
-	public String toString(EventData data)
+	public String toString(EventData data) throws BailException
 	{
 		StringBuilder builder = new StringBuilder(minSize);
 		
@@ -89,7 +90,7 @@ public class InterpolatedString
 	}
 	
 	interface InterpolatedPart {
-		public String toString(EventData data);
+		public String toString(EventData data) throws BailException;
 		public String toString();
 	}
 	
@@ -103,7 +104,7 @@ public class InterpolatedString
 	private static class DynamicStringPart implements InterpolatedPart {
 		private DynamicString dstring;
 		public DynamicStringPart(DynamicString str) { dstring = str; }
-		public String toString(EventData data) { return dstring.getString(data); }
+		public String toString(EventData data) throws BailException { return dstring.getString(data); }
 		public String toString() { return "%{" + dstring.toString() + "}"; }
 	}
 }

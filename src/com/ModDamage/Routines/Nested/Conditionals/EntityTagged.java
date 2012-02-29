@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
@@ -22,7 +23,7 @@ public class EntityTagged extends Conditional
 	}
 
 	@Override
-	public boolean evaluate(EventData data)
+	protected boolean myEvaluate(EventData data) throws BailException
 	{
 		return entityRef.get(data) != null && ModDamage.getTagger().isTagged(entityRef.get(data), tag);
 	}

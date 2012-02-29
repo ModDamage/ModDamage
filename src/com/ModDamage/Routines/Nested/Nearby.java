@@ -7,6 +7,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.Backend.EntityType;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -36,7 +37,7 @@ public class Nearby extends NestedRoutine
 			EntityType.class, "nearby");
 	
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		Class<?>[] entClasses = filterElement.myClasses;
 		LivingEntity entity = (LivingEntity) entityRef.get(data);

@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Entity;
 
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
@@ -29,7 +30,7 @@ public class EntityExplode extends NestedRoutine
 	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "strength", "-default");
 	
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		Entity entity = entityRef.get(data);
 		

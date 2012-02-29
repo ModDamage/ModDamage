@@ -7,8 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Utils;
 import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
@@ -58,14 +60,25 @@ public class SwitchRoutine extends NestedRoutine
 	}
 	
 	@Override
-	public void run(EventData data) 
+	public void run(EventData data) throws BailException 
 	{
 		for(int i = 0; i < switchCases.size(); i++)
-			if(switchCases.get(i).evaluate(data))
+		{
+			Conditional condition = switchCases.get(i);
+			if(condition.evaluate(data))
 			{
-				switchRoutines.get(i).run(data);
+				try
+				{
+					switchRoutines.get(i).run(data);
+				}
+				catch (BailException e)
+				{
+					throw new BailException("In case "+ condition.getClass().getSimpleName()
+							+" "+ Utils.safeToString(condition), e);
+				}
 				if (!all) return;
 			}
+		}
 	}
 	
 	public static void register()

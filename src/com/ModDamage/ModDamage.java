@@ -22,6 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 
 /**
  * "ModDamage" for Bukkit
@@ -192,7 +193,8 @@ public class ModDamage extends JavaPlugin
 			{
 				if(matcher.group(1).equalsIgnoreCase("clear"))
 					tagger.clear();
-				else tagger.save();
+				else
+					tagger.save();
 				sendMessage(player, "Tags " + matcher.group(1).toLowerCase() + "ed.", ChatColor.GREEN);
 			}
 		};
@@ -315,5 +317,14 @@ public class ModDamage extends JavaPlugin
 		if(!extensions.contains(extension))
 			extensions.add(extension);
 		configuration.addToLogRecord(OutputPreset.CONSTANT, configuration.logPrepend() + "Found extension: " + description.getName() + " version " + description.getVersion() + ", by " + description.getAuthors().toString());
+	}
+
+	public static void reportBailException(BailException bailException)
+	{
+		if (!bailException.suppress)
+		{
+			System.err.println("A serious error has occurred in ModDamage:\n"+bailException.toString());
+			System.err.println("Please report this error.");
+		}
 	}
 }

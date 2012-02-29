@@ -9,6 +9,7 @@ import org.bukkit.entity.Entity;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Utils;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -54,7 +55,7 @@ public class PlayEffectRoutine extends Routine
 	}
 
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		Entity entity = entityRef.get(data);
 		if (entity == null) return;

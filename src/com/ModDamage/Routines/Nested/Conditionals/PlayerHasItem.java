@@ -8,6 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.Backend.Aliasing.ItemAliaser;
@@ -31,7 +32,7 @@ public class PlayerHasItem extends Conditional
 	}
 
 	@Override
-	public boolean evaluate(EventData data)
+	protected boolean myEvaluate(EventData data) throws BailException
 	{
 		if(entityElementRef.get(data).matches(EntityType.PLAYER))
 		{

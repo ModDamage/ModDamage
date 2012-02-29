@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
@@ -38,7 +39,7 @@ public class McMMOChangeSkill extends NestedRoutine
 	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "skill_level", "-default");
 	
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		Entity entity = entityRef.get(data);
 		if(entity instanceof Player)

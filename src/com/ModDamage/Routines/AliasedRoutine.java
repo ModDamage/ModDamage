@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
@@ -30,7 +31,7 @@ public class AliasedRoutine extends Routine
 	}
 
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		if (routines != null)
 			routines.run(data);

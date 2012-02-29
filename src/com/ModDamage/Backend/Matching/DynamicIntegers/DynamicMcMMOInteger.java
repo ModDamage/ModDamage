@@ -10,6 +10,7 @@ import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -62,7 +63,7 @@ public class DynamicMcMMOInteger extends DynamicInteger
 	}
 	
 	@Override
-	public int getValue(EventData data)
+	protected int myGetValue(EventData data) throws BailException
 	{
 		if(entityElementRef.get(data).matches(EntityType.PLAYER))
 		{

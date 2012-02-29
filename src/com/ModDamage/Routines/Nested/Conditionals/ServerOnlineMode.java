@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 
@@ -16,7 +17,10 @@ public class ServerOnlineMode extends Conditional
 	}
 	
 	@Override
-	public boolean evaluate(EventData data){ return Bukkit.getOnlineMode(); }
+	protected boolean myEvaluate(EventData data) throws BailException
+	{
+		return Bukkit.getOnlineMode();
+	}
 	
 	public static void register()
 	{

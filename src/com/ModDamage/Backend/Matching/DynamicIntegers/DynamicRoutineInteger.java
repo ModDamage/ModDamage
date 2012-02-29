@@ -1,6 +1,7 @@
 package com.ModDamage.Backend.Matching.DynamicIntegers;
 
 import com.ModDamage.Backend.IntRef;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -19,7 +20,7 @@ public class DynamicRoutineInteger extends DynamicInteger
 	}
 	
 	@Override
-	public int getValue(EventData data)
+	protected int myGetValue(EventData data) throws BailException
 	{
 		routines.run(data);
 		

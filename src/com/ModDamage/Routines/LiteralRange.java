@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -21,7 +22,7 @@ public class LiteralRange extends RandomRoutine
 	}
 	
 	@Override
-	public int getValue(EventData data)
+	public int getValue(EventData data) throws BailException
 	{
 		int lower = number.getValue(data);
 		return lower + Math.abs(random.nextInt(upper.getValue(data) - lower + 1));

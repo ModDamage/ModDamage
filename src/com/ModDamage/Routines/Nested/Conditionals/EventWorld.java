@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.World;
 
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.WorldAliaser;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -25,7 +26,7 @@ public class EventWorld extends Conditional
 	}
 
 	@Override
-	public boolean evaluate(EventData data)
+	protected boolean myEvaluate(EventData data) throws BailException
 	{
 		return worlds.contains(worldRef.get(data).getName());
 	}

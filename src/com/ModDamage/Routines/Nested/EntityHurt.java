@@ -10,6 +10,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
@@ -39,7 +40,7 @@ public class EntityHurt extends NestedRoutine
 	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "hurt_amount", "-default");
 	
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		if(entityElementRef.get(data).matches(EntityType.LIVING))
 		{
@@ -48,12 +49,13 @@ public class EntityHurt extends NestedRoutine
 			if(from != null && target.getHealth() > 0 && !target.isDead())
 			{
 				final EventData myData = myInfo.makeChainedData(data, new IntRef(0));
+				final int damage = hurt_amount.getValue(myData);
 				Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, new Runnable()
 					{
 						@Override
 						public void run()
 						{
-							EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(from, target, DamageCause.ENTITY_ATTACK, hurt_amount.getValue(myData));
+							EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(from, target, DamageCause.ENTITY_ATTACK, damage);
 							Bukkit.getPluginManager().callEvent(event);
 							if (!event.isCancelled())
 								target.damage(event.getDamage());

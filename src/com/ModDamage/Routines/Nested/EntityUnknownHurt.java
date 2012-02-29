@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
@@ -33,7 +34,7 @@ public class EntityUnknownHurt extends NestedRoutine
 	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "hurt_amount", "-default");
 	
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		EventData myData = myInfo.makeChainedData(data, new IntRef(0));
 		if(entityElementRef.get(data).matches(EntityType.LIVING))

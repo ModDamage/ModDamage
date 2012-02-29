@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.IntRef;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.EventData;
@@ -27,7 +28,7 @@ public final class ChangeProperty extends NestedRoutine
 	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "value", "-default");
 
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		IntRef value = new IntRef(targetPropertyMatch.getValue(data));
 		EventData myData = myInfo.makeChainedData(data, value);

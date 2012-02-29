@@ -9,6 +9,7 @@ import org.bukkit.entity.Slime;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -195,7 +196,7 @@ public class DynamicEntityInteger extends DynamicInteger
 	}
 	
 	@Override
-	public int getValue(EventData data)
+	protected int myGetValue(EventData data) throws BailException
 	{
 		Entity entity = entityRef.get(data);
 		EntityType element = entityElementRef.get(data);

@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 
@@ -19,7 +20,7 @@ public class InvertConditional extends Conditional
 	}
 	
 	@Override
-	public boolean evaluate(EventData data)
+	protected boolean myEvaluate(EventData data) throws BailException
 	{
 		return !conditional.evaluate(data);
 	}

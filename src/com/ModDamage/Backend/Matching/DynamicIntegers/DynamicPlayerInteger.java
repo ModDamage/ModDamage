@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -242,7 +243,7 @@ public class DynamicPlayerInteger extends DynamicInteger
 	}
 	
 	@Override
-	public int getValue(EventData data)
+	protected int myGetValue(EventData data) throws BailException
 	{
 		if(entityElementRef.get(data).matches(EntityType.PLAYER))
 			return propertyMatch.getValue((Player)entityRef.get(data));

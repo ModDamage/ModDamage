@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.Utils;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -103,7 +104,7 @@ public class EntityStatus extends Conditional
 	}
 
 	@Override
-	public boolean evaluate(EventData data)
+	protected boolean myEvaluate(EventData data) throws BailException
 	{
 		EntityType element = entityElementRef.get(data);
 		Entity entity = entityRef.get(data);

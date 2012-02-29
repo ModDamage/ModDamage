@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.Backend.Aliasing.ItemAliaser;
@@ -83,7 +84,8 @@ public class EntityItemAction extends NestedRoutine
 	}
 	
 	@Override
-	public void run(EventData data){
+	public void run(EventData data) throws BailException
+	{
 		if(!action.requiresPlayer || entityElementRef.get(data).matches(EntityType.PLAYER))
 		{
 			for(ModDamageItemStack item : items)

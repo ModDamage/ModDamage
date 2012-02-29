@@ -7,6 +7,7 @@ import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -49,7 +50,7 @@ public class DynamicEntityTagInteger extends DynamicInteger
 	
 	
 	@Override
-	public int getValue(EventData data)
+	protected int myGetValue(EventData data) throws BailException
 	{
 		Entity entity = entityRef.get(data);
 		Integer value = ModDamage.getTagger().getTagValue(entity, tag);

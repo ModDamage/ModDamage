@@ -25,6 +25,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.DamageType;
 import com.ModDamage.Backend.EnchantmentsRef;
 import com.ModDamage.Backend.EntityType;
@@ -337,8 +338,15 @@ enum ModDamageEventHandler
 	
 	public void runRoutines(EventData data)
 	{
-		if (routines != null)
-			routines.run(data);
+		try
+		{
+			if (routines != null)
+				routines.run(data);
+		}
+		catch (BailException e)
+		{
+			ModDamage.reportBailException(e);
+		}
 	}
 	protected Routines routines = null;
 	protected LoadState specificLoadState = LoadState.NOT_LOADED;

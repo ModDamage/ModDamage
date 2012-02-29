@@ -43,7 +43,7 @@ public class DynamicServerInteger extends DynamicInteger
 	}
 	
 	@Override
-	public int getValue(EventData data){ return propertyMatch.getValue(); }
+	protected int myGetValue(EventData data){ return propertyMatch.getValue(); }
 	
 	@Override
 	public String toString(){ return "server_" + propertyMatch.name().toLowerCase(); }

@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
@@ -21,7 +22,7 @@ public class EventEnvironment extends Conditional
 		this.worldRef = worldRef;
 	}
 	@Override
-	public boolean evaluate(EventData data)
+	protected boolean myEvaluate(EventData data) throws BailException
 	{
 		return worldRef.get(data).getEnvironment().equals(environment);
 	}

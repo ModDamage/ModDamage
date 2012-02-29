@@ -31,4 +31,16 @@ public final class Utils
 		
 		return sb.toString();
 	}
+	
+	public static String safeToString(Object obj)
+	{
+		try
+		{
+			return "'"+ obj.toString() +"'";
+		}
+		catch (Throwable t)
+		{
+			return "error!";
+		}
+	}
 }

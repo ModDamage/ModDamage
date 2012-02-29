@@ -7,6 +7,7 @@ import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
@@ -39,7 +40,7 @@ public class Tag extends NestedRoutine
 	}
 
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		Entity entity = entityRef.get(data);
 		if(entity != null)

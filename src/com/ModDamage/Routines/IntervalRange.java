@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -21,7 +22,7 @@ public class IntervalRange extends RandomRoutine
 		rangeValue = interval_range;
 	}
 	@Override
-	public int getValue(EventData data)
+	public int getValue(EventData data) throws BailException
 	{
 		return number.getValue(data) + (intervalValue.getValue(data) * (Math.abs(random.nextInt(rangeValue.getValue(data) + 1))));
 	}

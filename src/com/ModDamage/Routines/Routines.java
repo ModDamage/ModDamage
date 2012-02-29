@@ -3,6 +3,7 @@ package com.ModDamage.Routines;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 
 public class Routines
@@ -19,11 +20,20 @@ public class Routines
 		this.routines = routines;
 	}
 	
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		if (routines != null)
 			for (Routine routine : routines)
-				routine.run(data);
+			{
+				try
+				{
+					routine.run(data);
+				}
+				catch (Throwable e)
+				{
+					throw new BailException(routine, e);
+				}
+			}
 	}
 
 	public boolean isEmpty()

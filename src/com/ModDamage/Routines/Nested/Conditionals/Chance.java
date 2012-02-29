@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
@@ -19,7 +20,10 @@ public class Chance extends Conditional
 		this.probability = probability;
 	}
 	@Override
-	public boolean evaluate(EventData data){ return Math.abs(random.nextInt()%101) <= probability.getValue(data); }
+	protected boolean myEvaluate(EventData data) throws BailException
+	{
+		return Math.abs(random.nextInt()%101) <= probability.getValue(data);
+	}
 	
 	public static void register()
 	{

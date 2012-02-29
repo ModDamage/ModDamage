@@ -46,7 +46,7 @@ public class ModDamageItemStack
 		enchantments.put(enchantment, level);
 	}
 	
-	public void updateAmount(EventData data)
+	public void updateAmount(EventData data) throws BailException
 	{
 		if (this.data != null)
 			lastData = this.data.getValue(data);

@@ -8,6 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ExternalPluginManager;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.GroupAliaser;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -24,7 +25,7 @@ public class PlayerGroupEvaluation extends Conditional
 		this.groups = groups;
 	}
 	@Override
-	public boolean evaluate(EventData data) 
+	protected boolean myEvaluate(EventData data) throws BailException
 	{
 		Entity entity = entityRef.get(data);
 		if (entity instanceof Player)

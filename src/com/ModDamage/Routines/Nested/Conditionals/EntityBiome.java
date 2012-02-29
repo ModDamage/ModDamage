@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Entity;
 
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.BiomeAliaser;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -24,7 +25,7 @@ public class EntityBiome extends Conditional
 	}
 	
 	@Override
-	public boolean evaluate(EventData data)
+	protected boolean myEvaluate(EventData data) throws BailException
 	{ 
 		if(entityRef.get(data) != null)
 			return biomes.contains(entityRef.get(data).getLocation().getBlock().getBiome());

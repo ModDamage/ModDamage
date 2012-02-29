@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicCalculatedInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicEnchantmentInteger;
@@ -42,7 +43,18 @@ public abstract class DynamicInteger extends DynamicString
 	//private static final Pattern dynamicIntegerPattern = Pattern.compile(dynamicIntegerPart, Pattern.CASE_INSENSITIVE);
 	
 	
-	public abstract int getValue(EventData data);
+	public final int getValue(EventData data) throws BailException
+	{
+		try
+		{
+			return myGetValue(data);
+		}
+		catch (Throwable t)
+		{
+			throw new BailException(this, t);
+		}
+	}
+	protected abstract int myGetValue(EventData data) throws BailException;
 	
 	public boolean isSettable(){ return false; }
 	public void setValue(EventData data, int value) { }
@@ -134,5 +146,8 @@ public abstract class DynamicInteger extends DynamicString
 	}
 
 	@Override
-	public String getString(EventData data){ return ""+getValue(data); }
+	public String getString(EventData data) throws BailException
+	{
+		return ""+getValue(data);
+	}
 }

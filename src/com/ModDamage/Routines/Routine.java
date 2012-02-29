@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Routines.Nested.Command;
@@ -21,9 +22,24 @@ abstract public class Routine
 	private static final Map<Pattern, RoutineBuilder> registeredBaseRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
 	
 	private final String configString;
-	protected Routine(String configString){ this.configString = configString; }
-	public final String getConfigString(){ return configString; }
-	abstract public void run(final EventData data);
+
+	protected Routine(String configString)
+	{
+		this.configString = configString;
+	}
+
+	public final String getConfigString()
+	{
+		return configString;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return configString;
+	}
+	
+	abstract public void run(final EventData data) throws BailException;
 	
 	public static void registerVanillaRoutines()
 	{

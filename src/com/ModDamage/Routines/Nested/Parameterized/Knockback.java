@@ -11,6 +11,7 @@ import org.bukkit.util.Vector;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
@@ -56,7 +57,7 @@ public class Knockback extends ParameterizedRoutine
 			IntRef.class, "strength", "-default");
 	
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		Entity firstEntity = entityRef.get(data);
 		Entity secondEntity = entityOtherRef.get(data);

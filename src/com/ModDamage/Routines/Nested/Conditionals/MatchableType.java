@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnumHelper;
 import com.ModDamage.Backend.Matchable;
 import com.ModDamage.EventInfo.DataRef;
@@ -28,7 +29,7 @@ public class MatchableType extends Conditional
 		this.types = types;
 	}
 	@Override
-	public boolean evaluate(EventData data)
+	protected boolean myEvaluate(EventData data) throws BailException
 	{
 		Matchable<?> matchable = matchableRef.get(data);
 		if(matchable != null)

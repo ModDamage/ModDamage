@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -18,7 +19,10 @@ public class Multiplication extends ValueChangeRoutine
 		super(configString, defaultRef, changeType, value);
 	}
 	@Override
-	public int getValue(EventData data){ return defaultRef.get(data).value * number.getValue(data); }
+	public int getValue(EventData data) throws BailException
+	{
+		return defaultRef.get(data).value * number.getValue(data);
+	}
 	
 	public static void register()
 	{

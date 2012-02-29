@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ExternalPluginManager;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.RegionAliaser;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -27,7 +28,7 @@ public class EntityRegion extends Conditional
 	}
 
 	@Override
-	public boolean evaluate(EventData data)
+	protected boolean myEvaluate(EventData data) throws BailException
 	{
 		Collection<String> entityRegions = getRegions(data);
 		for(String region : entityRegions)

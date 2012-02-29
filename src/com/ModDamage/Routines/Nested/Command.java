@@ -12,6 +12,7 @@ import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.AliasManager;
 import com.ModDamage.Backend.Aliasing.CommandAliaser;
 import com.ModDamage.Backend.Matching.InterpolatedString;
@@ -33,7 +34,7 @@ public class Command extends NestedRoutine
 	}
 	
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		CommandSender cmdsender = commandTarget.getCommandSender(data);
 		for(InterpolatedString command : commands)

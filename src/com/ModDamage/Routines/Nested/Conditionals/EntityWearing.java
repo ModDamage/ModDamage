@@ -8,6 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.Backend.ArmorSet;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.ArmorAliaser;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -26,7 +27,7 @@ public class EntityWearing extends Conditional
 		this.armorSets = armorSets;
 	}
 	@Override
-	public boolean evaluate(EventData data)
+	protected boolean myEvaluate(EventData data) throws BailException
 	{
 		ArmorSet playerSet = new ArmorSet((Player) entityRef.get(data));
 		if(playerSet != null)

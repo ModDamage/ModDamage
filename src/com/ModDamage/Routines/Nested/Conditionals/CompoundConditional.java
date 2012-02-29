@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Utils;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 
 public class CompoundConditional extends Conditional
@@ -13,42 +14,42 @@ public class CompoundConditional extends Conditional
 	{
 		AND
 		{
-			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2)
+			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException
 			{
 				return operand_1.evaluate(data) && operand_2.evaluate(data);
 			}
 		},
 		OR
 		{
-			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2)
+			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException
 			{
 				return operand_1.evaluate(data) || operand_2.evaluate(data);
 			}
 		},
 		XOR
 		{
-			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2)
+			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException
 			{
 				return operand_1.evaluate(data) ^ operand_2.evaluate(data);
 			}
 		},
 		NAND
 		{
-			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2)
+			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException
 			{
 				return !(operand_1.evaluate(data) && operand_2.evaluate(data));
 			}
 		},
 		NOR
 		{
-			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2)
+			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException
 			{
 				return !(operand_1.evaluate(data) && operand_2.evaluate(data));
 			}
 		},
 		XNOR
 		{
-			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2)
+			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException
 			{
 				return !(operand_1.evaluate(data) ^ operand_2.evaluate(data));
 			}
@@ -70,7 +71,7 @@ public class CompoundConditional extends Conditional
 			return null;
 		}
 		
-		abstract public boolean operate(EventData data, Conditional operand_1, Conditional operand_2);
+		abstract public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException;
 	}
 	
 	
@@ -85,7 +86,7 @@ public class CompoundConditional extends Conditional
 	}
 	
 	@Override
-	public boolean evaluate(EventData data)
+	protected boolean myEvaluate(EventData data) throws BailException
 	{
 		return operator.operate(data, left, right);
 	}

@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.AliasManager;
 import com.ModDamage.Backend.Aliasing.MessageAliaser;
 import com.ModDamage.Backend.Matching.InterpolatedString;
@@ -34,7 +35,7 @@ public class Message extends NestedRoutine
 	}
 	
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		List<String> msgs = new ArrayList<String>();
 		for(InterpolatedString message :  messages)

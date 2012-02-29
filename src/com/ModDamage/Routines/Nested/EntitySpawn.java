@@ -8,6 +8,7 @@ import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.IntRef;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -34,7 +35,7 @@ public class EntitySpawn extends NestedRoutine
 			IntRef.class, "health", "-default");
 
 	@Override
-	public void run(EventData data) 
+	public void run(EventData data) throws BailException 
 	{
 		Entity entity = entityRef.get(data);
 		if (entity == null)

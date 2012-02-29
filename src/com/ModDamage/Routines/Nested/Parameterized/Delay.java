@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.EventData;
@@ -26,7 +27,7 @@ public class Delay extends NestedRoutine
 		this.routines = routines;
 	}
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
 		DelayedRunnable dr = new DelayedRunnable(data.clone());
 		Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, dr, delay.getValue(data));
@@ -72,7 +73,14 @@ public class Delay extends NestedRoutine
 		@Override
 		public void run()//Runnable
 		{
-			routines.run(data);
+			try
+			{
+				routines.run(data);
+			}
+			catch (BailException e)
+			{
+				ModDamage.reportBailException(new BailException(Delay.this, e));
+			}
 		}
 	}
 }

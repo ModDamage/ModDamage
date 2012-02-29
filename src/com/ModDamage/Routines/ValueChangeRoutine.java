@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
@@ -51,13 +52,16 @@ public class ValueChangeRoutine extends Routine
 	}
 	
 	@Override
-	public final void run(final EventData data){
+	public final void run(final EventData data) throws BailException{
 		IntRef def = defaultRef.get(data);
 		def.value = changeType.changeValue(
 				def.value, getValue(data));
 	}
 	
-	protected int getValue(EventData data){ return number.getValue(data); }
+	protected int getValue(EventData data) throws BailException
+	{
+		return number.getValue(data);
+	}
 	
 	public static void register()
 	{

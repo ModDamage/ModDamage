@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Routines.Nested.Conditionals.CompoundConditional.LogicalOperator;
@@ -126,7 +127,18 @@ abstract public class Conditional
 	{
 	}
 	
-	public abstract boolean evaluate(EventData data);
+	public final boolean evaluate(EventData data) throws BailException
+	{
+		try
+		{
+			return myEvaluate(data);
+		}
+		catch (Throwable t)
+		{
+			throw new BailException(this, t);
+		}
+	}
+	protected abstract boolean myEvaluate(EventData data) throws BailException;
 	
 	
 	abstract protected static class ConditionalBuilder
