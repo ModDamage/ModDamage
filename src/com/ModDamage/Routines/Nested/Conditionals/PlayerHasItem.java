@@ -37,7 +37,7 @@ public class PlayerHasItem extends Conditional
 		if(entityElementRef.get(data).matches(EntityType.PLAYER))
 		{
 			for(ModDamageItemStack item : items)
-				item.updateAmount(data);
+				item.update(data);
 			if(strict)
 			{
 				for(ModDamageItemStack item : items)

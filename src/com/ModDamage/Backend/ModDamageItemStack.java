@@ -46,7 +46,7 @@ public class ModDamageItemStack
 		enchantments.put(enchantment, level);
 	}
 	
-	public void updateAmount(EventData data) throws BailException
+	public void update(EventData data) throws BailException
 	{
 		if (this.data != null)
 			lastData = this.data.getValue(data);
@@ -58,9 +58,10 @@ public class ModDamageItemStack
 		}
 	}
 	
-	public boolean contains(ItemStack itemStack)
+	public boolean matches(ItemStack itemStack)
 	{
-		return material.equals(itemStack.getType()) && lastAmount >= itemStack.getAmount();
+		return material.equals(itemStack.getType()) && lastAmount >= itemStack.getAmount() &&
+				(data == null? true : lastData == itemStack.getData().getData());
 	}
 	
 	public ItemStack toItemStack()
