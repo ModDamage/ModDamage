@@ -99,6 +99,7 @@ abstract public class Conditional
 		PlayerHasItem.register();
 		PlayerHasEnchantment.register();
 		PlayerPermissionEvaluation.register();
+		PlayerItemInSlotMatches.register();
 		//Event
 		EventHasProjectile.register();
 		EventWorld.register();
