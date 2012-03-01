@@ -116,7 +116,7 @@ public class DynamicEnchantmentInteger extends DynamicInteger
 	public static void register()
 	{
 		DynamicInteger.register(
-				Pattern.compile("(\\w+)(?:_("+ EnchantmentItemSlot.regexString
+				Pattern.compile("(\\w+?)(?:_("+ EnchantmentItemSlot.regexString
 						+"))?_enchant(?:ment)?_?level_(\\w+)", Pattern.CASE_INSENSITIVE),
 				new DynamicIntegerBuilder()
 				{
