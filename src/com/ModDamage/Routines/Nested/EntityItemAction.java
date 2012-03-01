@@ -89,7 +89,7 @@ public class EntityItemAction extends NestedRoutine
 		if(!action.requiresPlayer || entityElementRef.get(data).matches(EntityType.PLAYER))
 		{
 			for(ModDamageItemStack item : items)
-				item.updateAmount(data);
+				item.update(data);
 			
 			action.doAction(entityRef.get(data), items, quantity.getValue(data));
 		}
