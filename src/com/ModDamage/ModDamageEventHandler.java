@@ -264,7 +264,9 @@ enum ModDamageEventHandler
 				World.class,					"world",
 				ItemStack.class, 				"item",
 				IntRef.class,					"bonus",
-				IntRef.class,					"level_1", "level_2", "level_3"),
+				IntRef.class,					"level_1",
+				IntRef.class,					"level_2",
+				IntRef.class,					"level_3"),
 				
 		new Listener() {
 			@EventHandler(priority=EventPriority.HIGHEST)
