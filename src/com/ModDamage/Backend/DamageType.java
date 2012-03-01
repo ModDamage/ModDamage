@@ -36,7 +36,7 @@ public enum DamageType implements Matchable<DamageType>
 	@Override
 	public boolean matches(Matchable<?> other)
 	{
-		if (other == null || other.getClass() != DamageType.class) return false;
+		if (other == null || !DamageType.class.isAssignableFrom(other.getClass())) return false;
 		DamageType type = (DamageType)other;
 		
 		DamageType temp = this;

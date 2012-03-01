@@ -28,7 +28,7 @@ public enum HealType implements Matchable<HealType>
 	@Override
 	public boolean matches(Matchable<?> other)
 	{
-		//if (other == null || other.getClass() != HealType.class) return false;
+		//if (other == null || !HealType.class.isAssignableFrom(other.getClass())) return false;
 		//HealType type = (HealType)other;
 		
 		return this == other;
