@@ -69,8 +69,6 @@ public class ValueChangeRoutine extends Routine
 		
 		DiceRoll.register();
 		Division.register();
-		IntervalRange.register();
-		LiteralRange.register();
 		Multiplication.register();
 	}
 	

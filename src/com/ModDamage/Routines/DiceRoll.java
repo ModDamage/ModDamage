@@ -27,7 +27,7 @@ public class DiceRoll extends RandomRoutine
 	
 	public static void register()
 	{
-		ValueChangeRoutine.registerRoutine(Pattern.compile("roll(?:\\.(" + DynamicInteger.dynamicIntegerPart + "))", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		ValueChangeRoutine.registerRoutine(Pattern.compile("roll\\.(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends ValueChangeRoutine.ValueBuilder
@@ -40,6 +40,8 @@ public class DiceRoll extends RandomRoutine
 			if(match != null && defaultRef != null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Dice Roll" + changeType.getStringAppend() + ": " + matcher.group(1));
+				ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "This form is deprecated. Please use 'roll(" + matcher.group(1) + ") instead");
+				
 				return new DiceRoll(matcher.group(), defaultRef, changeType, match);
 			}
 			return null;

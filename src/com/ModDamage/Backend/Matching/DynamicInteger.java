@@ -33,16 +33,6 @@ public abstract class DynamicInteger extends DynamicString
 {
 	public static final Pattern whitespace = Pattern.compile("\\s*");
 	
-	public static final String dynamicIntegerPart;
-	public static final String dynamicIntegerPart_silent;
-	static
-	{
-		dynamicIntegerPart = "(-?(?:[0-9]+|(?:[a-z]+_\\w+)|(?:_\\w+)|(?:\\(.*\\))))";//FIXME The greediness at the end blocks all 
-		dynamicIntegerPart_silent = "(?:" + dynamicIntegerPart.substring(1); 
-	}
-	//private static final Pattern dynamicIntegerPattern = Pattern.compile(dynamicIntegerPart, Pattern.CASE_INSENSITIVE);
-	
-	
 	public final int getValue(EventData data) throws BailException
 	{
 		try

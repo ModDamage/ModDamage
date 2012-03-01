@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.Backend.BailException;
@@ -18,16 +19,16 @@ import com.ModDamage.EventInfo.EventInfo;
 
 public class PlayerHasItem extends Conditional
 {
-	public static final Pattern pattern = Pattern.compile("(\\w+)\\.has((?:all)?items|item)\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("(\\w+)\\.has((?:all)?items|item)\\.([\\w,@*]+)", Pattern.CASE_INSENSITIVE);
 	private final DataRef<Entity> entityRef;
 	private final DataRef<EntityType> entityElementRef;
-	private final boolean strict;
+	private final boolean allItems;
 	private final Collection<ModDamageItemStack> items;
-	public PlayerHasItem(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, boolean strict, Collection<ModDamageItemStack> items)
+	public PlayerHasItem(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, boolean allItems, Collection<ModDamageItemStack> items)
 	{
 		this.entityRef = entityRef;
 		this.entityElementRef = entityElementRef;
-		this.strict = strict;
+		this.allItems = allItems;
 		this.items = items;
 	}
 
@@ -38,12 +39,13 @@ public class PlayerHasItem extends Conditional
 		{
 			for(ModDamageItemStack item : items)
 				item.update(data);
-			if(strict)
+			Inventory inventory = ((Player)entityRef.get(data)).getInventory();
+			if(allItems)
 			{
 				for(ModDamageItemStack item : items)
 				{
 					ItemStack temp = item.toItemStack();
-					if(!((Player)entityRef.get(data)).getInventory().contains(temp.getType(), temp.getAmount()))
+					if(!inventory.contains(temp.getType(), temp.getAmount()))
 						return false;
 				}
 				return true;
@@ -53,7 +55,7 @@ public class PlayerHasItem extends Conditional
 				for(ModDamageItemStack item : items)
 				{
 					ItemStack temp = item.toItemStack();
-					if(((Player)entityRef.get(data)).getInventory().contains(temp.getType(), temp.getAmount()))
+					if(inventory.contains(temp.getType(), temp.getAmount()))
 						return true;
 				}
 				return false;
