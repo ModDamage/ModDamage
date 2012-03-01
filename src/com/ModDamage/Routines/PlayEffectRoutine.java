@@ -68,7 +68,7 @@ public class PlayEffectRoutine extends Routine
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("([a-z]+).playeffect.("+EffectType.regexString+")(?:\\.([^.]+))?(?:\\.radius\\.(.+))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("([a-z]+).playeffect.(\\w+)(?:\\.([^.]+))?(?:\\.radius\\.(.+))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
@@ -77,7 +77,16 @@ public class PlayEffectRoutine extends Routine
 		public PlayEffectRoutine getNew(Matcher matcher, EventInfo info)
 		{ 
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
-			EffectType effectType = EffectType.valueOf(matcher.group(2).toUpperCase());
+			EffectType effectType;
+			try
+			{
+				effectType = EffectType.valueOf(matcher.group(2).toUpperCase());
+			}
+			catch (IllegalArgumentException e)
+			{
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad effect type: \""+matcher.group(1)+"\"");
+				return null;
+			}
 			DynamicInteger data;
 			if (matcher.group(3) == null)
 				data = new ConstantInteger(0);
