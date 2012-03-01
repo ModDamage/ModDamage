@@ -372,7 +372,11 @@ enum ModDamageEventHandler
 				if(eventType.specificLoadState.equals(LoadState.SUCCESS))
 					eventType.routines = routines;
 			}
-			else eventType.specificLoadState = LoadState.NOT_LOADED;
+			else
+			{
+				eventType.specificLoadState = LoadState.NOT_LOADED;
+				eventType.routines = new Routines();
+			}
 			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 			switch(eventType.specificLoadState)
 			{
