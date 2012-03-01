@@ -116,6 +116,14 @@ public class DynamicPlayerInteger extends DynamicInteger
 				player.setGameMode(org.bukkit.GameMode.getByValue(value));
 			}
 		},
+		HELD_SLOT
+		{
+			@Override
+			public int getValue(Player player) 
+			{
+				return player.getInventory().getHeldItemSlot();
+			}
+		},
 		LEVEL(true)
 		{
 			@Override
