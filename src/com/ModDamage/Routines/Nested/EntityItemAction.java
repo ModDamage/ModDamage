@@ -116,7 +116,7 @@ public class EntityItemAction extends NestedRoutine
 					
 					action.doAction(entity, vanillaItem);
 				}
-			}			
+			}
 		}
 	}
 	

@@ -8,7 +8,6 @@ import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
@@ -33,8 +32,6 @@ public class PlayEffectRoutine extends Routine
 	    POTION_BREAK(Effect.POTION_BREAK),
 	    ENDER_SIGNAL(Effect.ENDER_SIGNAL),
 	    MOBSPAWNER_FLAMES(Effect.MOBSPAWNER_FLAMES);
-		
-		public final static String regexString = Utils.joinBy("|", values());
 		
 		private final Effect effect;
 		private EffectType(Effect effect) { this.effect = effect; }
@@ -84,7 +81,7 @@ public class PlayEffectRoutine extends Routine
 			}
 			catch (IllegalArgumentException e)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad effect type: \""+matcher.group(1)+"\"");
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad effect type: \""+matcher.group(2)+"\"");
 				return null;
 			}
 			DynamicInteger data;
