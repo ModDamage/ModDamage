@@ -1,28 +1,31 @@
 package com.ModDamage.Routines.Nested;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.EnchantmentsRef;
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.Backend.Aliasing.ItemAliaser;
+import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
+import com.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Routines;
 
 public class EntityItemAction extends NestedRoutine
 {
@@ -33,47 +36,41 @@ public class EntityItemAction extends NestedRoutine
 		DROP(false)
 		{
 			@Override
-			protected void doAction(Entity entity, Collection<ModDamageItemStack> items, int quantity)
+			protected void doAction(Entity entity, ItemStack item)
 			{
-				World world = entity.getWorld();
-				for (int i = 0; i < quantity; i++)
-					for(ModDamageItemStack item : items)
-						world.dropItemNaturally(entity.getLocation(), item.toItemStack());
+				entity.getWorld().dropItemNaturally(entity.getLocation(), item);
 			}
 		},
 		GIVE(true)
 		{
 			@Override
-			protected void doAction(Entity entity, Collection<ModDamageItemStack> items, int quantity)
+			protected void doAction(Entity entity, ItemStack item)
 			{
-				ItemStack[] vanillaItems = ModDamageItemStack.toItemStacks(items);
-				for (int i = 0; i < quantity; i++)
-					((Player)entity).getInventory().addItem(vanillaItems);
+				((Player)entity).getInventory().addItem(item);
 			}
 		},
 		TAKE(true)
 		{
 			@Override
-			protected void doAction(Entity entity, Collection<ModDamageItemStack> items, int quantity)
+			protected void doAction(Entity entity, ItemStack item)
 			{
-				ItemStack[] vanillaItems = ModDamageItemStack.toItemStacks(items);
-				for (int i = 0; i < quantity; i++)
-					((Player)entity).getInventory().removeItem(vanillaItems);
+				((Player)entity).getInventory().removeItem(item);
 			}
 		};
 		
 		protected final boolean requiresPlayer;
 		private ItemAction(boolean requiresPlayer){ this.requiresPlayer = requiresPlayer; }
 
-		abstract protected void doAction(Entity entity, Collection<ModDamageItemStack> items, int quantity);
+		abstract protected void doAction(Entity entity, ItemStack item);
 	}
 	
 	protected final ItemAction action;
 	protected final Collection<ModDamageItemStack> items;
 	protected final DataRef<Entity> entityRef;
 	protected final DataRef<EntityType> entityElementRef;
+	protected final Routines routines;
 	protected final DynamicInteger quantity;
-	public EntityItemAction(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, ItemAction action, Collection<ModDamageItemStack> items, DynamicInteger quantity)
+	public EntityItemAction(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, ItemAction action, Collection<ModDamageItemStack> items, DynamicInteger quantity, Routines routines)
 	{
 		super(configString);
 		this.entityRef = entityRef;
@@ -81,6 +78,7 @@ public class EntityItemAction extends NestedRoutine
 		this.action = action;
 		this.items = items;
 		this.quantity = quantity;
+		this.routines = routines;
 	}
 	
 	@Override
@@ -91,12 +89,36 @@ public class EntityItemAction extends NestedRoutine
 			for(ModDamageItemStack item : items)
 				item.update(data);
 			
-			action.doAction(entityRef.get(data), items, quantity.getValue(data));
+			Entity entity = entityRef.get(data);
+			
+			int quantity = this.quantity.getValue(data);
+			
+			for (int i = 0; i < quantity; i++)
+			{
+				for (ModDamageItemStack item : items)
+				{
+					ItemStack vanillaItem = item.toItemStack();
+					
+					if (routines != null)
+					{
+						// have to copy the enchantments map because it is immutable
+						Map<Enchantment, Integer> enchantments = new HashMap<Enchantment, Integer>(vanillaItem.getEnchantments());
+						EnchantmentsRef enchants = new EnchantmentsRef(enchantments);
+						routines.run(myInfo.makeChainedData(data, vanillaItem, enchants));
+						for (Entry<Enchantment, Integer> entry : enchantments.entrySet())
+						{
+							if (entry.getValue() == 0)
+								vanillaItem.removeEnchantment(entry.getKey());
+							else
+								vanillaItem.addEnchantment(entry.getKey(), entry.getValue());
+						}
+					}
+					
+					action.doAction(entity, vanillaItem);
+				}
+			}			
 		}
 	}
-	
-	private static final Pattern enchantPattern = Pattern.compile("enchant\\.(\\w+)\\.(.+)", Pattern.CASE_INSENSITIVE);
-
 	
 	private static final NestedRoutineBuilder nrb = new NestedRoutineBuilder();
 	public static void registerRoutine()
@@ -115,9 +137,12 @@ public class EntityItemAction extends NestedRoutine
 		NestedRoutine.registerRoutine(pattern, nrb);
 	}
 	
+	private static final EventInfo myInfo = new SimpleEventInfo(
+			ItemStack.class, 		"item",
+			EnchantmentsRef.class,	"-enchantments");
+	
 	protected static class NestedRoutineBuilder extends NestedRoutine.RoutineBuilder
 	{
-		@SuppressWarnings("unchecked")
 		@Override
 		public EntityItemAction getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
@@ -127,41 +152,18 @@ public class EntityItemAction extends NestedRoutine
 			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
 			if(items != null && !items.isEmpty())
 			{
+				Routines routines = null;
 				if (nestedContent != null)
-				{
-					if (nestedContent instanceof String) nestedContent = Arrays.asList(nestedContent);
-					
-					for (String string : (List<String>)nestedContent)
-					{
-						Matcher enchantMatcher = enchantPattern.matcher(string);
-						if (!enchantMatcher.matches())
-						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "This routine is invalid inside of an item action routine: \"" + string + "\"");
-							continue;
-						}
-						
-						Enchantment enchantment = Enchantment.getByName(enchantMatcher.group(1).toUpperCase());
-						if (enchantment == null)
-						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid enchantment: " + enchantMatcher.group(1));
-							return null;
-						}
-						DynamicInteger level = DynamicInteger.getNew(enchantMatcher.group(2), info);
-						
-						for (ModDamageItemStack item : items)
-						{
-							item.addEnchantment(enchantment, level);
-						}
-					}
-				}
+					routines = RoutineAliaser.parseRoutines(nestedContent, info.chain(myInfo));
+				
 				
 				DynamicInteger quantity;
 				if (matcher.group(4) != null)
 					quantity = DynamicInteger.getNew(matcher.group(4), info);
 				else
-					quantity = DynamicInteger.getNew("1", info);
+					quantity = new ConstantInteger(1);
 				
-				return new EntityItemAction(matcher.group(), entityRef, entityElementRef, ItemAction.valueOf(matcher.group(2).toUpperCase()), items, quantity);
+				return new EntityItemAction(matcher.group(), entityRef, entityElementRef, ItemAction.valueOf(matcher.group(2).toUpperCase()), items, quantity, routines);
 			}
 			return null;
 		}
