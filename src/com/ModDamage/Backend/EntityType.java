@@ -53,6 +53,7 @@ import com.ModDamage.ModDamage;
 public enum EntityType implements Matchable<EntityType>
 {
 	UNKNOWN(null),
+	NONE(null),
 	ENTITY(null, Entity.class),
 		LIVING(ENTITY, LivingEntity.class),
 			ANIMAL(LIVING, Animals.class),

@@ -35,8 +35,7 @@ public class PlayerHasItem extends Conditional
 	@Override
 	protected boolean myEvaluate(EventData data) throws BailException
 	{
-		EntityType entityType = entityTypeRef.get(data);
-		if(entityType != null && entityType.matches(EntityType.PLAYER))
+		if(entityTypeRef.get(data).matches(EntityType.PLAYER))
 		{
 			for(ModDamageItemStack item : items)
 				item.update(data);

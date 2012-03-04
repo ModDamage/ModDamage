@@ -417,9 +417,9 @@ enum ModDamageEventHandler
 		DamageType damageElement = DamageType.get(event.getCause());
 		
 		Entity attacker = null;
-		EntityType attackerType = null;
+		EntityType attackerType = EntityType.NONE;
 		Projectile projectile = null;
-		EntityType projectileType = null;
+		EntityType projectileType = EntityType.NONE;
 		Entity target = event.getEntity();
 		EntityType targetType = EntityType.get(target);
 		World world = target.getWorld();
