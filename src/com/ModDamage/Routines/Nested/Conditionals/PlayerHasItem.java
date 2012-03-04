@@ -21,13 +21,13 @@ public class PlayerHasItem extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.has((?:all)?items|item)\\.([\\w,@*]+)", Pattern.CASE_INSENSITIVE);
 	private final DataRef<Entity> entityRef;
-	private final DataRef<EntityType> entityElementRef;
+	private final DataRef<EntityType> entityTypeRef;
 	private final boolean allItems;
 	private final Collection<ModDamageItemStack> items;
 	public PlayerHasItem(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, boolean allItems, Collection<ModDamageItemStack> items)
 	{
 		this.entityRef = entityRef;
-		this.entityElementRef = entityElementRef;
+		this.entityTypeRef = entityElementRef;
 		this.allItems = allItems;
 		this.items = items;
 	}
@@ -35,7 +35,8 @@ public class PlayerHasItem extends Conditional
 	@Override
 	protected boolean myEvaluate(EventData data) throws BailException
 	{
-		if(entityElementRef.get(data).matches(EntityType.PLAYER))
+		EntityType entityType = entityTypeRef.get(data);
+		if(entityType != null && entityType.matches(EntityType.PLAYER))
 		{
 			for(ModDamageItemStack item : items)
 				item.update(data);
