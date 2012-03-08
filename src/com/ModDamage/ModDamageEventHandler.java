@@ -9,6 +9,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -20,6 +21,7 @@ import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -319,6 +321,37 @@ enum ModDamageEventHandler
 					Enchant.runRoutines(data);
 					
 					event.setExpLevelCost(level.value);
+				}
+			}),
+	
+	Interact(
+			new SimpleEventInfo(
+					Player.class, EntityType.class, "player",
+					World.class,					"world",
+					ItemStack.class, 				"item",
+					Boolean.class,					"interact_left",
+					Boolean.class,					"interact_right",
+					Boolean.class,					"interact_block",
+					Boolean.class,					"interact_air"),
+					
+			new Listener() {
+				@EventHandler(priority=EventPriority.HIGHEST)
+				public void onInteract(PlayerInteractEvent event)
+				{
+					if(!ModDamage.isEnabled) return;
+					
+					Player player = event.getPlayer();
+					Action action = event.getAction();
+					EventData data = Interact.eventInfo.makeData(
+							player, EntityType.get(player),
+							player.getWorld(),
+							event.getItem(),
+							action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK,
+							action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK,
+							action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK,
+							action == Action.LEFT_CLICK_AIR || action == Action.RIGHT_CLICK_AIR);
+					
+					Interact.runRoutines(data);
 				}
 			});
 	
