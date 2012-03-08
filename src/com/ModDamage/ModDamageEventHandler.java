@@ -58,19 +58,15 @@ enum ModDamageEventHandler
 				
 				if(!event.isCancelled() && (event.getEntity() instanceof LivingEntity)) 
 				{
-					LivingEntity le = (LivingEntity)event.getEntity();
-					if(le.getNoDamageTicks() <= le.getMaximumNoDamageTicks()/2)
+					EventData data = getDamageEventData(event);
+					if(data != null)
 					{
-						EventData data = getDamageEventData(event);
-						if(data != null)
-						{
-							Damage.runRoutines(data);
-							event.setDamage(damageRef.get(data).value);
-							//event.setCancelled(event.getDamage() <= 0);
-						}
-						else PluginConfiguration.log.severe("[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + 
-								"] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
+						Damage.runRoutines(data);
+						event.setDamage(damageRef.get(data).value);
+						//event.setCancelled(event.getDamage() <= 0);
 					}
+					else PluginConfiguration.log.severe("[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + 
+							"] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
 				}
 			}
 		}),
