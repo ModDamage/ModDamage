@@ -56,7 +56,7 @@ public class EntityWielding extends Conditional
 		{
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
 			Collection<ModDamageItemStack> matchedItems = ItemAliaser.match(matcher.group(2), info);
-			if(entityRef != null && !matchedItems.isEmpty())
+			if(entityRef != null && matchedItems != null && !matchedItems.isEmpty())
 				return new EntityWielding(entityRef, matchedItems);
 			return null;
 		}
