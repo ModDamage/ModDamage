@@ -15,7 +15,7 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 
 abstract public class Aliaser<Type, StoredInfoClass>
 {
-	protected Map<String, StoredInfoClass> thisMap = new HashMap<String, StoredInfoClass>();
+	private Map<String, StoredInfoClass> thisMap = new HashMap<String, StoredInfoClass>();
 	protected final String name;
 	protected LoadState loadState = LoadState.NOT_LOADED;
 	
@@ -42,6 +42,21 @@ abstract public class Aliaser<Type, StoredInfoClass>
 	public String getName(){ return name; }
 
 	public LoadState getLoadState(){ return this.loadState; }
+
+	public boolean hasAlias(String key)
+	{
+		return thisMap.containsKey(key);
+	}
+	
+	public StoredInfoClass getAlias(String key)
+	{
+		return thisMap.get(key);
+	}
+	
+	public void putAlias(String key, StoredInfoClass obj)
+	{
+		thisMap.put(key, obj);
+	}
 	
 	public void clear()
 	{
@@ -94,7 +109,7 @@ abstract public class Aliaser<Type, StoredInfoClass>
 				if(matchedItem != null)
 				{
 					//ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding value \"" + getObjectName(matchedItem) + "\"");
-					thisMap.put(key, matchedItem);
+					putAlias(key, matchedItem);
 					return true;
 				}
 			}
@@ -104,8 +119,8 @@ abstract public class Aliaser<Type, StoredInfoClass>
 		
 		public Type matchAlias(String key)
 		{
-			if(thisMap.containsKey(key))
-				return thisMap.get(key);
+			if(hasAlias(key))
+				return getAlias(key);
 			
 			
 			Type value = matchNonAlias(key);
@@ -122,6 +137,18 @@ abstract public class Aliaser<Type, StoredInfoClass>
 	abstract public static class CollectionAliaser<InfoType> extends Aliaser<InfoType, Collection<InfoType>>
 	{
 		CollectionAliaser(String name){ super(name); }
+		
+		public void putAllAliases(String key, Collection<InfoType> items)
+		{
+			Collection<InfoType> aliases = getAlias(key);
+			if (aliases == null)
+			{
+				putAlias(key, items);
+				return;
+			}
+			
+			aliases.addAll(items);
+		}
 
 		@Override
 		public boolean completeAlias(String key, Object nestedContent)
@@ -179,15 +206,15 @@ abstract public class Aliaser<Type, StoredInfoClass>
 				}
 			}
 			ModDamage.changeIndentation(false);
-			if(!failFlag) thisMap.get(key).addAll(matchedItems);
+			if(!failFlag) putAllAliases(key, matchedItems);
 			return !failFlag;
 		}
 		
 		//@Override
 		public Collection<InfoType> matchAlias(String key)
 		{
-			if(thisMap.containsKey(key))
-				return thisMap.get(key);
+			if(hasAlias(key))
+				return getAlias(key);
 			
 			
 			boolean failFlag = false;

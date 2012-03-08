@@ -33,7 +33,7 @@ public class RoutineAliaser extends Aliaser<Object, Object>
 				ModDamage.changeIndentation(false);
 			}*/
 			
-			thisMap.put(key, values);
+			putAlias(key, values);
 			return true;
 		}
 		ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error adding alias \"" + key + "\" - unrecognized value \"" + values.toString() + "\"");
@@ -57,7 +57,7 @@ public class RoutineAliaser extends Aliaser<Object, Object>
 		if (aliasedRoutines.containsKey(infoPair)) return aliasedRoutines.get(infoPair);
 		
 		
-		Object values = thisMap.get(alias);
+		Object values = getAlias(alias);
 		if (values == null)
 		{
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown alias: \"" + alias + "\"");

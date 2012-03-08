@@ -35,8 +35,8 @@ public class CommandAliaser extends CollectionAliaser<String>
 	
 	@Override
 	public Collection<String> matchAlias(String cmd) {
-		if(thisMap.containsKey(cmd))
-			return thisMap.get(cmd);
+		if(hasAlias(cmd))
+			return getAlias(cmd);
 		return Arrays.asList(cmd);
 	}
 	

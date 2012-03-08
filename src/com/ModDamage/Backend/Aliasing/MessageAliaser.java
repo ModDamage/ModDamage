@@ -35,8 +35,8 @@ public class MessageAliaser extends CollectionAliaser<String>
 	
 	@Override
 	public Collection<String> matchAlias(String msg) {
-		if(thisMap.containsKey(msg))
-			return thisMap.get(msg);
+		if(hasAlias(msg))
+			return getAlias(msg);
 		return Arrays.asList(msg);
 	}
 	

@@ -24,13 +24,25 @@ public class ItemAliaser extends Aliaser<Object, Collection<String>>
 	
 	static final Pattern commaPattern = Pattern.compile("\\s*,\\s*");
 	
+	public void putAllAliases(String key, Collection<String> items)
+	{
+		Collection<String> aliases = getAlias(key);
+		if (aliases == null)
+		{
+			putAlias(key, items);
+			return;
+		}
+		
+		aliases.addAll(items);
+	}
+	
 	public Collection<ModDamageItemStack> matchAlias(String key, EventInfo info)
 	{
-		Collection<String> values = thisMap.get(key);
+		Collection<String> values = getAlias(key);
 		if (values == null)
 		{
 			if (key.startsWith("_")) {
-				if (thisMap.containsKey(key))
+				if (hasAlias(key))
 					return Arrays.<ModDamageItemStack>asList(); // hmm, not ready yet?
 				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown alias: \"" + key + "\"");
 				return null;
@@ -118,15 +130,15 @@ public class ItemAliaser extends Aliaser<Object, Collection<String>>
 			}
 		}
 		ModDamage.changeIndentation(false);
-		if(!failFlag) thisMap.get(key).addAll(matchedItems);
+		if(!failFlag) putAllAliases(key, matchedItems);
 		return !failFlag;
 	}
 	
 	//@Override
 	public Collection<String> matchAlias(String key)
 	{
-		if(thisMap.containsKey(key))
-			return thisMap.get(key);
+		if(hasAlias(key))
+			return getAlias(key);
 		
 		
 		List<String> values = new ArrayList<String>();
