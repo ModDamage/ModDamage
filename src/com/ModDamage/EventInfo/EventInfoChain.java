@@ -41,11 +41,8 @@ public class EventInfoChain extends EventInfo
 
 	public Set<String> getAllNames(Class<?> cls)
 	{
-		Set<String> names = new HashSet<String>();
-		Set<String> tnames = first.getAllNames(cls);
-		if (tnames != null) names.addAll(tnames);
-		tnames = second.getAllNames(cls);
-		if (tnames != null) names.addAll(tnames);
+		Set<String> names = first.getAllNames(cls);
+		names.addAll(second.getAllNames(cls));
 		return names;
 	}
 	

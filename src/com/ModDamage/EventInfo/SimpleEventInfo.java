@@ -103,19 +103,28 @@ public class SimpleEventInfo extends EventInfo
 	@Override
 	public Set<String> getAllNames(Class<?> cls)
 	{
-		Map<String, Integer> argMap = map.get(cls); if (argMap == null) return null;
-		return argMap.keySet();
+		Set<String> names = new HashSet<String>();
+		for (Entry<Class<?>, Map<String, Integer>> entry : map.entrySet())
+		{
+			if (cls.isAssignableFrom(entry.getKey()))
+			{
+				for (String name : entry.getValue().keySet())
+					if (!name.startsWith("-"))
+						names.add(name);
+			}
+		}
+		return names;
 	}
 
 	@Override
 	public Set<String> getAllNames(Class<?> cls, String name)
 	{
-		int index = getIndex(cls, name, false); if (index == -1) return null;
-		Map<String, Integer> argMap = map.get(cls); // no need to check for null, index will be -1 in that case
 		Set<String> names = new HashSet<String>();
+		int index = getIndex(cls, name, false); if (index == -1) return names;
+		Map<String, Integer> argMap = map.get(cls); // no need to check for null, index will be -1 in that case
 		
 		for (Entry<String, Integer> entry : argMap.entrySet())
-			if (entry.getValue() == index)
+			if (entry.getValue().equals(index) && !entry.getKey().startsWith("-"))
 				names.add(entry.getKey());
 		
 		return names;
