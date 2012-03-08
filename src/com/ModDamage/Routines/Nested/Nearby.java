@@ -33,8 +33,7 @@ public class Nearby extends NestedRoutine
 	}
 
 	static EventInfo myInfo = new SimpleEventInfo(
-			Entity.class, "nearby",
-			EntityType.class, "nearby");
+			Entity.class, EntityType.class, "nearby", "it");
 	
 	@Override
 	public void run(EventData data) throws BailException
