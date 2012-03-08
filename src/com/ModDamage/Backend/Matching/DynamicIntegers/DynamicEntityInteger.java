@@ -91,6 +91,13 @@ public class DynamicEntityInteger extends DynamicInteger
 				return ((LivingEntity)entity).getNoDamageTicks();
 			}
 		},
+		MAXNODAMAGETICKS(false, EntityType.LIVING)
+		{
+			@Override public int getValue(Entity entity)
+			{
+				return ((LivingEntity)entity).getMaximumNoDamageTicks();
+			}
+		},
 		SIZE(true, EntityType.SLIME)
 		{
 			@Override public int getValue(Entity entity)
