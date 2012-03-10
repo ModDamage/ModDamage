@@ -3,6 +3,7 @@ package com.ModDamage.Routines;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
@@ -19,40 +20,61 @@ import com.ModDamage.Routines.Nested.NestedRoutine;
 
 public class Tag extends NestedRoutine
 {
-	protected final String tag;
-	protected final DataRef<Entity> entityRef;
-	protected final DynamicInteger integer;
+	private final String tag;
+	private final DataRef<Entity> entityRef;
+	private final DataRef<World> worldRef;
+	private final DynamicInteger integer;
 	
-	protected Tag(String configString, String tag, DataRef<Entity> entityRef, DynamicInteger integer)
+	protected Tag(String configString, String tag, DataRef<Entity> entityRef, DataRef<World> worldRef, DynamicInteger integer)
 	{
 		super(configString);
 		this.tag = tag;
 		this.entityRef = entityRef;
+		this.worldRef = worldRef;
 		this.integer = integer;
 	}
 	
-	protected Tag(String configString, String tag, DataRef<Entity> entityRef)
+	protected Tag(String configString, String tag, DataRef<Entity> entityRef, DataRef<World> worldRef)
 	{
 		super(configString);
 		this.tag = tag;
 		this.entityRef = entityRef;
+		this.worldRef = worldRef;
 		this.integer = null;
 	}
 
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		Entity entity = entityRef.get(data);
-		if(entity != null)
+		if (worldRef != null)
 		{
-			if(integer != null)
+			World world = worldRef.get(data);
+			if (world != null)
 			{
-				Integer oldTagValue = ModDamage.getTagger().getTagValue(entity, tag);
-				EventData myData = myInfo.makeChainedData(data, new IntRef(oldTagValue == null? 0 : oldTagValue));
-				ModDamage.getTagger().addTag(entity, tag, integer.getValue(myData));
+				if(integer != null)
+				{
+					Integer oldTagValue = ModDamage.getTagger().getTagValue(world, tag);
+					EventData myData = myInfo.makeChainedData(data, new IntRef(oldTagValue == null? 0 : oldTagValue));
+					ModDamage.getTagger().addTag(world, tag, integer.getValue(myData));
+				}
+				else
+					ModDamage.getTagger().removeTag(world, tag);
 			}
-			else
-				ModDamage.getTagger().removeTag(entity, tag);
+		}
+		else
+		{
+			Entity entity = entityRef.get(data);
+			if(entity != null)
+			{
+				if(integer != null)
+				{
+					Integer oldTagValue = ModDamage.getTagger().getTagValue(entity, tag);
+					EventData myData = myInfo.makeChainedData(data, new IntRef(oldTagValue == null? 0 : oldTagValue));
+					ModDamage.getTagger().addTag(entity, tag, integer.getValue(myData));
+				}
+				else
+					ModDamage.getTagger().removeTag(entity, tag);
+			}
 		}
 	}
 
@@ -72,13 +94,24 @@ public class Tag extends NestedRoutine
 		@Override
 		public Tag getNew(Matcher matcher, EventInfo info)
 		{
-			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
-			if(entityRef != null)
+			String name = matcher.group(1).toLowerCase();
+			DataRef<Entity> entityRef = null;
+			DataRef<World> worldRef = null;
+			
+			if (name.equals("world"))
 			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Untag: " + matcher.group(1) + ", " + matcher.group(2));
-				return new Tag(matcher.group(), matcher.group(2).toLowerCase(), entityRef);
+				worldRef = info.get(World.class, name);
+				if(worldRef == null) return null;
 			}
-			return null;
+			else
+			{
+				entityRef = info.get(Entity.class, name);
+				if(entityRef == null) return null;
+			}
+			
+			
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Untag: " + matcher.group(1) + ", " + matcher.group(2));
+			return new Tag(matcher.group(), matcher.group(2).toLowerCase(), entityRef, worldRef);
 		}
 	}
 	
@@ -87,19 +120,30 @@ public class Tag extends NestedRoutine
 		@Override
 		public Tag getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
-			if(entityRef != null)
+			String name = matcher.group(1).toLowerCase();
+			DataRef<Entity> entityRef = null;
+			DataRef<World> worldRef = null;
+			
+			if (name.equals("world"))
 			{
-				EventInfo einfo = info.chain(myInfo);
-				Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-				if(routines == null) return null;
-				DynamicInteger integer = DynamicInteger.getNew(routines, einfo);
-				if(integer == null) return null;
-				
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(1) + ", " + matcher.group(2) + ", " + integer.toString());
-				return new Tag(matcher.group(), matcher.group(2).toLowerCase(), entityRef, integer);
+				worldRef = info.get(World.class, name);
+				if(worldRef == null) return null;
 			}
-			return null;
+			else
+			{
+				entityRef = info.get(Entity.class, name);
+				if(entityRef == null) return null;
+			}
+			
+			EventInfo einfo = info.chain(myInfo);
+			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
+			if(routines == null) return null;
+			DynamicInteger integer = DynamicInteger.getNew(routines, einfo);
+			if(integer == null) return null;
+			
+			
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(1) + ", " + matcher.group(2) + ", " + integer.toString());
+			return new Tag(matcher.group(), matcher.group(2).toLowerCase(), entityRef, worldRef, integer);
 		}
 	}
 }

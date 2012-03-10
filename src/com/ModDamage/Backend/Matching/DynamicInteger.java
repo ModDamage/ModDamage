@@ -14,7 +14,7 @@ import com.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicCalculatedInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicEnchantmentInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicEntityInteger;
-import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicEntityTagInteger;
+import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicTagInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicEventInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicMcMMOInteger;
 import com.ModDamage.Backend.Matching.DynamicIntegers.DynamicPlayerInteger;
@@ -100,7 +100,7 @@ public abstract class DynamicInteger extends DynamicString
 		DynamicCalculatedInteger.register();
 		DynamicEnchantmentInteger.register();
 		DynamicEntityInteger.register();
-		DynamicEntityTagInteger.register();
+		DynamicTagInteger.register();
 		DynamicMcMMOInteger.register();
 		DynamicPlayerInteger.register();
 		DynamicItemInteger.register();

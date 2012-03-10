@@ -19,6 +19,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.yaml.snakeyaml.Yaml;
 
@@ -124,13 +125,7 @@ public class ModDamageTagger
 			
 			
 			// Backwards compatibility - remove eventually
-			HashSet<String> keySet = new HashSet<String>();
-			keySet.add("entity");
-			keySet.add("player");
-			keySet.add("world");
-			keySet.add("server"); // future
-			keySet.add("item"); // future
-			if (!keySet.containsAll(tagMap.keySet()))
+			if (!tagMap.containsKey("tagsVersion"))
 			{
 				oldLoad(entities, tagMap);
 				return;
@@ -145,11 +140,44 @@ public class ModDamageTagger
 				for (Entry<String, Map<String, Integer>> tagEntry : entitiesMap.entrySet())
 				{
 					Map<Entity, Integer> taggedEntities = new HashMap<Entity, Integer>(tagEntry.getValue().size());
+					entityTags.put(tagEntry.getKey(), taggedEntities);
+						
+					for (Entry<String, Integer> entry : tagEntry.getValue().entrySet())
+					{
+						Entity entity = entities.get(UUID.fromString(entry.getKey()));
+						if (entity != null)
+							taggedEntities.put(entity, entry.getValue());
+					}
+				}
+			}
+			
+			@SuppressWarnings("unchecked")
+			Map<String, Map<String, Integer>> playersMap = (Map<String, Map<String, Integer>>) tagMap.get("player");
+			if (playersMap != null)
+			{
+				for (Entry<String, Map<String, Integer>> tagEntry : playersMap.entrySet())
+				{
+					Map<OfflinePlayer, Integer> taggedPlayers = new HashMap<OfflinePlayer, Integer>(tagEntry.getValue().size());
+					playerTags.put(tagEntry.getKey(), taggedPlayers);
 					
 					for (Entry<String, Integer> entry : tagEntry.getValue().entrySet())
 					{
-						
+						Player player = Bukkit.getPlayerExact(entry.getKey());
+						if (player != null)
+							taggedPlayers.put(player, entry.getValue());
 					}
+				}
+			}
+			
+			@SuppressWarnings("unchecked")
+			Map<String, Map<String, Integer>> worldsMap = (Map<String, Map<String, Integer>>) tagMap.get("world");
+			if (worldsMap != null)
+			{
+				for (Entry<String, Map<String, Integer>> tagEntry : worldsMap.entrySet())
+				{
+					World world = Bukkit.getWorld(tagEntry.getKey());
+					if (world != null)
+						worldTags.put(world, new HashMap<String, Integer>(tagEntry.getValue()));
 				}
 			}
 		}
@@ -212,7 +240,6 @@ public class ModDamageTagger
 	{
 		if(file != null && dirty)
 		{
-			
 			Set<Entity> entities = new HashSet<Entity>();
 			for (World world : Bukkit.getWorlds())
 				entities.addAll(world.getEntities());
@@ -250,10 +277,9 @@ public class ModDamageTagger
 			}
 			
 			
-			// This type is getting rediculous
-			Map<String, Map<String, Map<String, Integer>>> saveMap
-				= new HashMap<String, Map<String, Map<String, Integer>>>();
+			Map<String, Object> saveMap = new HashMap<String, Object>();
 			
+			saveMap.put("tagsVersion", 1);
 			saveMap.put("entity", entityMap);
 			saveMap.put("player", playerMap);
 			saveMap.put("world", worldMap);
