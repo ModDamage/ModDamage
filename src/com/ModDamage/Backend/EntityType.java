@@ -14,7 +14,6 @@ import org.bukkit.entity.Blaze;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Cow;
-import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.EnderDragon;
@@ -57,12 +56,12 @@ public enum EntityType implements Matchable<EntityType>
 	ENTITY(null, Entity.class),
 		LIVING(ENTITY, LivingEntity.class),
 			ANIMAL(LIVING, Animals.class),
-				CHICKEN(ANIMAL, CreatureType.CHICKEN, Chicken.class),
-				COW(ANIMAL, CreatureType.COW, Cow.class),
-				PIG(ANIMAL, CreatureType.PIG, Pig.class),
-				SHEEP(ANIMAL, CreatureType.SHEEP, Sheep.class),
-				SQUID(ANIMAL, CreatureType.SQUID, Squid.class),
-				WOLF(ANIMAL, CreatureType.WOLF, Wolf.class)
+				CHICKEN(ANIMAL, org.bukkit.entity.EntityType.CHICKEN, Chicken.class),
+				COW(ANIMAL, org.bukkit.entity.EntityType.COW, Cow.class),
+				PIG(ANIMAL, org.bukkit.entity.EntityType.PIG, Pig.class),
+				SHEEP(ANIMAL, org.bukkit.entity.EntityType.SHEEP, Sheep.class),
+				SQUID(ANIMAL, org.bukkit.entity.EntityType.SQUID, Squid.class),
+				WOLF(ANIMAL, org.bukkit.entity.EntityType.WOLF, Wolf.class)
 				{
 					@Override
 					protected EntityType getMostSpecificType(Object obj)
@@ -73,8 +72,8 @@ public enum EntityType implements Matchable<EntityType>
 						return WOLF_WILD;
 					}
 				},
-					WOLF_WILD(WOLF, CreatureType.WOLF),
-					WOLF_ANGRY(WOLF, CreatureType.WOLF)
+					WOLF_WILD(WOLF, org.bukkit.entity.EntityType.WOLF),
+					WOLF_ANGRY(WOLF, org.bukkit.entity.EntityType.WOLF)
 					{
 						@Override
 						public LivingEntity spawnCreature(Location location)
@@ -84,7 +83,7 @@ public enum EntityType implements Matchable<EntityType>
 							return wolf;
 						}
 					},
-					WOLF_TAME(WOLF, CreatureType.WOLF)
+					WOLF_TAME(WOLF, org.bukkit.entity.EntityType.WOLF)
 					{
 						@Override
 						public LivingEntity spawnCreature(Location location)
@@ -98,12 +97,12 @@ public enum EntityType implements Matchable<EntityType>
 			HUMAN(LIVING, HumanEntity.class),
 				PLAYER(HUMAN, Player.class),
 				NPC(HUMAN, NPC.class),//FIXME Does this work?
-					VILLAGER(NPC, CreatureType.VILLAGER, Villager.class),
+					VILLAGER(NPC, org.bukkit.entity.EntityType.VILLAGER, Villager.class),
 			
 			MOB(LIVING, Monster.class),
-				BLAZE(MOB, CreatureType.BLAZE, Blaze.class),
-				CAVESPIDER(MOB, CreatureType.CAVE_SPIDER, CaveSpider.class),
-				CREEPER(MOB, CreatureType.CREEPER, Creeper.class)
+				BLAZE(MOB, org.bukkit.entity.EntityType.BLAZE, Blaze.class),
+				CAVESPIDER(MOB, org.bukkit.entity.EntityType.CAVE_SPIDER, CaveSpider.class),
+				CREEPER(MOB, org.bukkit.entity.EntityType.CREEPER, Creeper.class)
 				{
 					@Override
 					protected EntityType getMostSpecificType(Object obj)
@@ -113,7 +112,7 @@ public enum EntityType implements Matchable<EntityType>
 						return CREEPER_NORMAL;
 					}
 				},
-					CREEPER_CHARGED(CREEPER, CreatureType.CREEPER)
+					CREEPER_CHARGED(CREEPER, org.bukkit.entity.EntityType.CREEPER)
 					{
 						@Override
 						public LivingEntity spawnCreature(Location location)
@@ -123,16 +122,16 @@ public enum EntityType implements Matchable<EntityType>
 							return creeper;
 						}
 					},
-					CREEPER_NORMAL(CREEPER, CreatureType.CREEPER),
-				ENDER_DRAGON(MOB, CreatureType.ENDER_DRAGON, EnderDragon.class),
-				ENDERMAN(MOB, CreatureType.ENDERMAN, Enderman.class),
-				GHAST(MOB, CreatureType.GHAST, Ghast.class),
-				GIANT(MOB, CreatureType.GIANT, Giant.class),
-				MAGMA_CUBE(MOB, CreatureType.MAGMA_CUBE, MagmaCube.class),
-				MUSHROOM_COW(MOB, CreatureType.MUSHROOM_COW, MushroomCow.class),
-				SILVERFISH(MOB, CreatureType.SILVERFISH, Silverfish.class),
-				SKELETON(MOB, CreatureType.SKELETON, Skeleton.class),
-				SLIME(MOB, CreatureType.SLIME, Slime.class)
+					CREEPER_NORMAL(CREEPER, org.bukkit.entity.EntityType.CREEPER),
+				ENDER_DRAGON(MOB, org.bukkit.entity.EntityType.ENDER_DRAGON, EnderDragon.class),
+				ENDERMAN(MOB, org.bukkit.entity.EntityType.ENDERMAN, Enderman.class),
+				GHAST(MOB, org.bukkit.entity.EntityType.GHAST, Ghast.class),
+				GIANT(MOB, org.bukkit.entity.EntityType.GIANT, Giant.class),
+				MAGMA_CUBE(MOB, org.bukkit.entity.EntityType.MAGMA_CUBE, MagmaCube.class),
+				MUSHROOM_COW(MOB, org.bukkit.entity.EntityType.MUSHROOM_COW, MushroomCow.class),
+				SILVERFISH(MOB, org.bukkit.entity.EntityType.SILVERFISH, Silverfish.class),
+				SKELETON(MOB, org.bukkit.entity.EntityType.SKELETON, Skeleton.class),
+				SLIME(MOB, org.bukkit.entity.EntityType.SLIME, Slime.class)
 				{
 					@Override
 					protected EntityType getMostSpecificType(Object obj)
@@ -147,7 +146,7 @@ public enum EntityType implements Matchable<EntityType>
 						}
 					}
 				},
-					SLIME_HUGE(SLIME, CreatureType.SLIME)
+					SLIME_HUGE(SLIME, org.bukkit.entity.EntityType.SLIME)
 					{
 						@Override
 						public LivingEntity spawnCreature(Location location)
@@ -157,7 +156,7 @@ public enum EntityType implements Matchable<EntityType>
 							return slime;
 						}
 					},
-					SLIME_LARGE(SLIME, CreatureType.SLIME)
+					SLIME_LARGE(SLIME, org.bukkit.entity.EntityType.SLIME)
 					{
 						@Override
 						public LivingEntity spawnCreature(Location location)
@@ -167,7 +166,7 @@ public enum EntityType implements Matchable<EntityType>
 							return slime;
 						}
 					},
-					SLIME_MEDIUM(SLIME, CreatureType.SLIME)
+					SLIME_MEDIUM(SLIME, org.bukkit.entity.EntityType.SLIME)
 					{
 						@Override
 						public LivingEntity spawnCreature(Location location)
@@ -177,7 +176,7 @@ public enum EntityType implements Matchable<EntityType>
 							return slime;
 						}
 					},
-					SLIME_SMALL(SLIME, CreatureType.SLIME)
+					SLIME_SMALL(SLIME, org.bukkit.entity.EntityType.SLIME)
 					{
 						@Override
 						public LivingEntity spawnCreature(Location location)
@@ -187,7 +186,7 @@ public enum EntityType implements Matchable<EntityType>
 							return slime;
 						}
 					},
-					SLIME_OTHER(SLIME, CreatureType.SLIME)
+					SLIME_OTHER(SLIME, org.bukkit.entity.EntityType.SLIME)
 					{
 						@Override
 						public LivingEntity spawnCreature(Location location)
@@ -197,7 +196,7 @@ public enum EntityType implements Matchable<EntityType>
 							return slime;
 						}
 					},
-				SPIDER(MOB, CreatureType.SPIDER, Spider.class)
+				SPIDER(MOB, org.bukkit.entity.EntityType.SPIDER, Spider.class)
 				{
 					@Override
 					protected EntityType getMostSpecificType(Object obj)
@@ -206,19 +205,19 @@ public enum EntityType implements Matchable<EntityType>
 						return SPIDER_RIDERLESS;
 					}
 				},
-					SPIDER_JOCKEY(SPIDER, CreatureType.SPIDER)
+					SPIDER_JOCKEY(SPIDER, org.bukkit.entity.EntityType.SPIDER)
 					{
 						@Override
 						public LivingEntity spawnCreature(Location location)
 						{
 							LivingEntity spider = location.getWorld().spawnCreature(location, this.getCreatureType());
-							spider.setPassenger(location.getWorld().spawnCreature(location, CreatureType.SKELETON));
+							spider.setPassenger(location.getWorld().spawnCreature(location, org.bukkit.entity.EntityType.SKELETON));
 							return spider;
 						}
 					},
-					SPIDER_RIDERLESS(SPIDER, CreatureType.SPIDER),
-				ZOMBIE(MOB, CreatureType.ZOMBIE, Zombie.class),
-				ZOMBIEPIGMAN(MOB, CreatureType.PIG_ZOMBIE, PigZombie.class)
+					SPIDER_RIDERLESS(SPIDER, org.bukkit.entity.EntityType.SPIDER),
+				ZOMBIE(MOB, org.bukkit.entity.EntityType.ZOMBIE, Zombie.class),
+				ZOMBIEPIGMAN(MOB, org.bukkit.entity.EntityType.PIG_ZOMBIE, PigZombie.class)
 				{
 					@Override
 					protected EntityType getMostSpecificType(Object obj)
@@ -227,7 +226,7 @@ public enum EntityType implements Matchable<EntityType>
 						return ZOMBIEPIGMAN_NORMAL;
 					}
 				},
-					ZOMBIEPIGMAN_ANGRY(ZOMBIEPIGMAN, CreatureType.PIG_ZOMBIE)
+					ZOMBIEPIGMAN_ANGRY(ZOMBIEPIGMAN, org.bukkit.entity.EntityType.PIG_ZOMBIE)
 					{
 						@Override
 						public LivingEntity spawnCreature(Location location)
@@ -237,8 +236,8 @@ public enum EntityType implements Matchable<EntityType>
 							return pigZombie;
 						}
 					},
-					ZOMBIEPIGMAN_NORMAL(ZOMBIEPIGMAN, CreatureType.PIG_ZOMBIE),
-			SNOWMAN(LIVING, CreatureType.SNOWMAN, Snowman.class),
+					ZOMBIEPIGMAN_NORMAL(ZOMBIEPIGMAN, org.bukkit.entity.EntityType.PIG_ZOMBIE),
+			SNOWMAN(LIVING, org.bukkit.entity.EntityType.SNOWMAN, Snowman.class),
 		
 		NONLIVING(ENTITY),
 			PROJECTILE(NONLIVING, Projectile.class),
@@ -276,14 +275,14 @@ public enum EntityType implements Matchable<EntityType>
 	
 	
 	private final EntityType parent;
-	private final CreatureType creatureType;
+	protected final org.bukkit.entity.EntityType creatureType;
 	public final Class<?>[] myClasses;
 	
 	EntityType(EntityType parent, Class<?>... myClasses) 
 	{
 		this(parent, null, myClasses);
 	}
-	EntityType(EntityType parent, CreatureType creatureType, Class<?>... myClasses) 
+	EntityType(EntityType parent, org.bukkit.entity.EntityType creatureType, Class<?>... myClasses) 
 	{
 		this.parent = parent;
 		this.creatureType = creatureType;
@@ -291,7 +290,7 @@ public enum EntityType implements Matchable<EntityType>
 	}
 
 	
-	public CreatureType getCreatureType(){ return creatureType; }
+	public org.bukkit.entity.EntityType getCreatureType(){ return creatureType; }
 	
 	//Returns true if this is equals or a subtype of the inputted element
 	public boolean matches(Matchable<?> other)
