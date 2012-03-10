@@ -19,7 +19,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.yaml.snakeyaml.Yaml;
 
@@ -162,7 +161,7 @@ public class ModDamageTagger
 					
 					for (Entry<String, Integer> entry : tagEntry.getValue().entrySet())
 					{
-						Player player = Bukkit.getPlayerExact(entry.getKey());
+						OfflinePlayer player = Bukkit.getOfflinePlayer(entry.getKey());
 						if (player != null)
 							taggedPlayers.put(player, entry.getValue());
 					}
@@ -251,6 +250,8 @@ public class ModDamageTagger
 				
 				tagEntry.getValue().keySet().retainAll(entities); // simple cleanup operation, it might not even be necessary
 				
+				if (tagEntry.getValue().isEmpty()) continue;
+				
 				for(Entry<Entity, Integer> entry : tagEntry.getValue().entrySet())
 					savedEntities.put(entry.getKey().getUniqueId().toString(), entry.getValue());
 				
@@ -261,6 +262,8 @@ public class ModDamageTagger
 			Map<String, Map<String, Integer>> playerMap = new HashMap<String, Map<String, Integer>>();
 			for(Entry<String, Map<OfflinePlayer, Integer>> tagEntry : playerTags.entrySet())
 			{
+				if (tagEntry.getValue().isEmpty()) continue;
+				
 				HashMap<String, Integer> savedPlayers = new HashMap<String, Integer>();
 				for(Entry<OfflinePlayer, Integer> entry : tagEntry.getValue().entrySet())
 					savedPlayers.put(entry.getKey().getName(), entry.getValue());
@@ -270,6 +273,8 @@ public class ModDamageTagger
 			Map<String, Map<String, Integer>> worldMap = new HashMap<String, Map<String, Integer>>();
 			for (Entry<World, Map<String, Integer>> worldEntry : worldTags.entrySet())
 			{
+				if (worldEntry.getValue().isEmpty()) continue;
+				
 				HashMap<String, Integer> savedTags = new HashMap<String, Integer>();
 				for(Entry<String, Integer> entry : worldEntry.getValue().entrySet())
 					savedTags.put(entry.getKey(), entry.getValue());

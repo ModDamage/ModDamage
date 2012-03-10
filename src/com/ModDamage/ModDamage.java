@@ -192,10 +192,15 @@ public class ModDamage extends JavaPlugin
 			protected void handleCommand(Player player, Matcher matcher)
 			{
 				if(matcher.group(1).equalsIgnoreCase("clear"))
+				{
 					tagger.clear();
+					sendMessage(player, "Tags cleared.", ChatColor.GREEN);
+				}
 				else
+				{
 					tagger.save();
-				sendMessage(player, "Tags " + matcher.group(1).toLowerCase() + "ed.", ChatColor.GREEN);
+					sendMessage(player, "Tags saved.", ChatColor.GREEN);
+				}
 			}
 		};
 		

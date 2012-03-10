@@ -1,11 +1,11 @@
 name: ModDamage
 main: com.ModDamage.ModDamage
 version: 0.9.7
-authors: [KoryuObihiro, Spudstabber, ricochet1k]
+authors: [KoryuObihiro, ricochet1k, Spudstabber]
 description: |
     Completely customize damage in Bukkit with ModDamage!
 commands:
   moddamage:
     aliases: [md]
-    description:
+    description: "Basic ModDamage control"
 softdepend: [Multiverse-Core, elRegions, WorldGuard, bPermissions, PermissionsBukkit, PermissionsEx, mcMMO]

@@ -111,6 +111,6 @@ public class DynamicTagInteger extends DynamicInteger
 	@Override
 	public String toString()
 	{
-		return entityRef + "_tag_" + tag;
+		return (entityRef == null? worldRef : entityRef) + "_tag_" + tag;
 	}
 }
