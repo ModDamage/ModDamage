@@ -36,7 +36,7 @@ public class BooleanData extends Conditional
 		@Override
 		public BooleanData getNew(Matcher matcher, EventInfo info)
 		{
-			DataRef<Boolean> boolRef = info.get(Boolean.class, matcher.group());
+			DataRef<Boolean> boolRef = info.get(Boolean.class, matcher.group(), false);
 			if (boolRef == null) return null;
 			return new BooleanData(boolRef);
 		}
