@@ -59,7 +59,7 @@ public class ModDamageItemStack
 	
 	public boolean matches(ItemStack itemStack)
 	{
-		return material.equals(itemStack.getType()) && lastAmount >= itemStack.getAmount() &&
+		return material.equals(itemStack.getType()) && lastAmount <= itemStack.getAmount() &&
 				(data == null? true : lastData == itemStack.getData().getData());
 	}
 	
