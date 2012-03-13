@@ -34,6 +34,7 @@ public abstract class NestedRoutine extends Routine
 		EntityUnknownHurt.register();
 		EntityHeal.register();
 		EntityExplode.register();
+		LaunchProjectile.register();
 		Nearby.register();
 		ChangeProperty.register();
 		McMMOChangeSkill.register();
