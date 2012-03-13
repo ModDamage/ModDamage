@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
+import com.ModDamage.ModDamage;
 import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.BailException;
@@ -14,18 +15,19 @@ import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Routines.Routines;
 
 public class EntitySpawn extends NestedRoutine
 {
 	private final DataRef<Entity> entityRef;
-	private final EntityType spawnElement;
+	private final EntityType spawnType;
 	private final Routines routines;
-	public EntitySpawn(String configString, DataRef<Entity> entityRef, EntityType spawnElement, Routines routines)
+	public EntitySpawn(String configString, DataRef<Entity> entityRef, EntityType spawnType, Routines routines)
 	{
 		super(configString);
 		this.entityRef = entityRef;
-		this.spawnElement = spawnElement;
+		this.spawnType = spawnType;
 		this.routines = routines;
 	}
 	
@@ -41,7 +43,7 @@ public class EntitySpawn extends NestedRoutine
 		if (entity == null)
 			return; //entity = EntityReference.TARGET.getEntity(data);
 		
-		LivingEntity newEntity = spawnElement.spawnCreature(entity.getLocation());
+		LivingEntity newEntity = spawnType.spawnCreature(entity.getLocation());
 		
 		IntRef health = new IntRef(newEntity.getHealth());
 		
@@ -63,13 +65,19 @@ public class EntitySpawn extends NestedRoutine
 		@Override
 		public EntitySpawn getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-			EntityType element = EntityType.getElementNamed(matcher.group(2));
+			EntityType spawnType = EntityType.getElementNamed(matcher.group(2));
+			if (spawnType == null) return null;
+			if (!spawnType.canSpawnCreature())
+			{
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Cannot spawn "+matcher.group(2));
+				return null;
+			}
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			if(element != null && element.canSpawnCreature() && entityRef != null && routines != null)
-				return new EntitySpawn(matcher.group(), entityRef, element, routines);
+			if(entityRef != null && routines != null)
+				return new EntitySpawn(matcher.group(), entityRef, spawnType, routines);
 			return null;
 		}
 	}

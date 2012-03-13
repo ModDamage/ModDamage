@@ -9,12 +9,12 @@ import java.util.regex.Pattern;
 
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnchantmentsRef;
-import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.Backend.Aliasing.ItemAliaser;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
@@ -66,15 +66,13 @@ public class EntityItemAction extends NestedRoutine
 	
 	protected final ItemAction action;
 	protected final Collection<ModDamageItemStack> items;
-	protected final DataRef<Entity> entityRef;
-	protected final DataRef<EntityType> entityElementRef;
+	protected final DataRef<LivingEntity> entityRef;
 	protected final Routines routines;
 	protected final DynamicInteger quantity;
-	public EntityItemAction(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, ItemAction action, Collection<ModDamageItemStack> items, DynamicInteger quantity, Routines routines)
+	public EntityItemAction(String configString, DataRef<LivingEntity> entityRef, ItemAction action, Collection<ModDamageItemStack> items, DynamicInteger quantity, Routines routines)
 	{
 		super(configString);
 		this.entityRef = entityRef;
-		this.entityElementRef = entityElementRef;
 		this.action = action;
 		this.items = items;
 		this.quantity = quantity;
@@ -84,12 +82,12 @@ public class EntityItemAction extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		if(!action.requiresPlayer || entityElementRef.get(data).matches(EntityType.PLAYER))
+		LivingEntity entity = entityRef.get(data);
+		
+		if(!action.requiresPlayer || entity instanceof Player)
 		{
 			for(ModDamageItemStack item : items)
 				item.update(data);
-			
-			Entity entity = entityRef.get(data);
 			
 			int quantity = this.quantity.getValue(data);
 			
@@ -147,8 +145,7 @@ public class EntityItemAction extends NestedRoutine
 		public EntityItemAction getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
-			DataRef<Entity> entityRef = info.get(Entity.class, name); if (entityRef == null) return null;
-			DataRef<EntityType> entityElementRef = info.get(EntityType.class, name); if (entityElementRef == null) return null;
+			DataRef<LivingEntity> entityRef = info.get(LivingEntity.class, name); if (entityRef == null) return null;
 			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
 			if(items != null && !items.isEmpty())
 			{
@@ -163,7 +160,7 @@ public class EntityItemAction extends NestedRoutine
 				else
 					quantity = new ConstantInteger(1);
 				
-				return new EntityItemAction(matcher.group(), entityRef, entityElementRef, ItemAction.valueOf(matcher.group(2).toUpperCase()), items, quantity, routines);
+				return new EntityItemAction(matcher.group(), entityRef, ItemAction.valueOf(matcher.group(2).toUpperCase()), items, quantity, routines);
 			}
 			return null;
 		}

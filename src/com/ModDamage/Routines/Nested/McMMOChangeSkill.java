@@ -3,7 +3,6 @@ package com.ModDamage.Routines.Nested;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ExternalPluginManager;
@@ -23,14 +22,14 @@ import com.gmail.nossr50.datatypes.SkillType;
 
 public class McMMOChangeSkill extends NestedRoutine
 {	
-	private final DataRef<Entity> entityRef;
+	private final DataRef<Player> playerRef;
 	private final DynamicInteger skill_level;
 	protected final SkillType skillType;
 	protected final boolean isAdditive;
-	protected McMMOChangeSkill(String configString, DataRef<Entity> entityRef, DynamicInteger skill_level, SkillType skillType, boolean isAdditive)
+	protected McMMOChangeSkill(String configString, DataRef<Player> playerRef, DynamicInteger skill_level, SkillType skillType, boolean isAdditive)
 	{
 		super(configString);
-		this.entityRef = entityRef;
+		this.playerRef = playerRef;
 		this.skill_level = skill_level;
 		this.skillType = skillType;
 		this.isAdditive = isAdditive;
@@ -41,18 +40,14 @@ public class McMMOChangeSkill extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		Entity entity = entityRef.get(data);
-		if(entity instanceof Player)
+		Player player = playerRef.get(data);
+		mcMMO mcMMOplugin = ExternalPluginManager.getMcMMOPlugin();
+		if(mcMMOplugin != null)
 		{
-			Player player = (Player)entityRef.get(data);
-			mcMMO mcMMOplugin = ExternalPluginManager.getMcMMOPlugin();
-			if(mcMMOplugin != null)
-			{
-				EventData myData = myInfo.makeChainedData(data, new IntRef(0));
-				
-				mcMMOplugin.getPlayerProfile(player).modifyskill(skillType, 
-						skill_level.getValue(myData) + (isAdditive?mcMMOplugin.getPlayerProfile(player).getSkillLevel(skillType):0));
-			}
+			EventData myData = myInfo.makeChainedData(data, new IntRef(0));
+			
+			mcMMOplugin.getPlayerProfile(player).modifyskill(skillType, 
+					skill_level.getValue(myData) + (isAdditive?mcMMOplugin.getPlayerProfile(player).getSkillLevel(skillType):0));
 		}
 	}
 
@@ -69,14 +64,14 @@ public class McMMOChangeSkill extends NestedRoutine
 			for(SkillType skillType : SkillType.values())
 				if(matcher.group(3).equalsIgnoreCase(skillType.name()))
 				{
-					DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+					DataRef<Player> playerRef = info.get(Player.class, matcher.group(1).toLowerCase());
 
 					EventInfo einfo = info.chain(myInfo);
 					Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 					DynamicInteger skill_level = DynamicInteger.getNew(routines, einfo);
 					
-					if(entityRef != null)
-						return new McMMOChangeSkill(matcher.group(), entityRef, skill_level, skillType, matcher.group(2).equalsIgnoreCase("add"));
+					if(playerRef != null)
+						return new McMMOChangeSkill(matcher.group(), playerRef, skill_level, skillType, matcher.group(2).equalsIgnoreCase("add"));
 				}
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid McMMO skill \"" + matcher.group(3) + "\"");
 			return null;

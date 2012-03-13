@@ -82,7 +82,7 @@ public class SimpleEventInfo extends EventInfo
 	{
 		for (Entry<Class<?>, Map<String, Integer>> entry : map.entrySet())
 		{
-			if (cls.isAssignableFrom(entry.getKey()))
+			if (cls.isAssignableFrom(entry.getKey()) || entry.getKey().isAssignableFrom(cls))
 			{
 				Integer integer = entry.getValue().get(name);
 				if (integer != null)
@@ -106,7 +106,7 @@ public class SimpleEventInfo extends EventInfo
 		Set<String> names = new HashSet<String>();
 		for (Entry<Class<?>, Map<String, Integer>> entry : map.entrySet())
 		{
-			if (cls.isAssignableFrom(entry.getKey()))
+			if (cls.isAssignableFrom(entry.getKey()) || entry.getKey().isAssignableFrom(cls))
 			{
 				for (String name : entry.getValue().keySet())
 					if (!name.startsWith("-"))

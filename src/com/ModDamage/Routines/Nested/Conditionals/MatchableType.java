@@ -57,7 +57,7 @@ public class MatchableType extends Conditional
 			DataRef<Matchable> matchableRef = (DataRef<Matchable>) info.get(Matchable.class, name);
 			if (matchableRef == null) return null;
 			
-			Map<String, Matchable<?>> possibleTypes = EnumHelper.getTypeMapForEnum(matchableRef.cls);
+			Map<String, Matchable<?>> possibleTypes = EnumHelper.getTypeMapForEnum(matchableRef.infoCls);
 			
 			List<Matchable> types = new ArrayList<Matchable>();
 			
@@ -66,7 +66,7 @@ public class MatchableType extends Conditional
 				Matchable type = possibleTypes.get(typeStr.toUpperCase());
 				if (type == null)
 				{
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + typeStr + "\" is not a valid " + matchableRef.cls.getSimpleName());
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + typeStr + "\" is not a valid " + matchableRef.infoCls.getSimpleName());
 					return null;
 				}
 				types.add(type);

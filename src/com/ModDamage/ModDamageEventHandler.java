@@ -53,7 +53,7 @@ enum ModDamageEventHandler
 			IntRef.class, 							"damage", "-default"),
 			
 		new Listener(){
-			DataRef<IntRef> damageRef = new DataRef<IntRef>(IntRef.class, "damage", 8);
+			DataRef<IntRef> damageRef = new DataRef<IntRef>(IntRef.class, IntRef.class, "damage", 8);
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onEntityDamage(EntityDamageEvent event)
 			{

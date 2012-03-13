@@ -11,7 +11,6 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.EntityType;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.Backend.Matching.DynamicInteger;
@@ -23,16 +22,14 @@ import com.ModDamage.Routines.Routines;
 
 public class EntityHurt extends NestedRoutine
 {
-	private final DataRef<Entity> entityRef;
-	private final DataRef<EntityType> entityElementRef;
+	private final DataRef<LivingEntity> entityRef;
 	private final DataRef<Entity> entityOtherRef;
 	private final DynamicInteger hurt_amount;
 	
-	public EntityHurt(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, DataRef<Entity> entityOtherRef, DynamicInteger hurt_amount)
+	public EntityHurt(String configString, DataRef<LivingEntity> entityRef, DataRef<Entity> entityOtherRef, DynamicInteger hurt_amount)
 	{
 		super(configString);
 		this.entityRef = entityRef;
-		this.entityElementRef = entityElementRef;
 		this.entityOtherRef = entityOtherRef;
 		this.hurt_amount = hurt_amount;
 	}
@@ -42,26 +39,23 @@ public class EntityHurt extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		if(entityElementRef.get(data).matches(EntityType.LIVING))
+		final LivingEntity target = (LivingEntity) entityRef.get(data);
+		final Entity from = entityOtherRef.get(data);
+		if(from != null && target.getHealth() > 0 && !target.isDead())
 		{
-			final LivingEntity target = (LivingEntity) entityRef.get(data);
-			final Entity from = entityOtherRef.get(data);
-			if(from != null && target.getHealth() > 0 && !target.isDead())
-			{
-				final EventData myData = myInfo.makeChainedData(data, new IntRef(0));
-				final int damage = hurt_amount.getValue(myData);
-				Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, new Runnable()
+			final EventData myData = myInfo.makeChainedData(data, new IntRef(0));
+			final int damage = hurt_amount.getValue(myData);
+			Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, new Runnable()
+				{
+					@Override
+					public void run()
 					{
-						@Override
-						public void run()
-						{
-							EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(from, target, DamageCause.ENTITY_ATTACK, damage);
-							Bukkit.getPluginManager().callEvent(event);
-							if (!event.isCancelled())
-								target.damage(event.getDamage());
-						}
-					});
-			}
+						EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(from, target, DamageCause.ENTITY_ATTACK, damage);
+						Bukkit.getPluginManager().callEvent(event);
+						if (!event.isCancelled())
+							target.damage(event.getDamage());
+					}
+				});
 		}
 	}
 
@@ -76,8 +70,7 @@ public class EntityHurt extends NestedRoutine
 		public EntityHurt getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
-			DataRef<Entity> entityRef = info.get(Entity.class, name);
-			DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
+			DataRef<LivingEntity> entityRef = info.get(LivingEntity.class, name);
 			String otherName = "-" + name + "-other";
 			DataRef<Entity> entityOtherRef = info.get(Entity.class, otherName);
 
@@ -86,7 +79,7 @@ public class EntityHurt extends NestedRoutine
 			DynamicInteger hurt_amount = DynamicInteger.getNew(routines, einfo);
 			
 			if(entityRef != null && entityOtherRef != null)
-				return new EntityHurt(matcher.group(), entityRef, entityElementRef, entityOtherRef, hurt_amount);
+				return new EntityHurt(matcher.group(), entityRef, entityOtherRef, hurt_amount);
 			return null;
 		}
 	}

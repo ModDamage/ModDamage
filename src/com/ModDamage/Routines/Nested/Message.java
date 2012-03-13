@@ -82,14 +82,14 @@ public class Message extends NestedRoutine
 			}
 			
 			{
-				final DataRef<Entity> entityRef = info.get(Entity.class, key);
-				if(entityRef == null) return null;
+				final DataRef<Player> playerRef = info.get(Player.class, key);
+				if(playerRef == null) return null;
 				return new MessageTarget()
 				{
 					@Override
 					public void sendMessages(Collection<String> msgs, EventData data)
 					{
-						Entity entity = entityRef.get(data);
+						Entity entity = playerRef.get(data);
 						if (entity instanceof Player)
 						{
 							Player player = (Player) entity;
@@ -98,7 +98,7 @@ public class Message extends NestedRoutine
 						}
 					}
 
-					@Override public String toString() { return entityRef.toString(); }
+					@Override public String toString() { return playerRef.toString(); }
 				};
 			}
 		}

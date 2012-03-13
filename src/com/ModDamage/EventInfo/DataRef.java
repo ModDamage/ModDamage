@@ -2,20 +2,25 @@ package com.ModDamage.EventInfo;
 
 public class DataRef<T>
 {
-	public final Class<? extends T> cls;
+	public final Class<T> givenCls;
+	public final Class<?> infoCls;
 	public final String name;
 	public final int index;
 	
-	public DataRef(Class<? extends T> cls, String name, int index)
+	public DataRef(Class<T> givenCls, Class<?> infoCls, String name, int index)
 	{
-		this.cls = cls;
+		this.givenCls = givenCls;
+		this.infoCls = infoCls;
 		this.name = name;
 		this.index = index;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public T get(EventData data)
 	{
-		return data.get(cls, index);
+		Object obj = data.get(infoCls, index);
+		if (obj != null && givenCls.isInstance(obj)) return (T) obj;
+		return null;
 	}
 	
 	@Override
