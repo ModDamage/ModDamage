@@ -12,11 +12,11 @@ import com.ModDamage.Routines.Routines;
 import com.ModDamage.Routines.Nested.Conditionals.Conditional;
 import com.ModDamage.Routines.Nested.Conditionals.InvertConditional;
 
-public class ConditionalRoutine extends NestedRoutine
+public class IfRoutine extends NestedRoutine
 {
 	protected final Conditional conditional;
 	protected final Routines routines;
-	private ConditionalRoutine(String configString, Conditional conditional, Routines routines)
+	private IfRoutine(String configString, Conditional conditional, Routines routines)
 	{
 		super(configString);
 		this.conditional = conditional;
@@ -40,12 +40,12 @@ public class ConditionalRoutine extends NestedRoutine
 	protected final static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{
 		@Override
-		public ConditionalRoutine getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IfRoutine getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			if(matcher == null || nestedContent == null)
 				return null;
 			
-			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "Conditional: \"" + matcher.group() + "\"");
+			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "If: \"" + matcher.group() + "\"");
 			
 			String conditionalStr = matcher.group(2);
 			
@@ -57,17 +57,13 @@ public class ConditionalRoutine extends NestedRoutine
 			if (matcher.group(1) != null)
 				conditional = new InvertConditional(conditional);
 			
-			//try
-			//{
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, info);
 			if(routines != null)
 			{
-				NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End conditional \"" + matcher.group() + "\"");
-				return new ConditionalRoutine(matcher.group(), conditional, routines);
+				NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End If");
+				return new IfRoutine(matcher.group(), conditional, routines);
 			}
-			else NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid content in conditional \"" + matcher.group() + "\"");
-			//}
-			//catch (Exception e){ e.printStackTrace(); }
+			else NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid content in If");
 			
 			return null;
 		}

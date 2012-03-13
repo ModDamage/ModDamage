@@ -22,7 +22,7 @@ public abstract class NestedRoutine extends Routine
 	public static void registerVanillaRoutines()
 	{
 		registeredNestedRoutines.clear();
-		ConditionalRoutine.register();
+		IfRoutine.register();
 		Tag.registerNested();
 		Delay.register();
 		Message.registerNested();
