@@ -108,7 +108,7 @@ abstract public class Conditional
 		//Server
 		ServerOnlineMode.register();
 		//Other
-		ItemMaterial.register();
+		ItemMatches.register();
 		BooleanData.register();
 		Comparison.register();
 	}
