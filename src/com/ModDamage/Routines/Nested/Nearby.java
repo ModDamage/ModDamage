@@ -38,21 +38,17 @@ public class Nearby extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		Class<?>[] entClasses = filterElement.myClasses;
+		Class<?> entClass = filterElement.myClass;
 		LivingEntity entity = (LivingEntity) entityRef.get(data);
 		int r = radius.getValue(data);
 		ENTITIES: for (Entity e : entity.getNearbyEntities(r, r, r))
 		{
-			Class<?> eClass = e.getClass();
-			for (Class<?> entClass : entClasses)
-			{
-				if (entClass.isAssignableFrom(eClass)){
-					EventData newData = myInfo.makeChainedData(data, e, EntityType.get(e));
-					
-					routines.run(newData);
-					
-					continue ENTITIES;
-				}
+			if (entClass.isAssignableFrom(e.getClass())){
+				EventData newData = myInfo.makeChainedData(data, e, EntityType.get(e));
+				
+				routines.run(newData);
+				
+				continue ENTITIES;
 			}
 		}
 	}

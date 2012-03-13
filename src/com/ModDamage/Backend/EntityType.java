@@ -257,12 +257,10 @@ public enum EntityType implements Matchable<EntityType>
 	static {
 		for (EntityType element : EntityType.values())
 		{
-			for (Class<?> myClass : element.myClasses)
-			{
-				if (byClass.containsKey(myClass))
-					ModDamage.getPluginConfiguration().printToLog(Level.SEVERE, "Duplicate " + myClass + ": " + byClass.get(myClass) + ", " + element);
-				byClass.put(myClass, element);
-			}
+			if (element.myClass == null) continue;
+			if (byClass.containsKey(element.myClass))
+				ModDamage.getPluginConfiguration().printToLog(Level.SEVERE, "Duplicate " + element.myClass + ": " + byClass.get(element.myClass) + ", " + element);
+			byClass.put(element.myClass, element);
 		}
 	}
 
@@ -276,17 +274,25 @@ public enum EntityType implements Matchable<EntityType>
 	
 	private final EntityType parent;
 	protected final org.bukkit.entity.EntityType creatureType;
-	public final Class<?>[] myClasses;
+	public final Class<?> myClass;
 	
-	EntityType(EntityType parent, Class<?>... myClasses) 
+	EntityType(EntityType parent) 
 	{
-		this(parent, null, myClasses);
+		this(parent, null, null);
 	}
-	EntityType(EntityType parent, org.bukkit.entity.EntityType creatureType, Class<?>... myClasses) 
+	EntityType(EntityType parent, Class<?> myClass) 
+	{
+		this(parent, null, myClass);
+	}
+	EntityType(EntityType parent, org.bukkit.entity.EntityType creatureType) 
+	{
+		this(parent, creatureType, null);
+	}
+	EntityType(EntityType parent, org.bukkit.entity.EntityType creatureType, Class<?> myClass) 
 	{
 		this.parent = parent;
 		this.creatureType = creatureType;
-		this.myClasses = myClasses;
+		this.myClass = myClass;
 	}
 
 	
