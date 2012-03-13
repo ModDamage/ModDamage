@@ -70,6 +70,18 @@ public class DynamicEntityInteger extends DynamicInteger
 				return entity.getEntityId();
 			}
 		},
+		LASTDAMAGE(true, EntityType.LIVING)
+		{
+			@Override public int getValue(Entity entity)
+			{
+				return ((LivingEntity)entity).getLastDamage();
+			}
+			
+			@Override public void setValue(Entity entity, int value)
+			{
+				((LivingEntity)entity).setLastDamage(value);
+			}
+		},
 		LIGHT
 		{
 			@Override public int getValue(Entity entity)
