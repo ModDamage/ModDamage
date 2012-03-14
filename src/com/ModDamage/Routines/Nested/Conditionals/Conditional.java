@@ -98,7 +98,7 @@ abstract public class Conditional
 		PlayerGroupEvaluation.register();
 		PlayerHasItem.register();
 		PlayerHasEnchantment.register();
-		PlayerPermissionEvaluation.register();
+		PlayerHasPermission.register();
 		PlayerItemInSlotMatches.register();
 		//Event
 		EventHasProjectile.register();

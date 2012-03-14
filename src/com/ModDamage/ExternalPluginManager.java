@@ -119,12 +119,7 @@ public class ExternalPluginManager
 		};
 
 		private static String version;
-		public boolean hasPermission(Player player, String permission)
-		{
-			if(player != null)
-				return player.isOp() || player.hasPermission(permission);
-			return false;
-		}
+		
 		public List<String> getGroups(Player player){ return emptyList; }
 
 		public static PermissionsManager reload()
