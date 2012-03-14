@@ -104,14 +104,6 @@ public class ExternalPluginManager
 			}
 			
 			@Override
-			public boolean hasPermission(Player player, String permission)
-			{
-				if(player != null)
-					return player.isOp() || plugin.getPlayerInfo(player.getName()).getPermissions().containsKey(permission);
-				return false;
-			}
-			
-			@Override
 			protected void reload(Plugin plugin)
 			{
 				this.plugin = (PermissionsPlugin)plugin;
