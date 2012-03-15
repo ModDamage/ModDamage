@@ -156,10 +156,10 @@ public class DynamicEntityString extends DynamicString
 		Matcher matcher = entityStringPattern.matcher(string);
 		if (matcher.matches())
 		{
-			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase(), false);
-			if (entityRef != null)
-				return new DynamicEntityString(entityRef, EntityStringPropertyMatch.valueOf(matcher.group(2).toUpperCase()));
-			return null;
+			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+			if (entityRef != null) return null;
+			
+			return new DynamicEntityString(entityRef, EntityStringPropertyMatch.valueOf(matcher.group(2).toUpperCase()));
 		}
 		
 		return null;
@@ -168,6 +168,6 @@ public class DynamicEntityString extends DynamicString
 	@Override
 	public String toString()
 	{
-		return /*FIXME entityIndex.name().toLowerCase() +*/ "_" + propertyMatch.name().toLowerCase();
+		return entityRef + "_" + propertyMatch.name().toLowerCase();
 	}
 }

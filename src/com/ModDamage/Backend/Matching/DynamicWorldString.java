@@ -49,13 +49,9 @@ public class DynamicWorldString extends DynamicString
 	public static DynamicWorldString getNew(String string, EventInfo info)
 	{
 		DataRef<World> worldRef = info.get(World.class, "world");
-		if (worldRef != null)
-			try {
-				return new DynamicWorldString(WorldProperty.valueOf(string.toUpperCase()), worldRef);
-			}
-			catch (IllegalArgumentException e) {}
+		if (worldRef == null) return null;
 		
-		return null;
+		return new DynamicWorldString(WorldProperty.valueOf(string.toUpperCase()), worldRef);
 	}
 	
 	@Override
