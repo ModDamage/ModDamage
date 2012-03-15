@@ -18,7 +18,7 @@ public class Comparison extends Conditional
 {
 	private enum ComparisonType
 	{ 
-		EQUALS("==")
+		EQUALS("==?")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 == operand2; }
