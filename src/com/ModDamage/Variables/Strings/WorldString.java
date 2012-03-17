@@ -52,7 +52,14 @@ public class WorldString extends StringExp
 		DataRef<World> worldRef = info.get(World.class, "world");
 		if (worldRef == null) return null;
 		
-		return new WorldString(WorldStringProperty.valueOf(string.toUpperCase()), worldRef);
+		try
+		{
+			return new WorldString(WorldStringProperty.valueOf(string.toUpperCase()), worldRef);
+		}
+		catch (IllegalArgumentException e)
+		{
+			return null;
+		}
 	}
 	
 	@Override
