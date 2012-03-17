@@ -39,7 +39,7 @@ public class Teleport extends Routine
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("([a-z]+?)(?:effect)?.teleport.(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("([a-z]+?)(?:effect)?\\.teleport\\.(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	private static Pattern dotPattern = Pattern.compile("\\s*\\.\\s*");
@@ -50,6 +50,7 @@ public class Teleport extends Routine
 		public Teleport getNew(Matcher matcher, EventInfo info)
 		{ 
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+			if (entityRef == null) return null;
 			
 			StringMatcher sm = new StringMatcher(matcher.group(2));
 			IntegerExp x = IntegerExp.getIntegerFromFront(sm.spawn(), info); if (x == null) return null;
