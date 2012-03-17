@@ -44,6 +44,8 @@ public class PlayEntityEffect extends Routine
 		public PlayEntityEffect getNew(Matcher matcher, EventInfo info)
 		{ 
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+			if (entityRef == null) return null;
+			
 			EntityEffect effectType;
 			try
 			{
