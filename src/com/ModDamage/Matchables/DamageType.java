@@ -1,42 +1,55 @@
 package com.ModDamage.Matchables;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public enum DamageType implements Matchable<DamageType>
 {
-	UNKNOWN(null),
-	NATURE(null),
-		CACTUS(NATURE),
-		CUSTOM(NATURE),
-		DROWNING(NATURE),
-		EXPLOSION(NATURE),
-			EXPLOSION_ENTITY(EXPLOSION),
-			EXPLOSION_BLOCK(EXPLOSION),
-		FALL(NATURE),
-		FIRE(NATURE),
-		BURN(NATURE),
-		LAVA(NATURE),
-		LIGHTNING(NATURE),
-		MAGIC(NATURE),
-		POISON(NATURE),
-		STARVATION(NATURE),
-		SUFFOCATION(NATURE),
-		SUICIDE(NATURE),
-		VOID(NATURE),
-	LIVING(null),
-	PROJECTILE(null);
+	UNKNOWN(null, null),
+	NATURE(null, null),
+		CONTACT(NATURE, DamageCause.CONTACT),
+		CUSTOM(NATURE, DamageCause.CUSTOM),
+		DROWNING(NATURE, DamageCause.DROWNING),
+		EXPLOSION(NATURE, null),
+			EXPLOSION_ENTITY(EXPLOSION, DamageCause.ENTITY_EXPLOSION),
+			EXPLOSION_BLOCK(EXPLOSION, DamageCause.BLOCK_EXPLOSION),
+		FALL(NATURE, DamageCause.FALL),
+		FIRE(NATURE, DamageCause.FIRE),
+		BURN(NATURE, DamageCause.FIRE_TICK),
+		LAVA(NATURE, DamageCause.LAVA),
+		LIGHTNING(NATURE, DamageCause.LIGHTNING),
+		MAGIC(NATURE, DamageCause.MAGIC),
+		POISON(NATURE, DamageCause.POISON),
+		STARVATION(NATURE, DamageCause.STARVATION),
+		SUFFOCATION(NATURE, DamageCause.SUFFOCATION),
+		SUICIDE(NATURE, DamageCause.SUICIDE),
+		VOID(NATURE, DamageCause.VOID),
+	LIVING(null, DamageCause.ENTITY_ATTACK),
+	PROJECTILE(null, DamageCause.PROJECTILE);
+	
+	private static final Map<DamageCause, DamageType> causeMap = new HashMap<DamageCause, DamageType>();
+	
+	static {
+		for (DamageType type : values())
+			if (type.cause != null)
+				causeMap.put(type.cause, type);
+	}
 	
 	private final DamageType parent;
+	private final DamageCause cause;
 	
-	private DamageType(DamageType parent)
+	private DamageType(DamageType parent, DamageCause cause)
 	{
 		this.parent = parent;
+		this.cause = cause;
 	}
 
 	@Override
 	public boolean matches(Matchable<?> other)
 	{
-		if (other == null || !DamageType.class.isAssignableFrom(other.getClass())) return false;
+		if (other == null || !(other instanceof DamageType)) return false;
 		DamageType type = (DamageType)other;
 		
 		DamageType temp = this;
@@ -50,27 +63,8 @@ public enum DamageType implements Matchable<DamageType>
 	
 	public static DamageType get(DamageCause cause) 
 	{
-		switch(cause)
-		{
-		case CONTACT: 			return CACTUS;
-		case ENTITY_ATTACK:		return LIVING;
-		case PROJECTILE:		return PROJECTILE;
-		case SUFFOCATION: 		return SUFFOCATION;
-		case FALL: 				return FALL;
-		case FIRE: 				return FIRE;
-		case FIRE_TICK:			return BURN;
-		case LAVA: 				return LAVA;
-		case DROWNING: 			return DROWNING;
-		case BLOCK_EXPLOSION:   return EXPLOSION_BLOCK;
-		case ENTITY_EXPLOSION: 	return EXPLOSION_ENTITY;
-		case VOID: 				return VOID;
-		case LIGHTNING: 		return LIGHTNING;
-		case SUICIDE:			return SUICIDE;
-		case STARVATION:		return STARVATION;
-		case POISON: 			return POISON;
-		case MAGIC:				return MAGIC;
-		case CUSTOM:			return CUSTOM;
-		}
-		return null;
+		DamageType type = causeMap.get(cause);
+		if (type == null) return UNKNOWN;
+		return type;
 	}
 }

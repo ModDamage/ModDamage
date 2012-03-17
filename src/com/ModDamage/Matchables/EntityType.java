@@ -301,7 +301,7 @@ public enum EntityType implements Matchable<EntityType>
 	//Returns true if this is equals or a subtype of the inputted element
 	public boolean matches(Matchable<?> other)
 	{
-		if (other == null || !EntityType.class.isAssignableFrom(other.getClass())) return false;
+		if (other == null || !(other instanceof EntityType)) return false;
 		EntityType type = (EntityType)other;
 		
 		
