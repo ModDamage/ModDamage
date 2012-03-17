@@ -41,7 +41,7 @@ public class EntityHurt extends NestedRoutine
 	{
 		final LivingEntity target = (LivingEntity) entityRef.get(data);
 		final Entity from = entityOtherRef.get(data);
-		if(from != null && target.getHealth() > 0 && !target.isDead())
+		if(from != null && target != null && target.getHealth() > 0 && !target.isDead())
 		{
 			final EventData myData = myInfo.makeChainedData(data, new IntRef(0));
 			final int damage = hurt_amount.getValue(myData);
