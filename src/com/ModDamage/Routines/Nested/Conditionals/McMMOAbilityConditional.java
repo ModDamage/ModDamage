@@ -95,9 +95,9 @@ public class McMMOAbilityConditional extends McMMOConditionalStatement
 
 		abstract public boolean isActivated(mcMMO mcMMOplugin, Player player);
 	}
-	protected McMMOAbilityConditional(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, McMMOAbility ability) 
+	protected McMMOAbilityConditional(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, McMMOAbility ability) 
 	{
-		super(entityRef, entityElementRef);
+		super(configString, entityRef, entityElementRef);
 		this.ability = ability;
 	}
 
@@ -127,7 +127,7 @@ public class McMMOAbilityConditional extends McMMOConditionalStatement
 			DataRef<Entity> entityRef = info.get(Entity.class, name);
 			DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
 			if(entityRef != null & mcMMOability != null)
-				return new McMMOAbilityConditional(entityRef, entityElementRef, mcMMOability);
+				return new McMMOAbilityConditional(matcher.group(), entityRef, entityElementRef, mcMMOability);
 			return null;
 		}
 	}

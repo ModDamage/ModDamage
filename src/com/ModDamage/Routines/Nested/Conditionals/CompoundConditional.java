@@ -78,8 +78,9 @@ public class CompoundConditional extends Conditional
 	private final Conditional left;
 	private final LogicalOperator operator;
 	private final Conditional right;
-	public CompoundConditional(Conditional left, LogicalOperator operator, Conditional right)
+	public CompoundConditional(String configString, Conditional left, LogicalOperator operator, Conditional right)
 	{
+		super(configString);
 		this.left = left;
 		this.operator = operator;
 		this.right = right;

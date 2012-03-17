@@ -18,10 +18,13 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 public class ItemMatches extends Conditional 
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.(material|matches)\\.([\\w,]+)", Pattern.CASE_INSENSITIVE);
+	
 	private final DataRef<ItemStack> itemRef;
 	private final Collection<ModDamageItemStack> items;
-	public ItemMatches(DataRef<ItemStack> itemRef, Collection<ModDamageItemStack> items)
-	{  
+	
+	public ItemMatches(String configString, DataRef<ItemStack> itemRef, Collection<ModDamageItemStack> items)
+	{
+		super(configString);
 		this.itemRef = itemRef;
 		this.items = items;
 	}
@@ -56,7 +59,7 @@ public class ItemMatches extends Conditional
 			{
 				if (matcher.group(1).equalsIgnoreCase("material"))
 					ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Using the material version is deprecated. Please use '"+ matcher.group(1) +".matches."+ matcher.group(3) +"' instead.");
-				return new ItemMatches(itemRef, matchedItems);
+				return new ItemMatches(matcher.group(), itemRef, matchedItems);
 			}
 			return null;
 		}

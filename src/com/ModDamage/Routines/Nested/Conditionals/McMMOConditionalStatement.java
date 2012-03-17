@@ -15,8 +15,9 @@ public abstract class McMMOConditionalStatement extends Conditional
 	protected final DataRef<Entity> entityRef;
 	protected final DataRef<EntityType> entityElementRef;
 	
-	protected McMMOConditionalStatement(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef)
+	protected McMMOConditionalStatement(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef)
 	{
+		super(configString);
 		this.entityRef = entityRef;
 		this.entityElementRef = entityElementRef;
 	}

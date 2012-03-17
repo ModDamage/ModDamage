@@ -9,6 +9,11 @@ import com.ModDamage.EventInfo.EventInfo;
 
 public abstract class NestedConditional extends Conditional
 {
+	protected NestedConditional(String configString)
+	{
+		super(configString);
+	}
+
 	public static final Pattern openPattern = Pattern.compile("\\s*\\(\\s*");
 	public static final Pattern closePattern = Pattern.compile("\\s*\\)\\s*");
 	

@@ -19,8 +19,9 @@ public class PlayerGroupEvaluation extends Conditional
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.group\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	private final DataRef<Entity> entityRef;
 	private final Collection<String> groups;
-	public PlayerGroupEvaluation(DataRef<Entity> entityRef, Collection<String> groups)
-	{  
+	public PlayerGroupEvaluation(String configString, DataRef<Entity> entityRef, Collection<String> groups)
+	{
+		super(configString);
 		this.entityRef = entityRef;
 		this.groups = groups;
 	}
@@ -49,7 +50,7 @@ public class PlayerGroupEvaluation extends Conditional
 		{
 			Collection<String> matchedGroups = GroupAliaser.match(matcher.group(2));
 			if(!matchedGroups.isEmpty())
-				return new PlayerGroupEvaluation(info.get(Entity.class, matcher.group(1).toLowerCase()), matchedGroups);
+				return new PlayerGroupEvaluation(matcher.group(), info.get(Entity.class, matcher.group(1).toLowerCase()), matchedGroups);
 			return null;
 		}
 	}

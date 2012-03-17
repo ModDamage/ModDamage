@@ -25,8 +25,10 @@ public class PlayerItemInSlotMatches extends Conditional
 	private final DataRef<EntityType> entityElementRef;
 	private final DynamicInteger slot;
 	private final Collection<ModDamageItemStack> items;
-	public PlayerItemInSlotMatches(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, DynamicInteger slot, Collection<ModDamageItemStack> items)
+	
+	public PlayerItemInSlotMatches(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, DynamicInteger slot, Collection<ModDamageItemStack> items)
 	{
+		super(configString);
 		this.entityRef = entityRef;
 		this.entityElementRef = entityElementRef;
 		this.slot = slot;
@@ -68,7 +70,7 @@ public class PlayerItemInSlotMatches extends Conditional
 			DynamicInteger slot = DynamicInteger.getNew(matcher.group(2), info); if (slot == null) return null;
 			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info); if (items == null || items.isEmpty()) return null;
 			
-			return new PlayerItemInSlotMatches(entityRef, entityElementRef, slot, items);
+			return new PlayerItemInSlotMatches(matcher.group(), entityRef, entityElementRef, slot, items);
 		}
 	}
 }

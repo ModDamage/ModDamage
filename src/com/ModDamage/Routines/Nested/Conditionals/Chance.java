@@ -15,8 +15,10 @@ public class Chance extends Conditional
 	
 	protected final Random random = new Random();
 	protected final DynamicInteger probability;
-	public Chance(DynamicInteger probability)
-	{ 
+	
+	public Chance(String configString, DynamicInteger probability)
+	{
+		super(configString);
 		this.probability = probability;
 	}
 	@Override
@@ -37,7 +39,7 @@ public class Chance extends Conditional
 		@Override
 		public Chance getNew(Matcher matcher, EventInfo info)
 		{
-			return new Chance(DynamicInteger.getNew(matcher.group(1), info));
+			return new Chance(matcher.group(), DynamicInteger.getNew(matcher.group(1), info));
 		}
 	}
 }

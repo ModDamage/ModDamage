@@ -19,8 +19,9 @@ public class EventWorld extends Conditional
 	protected final Collection<String> worlds;
 	private final DataRef<World> worldRef;
 
-	public EventWorld(Collection<String> worlds, DataRef<World> worldRef)
+	public EventWorld(String configString, Collection<String> worlds, DataRef<World> worldRef)
 	{
+		super(configString);
 		this.worlds = worlds;
 		this.worldRef = worldRef;
 	}
@@ -46,7 +47,7 @@ public class EventWorld extends Conditional
 			Collection<String> worlds = WorldAliaser.match(matcher.group(1));
 			DataRef<World> worldRef = info.get(World.class, "world");
 			if (!worlds.isEmpty() && worldRef != null)
-				return new EventWorld(worlds, worldRef);
+				return new EventWorld(matcher.group(), worlds, worldRef);
 			return null;
 		}
 	}

@@ -96,8 +96,9 @@ public class EntityStatus extends Conditional
 		abstract public boolean isTrue(Entity entity);
 	}
 	
-	protected EntityStatus(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, StatusType statusType)
+	protected EntityStatus(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, StatusType statusType)
 	{
+		super(configString);
 		this.entityRef = entityRef;
 		this.entityElementRef = entityElementRef;
 		this.statusType = statusType;
@@ -135,7 +136,7 @@ public class EntityStatus extends Conditional
 				DataRef<Entity> entityRef = info.get(Entity.class, name);
 				DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
 				if(entityRef != null && statusType != null)
-					return new EntityStatus(entityRef, entityElementRef, statusType);
+					return new EntityStatus(matcher.group(), entityRef, entityElementRef, statusType);
 			}
 			return null;
 		}

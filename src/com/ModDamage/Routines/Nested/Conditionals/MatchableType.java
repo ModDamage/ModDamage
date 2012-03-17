@@ -20,11 +20,13 @@ import com.ModDamage.EventInfo.EventInfo;
 public class MatchableType extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.type\\.([\\w,]+)", Pattern.CASE_INSENSITIVE);
+	
 	private final DataRef<Matchable> matchableRef;
 	private final Collection<Matchable> types;
 	
-	public MatchableType(DataRef<Matchable> matchableRef, Collection<Matchable> types)
+	public MatchableType(String configString, DataRef<Matchable> matchableRef, Collection<Matchable> types)
 	{ 
+		super(configString);
 		this.matchableRef = matchableRef;
 		this.types = types;
 	}
@@ -73,7 +75,7 @@ public class MatchableType extends Conditional
 			}
 			
 			if(types != null && !types.isEmpty())
-				return new MatchableType(matchableRef, types);
+				return new MatchableType(matcher.group(), matchableRef, types);
 			return null;
 		}
 	}

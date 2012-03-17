@@ -66,7 +66,7 @@ abstract public class Conditional
 			if (right == null)
 				return null;
 			
-			return new CompoundConditional(conditional, operator, right);
+			return new CompoundConditional(matcher.group(), conditional, operator, right);
 		}
 		
 		sm.accept();
@@ -125,8 +125,16 @@ abstract public class Conditional
 		}
 	}
 	
-	protected Conditional()
+	protected final String configString;
+	
+	protected Conditional(String configString)
 	{
+		this.configString = configString;
+	}
+	
+	public String toString()
+	{
+		return configString;
 	}
 	
 	public final boolean evaluate(EventData data) throws BailException

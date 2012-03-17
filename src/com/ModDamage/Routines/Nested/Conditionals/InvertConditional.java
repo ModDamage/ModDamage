@@ -14,8 +14,9 @@ public class InvertConditional extends Conditional
 	
 	Conditional conditional;
 	
-	public InvertConditional(Conditional conditional)
+	public InvertConditional(String configString, Conditional conditional)
 	{
+		super(configString);
 		this.conditional = conditional;
 	}
 	
@@ -43,7 +44,7 @@ public class InvertConditional extends Conditional
 			if (conditional != null)
 			{
 				sm.accept();
-				return new InvertConditional(conditional);
+				return new InvertConditional(matcher.group(), conditional);
 			}
 			
 			return null;

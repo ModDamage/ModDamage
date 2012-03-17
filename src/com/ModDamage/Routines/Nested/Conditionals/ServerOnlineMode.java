@@ -12,8 +12,9 @@ import com.ModDamage.EventInfo.EventInfo;
 public class ServerOnlineMode extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("server\\.onlineMode", Pattern.CASE_INSENSITIVE);
-	protected ServerOnlineMode()
+	protected ServerOnlineMode(String configString)
 	{
+		super(configString);
 	}
 	
 	@Override
@@ -34,7 +35,7 @@ public class ServerOnlineMode extends Conditional
 		@Override
 		public ServerOnlineMode getNew(Matcher matcher, EventInfo info)
 		{
-			return new ServerOnlineMode();
+			return new ServerOnlineMode(matcher.group());
 		}
 	}
 }

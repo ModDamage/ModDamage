@@ -13,10 +13,13 @@ import com.ModDamage.EventInfo.EventInfo;
 public class PlayerHasPermission extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.haspermission\\.([\\w.]+)", Pattern.CASE_INSENSITIVE);
+	
 	private final DataRef<Player> playerRef;
 	private final String permission;
-	public PlayerHasPermission(DataRef<Player> entityRef, String permission)
-	{  
+	
+	public PlayerHasPermission(String configString, DataRef<Player> entityRef, String permission)
+	{
+		super(configString);
 		this.playerRef = entityRef;
 		this.permission = permission;
 	}
@@ -43,7 +46,7 @@ public class PlayerHasPermission extends Conditional
 			DataRef<Player> playerRef = info.get(Player.class, matcher.group(1).toLowerCase());
 			if(playerRef == null) return null;
 			
-			return new PlayerHasPermission(playerRef, matcher.group(2));
+			return new PlayerHasPermission(matcher.group(), playerRef, matcher.group(2));
 		}
 	}
 }

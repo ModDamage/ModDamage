@@ -17,11 +17,14 @@ import com.ModDamage.EventInfo.EventInfo;
 public class EntityWearing extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.wearing(only)?\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
+	
 	private final DataRef<Entity> entityRef;
 	private final boolean only;
 	private final Collection<ArmorSet> armorSets;
-	public EntityWearing(DataRef<Entity> entityRef, boolean only, Collection<ArmorSet> armorSets)
-	{  
+	
+	public EntityWearing(String configString, DataRef<Entity> entityRef, boolean only, Collection<ArmorSet> armorSets)
+	{
+		super(configString);
 		this.entityRef = entityRef;
 		this.only = only;
 		this.armorSets = armorSets;
@@ -52,7 +55,7 @@ public class EntityWearing extends Conditional
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
 			Collection<ArmorSet> armorSet = ArmorAliaser.match(matcher.group(3));
 			if(entityRef != null && !armorSet.isEmpty())
-				return new EntityWearing(entityRef, matcher.group(2) != null, armorSet);
+				return new EntityWearing(matcher.group(), entityRef, matcher.group(2) != null, armorSet);
 			return null;
 		}
 	}

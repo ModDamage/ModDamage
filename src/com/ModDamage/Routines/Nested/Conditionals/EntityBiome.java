@@ -18,8 +18,10 @@ public class EntityBiome extends Conditional
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.biome\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	private final DataRef<Entity> entityRef;
 	protected final Collection<Biome> biomes;
-	public EntityBiome(DataRef<Entity> entityRef, Collection<Biome> biomes)
-	{ 
+	
+	public EntityBiome(String configString, DataRef<Entity> entityRef, Collection<Biome> biomes)
+	{
+		super(configString);
 		this.entityRef = entityRef;
 		this.biomes = biomes;
 	}
@@ -47,7 +49,7 @@ public class EntityBiome extends Conditional
 			Collection<Biome> biomes = BiomeAliaser.match(matcher.group(2));
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
 			if(!biomes.isEmpty() && entityRef != null)
-				return new EntityBiome(entityRef, biomes);
+				return new EntityBiome(matcher.group(), entityRef, biomes);
 			return null;
 		}
 	}

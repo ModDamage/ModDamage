@@ -18,11 +18,14 @@ import com.ModDamage.EventInfo.EventInfo;
 public class PlayerHasEnchantment extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.hasenchantment\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	
 	private final DataRef<Entity> entityRef;
 	private final DataRef<EntityType> entityElementRef;
 	protected final Collection<Enchantment> enchantments;
-	public PlayerHasEnchantment(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, Collection<Enchantment> enchantments)
+	
+	public PlayerHasEnchantment(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, Collection<Enchantment> enchantments)
 	{
+		super(configString);
 		this.entityRef = entityRef;
 		this.entityElementRef = entityElementRef;
 		this.enchantments = enchantments;
@@ -55,7 +58,7 @@ public class PlayerHasEnchantment extends Conditional
 			DataRef<Entity> entityRef = info.get(Entity.class, name);
 			DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
 			if(entityRef != null && !enchantments.isEmpty())
-				return new PlayerHasEnchantment(entityRef, entityElementRef, enchantments);
+				return new PlayerHasEnchantment(matcher.group(), entityRef, entityElementRef, enchantments);
 			return null;
 		}
 	}

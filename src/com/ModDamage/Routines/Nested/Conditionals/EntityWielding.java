@@ -18,10 +18,13 @@ import com.ModDamage.EventInfo.EventInfo;
 public class EntityWielding extends Conditional 
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.(?:is)?wielding\\.([\\w,@*]+)", Pattern.CASE_INSENSITIVE);
+	
 	private final DataRef<Entity> entityRef;
 	private final Collection<ModDamageItemStack> items;
-	public EntityWielding(DataRef<Entity> entityRef, Collection<ModDamageItemStack> items)
-	{  
+	
+	public EntityWielding(String configString, DataRef<Entity> entityRef, Collection<ModDamageItemStack> items)
+	{
+		super(configString);
 		this.entityRef = entityRef;
 		this.items = items;
 	}
@@ -57,7 +60,7 @@ public class EntityWielding extends Conditional
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
 			Collection<ModDamageItemStack> matchedItems = ItemAliaser.match(matcher.group(2), info);
 			if(entityRef != null && matchedItems != null && !matchedItems.isEmpty())
-				return new EntityWielding(entityRef, matchedItems);
+				return new EntityWielding(matcher.group(), entityRef, matchedItems);
 			return null;
 		}
 	}

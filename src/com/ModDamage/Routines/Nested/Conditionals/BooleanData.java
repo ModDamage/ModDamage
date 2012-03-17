@@ -13,8 +13,9 @@ public class BooleanData extends Conditional
 	public static final Pattern pattern = Pattern.compile("\\w+", Pattern.CASE_INSENSITIVE);
 	
 	private final DataRef<Boolean> boolRef;
-	protected BooleanData(DataRef<Boolean> boolRef)
+	protected BooleanData(String configString, DataRef<Boolean> boolRef)
 	{
+		super(configString);
 		this.boolRef = boolRef;
 	}
 	
@@ -38,7 +39,7 @@ public class BooleanData extends Conditional
 		{
 			DataRef<Boolean> boolRef = info.get(Boolean.class, matcher.group(), false);
 			if (boolRef == null) return null;
-			return new BooleanData(boolRef);
+			return new BooleanData(matcher.group(), boolRef);
 		}
 	}
 }

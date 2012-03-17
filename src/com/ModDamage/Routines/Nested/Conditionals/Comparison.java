@@ -86,8 +86,10 @@ public class Comparison extends Conditional
 	protected final DynamicInteger operand1;
 	protected final DynamicInteger operand2;
 	protected final ComparisonType comparisonType;
-	protected Comparison(DynamicInteger operand1, ComparisonType comparisonType, DynamicInteger operand2)
+	
+	protected Comparison(String configString, DynamicInteger operand1, ComparisonType comparisonType, DynamicInteger operand2)
 	{
+		super(configString);
 		this.operand1 = operand1;
 		this.comparisonType = comparisonType;
 		this.operand2 = operand2;
@@ -144,7 +146,7 @@ public class Comparison extends Conditional
 			if(comparisonType != null)
 			{
 				sm.accept();
-				return new Comparison(left, comparisonType, right);
+				return new Comparison(matcher.group(), left, comparisonType, right);
 			}
 			return null;
 		}

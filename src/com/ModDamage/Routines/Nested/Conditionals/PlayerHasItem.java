@@ -20,12 +20,15 @@ import com.ModDamage.EventInfo.EventInfo;
 public class PlayerHasItem extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.has((?:all)?items|item)\\.([\\w,@*]+)", Pattern.CASE_INSENSITIVE);
+	
 	private final DataRef<Entity> entityRef;
 	private final DataRef<EntityType> entityTypeRef;
 	private final boolean allItems;
 	private final Collection<ModDamageItemStack> items;
-	public PlayerHasItem(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, boolean allItems, Collection<ModDamageItemStack> items)
+	
+	public PlayerHasItem(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, boolean allItems, Collection<ModDamageItemStack> items)
 	{
+		super(configString);
 		this.entityRef = entityRef;
 		this.entityTypeRef = entityElementRef;
 		this.allItems = allItems;
@@ -81,7 +84,7 @@ public class PlayerHasItem extends Conditional
 			DataRef<EntityType> entityElementRef = info.get(EntityType.class, name); if (entityElementRef == null) return null;
 			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
 			if(items != null && !items.isEmpty())
-				return new PlayerHasItem(entityRef, entityElementRef, matcher.group(2).equalsIgnoreCase("allitems"), items);
+				return new PlayerHasItem(matcher.group(), entityRef, entityElementRef, matcher.group(2).equalsIgnoreCase("allitems"), items);
 			return null;
 		}
 	}

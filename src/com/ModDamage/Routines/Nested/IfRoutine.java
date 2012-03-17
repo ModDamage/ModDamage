@@ -55,7 +55,7 @@ public class IfRoutine extends NestedRoutine
 				return null;
 			
 			if (matcher.group(1) != null)
-				conditional = new InvertConditional(conditional);
+				conditional = new InvertConditional(matcher.group(2), conditional);
 			
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, info);
 			if(routines != null)

@@ -14,10 +14,13 @@ import com.ModDamage.EventInfo.EventInfo;
 public class EntityTagged extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.istagged\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	
 	private final DataRef<Entity> entityRef;
 	private final String tag;
-	public EntityTagged(DataRef<Entity> entityRef, String tag)
+	
+	public EntityTagged(String configString, DataRef<Entity> entityRef, String tag)
 	{
+		super(configString);
 		this.entityRef = entityRef;
 		this.tag = tag;
 	}
@@ -42,7 +45,7 @@ public class EntityTagged extends Conditional
 		{
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
 			if(entityRef != null)
-				return new EntityTagged(entityRef, matcher.group(2).toLowerCase());
+				return new EntityTagged(matcher.group(), entityRef, matcher.group(2).toLowerCase());
 			return null;
 		}
 	}

@@ -22,8 +22,10 @@ public class EntityBlockStatus extends Conditional
 	private final DataRef<Entity> entityRef;
 	private final BlockStatusType statusType;
 	private final Collection<Material> materials;
-	protected EntityBlockStatus(DataRef<Entity> entityRef, BlockStatusType statusType, Collection<Material> materials)
+	
+	protected EntityBlockStatus(String configString, DataRef<Entity> entityRef, BlockStatusType statusType, Collection<Material> materials)
 	{
+		super(configString);
 		this.entityRef = entityRef;
 		this.statusType = statusType;
 		this.materials = materials;
@@ -111,7 +113,7 @@ public class EntityBlockStatus extends Conditional
 			Collection<Material> materials = MaterialAliaser.match(matcher.group(3));
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
 			if(entityRef != null && statusType != null)
-				return new EntityBlockStatus(entityRef, statusType, materials);
+				return new EntityBlockStatus(matcher.group(), entityRef, statusType, materials);
 			return null;
 		}
 	}

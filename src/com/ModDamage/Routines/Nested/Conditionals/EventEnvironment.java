@@ -14,10 +14,13 @@ import com.ModDamage.EventInfo.EventInfo;
 public class EventEnvironment extends Conditional 
 {
 	public static final Pattern pattern = Pattern.compile("event\\.environment\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	
 	protected final Environment environment;
 	private final DataRef<World> worldRef;
-	public EventEnvironment(Environment environment, DataRef<World> worldRef)
+	
+	public EventEnvironment(String configString, Environment environment, DataRef<World> worldRef)
 	{
+		super(configString);
 		this.environment = environment;
 		this.worldRef = worldRef;
 	}
@@ -41,7 +44,7 @@ public class EventEnvironment extends Conditional
 		{
 			for(Environment environment : Environment.values())
 				if(matcher.group(1).equalsIgnoreCase(environment.name()))
-					return new EventEnvironment(environment, info.get(World.class, "world"));
+					return new EventEnvironment(matcher.group(), environment, info.get(World.class, "world"));
 			return null;
 		}
 	}

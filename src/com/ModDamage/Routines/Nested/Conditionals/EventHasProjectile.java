@@ -15,8 +15,10 @@ public class EventHasProjectile extends Conditional
 	public static final Pattern pattern = Pattern.compile("event\\.hasprojectile", Pattern.CASE_INSENSITIVE);
 	
 	private final DataRef<Projectile> projectileRef;
-	protected EventHasProjectile(DataRef<Projectile> projectileRef)
+	
+	protected EventHasProjectile(String configString, DataRef<Projectile> projectileRef)
 	{
+		super(configString);
 		this.projectileRef = projectileRef;
 	}
 	
@@ -39,7 +41,7 @@ public class EventHasProjectile extends Conditional
 		public EventHasProjectile getNew(Matcher matcher, EventInfo info)
 		{
 			DataRef<Projectile> projectileRef = info.get(Projectile.class, "projectile");
-			return new EventHasProjectile(projectileRef);
+			return new EventHasProjectile(matcher.group(), projectileRef);
 		}
 	}
 }
