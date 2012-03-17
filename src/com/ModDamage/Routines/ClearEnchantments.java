@@ -29,7 +29,7 @@ public class ClearEnchantments extends Routine
 	
 	public static void register()
 	{
-		ValueChangeRoutine.registerRoutine(Pattern.compile("clearenchant(?:ment)s", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		ValueChange.registerRoutine(Pattern.compile("clearenchant(?:ment)s", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends Routine.RoutineBuilder

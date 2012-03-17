@@ -14,8 +14,8 @@ import org.bukkit.plugin.Plugin;
 
 import ru.tehkode.permissions.PermissionManager;
 
+import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.ModDamage.ModDamageExtension;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 import com.elbukkit.api.elregions.elRegionsPlugin;
@@ -38,7 +38,7 @@ public class ExternalPluginManager
 	{
 		Routine.registerVanillaRoutines();
 		NestedRoutine.registerVanillaRoutines();
-		DynamicInteger.registerAllIntegers();
+		IntegerExp.registerAllIntegers();
 		
 		for(ModDamageExtension plugin : registeredPlugins)
 			plugin.reloadRoutines();

@@ -13,13 +13,13 @@ import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Alias.AliasManager;
+import com.ModDamage.Alias.MessageAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.Aliasing.AliasManager;
-import com.ModDamage.Backend.Aliasing.MessageAliaser;
-import com.ModDamage.Backend.Matching.InterpolatedString;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Expressions.InterpolatedString;
 import com.ModDamage.Routines.Routine;
 
 public class Message extends NestedRoutine 

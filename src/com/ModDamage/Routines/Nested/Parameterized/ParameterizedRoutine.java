@@ -6,20 +6,19 @@ import java.util.List;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.IntRef;
-import com.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routines;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 
 public abstract class ParameterizedRoutine extends NestedRoutine
 {
-
 	protected ParameterizedRoutine(String configString){ super(configString); }
 	
-	protected static final boolean getRoutineParameters(List<DynamicInteger> integers, LinkedHashMap<String, Object> map, EventInfo info, String...parameters)
+	protected static final boolean getRoutineParameters(List<IntegerExp> integers, LinkedHashMap<String, Object> map, EventInfo info, String...parameters)
 	{
 		assert(integers.size() == 0);
 		ModDamage.changeIndentation(true);
@@ -31,7 +30,7 @@ public abstract class ParameterizedRoutine extends NestedRoutine
 			ModDamage.addToLogRecord(OutputPreset.INFO, parameter + ": ");
 			Routines routines = RoutineAliaser.parseRoutines(PluginConfiguration.getCaseInsensitiveValue(map, parameter), einfo);
 			if(routines != null)
-				integers.add(DynamicInteger.getNew(routines, einfo));
+				integers.add(IntegerExp.getNew(routines, einfo));
 			else
 				encounteredError = true;
 		}

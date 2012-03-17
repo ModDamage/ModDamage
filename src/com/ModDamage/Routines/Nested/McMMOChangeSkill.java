@@ -8,14 +8,14 @@ import org.bukkit.entity.Player;
 import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
-import com.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routines;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.datatypes.SkillType;
@@ -23,10 +23,10 @@ import com.gmail.nossr50.datatypes.SkillType;
 public class McMMOChangeSkill extends NestedRoutine
 {	
 	private final DataRef<Player> playerRef;
-	private final DynamicInteger skill_level;
+	private final IntegerExp skill_level;
 	protected final SkillType skillType;
 	protected final boolean isAdditive;
-	protected McMMOChangeSkill(String configString, DataRef<Player> playerRef, DynamicInteger skill_level, SkillType skillType, boolean isAdditive)
+	protected McMMOChangeSkill(String configString, DataRef<Player> playerRef, IntegerExp skill_level, SkillType skillType, boolean isAdditive)
 	{
 		super(configString);
 		this.playerRef = playerRef;
@@ -68,7 +68,7 @@ public class McMMOChangeSkill extends NestedRoutine
 
 					EventInfo einfo = info.chain(myInfo);
 					Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-					DynamicInteger skill_level = DynamicInteger.getNew(routines, einfo);
+					IntegerExp skill_level = IntegerExp.getNew(routines, einfo);
 					
 					if(playerRef != null)
 						return new McMMOChangeSkill(matcher.group(), playerRef, skill_level, skillType, matcher.group(2).equalsIgnoreCase("add"));

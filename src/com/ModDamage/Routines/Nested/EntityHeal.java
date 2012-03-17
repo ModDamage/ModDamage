@@ -5,22 +5,22 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
 
+import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
-import com.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routines;
 
 public class EntityHeal extends NestedRoutine
 {
 	private final DataRef<LivingEntity> entityRef;
-	private final DynamicInteger heal_amount;
+	private final IntegerExp heal_amount;
 	
-	public EntityHeal(String configString, DataRef<LivingEntity> entityRef, DynamicInteger heal_amount)
+	public EntityHeal(String configString, DataRef<LivingEntity> entityRef, IntegerExp heal_amount)
 	{
 		super(configString);
 		this.entityRef = entityRef;
@@ -53,7 +53,7 @@ public class EntityHeal extends NestedRoutine
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			DynamicInteger heal_amount = DynamicInteger.getNew(routines, einfo);
+			IntegerExp heal_amount = IntegerExp.getNew(routines, einfo);
 			if(entityRef != null)
 				return new EntityHeal(matcher.group(), entityRef, heal_amount);
 			return null;

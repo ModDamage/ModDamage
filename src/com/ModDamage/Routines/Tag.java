@@ -8,14 +8,14 @@ import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
-import com.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 
 public class Tag extends NestedRoutine
@@ -23,9 +23,9 @@ public class Tag extends NestedRoutine
 	private final String tag;
 	private final DataRef<Entity> entityRef;
 	private final DataRef<World> worldRef;
-	private final DynamicInteger integer;
+	private final IntegerExp integer;
 	
-	protected Tag(String configString, String tag, DataRef<Entity> entityRef, DataRef<World> worldRef, DynamicInteger integer)
+	protected Tag(String configString, String tag, DataRef<Entity> entityRef, DataRef<World> worldRef, IntegerExp integer)
 	{
 		super(configString);
 		this.tag = tag;
@@ -138,7 +138,7 @@ public class Tag extends NestedRoutine
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			if(routines == null) return null;
-			DynamicInteger integer = DynamicInteger.getNew(routines, einfo);
+			IntegerExp integer = IntegerExp.getNew(routines, einfo);
 			if(integer == null) return null;
 			
 			

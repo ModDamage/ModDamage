@@ -13,33 +13,33 @@ import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Variables.Ints.Constant;
 import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.Aliasing.MaterialAliaser;
-import com.ModDamage.Backend.Matching.DynamicInteger;
-import com.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
+import com.ModDamage.Alias.MaterialAliaser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Expressions.IntegerExp;
 
 public class ModDamageItemStack
 {
 	private final Material material;
-	private final DynamicInteger data, amount;
-	private Map<Enchantment, DynamicInteger> enchantments;
+	private final IntegerExp data, amount;
+	private Map<Enchantment, IntegerExp> enchantments;
 	private int lastData, lastAmount;
 	private Map<Enchantment, Integer> lastEnchants;
 	
-	private ModDamageItemStack(Material material, DynamicInteger data, DynamicInteger amount)
+	private ModDamageItemStack(Material material, IntegerExp data, IntegerExp amount)
 	{
 		this.material = material;
 		this.data = data;
 		this.amount = amount;
 	}
 	
-	public void addEnchantment(Enchantment enchantment, DynamicInteger level)
+	public void addEnchantment(Enchantment enchantment, IntegerExp level)
 	{
 		if (enchantments == null)
 		{
-			enchantments = new HashMap<Enchantment, DynamicInteger>(2);
+			enchantments = new HashMap<Enchantment, IntegerExp>(2);
 			lastEnchants = new HashMap<Enchantment, Integer>(2);
 		}
 		enchantments.put(enchantment, level);
@@ -52,7 +52,7 @@ public class ModDamageItemStack
 		lastAmount = amount.getValue(data);
 		if (enchantments != null)
 		{
-			for (Entry<Enchantment, DynamicInteger> entry : enchantments.entrySet())
+			for (Entry<Enchantment, IntegerExp> entry : enchantments.entrySet())
 				lastEnchants.put(entry.getKey(), entry.getValue().getValue(data));
 		}
 	}
@@ -104,24 +104,24 @@ public class ModDamageItemStack
 		
 		Material material = materials.iterator().next();
 		
-		DynamicInteger data;
+		IntegerExp data;
 		if (sm.matchesFront("@"))
 		{
-			data = DynamicInteger.getIntegerFromFront(sm.spawn(), info);
+			data = IntegerExp.getIntegerFromFront(sm.spawn(), info);
 			if (data == null) return null;
 		}
 		else
 			data = null;
 		
 
-		DynamicInteger amount;
+		IntegerExp amount;
 		if (sm.matchesFront("*"))
 		{
-			amount = DynamicInteger.getIntegerFromFront(sm.spawn(), info);
+			amount = IntegerExp.getIntegerFromFront(sm.spawn(), info);
 			if (amount == null) return null;
 		}
 		else
-			amount = new ConstantInteger(1);
+			amount = new Constant(1);
 		
 		return sm.acceptIf(new ModDamageItemStack(material, data, amount));
 	}

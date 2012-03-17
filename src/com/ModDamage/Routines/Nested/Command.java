@@ -12,13 +12,13 @@ import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Alias.AliasManager;
+import com.ModDamage.Alias.CommandAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.Aliasing.AliasManager;
-import com.ModDamage.Backend.Aliasing.CommandAliaser;
-import com.ModDamage.Backend.Matching.InterpolatedString;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Expressions.InterpolatedString;
 import com.ModDamage.Routines.Routine;
 
 public class Command extends NestedRoutine 

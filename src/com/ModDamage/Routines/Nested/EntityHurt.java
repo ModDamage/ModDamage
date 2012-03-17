@@ -10,23 +10,23 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
-import com.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routines;
 
 public class EntityHurt extends NestedRoutine
 {
 	private final DataRef<LivingEntity> entityRef;
 	private final DataRef<Entity> entityOtherRef;
-	private final DynamicInteger hurt_amount;
+	private final IntegerExp hurt_amount;
 	
-	public EntityHurt(String configString, DataRef<LivingEntity> entityRef, DataRef<Entity> entityOtherRef, DynamicInteger hurt_amount)
+	public EntityHurt(String configString, DataRef<LivingEntity> entityRef, DataRef<Entity> entityOtherRef, IntegerExp hurt_amount)
 	{
 		super(configString);
 		this.entityRef = entityRef;
@@ -76,7 +76,7 @@ public class EntityHurt extends NestedRoutine
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			DynamicInteger hurt_amount = DynamicInteger.getNew(routines, einfo);
+			IntegerExp hurt_amount = IntegerExp.getNew(routines, einfo);
 			
 			if(entityRef != null && entityOtherRef != null)
 				return new EntityHurt(matcher.group(), entityRef, entityOtherRef, hurt_amount);

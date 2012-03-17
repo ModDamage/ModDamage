@@ -10,7 +10,6 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Tag;
-import com.ModDamage.Routines.Nested.Parameterized.Delay;
 import com.ModDamage.Routines.Nested.Parameterized.Knockback;
 
 public abstract class NestedRoutine extends Routine
@@ -22,7 +21,7 @@ public abstract class NestedRoutine extends Routine
 	public static void registerVanillaRoutines()
 	{
 		registeredNestedRoutines.clear();
-		IfRoutine.register();
+		If.register();
 		Tag.registerNested();
 		Delay.register();
 		Message.registerNested();

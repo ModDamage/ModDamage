@@ -13,19 +13,19 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.ModDamage.Alias.ItemAliaser;
+import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnchantmentsRef;
 import com.ModDamage.Backend.ModDamageItemStack;
-import com.ModDamage.Backend.Aliasing.ItemAliaser;
-import com.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.ModDamage.Backend.Matching.DynamicInteger;
-import com.ModDamage.Backend.Matching.DynamicIntegers.ConstantInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Routines;
+import com.ModDamage.Variables.Ints.Constant;
 
 public class EntityItemAction extends NestedRoutine
 {
@@ -68,8 +68,8 @@ public class EntityItemAction extends NestedRoutine
 	protected final Collection<ModDamageItemStack> items;
 	protected final DataRef<LivingEntity> entityRef;
 	protected final Routines routines;
-	protected final DynamicInteger quantity;
-	public EntityItemAction(String configString, DataRef<LivingEntity> entityRef, ItemAction action, Collection<ModDamageItemStack> items, DynamicInteger quantity, Routines routines)
+	protected final IntegerExp quantity;
+	public EntityItemAction(String configString, DataRef<LivingEntity> entityRef, ItemAction action, Collection<ModDamageItemStack> items, IntegerExp quantity, Routines routines)
 	{
 		super(configString);
 		this.entityRef = entityRef;
@@ -154,11 +154,11 @@ public class EntityItemAction extends NestedRoutine
 					routines = RoutineAliaser.parseRoutines(nestedContent, info.chain(myInfo));
 				
 				
-				DynamicInteger quantity;
+				IntegerExp quantity;
 				if (matcher.group(4) != null)
-					quantity = DynamicInteger.getNew(matcher.group(4), info);
+					quantity = IntegerExp.getNew(matcher.group(4), info);
 				else
-					quantity = new ConstantInteger(1);
+					quantity = new Constant(1);
 				
 				return new EntityItemAction(matcher.group(), entityRef, ItemAction.valueOf(matcher.group(2).toUpperCase()), items, quantity, routines);
 			}

@@ -11,14 +11,14 @@ import org.bukkit.util.Vector;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
-import com.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routines;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 //FIXME Do I work?
@@ -28,8 +28,8 @@ public class Knockback extends ParameterizedRoutine
 	protected final DataRef<Entity> entityOtherRef;
 	protected final boolean usingParameterized;
 	
-	protected final DynamicInteger strength;
-	protected final DynamicInteger horizInteger, verticalInteger;
+	protected final IntegerExp strength;
+	protected final IntegerExp horizInteger, verticalInteger;
 
 	protected Knockback(String configString, Routines routines, EventInfo info, DataRef<Entity> entityRef, DataRef<Entity> entityOtherRef)
 	{
@@ -37,12 +37,12 @@ public class Knockback extends ParameterizedRoutine
 		this.usingParameterized = false;
 		this.entityRef = entityRef;
 		this.entityOtherRef = entityOtherRef;
-		this.strength = DynamicInteger.getNew(routines, info);
+		this.strength = IntegerExp.getNew(routines, info);
 		horizInteger = verticalInteger = null;
 	}
 
 
-	protected Knockback(String configString, DynamicInteger xInteger, DynamicInteger yInteger, DataRef<Entity> entityRef, DataRef<Entity> entityOtherRef)
+	protected Knockback(String configString, IntegerExp xInteger, IntegerExp yInteger, DataRef<Entity> entityRef, DataRef<Entity> entityOtherRef)
 	{
 		super(configString);
 		this.usingParameterized = true;
@@ -100,7 +100,7 @@ public class Knockback extends ParameterizedRoutine
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "KnockBack (parameterized): ");
 				
-				List<DynamicInteger> integers = new ArrayList<DynamicInteger>();
+				List<IntegerExp> integers = new ArrayList<IntegerExp>();
 				LinkedHashMap<String, Object> map = ModDamage.getPluginConfiguration().castToStringMap(
 						"Knockback routine", nestedContent);
 				

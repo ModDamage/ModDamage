@@ -7,14 +7,14 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.EntityType;
+import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.Aliasing.RoutineAliaser;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Matchables.EntityType;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Routines.Routines;
 

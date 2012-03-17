@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ModDamage.Matchables.Matchable;
+
 public final class EnumHelper
 {
 	private EnumHelper() {}

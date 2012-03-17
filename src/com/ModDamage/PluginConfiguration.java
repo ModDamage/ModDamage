@@ -28,7 +28,7 @@ import org.yaml.snakeyaml.error.YAMLException;
 
 import com.ModDamage.ExternalPluginManager.PermissionsManager;
 import com.ModDamage.ExternalPluginManager.RegionsManager;
-import com.ModDamage.Backend.Aliasing.AliasManager;
+import com.ModDamage.Alias.AliasManager;
 
 public class PluginConfiguration
 {

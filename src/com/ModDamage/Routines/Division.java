@@ -7,14 +7,14 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Expressions.IntegerExp;
 
-public class Division extends ValueChangeRoutine 
+public class Division extends ValueChange 
 {
-	public Division(String configString, DataRef<IntRef> defaultRef, ValueChangeType changeType, DynamicInteger value)
+	public Division(String configString, DataRef<IntRef> defaultRef, ValueChangeType changeType, IntegerExp value)
 	{ 
 		super(configString, defaultRef, changeType, value);
 	}
@@ -26,15 +26,15 @@ public class Division extends ValueChangeRoutine
 	
 	public static void register()
 	{
-		ValueChangeRoutine.registerRoutine(Pattern.compile("(?:div(?:ide)?\\.|\\\\|/)(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		ValueChange.registerRoutine(Pattern.compile("(?:div(?:ide)?\\.|\\\\|/)(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	protected static class RoutineBuilder extends ValueChangeRoutine.ValueBuilder
+	protected static class RoutineBuilder extends ValueChange.ValueBuilder
 	{
 		@Override
 		public Division getNew(Matcher matcher, ValueChangeType changeType, EventInfo info)
 		{ 
-			DynamicInteger match = DynamicInteger.getNew(matcher.group(1), info);
+			IntegerExp match = IntegerExp.getNew(matcher.group(1), info);
 			DataRef<IntRef> defaultRef = info.get(IntRef.class, "-default");
 			if(match != null && defaultRef != null)
 			{

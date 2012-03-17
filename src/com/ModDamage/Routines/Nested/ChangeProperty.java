@@ -5,20 +5,20 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routines;
 
 public final class ChangeProperty extends NestedRoutine
 {	
 	private final Routines routines;
-	protected final DynamicInteger targetPropertyMatch;
-	public ChangeProperty(String configString, Routines routines, DynamicInteger targetPropertyMatch)
+	protected final IntegerExp targetPropertyMatch;
+	public ChangeProperty(String configString, Routines routines, IntegerExp targetPropertyMatch)
 	{
 		super(configString);
 		this.routines = routines;
@@ -47,7 +47,7 @@ public final class ChangeProperty extends NestedRoutine
 		@Override
 		public ChangeProperty getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-			DynamicInteger targetPropertyMatch = DynamicInteger.getNew(matcher.group(1), info);
+			IntegerExp targetPropertyMatch = IntegerExp.getNew(matcher.group(1), info);
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			if(targetPropertyMatch != null && routines != null)

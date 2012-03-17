@@ -1,5 +1,6 @@
 package com.ModDamage.Routines;
 
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -7,14 +8,16 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Expressions.IntegerExp;
 
-public class DiceRoll extends RandomRoutine 
+public class DiceRoll extends ValueChange 
 {
-	protected DiceRoll(String configString, DataRef<IntRef> defaultRef, ValueChangeType changeType, DynamicInteger rollValue) 
+	protected final Random random = new Random();
+	
+	protected DiceRoll(String configString, DataRef<IntRef> defaultRef, ValueChangeType changeType, IntegerExp rollValue) 
 	{
 		super(configString, defaultRef, changeType, rollValue);
 	}
@@ -27,15 +30,15 @@ public class DiceRoll extends RandomRoutine
 	
 	public static void register()
 	{
-		ValueChangeRoutine.registerRoutine(Pattern.compile("roll\\.(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		ValueChange.registerRoutine(Pattern.compile("roll\\.(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
-	protected static class RoutineBuilder extends ValueChangeRoutine.ValueBuilder
+	protected static class RoutineBuilder extends ValueChange.ValueBuilder
 	{
 		@Override
 		public DiceRoll getNew(Matcher matcher, ValueChangeType changeType, EventInfo info)
 		{
-			DynamicInteger match = DynamicInteger.getNew(matcher.group(1), info);
+			IntegerExp match = IntegerExp.getNew(matcher.group(1), info);
 			DataRef<IntRef> defaultRef = info.get(IntRef.class, "-default");
 			if(match != null && defaultRef != null)
 			{

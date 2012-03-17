@@ -5,22 +5,22 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Entity;
 
+import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.IntRef;
-import com.ModDamage.Backend.Aliasing.RoutineAliaser;
-import com.ModDamage.Backend.Matching.DynamicInteger;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routines;
 
 public class EntityExplode extends NestedRoutine
 {
 	private final DataRef<Entity> entityRef;
-	private final DynamicInteger strength;
+	private final IntegerExp strength;
 	
-	public EntityExplode(String configString, DataRef<Entity> entityRef, DynamicInteger strength)
+	public EntityExplode(String configString, DataRef<Entity> entityRef, IntegerExp strength)
 	{
 		super(configString);
 		this.entityRef = entityRef;
@@ -54,7 +54,7 @@ public class EntityExplode extends NestedRoutine
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			if (routines == null) return null;
 			
-			DynamicInteger strength = DynamicInteger.getNew(routines, einfo);
+			IntegerExp strength = IntegerExp.getNew(routines, einfo);
 			
 			if(entityRef != null && strength != null)
 				return new EntityExplode(matcher.group(), entityRef, strength);
