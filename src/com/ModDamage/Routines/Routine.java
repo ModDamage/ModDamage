@@ -44,6 +44,7 @@ abstract public class Routine
 	public static void registerVanillaRoutines()
 	{
 		registeredBaseRoutines.clear();
+		ValueChangeRoutine.register();
 		AliasedRoutine.register();
 		Tag.registerRoutine();
 		PlayEffectRoutine.register();
@@ -51,7 +52,7 @@ abstract public class Routine
 		EntityItemAction.registerRoutine();
 		Command.registerRoutine();
 		ClearEnchantments.register();
-		ValueChangeRoutine.register();
+		TeleportRoutine.register();
 	}
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)

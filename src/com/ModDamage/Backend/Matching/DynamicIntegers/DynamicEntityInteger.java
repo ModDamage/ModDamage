@@ -122,40 +122,25 @@ public class DynamicEntityInteger extends DynamicInteger
 				if(entity instanceof Slime) ((Slime)entity).setSize(value);
 			}
 		},
-		X(true)
+		X
 		{
 			@Override public int getValue(Entity entity)
 			{
 				return entity.getLocation().getBlockX();
 			}
-			
-			@Override public void setValue(Entity entity, int value)
-			{
-				entity.getLocation().setX(value);
-			}
 		},
-		Y(true)
+		Y
 		{
 			@Override public int getValue(Entity entity)
 			{
 				return entity.getLocation().getBlockY();
 			}
-			
-			@Override public void setValue(Entity entity, int value)
-			{
-				entity.getLocation().setY(value);
-			}
 		},
-		Z(true)
+		Z
 		{
 			@Override public int getValue(Entity entity)
 			{
 				return entity.getLocation().getBlockZ();
-			}
-			
-			@Override public void setValue(Entity entity, int value)
-			{
-				entity.getLocation().setZ(value);
 			}
 		};
 		
