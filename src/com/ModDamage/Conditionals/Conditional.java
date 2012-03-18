@@ -95,6 +95,7 @@ abstract public class Conditional
 		EntityTagged.register();
 		EntityWearing.register();
 		EntityWielding.register();
+		EntityHasPotionEffect.register();
 		PlayerGroupEvaluation.register();
 		PlayerHasItem.register();
 		PlayerHasEnchantment.register();

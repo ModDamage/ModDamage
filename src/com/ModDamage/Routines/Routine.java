@@ -53,6 +53,8 @@ abstract public class Routine
 		Command.registerRoutine();
 		ClearEnchantments.register();
 		Teleport.register();
+		AddPotionEffect.register();
+		RemovePotionEffect.register();
 	}
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)

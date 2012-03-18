@@ -21,6 +21,7 @@ import com.ModDamage.Variables.Ints.ItemInt;
 import com.ModDamage.Variables.Ints.McMMOInt;
 import com.ModDamage.Variables.Ints.NegativeInt;
 import com.ModDamage.Variables.Ints.PlayerInt;
+import com.ModDamage.Variables.Ints.PotionEffectInt;
 import com.ModDamage.Variables.Ints.RoutinesInt;
 import com.ModDamage.Variables.Ints.ServerInt;
 import com.ModDamage.Variables.Ints.TagInt;
@@ -106,6 +107,7 @@ public abstract class IntegerExp extends StringExp
 		NegativeInt.register();
 		Function.register();
 		EventInt.register();
+		PotionEffectInt.register();
 	}
 	
 	private static Map<Pattern, DynamicIntegerBuilder> registeredIntegers = new LinkedHashMap<Pattern, DynamicIntegerBuilder>();

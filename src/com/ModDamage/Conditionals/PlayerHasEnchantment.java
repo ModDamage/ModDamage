@@ -5,7 +5,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.Alias.EnchantmentAliaser;
@@ -13,31 +12,29 @@ import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Matchables.EntityType;
 
 public class PlayerHasEnchantment extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.hasenchantment\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
-	private final DataRef<Entity> entityRef;
-	private final DataRef<EntityType> entityElementRef;
+	private final DataRef<Player> playerRef;
 	protected final Collection<Enchantment> enchantments;
 	
-	public PlayerHasEnchantment(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, Collection<Enchantment> enchantments)
+	public PlayerHasEnchantment(String configString, DataRef<Player> playerRef, Collection<Enchantment> enchantments)
 	{
 		super(configString);
-		this.entityRef = entityRef;
-		this.entityElementRef = entityElementRef;
+		this.playerRef = playerRef;
 		this.enchantments = enchantments;
 	}
 
 	@Override
 	protected boolean myEvaluate(EventData data) throws BailException
 	{
-		if(entityElementRef.get(data).matches(EntityType.PLAYER))
-			for(Enchantment enchantment : enchantments)
-				if(((Player)entityRef.get(data)).getItemInHand().containsEnchantment(enchantment))
-					return true;
+		Player player = playerRef.get(data);
+		if (player == null) return false;
+		for(Enchantment enchantment : enchantments)
+			if(player.getItemInHand().containsEnchantment(enchantment))
+				return true;
 		return false;
 	}
 	
@@ -55,10 +52,9 @@ public class PlayerHasEnchantment extends Conditional
 		{
 			Collection<Enchantment> enchantments = EnchantmentAliaser.match(matcher.group(2));
 			String name = matcher.group(1).toLowerCase();
-			DataRef<Entity> entityRef = info.get(Entity.class, name);
-			DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
-			if(entityRef != null && !enchantments.isEmpty())
-				return new PlayerHasEnchantment(matcher.group(), entityRef, entityElementRef, enchantments);
+			DataRef<Player> playerRef = info.get(Player.class, name);
+			if(playerRef != null && !enchantments.isEmpty())
+				return new PlayerHasEnchantment(matcher.group(), playerRef, enchantments);
 			return null;
 		}
 	}
