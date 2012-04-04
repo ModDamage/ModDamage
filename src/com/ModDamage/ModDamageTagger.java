@@ -100,7 +100,7 @@ public class ModDamageTagger
 			if(!file.exists())
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "No tags file found at " + file.getAbsolutePath() + ", generating a new one...");
-				if(!file.getParentFile().mkdirs() || !file.createNewFile())
+				if(!file.createNewFile())
 				{
 					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Couldn't make new tags file! Tags will not have persistence between reloads.");
 					return;
