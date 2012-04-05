@@ -11,24 +11,32 @@ import org.bukkit.Location;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Blaze;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.EnderSignal;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.FallingSand;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Fish;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Giant;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.NPC;
+import org.bukkit.entity.Painting;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
@@ -42,7 +50,9 @@ import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Squid;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.ThrownPotion;
+import org.bukkit.entity.Vehicle;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
@@ -243,6 +253,7 @@ public enum EntityType implements Matchable<EntityType>
 			PROJECTILE(NONLIVING, Projectile.class),
 				ARROW(PROJECTILE, Arrow.class),
 				EGG(PROJECTILE, Egg.class),
+				ENDERPEARL(PROJECTILE, EnderPearl.class),
 				FIREBALL(PROJECTILE, Fireball.class),
 					FIREBALL_SMALL(FIREBALL, SmallFireball.class),
 				FISHINGROD(PROJECTILE, Fish.class),
@@ -250,7 +261,18 @@ public enum EntityType implements Matchable<EntityType>
 				SNOWBALL(PROJECTILE, Snowball.class),
 			
 			TRAP(NONLIVING),
-				DISPENSER(TRAP);
+				DISPENSER(TRAP),
+				
+			VEHICLE(NONLIVING, Vehicle.class),
+				BOAT(NONLIVING, Boat.class),
+				MINECART(NONLIVING, Minecart.class),
+				
+			ENDERSIGNAL(NONLIVING, EnderSignal.class),
+			EXPERIENCEORB(NONLIVING, ExperienceOrb.class),
+			FALLINGSAND(NONLIVING, FallingSand.class),
+			ITEM(NONLIVING, Item.class),
+			PAINTING(NONLIVING, Painting.class),
+			TNTPRIMED(NONLIVING, TNTPrimed.class);
 	
 	private static Map<Class<?>, EntityType> byClass = new HashMap<Class<?>, EntityType>();
 	
