@@ -41,8 +41,8 @@ public class InterpolatedString
 			}
 			else
 			{
-				//ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Dynamic string not found, marking invalid.");
-				addPart(message.substring(interpolationMatcher.start(), interpolationMatcher.end()));
+				ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "String expression not matched!");
+				addPart(message.substring(interpolationMatcher.start(1), interpolationMatcher.end(1)));
 			}
 		}
 		String part = message.substring(start);
