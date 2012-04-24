@@ -37,9 +37,10 @@ public class Message extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		List<String> msgs = new ArrayList<String>();
+		String[] msgs = new String[messages.size()];
+		int i = 0;
 		for(InterpolatedString message :  messages)
-			msgs.add(message.toString(data));
+			msgs[i++] = message.toString(data);
 		
 		messageTarget.sendMessages(msgs, data);
 	}
@@ -52,7 +53,7 @@ public class Message extends NestedRoutine
 				return new MessageTarget()
 					{
 						@Override
-						public void sendMessages(Collection<String> msgs, EventData data)
+						public void sendMessages(String[] msgs, EventData data)
 						{
 							Player[] players = Bukkit.getOnlinePlayers();
 							for(Player player : players)
@@ -69,7 +70,7 @@ public class Message extends NestedRoutine
 				return new MessageTarget()
 					{
 						@Override
-						public void sendMessages(Collection<String> msgs, EventData data)
+						public void sendMessages(String[] msgs, EventData data)
 						{
 							List<Player> players = worldRef.get(data).getPlayers();
 							for(Player player : players)
@@ -87,7 +88,7 @@ public class Message extends NestedRoutine
 				return new MessageTarget()
 				{
 					@Override
-					public void sendMessages(Collection<String> msgs, EventData data)
+					public void sendMessages(String[] msgs, EventData data)
 					{
 						Entity entity = playerRef.get(data);
 						if (entity instanceof Player)
@@ -103,7 +104,7 @@ public class Message extends NestedRoutine
 			}
 		}
 		
-		abstract public void sendMessages(Collection<String> msgs, EventData data);
+		abstract public void sendMessages(String[] msgs, EventData data);
 		abstract public String toString();
 	}
 	
