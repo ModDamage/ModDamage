@@ -62,7 +62,7 @@ public class EntityString extends StringExp
 		{
 			@Override protected String getString(Entity entity)
 			{
-				return TypeNameAliaser.getStaticInstance().toString(EntityType.get(entity));
+				return TypeNameAliaser.aliaser.toString(EntityType.get(entity));
 			}
 		},
 		WIELDING(true)

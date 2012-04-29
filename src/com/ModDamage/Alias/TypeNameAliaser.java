@@ -20,9 +20,6 @@ public class TypeNameAliaser extends Aliaser<EntityType, List<String>>
 	
 	protected HashMap<EntityType, List<String>> thisMap = new HashMap<EntityType, List<String>>();
 	
-	private static TypeNameAliaser staticInstance = new TypeNameAliaser();
-	public static TypeNameAliaser getStaticInstance(){ return staticInstance; }
-	
 	private static final Random random = new Random();
 
 	TypeNameAliaser()
