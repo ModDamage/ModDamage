@@ -68,28 +68,25 @@ abstract public class Aliaser<Type, StoredInfoClass>
 	{
 		clear();
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-		if(rawAliases != null)
+		if(rawAliases != null && !rawAliases.isEmpty())
 		{
-			if(!rawAliases.isEmpty())
+			loadState = LoadState.SUCCESS;
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, this.name + " aliases found, parsing...");
+			for(String alias : rawAliases.keySet())
+				thisMap.put("_" + alias, getDefaultValue());
+			for(Entry<String, Object> entry : rawAliases.entrySet())
 			{
-				loadState = LoadState.SUCCESS;
-				ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, this.name + " aliases found, parsing...");
-				for(String alias : rawAliases.keySet())
-					thisMap.put("_" + alias, getDefaultValue());
-				for(Entry<String, Object> entry : rawAliases.entrySet())
+				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+				if(entry.getValue() != null)
 				{
-					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-					if(entry.getValue() != null)
-					{
-						if(!this.completeAlias("_" + entry.getKey(), entry.getValue()))
-							this.loadState = LoadState.FAILURE;
-					}
-					else ModDamage.addToLogRecord(OutputPreset.WARNING, "Found empty " + this.name.toLowerCase() + " alias \"" + entry.getKey() + "\", ignoring...");
+					if(!this.completeAlias("_" + entry.getKey(), entry.getValue()))
+						this.loadState = LoadState.FAILURE;
 				}
-				for(String alias : thisMap.keySet())
-					if(thisMap.get(alias) == null)
-						thisMap.remove(alias);
+				else ModDamage.addToLogRecord(OutputPreset.WARNING, "Found empty " + this.name.toLowerCase() + " alias \"" + entry.getKey() + "\", ignoring...");
 			}
+			for(String alias : thisMap.keySet())
+				if(thisMap.get(alias) == null)
+					thisMap.remove(alias);
 		}
 	}
 	

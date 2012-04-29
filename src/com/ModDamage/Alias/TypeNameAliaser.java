@@ -34,49 +34,60 @@ public class TypeNameAliaser extends Aliaser<EntityType, List<String>>
 	{
 		clear();
 		
-		boolean failFlag = false;
-		EntityType element = null;
 		for(Entry<String, Object> entry : rawAliases.entrySet())
 		{
-			this.loadState = LoadState.SUCCESS;
-			element = EntityType.getElementNamed(entry.getKey());
-			if(element != null)
+			loadState = LoadState.SUCCESS;
+			
+			EntityType type = EntityType.getElementNamed(entry.getKey());
+			if(type == null)
 			{
-				if(entry.getValue() instanceof String)
+				ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Unknown type \"" + entry.getKey() + "\"");//Only a warning because some users may preempt updated mob types
+				continue;
+			}
+			
+			List<String> names = matchAlias(type);
+			
+			Object value = entry.getValue();
+			
+			if(value instanceof List)
+			{
+				List<?> someList = (List<?>)value;
+				if (someList.size() == 1)
 				{
-					String name = (String)entry.getValue();
-					thisMap.get(element).add(name);
-					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing type " + element.name() +  " as \"" + name + "\"");
-					continue;
+					value = someList.get(0);
 				}
-				else if(entry.getValue() instanceof List)
+				else
 				{
-					List<?> someList = (List<?>)entry.getValue();
-					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, (someList.size() > 1?"Aliasing multiple strings for type " + element.name():"Aliasing type " + element.name() +  " as \"" + name + "\""));
+					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing type " + type.name());
 					
 					ModDamage.changeIndentation(true);
 					for(Object object : someList)
 					{
 						if(object instanceof String)
 						{
-							String name = (String)object;
-							thisMap.get(element).add(name);
-							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding item \"" + name + "\"");
+							names.add((String)object);
+							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "as \"" + name + "\"");
 						}
 						else 
 							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown item: "+object.toString());
 					}
 					ModDamage.changeIndentation(false);
-				}
-				else
-				{
-					failFlag = true;
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid content in alias for type " + element.name() + ": " + entry.getValue().toString());
+					continue;
 				}
 			}
-			else ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Unknown type \"" + entry.getKey() + "\"");//Only a warning because some users may preempt updated mob types
+			
+			if(value instanceof String)
+			{
+				names.add((String)value);
+				ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing type " + type.name() +  " as \"" + name + "\"");
+				continue;
+			}
+			else
+			{
+				loadState = LoadState.FAILURE;
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid content in alias for type " + type.name() + ": " + entry.getValue().toString());
+			}
 		}
-		if(failFlag) loadState = LoadState.FAILURE;
 		if(loadState == LoadState.SUCCESS && !ModDamage.getDebugSetting().shouldOutput(DebugSetting.VERBOSE))
 			ModDamage.addToLogRecord(OutputPreset.INFO, "Aliasing names for one or more Types");
 	}
@@ -85,18 +96,31 @@ public class TypeNameAliaser extends Aliaser<EntityType, List<String>>
 	public void clear()
 	{
 		loadState = LoadState.NOT_LOADED;
-		for(List<String> names : thisMap.values())
-			names.clear();
+		thisMap.clear();
 	}
 	
 	public String toString(EntityType element)
 	{
 		List<String> names = thisMap.get(element);
-		return !names.isEmpty()?names.get(random.nextInt(names.size())):element.name();
+		return !names.isEmpty()? names.get(random.nextInt(names.size())) : element.name();
 	}
 	
-	@Deprecated
-	public List<String> matchAlias(String string){ return null; }
+	public List<String> matchAlias(EntityType type){
+		List<String> list = thisMap.get(type);
+		if (list == null)
+		{
+			list = new ArrayList<String>();
+			thisMap.put(type, list);
+		}
+		return list;
+	}
+	
+	public List<String> matchAlias(String string){
+		EntityType type = EntityType.getElementNamed(string);
+		if (type == null) return null;
+		return matchAlias(type);
+	}
+	
 	@Deprecated
 	public boolean completeAlias(String key, Object nestedContent){ return false; }
 	@Deprecated
