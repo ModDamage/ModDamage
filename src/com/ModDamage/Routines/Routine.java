@@ -55,6 +55,7 @@ abstract public class Routine
 		Teleport.register();
 		AddPotionEffect.register();
 		RemovePotionEffect.register();
+		ChangeCreatureTarget.register();
 	}
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)
