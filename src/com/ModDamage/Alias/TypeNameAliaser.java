@@ -56,28 +56,16 @@ public class TypeNameAliaser extends Aliaser<EntityType, List<String>>
 					
 					ModDamage.changeIndentation(true);
 					for(Object object : someList)
+					{
 						if(object instanceof String)
 						{
 							String name = (String)object;
 							thisMap.get(element).add(name);
 							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding item \"" + name + "\"");
 						}
-						else if(object instanceof List)
-						{
-							for(Object anotherObject : ((List<?>)object))
-							{
-								if(anotherObject instanceof String)
-								{
-									thisMap.get(element).add(((String)anotherObject));
-									ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding item \"" + name + "\"");
-								}
-								else
-								{
-									ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized object " + anotherObject.toString());
-									failFlag = true;
-								}
-							}
-						}
+						else 
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown item: "+object.toString());
+					}
 					ModDamage.changeIndentation(false);
 				}
 				else
