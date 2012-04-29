@@ -158,7 +158,7 @@ public class EntityString extends StringExp
 		if (matcher.matches())
 		{
 			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
-			if (entityRef != null) return null;
+			if (entityRef == null) return null;
 			
 			return new EntityString(entityRef, EntityStringProperty.valueOf(matcher.group(2).toUpperCase()));
 		}
