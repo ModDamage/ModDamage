@@ -8,10 +8,9 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Matchables.EntityType;
-import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Matchables.EntityType;
 
 public class TypeNameAliaser extends Aliaser<EntityType, List<String>> 
 {
@@ -82,14 +81,12 @@ public class TypeNameAliaser extends Aliaser<EntityType, List<String>>
 				ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing type " + type.name() +  " as \"" + name + "\"");
 				continue;
 			}
-			else
-			{
-				loadState = LoadState.FAILURE;
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid content in alias for type " + type.name() + ": " + entry.getValue().toString());
-			}
+			
+			loadState = LoadState.FAILURE;
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid content in alias for type " + type.name() + ": " + entry.getValue().toString());
 		}
-		if(loadState == LoadState.SUCCESS && !ModDamage.getDebugSetting().shouldOutput(DebugSetting.VERBOSE))
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Aliasing names for one or more Types");
+		if(loadState == LoadState.SUCCESS)
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing names for one or more Types");
 	}
 
 	@Override

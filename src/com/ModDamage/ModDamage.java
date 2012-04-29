@@ -175,6 +175,8 @@ public class ModDamage extends JavaPlugin
 						case NOT_LOADED:
 							player.sendMessage(chatPrepend(ChatColor.GRAY) + "No configuration loaded! Are any routines defined?");
 							break;
+							
+						default: assert(false);
 					}
 			}
 		},

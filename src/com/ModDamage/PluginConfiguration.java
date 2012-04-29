@@ -259,6 +259,8 @@ public class PluginConfiguration
 			case SUCCESS:
 				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Finished loading configuration.");
 				break;
+				
+			default: assert(false);
 		}
 
 		return true;
@@ -302,6 +304,8 @@ public class PluginConfiguration
 							outputString += newline + "            - '" + toolMaterial + toolType.toUpperCase() + "'";
 					}
 					break;
+					
+				default: break;
 			}
 		}
 
@@ -425,6 +429,8 @@ public class PluginConfiguration
 				case SUCCESS:
 					bottomString = ChatColor.GREEN + "No errors loading configuration!";
 					break;
+					
+				default: assert(false);
 			}
 			player.sendMessage(bottomString);
 		}
@@ -444,6 +450,8 @@ public class PluginConfiguration
 			case VERBOSE:
 				setDebugging(player, DebugSetting.QUIET);
 				break;
+				
+			default: break;
 		}
 	}
 	

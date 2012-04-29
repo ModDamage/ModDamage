@@ -445,6 +445,8 @@ enum ModDamageEventHandler
 				case SUCCESS:
 					ModDamage.addToLogRecord(OutputPreset.INFO, "End " + eventType.name() + " configuration.");
 					break;
+					
+				default: assert(false);
 			}
 			state = LoadState.combineStates(state, eventType.specificLoadState);
 		}
@@ -461,6 +463,8 @@ enum ModDamageEventHandler
 			case SUCCESS:
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Routines loaded!");
 				break;
+				
+			default: assert(false);
 		}
 	}
 	

@@ -21,8 +21,8 @@ public enum HealType implements Matchable<HealType>
 		case MAGIC: return MAGIC;
 		case MAGIC_REGEN: return MAGIC_REGEN;
 		case CUSTOM: return CUSTOM;
+		default: return null;
 		}
-		return null;
 	}
 
 	@Override

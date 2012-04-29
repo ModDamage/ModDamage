@@ -75,6 +75,8 @@ public enum AliasManager
 					case SUCCESS:
 						ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliases loaded!");
 						break;
+					
+					default: assert(false);
 				}
 				return;
 			}
