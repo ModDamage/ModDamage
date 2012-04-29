@@ -3,6 +3,7 @@ package com.ModDamage.Routines.Nested;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,6 +13,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.AliasManager;
 import com.ModDamage.Alias.MessageAliaser;
@@ -49,6 +51,19 @@ public class Message extends NestedRoutine
 	{
 		protected static MessageTarget match(String key, EventInfo info)
 		{
+			if (key.equalsIgnoreCase("console"))
+				return new MessageTarget()
+					{
+						@Override
+						public void sendMessages(String[] msgs, EventData data)
+						{
+							Logger log = PluginConfiguration.log;
+							for(String msg : msgs)
+								log.info(msg);
+						}
+
+						@Override public String toString() { return "console"; }
+					};
 			if (key.equalsIgnoreCase("server"))
 				return new MessageTarget()
 					{

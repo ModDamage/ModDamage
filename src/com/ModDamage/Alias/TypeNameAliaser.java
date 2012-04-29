@@ -99,7 +99,7 @@ public class TypeNameAliaser extends Aliaser<EntityType, List<String>>
 	public String toString(EntityType element)
 	{
 		List<String> names = thisMap.get(element);
-		return !names.isEmpty()? names.get(random.nextInt(names.size())) : element.name();
+		return names != null && !names.isEmpty()? names.get(random.nextInt(names.size())) : element.name();
 	}
 	
 	public List<String> matchAlias(EntityType type){
