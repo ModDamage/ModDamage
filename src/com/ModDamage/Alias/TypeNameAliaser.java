@@ -65,7 +65,7 @@ public class TypeNameAliaser extends Aliaser<EntityType, List<String>>
 						if(object instanceof String)
 						{
 							names.add((String)object);
-							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "as \"" + name + "\"");
+							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "as \"" + value + "\"");
 						}
 						else 
 							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown item: "+object.toString());
@@ -78,7 +78,7 @@ public class TypeNameAliaser extends Aliaser<EntityType, List<String>>
 			if(value instanceof String)
 			{
 				names.add((String)value);
-				ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing type " + type.name() +  " as \"" + name + "\"");
+				ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing type " + type.name() +  " as \"" + value + "\"");
 				continue;
 			}
 			
