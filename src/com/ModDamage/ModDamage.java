@@ -53,6 +53,8 @@ public class ModDamage extends JavaPlugin
 		for (ModDamageEventHandler eventHandler : ModDamageEventHandler.values())
 			Bukkit.getPluginManager().registerEvents(eventHandler.listener, this);
 		
+		Bukkit.getPluginManager().registerEvents(new CommandEvent.CommandEventHandler(), this);
+		
 		PluginCommand.setPlugin(this);
 		configuration = new PluginConfiguration(this, oldestSupportedBuild);
 		isEnabled = true;

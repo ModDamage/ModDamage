@@ -240,6 +240,9 @@ public class PluginConfiguration
 		
 		// Aliasing
 		AliasManager.reload();
+		
+		// Command Event
+		CommandEvent.reload();
 
 		// Routines
 		ModDamageEventHandler.reload();
@@ -345,7 +348,7 @@ public class PluginConfiguration
 		{
 			if(object instanceof LinkedHashMap)
 				return (LinkedHashMap<String, Object>)object;
-			addToLogRecord(OutputPreset.FAILURE, "Error: expected map of values for \"" + targetName + "\"");
+			addToLogRecord(OutputPreset.FAILURE, "Error: expected map of values for \"" + targetName + "\": "+object.getClass().getCanonicalName()+" :: "+object.toString());
 		}
 		else addToLogRecord(OutputPreset.WARNING, "No configuration values found for \"" + targetName + "\"");
 		return null;

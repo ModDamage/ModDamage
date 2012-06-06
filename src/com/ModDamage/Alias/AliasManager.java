@@ -1,7 +1,6 @@
 package com.ModDamage.Alias;
 
 import java.util.LinkedHashMap;
-import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
@@ -47,44 +46,51 @@ public enum AliasManager
 	{
 		state = LoadState.NOT_LOADED;
 		
-		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading aliases...");
-
-		for(Entry<String, Object> configEntry : ModDamage.getPluginConfiguration().getConfigMap().entrySet())
-			if(configEntry.getKey().equalsIgnoreCase("Aliases"))
+		PluginConfiguration pluginConfig = ModDamage.getPluginConfiguration();
+		
+		LinkedHashMap<String, Object> entries = pluginConfig.getConfigMap();
+		Object aliases = PluginConfiguration.getCaseInsensitiveValue(entries, "Aliases");
+		
+		if(aliases != null)
+		{
+			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading aliases...");
+			
+			ModDamage.changeIndentation(true);
+			LinkedHashMap<String, Object> aliasesMap = pluginConfig.castToStringMap("Aliases", aliases);
+			if(aliasesMap != null)
 			{
-				ModDamage.changeIndentation(true);
-				LinkedHashMap<String, Object> aliasesMap = ModDamage.getPluginConfiguration().castToStringMap("Aliases", configEntry.getValue());
-				if(aliasesMap != null)
+				for(AliasManager aliasType : AliasManager.values())
 				{
-					for(AliasManager aliasType : AliasManager.values())
-					{
-						LinkedHashMap<String, Object> aliasEntry = ModDamage.getPluginConfiguration().castToStringMap(aliasType.name(), PluginConfiguration.getCaseInsensitiveValue(aliasesMap, aliasType.name()));
-						if(aliasEntry != null)
-							aliasType.getAliaser().load(ModDamage.getPluginConfiguration().castToStringMap(aliasType.name(), aliasEntry));
-					}
-					state = LoadState.SUCCESS;
+					LinkedHashMap<String, Object> aliasEntry = pluginConfig.castToStringMap(aliasType.name(), PluginConfiguration.getCaseInsensitiveValue(aliasesMap, aliasType.name()));
+					if(aliasEntry != null)
+						aliasType.getAliaser().load(pluginConfig.castToStringMap(aliasType.name(), aliasEntry));
 				}
-				ModDamage.changeIndentation(false);
-				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-				switch(state)
-				{
-					case NOT_LOADED:
-						ModDamage.addToLogRecord(OutputPreset.WARNING, "No aliases loaded! Are any aliases defined?");
-						break;
-					case FAILURE:
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "One or more errors occurred while loading aliases.");
-						break;
-					case SUCCESS:
-						ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliases loaded!");
-						break;
-					
-					default: assert(false);
-				}
-				return;
+				state = LoadState.SUCCESS;
 			}
-		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-		ModDamage.addToLogRecord(OutputPreset.WARNING, "No Aliases node found.");
+			ModDamage.changeIndentation(false);
+			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+			switch(state)
+			{
+				case NOT_LOADED:
+					ModDamage.addToLogRecord(OutputPreset.WARNING, "No aliases loaded! Are any aliases defined?");
+					break;
+				case FAILURE:
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, "One or more errors occurred while loading aliases.");
+					break;
+				case SUCCESS:
+					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliases loaded!");
+					break;
+				
+				default: assert(false);
+			}
+			return;
+		}
+		else
+		{
+			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+			ModDamage.addToLogRecord(OutputPreset.WARNING, "No Aliases node found.");
+		}
 	}
 	
 	public LoadState getSpecificLoadState(){ return getAliaser().loadState; }

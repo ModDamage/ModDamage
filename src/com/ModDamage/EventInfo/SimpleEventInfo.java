@@ -14,8 +14,12 @@ public class SimpleEventInfo extends EventInfo
 	private final List<Class<?>> classes;
 	private final int size;
 	private final int hashCode;
-	
+
 	public SimpleEventInfo(Object... objs)
+	{
+		this(objs, false);
+	}
+	public SimpleEventInfo(Object[] objs, boolean dummy)
 	{
 		this.classes = new ArrayList<Class<?>>();
 		Map<Class<?>, Map<String, Integer>> mmap = new HashMap<Class<?>, Map<String,Integer>>();
@@ -31,7 +35,8 @@ public class SimpleEventInfo extends EventInfo
 			if (obj instanceof Class<?>)
 			{
 				if (!names.isEmpty())
-				{				
+				{
+					if(classes.isEmpty()) throw new Error("CLASSES IS EMPTY");
 					objIndex = addItems(classes, names, mmap, objIndex);
 					
 					classes.clear();
@@ -43,6 +48,7 @@ public class SimpleEventInfo extends EventInfo
 			}
 			else // will get a bad cast error from below if it isn't a String, no need to check
 			{
+				if(classes.isEmpty()) throw new Error("CLASSES IS EMPTY");
 				names.add((String) obj);
 			}
 		}

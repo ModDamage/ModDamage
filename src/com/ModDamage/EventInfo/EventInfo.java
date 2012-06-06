@@ -52,8 +52,11 @@ public abstract class EventInfo
 		return index;
 	}
 	
-	public EventData makeData(Object... objs) { return makeChainedData(null, objs); }
-	public EventData makeChainedData(EventData parent, Object... objs)
+	public EventData makeData(Object... objs) { return makeData(objs, false); }
+	public EventData makeData(Object[] objs, boolean dummy) { return makeChainedData(null, objs); }
+
+	public EventData makeChainedData(EventData parent, Object... objs) { return makeChainedData(parent, objs, false); }
+	public EventData makeChainedData(EventData parent, Object[] objs, boolean dummy)
 	{
 		EventData data = new EventData(parent, objs);
 		verify(data);
