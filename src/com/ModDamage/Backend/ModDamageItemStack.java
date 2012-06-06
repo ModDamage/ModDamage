@@ -13,12 +13,12 @@ import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Variables.Ints.Constant;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.MaterialAliaser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Variables.Ints.Constant;
 
 public class ModDamageItemStack
 {
@@ -90,7 +90,8 @@ public class ModDamageItemStack
 		if (m == null) return null;
 		
 		Collection<Material> materials = MaterialAliaser.match(m.group());
-		if (materials == null || materials.size() == 0)
+		Material first = materials.iterator().next();
+		if (materials == null || materials.size() == 0 || first == null)
 		{
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unable to match material \"" + m.group() + "\"");
 			return null;
@@ -98,11 +99,11 @@ public class ModDamageItemStack
 		
 		if (materials.size() > 1)
 		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: matched too many materials: \"" + m.group() + "\"");
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: matched "+materials.size()+" materials, wanted only one: \"" + m.group() + "\"");
 			return null;
 		}
 		
-		Material material = materials.iterator().next();
+		Material material = first;
 		
 		IntegerExp data;
 		if (sm.matchesFront("@"))
