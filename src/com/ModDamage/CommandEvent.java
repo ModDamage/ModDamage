@@ -209,6 +209,7 @@ public class CommandEvent
 			if (words.length == 0) return;
 			
 			List<Command> commands = commandMap.get(words[0]);
+			if (commands == null) return;
 			commandLoop: for (Command cmd : commands)
 			{
 				if (!(cmd.catchAll? words.length >= cmd.args.length : words.length == cmd.args.length))
