@@ -21,7 +21,7 @@ public class Division extends ValueChange
 	@Override
 	public int getValue(EventData data) throws BailException
 	{
-		return defaultRef.get(data).value * number.getValue(data);
+		return defaultRef.get(data).value / number.getValue(data);
 	}
 	
 	public static void register()
