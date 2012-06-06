@@ -90,8 +90,12 @@ public class ModDamageItemStack
 		if (m == null) return null;
 		
 		Collection<Material> materials = MaterialAliaser.match(m.group());
-		Material first = materials.iterator().next();
-		if (materials == null || materials.size() == 0 || first == null)
+		Material first = null;
+		
+		if (materials != null && materials.size() > 0)
+			first = materials.iterator().next();
+			
+		if (first == null)
 		{
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unable to match material \"" + m.group() + "\"");
 			return null;
