@@ -45,11 +45,15 @@ public class PlayerHasItem extends Conditional
 			Inventory inventory = ((Player)entityRef.get(data)).getInventory();
 			if(allItems)
 			{
-				for(ModDamageItemStack item : items)
+				outerLoop: for(ModDamageItemStack item : items)
 				{
-					ItemStack temp = item.toItemStack();
-					if(!inventory.contains(temp.getType(), temp.getAmount()))
-						return false;
+					for (ItemStack stack : inventory)
+						if (item.matches(stack))
+							continue outerLoop;
+					return false;
+					//ItemStack temp = item.toItemStack();
+					//if(!inventory.contains(temp.getType(), temp.getAmount()))
+					//	return false;
 				}
 				return true;
 			}
@@ -57,9 +61,12 @@ public class PlayerHasItem extends Conditional
 			{
 				for(ModDamageItemStack item : items)
 				{
-					ItemStack temp = item.toItemStack();
-					if(inventory.contains(temp.getType(), temp.getAmount()))
-						return true;
+					for (ItemStack stack : inventory)
+						if (item.matches(stack))
+							return true;
+					//ItemStack temp = item.toItemStack();
+					//if(inventory.contains(temp.getType(), temp.getAmount()))
+					//	return true;
 				}
 				return false;
 			}
