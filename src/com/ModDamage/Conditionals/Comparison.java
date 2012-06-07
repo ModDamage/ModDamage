@@ -82,7 +82,7 @@ public class Comparison extends Conditional
 	}
 	
 	public static final Pattern namePattern = Pattern.compile("\\.(" + ComparisonType.comparisonPart + ")\\.", Pattern.CASE_INSENSITIVE);
-	public static final Pattern operatorPattern = Pattern.compile("\\s*(>=?|<=?|==|!=)\\s*"); // doing it like above won't match >= correctly
+	public static final Pattern operatorPattern = Pattern.compile("\\s*(>=?|<=?|==?|!=)\\s*"); // doing it like above won't match >= correctly
 	protected final IntegerExp operand1;
 	protected final IntegerExp operand2;
 	protected final ComparisonType comparisonType;
