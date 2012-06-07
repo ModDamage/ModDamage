@@ -60,20 +60,21 @@ public class CommandEvent
 		{
 			String[] commandSpec = commandEntry.getKey().split("\\s+");
 			String name = commandSpec[0];
-			Argument[] args = new Argument[commandSpec.length - 1];
+			Argument[] args;
 			boolean catchAll = false;
+			
+			if (commandSpec.length > 1 && commandSpec[commandSpec.length-1].equals("*"))
+			{
+				args = new Argument[commandSpec.length - 2];
+				catchAll = true;
+			}
+			else
+				args = new Argument[commandSpec.length - 1];
 			
 			StringBuilder logSB = new StringBuilder();
 			
-			for (int i = 1; i < commandSpec.length; i++)
-			{
-				if (i == commandSpec.length - 1 && commandSpec[i].equals("*"))
-				{
-					logSB.append(" *");
-					catchAll = true;
-					continue;
-				}
-				
+			for (int i = 1; i < commandSpec.length - (catchAll?1:0); i++)
+			{				
 				ArgumentType type = ArgumentType.get(commandSpec[i].substring(0, 1));
 				if (type == null) {
 					ModDamage.addToLogRecord(OutputPreset.FAILURE, 
@@ -84,6 +85,8 @@ public class CommandEvent
 				args[i-1] = new Argument(commandSpec[i].substring(1), type);
 				logSB.append(" "+args[i-1].name+"("+type.name()+")");
 			}
+			if (catchAll) 
+				logSB.append(" *");
 			
 			Command command = new Command(name, args, catchAll);
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Command ["+command.name+"]: "+logSB.toString());
@@ -98,8 +101,9 @@ public class CommandEvent
 				commandMap.put(name, cmds);
 			}
 			cmds.add(command);
-			
 		}
+
+		ModDamage.changeIndentation(false);
 	}
 	
 	
@@ -212,20 +216,23 @@ public class CommandEvent
 			if (commands == null) return;
 			commandLoop: for (Command cmd : commands)
 			{
-				if (!(cmd.catchAll? words.length >= cmd.args.length : words.length == cmd.args.length))
+				if (!(cmd.catchAll? words.length - 1 >= cmd.args.length : words.length - 1 == cmd.args.length))
 					continue;
 				
 				Object[] dataArgs = new Object[cmd.args.length + 2];
 				dataArgs[0] = event.getPlayer();
 				dataArgs[1] = event.getPlayer().getWorld();
 				
-				for (int i = 0; i < words.length; i++)
+				for (int i = 1; i < words.length; i++)
 				{
-					Object obj = cmd.args[i].type.parseArgument(words[i]);
+					if (i-1 >= cmd.args.length)
+						break;
+					
+					Object obj = cmd.args[i-1].type.parseArgument(words[i]);
 					if (obj == null)
 						continue commandLoop;
 					
-					dataArgs[i+2] = obj;
+					dataArgs[i+1] = obj;
 				}
 				
 				EventData data = cmd.eventInfo.makeData(dataArgs, false);
