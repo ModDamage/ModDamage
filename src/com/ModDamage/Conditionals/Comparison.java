@@ -18,42 +18,44 @@ public class Comparison extends Conditional
 {
 	private enum ComparisonType
 	{ 
-		EQUALS("==?")
+		EQUALS("==?", "=", "==")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 == operand2; }
 		},
-		NOTEQUALS("!=")
+		NOTEQUALS("!=", "!=")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 != operand2; }
 		},
-		LESSTHAN("<")
+		LESSTHAN("<", "<")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 < operand2; }
 		},
-		LESSTHANEQUALS("<=")
+		LESSTHANEQUALS("<=", "<=")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 <= operand2; }
 		},
-		GREATERTHAN(">")
+		GREATERTHAN(">", ">")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 > operand2; }
 		},
-		GREATERTHANEQUALS(">=")
+		GREATERTHANEQUALS(">=", ">=")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 >= operand2; }
 		};
 		
-		public final String operator;
+		public final String opRegex;
+		public final String[] operators;
 		
-		private ComparisonType(String op)
+		private ComparisonType(String opRegex, String... operators)
 		{
-			operator = op;
+			this.opRegex = opRegex;
+			this.operators = operators;
 		}
 		
 		abstract public boolean compare(int operand1, int operand2);
@@ -70,9 +72,11 @@ public class Comparison extends Conditional
 			for(ComparisonType comparisonType : ComparisonType.values())
 			{
 				comparisonPart += comparisonType.name() + "|";
+				operatorPart += comparisonType.opRegex + "|";
+				
 				nameMap.put(comparisonType.name(), comparisonType);
-				operatorPart += comparisonType.operator + "|";
-				nameMap.put(comparisonType.operator, comparisonType);
+				for (String op : comparisonType.operators)
+					nameMap.put(op, comparisonType);
 			}
 			comparisonPart = comparisonPart.substring(0, comparisonPart.length() - 1);
 			operatorPart = operatorPart.substring(0, operatorPart.length() - 1);
@@ -129,7 +133,7 @@ public class Comparison extends Conditional
 				{
 					comparisonType = ComparisonType.nameMap.get(matcher.group(1).toUpperCase());
 					
-					ModDamage.addToLogRecord(OutputPreset.WARNING, "The named operator syntax is deprecated. Please use " + comparisonType.operator + "instead of ." + comparisonType.name() + ".");
+					ModDamage.addToLogRecord(OutputPreset.WARNING, "The named operator syntax is deprecated. Please use " + comparisonType.opRegex + "instead of ." + comparisonType.name() + ".");
 				}
 				else
 					return null;
