@@ -164,16 +164,19 @@ public class ItemInt extends IntegerExp
 	@Override
 	protected int myGetValue(EventData data) throws BailException
 	{
+		ItemStack item = null;
 		if (entityRef != null)
 		{
 			Entity entity = entityRef.get(data);
 			if (entity instanceof Player)
-				return itemAttribute.getAttribute(playerItemTarget.getItem((Player)entity));
+				item = playerItemTarget.getItem((Player)entity);
 		}
 		else
 		{
-			return itemAttribute.getAttribute(itemRef.get(data));
+			item = itemRef.get(data);
 		}
+		if (item != null)
+			return itemAttribute.getAttribute(item);
 		return 0;
 	}
 	
@@ -187,13 +190,19 @@ public class ItemInt extends IntegerExp
 			if (entity instanceof Player)
 			{
 				Player player = (Player)entity;
-				itemAttribute.setAttribute(playerItemTarget.getItem(player), value);
-				player.updateInventory();
+				ItemStack item = playerItemTarget.getItem(player);
+				if (item != null)
+				{
+					itemAttribute.setAttribute(item, value);
+					player.updateInventory();
+				}
 			}
 		}
 		else
 		{
-			itemAttribute.setAttribute(itemRef.get(data), value);
+			ItemStack item = itemRef.get(data);
+			if (item != null)
+				itemAttribute.setAttribute(item, value);
 		}
 	}
 	
