@@ -14,7 +14,7 @@ import com.ModDamage.EventInfo.EventInfo;
 public class InterpolatedString
 {
 	private static final Pattern interpolationPattern = Pattern.compile("%\\{([^}]+)\\}", Pattern.CASE_INSENSITIVE);
-	private static final Pattern colorReplacePattern = Pattern.compile("&([0-9a-f])", Pattern.CASE_INSENSITIVE);
+	private static final Pattern colorReplacePattern = Pattern.compile("&([0-9a-fk-o])", Pattern.CASE_INSENSITIVE);
 	
 	private final List<InterpolatedPart> parts = new ArrayList<InterpolatedPart>();
 	private int minSize;
