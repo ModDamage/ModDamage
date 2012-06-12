@@ -313,6 +313,7 @@ public class PluginConfiguration
 		}
 
 		outputString += newline + newline + "#Events";
+		outputString += newline + "Command:";
 		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
 			outputString += newline + eventType.name() + ":";
 
