@@ -22,6 +22,7 @@ import com.ModDamage.Backend.IntRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Matchables.EntityType;
 import com.ModDamage.Routines.Routines;
 
 
@@ -124,36 +125,39 @@ public class CommandEvent
 			this.catchAll = catchAll;
 			
 			// build info list for my eventInfo object
-			Object[] infoArr = new Object[2*(args.length + 2)];
-			infoArr[0] = Player.class;
-			infoArr[1] = "sender";
-			infoArr[2] = World.class;
-			infoArr[3] = "world";
+			List<Object> infoList = new ArrayList<Object>(2*args.length + 4);
+			infoList.add(Player.class);
+			infoList.add(EntityType.class);
+			infoList.add("sender");
+			infoList.add(World.class);
+			infoList.add("world");
 			
-			
-			int i = 2;
 			for (Argument arg : args)
-			{
-				infoArr[2*i+0] = arg.type.infoCls;
-				infoArr[2*i+1] = arg.name;
-			}
+				arg.addToEventInfoList(infoList);
 			
 			//ModDamage.addToLogRecord(OutputPreset.INFO, "INFOARR: "+Utils.joinBy(", ", infoArr));
 			
-			eventInfo = new SimpleEventInfo(infoArr, false);
+			eventInfo = new SimpleEventInfo(infoList.toArray(), false);
 		}
 	}
 	
 	static enum ArgumentType
 	{
-		Player("&", Player.class) {
+		Player("&") {
 				@Override
 				public Object parseArgument(String arg)
 				{
 					return Bukkit.getPlayer(arg);
 				}
+
+				@Override
+				public void addToEventInfoList(List<Object> infoList)
+				{
+					infoList.add(Player.class);
+					infoList.add(EntityType.class);
+				}
 			},
-		Number("#", IntRef.class) {
+		Number("#") {
 				@Override
 				public Object parseArgument(String arg)
 				{
@@ -166,15 +170,19 @@ public class CommandEvent
 						return null;
 					}
 				}
+
+				@Override
+				public void addToEventInfoList(List<Object> infoList)
+				{
+					infoList.add(IntRef.class);
+				}
 			};
 		
 		String prefix;
-		Class<?> infoCls;
 		
-		private ArgumentType(String prefix, Class<?> infoCls)
+		private ArgumentType(String prefix)
 		{
 			this.prefix = prefix;
-			this.infoCls = infoCls;
 		}
 		
 		public static ArgumentType get(String prefix)
@@ -188,6 +196,7 @@ public class CommandEvent
 		}
 		
 		public abstract Object parseArgument(String arg);
+		public abstract void addToEventInfoList(List<Object> infoList);
 	}
 	
 	static class Argument
@@ -199,6 +208,12 @@ public class CommandEvent
 		{
 			this.name = name;
 			this.type = type;
+		}
+		
+		public void addToEventInfoList(List<Object> list)
+		{
+			type.addToEventInfoList(list);
+			list.add(name);
 		}
 	}
 	
@@ -219,23 +234,27 @@ public class CommandEvent
 				if (!(cmd.catchAll? words.length - 1 >= cmd.args.length : words.length - 1 == cmd.args.length))
 					continue;
 				
-				Object[] dataArgs = new Object[cmd.args.length + 2];
-				dataArgs[0] = event.getPlayer();
-				dataArgs[1] = event.getPlayer().getWorld();
+				List<Object> dataArgs = new ArrayList<Object>(cmd.args.length + 4);
+				dataArgs.add(event.getPlayer()); dataArgs.add(EntityType.get(event.getPlayer()));
+				dataArgs.add(event.getPlayer().getWorld());
 				
 				for (int i = 1; i < words.length; i++)
 				{
 					if (i-1 >= cmd.args.length)
 						break;
 					
-					Object obj = cmd.args[i-1].type.parseArgument(words[i]);
+					Argument arg = cmd.args[i-1];
+					
+					Object obj = arg.type.parseArgument(words[i]);
 					if (obj == null)
 						continue commandLoop;
 					
-					dataArgs[i+1] = obj;
+					dataArgs.add(obj);
+					if (arg.type == ArgumentType.Player)
+						dataArgs.add(EntityType.get(obj));
 				}
 				
-				EventData data = cmd.eventInfo.makeData(dataArgs, false);
+				EventData data = cmd.eventInfo.makeData(dataArgs.toArray(), false);
 				try
 				{
 					if (cmd.routines != null)
