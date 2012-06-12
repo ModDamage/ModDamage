@@ -93,13 +93,12 @@ public class ValueChange extends Routine
 					return entry.getValue().getNew(anotherMatcher, changeType, info);
 			}
 			IntegerExp integer = IntegerExp.getNew(matcher.group(4), info, false);
+			if (integer == null) return null;
 			DataRef<IntRef> defaultRef = info.get(IntRef.class, "-default");
-			if(integer != null && defaultRef != null)
-			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, changeType.name() + ": " + matcher.group(4));
-				return new ValueChange(matcher.group(), defaultRef, changeType, integer);
-			}
-			return null;
+			if (defaultRef == null) return null;
+			
+			ModDamage.addToLogRecord(OutputPreset.INFO, changeType.name() + ": " + matcher.group(4));
+			return new ValueChange(matcher.group(), defaultRef, changeType, integer);
 		}
 	}
 	
