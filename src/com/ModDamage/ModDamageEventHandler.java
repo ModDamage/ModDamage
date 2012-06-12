@@ -2,6 +2,7 @@ package com.ModDamage;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -26,9 +27,6 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.ModDamage.Matchables.DamageType;
-import com.ModDamage.Matchables.EntityType;
-import com.ModDamage.Matchables.HealType;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
@@ -39,6 +37,9 @@ import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Matchables.DamageType;
+import com.ModDamage.Matchables.EntityType;
+import com.ModDamage.Matchables.HealType;
 import com.ModDamage.Routines.Routines;
 
 enum ModDamageEventHandler
@@ -346,6 +347,15 @@ enum ModDamageEventHandler
 					Player player = event.getPlayer();
 					Action action = event.getAction();
 					
+					Block clickedBlock = event.getClickedBlock();
+					IntRef block_type = new IntRef(0);
+					IntRef block_data = new IntRef(0);
+					if (clickedBlock != null)
+					{
+						block_type.value = clickedBlock.getTypeId();
+						block_data.value = clickedBlock.getData();
+					}
+					
 					EventData data = Interact.eventInfo.makeData(
 							player, EntityType.get(player),
 							player.getWorld(),
@@ -354,8 +364,8 @@ enum ModDamageEventHandler
 							action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK,
 							action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK,
 							action == Action.LEFT_CLICK_AIR || action == Action.RIGHT_CLICK_AIR,
-							new IntRef(event.getClickedBlock().getTypeId()),
-							new IntRef(event.getClickedBlock().getData()));
+							block_type,
+							block_data);
 					
 					Interact.runRoutines(data);
 				}
