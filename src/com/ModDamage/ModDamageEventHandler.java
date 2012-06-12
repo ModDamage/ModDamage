@@ -333,7 +333,9 @@ enum ModDamageEventHandler
 					Boolean.class,					"interact_left",
 					Boolean.class,					"interact_right",
 					Boolean.class,					"interact_block",
-					Boolean.class,					"interact_air"),
+					Boolean.class,					"interact_air",
+					IntRef.class,					"interact_block_type",
+					IntRef.class,					"interact_block_data"),
 					
 			new Listener() {
 				@EventHandler(priority=EventPriority.HIGHEST)
@@ -343,6 +345,7 @@ enum ModDamageEventHandler
 					
 					Player player = event.getPlayer();
 					Action action = event.getAction();
+					
 					EventData data = Interact.eventInfo.makeData(
 							player, EntityType.get(player),
 							player.getWorld(),
@@ -350,7 +353,9 @@ enum ModDamageEventHandler
 							action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK,
 							action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK,
 							action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK,
-							action == Action.LEFT_CLICK_AIR || action == Action.RIGHT_CLICK_AIR);
+							action == Action.LEFT_CLICK_AIR || action == Action.RIGHT_CLICK_AIR,
+							new IntRef(event.getClickedBlock().getTypeId()),
+							new IntRef(event.getClickedBlock().getData()));
 					
 					Interact.runRoutines(data);
 				}
