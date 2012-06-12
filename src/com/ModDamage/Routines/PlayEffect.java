@@ -21,17 +21,17 @@ public class PlayEffect extends Routine
 		BOW_FIRE(Effect.BOW_FIRE),
 		CLICK1(Effect.CLICK1),
 		CLICK2(Effect.CLICK2),
-	    DOOR_TOGGLE(Effect.DOOR_TOGGLE),
-	    EXTINGUISH(Effect.EXTINGUISH),
-	    RECORD_PLAY(Effect.RECORD_PLAY),
-	    GHAST_SHRIEK(Effect.GHAST_SHRIEK),
-	    GHAST_SHOOT(Effect.GHAST_SHOOT),
-	    BLAZE_SHOOT(Effect.BLAZE_SHOOT),
-	    SMOKE(Effect.SMOKE),
-	    BLOCK_BREAK(Effect.STEP_SOUND),
-	    POTION_BREAK(Effect.POTION_BREAK),
-	    ENDER_SIGNAL(Effect.ENDER_SIGNAL),
-	    MOBSPAWNER_FLAMES(Effect.MOBSPAWNER_FLAMES);
+		DOOR_TOGGLE(Effect.DOOR_TOGGLE),
+		EXTINGUISH(Effect.EXTINGUISH),
+		RECORD_PLAY(Effect.RECORD_PLAY),
+		GHAST_SHRIEK(Effect.GHAST_SHRIEK),
+		GHAST_SHOOT(Effect.GHAST_SHOOT),
+		BLAZE_SHOOT(Effect.BLAZE_SHOOT),
+		SMOKE(Effect.SMOKE),
+		BLOCK_BREAK(Effect.STEP_SOUND),
+		POTION_BREAK(Effect.POTION_BREAK),
+		ENDER_SIGNAL(Effect.ENDER_SIGNAL),
+		MOBSPAWNER_FLAMES(Effect.MOBSPAWNER_FLAMES);
 		
 		private final Effect effect;
 		private EffectType(Effect effect) { this.effect = effect; }
