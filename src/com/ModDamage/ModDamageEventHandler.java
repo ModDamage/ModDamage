@@ -24,6 +24,8 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -392,6 +394,46 @@ enum ModDamageEventHandler
 							new IntRef(event.getNewSlot()));
 					
 					ItemHeld.runRoutines(data);
+				}
+			}),
+			
+	Join(
+			new SimpleEventInfo(
+					Player.class, EntityType.class, "player",
+					World.class,					"world"),
+					
+			new Listener() {
+				@EventHandler(priority=EventPriority.HIGHEST)
+				public void onJoin(PlayerJoinEvent event)
+				{
+					if(!ModDamage.isEnabled) return;
+					
+					Player player = event.getPlayer();
+					EventData data = Join.eventInfo.makeData(
+							player, EntityType.get(player),
+							player.getWorld());
+					
+					Join.runRoutines(data);
+				}
+			}),
+			
+	Quit(
+			new SimpleEventInfo(
+					Player.class, EntityType.class, "player",
+					World.class,					"world"),
+					
+			new Listener() {
+				@EventHandler(priority=EventPriority.HIGHEST)
+				public void onQuit(PlayerQuitEvent event)
+				{
+					if(!ModDamage.isEnabled) return;
+					
+					Player player = event.getPlayer();
+					EventData data = Quit.eventInfo.makeData(
+							player, EntityType.get(player),
+							player.getWorld());
+					
+					Quit.runRoutines(data);
 				}
 			});
 	
