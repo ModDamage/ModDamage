@@ -29,8 +29,10 @@ public class ChangeCreatureTarget extends Routine
 	{
 		Creature creature = creatureRef.get(data);
 		if (creature == null) return;
+		LivingEntity target = null;
+		if (targetRef != null) target = targetRef.get(data);
 
-		creature.setTarget(targetRef.get(data));
+		creature.setTarget(target);
 	}
 
 	public static void register()
@@ -47,7 +49,7 @@ public class ChangeCreatureTarget extends Routine
 			if (creatureRef == null) return null;
 			
 			DataRef<LivingEntity> targetRef = info.get(LivingEntity.class, matcher.group(2).toLowerCase());
-			if (targetRef == null) return null;
+			if (targetRef == null && !matcher.group(2).toLowerCase().equals("none")) return null;
 			
 			ModDamage.addToLogRecord(OutputPreset.INFO, "Change Target: " + creatureRef + " " + targetRef);
 			return new ChangeCreatureTarget(matcher.group(), creatureRef, targetRef);
