@@ -14,6 +14,9 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityCombustByBlockEvent;
+import org.bukkit.event.entity.EntityCombustByEntityEvent;
+import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -484,6 +487,50 @@ enum ModDamageEventHandler
 							event.getReason());
 					
 					Target.runRoutines(data);
+				}
+			}),
+			
+	Combust(
+			new SimpleEventInfo(
+					Entity.class, EntityType.class, "entity",
+					World.class,					"world",
+					IntRef.class,					"duration",
+					Entity.class, EntityType.class, "combustor",
+					IntRef.class,					"block_type",
+					IntRef.class,					"block_data"),
+					
+			new Listener() {
+				@EventHandler(priority=EventPriority.HIGHEST)
+				public void onCombust(EntityCombustEvent event)
+				{
+					if(!ModDamage.isEnabled) return;
+					
+					Entity entity = event.getEntity();
+					IntRef duration = new IntRef(event.getDuration());
+					Entity combustor = null;
+					IntRef block_type = new IntRef(0);
+					IntRef block_data = new IntRef(0);
+					
+					if (event instanceof EntityCombustByEntityEvent)
+						combustor = ((EntityCombustByEntityEvent)event).getCombuster();
+					
+					if (event instanceof EntityCombustByBlockEvent)
+					{
+						block_type.value = ((EntityCombustByBlockEvent)event).getCombuster().getTypeId();
+						block_data.value = ((EntityCombustByBlockEvent)event).getCombuster().getData();
+					}
+					
+					EventData data = Combust.eventInfo.makeData(
+							entity, EntityType.get(entity),
+							entity.getWorld(),
+							duration,
+							combustor, EntityType.get(combustor),
+							block_type,
+							block_data);
+					
+					Combust.runRoutines(data);
+					
+					event.setDuration(duration.value);
 				}
 			});
 	
