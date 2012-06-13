@@ -22,6 +22,7 @@ import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -370,6 +371,29 @@ enum ModDamageEventHandler
 							block_data);
 					
 					Interact.runRoutines(data);
+				}
+			}),
+			
+	InteractEntity(
+			new SimpleEventInfo(
+					Player.class, EntityType.class, "player",
+					World.class,					"world",
+					Entity.class, EntityType.class, "target"),
+					
+			new Listener() {
+				@EventHandler(priority=EventPriority.HIGHEST)
+				public void onInteractEntity(PlayerInteractEntityEvent event)
+				{
+					if(!ModDamage.isEnabled) return;
+					
+					Player player = event.getPlayer();
+					Entity target = event.getRightClicked();
+					EventData data = InteractEntity.eventInfo.makeData(
+							player, EntityType.get(player),
+							player.getWorld(),
+							target, EntityType.get(target));
+					
+					InteractEntity.runRoutines(data);
 				}
 			}),
 			
