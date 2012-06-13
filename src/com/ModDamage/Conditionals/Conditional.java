@@ -87,7 +87,6 @@ abstract public class Conditional
 		InvertConditional.register();
 		NestedConditional.register();
 		//Entity
-		MatchableType.register();
 		EntityBiome.register();
 		EntityBlockStatus.register();
 		EntityRegion.register();
@@ -109,6 +108,8 @@ abstract public class Conditional
 		//Server
 		ServerOnlineMode.register();
 		//Other
+		MatchableType.register();
+		EnumEquals.register();
 		ItemMatches.register();
 		BooleanData.register();
 		Comparison.register();

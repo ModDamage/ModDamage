@@ -5,30 +5,28 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ModDamage.Matchables.Matchable;
-
 public final class EnumHelper
 {
 	private EnumHelper() {}
 	
-	private static Map<Class<?>, Map<String, Matchable<?>>> enumMap = new HashMap<Class<?>, Map<String,Matchable<?>>>();
+	private static Map<Class<?>, Map<String, Enum<?>>> enumMap = new HashMap<Class<?>, Map<String, Enum<?>>>();
 	
-	public static Map<String, Matchable<?>> getTypeMapForEnum(Class<?> cls)
+	public static Map<String, Enum<?>> getTypeMapForEnum(Class<?> cls)
 	{
 		if (enumMap.containsKey(cls)) return enumMap.get(cls);
 		
-		Map<String, Matchable<?>> map = new HashMap<String, Matchable<?>>();
+		Map<String, Enum<?>> map = new HashMap<String, Enum<?>>();
 		
 		Method valuesMethod;
 		@SuppressWarnings("rawtypes")
-		Matchable[] values;
+		Enum[] values;
 		
 		try
 		{
 			valuesMethod = cls.getMethod("values");
-			values = (Matchable[]) valuesMethod.invoke(null);
+			values = (Enum[]) valuesMethod.invoke(null);
 			
-			for (Matchable<?> value : values)
+			for (Enum<?> value : values)
 				map.put(value.name(), value);
 		}
 		catch (SecurityException e) { e.printStackTrace(); }

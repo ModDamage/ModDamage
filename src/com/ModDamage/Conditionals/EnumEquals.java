@@ -8,7 +8,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Matchables.Matchable;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnumHelper;
@@ -17,14 +16,14 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 
 @SuppressWarnings("rawtypes")
-public class MatchableType extends Conditional
+public class EnumEquals extends Conditional
 {
-	public static final Pattern pattern = Pattern.compile("(\\w+)\\.type\\.([\\w,]+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("(\\w+)\\.is\\.([\\w,]+)", Pattern.CASE_INSENSITIVE);
 	
-	private final DataRef<Matchable> matchableRef;
-	private final Collection<Matchable> types;
+	private final DataRef<Enum> matchableRef;
+	private final Collection<Enum> types;
 	
-	public MatchableType(String configString, DataRef<Matchable> matchableRef, Collection<Matchable> types)
+	public EnumEquals(String configString, DataRef<Enum> matchableRef, Collection<Enum> types)
 	{ 
 		super(configString);
 		this.matchableRef = matchableRef;
@@ -33,10 +32,10 @@ public class MatchableType extends Conditional
 	@Override
 	protected boolean myEvaluate(EventData data) throws BailException
 	{
-		Matchable<?> matchable = matchableRef.get(data);
+		Enum matchable = matchableRef.get(data);
 		if(matchable != null)
-			for(Matchable<?> type : types)
-				if(matchable.matches(type))
+			for(Enum type : types)
+				if(matchable == type)
 					return true;
 		return false;
 	}
@@ -51,32 +50,31 @@ public class MatchableType extends Conditional
 		public ConditionalBuilder() { super(pattern); }
 
 		@Override
-		public MatchableType getNew(Matcher matcher, EventInfo info)
+		public EnumEquals getNew(Matcher matcher, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
 			
 			
-			DataRef<Matchable> matchableRef = (DataRef<Matchable>) info.get(Matchable.class, name);
-			if (matchableRef == null) return null;
+			DataRef<Enum> enumRef = (DataRef<Enum>) info.get(Enum.class, name);
+			if (enumRef == null) return null;
 			
-			@SuppressWarnings("unchecked")
-			Map<String, Matchable<?>> possibleTypes = (Map) EnumHelper.getTypeMapForEnum(matchableRef.infoCls);
+			Map<String, Enum<?>> possibleTypes = EnumHelper.getTypeMapForEnum(enumRef.infoCls);
 			
-			List<Matchable> types = new ArrayList<Matchable>();
+			List<Enum> types = new ArrayList<Enum>();
 			
 			for (String typeStr : matcher.group(2).split(","))
 			{
-				Matchable type = possibleTypes.get(typeStr.toUpperCase());
+				Enum type = possibleTypes.get(typeStr.toUpperCase());
 				if (type == null)
 				{
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + typeStr + "\" is not a valid " + matchableRef.infoCls.getSimpleName());
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + typeStr + "\" is not a valid " + enumRef.infoCls.getSimpleName());
 					return null;
 				}
 				types.add(type);
 			}
 			
 			if(types != null && !types.isEmpty())
-				return new MatchableType(matcher.group(), matchableRef, types);
+				return new EnumEquals(matcher.group(), enumRef, types);
 			return null;
 		}
 	}
