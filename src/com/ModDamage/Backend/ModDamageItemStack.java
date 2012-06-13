@@ -59,6 +59,9 @@ public class ModDamageItemStack
 	
 	public boolean matches(ItemStack itemStack)
 	{
+		if (itemStack == null)
+			return material == Material.AIR;
+		
 		return material.equals(itemStack.getType()) && lastAmount <= itemStack.getAmount() &&
 				(data == null? true : lastData == itemStack.getDurability());
 	}
