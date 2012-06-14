@@ -74,7 +74,8 @@ enum ModDamageEventHandler
 					{
 						Damage.runRoutines(data);
 						event.setDamage(damageRef.get(data).value);
-						//event.setCancelled(event.getDamage() <= 0);
+						if (event.getDamage() <= 0)
+							event.setCancelled(true);
 					}
 					else PluginConfiguration.log.severe("[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + 
 							"] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
