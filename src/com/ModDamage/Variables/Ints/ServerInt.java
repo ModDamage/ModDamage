@@ -32,7 +32,9 @@ public class ServerInt extends IntegerExp
 	enum ServerProperty
 	{
 		OnlinePlayers { @Override protected int getValue(){ return Bukkit.getOnlinePlayers().length; }},
-		MaxPlayers { @Override protected int getValue(){ return Bukkit.getMaxPlayers(); }};
+		MaxPlayers { @Override protected int getValue(){ return Bukkit.getMaxPlayers(); }},
+		Time { @Override protected int getValue(){ return (int) (System.currentTimeMillis() / 1000); }},
+		TimeMillis { @Override protected int getValue(){ return (int) (System.currentTimeMillis()); }};
 		
 		abstract protected int getValue();
 	}
