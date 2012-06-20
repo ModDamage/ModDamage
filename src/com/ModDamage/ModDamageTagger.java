@@ -32,13 +32,13 @@ public class ModDamageTagger
 	public static final int defaultInterval = 10 * 20;
 	
 	private final Map<String, Map<Entity, Integer>> entityTags = new HashMap<String, Map<Entity, Integer>>();
-	private final Map<String, Map<OfflinePlayer, Integer>> playerTags = new HashMap<String, Map<OfflinePlayer, Integer>>();
+	private final Map<String, Map<String, Integer>> playerTags = new HashMap<String, Map<String, Integer>>();
 	
 	/**
 	 * World tags are stored differently because there are usually very few worlds
 	 * and potentially many tags.
 	 */
-	private final Map<World, Map<String, Integer>> worldTags = new HashMap<World, Map<String,Integer>>();
+	private final Map<World, Map<String, Integer>> worldTags = new HashMap<World, Map<String, Integer>>();
 	
 	
 	private long saveInterval;
@@ -156,15 +156,7 @@ public class ModDamageTagger
 			{
 				for (Entry<String, Map<String, Integer>> tagEntry : playersMap.entrySet())
 				{
-					Map<OfflinePlayer, Integer> taggedPlayers = new HashMap<OfflinePlayer, Integer>(tagEntry.getValue().size());
-					playerTags.put(tagEntry.getKey(), taggedPlayers);
-					
-					for (Entry<String, Integer> entry : tagEntry.getValue().entrySet())
-					{
-						OfflinePlayer player = Bukkit.getOfflinePlayer(entry.getKey());
-						if (player != null)
-							taggedPlayers.put(player, entry.getValue());
-					}
+					playerTags.put(tagEntry.getKey(), tagEntry.getValue());
 				}
 			}
 			
@@ -195,7 +187,7 @@ public class ModDamageTagger
 			}
 			
 			Map<Entity, Integer> entityMap = new WeakHashMap<Entity, Integer>();
-			Map<OfflinePlayer, Integer> playerMap = new HashMap<OfflinePlayer, Integer>();
+			Map<String, Integer> playerMap = new HashMap<String, Integer>();
 			
 			@SuppressWarnings("unchecked")
 			Map<String, Object> rawUuidMap = (Map<String, Object>)entry.getValue();
@@ -210,7 +202,7 @@ public class ModDamageTagger
 				}
 				
 				if (tagEntry.getKey().startsWith("player:"))
-					playerMap.put(Bukkit.getOfflinePlayer(tagEntry.getKey().substring(7)), integer);
+					playerMap.put(tagEntry.getKey().substring(7), integer);
 				else
 				{
 					try
@@ -258,17 +250,6 @@ public class ModDamageTagger
 				if (!savedEntities.isEmpty())
 					entityMap.put(tagEntry.getKey(), savedEntities);
 			}
-
-			Map<String, Map<String, Integer>> playerMap = new HashMap<String, Map<String, Integer>>();
-			for(Entry<String, Map<OfflinePlayer, Integer>> tagEntry : playerTags.entrySet())
-			{
-				if (tagEntry.getValue().isEmpty()) continue;
-				
-				HashMap<String, Integer> savedPlayers = new HashMap<String, Integer>();
-				for(Entry<OfflinePlayer, Integer> entry : tagEntry.getValue().entrySet())
-					savedPlayers.put(entry.getKey().getName(), entry.getValue());
-				playerMap.put(tagEntry.getKey(), savedPlayers);
-			}
 			
 			Map<String, Map<String, Integer>> worldMap = new HashMap<String, Map<String, Integer>>();
 			for (Entry<World, Map<String, Integer>> worldEntry : worldTags.entrySet())
@@ -286,7 +267,7 @@ public class ModDamageTagger
 			
 			saveMap.put("tagsVersion", 1);
 			saveMap.put("entity", entityMap);
-			saveMap.put("player", playerMap);
+			saveMap.put("player", playerTags);
 			saveMap.put("world", worldMap);
 			
 			try
@@ -327,8 +308,8 @@ public class ModDamageTagger
 	{
 		dirty = true; // only need to save when dirty
 		if(!playerTags.containsKey(tag))
-			playerTags.put(tag, new HashMap<OfflinePlayer, Integer>());
-		playerTags.get(tag).put(player, tagValue);
+			playerTags.put(tag, new HashMap<String, Integer>());
+		playerTags.get(tag).put(player.getName(), tagValue);
 	}
 	
 	public void addTag(World world, String tag, int tagValue)
@@ -395,8 +376,8 @@ public class ModDamageTagger
 	private List<String> getTags(OfflinePlayer player)
 	{
 		List<String> tagsList = new ArrayList<String>();
-		for(Entry<String, Map<OfflinePlayer, Integer>> entry : playerTags.entrySet())
-			if(entry.getValue().containsKey(player))
+		for(Entry<String, Map<String, Integer>> entry : playerTags.entrySet())
+			if(entry.getValue().containsKey(player.getName()))
 				tagsList.add(entry.getKey());
 		return tagsList;
 	}
