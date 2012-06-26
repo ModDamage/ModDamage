@@ -343,7 +343,7 @@ public enum EntityType implements Matchable<EntityType>
 	
 	public static EntityType get(Object obj)
 	{
-		if(obj == null) throw new IllegalArgumentException("Object cannot be null for getElementFor method!");
+		if(obj == null) return NONE; //throw new IllegalArgumentException("Object cannot be null for EntityType.get method!");
 		Class<?> cls = obj.getClass();
 		EntityType mde = byClass.get(cls);
 		if (mde == null)
