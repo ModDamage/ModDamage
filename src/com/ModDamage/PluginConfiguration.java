@@ -117,6 +117,19 @@ public class PluginConfiguration
 				return entry.getValue();
 		return null;
 	}
+	
+	public static boolean getBooleanValue(LinkedHashMap<String, Object> map, String key, boolean default_)
+	{
+		Object debugObject = getCaseInsensitiveValue(map, key);
+		if(debugObject != null)
+		{
+			if(debugObject instanceof Boolean)
+				return (Boolean)debugObject;
+			else
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: expected boolean value for "+key+", but got an " + debugObject.getClass().getName());
+		}
+		return default_;
+	}
 
 	public PluginConfiguration(Plugin plugin, int oldestSupportedBuild)
 	{
@@ -222,21 +235,21 @@ public class PluginConfiguration
 			}
 		}
 		
-		// load Death message setting
-		ModDamageEventHandler.disableDeathMessages = false;
-		debugObject = getCaseInsensitiveValue(configMap, ModDamageEventHandler.disableDeathMessages_configString);
-		if(debugObject != null)
-		{
-			if(debugObject instanceof Boolean)
-			{
-				if((Boolean)debugObject)
-					ModDamageEventHandler.disableDeathMessages = true;
-			}
-			else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: expected boolean value for disable-deathmessages, but got an " + debugObject.getClass().getName());
-		}
+		// Default message settings
+		ModDamageEventHandler.disableDeathMessages = getBooleanValue(configMap, "disable-deathmessages", false);
 		if(ModDamageEventHandler.disableDeathMessages)
 			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla death messages disabled.");
 		else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla death messages enabled.");
+		
+		ModDamageEventHandler.disableJoinMessages = getBooleanValue(configMap, "disable-joinmessages", false);
+		if(ModDamageEventHandler.disableJoinMessages)
+			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla join messages disabled.");
+		else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla join messages enabled.");
+		
+		ModDamageEventHandler.disableQuitMessages = getBooleanValue(configMap, "disable-quitmessages", false);
+		if(ModDamageEventHandler.disableQuitMessages)
+			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla quit messages disabled.");
+		else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla quit messages enabled.");
 		
 		// Aliasing
 		AliasManager.reload();
@@ -319,7 +332,9 @@ public class PluginConfiguration
 
 		outputString += newline + newline +  "#Miscellaneous configuration";
 		outputString += newline + "debugging: normal";
-		outputString += newline + ModDamageEventHandler.disableDeathMessages_configString + ": false";
+		outputString += newline + "disable-deathMessages: false";
+		outputString += newline + "disable-joinMessages: false";
+		outputString += newline + "disable-quitMessages: false";
 		outputString += newline + "Tagging: #These intervals should be tinkered with ONLY if you understand the implications.";
 		outputString += newline + "    interval-save: " + ModDamageTagger.defaultInterval;
 		outputString += newline + "    interval-clean: " + ModDamageTagger.defaultInterval;

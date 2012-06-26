@@ -437,6 +437,9 @@ enum ModDamageEventHandler
 				{
 					if(!ModDamage.isEnabled) return;
 					
+					if (disableJoinMessages)
+						event.setJoinMessage(null);
+					
 					Player player = event.getPlayer();
 					EventData data = Join.eventInfo.makeData(
 							player, EntityType.get(player),
@@ -456,6 +459,9 @@ enum ModDamageEventHandler
 				public void onQuit(PlayerQuitEvent event)
 				{
 					if(!ModDamage.isEnabled) return;
+					
+					if (disableQuitMessages)
+						event.setQuitMessage(null);
 					
 					Player player = event.getPlayer();
 					EventData data = Quit.eventInfo.makeData(
@@ -544,8 +550,9 @@ enum ModDamageEventHandler
 		this.listener = listener;
 	}
 
-	protected static final String disableDeathMessages_configString = "disable-deathmessages";
 	public static boolean disableDeathMessages = false;
+	public static boolean disableJoinMessages = false;
+	public static boolean disableQuitMessages = false;
 	
 	public void runRoutines(EventData data)
 	{
