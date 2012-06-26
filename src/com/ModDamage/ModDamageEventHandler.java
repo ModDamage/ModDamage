@@ -523,8 +523,12 @@ enum ModDamageEventHandler
 					
 					if (event instanceof EntityCombustByBlockEvent)
 					{
-						block_type.value = ((EntityCombustByBlockEvent)event).getCombuster().getTypeId();
-						block_data.value = ((EntityCombustByBlockEvent)event).getCombuster().getData();
+						Block combustorBlock = ((EntityCombustByBlockEvent)event).getCombuster();
+						if (combustorBlock != null)
+						{
+							block_type.value = combustorBlock.getTypeId();
+							block_data.value = combustorBlock.getData();
+						}
 					}
 					
 					EventData data = Combust.eventInfo.makeData(
