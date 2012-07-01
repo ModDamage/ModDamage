@@ -3,8 +3,8 @@ package com.ModDamage.Conditionals;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.Matchables.EntityType;

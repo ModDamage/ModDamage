@@ -5,11 +5,11 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 
-import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;

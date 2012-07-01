@@ -6,11 +6,11 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.ModDamage;
 import com.ModDamage.Utils;
 import com.ModDamage.Alias.TypeNameAliaser;
 import com.ModDamage.Backend.ArmorSet;
+import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;

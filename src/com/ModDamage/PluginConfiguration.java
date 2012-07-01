@@ -26,9 +26,10 @@ import org.bukkit.plugin.Plugin;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 
-import com.ModDamage.ExternalPluginManager.PermissionsManager;
-import com.ModDamage.ExternalPluginManager.RegionsManager;
 import com.ModDamage.Alias.AliasManager;
+import com.ModDamage.Backend.ExternalPluginManager;
+import com.ModDamage.Backend.ExternalPluginManager.PermissionsManager;
+import com.ModDamage.Backend.ExternalPluginManager.RegionsManager;
 
 public class PluginConfiguration
 {

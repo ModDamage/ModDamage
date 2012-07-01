@@ -1,4 +1,4 @@
-package com.ModDamage;
+package com.ModDamage.Backend;
 
 import static com.sk89q.worldguard.bukkit.BukkitUtil.toVector;
 
@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.anjocaido.groupmanager.GroupManager;
+import org.anjocaido.groupmanager.data.User;
 import org.anjocaido.groupmanager.dataholder.OverloadedWorldHolder;
 import org.anjocaido.groupmanager.dataholder.worlds.WorldsHolder;
 import org.bukkit.Bukkit;
@@ -123,10 +124,12 @@ public class ExternalPluginManager
 				if(player != null)
 				{
 					OverloadedWorldHolder wd = wh.getWorldData(player);
+					User user = wd.getUser(player.getName());
 					
-					List<String> groupStrings = new ArrayList<String>();
-					for(org.anjocaido.groupmanager.data.Group group : wd.getGroupList())
-						groupStrings.add(group.getName());
+					List<String> groupStrings = new ArrayList<String>(1 + user.subGroupsSize());
+					groupStrings.add(user.getGroupName());
+					for(String group : user.subGroupListStringCopy())
+						groupStrings.add(group);
 					return groupStrings;
 				}
 				return Arrays.asList();

@@ -7,9 +7,9 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Entity;
 
-import com.ModDamage.ExternalPluginManager;
 import com.ModDamage.Alias.RegionAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
