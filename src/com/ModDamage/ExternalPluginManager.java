@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.anjocaido.groupmanager.GroupManager;
+import org.anjocaido.groupmanager.dataholder.OverloadedWorldHolder;
+import org.anjocaido.groupmanager.dataholder.worlds.WorldsHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -14,15 +17,14 @@ import org.bukkit.plugin.Plugin;
 
 import ru.tehkode.permissions.PermissionManager;
 
-import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.ModDamage.ModDamageExtension;
+import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.elbukkit.api.elregions.region.Region;
 import com.elbukkit.api.elregions.region.RegionManager;
 import com.gmail.nossr50.mcMMO;
-import com.platymuus.bukkit.permissions.Group;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.GlobalRegionManager;
@@ -31,8 +33,6 @@ import de.bananaco.permissions.Permissions;
 
 public class ExternalPluginManager
 {
-	private static final List<String> emptyList = Arrays.asList();
-	
 	private static List<ModDamageExtension> registeredPlugins = new ArrayList<ModDamageExtension>();
 	private static void reloadModDamageRoutines()
 	{
@@ -47,14 +47,17 @@ public class ExternalPluginManager
 	private static mcMMO mcMMOplugin;
 	public static mcMMO getMcMMOPlugin(){ return mcMMOplugin; }
 	
-	private static PermissionsManager permissionsManager = PermissionsManager.SUPERPERMS;
+	private static PermissionsManager permissionsManager = PermissionsManager.None;
 	public static PermissionsManager getPermissionsManager(){ return permissionsManager; }
 	public enum PermissionsManager
 	{
-		SUPERPERMS
+		None
 		{
 			@Override
-			protected void reload(Plugin plugin){}
+			protected void reload(Plugin plugin) {}
+
+			@Override
+			public List<String> getGroups(Player player) { return Arrays.asList(); }
 		},
 		PermissionsEx
 		{
@@ -64,7 +67,7 @@ public class ExternalPluginManager
 			{
 				if(player != null)
 					return Arrays.asList(permissionManager.getUser(player).getGroupsNames(player.getWorld().getName()));
-				return emptyList;
+				return Arrays.asList();
 			}
 			
 			@Override
@@ -80,7 +83,7 @@ public class ExternalPluginManager
 			{
 				if(player != null)
 					return Permissions.getWorldPermissionsManager().getPermissionSet(player.getWorld()).getGroups(player);
-				return emptyList;
+				return Arrays.asList();
 			}
 			
 			@Override
@@ -96,11 +99,11 @@ public class ExternalPluginManager
 				if(player != null)
 				{
 					List<String> groupStrings = new ArrayList<String>();
-					for(Group group : plugin.getGroups(player.getName()))
+					for(com.platymuus.bukkit.permissions.Group group : plugin.getGroups(player.getName()))
 						groupStrings.add(group.getName());
 					return groupStrings;
 				}
-				return emptyList;
+				return Arrays.asList();
 			}
 			
 			@Override
@@ -108,17 +111,47 @@ public class ExternalPluginManager
 			{
 				this.plugin = (PermissionsPlugin)plugin;
 			}
+		},
+		GroupManager
+		{
+			GroupManager plugin = null;
+			WorldsHolder wh = null;
+			
+			@Override
+			public List<String> getGroups(Player player)
+			{
+				if(player != null)
+				{
+					OverloadedWorldHolder wd = wh.getWorldData(player);
+					
+					List<String> groupStrings = new ArrayList<String>();
+					for(org.anjocaido.groupmanager.data.Group group : wd.getGroupList())
+						groupStrings.add(group.getName());
+					return groupStrings;
+				}
+				return Arrays.asList();
+			}
+			
+			@Override
+			protected void reload(Plugin plugin)
+			{
+				this.plugin = (GroupManager)plugin;
+				if (this.plugin != null)
+				{
+					wh = this.plugin.getWorldsHolder();
+				}
+			}
 		};
 
 		private static String version;
 		
-		public List<String> getGroups(Player player){ return emptyList; }
+		abstract public List<String> getGroups(Player player);
 
 		public static PermissionsManager reload()
 		{
 			for(PermissionsManager permsPlugin : PermissionsManager.values())
 			{
-				if(permsPlugin.equals(PermissionsManager.SUPERPERMS)) continue;
+				if(permsPlugin.equals(PermissionsManager.None)) continue;
 				Plugin plugin = Bukkit.getPluginManager().getPlugin(permsPlugin.name());
 				if (plugin != null)
 				{
@@ -128,7 +161,7 @@ public class ExternalPluginManager
 				}
 			}
 			version = null;
-			return PermissionsManager.SUPERPERMS;
+			return PermissionsManager.None;
 		}
 		abstract protected void reload(Plugin plugin);
 		
@@ -145,10 +178,10 @@ public class ExternalPluginManager
 			public void reload(Plugin plugin){}
 
 			@Override
-			public List<String> getRegions(Location location){ return emptyList; }
+			public List<String> getRegions(Location location){ return Arrays.asList(); }
 			
 			@Override
-			public List<String> getAllRegions(){ return emptyList; }
+			public List<String> getAllRegions(){ return Arrays.asList(); }
 		},
 		elRegions
 		{
@@ -165,7 +198,7 @@ public class ExternalPluginManager
 						regionNames.add(region.getName());
 					return regionNames;
 				}
-				return emptyList;
+				return Arrays.asList();
 			}
 			
 			@Override

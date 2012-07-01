@@ -187,7 +187,7 @@ public class PluginConfiguration
 		if(reloadingAll)
 		{
 			ExternalPluginManager.reload();
-			if(ExternalPluginManager.getPermissionsManager() == PermissionsManager.SUPERPERMS)
+			if(ExternalPluginManager.getPermissionsManager() == PermissionsManager.None)
 				addToLogRecord(OutputPreset.INFO_VERBOSE, "Permissions: No permissions plugin found.");
 			else addToLogRecord(OutputPreset.CONSTANT, "Permissions: " + ExternalPluginManager.getPermissionsManager().name() + " v" + ExternalPluginManager.getPermissionsManager().getVersion());
 			if(ExternalPluginManager.getRegionsManager() == RegionsManager.NONE)
