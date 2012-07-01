@@ -138,11 +138,13 @@ public class Tag extends NestedRoutine
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			if(routines == null) return null;
+
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(1) + ", " + matcher.group(2));
+			
 			IntegerExp integer = IntegerExp.getNew(routines, einfo);
 			if(integer == null) return null;
 			
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(1) + ", " + matcher.group(2) + ", " + integer.toString());
 			return new Tag(matcher.group(), matcher.group(2).toLowerCase(), entityRef, worldRef, integer);
 		}
 	}
