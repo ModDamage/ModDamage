@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.External.mcMMO.ModifySkill;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Tag;
 
@@ -35,7 +36,7 @@ public abstract class NestedRoutine extends Routine
 		LaunchProjectile.register();
 		Nearby.register();
 		ChangeProperty.register();
-		McMMOChangeSkill.register();
+		ModifySkill.register();
 		Command.registerNested();
 	}
 	

@@ -1,11 +1,10 @@
-package com.ModDamage.Variables.Ints;
+package com.ModDamage.External.mcMMO;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
@@ -15,6 +14,7 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Matchables.EntityType;
+import com.gmail.nossr50.api.ExperienceAPI;
 
 public class PlayerInt extends IntegerExp
 {
@@ -45,146 +45,12 @@ public class PlayerInt extends IntegerExp
 	protected final PlayerIntProperty propertyMatch;
 	public enum PlayerIntProperty
 	{
-		EXHAUSTION(true)
+		POWERLEVEL(false)
 		{
 			@Override
 			public int getValue(Player player) 
 			{
-				return (int)player.getExhaustion();
-			}
-			
-			@Override
-			public void setValue(Player player, int value) 
-			{
-				player.setExhaustion(value);
-			}
-		},
-		EXPERIENCE(true)
-		{
-			@Override
-			public int getValue(Player player) 
-			{
-				return (int)player.getExp() * 100;
-			}
-			
-			@Override
-			public void setValue(Player player, int value) 
-			{
-				player.setExp(value / 100);
-			}
-		},
-		FOODLEVEL(true)
-		{
-			@Override
-			public int getValue(Player player) 
-			{
-				return player.getFoodLevel();
-			}
-			
-			@Override
-			public void setValue(Player player, int value) 
-			{
-				player.setFoodLevel(value);
-			}
-		},
-		GAMEMODE(true)
-		{
-			@Override
-			public int getValue(Player player) 
-			{
-				return player.getGameMode().getValue();
-			}
-			
-			@Override
-			public void setValue(Player player, int value) 
-			{
-				player.setGameMode(org.bukkit.GameMode.getByValue(value));
-			}
-		},
-		HELD_SLOT
-		{
-			@Override
-			public int getValue(Player player) 
-			{
-				return player.getInventory().getHeldItemSlot();
-			}
-		},
-		LEVEL(true)
-		{
-			@Override
-			public int getValue(Player player)
-			{
-				return player.getLevel();
-			}
-			
-			@Override
-			public void setValue(Player player, int value)
-			{
-				player.setLevel(value);
-			}
-		},
-		SATURATION(true)
-		{
-			@Override
-			public int getValue(Player player) 
-			{
-				return (int)player.getSaturation();
-			}
-			
-			@Override
-			public void setValue(Player player, int value) 
-			{
-				player.setSaturation(value);
-			}
-		},
-		SLEEPTICKS
-		{
-			@Override
-			public int getValue(Player player) 
-			{
-				return player.getSleepTicks();
-			}
-		},
-		TOTALEXPERIENCE(true)
-		{
-			@Override
-			public int getValue(Player player) 
-			{
-				return player.getTotalExperience();
-			}
-			
-			@Override
-			public void setValue(Player player, int value) 
-			{
-				player.setTotalExperience(value);
-			}
-		},
-		WIELDMATERIAL(true)
-		{
-			@Override
-			public int getValue(Player player) 
-			{
-				return player.getItemInHand().getTypeId();
-			}
-			
-			@Override
-			public void setValue(Player player, int value) 
-			{
-				player.setItemInHand(new ItemStack(value, player.getItemInHand().getAmount()));
-			}
-		},
-		WIELDQUANTITY(true)
-		{
-			@Override
-			public int getValue(Player player) 
-			{
-				return player.getItemInHand().getAmount();
-			}
-			
-			@Override
-			public void setValue(Player player, int value) 
-			{
-				player.setItemInHand(new ItemStack(player.getItemInHand().getType(), value));
+				return ExperienceAPI.getPowerLevel(player);
 			}
 		};
 		
