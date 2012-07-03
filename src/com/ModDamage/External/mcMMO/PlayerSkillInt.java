@@ -3,7 +3,6 @@ package com.ModDamage.External.mcMMO;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
@@ -16,7 +15,6 @@ import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.IntegerExp;
-import com.ModDamage.Matchables.EntityType;
 import com.gmail.nossr50.api.ExperienceAPI;
 import com.gmail.nossr50.datatypes.SkillType;
 
@@ -32,9 +30,8 @@ public class PlayerSkillInt extends IntegerExp
 					public IntegerExp getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
 					{
 						String name = matcher.group(1).toLowerCase();
-						DataRef<Entity> entityRef = info.get(Entity.class, name);
-						DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
-						if (entityRef == null || entityElementRef == null) return null;
+						DataRef<Player> playerRef = info.get(Player.class, name);
+						if (playerRef == null) return null;
 						String skillProp = matcher.group(2).toUpperCase();
 						String skillType = matcher.group(3).toUpperCase();
 						
@@ -43,7 +40,7 @@ public class PlayerSkillInt extends IntegerExp
 						try
 						{
 							return sm.acceptIf(new PlayerSkillInt(
-									entityRef, entityElementRef,
+									playerRef,
 									SkillProperty.valueOf(skillProp),
 									SkillType.valueOf(skillType)));
 						}
@@ -89,15 +86,13 @@ public class PlayerSkillInt extends IntegerExp
 		abstract int getProperty(Player player, SkillType skillType);
 	}
 
-	protected final DataRef<Entity> entityRef;
-	protected final DataRef<EntityType> entityElementRef;
+	protected final DataRef<Player> playerRef;
 	protected final SkillProperty skillProperty;
 	protected final SkillType skillType;
 	
-	PlayerSkillInt(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, SkillProperty skillProperty, SkillType skillType)
+	PlayerSkillInt(DataRef<Player> playerRef, SkillProperty skillProperty, SkillType skillType)
 	{
-		this.entityRef = entityRef;
-		this.entityElementRef = entityElementRef;
+		this.playerRef = playerRef;
 		this.skillProperty = skillProperty;
 		this.skillType = skillType;
 	}
@@ -105,12 +100,13 @@ public class PlayerSkillInt extends IntegerExp
 	@Override
 	protected int myGetValue(EventData data) throws BailException
 	{
-		if(!entityElementRef.get(data).matches(EntityType.PLAYER))
+		Player player = playerRef.get(data);
+		if (player == null)
 			return 0;
 	
 		try
 		{
-			return skillProperty.getProperty((Player)entityRef.get(data), skillType);
+			return skillProperty.getProperty(player, skillType);
 		}
 		catch (Exception e)
 		{
@@ -122,6 +118,6 @@ public class PlayerSkillInt extends IntegerExp
 	@Override
 	public String toString()
 	{
-		return entityRef + "_skill"+skillProperty+"_" + skillType.name().toLowerCase();
+		return playerRef + "_skill"+skillProperty+"_" + skillType.name().toLowerCase();
 	}
 }

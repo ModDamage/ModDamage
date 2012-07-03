@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -15,22 +14,19 @@ import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Matchables.EntityType;
 
 public class PlayerHasItem extends Conditional
 {
 	public static final Pattern pattern = Pattern.compile("(\\w+)\\.has((?:all)?items|item)\\.([\\w,@*]+)", Pattern.CASE_INSENSITIVE);
 	
-	private final DataRef<Entity> entityRef;
-	private final DataRef<EntityType> entityTypeRef;
+	private final DataRef<Player> playerRef;
 	private final boolean allItems;
 	private final Collection<ModDamageItemStack> items;
 	
-	public PlayerHasItem(String configString, DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, boolean allItems, Collection<ModDamageItemStack> items)
+	public PlayerHasItem(String configString, DataRef<Player> playerRef, boolean allItems, Collection<ModDamageItemStack> items)
 	{
 		super(configString);
-		this.entityRef = entityRef;
-		this.entityTypeRef = entityElementRef;
+		this.playerRef = playerRef;
 		this.allItems = allItems;
 		this.items = items;
 	}
@@ -38,40 +34,39 @@ public class PlayerHasItem extends Conditional
 	@Override
 	protected boolean myEvaluate(EventData data) throws BailException
 	{
-		if(entityTypeRef.get(data).matches(EntityType.PLAYER))
+		Player player = (Player)playerRef.get(data);
+		if (player == null) return false;
+		
+		for(ModDamageItemStack item : items)
+			item.update(data);
+		Inventory inventory = player.getInventory();
+		if(allItems)
+		{
+			outerLoop: for(ModDamageItemStack item : items)
+			{
+				for (ItemStack stack : inventory)
+					if (item.matches(stack))
+						continue outerLoop;
+				return false;
+				//ItemStack temp = item.toItemStack();
+				//if(!inventory.contains(temp.getType(), temp.getAmount()))
+				//	return false;
+			}
+			return true;
+		}
+		else
 		{
 			for(ModDamageItemStack item : items)
-				item.update(data);
-			Inventory inventory = ((Player)entityRef.get(data)).getInventory();
-			if(allItems)
 			{
-				outerLoop: for(ModDamageItemStack item : items)
-				{
-					for (ItemStack stack : inventory)
-						if (item.matches(stack))
-							continue outerLoop;
-					return false;
-					//ItemStack temp = item.toItemStack();
-					//if(!inventory.contains(temp.getType(), temp.getAmount()))
-					//	return false;
-				}
-				return true;
+				for (ItemStack stack : inventory)
+					if (item.matches(stack))
+						return true;
+				//ItemStack temp = item.toItemStack();
+				//if(inventory.contains(temp.getType(), temp.getAmount()))
+				//	return true;
 			}
-			else
-			{
-				for(ModDamageItemStack item : items)
-				{
-					for (ItemStack stack : inventory)
-						if (item.matches(stack))
-							return true;
-					//ItemStack temp = item.toItemStack();
-					//if(inventory.contains(temp.getType(), temp.getAmount()))
-					//	return true;
-				}
-				return false;
-			}
+			return false;
 		}
-		return false;
 	}
 	
 	public static void register()
@@ -87,11 +82,10 @@ public class PlayerHasItem extends Conditional
 		public PlayerHasItem getNew(Matcher matcher, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
-			DataRef<Entity> entityRef = info.get(Entity.class, name); if (entityRef == null) return null;
-			DataRef<EntityType> entityElementRef = info.get(EntityType.class, name); if (entityElementRef == null) return null;
+			DataRef<Player> playerRef = info.get(Player.class, name); if (playerRef == null) return null;
 			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
 			if(items != null && !items.isEmpty())
-				return new PlayerHasItem(matcher.group(), entityRef, entityElementRef, matcher.group(2).equalsIgnoreCase("allitems"), items);
+				return new PlayerHasItem(matcher.group(), playerRef, matcher.group(2).equalsIgnoreCase("allitems"), items);
 			return null;
 		}
 	}

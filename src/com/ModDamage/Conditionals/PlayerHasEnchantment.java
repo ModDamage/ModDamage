@@ -32,6 +32,7 @@ public class PlayerHasEnchantment extends Conditional
 	{
 		Player player = playerRef.get(data);
 		if (player == null) return false;
+		
 		for(Enchantment enchantment : enchantments)
 			if(player.getItemInHand().containsEnchantment(enchantment))
 				return true;
