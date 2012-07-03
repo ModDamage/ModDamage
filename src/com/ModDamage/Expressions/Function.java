@@ -43,6 +43,24 @@ public class Function extends IntegerExp
 			{
 				return (int)Math.sqrt(params[0]);
 			}
+		},
+		MIN(2, 100) {
+			@Override public int evaluate(int[] params)
+			{
+				int v = params[0];
+				for (int i = 1; i < params.length; i++)
+					if (params[i] < v) v = params[i];
+				return v;
+			}
+		},
+		MAX(2, 100) {
+			@Override public int evaluate(int[] params)
+			{
+				int v = params[0];
+				for (int i = 1; i < params.length; i++)
+					if (params[i] > v) v = params[i];
+				return v;
+			}
 		};
 		
 		int minParams, maxParams;
