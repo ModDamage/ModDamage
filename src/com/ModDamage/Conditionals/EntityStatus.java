@@ -34,7 +34,7 @@ public class EntityStatus extends Conditional
 		{
 			@Override
 			public boolean isTrue(Entity entity){ return ((Player)entity).is() <= 0; }
-		},FIXME Get this into Bukkit if not already present.*/
+		},FIXME Get this into Bukkit if not already present. */
 		Drowning(EntityType.LIVING)
 		{
 			@Override

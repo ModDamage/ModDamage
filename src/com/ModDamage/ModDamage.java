@@ -32,11 +32,6 @@ import com.ModDamage.Backend.BailException;
  */
 public class ModDamage extends JavaPlugin
 {
-	public final static int oldestSupportedBuild = 1597;
-	// -Triggered effects...should be a special type of tag! :D Credit: ricochet1k
-	// -AoE clearance, block search nearby for Material?
-	// -find a way to give players ownership of an explosion?
-	// -Deregister when Bukkit supports!
 	protected static PluginConfiguration configuration;
 	protected static List<ModDamageExtension> extensions = new ArrayList<ModDamageExtension>();
 
@@ -56,7 +51,7 @@ public class ModDamage extends JavaPlugin
 		Bukkit.getPluginManager().registerEvents(new CommandEvent.CommandEventHandler(), this);
 		
 		PluginCommand.setPlugin(this);
-		configuration = new PluginConfiguration(this, oldestSupportedBuild);
+		configuration = new PluginConfiguration(this);
 		isEnabled = true;
 		reload(true);
 	}

@@ -36,7 +36,6 @@ public class PluginConfiguration
 	public final static Logger log = Logger.getLogger("Minecraft");
 	protected static final String configString_defaultConfigPath = "config.yml";
 
-	public final int oldestSupportedBuild;
 	public final Plugin plugin;
 	private final File configFile;
 	private int configPages = 0;
@@ -132,11 +131,10 @@ public class PluginConfiguration
 		return default_;
 	}
 
-	public PluginConfiguration(Plugin plugin, int oldestSupportedBuild)
+	public PluginConfiguration(Plugin plugin)
 	{
 		this.plugin = plugin;
 		this.configFile = new File(plugin.getDataFolder(), configString_defaultConfigPath);
-		this.oldestSupportedBuild = oldestSupportedBuild;
 	}
 
 	public boolean reload(boolean reloadingAll)
@@ -190,23 +188,18 @@ public class PluginConfiguration
 			ExternalPluginManager.reload();
 			if(ExternalPluginManager.getPermissionsManager() == PermissionsManager.None)
 				addToLogRecord(OutputPreset.INFO_VERBOSE, "Permissions: No permissions plugin found.");
-			else addToLogRecord(OutputPreset.CONSTANT, "Permissions: " + ExternalPluginManager.getPermissionsManager().name() + " v" + ExternalPluginManager.getPermissionsManager().getVersion());
+			else
+				addToLogRecord(OutputPreset.CONSTANT, "Permissions: " + ExternalPluginManager.getPermissionsManager().name() + " v" + ExternalPluginManager.getPermissionsManager().getVersion());
+			
 			if(ExternalPluginManager.getRegionsManager() == RegionsManager.NONE)
 				addToLogRecord(OutputPreset.INFO_VERBOSE, "Regions: No regional plugins found.");
-			else addToLogRecord(OutputPreset.CONSTANT, "Regions: " + ExternalPluginManager.getRegionsManager().name() + " v" + ExternalPluginManager.getRegionsManager().getVersion());
+			else
+				addToLogRecord(OutputPreset.CONSTANT, "Regions: " + ExternalPluginManager.getRegionsManager().name() + " v" + ExternalPluginManager.getRegionsManager().getVersion());
+			
 			if(ExternalPluginManager.getMcMMOPlugin() == null)
 				addToLogRecord(OutputPreset.INFO_VERBOSE, "mcMMO: Plugin not found.");
-			else addToLogRecord(OutputPreset.CONSTANT, "mcMMO: Using version " + ExternalPluginManager.getMcMMOPlugin().getDescription().getVersion());
-		// Bukkit build check
-			/*String string = Bukkit.getVersion();
-			Matcher matcher = Pattern.compile(".*b([0-9]+)jnks.*", Pattern.CASE_INSENSITIVE).matcher(string);
-			if(matcher.matches())
-			{
-				if(Integer.parseInt(matcher.group(1)) < oldestSupportedBuild)
-					addToLogRecord(OutputPreset.FAILURE, "Detected Bukkit build " + matcher.group(1) + " - builds " + oldestSupportedBuild + " and older are not supported with this version of " + plugin.getDescription().getName() + ". Please update your current Bukkit installation.");
-			}
-			else addToLogRecord(OutputPreset.WARNING_STRONG, logPrepend() + "Unable to read Bukkit build - is this a modified version of Bukkit?.");
-			*/
+			else
+				addToLogRecord(OutputPreset.CONSTANT, "mcMMO: Using version " + ExternalPluginManager.getMcMMOPlugin().getDescription().getVersion());
 		}
 
 	// load debug settings
@@ -240,17 +233,20 @@ public class PluginConfiguration
 		ModDamageEventHandler.disableDeathMessages = getBooleanValue(configMap, "disable-deathmessages", false);
 		if(ModDamageEventHandler.disableDeathMessages)
 			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla death messages disabled.");
-		else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla death messages enabled.");
+		else
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla death messages enabled.");
 		
 		ModDamageEventHandler.disableJoinMessages = getBooleanValue(configMap, "disable-joinmessages", false);
 		if(ModDamageEventHandler.disableJoinMessages)
 			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla join messages disabled.");
-		else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla join messages enabled.");
+		else
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla join messages enabled.");
 		
 		ModDamageEventHandler.disableQuitMessages = getBooleanValue(configMap, "disable-quitmessages", false);
 		if(ModDamageEventHandler.disableQuitMessages)
 			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla quit messages disabled.");
-		else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla quit messages enabled.");
+		else
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla quit messages enabled.");
 		
 		// Aliasing
 		AliasManager.reload();
@@ -290,7 +286,6 @@ public class PluginConfiguration
 		{
 			try
 			{
-				
 				if(!(configFile.getParentFile().exists() || configFile.getParentFile().mkdirs()) || !configFile.createNewFile())
 				{
 					printToLog(Level.SEVERE, "Fatal error: could not create " + configString_defaultConfigPath + ".");
@@ -305,15 +300,25 @@ public class PluginConfiguration
 			}
 		}
 
-		String outputString = "#Auto-generated config at " + (new Date()).toString() + "." + newline + "#See the [wiki](https://github.com/KoryuObihiro/ModDamage/wiki) for more information." + newline + "Aliases:";
+		String outputString = "#Auto-generated config at " + (new Date()).toString() + "." + newline + "#See the wiki at https://github.com/ModDamage/ModDamage/wiki for more information." + newline;
 
+
+		outputString += newline + "#Events";
+		outputString += newline + "Command:";
+		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
+			outputString += newline + eventType.name() + ":";
+		
+		
+		outputString += newline + newline + "Aliases:";
 		for(AliasManager aliasType : AliasManager.values())
 		{
 			outputString += newline + "    " + aliasType.name() + ":";
 			switch(aliasType)
 			{
 				case Material:
-					String[][] toolAliases = { { "axe", "hoe", "pickaxe", "spade", "sword" }, { "WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_" } };
+					String[][] toolAliases = {
+							{ "axe", "hoe", "pickaxe", "spade", "sword" },
+							{ "WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_" } };
 					for(String toolType : toolAliases[0])
 					{
 						outputString += newline + "        " + toolType + ":";
@@ -325,11 +330,6 @@ public class PluginConfiguration
 				default: break;
 			}
 		}
-
-		outputString += newline + newline + "#Events";
-		outputString += newline + "Command:";
-		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
-			outputString += newline + eventType.name() + ":";
 
 		outputString += newline + newline +  "#Miscellaneous configuration";
 		outputString += newline + "debugging: normal";
@@ -373,7 +373,6 @@ public class PluginConfiguration
 	
 	public void addToLogRecord(OutputPreset preset, String message)
 	{
-		// if(loadState.equals(LoadState.FAILURE)) state_plugin = LoadState.FAILURE;//TODO REMOVE ME.
 		if(message.length() > 50)
 		{
 			configStrings_ingame.add(preset.color + "" +  indentation + "] " + message.substring(0, 49));
