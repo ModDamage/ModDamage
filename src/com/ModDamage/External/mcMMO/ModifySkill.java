@@ -5,9 +5,12 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 
+import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Utils;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.Backend.IntRef;
 import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
@@ -97,7 +100,14 @@ public class ModifySkill extends NestedRoutine
 
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(\\w+?)(?:effect)?\\.("+Utils.joinBy("|", ModifyType.values())+")\\.("+Utils.joinBy("|", SkillType.values())+")", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		try
+		{
+			NestedRoutine.registerRoutine(Pattern.compile("(\\w+?)(?:effect)?\\.("+Utils.joinBy("|", ModifyType.values())+")\\.("+Utils.joinBy("|", SkillType.values())+")", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		}
+		catch (NoClassDefFoundError e) {
+			if (ExternalPluginManager.getMcMMOPlugin() != null)
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "McMMO has changed. Please notify the ModDamage developers.");
+		}
 	}
 	
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
