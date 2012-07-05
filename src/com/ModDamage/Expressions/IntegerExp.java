@@ -101,6 +101,7 @@ public abstract class IntegerExp extends StringExp
 		TagInt.register();
 		PlayerSkillInt.register();
 		PlayerInt.register();
+		com.ModDamage.External.mcMMO.PlayerInt.register();
 		ItemInt.register();
 		ServerInt.register();
 		WorldInt.register();
