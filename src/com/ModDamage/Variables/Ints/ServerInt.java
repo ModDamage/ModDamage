@@ -31,10 +31,10 @@ public class ServerInt extends IntegerExp
 	protected final ServerProperty propertyMatch;
 	enum ServerProperty
 	{
-		OnlinePlayers { @Override protected int getValue(){ return Bukkit.getOnlinePlayers().length; }},
-		MaxPlayers { @Override protected int getValue(){ return Bukkit.getMaxPlayers(); }},
-		Time { @Override protected int getValue(){ return (int) (System.currentTimeMillis() / 1000); }},
-		TimeMillis { @Override protected int getValue(){ return (int) (System.currentTimeMillis()); }};
+		ONLINEPLAYERS { @Override protected int getValue(){ return Bukkit.getOnlinePlayers().length; }},
+		MAXPLAYERS { @Override protected int getValue(){ return Bukkit.getMaxPlayers(); }},
+		TIME { @Override protected int getValue(){ return (int) (System.currentTimeMillis() / 1000); }},
+		TIMEMILLIS { @Override protected int getValue(){ return (int) (System.currentTimeMillis()); }};
 		
 		abstract protected int getValue();
 	}
