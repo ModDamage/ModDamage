@@ -62,8 +62,14 @@ public class ModDamageItemStack
 		if (itemStack == null)
 			return material == Material.AIR;
 		
-		return material.equals(itemStack.getType()) && lastAmount <= itemStack.getAmount() &&
-				(data == null? true : lastData == itemStack.getDurability());
+		if (!material.equals(itemStack.getType()))
+			return false;
+		
+		if (material == Material.AIR)
+			// ignore data and amount for air
+			return true;
+		
+		return itemStack.getAmount() >= lastAmount && (data == null? true : itemStack.getDurability() == lastData);
 	}
 	
 	public ItemStack toItemStack()
