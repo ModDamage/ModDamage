@@ -8,11 +8,11 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.IntRef;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.EventInfo.ISettableDataProvider;
 
 public class ValueChange extends Routine 
 {
@@ -41,33 +41,32 @@ public class ValueChange extends Routine
 	}
 	
 	private final ValueChangeType changeType;
-	protected final IntegerExp number;
-	protected final DataRef<IntRef> defaultRef;
-	protected ValueChange(String configString, DataRef<IntRef> defaultRef, ValueChangeType changeType, IntegerExp number)
+	protected final IDataProvider<Integer> number;
+	protected final ISettableDataProvider<Integer> defaultDP;
+	protected ValueChange(String configString, ISettableDataProvider<Integer> defaultDP, ValueChangeType changeType, IDataProvider<Integer> number)
 	{
 		super(configString);
-		this.defaultRef = defaultRef;
+		this.defaultDP = defaultDP;
 		this.changeType = changeType;
 		this.number = number;
 	}
 	
 	@Override
 	public final void run(final EventData data) throws BailException{
-		IntRef def = defaultRef.get(data);
-		def.value = changeType.changeValue(
-				def.value, getValue(data));
+		Integer def = defaultDP.get(data);
+		defaultDP.set(data, changeType.changeValue(
+				def, getValue(def, data)));
 	}
 	
-	protected int getValue(EventData data) throws BailException
+	protected int getValue(Integer def, EventData data) throws BailException
 	{
-		return number.getValue(data);
+		return number.get(data);
 	}
 	
 	public static void register()
 	{
 		Routine.registerRoutine(Pattern.compile("(?:(\\+|add\\.)|(\\-|sub\\.)|(set\\.|=|))(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 		
-		DiceRoll.register();
 		Division.register();
 		Multiplication.register();
 	}
@@ -92,13 +91,13 @@ public class ValueChange extends Routine
 				if(anotherMatcher.matches())
 					return entry.getValue().getNew(anotherMatcher, changeType, info);
 			}
-			IntegerExp integer = IntegerExp.getNew(matcher.group(4), info, false);
+			IDataProvider<Integer> integer = DataProvider.parse(info, Integer.class, matcher.group(4));
 			if (integer == null) return null;
-			DataRef<IntRef> defaultRef = info.get(IntRef.class, "-default");
-			if (defaultRef == null) return null;
+			ISettableDataProvider<Integer> defaultDP = info.mget(Integer.class, "-default");
+			if (defaultDP == null) return null;
 			
 			ModDamage.addToLogRecord(OutputPreset.INFO, changeType.name() + ": " + matcher.group(4));
-			return new ValueChange(matcher.group(), defaultRef, changeType, integer);
+			return new ValueChange(matcher.group(), defaultDP, changeType, integer);
 		}
 	}
 	

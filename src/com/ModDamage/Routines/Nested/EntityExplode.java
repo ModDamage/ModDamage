@@ -7,35 +7,35 @@ import org.bukkit.entity.Entity;
 
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.IntRef;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routines;
 
 public class EntityExplode extends NestedRoutine
 {
-	private final DataRef<Entity> entityRef;
-	private final IntegerExp strength;
+	private final IDataProvider<Entity> entityDP;
+	private final IDataProvider<Integer> strength;
 	
-	public EntityExplode(String configString, DataRef<Entity> entityRef, IntegerExp strength)
+	public EntityExplode(String configString, IDataProvider<Entity> entityDP, IDataProvider<Integer> strength)
 	{
 		super(configString);
-		this.entityRef = entityRef;
+		this.entityDP = entityDP;
 		this.strength = strength;
 	}
 	
-	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "strength", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "strength", "-default");
 	
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		Entity entity = entityRef.get(data);
+		Entity entity = entityDP.get(data);
 		
-		EventData myData = myInfo.makeChainedData(data, new IntRef(0));
-		entity.getWorld().createExplosion(entity.getLocation(), strength.getValue(myData)/10.0f);
+		EventData myData = myInfo.makeChainedData(data, 0);
+		entity.getWorld().createExplosion(entity.getLocation(), strength.get(myData)/10.0f);
 	}
 	
 	public static void register()
@@ -48,16 +48,16 @@ public class EntityExplode extends NestedRoutine
 		@Override
 		public EntityExplode getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			if (routines == null) return null;
 			
-			IntegerExp strength = IntegerExp.getNew(routines, einfo);
+			IDataProvider<Integer> strength = IntegerExp.getNew(routines, einfo);
 			
-			if(entityRef != null && strength != null)
-				return new EntityExplode(matcher.group(), entityRef, strength);
+			if(entityDP != null && strength != null)
+				return new EntityExplode(matcher.group(), entityDP, strength);
 			
 			return null;
 		}

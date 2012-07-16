@@ -12,39 +12,39 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import com.ModDamage.ModDamage;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.IntRef;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routines;
 
 public class EntityHurt extends NestedRoutine
 {
-	private final DataRef<LivingEntity> entityRef;
-	private final DataRef<Entity> entityOtherRef;
-	private final IntegerExp hurt_amount;
+	private final IDataProvider<LivingEntity> livingDP;
+	private final IDataProvider<Entity> entityOtherDP;
+	private final IDataProvider<Integer> hurt_amount;
 	
-	public EntityHurt(String configString, DataRef<LivingEntity> entityRef, DataRef<Entity> entityOtherRef, IntegerExp hurt_amount)
+	public EntityHurt(String configString, IDataProvider<LivingEntity> livingDP, IDataProvider<Entity> entityOtherDP, IDataProvider<Integer> hurt_amount)
 	{
 		super(configString);
-		this.entityRef = entityRef;
-		this.entityOtherRef = entityOtherRef;
+		this.livingDP = livingDP;
+		this.entityOtherDP = entityOtherDP;
 		this.hurt_amount = hurt_amount;
 	}
 
-	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "hurt_amount", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "hurt_amount", "-default");
 	
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		final LivingEntity target = (LivingEntity) entityRef.get(data);
-		final Entity from = entityOtherRef.get(data);
+		final LivingEntity target = (LivingEntity) livingDP.get(data);
+		final Entity from = entityOtherDP.get(data);
 		if(from != null && target != null && target.getHealth() > 0 && !target.isDead())
 		{
-			final EventData myData = myInfo.makeChainedData(data, new IntRef(0));
-			final int damage = hurt_amount.getValue(myData);
+			final EventData myData = myInfo.makeChainedData(data, 0);
+			final int damage = hurt_amount.get(myData);
 			Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, new Runnable()
 				{
 					@Override
@@ -70,16 +70,16 @@ public class EntityHurt extends NestedRoutine
 		public EntityHurt getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
-			DataRef<LivingEntity> entityRef = info.get(LivingEntity.class, name);
+			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, name);
 			String otherName = "-" + name + "-other";
-			DataRef<Entity> entityOtherRef = info.get(Entity.class, otherName);
+			IDataProvider<Entity> entityOtherDP = DataProvider.parse(info, Entity.class, otherName);
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			IntegerExp hurt_amount = IntegerExp.getNew(routines, einfo);
+			IDataProvider<Integer> hurt_amount = IntegerExp.getNew(routines, einfo);
 			
-			if(entityRef != null && entityOtherRef != null)
-				return new EntityHurt(matcher.group(), entityRef, entityOtherRef, hurt_amount);
+			if(livingDP != null && entityOtherDP != null)
+				return new EntityHurt(matcher.group(), livingDP, entityOtherDP, hurt_amount);
 			return null;
 		}
 	}

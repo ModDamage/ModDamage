@@ -15,9 +15,10 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.AliasManager;
 import com.ModDamage.Alias.CommandAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.Expressions.InterpolatedString;
 import com.ModDamage.Routines.Routine;
 
@@ -61,14 +62,14 @@ public class Command extends NestedRoutine
 					};
 			
 			{
-				final DataRef<Entity> entityRef = info.get(Entity.class, key);
-				if(entityRef == null) return null;
+				final IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, key);
+				if(entityDP == null) return null;
 				return new CommandTarget()
 				{
 					@Override
-					public CommandSender getCommandSender(EventData data)
+					public CommandSender getCommandSender(EventData data) throws BailException
 					{
-						Entity entity = entityRef.get(data);
+						Entity entity = entityDP.get(data);
 						if (entity instanceof CommandSender)
 						{
 							CommandSender cmdsender = (CommandSender) entity;
@@ -77,12 +78,12 @@ public class Command extends NestedRoutine
 						return null;
 					}
 
-					@Override public String toString() { return entityRef.toString(); }
+					@Override public String toString() { return entityDP.toString(); }
 				};
 			}
 		}
 		
-		abstract public CommandSender getCommandSender(EventData data);
+		abstract public CommandSender getCommandSender(EventData data) throws BailException;
 		abstract public String toString();
 	}
 	

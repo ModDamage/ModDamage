@@ -4,39 +4,37 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.ItemAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ModDamageItemStack;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
-public class PlayerHasItem extends Conditional
+public class PlayerHasItem extends Conditional<Player>
 {
-	public static final Pattern pattern = Pattern.compile("(\\w+)\\.has((?:all)?items|item)\\.([\\w,@*]+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.has((?:all)?items|item)\\.([\\w,@*]+)", Pattern.CASE_INSENSITIVE);
 	
-	private final DataRef<Player> playerRef;
 	private final boolean allItems;
 	private final Collection<ModDamageItemStack> items;
 	
-	public PlayerHasItem(String configString, DataRef<Player> playerRef, boolean allItems, Collection<ModDamageItemStack> items)
+	public PlayerHasItem(IDataProvider<?> playerDP, boolean allItems, Collection<ModDamageItemStack> items)
 	{
-		super(configString);
-		this.playerRef = playerRef;
+		super(Player.class, playerDP);
 		this.allItems = allItems;
 		this.items = items;
 	}
 
 	@Override
-	protected boolean myEvaluate(EventData data) throws BailException
+	public Boolean get(Player player, EventData data) throws BailException
 	{
-		Player player = (Player)playerRef.get(data);
-		if (player == null) return false;
-		
 		for(ModDamageItemStack item : items)
 			item.update(data);
 		Inventory inventory = player.getInventory();
@@ -71,22 +69,16 @@ public class PlayerHasItem extends Conditional
 	
 	public static void register()
 	{
-		Conditional.register(new ConditionalBuilder());
-	}
-	
-	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
-	{
-		public ConditionalBuilder() { super(pattern); }
-
-		@Override
-		public PlayerHasItem getNew(Matcher matcher, EventInfo info)
-		{
-			String name = matcher.group(1).toLowerCase();
-			DataRef<Player> playerRef = info.get(Player.class, name); if (playerRef == null) return null;
-			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
-			if(items != null && !items.isEmpty())
-				return new PlayerHasItem(matcher.group(), playerRef, matcher.group(2).equalsIgnoreCase("allitems"), items);
-			return null;
-		}
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+			{
+				@Override
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> playerDP, Matcher m, StringMatcher sm)
+				{
+					Collection<ModDamageItemStack> items = ItemAliaser.match(m.group(2), info);
+					if(items == null || items.isEmpty()) return null;
+					
+					return new PlayerHasItem(playerDP, m.group(1).equalsIgnoreCase("allitems"), items);
+				}
+			});
 	}
 }

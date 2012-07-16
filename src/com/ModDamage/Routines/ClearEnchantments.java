@@ -5,31 +5,33 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnchantmentsRef;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
 public class ClearEnchantments extends Routine
 {
-	private final DataRef<EnchantmentsRef> enchantmentsRef;
+	private final IDataProvider<EnchantmentsRef> enchantmentsDP;
 	
-	protected ClearEnchantments(String configString, DataRef<EnchantmentsRef> enchantmentsRef)
+	protected ClearEnchantments(String configString, IDataProvider<EnchantmentsRef> enchantmentsDP)
 	{
 		super(configString);
-		this.enchantmentsRef = enchantmentsRef;
+		this.enchantmentsDP = enchantmentsDP;
 	}
 
 
 	@Override
-	public void run(EventData data)
+	public void run(EventData data) throws BailException
 	{
-		enchantmentsRef.get(data).map.clear();
+		enchantmentsDP.get(data).map.clear();
 	}
 	
 	public static void register()
 	{
-		ValueChange.registerRoutine(Pattern.compile("clearenchant(?:ment)s", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		ValueChange.registerRoutine(Pattern.compile("clearenchant(?:ment)?s", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
@@ -37,13 +39,11 @@ public class ClearEnchantments extends Routine
 		@Override
 		public ClearEnchantments getNew(Matcher matcher, EventInfo info)
 		{
-			DataRef<EnchantmentsRef> enchantmentsRef = info.get(EnchantmentsRef.class, "-enchantments");
-			if(enchantmentsRef != null)
-			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Clear Enchantments");
-				return new ClearEnchantments(matcher.group(), enchantmentsRef);
-			}
-			return null;
+			IDataProvider<EnchantmentsRef> enchantmentsDP = DataProvider.parse(info, EnchantmentsRef.class, "enchantments");
+			if(enchantmentsDP == null) return null;
+			
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Clear Enchantments");
+			return new ClearEnchantments(matcher.group(), enchantmentsDP);
 		}
 	}
 }

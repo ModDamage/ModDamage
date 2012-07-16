@@ -1,4 +1,4 @@
-package com.ModDamage.Variables.Ints;
+package com.ModDamage.Variables.Int;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -7,23 +7,25 @@ import org.bukkit.Bukkit;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
+import com.ModDamage.EventInfo.DataProvider;
+import com.ModDamage.EventInfo.DataProvider.IDataParser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.EventInfo.IDataProvider;
 
-public class ServerInt extends IntegerExp
+public class ServerInt implements IDataProvider<Integer>
 {
 	public static void register()
 	{
-		IntegerExp.register(
-				Pattern.compile("server_("+ Utils.joinBy("|", ServerProperty.values()) +")", Pattern.CASE_INSENSITIVE),
-				new DynamicIntegerBuilder()
+		DataProvider.register(Integer.class, null, 
+				Pattern.compile("server_("+ Utils.joinBy("|", ServerProperty.values()) +")", Pattern.CASE_INSENSITIVE), 
+				new IDataParser<Integer>()
 				{
 					@Override
-					public IntegerExp getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> nullDP, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new ServerInt(
-								ServerProperty.valueOf(matcher.group(1).toUpperCase())));
+								ServerProperty.valueOf(m.group(1).toUpperCase())));
 					}
 				});
 	}
@@ -45,7 +47,10 @@ public class ServerInt extends IntegerExp
 	}
 	
 	@Override
-	protected int myGetValue(EventData data){ return propertyMatch.getValue(); }
+	public Integer get(EventData data) { return propertyMatch.getValue(); }
+	
+	@Override
+	public Class<Integer> provides() { return Integer.class; }
 	
 	@Override
 	public String toString(){ return "server_" + propertyMatch.name().toLowerCase(); }

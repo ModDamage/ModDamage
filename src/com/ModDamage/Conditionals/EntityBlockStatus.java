@@ -9,33 +9,30 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.MaterialAliaser;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
-public class EntityBlockStatus extends Conditional
+public class EntityBlockStatus extends Conditional<Entity>
 {
-	public static final Pattern pattern = Pattern.compile("(\\w+)\\.is(\\w+)block\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.is(\\w+)block\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
-	private final DataRef<Entity> entityRef;
 	private final BlockStatusType statusType;
 	private final Collection<Material> materials;
 	
-	protected EntityBlockStatus(String configString, DataRef<Entity> entityRef, BlockStatusType statusType, Collection<Material> materials)
+	protected EntityBlockStatus(IDataProvider<?> entityDP, BlockStatusType statusType, Collection<Material> materials)
 	{
-		super(configString);
-		this.entityRef = entityRef;
+		super(Entity.class, entityDP);
 		this.statusType = statusType;
 		this.materials = materials;
 	}
 	@Override
-	protected boolean myEvaluate(EventData data) throws BailException
+	public Boolean get(Entity entity, EventData data)
 	{
-		if(entityRef.get(data) != null)
-			return statusType.isTrue(materials, entityRef.get(data));
-		return false;
+		return statusType.isTrue(materials, entity);
 	}
 	
 	private enum BlockStatusType
@@ -96,26 +93,21 @@ public class EntityBlockStatus extends Conditional
 	
 	public static void register()
 	{
-		Conditional.register(new ConditionalBuilder());
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+			{
+				@Override
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				{
+					BlockStatusType statusType = null;
+					for(BlockStatusType type : BlockStatusType.values())
+						if(m.group(1).equalsIgnoreCase(type.name()))
+								statusType = type;
+					if(statusType == null) return null;
+					
+					Collection<Material> materials = MaterialAliaser.match(m.group(2));
+					
+					return new EntityBlockStatus(entityDP, statusType, materials);
+				}
+			});
 	}
-	
-	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
-	{
-		public ConditionalBuilder() { super(pattern); }
-
-		@Override
-		public EntityBlockStatus getNew(Matcher matcher, EventInfo info)
-		{
-			BlockStatusType statusType = null;
-			for(BlockStatusType type : BlockStatusType.values())
-				if(matcher.group(2).equalsIgnoreCase(type.name()))
-						statusType = type;
-			Collection<Material> materials = MaterialAliaser.match(matcher.group(3));
-			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
-			if(entityRef != null && statusType != null)
-				return new EntityBlockStatus(matcher.group(), entityRef, statusType, materials);
-			return null;
-		}
-	}
-
 }

@@ -1,6 +1,7 @@
 package com.ModDamage.EventInfo;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class EventInfoChain extends EventInfo
@@ -39,6 +40,12 @@ public class EventInfoChain extends EventInfo
 	}
 
 
+	public Map<String, Class<?>> getAllNames()
+	{
+		Map<String, Class<?>> allNames = first.getAllNames();
+		allNames.putAll(second.getAllNames());
+		return allNames;
+	}
 	public Set<String> getAllNames(Class<?> cls)
 	{
 		Set<String> names = first.getAllNames(cls);

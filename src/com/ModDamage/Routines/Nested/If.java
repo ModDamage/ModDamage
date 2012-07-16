@@ -7,16 +7,18 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Conditionals.Conditional;
-import com.ModDamage.Conditionals.InvertConditional;
+import com.ModDamage.Conditionals.InvertBoolean;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.Routines.Routines;
 
 public class If extends NestedRoutine
 {
-	protected final Conditional conditional;
+	protected final IDataProvider<Boolean> conditional;
 	protected final Routines routines;
-	private If(String configString, Conditional conditional, Routines routines)
+	private If(String configString, IDataProvider<Boolean> conditional, Routines routines)
 	{
 		super(configString);
 		this.conditional = conditional;
@@ -26,7 +28,7 @@ public class If extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		if(conditional.evaluate(data))
+		if(conditional.get(data))
 			routines.run(data);
 	}
 	
@@ -49,13 +51,13 @@ public class If extends NestedRoutine
 			
 			String conditionalStr = matcher.group(2);
 			
-			Conditional conditional = Conditional.getNew(conditionalStr, info);
+			IDataProvider<Boolean> conditional = DataProvider.parse(info, Boolean.class, conditionalStr);
 			
 			if (conditional == null)
 				return null;
 			
 			if (matcher.group(1) != null)
-				conditional = new InvertConditional(matcher.group(2), conditional);
+				conditional = new InvertBoolean(conditional);
 			
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, info);
 			if(routines != null)

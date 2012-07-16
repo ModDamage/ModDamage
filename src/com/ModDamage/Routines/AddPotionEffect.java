@@ -11,21 +11,22 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.EventInfo.IDataProvider;
 
 public class AddPotionEffect extends Routine
 {
-	private final DataRef<LivingEntity> entityRef;
+	private final IDataProvider<LivingEntity> livingDP;
 	private final PotionEffectType type;
-	private final IntegerExp duration, amplifier;
+	private final IDataProvider<Integer> duration, amplifier;
 	
-	protected AddPotionEffect(String configString, DataRef<LivingEntity> entityRef, PotionEffectType type, IntegerExp duration, IntegerExp amplifier)
+	protected AddPotionEffect(String configString, IDataProvider<LivingEntity> livingDP, PotionEffectType type,
+			IDataProvider<Integer> duration, IDataProvider<Integer> amplifier)
 	{
 		super(configString);
-		this.entityRef = entityRef;
+		this.livingDP = livingDP;
 		this.type = type;
 		this.duration = duration;
 		this.amplifier = amplifier;
@@ -34,15 +35,17 @@ public class AddPotionEffect extends Routine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		LivingEntity entity = entityRef.get(data);
+		LivingEntity entity = livingDP.get(data);
 		if (entity == null) return;
 
-		entity.addPotionEffect(new PotionEffect(type, duration.getValue(data), amplifier.getValue(data)), true);
+		entity.addPotionEffect(new PotionEffect(type, duration.get(data), amplifier.get(data)), true);
 	}
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("([a-z]+?)(?:effect)?\\.addpotioneffect\\.(\\w+)\\.(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(
+				Pattern.compile("(.+?)(?:effect)?\\.addpotioneffect\\.(\\w+)\\.(.+)", Pattern.CASE_INSENSITIVE),
+				new RoutineBuilder());
 	}
 	
 	private static Pattern dotPattern = Pattern.compile("\\s*\\.\\s*");
@@ -52,8 +55,8 @@ public class AddPotionEffect extends Routine
 		@Override
 		public AddPotionEffect getNew(Matcher matcher, EventInfo info)
 		{ 
-			DataRef<LivingEntity> entityRef = info.get(LivingEntity.class, matcher.group(1).toLowerCase());
-			if (entityRef == null) return null; 
+			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, matcher.group(1));
+			if (livingDP == null) return null; 
 			
 			PotionEffectType type = PotionEffectType.getByName(matcher.group(2).toUpperCase());
 			if (type == null)
@@ -63,13 +66,13 @@ public class AddPotionEffect extends Routine
 			}
 			
 			StringMatcher sm = new StringMatcher(matcher.group(3));
-			IntegerExp duration = IntegerExp.getIntegerFromFront(sm.spawn(), info); if (duration == null) return null;
+			IDataProvider<Integer> duration = DataProvider.parse(info, Integer.class, sm.spawn()); if (duration == null) return null;
 			if (!sm.matchesFront(dotPattern)) return null;
-			IntegerExp amplifier = IntegerExp.getIntegerFromFront(sm.spawn(), info); if (amplifier == null) return null;
+			IDataProvider<Integer> amplifier = DataProvider.parse(info, Integer.class, sm.spawn()); if (amplifier == null) return null;
 			if (!sm.isEmpty()) return null;
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "AddPotionEffect: to " + entityRef + ", " + type + ", " + duration + ", " + amplifier);
-			return new AddPotionEffect(matcher.group(), entityRef, type, duration, amplifier);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "AddPotionEffect: to " + livingDP + ", " + type + ", " + duration + ", " + amplifier);
+			return new AddPotionEffect(matcher.group(), livingDP, type, duration, amplifier);
 		}
 	}
 }

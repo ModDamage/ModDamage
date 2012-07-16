@@ -18,14 +18,14 @@ import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnchantmentsRef;
 import com.ModDamage.Backend.ModDamageItemStack;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Routines;
-import com.ModDamage.Variables.Ints.Constant;
+import com.ModDamage.Variables.Int.Constant;
 
 public class EntityItemAction extends NestedRoutine
 {
@@ -66,13 +66,13 @@ public class EntityItemAction extends NestedRoutine
 	
 	protected final ItemAction action;
 	protected final Collection<ModDamageItemStack> items;
-	protected final DataRef<LivingEntity> entityRef;
+	protected final IDataProvider<LivingEntity> livingDP;
 	protected final Routines routines;
-	protected final IntegerExp quantity;
-	public EntityItemAction(String configString, DataRef<LivingEntity> entityRef, ItemAction action, Collection<ModDamageItemStack> items, IntegerExp quantity, Routines routines)
+	protected final IDataProvider<Integer> quantity;
+	public EntityItemAction(String configString, IDataProvider<LivingEntity> livingDP, ItemAction action, Collection<ModDamageItemStack> items, IDataProvider<Integer> quantity, Routines routines)
 	{
 		super(configString);
-		this.entityRef = entityRef;
+		this.livingDP = livingDP;
 		this.action = action;
 		this.items = items;
 		this.quantity = quantity;
@@ -82,14 +82,14 @@ public class EntityItemAction extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		LivingEntity entity = entityRef.get(data);
+		LivingEntity entity = livingDP.get(data);
 		
 		if(!action.requiresPlayer || entity instanceof Player)
 		{
 			for(ModDamageItemStack item : items)
 				item.update(data);
 			
-			int quantity = this.quantity.getValue(data);
+			int quantity = this.quantity.get(data);
 			
 			for (int i = 0; i < quantity; i++)
 			{
@@ -145,7 +145,7 @@ public class EntityItemAction extends NestedRoutine
 		public EntityItemAction getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
-			DataRef<LivingEntity> entityRef = info.get(LivingEntity.class, name); if (entityRef == null) return null;
+			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, name); if (livingDP == null) return null;
 			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
 			if(items != null && !items.isEmpty())
 			{
@@ -154,13 +154,13 @@ public class EntityItemAction extends NestedRoutine
 					routines = RoutineAliaser.parseRoutines(nestedContent, info.chain(myInfo));
 				
 				
-				IntegerExp quantity;
+				IDataProvider<Integer> quantity;
 				if (matcher.group(4) != null)
-					quantity = IntegerExp.getNew(matcher.group(4), info);
+					quantity = DataProvider.parse(info, Integer.class, matcher.group(4));
 				else
 					quantity = new Constant(1);
 				
-				return new EntityItemAction(matcher.group(), entityRef, ItemAction.valueOf(matcher.group(2).toUpperCase()), items, quantity, routines);
+				return new EntityItemAction(matcher.group(), livingDP, ItemAction.valueOf(matcher.group(2).toUpperCase()), items, quantity, routines);
 			}
 			return null;
 		}

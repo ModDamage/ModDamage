@@ -1,57 +1,62 @@
 package com.ModDamage.Conditionals;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
-public class CompoundConditional extends Conditional
+public class CompoundConditional extends Conditional<Boolean>
 {
 	public enum LogicalOperator
 	{
 		AND
 		{
-			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException
+			public boolean operate(EventData data, boolean left, IDataProvider<Boolean> right) throws BailException
 			{
-				return operand_1.evaluate(data) && operand_2.evaluate(data);
+				return left && right.get(data);
 			}
 		},
 		OR
 		{
-			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException
+			public boolean operate(EventData data, boolean left, IDataProvider<Boolean> right) throws BailException
 			{
-				return operand_1.evaluate(data) || operand_2.evaluate(data);
+				return left || right.get(data);
 			}
 		},
 		XOR
 		{
-			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException
+			public boolean operate(EventData data, boolean left, IDataProvider<Boolean> right) throws BailException
 			{
-				return operand_1.evaluate(data) ^ operand_2.evaluate(data);
+				return left ^ right.get(data);
 			}
 		},
 		NAND
 		{
-			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException
+			public boolean operate(EventData data, boolean left, IDataProvider<Boolean> right) throws BailException
 			{
-				return !(operand_1.evaluate(data) && operand_2.evaluate(data));
+				return !(left && right.get(data));
 			}
 		},
 		NOR
 		{
-			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException
+			public boolean operate(EventData data, boolean left, IDataProvider<Boolean> right) throws BailException
 			{
-				return !(operand_1.evaluate(data) && operand_2.evaluate(data));
+				return !(left && right.get(data));
 			}
 		},
 		XNOR
 		{
-			public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException
+			public boolean operate(EventData data, boolean left, IDataProvider<Boolean> right) throws BailException
 			{
-				return !(operand_1.evaluate(data) ^ operand_2.evaluate(data));
+				return !(left ^ right.get(data));
 			}
 		};
 
@@ -71,24 +76,39 @@ public class CompoundConditional extends Conditional
 			return null;
 		}
 		
-		abstract public boolean operate(EventData data, Conditional operand_1, Conditional operand_2) throws BailException;
+		abstract public boolean operate(EventData data, boolean left, IDataProvider<Boolean> right) throws BailException;
 	}
 	
 	
-	private final Conditional left;
 	private final LogicalOperator operator;
-	private final Conditional right;
-	public CompoundConditional(String configString, Conditional left, LogicalOperator operator, Conditional right)
+	private final IDataProvider<Boolean> right;
+	public CompoundConditional(IDataProvider<?> left, LogicalOperator operator, IDataProvider<Boolean> right)
 	{
-		super(configString);
-		this.left = left;
+		super(Boolean.class, left);
 		this.operator = operator;
 		this.right = right;
 	}
-	
+
 	@Override
-	protected boolean myEvaluate(EventData data) throws BailException
+	public Boolean get(Boolean left, EventData data) throws BailException
 	{
 		return operator.operate(data, left, right);
+	}
+	
+	public static void register()
+	{
+		DataProvider.register(Boolean.class, Boolean.class, LogicalOperator.pattern, new IDataParser<Boolean>()
+			{
+				@Override
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> start, Matcher m, StringMatcher sm)
+				{
+					LogicalOperator operator = LogicalOperator.match(m.group(1));
+					
+					IDataProvider<Boolean> right = DataProvider.parse(info, Boolean.class, sm.spawn());
+					if (right == null) return null;
+					
+					return new CompoundConditional(start, operator, right);
+				}
+			});
 	}
 }

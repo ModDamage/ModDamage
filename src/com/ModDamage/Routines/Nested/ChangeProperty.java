@@ -6,35 +6,34 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
-import com.ModDamage.Backend.IntRef;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.ISettableDataProvider;
+import com.ModDamage.EventInfo.SettableDataProvider;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routines;
 
 public final class ChangeProperty extends NestedRoutine
 {	
 	private final Routines routines;
-	protected final IntegerExp targetPropertyMatch;
-	public ChangeProperty(String configString, Routines routines, IntegerExp targetPropertyMatch)
+	protected final ISettableDataProvider<Integer> targetPropertyMatch;
+	public ChangeProperty(String configString, Routines routines, ISettableDataProvider<Integer> targetPropertyMatch)
 	{
 		super(configString);
 		this.routines = routines;
 		this.targetPropertyMatch = targetPropertyMatch;
 	}
 	
-	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "value", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "value", "-default");
 
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		IntRef value = new IntRef(targetPropertyMatch.getValue(data));
-		EventData myData = myInfo.makeChainedData(data, value);
+		EventData myData = myInfo.makeChainedData(data, targetPropertyMatch.get(data));
 		
 		routines.run(myData);
-		targetPropertyMatch.setValue(data, value.value);
+		targetPropertyMatch.set(data, myData.get(Integer.class, myData.start));
 	}
 	
 	public static void register()
@@ -47,7 +46,7 @@ public final class ChangeProperty extends NestedRoutine
 		@Override
 		public ChangeProperty getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-			IntegerExp targetPropertyMatch = IntegerExp.getNew(matcher.group(1), info);
+			ISettableDataProvider<Integer> targetPropertyMatch = SettableDataProvider.parse(info, Integer.class, matcher.group(1));
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			if(targetPropertyMatch != null && routines != null)

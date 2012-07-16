@@ -4,42 +4,46 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.DataProvider;
+import com.ModDamage.EventInfo.DataProvider.IDataParser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.EventInfo.IDataProvider;
 
-public class Chance extends Conditional
+public class Chance implements IDataProvider<Boolean>
 {
 	public static final Pattern pattern = Pattern.compile("chance\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
 	protected final Random random = new Random();
-	protected final IntegerExp probability;
+	protected final IDataProvider<Integer> probability;
 	
-	public Chance(String configString, IntegerExp probability)
+	public Chance(IDataProvider<Integer> probability)
 	{
-		super(configString);
 		this.probability = probability;
 	}
+
 	@Override
-	protected boolean myEvaluate(EventData data) throws BailException
+	public Boolean get(EventData data) throws BailException
 	{
-		return Math.abs(random.nextInt()%101) <= probability.getValue(data);
+		return Math.abs(random.nextInt()%101) <= probability.get(data);
 	}
+	
+	@Override
+	public Class<Boolean> provides() { return Boolean.class; }
 	
 	public static void register()
 	{
-		Conditional.register(new ConditionalBuilder());
-	}
-	
-	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
-	{
-		public ConditionalBuilder() { super(pattern); }
-
-		@Override
-		public Chance getNew(Matcher matcher, EventInfo info)
-		{
-			return new Chance(matcher.group(), IntegerExp.getNew(matcher.group(1), info));
-		}
+		DataProvider.register(Boolean.class, null, pattern, new IDataParser<Boolean>()
+			{
+				@Override
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> start, Matcher m, StringMatcher sm)
+				{
+					IDataProvider<Integer> probability = DataProvider.parse(info, Integer.class, sm.spawn());
+					
+					return new Chance(probability);
+				}
+			});
 	}
 }

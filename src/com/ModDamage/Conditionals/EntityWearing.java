@@ -7,32 +7,31 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.ArmorAliaser;
 import com.ModDamage.Backend.ArmorSet;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
-public class EntityWearing extends Conditional
+public class EntityWearing extends Conditional<Player>
 {
-	public static final Pattern pattern = Pattern.compile("(\\w+)\\.wearing(only)?\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.wearing(only)?\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
 	
-	private final DataRef<Entity> entityRef;
 	private final boolean only;
 	private final Collection<ArmorSet> armorSets;
 	
-	public EntityWearing(String configString, DataRef<Entity> entityRef, boolean only, Collection<ArmorSet> armorSets)
+	public EntityWearing(IDataProvider<?> playerDP, boolean only, Collection<ArmorSet> armorSets)
 	{
-		super(configString);
-		this.entityRef = entityRef;
+		super(Player.class, playerDP);
 		this.only = only;
 		this.armorSets = armorSets;
 	}
 	@Override
-	protected boolean myEvaluate(EventData data) throws BailException
+	public Boolean get(Player player, EventData data)
 	{
-		ArmorSet playerSet = new ArmorSet((Player) entityRef.get(data));
+		ArmorSet playerSet = new ArmorSet(player);
 		if(playerSet != null)
 			for(ArmorSet armorSet : armorSets)
 				if(only? armorSet.equals(playerSet) : armorSet.contains(playerSet))
@@ -42,21 +41,16 @@ public class EntityWearing extends Conditional
 	
 	public static void register()
 	{
-		Conditional.register(new ConditionalBuilder());
-	}
-	
-	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
-	{
-		public ConditionalBuilder() { super(pattern); }
-
-		@Override
-		public EntityWearing getNew(Matcher matcher, EventInfo info)
-		{
-			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
-			Collection<ArmorSet> armorSet = ArmorAliaser.match(matcher.group(3));
-			if(entityRef != null && !armorSet.isEmpty())
-				return new EntityWearing(matcher.group(), entityRef, matcher.group(2) != null, armorSet);
-			return null;
-		}
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+			{
+				@Override
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> playerDP, Matcher m, StringMatcher sm)
+				{
+					Collection<ArmorSet> armorSet = ArmorAliaser.match(m.group(2));
+					if(armorSet.isEmpty()) return null;
+					
+					return new EntityWearing(playerDP, m.group(1) != null, armorSet);
+				}
+			});
 	}
 }

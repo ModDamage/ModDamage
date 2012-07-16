@@ -19,9 +19,13 @@ import org.bukkit.plugin.Plugin;
 import ru.tehkode.permissions.PermissionManager;
 
 import com.ModDamage.ModDamage.ModDamageExtension;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Expressions.StringExp;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
+import com.ModDamage.Variables.Item.PlayerInvItem;
+import com.ModDamage.Variables.Item.PlayerItem;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.elbukkit.api.elregions.region.Region;
 import com.elbukkit.api.elregions.region.RegionManager;
@@ -37,12 +41,22 @@ public class ExternalPluginManager
 	private static List<ModDamageExtension> registeredPlugins = new ArrayList<ModDamageExtension>();
 	private static void reloadModDamageRoutines()
 	{
+		DataProvider.clear();
+		
 		Routine.registerVanillaRoutines();
 		NestedRoutine.registerVanillaRoutines();
+		
 		IntegerExp.registerAllIntegers();
+		StringExp.register();
+		
+		// ItemExps
+		PlayerItem.register();
+		PlayerInvItem.register();
 		
 		for(ModDamageExtension plugin : registeredPlugins)
 			plugin.reloadRoutines();
+		
+		DataProvider.compile();
 	}
 	
 	private static mcMMO mcMMOplugin;

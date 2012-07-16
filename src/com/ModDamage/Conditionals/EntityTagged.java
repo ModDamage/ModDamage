@@ -6,47 +6,45 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.StringMatcher;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
-public class EntityTagged extends Conditional
+public class EntityTagged extends Conditional<Entity>
 {
-	public static final Pattern pattern = Pattern.compile("(\\w+)\\.istagged\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.istagged\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
-	private final DataRef<Entity> entityRef;
 	private final String tag;
 	
-	public EntityTagged(String configString, DataRef<Entity> entityRef, String tag)
+	public EntityTagged(IDataProvider<?> entityDP, String tag)
 	{
-		super(configString);
-		this.entityRef = entityRef;
+		super(Entity.class, entityDP);
 		this.tag = tag;
 	}
 
 	@Override
-	protected boolean myEvaluate(EventData data) throws BailException
+	public Boolean get(Entity entity, EventData data)
 	{
-		return entityRef.get(data) != null && ModDamage.getTagger().isTagged(entityRef.get(data), tag);
+		return entity != null && ModDamage.getTagger().isTagged(entity, tag);
 	}
 	
 	public static void register()
 	{
-		Conditional.register(new ConditionalBuilder());
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+			{
+				@Override
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				{
+					return new EntityTagged(entityDP, m.group(1).toLowerCase());
+				}
+			});
 	}
 	
-	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
+	@Override
+	public String toString()
 	{
-		public ConditionalBuilder() { super(pattern); }
-
-		@Override
-		public EntityTagged getNew(Matcher matcher, EventInfo info)
-		{
-			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
-			if(entityRef != null)
-				return new EntityTagged(matcher.group(), entityRef, matcher.group(2).toLowerCase());
-			return null;
-		}
+		return startDP + ".istagged." + tag;
 	}
 }

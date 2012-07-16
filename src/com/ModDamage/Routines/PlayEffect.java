@@ -8,12 +8,12 @@ import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Variables.Ints.Constant;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Variables.Int.Constant;
 
 public class PlayEffect extends Routine
 {
@@ -38,14 +38,15 @@ public class PlayEffect extends Routine
 		public Integer dataForExtra(String extra) { return null; }
 	}
 	
-	private final DataRef<Entity> entityRef;
+	private final IDataProvider<Entity> entityDP;
 	private final EffectType effectType;
-	private final IntegerExp effectData;
-	private final IntegerExp radius;
-	protected PlayEffect(String configString, DataRef<Entity> entityRef, EffectType effectType, IntegerExp effectData, IntegerExp radius)
+	private final IDataProvider<Integer> effectData;
+	private final IDataProvider<Integer> radius;
+	
+	protected PlayEffect(String configString, IDataProvider<Entity> entityDP, EffectType effectType, IDataProvider<Integer> effectData, IDataProvider<Integer> radius)
 	{
 		super(configString);
-		this.entityRef = entityRef;
+		this.entityDP = entityDP;
 		this.effectType = effectType;
 		this.effectData = effectData;
 		this.radius = radius;
@@ -54,13 +55,13 @@ public class PlayEffect extends Routine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		Entity entity = entityRef.get(data);
+		Entity entity = entityDP.get(data);
 		if (entity == null) return;
 		
 		if (radius == null)
-			entity.getWorld().playEffect(entity.getLocation(), effectType.effect, effectData.getValue(data));
+			entity.getWorld().playEffect(entity.getLocation(), effectType.effect, effectData.get(data));
 		else
-			entity.getWorld().playEffect(entity.getLocation(), effectType.effect, effectData.getValue(data), radius.getValue(data));
+			entity.getWorld().playEffect(entity.getLocation(), effectType.effect, effectData.get(data).intValue(), radius.get(data).intValue());
 	}
 
 	public static void register()
@@ -73,8 +74,8 @@ public class PlayEffect extends Routine
 		@Override
 		public PlayEffect getNew(Matcher matcher, EventInfo info)
 		{ 
-			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
-			if (entityRef == null) return null;
+			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
+			if (entityDP == null) return null;
 			
 			EffectType effectType;
 			try
@@ -86,14 +87,14 @@ public class PlayEffect extends Routine
 				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad effect type: \""+matcher.group(2)+"\"");
 				return null;
 			}
-			IntegerExp data;
+			IDataProvider<Integer> data;
 			if (matcher.group(3) == null)
 				data = new Constant(0);
 			else {
 				Integer ndata = effectType.dataForExtra(matcher.group(3));
 				if (ndata == null)
 				{
-					data = IntegerExp.getNew(matcher.group(3), info);
+					data = DataProvider.parse(info, Integer.class, matcher.group(3));
 					
 					if (data == null)
 					{
@@ -105,10 +106,10 @@ public class PlayEffect extends Routine
 					data = new Constant(ndata);
 			}
 			
-			IntegerExp radius = null;
+			IDataProvider<Integer> radius = null;
 			if (matcher.group(4) != null)
 			{
-				radius = IntegerExp.getNew(matcher.group(4), info);
+				radius = DataProvider.parse(info, Integer.class, matcher.group(4));
 				if (radius == null)
 				{
 					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+matcher.group(4)+"\"");
@@ -116,8 +117,8 @@ public class PlayEffect extends Routine
 				}
 			}
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "PlayEffect: " + entityRef + " " + effectType + " " + data + (radius != null? " " + radius : ""));
-			return new PlayEffect(matcher.group(), entityRef, effectType, data, radius);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "PlayEffect: " + entityDP + " " + effectType + " " + data + (radius != null? " " + radius : ""));
+			return new PlayEffect(matcher.group(), entityDP, effectType, data, radius);
 		}
 	}
 }

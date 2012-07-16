@@ -1,26 +1,27 @@
 package com.ModDamage.Expressions;
 
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Variables.Strings.EntityString;
-import com.ModDamage.Variables.Strings.WorldString;
+import com.ModDamage.EventInfo.DataProvider;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Variables.String.EntityString;
+import com.ModDamage.Variables.String.IntString;
+import com.ModDamage.Variables.String.PlayerString;
+import com.ModDamage.Variables.String.WorldString;
 
-public abstract class StringExp
+public abstract class StringExp<From> extends DataProvider<String, From>
 {
-	public abstract String getString(EventData data) throws BailException;
-	
-	public static StringExp getNew(String string, EventInfo info)
+	protected StringExp(Class<From> wantStart, IDataProvider<?> startDP)
 	{
-		StringExp str = WorldString.getNew(string, info);
-		if (str != null) return str;
-		
-		str = EntityString.getNew(string, info);
-		if (str != null) return str;
-		
-		return IntegerExp.getNew(string, info);
+		super(wantStart, startDP);
 	}
 	
 	@Override
-	public abstract String toString();
+	public Class<String> provides() { return String.class; }
+	
+	public static void register()
+	{
+		EntityString.register();
+		IntString.register();
+		PlayerString.register();
+		WorldString.register();
+	}
 }

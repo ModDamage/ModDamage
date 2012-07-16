@@ -7,77 +7,68 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.Entity;
+
 import com.ModDamage.ModDamage;
-import com.ModDamage.Matchables.Matchable;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Backend.BailException;
+import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.EnumHelper;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Matchables.Matchable;
 
 @SuppressWarnings("rawtypes")
-public class MatchableType extends Conditional
+public class MatchableType extends Conditional<Matchable>
 {
-	public static final Pattern pattern = Pattern.compile("(\\w+)\\.type\\.([\\w,]+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.type\\.([\\w,]+)", Pattern.CASE_INSENSITIVE);
 	
-	private final DataRef<Matchable> matchableRef;
 	private final Collection<Matchable> types;
 	
-	public MatchableType(String configString, DataRef<Matchable> matchableRef, Collection<Matchable> types)
+	public MatchableType(IDataProvider<?> matchableDP, Collection<Matchable> types)
 	{ 
-		super(configString);
-		this.matchableRef = matchableRef;
+		super(Matchable.class, matchableDP);
 		this.types = types;
 	}
+	
 	@Override
-	protected boolean myEvaluate(EventData data) throws BailException
+	@SuppressWarnings("unchecked")
+	public Boolean get(Matchable matchable, EventData data)
 	{
-		Matchable<?> matchable = matchableRef.get(data);
-		if(matchable != null)
-			for(Matchable<?> type : types)
-				if(matchable.matches(type))
-					return true;
+		for(Matchable<?> type : types)
+			if(matchable.matches(type))
+				return true;
 		return false;
 	}
 	
 	public static void register()
 	{
-		Conditional.register(new ConditionalBuilder());
-	}
-	
-	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
-	{
-		public ConditionalBuilder() { super(pattern); }
-
-		@Override
-		public MatchableType getNew(Matcher matcher, EventInfo info)
-		{
-			String name = matcher.group(1).toLowerCase();
-			
-			
-			DataRef<Matchable> matchableRef = (DataRef<Matchable>) info.get(Matchable.class, name);
-			if (matchableRef == null) return null;
-			
-			@SuppressWarnings("unchecked")
-			Map<String, Matchable<?>> possibleTypes = (Map) EnumHelper.getTypeMapForEnum(matchableRef.infoCls);
-			
-			List<Matchable> types = new ArrayList<Matchable>();
-			
-			for (String typeStr : matcher.group(2).split(","))
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
 			{
-				Matchable type = possibleTypes.get(typeStr.toUpperCase());
-				if (type == null)
+				@Override
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> matchableDP, Matcher m, StringMatcher sm)
 				{
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + typeStr + "\" is not a valid " + matchableRef.infoCls.getSimpleName());
-					return null;
+					@SuppressWarnings("unchecked")
+					Map<String, Matchable<?>> possibleTypes = (Map) EnumHelper.getTypeMapForEnum(matchableDP.provides());
+					
+					List<Matchable> types = new ArrayList<Matchable>();
+					
+					for (String typeStr : m.group(1).split(","))
+					{
+						Matchable type = possibleTypes.get(typeStr.toUpperCase());
+						if (type == null)
+						{
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + typeStr + "\" is not a valid " + matchableDP.provides().getSimpleName());
+							return null;
+						}
+						types.add(type);
+					}
+					
+					if(types == null || types.isEmpty()) return null;
+					
+					return new MatchableType(matchableDP, types);
 				}
-				types.add(type);
-			}
-			
-			if(types != null && !types.isEmpty())
-				return new MatchableType(matcher.group(), matchableRef, types);
-			return null;
-		}
+			});
 	}
 }

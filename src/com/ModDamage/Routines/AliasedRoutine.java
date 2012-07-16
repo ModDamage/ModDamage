@@ -12,15 +12,11 @@ import com.ModDamage.EventInfo.EventInfo;
 
 public class AliasedRoutine extends Routine
 {
-	//private final EventInfo info;
-	//private final String alias;
 	private Routines routines;
 	
 	public AliasedRoutine(String configString, final EventInfo info, final String alias)
 	{
 		super(configString);
-		//this.info = info;
-		//this.alias = alias;
 		
 		// fetch after, to avoid infinite recursion
 		RoutineAliaser.whenDoneParsingAlias(new Runnable() {

@@ -124,4 +124,9 @@ public class StringMatcher
 	{
 		return string == null || string.isEmpty();
 	}
+	
+	public String toString() 
+	{
+		return string;
+	}
 }

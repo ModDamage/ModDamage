@@ -11,36 +11,34 @@ import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ExternalPluginManager;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.Expressions.IntegerExp;
 import com.gmail.nossr50.api.ExperienceAPI;
 import com.gmail.nossr50.datatypes.SkillType;
 
-public class PlayerSkillInt extends IntegerExp
+public class PlayerSkillInt extends IntegerExp<Player>
 {
 	public static void register()
 	{
-		IntegerExp.register(
-				Pattern.compile("([a-z]+)_SKILL(|"+Utils.joinBy("|", SkillProperty.values())+")_(\\w+)", Pattern.CASE_INSENSITIVE),
-				new DynamicIntegerBuilder()
+		DataProvider.register(Integer.class, Player.class, 
+				Pattern.compile("_SKILL(|"+Utils.joinBy("|", SkillProperty.values())+")_(\\w+)", Pattern.CASE_INSENSITIVE),
+				new IDataParser<Integer>()
 				{
 					@Override
-					public IntegerExp getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> playerDP, Matcher m, StringMatcher sm)
 					{
-						String name = matcher.group(1).toLowerCase();
-						DataRef<Player> playerRef = info.get(Player.class, name);
-						if (playerRef == null) return null;
-						String skillProp = matcher.group(2).toUpperCase();
-						String skillType = matcher.group(3).toUpperCase();
+						String skillProp = m.group(1).toUpperCase();
+						String skillType = m.group(2).toUpperCase();
 						
 						if (skillProp == "") skillProp = "LEVEL";
 						
 						try
 						{
 							return sm.acceptIf(new PlayerSkillInt(
-									playerRef,
+									playerDP,
 									SkillProperty.valueOf(skillProp),
 									SkillType.valueOf(skillType)));
 						}
@@ -86,24 +84,19 @@ public class PlayerSkillInt extends IntegerExp
 		abstract int getProperty(Player player, SkillType skillType);
 	}
 
-	protected final DataRef<Player> playerRef;
 	protected final SkillProperty skillProperty;
 	protected final SkillType skillType;
 	
-	PlayerSkillInt(DataRef<Player> playerRef, SkillProperty skillProperty, SkillType skillType)
+	PlayerSkillInt(IDataProvider<?> playerDP, SkillProperty skillProperty, SkillType skillType)
 	{
-		this.playerRef = playerRef;
+		super(Player.class, playerDP);
 		this.skillProperty = skillProperty;
 		this.skillType = skillType;
 	}
 	
 	@Override
-	protected int myGetValue(EventData data) throws BailException
+	public Integer myGet(Player player, EventData data) throws BailException
 	{
-		Player player = playerRef.get(data);
-		if (player == null)
-			return 0;
-	
 		try
 		{
 			return skillProperty.getProperty(player, skillType);
@@ -118,6 +111,6 @@ public class PlayerSkillInt extends IntegerExp
 	@Override
 	public String toString()
 	{
-		return playerRef + "_skill"+skillProperty+"_" + skillType.name().toLowerCase();
+		return startDP + "_skill"+skillProperty+"_" + skillType.name().toLowerCase();
 	}
 }

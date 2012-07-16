@@ -11,10 +11,10 @@ import com.ModDamage.Utils;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ExternalPluginManager;
-import com.ModDamage.Backend.IntRef;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routines;
@@ -72,28 +72,28 @@ public class ModifySkill extends NestedRoutine
 		public abstract void modify(Player player, SkillType skillType, int value);
 	}
 	
-	private final DataRef<Player> playerRef;
-	private final IntegerExp valueExp;
+	private final IDataProvider<Player> playerDP;
+	private final IDataProvider<Integer> valueExp;
 	protected final ModifyType modifyType;
 	protected final SkillType skillType;
-	protected ModifySkill(String configString, DataRef<Player> playerRef, IntegerExp valueExp, ModifyType modifyType, SkillType skillType)
+	protected ModifySkill(String configString, IDataProvider<Player> playerDP, IDataProvider<Integer> valueExp, ModifyType modifyType, SkillType skillType)
 	{
 		super(configString);
-		this.playerRef = playerRef;
+		this.playerDP = playerDP;
 		this.valueExp = valueExp;
 		this.modifyType = modifyType;
 		this.skillType = skillType;
 	}
 	
-	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "value", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "value", "-default");
 	
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		Player player = playerRef.get(data);
-		EventData myData = myInfo.makeChainedData(data, new IntRef(0));
+		Player player = playerDP.get(data);
+		EventData myData = myInfo.makeChainedData(data, 0);
 		
-		int value = valueExp.getValue(myData);
+		int value = valueExp.get(myData);
 		
 		modifyType.modify(player, skillType, value);
 	}
@@ -115,15 +115,15 @@ public class ModifySkill extends NestedRoutine
 		@Override
 		public ModifySkill getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-			DataRef<Player> playerRef = info.get(Player.class, matcher.group(1).toLowerCase()); if (playerRef == null) return null;
+			IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, matcher.group(1)); if (playerDP == null) return null;
 			ModifyType modifyType = ModifyType.valueOf(matcher.group(2).toUpperCase());
 			SkillType skillType = SkillType.valueOf(matcher.group(3).toUpperCase());
 			
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			IntegerExp valueExp = IntegerExp.getNew(routines, einfo);
+			IDataProvider<Integer> valueExp = IntegerExp.getNew(routines, einfo);
 			
-			return new ModifySkill(matcher.group(), playerRef, valueExp, modifyType, skillType);
+			return new ModifySkill(matcher.group(), playerDP, valueExp, modifyType, skillType);
 		}
 	}
 }

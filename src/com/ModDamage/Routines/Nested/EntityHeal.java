@@ -7,35 +7,35 @@ import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.IntRef;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routines;
 
 public class EntityHeal extends NestedRoutine
 {
-	private final DataRef<LivingEntity> entityRef;
-	private final IntegerExp heal_amount;
+	private final IDataProvider<LivingEntity> livingDP;
+	private final IDataProvider<Integer> heal_amount;
 	
-	public EntityHeal(String configString, DataRef<LivingEntity> entityRef, IntegerExp heal_amount)
+	public EntityHeal(String configString, IDataProvider<LivingEntity> livingDP, IDataProvider<Integer> heal_amount)
 	{
 		super(configString);
-		this.entityRef = entityRef;
+		this.livingDP = livingDP;
 		this.heal_amount = heal_amount;
 	}
 
-	static final EventInfo myInfo = new SimpleEventInfo(IntRef.class, "heal_amount", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "heal_amount", "-default");
 	
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		EventData myData = myInfo.makeChainedData(data, new IntRef(0));
+		EventData myData = myInfo.makeChainedData(data, 0);
 			
-		LivingEntity entity = (LivingEntity)entityRef.get(data);
-		entity.setHealth(Math.min(entity.getHealth() + heal_amount.getValue(myData), entity.getMaxHealth()));
+		LivingEntity entity = (LivingEntity)livingDP.get(data);
+		entity.setHealth(Math.min(entity.getHealth() + heal_amount.get(myData), entity.getMaxHealth()));
 	}
 
 	public static void register()
@@ -49,13 +49,13 @@ public class EntityHeal extends NestedRoutine
 		public EntityHeal getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
-			DataRef<LivingEntity> entityRef = info.get(LivingEntity.class, name);
+			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, name);
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			IntegerExp heal_amount = IntegerExp.getNew(routines, einfo);
-			if(entityRef != null)
-				return new EntityHeal(matcher.group(), entityRef, heal_amount);
+			IDataProvider<Integer> heal_amount = IntegerExp.getNew(routines, einfo);
+			if(livingDP != null)
+				return new EntityHeal(matcher.group(), livingDP, heal_amount);
 			return null;
 		}
 	}

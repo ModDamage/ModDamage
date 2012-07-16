@@ -9,26 +9,27 @@ import org.bukkit.potion.PotionEffectType;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
 public class RemovePotionEffect extends Routine
 {
-	private final DataRef<LivingEntity> entityRef;
+	private final IDataProvider<LivingEntity> livingDP;
 	private final PotionEffectType type;
 	
-	protected RemovePotionEffect(String configString, DataRef<LivingEntity> entityRef, PotionEffectType type)
+	protected RemovePotionEffect(String configString, IDataProvider<LivingEntity> livingDP, PotionEffectType type)
 	{
 		super(configString);
-		this.entityRef = entityRef;
+		this.livingDP = livingDP;
 		this.type = type;
 	}
 
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		LivingEntity entity = entityRef.get(data);
+		LivingEntity entity = livingDP.get(data);
 		if (entity == null) return;
 
 		entity.removePotionEffect(type);
@@ -44,8 +45,8 @@ public class RemovePotionEffect extends Routine
 		@Override
 		public RemovePotionEffect getNew(Matcher matcher, EventInfo info)
 		{ 
-			DataRef<LivingEntity> entityRef = info.get(LivingEntity.class, matcher.group(1).toLowerCase());
-			if (entityRef == null) return null;
+			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, matcher.group(1));
+			if (livingDP == null) return null;
 			
 			PotionEffectType type = PotionEffectType.getByName(matcher.group(2).toUpperCase());
 			if (type == null)
@@ -54,8 +55,8 @@ public class RemovePotionEffect extends Routine
 				return null;
 			}
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "RemovePotionEffect: from " + entityRef + ", " + type);
-			return new RemovePotionEffect(matcher.group(), entityRef, type);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "RemovePotionEffect: from " + livingDP + ", " + type);
+			return new RemovePotionEffect(matcher.group(), livingDP, type);
 		}
 	}
 }

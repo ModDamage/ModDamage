@@ -15,31 +15,32 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.MaterialAliaser;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.IntegerExp;
-import com.ModDamage.Variables.Ints.Constant;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Variables.Int.Constant;
 
 public class ModDamageItemStack
 {
 	private final Material material;
-	private final IntegerExp data, amount;
-	private Map<Enchantment, IntegerExp> enchantments;
+	private final IDataProvider<Integer> data, amount;
+	private Map<Enchantment, IDataProvider<Integer>> enchantments;
 	private int lastData, lastAmount;
 	private Map<Enchantment, Integer> lastEnchants;
 	
-	private ModDamageItemStack(Material material, IntegerExp data, IntegerExp amount)
+	private ModDamageItemStack(Material material, IDataProvider<Integer> data, IDataProvider<Integer> amount)
 	{
 		this.material = material;
 		this.data = data;
 		this.amount = amount;
 	}
 	
-	public void addEnchantment(Enchantment enchantment, IntegerExp level)
+	public void addEnchantment(Enchantment enchantment, IDataProvider<Integer> level)
 	{
 		if (enchantments == null)
 		{
-			enchantments = new HashMap<Enchantment, IntegerExp>(2);
+			enchantments = new HashMap<Enchantment, IDataProvider<Integer>>(2);
 			lastEnchants = new HashMap<Enchantment, Integer>(2);
 		}
 		enchantments.put(enchantment, level);
@@ -48,12 +49,12 @@ public class ModDamageItemStack
 	public void update(EventData data) throws BailException
 	{
 		if (this.data != null)
-			lastData = this.data.getValue(data);
-		lastAmount = amount.getValue(data);
+			lastData = this.data.get(data);
+		lastAmount = amount.get(data);
 		if (enchantments != null)
 		{
-			for (Entry<Enchantment, IntegerExp> entry : enchantments.entrySet())
-				lastEnchants.put(entry.getKey(), entry.getValue().getValue(data));
+			for (Entry<Enchantment, IDataProvider<Integer>> entry : enchantments.entrySet())
+				lastEnchants.put(entry.getKey(), entry.getValue().get(data));
 		}
 	}
 	
@@ -118,20 +119,20 @@ public class ModDamageItemStack
 		
 		Material material = first;
 		
-		IntegerExp data;
+		IDataProvider<Integer> data;
 		if (sm.matchesFront("@"))
 		{
-			data = IntegerExp.getIntegerFromFront(sm.spawn(), info);
+			data = DataProvider.parse(info, Integer.class, sm.spawn());
 			if (data == null) return null;
 		}
 		else
 			data = null;
 		
 
-		IntegerExp amount;
+		IDataProvider<Integer> amount;
 		if (sm.matchesFront("*"))
 		{
-			amount = IntegerExp.getIntegerFromFront(sm.spawn(), info);
+			amount = DataProvider.parse(info, Integer.class, sm.spawn());
 			if (amount == null) return null;
 		}
 		else

@@ -8,25 +8,25 @@ import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Matchables.EntityType;
 import com.ModDamage.Routines.Routines;
 
 public class Nearby extends NestedRoutine
 {
-	private final DataRef<Entity> entityRef;
+	private final IDataProvider<Entity> entityDP;
 	private final EntityType filterElement;
-	private final IntegerExp radius;
+	private final IDataProvider<Integer> radius;
 	private final Routines routines;
 
-	protected Nearby(String configString, DataRef<Entity> entityRef, EntityType filterElement, IntegerExp radius, Routines routines)
+	protected Nearby(String configString, IDataProvider<Entity> entityDP, EntityType filterElement, IDataProvider<Integer> radius, Routines routines)
 	{
 		super(configString);
-		this.entityRef = entityRef;
+		this.entityDP = entityDP;
 		this.filterElement = filterElement;
 		this.radius = radius;
 		this.routines = routines;
@@ -39,8 +39,8 @@ public class Nearby extends NestedRoutine
 	public void run(EventData data) throws BailException
 	{
 		Class<?> entClass = filterElement.myClass;
-		LivingEntity entity = (LivingEntity) entityRef.get(data);
-		int r = radius.getValue(data);
+		LivingEntity entity = (LivingEntity) entityDP.get(data);
+		int r = radius.get(data);
 		ENTITIES: for (Entity e : entity.getNearbyEntities(r, r, r))
 		{
 			if (entClass.isAssignableFrom(e.getClass())){
@@ -63,14 +63,14 @@ public class Nearby extends NestedRoutine
 		@Override
 		public Nearby getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
+			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
 			EntityType element = EntityType.getElementNamed(matcher.group(2));
-			IntegerExp radius = IntegerExp.getNew(matcher.group(3), info);
+			IDataProvider<Integer> radius = DataProvider.parse(info, Integer.class, matcher.group(3));
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			if(element != null && entityRef != null && radius != null && routines != null)
-				return new Nearby(matcher.group(), entityRef, element, radius, routines);
+			if(element != null && entityDP != null && radius != null && routines != null)
+				return new Nearby(matcher.group(), entityDP, element, radius, routines);
 			return null;
 		}
 	}

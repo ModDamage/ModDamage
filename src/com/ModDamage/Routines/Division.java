@@ -6,22 +6,22 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.IntRef;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.EventInfo.ISettableDataProvider;
 
 public class Division extends ValueChange 
 {
-	public Division(String configString, DataRef<IntRef> defaultRef, ValueChangeType changeType, IntegerExp value)
+	public Division(String configString, ISettableDataProvider<Integer> defaultDP, ValueChangeType changeType, IDataProvider<Integer> value)
 	{ 
-		super(configString, defaultRef, changeType, value);
+		super(configString, defaultDP, changeType, value);
 	}
 	@Override
-	public int getValue(EventData data) throws BailException
+	public int getValue(Integer def, EventData data) throws BailException
 	{
-		return defaultRef.get(data).value / number.getValue(data);
+		return def / number.get(data);
 	}
 	
 	public static void register()
@@ -34,12 +34,12 @@ public class Division extends ValueChange
 		@Override
 		public Division getNew(Matcher matcher, ValueChangeType changeType, EventInfo info)
 		{ 
-			IntegerExp match = IntegerExp.getNew(matcher.group(1), info);
-			DataRef<IntRef> defaultRef = info.get(IntRef.class, "-default");
-			if(match != null && defaultRef != null)
+			IDataProvider<Integer> match = DataProvider.parse(info, Integer.class, matcher.group(1));
+			ISettableDataProvider<Integer> defaultDP = info.mget(Integer.class, "-default");
+			if(match != null && defaultDP != null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Division" + changeType.getStringAppend() + ": " + matcher.group(1));
-				return new Division(matcher.group(), defaultRef, changeType, match);
+				ModDamage.addToLogRecord(OutputPreset.INFO, "Divide" + changeType.getStringAppend() + ": " + matcher.group(1));
+				return new Division(matcher.group(), defaultDP, changeType, match);
 			}
 			return null;
 		}

@@ -8,60 +8,51 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.ItemAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ModDamageItemStack;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
-public class EntityWielding extends Conditional 
+public class EntityWielding extends Conditional<Player> 
 {
-	public static final Pattern pattern = Pattern.compile("(\\w+)\\.(?:is)?wielding\\.([\\w,@*]+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.(?:is)?wielding\\.([\\w,@*]+)", Pattern.CASE_INSENSITIVE);
 	
-	private final DataRef<Entity> entityRef;
 	private final Collection<ModDamageItemStack> items;
 	
-	public EntityWielding(String configString, DataRef<Entity> entityRef, Collection<ModDamageItemStack> items)
+	public EntityWielding(IDataProvider<?> playerDP, Collection<ModDamageItemStack> items)
 	{
-		super(configString);
-		this.entityRef = entityRef;
+		super(Player.class, playerDP);
 		this.items = items;
 	}
 	@Override
-	protected boolean myEvaluate(EventData data) throws BailException
+	public Boolean get(Player player, EventData data) throws BailException
 	{
-		Entity entity = entityRef.get(data);
-		if (entity instanceof Player)
+		ItemStack wieldedItem = player.getItemInHand();
+		for (ModDamageItemStack item : items)
 		{
-			ItemStack wieldedItem = ((Player)entity).getItemInHand();
-			for (ModDamageItemStack item : items)
-			{
-				item.update(data);
-				if (item.matches(wieldedItem))
-					return true;
-			}
+			item.update(data);
+			if (item.matches(wieldedItem))
+				return true;
 		}
 		return false;
 	}
 	
 	public static void register()
 	{
-		Conditional.register(new ConditionalBuilder());
-	}	
-	
-	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
-	{
-		public ConditionalBuilder() { super(pattern); }
-
-		@Override
-		public EntityWielding getNew(Matcher matcher, EventInfo info)
-		{
-			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
-			Collection<ModDamageItemStack> matchedItems = ItemAliaser.match(matcher.group(2), info);
-			if(entityRef != null && matchedItems != null && !matchedItems.isEmpty())
-				return new EntityWielding(matcher.group(), entityRef, matchedItems);
-			return null;
-		}
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+			{
+				@Override
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> playerDP, Matcher m, StringMatcher sm)
+				{
+					Collection<ModDamageItemStack> matchedItems = ItemAliaser.match(m.group(1), info);
+					if(matchedItems == null || matchedItems.isEmpty()) return null;
+					
+					return new EntityWielding(playerDP, matchedItems);
+				}
+			});
 	}
 }

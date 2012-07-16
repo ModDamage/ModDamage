@@ -39,8 +39,6 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnchantmentsRef;
-import com.ModDamage.Backend.IntRef;
-import com.ModDamage.EventInfo.DataRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
@@ -53,15 +51,14 @@ enum ModDamageEventHandler
 {
 	Damage(
 		new SimpleEventInfo(
-			Entity.class, EntityType.class, 		"attacker", "-target-other",
-			Projectile.class, EntityType.class, 	"projectile",
-			Entity.class, EntityType.class, 		"target", "-attacker-other",
-			World.class,							"world",
-			DamageType.class, 						"damage", // e.g. damage.type.FIRE
-			IntRef.class, 							"damage", "-default"),
+			Entity.class, 		"attacker", "-target-other",
+			Projectile.class, 	"projectile",
+			Entity.class, 		"target", "-attacker-other",
+			World.class,		"world",
+			DamageType.class, 	"damage", // e.g. damage.type.FIRE
+			Integer.class, 		"damage", "-default"),
 			
 		new Listener(){
-			DataRef<IntRef> damageRef = new DataRef<IntRef>(IntRef.class, IntRef.class, "damage", 8);
 			@EventHandler(priority=EventPriority.HIGHEST)
 			public void onEntityDamage(EntityDamageEvent event)
 			{
@@ -73,7 +70,7 @@ enum ModDamageEventHandler
 					if(data != null)
 					{
 						Damage.runRoutines(data);
-						event.setDamage(damageRef.get(data).value);
+						event.setDamage(data.get(Integer.class, data.start + 5));
 						if (event.getDamage() <= 0)
 							event.setCancelled(true);
 					}
@@ -85,7 +82,7 @@ enum ModDamageEventHandler
 	
 	Death(
 		Damage.eventInfo.chain(new SimpleEventInfo(
-			IntRef.class, "experience", "-default")),
+			Integer.class, "experience", "-default")),
 			
 		new Listener() {
 			@EventHandler(priority=EventPriority.HIGHEST)
@@ -102,27 +99,26 @@ enum ModDamageEventHandler
 			    
 				if(damageData == null) // for instance, /butcher often does this
 					damageData = Damage.eventInfo.makeData(
-							null, EntityType.UNKNOWN,
-							null, null,
-							entity, EntityType.get(entity),
+							null,
+							null,
+							entity,
 							entity.getWorld(),
 							DamageType.UNKNOWN,
-							new IntRef(0)
+							0
 							);
 				
-				IntRef experience = new IntRef(event.getDroppedExp());
-				EventData data = Death.eventInfo.makeChainedData(damageData, experience);
+				EventData data = Death.eventInfo.makeChainedData(damageData, event.getDroppedExp());
 				Death.runRoutines(data);
-				event.setDroppedExp(experience.value);
+				event.setDroppedExp(data.get(Integer.class, data.start + 1));
 			}
 		}),
 	
 	Heal(
 		new SimpleEventInfo(
-			Entity.class, EntityType.class,	"entity",
-			World.class,					"world",
-			HealType.class, 				"heal", // e.g. heal.type.EATING
-			IntRef.class, 					"heal_amount", "-default"),
+			Entity.class,	"entity",
+			World.class,	"world",
+			HealType.class,	"heal", // e.g. heal.type.EATING
+			Integer.class, 	"heal_amount", "-default"),
 			
 		new Listener() {
 			@EventHandler(priority=EventPriority.HIGHEST)
@@ -131,27 +127,28 @@ enum ModDamageEventHandler
 				if(!ModDamage.isEnabled || event.isCancelled()) return;
 				
 				Entity entity = event.getEntity();
-				IntRef heal_amount = new IntRef(event.getAmount());
 				EventData data = Heal.eventInfo.makeData(
 						entity, EntityType.get(entity),
 						entity.getWorld(),
 						HealType.get(event.getRegainReason()),
-						heal_amount);
+						event.getAmount());
 				
 				Heal.runRoutines(data);
 				
-				if (heal_amount.value <= 0)
+				int newHealAmount = data.get(Integer.class, data.start + 4);
+				
+				if (newHealAmount <= 0)
 					event.setCancelled(true);
 				else
-					event.setAmount(heal_amount.value);
+					event.setAmount(newHealAmount);
 			}
 		}),
 	
 	ProjectileHit(
 		new SimpleEventInfo(
-			Entity.class, EntityType.class, 	"shooter",
-			Projectile.class, EntityType.class, "projectile",
-			World.class,						"world"),
+			Entity.class, 		"shooter",
+			Projectile.class,	"projectile",
+			World.class,		"world"),
 			
 		new Listener() {
 			@EventHandler(priority=EventPriority.HIGHEST)
@@ -163,9 +160,8 @@ enum ModDamageEventHandler
 				LivingEntity shooter = projectile.getShooter();
 				
 				EventData data = ProjectileHit.eventInfo.makeData(
-						shooter, (shooter != null)? EntityType.get(shooter)
-												  : EntityType.DISPENSER,
-						projectile, EntityType.get(projectile),
+						shooter,
+						projectile,
 						projectile.getWorld());
 				
 				ProjectileHit.runRoutines(data);
@@ -174,9 +170,9 @@ enum ModDamageEventHandler
 	
 	Spawn(
 		new SimpleEventInfo(
-			Entity.class, EntityType.class, "entity",
-			World.class,					"world",
-			IntRef.class, 					"health", "-default"),
+			Entity.class,	"entity",
+			World.class,	"world",
+			Integer.class,	"health", "-default"),
 			
 		new Listener() {
 			@EventHandler(priority=EventPriority.HIGHEST)
@@ -185,16 +181,15 @@ enum ModDamageEventHandler
 				if(!ModDamage.isEnabled) return;
 				
 				Player player = event.getPlayer();
-				IntRef health = new IntRef(player.getMaxHealth());
 				EventData data = Spawn.eventInfo.makeData(
-						player, EntityType.PLAYER, // entity
+						player, // entity
 						player.getWorld(),
-						health
+						player.getMaxHealth()
 						);
 				
 				Spawn.runRoutines(data);
 				
-				player.setHealth(health.value);
+				player.setHealth(data.get(Integer.class, data.start + 3));
 			}
 			
 			@EventHandler(priority=EventPriority.HIGHEST)
@@ -203,16 +198,17 @@ enum ModDamageEventHandler
 				if(!ModDamage.isEnabled || event.isCancelled()) return;
 				
 				LivingEntity entity = (LivingEntity)event.getEntity();
-				IntRef health = new IntRef(entity.getHealth());
 				EventData data = Spawn.eventInfo.makeData(
 						entity, EntityType.get(entity),
 						entity.getWorld(),
-						health);
+						entity.getHealth());
 				
 				Spawn.runRoutines(data);
 				
-				if (health.value > 0)
-					entity.setHealth(health.value);
+				int health = data.get(Integer.class, data.start + 3);
+				
+				if (health > 0)
+					entity.setHealth(health);
 				else
 					event.setCancelled(true);
 			}
@@ -220,9 +216,9 @@ enum ModDamageEventHandler
 			
 	Tame(
 		new SimpleEventInfo(
-			Entity.class, EntityType.class, "entity",
-			Entity.class, EntityType.class, "tamer",
-			World.class,					"world"),
+			Entity.class,	"entity",
+			Entity.class,	"tamer",
+			World.class,	"world"),
 			
 		new Listener() {
 			@EventHandler(priority=EventPriority.HIGHEST)
@@ -233,8 +229,8 @@ enum ModDamageEventHandler
 				LivingEntity entity = (LivingEntity)event.getEntity();
 				LivingEntity owner = (LivingEntity)event.getOwner();
 				EventData data = Tame.eventInfo.makeData(
-						entity, EntityType.get(entity),
-						owner, EntityType.get(owner),
+						entity,
+						owner,
 						entity.getWorld());
 				
 				Tame.runRoutines(data);
@@ -243,9 +239,9 @@ enum ModDamageEventHandler
 	
 	PickupExp(
 		new SimpleEventInfo(
-				Player.class, EntityType.class, "player",
-				World.class,					"world",
-				IntRef.class,					"experience"),
+				Player.class,	"player",
+				World.class,	"world",
+				Integer.class,	"experience"),
 				
 		new Listener() {
 			@EventHandler(priority=EventPriority.HIGHEST)
@@ -254,27 +250,28 @@ enum ModDamageEventHandler
 				if(!ModDamage.isEnabled) return;
 				
 				Player player = event.getPlayer();
-				IntRef experience = new IntRef(event.getAmount());
 				EventData data = PickupExp.eventInfo.makeData(
-						player, EntityType.get(player),
+						player,
 						player.getWorld(),
-						experience);
+						event.getAmount());
 				
 				PickupExp.runRoutines(data);
 				
-				event.setAmount(experience.value);
+				int experience = data.get(Integer.class, data.start + 3);
+				
+				event.setAmount(experience);
 			}
 		}),
 	
 	PrepareEnchant(
 		new SimpleEventInfo(
-				Player.class, EntityType.class, "player",
-				World.class,					"world",
-				ItemStack.class, 				"item",
-				IntRef.class,					"bonus",
-				IntRef.class,					"level_1",
-				IntRef.class,					"level_2",
-				IntRef.class,					"level_3"),
+				Player.class,		"player",
+				World.class,		"world",
+				ItemStack.class, 	"item",
+				Integer.class,		"bonus",
+				Integer.class,		"level_1",
+				Integer.class,		"level_2",
+				Integer.class,		"level_3"),
 				
 		new Listener() {
 			@EventHandler(priority=EventPriority.HIGHEST)
@@ -283,34 +280,33 @@ enum ModDamageEventHandler
 				if(!ModDamage.isEnabled) return;
 				
 				Player player = event.getEnchanter();
-				IntRef bonus = new IntRef(event.getEnchantmentBonus());
+				Integer bonus = event.getEnchantmentBonus();
 				int[] levels = event.getExpLevelCostsOffered();
-				IntRef level_1 = new IntRef(levels[0]);
-				IntRef level_2 = new IntRef(levels[1]);
-				IntRef level_3 = new IntRef(levels[2]);
 				EventData data = PrepareEnchant.eventInfo.makeData(
-						player, EntityType.get(player),
+						player,
 						player.getWorld(),
 						event.getItem(),
 						bonus,
-						level_1, level_2, level_3
+						levels[0], levels[1], levels[2]
 						);
 				
 				PrepareEnchant.runRoutines(data);
 				
-				levels[0] = level_1.value;
-				levels[1] = level_2.value;
-				levels[2] = level_3.value;
+				
+				
+				levels[0] = data.get(Integer.class, data.start + 5);
+				levels[1] = data.get(Integer.class, data.start + 6);
+				levels[2] = data.get(Integer.class, data.start + 7);
 			}
 		}),
 	
 	Enchant(
 			new SimpleEventInfo(
-					Player.class, EntityType.class, "player",
-					World.class,					"world",
-					ItemStack.class, 				"item",
-					EnchantmentsRef.class,			"-enchantments",
-					IntRef.class,					"level"),
+					Player.class, 			"player",
+					World.class,			"world",
+					ItemStack.class, 		"item",
+					EnchantmentsRef.class,	"enchantments",
+					Integer.class,			"level"),
 					
 			new Listener() {
 				@EventHandler(priority=EventPriority.HIGHEST)
@@ -319,32 +315,33 @@ enum ModDamageEventHandler
 					if(!ModDamage.isEnabled) return;
 					
 					Player player = event.getEnchanter();
-					IntRef level = new IntRef(event.getExpLevelCost());
 					EventData data = Enchant.eventInfo.makeData(
-							player, EntityType.get(player),
+							player,
 							player.getWorld(),
 							event.getItem(),
 							new EnchantmentsRef(event.getEnchantsToAdd()),
-							level
+							event.getExpLevelCost()
 							);
 					
 					Enchant.runRoutines(data);
 					
-					event.setExpLevelCost(level.value);
+					int level = data.get(Integer.class, data.start + 5);
+					
+					event.setExpLevelCost(level);
 				}
 			}),
 	
 	Interact(
 			new SimpleEventInfo(
-					Player.class, EntityType.class, "player",
-					World.class,					"world",
-					ItemStack.class, 				"item",
-					Boolean.class,					"interact_left",
-					Boolean.class,					"interact_right",
-					Boolean.class,					"interact_block",
-					Boolean.class,					"interact_air",
-					IntRef.class,					"interact_block_type",
-					IntRef.class,					"interact_block_data"),
+					Player.class,		"player",
+					World.class,		"world",
+					ItemStack.class, 	"item",
+					Boolean.class,		"interact_left",
+					Boolean.class,		"interact_right",
+					Boolean.class,		"interact_block",
+					Boolean.class,		"interact_air",
+					Integer.class,		"interact_block_type",
+					Integer.class,		"interact_block_data"),
 					
 			new Listener() {
 				@EventHandler(priority=EventPriority.HIGHEST)
@@ -356,16 +353,16 @@ enum ModDamageEventHandler
 					Action action = event.getAction();
 					
 					Block clickedBlock = event.getClickedBlock();
-					IntRef block_type = new IntRef(0);
-					IntRef block_data = new IntRef(0);
+					int block_type = 0;
+					int block_data = 0;
 					if (clickedBlock != null)
 					{
-						block_type.value = clickedBlock.getTypeId();
-						block_data.value = clickedBlock.getData();
+						block_type = clickedBlock.getTypeId();
+						block_data = clickedBlock.getData();
 					}
 					
 					EventData data = Interact.eventInfo.makeData(
-							player, EntityType.get(player),
+							player,
 							player.getWorld(),
 							event.getItem(),
 							action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK,
@@ -381,9 +378,9 @@ enum ModDamageEventHandler
 			
 	InteractEntity(
 			new SimpleEventInfo(
-					Player.class, EntityType.class, "player",
-					World.class,					"world",
-					Entity.class, EntityType.class, "target"),
+					Player.class,	"player",
+					World.class,	"world",
+					Entity.class,	"target"),
 					
 			new Listener() {
 				@EventHandler(priority=EventPriority.HIGHEST)
@@ -394,9 +391,9 @@ enum ModDamageEventHandler
 					Player player = event.getPlayer();
 					Entity target = event.getRightClicked();
 					EventData data = InteractEntity.eventInfo.makeData(
-							player, EntityType.get(player),
+							player,
 							player.getWorld(),
-							target, EntityType.get(target));
+							target);
 					
 					InteractEntity.runRoutines(data);
 				}
@@ -404,10 +401,10 @@ enum ModDamageEventHandler
 			
 	ItemHeld(
 			new SimpleEventInfo(
-					Player.class, EntityType.class, "player",
-					World.class,					"world",
-					IntRef.class,					"prevslot",
-					IntRef.class,					"newslot"),
+					Player.class,	"player",
+					World.class,	"world",
+					Integer.class,	"prevslot",
+					Integer.class,	"newslot"),
 					
 			new Listener() {
 				@EventHandler(priority=EventPriority.HIGHEST)
@@ -417,10 +414,10 @@ enum ModDamageEventHandler
 					
 					Player player = event.getPlayer();
 					EventData data = ItemHeld.eventInfo.makeData(
-							player, EntityType.get(player),
+							player,
 							player.getWorld(),
-							new IntRef(event.getPreviousSlot()),
-							new IntRef(event.getNewSlot()));
+							event.getPreviousSlot(),
+							event.getNewSlot());
 					
 					ItemHeld.runRoutines(data);
 				}
@@ -428,8 +425,8 @@ enum ModDamageEventHandler
 			
 	Join(
 			new SimpleEventInfo(
-					Player.class, EntityType.class, "player",
-					World.class,					"world"),
+					Player.class,	"player",
+					World.class,	"world"),
 					
 			new Listener() {
 				@EventHandler(priority=EventPriority.HIGHEST)
@@ -442,7 +439,7 @@ enum ModDamageEventHandler
 					
 					Player player = event.getPlayer();
 					EventData data = Join.eventInfo.makeData(
-							player, EntityType.get(player),
+							player,
 							player.getWorld());
 					
 					Join.runRoutines(data);
@@ -451,8 +448,8 @@ enum ModDamageEventHandler
 			
 	Quit(
 			new SimpleEventInfo(
-					Player.class, EntityType.class, "player",
-					World.class,					"world"),
+					Player.class,	"player",
+					World.class,	"world"),
 					
 			new Listener() {
 				@EventHandler(priority=EventPriority.HIGHEST)
@@ -465,7 +462,7 @@ enum ModDamageEventHandler
 					
 					Player player = event.getPlayer();
 					EventData data = Quit.eventInfo.makeData(
-							player, EntityType.get(player),
+							player,
 							player.getWorld());
 					
 					Quit.runRoutines(data);
@@ -474,9 +471,9 @@ enum ModDamageEventHandler
 			
 	Target(
 			new SimpleEventInfo(
-					Entity.class, EntityType.class, "entity",
-					World.class,					"world",
-					Entity.class, EntityType.class, "target",
+					Entity.class,	"entity",
+					World.class,	"world",
+					Entity.class,	"target",
 					EntityTargetEvent.TargetReason.class, "reason"),
 					
 			new Listener() {
@@ -488,9 +485,9 @@ enum ModDamageEventHandler
 					Entity entity = event.getEntity();
 					Entity target = event.getTarget();
 					EventData data = Target.eventInfo.makeData(
-							entity, EntityType.get(entity),
+							entity,
 							entity.getWorld(),
-							target, EntityType.get(target),
+							target,
 							event.getReason());
 					
 					Target.runRoutines(data);
@@ -499,12 +496,12 @@ enum ModDamageEventHandler
 			
 	Combust(
 			new SimpleEventInfo(
-					Entity.class, EntityType.class, "entity",
-					World.class,					"world",
-					IntRef.class,					"duration",
-					Entity.class, EntityType.class, "combustor",
-					IntRef.class,					"block_type",
-					IntRef.class,					"block_data"),
+					Entity.class,	"entity",
+					World.class,	"world",
+					Integer.class,	"duration",
+					Entity.class,	"combustor",
+					Integer.class,	"block_type",
+					Integer.class,	"block_data"),
 					
 			new Listener() {
 				@EventHandler(priority=EventPriority.HIGHEST)
@@ -513,10 +510,10 @@ enum ModDamageEventHandler
 					if(!ModDamage.isEnabled) return;
 					
 					Entity entity = event.getEntity();
-					IntRef duration = new IntRef(event.getDuration());
+					Integer duration = event.getDuration();
 					Entity combustor = null;
-					IntRef block_type = new IntRef(0);
-					IntRef block_data = new IntRef(0);
+					Integer block_type = 0;
+					Integer block_data = 0;
 					
 					if (event instanceof EntityCombustByEntityEvent)
 						combustor = ((EntityCombustByEntityEvent)event).getCombuster();
@@ -526,22 +523,22 @@ enum ModDamageEventHandler
 						Block combustorBlock = ((EntityCombustByBlockEvent)event).getCombuster();
 						if (combustorBlock != null)
 						{
-							block_type.value = combustorBlock.getTypeId();
-							block_data.value = combustorBlock.getData();
+							block_type = combustorBlock.getTypeId();
+							block_data = (int) combustorBlock.getData();
 						}
 					}
 					
 					EventData data = Combust.eventInfo.makeData(
-							entity, EntityType.get(entity),
+							entity,
 							entity.getWorld(),
 							duration,
-							combustor, EntityType.get(combustor),
+							combustor,
 							block_type,
 							block_data);
 					
 					Combust.runRoutines(data);
 					
-					event.setDuration(duration.value);
+					event.setDuration((Integer) data.get(data.start + 4));
 				}
 			});
 	
@@ -679,6 +676,6 @@ enum ModDamageEventHandler
 	    		target, targetType,
 	    		world,
 	    		damageElement,
-	    		new IntRef(event.getDamage()));
+	    		event.getDamage());
 	}
 };

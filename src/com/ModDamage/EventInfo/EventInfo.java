@@ -1,5 +1,6 @@
 package com.ModDamage.EventInfo;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.ModDamage.ModDamage;
@@ -12,7 +13,8 @@ public abstract class EventInfo
 	
 	protected abstract int myGetIndex(Class<?> cls, String name);
 	protected abstract Class<?> getClass(int index);
-	
+
+	public abstract Map<String, Class<?>> getAllNames();
 	public abstract Set<String> getAllNames(Class<?> cls);
 	public abstract Set<String> getAllNames(Class<?> cls, String name);
 
@@ -23,12 +25,12 @@ public abstract class EventInfo
 	
 	
 	
-	public <T> DataRef<T> get(Class<T> cls, String name) { return get(cls, name, true); }
-	public <T> DataRef<T> get(Class<T> cls, String name, boolean complain)
+	public <T> EventDataProvider<T> mget(Class<T> cls, String name) { return mget(cls, name, true); }
+	public <T> EventDataProvider<T> mget(Class<T> cls, String name, boolean complain)
 	{
 		int index = getIndex(cls, name, complain);
 		if (index == -1) return null;
-		return new DataRef<T>(cls, getClass(index), name, index);
+		return new EventDataProvider<T>(cls, getClass(index), name, index);
 	}
 	
 	public int getIndex(Class<?> cls, String name, boolean complain) {

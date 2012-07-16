@@ -1,4 +1,4 @@
-package com.ModDamage.Variables.Ints;
+package com.ModDamage.Variables.Int;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,26 +8,25 @@ import org.bukkit.World;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Expressions.SettableIntegerExp;
 
-public class WorldInt extends IntegerExp
+public class WorldInt extends SettableIntegerExp<World>
 {
 	public static void register()
 	{
-		IntegerExp.register(
-				Pattern.compile("world_("+ Utils.joinBy("|", WorldPropertyMatch.values()) +")", Pattern.CASE_INSENSITIVE),
-				new DynamicIntegerBuilder()
+		DataProvider.register(Integer.class, World.class, 
+				Pattern.compile("_("+ Utils.joinBy("|", WorldPropertyMatch.values()) +")", Pattern.CASE_INSENSITIVE),
+				new IDataParser<Integer>()
 				{
 					@Override
-					public IntegerExp getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> worldDP, Matcher m, StringMatcher sm)
 					{
-						DataRef<World> worldRef = info.get(World.class, "world");
-						if (worldRef == null) return null;
-						return sm.acceptIf(new WorldInt(worldRef,
-								WorldPropertyMatch.valueOf(matcher.group(1).toUpperCase())));
+						return sm.acceptIf(new WorldInt(worldDP,
+								WorldPropertyMatch.valueOf(m.group(1).toUpperCase())));
 					}
 				});
 	}
@@ -60,30 +59,24 @@ public class WorldInt extends IntegerExp
 		protected void setValue(World world, int value) {}
 	}
 	
-	private final DataRef<World> worldRef;
 	private final WorldPropertyMatch propertyMatch;
 	
-	WorldInt(DataRef<World> worldRef, WorldPropertyMatch propertyMatch)
+	WorldInt(IDataProvider<?> worldDP, WorldPropertyMatch propertyMatch)
 	{
-		this.worldRef = worldRef;
+		super(World.class, worldDP);
 		this.propertyMatch = propertyMatch;
 	}
 	
 	@Override
-	protected int myGetValue(EventData data) throws BailException
+	public Integer myGet(World world, EventData data) throws BailException
 	{
-		World world = worldRef.get(data);
-		if (world != null)
-			return propertyMatch.getValue(world);
-		return 0;
+		return propertyMatch.getValue(world);
 	}
 	
 	@Override
-	public void setValue(EventData data, int value)
+	public void mySet(World world, EventData data, Integer value)
 	{
-		World world = worldRef.get(data);
-		if (world != null)
-			propertyMatch.setValue(world, value);
+		propertyMatch.setValue(world, value);
 	}
 	
 	@Override
@@ -93,5 +86,8 @@ public class WorldInt extends IntegerExp
 	}
 	
 	@Override
-	public String toString(){ return "world_" + propertyMatch.name().toLowerCase(); }
+	public String toString()
+	{
+		return startDP + "_" + propertyMatch.name().toLowerCase();
+	}
 }

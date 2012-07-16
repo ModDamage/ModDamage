@@ -9,25 +9,26 @@ import org.bukkit.entity.Entity;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
 public class PlayEntityEffect extends Routine
 {
-	private final DataRef<Entity> entityRef;
+	private final IDataProvider<Entity> entityDP;
 	private final EntityEffect entityEffect;
-	protected PlayEntityEffect(String configString, DataRef<Entity> entityRef, EntityEffect entityEffect)
+	protected PlayEntityEffect(String configString, IDataProvider<Entity> entityDP, EntityEffect entityEffect)
 	{
 		super(configString);
-		this.entityRef = entityRef;
+		this.entityDP = entityDP;
 		this.entityEffect = entityEffect;
 	}
 
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		Entity entity = entityRef.get(data);
+		Entity entity = entityDP.get(data);
 		if (entity == null) return;
 
 		entity.playEffect(entityEffect);
@@ -43,8 +44,8 @@ public class PlayEntityEffect extends Routine
 		@Override
 		public PlayEntityEffect getNew(Matcher matcher, EventInfo info)
 		{ 
-			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
-			if (entityRef == null) return null;
+			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
+			if (entityDP == null) return null;
 			
 			EntityEffect effectType;
 			try
@@ -57,8 +58,8 @@ public class PlayEntityEffect extends Routine
 				return null;
 			}
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "PlayEntityEffect: " + entityRef + " " + effectType);
-			return new PlayEntityEffect(matcher.group(), entityRef, effectType);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "PlayEntityEffect: " + entityDP + " " + effectType);
+			return new PlayEntityEffect(matcher.group(), entityDP, effectType);
 		}
 	}
 }

@@ -1,69 +1,67 @@
 package com.ModDamage.Conditionals;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Entity;
 
+import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.RegionAliaser;
-import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ExternalPluginManager;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
-public class EntityRegion extends Conditional
+public class EntityRegion extends Conditional<Entity>
 {
-	public static final Pattern pattern = Pattern.compile("(\\w+)\\.(?:in)?region(only)?.(\\w+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.(?:in)?region(only)?.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
-	private final DataRef<Entity> entityRef;
 	private final boolean inclusiveComparison;
 	private final Collection<String> regions;
 	
-	public EntityRegion(String configString, boolean inclusiveComparison, DataRef<Entity> entityRef, Collection<String> regions)
+	public EntityRegion(IDataProvider<?> entityDP, boolean inclusiveComparison, Collection<String> regions)
 	{
-		super(configString);
-		this.entityRef = entityRef;
+		super(Entity.class, entityDP);
 		this.inclusiveComparison = inclusiveComparison;
 		this.regions = regions;		
 	}
 
 	@Override
-	protected boolean myEvaluate(EventData data) throws BailException
+	public Boolean get(Entity entity, EventData data)
 	{
-		Collection<String> entityRegions = getRegions(data);
+		Collection<String> entityRegions = getRegions(entity);
 		for(String region : entityRegions)
-			if(inclusiveComparison?regions.contains(region):(entityRegions.size() == regions.size() && regions.containsAll(entityRegions)))
-				return true;
+			if(inclusiveComparison) {
+				if (regions.contains(region))
+					return true;
+			}
+			else
+			{
+				if (entityRegions.size() == regions.size() && regions.containsAll(entityRegions))
+					return true;
+			}
 		return false;
 	}
 	
-	protected Collection<String> getRegions(EventData data) 
+	protected Collection<String> getRegions(Entity entity) 
 	{
-		if(entityRef.get(data) != null)
-			return ExternalPluginManager.getRegionsManager().getRegions(entityRef.get(data).getLocation());//XXX Use .addAll(getEyeLocation())?
-		return Arrays.asList();
+		return ExternalPluginManager.getRegionsManager().getRegions(entity.getLocation());
 	}
 	
 	public static void register()
 	{
-		Conditional.register(new ConditionalBuilder());
-	}
-	
-	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
-	{
-		public ConditionalBuilder() { super(pattern); }
-
-		@Override
-		public EntityRegion getNew(Matcher matcher, EventInfo info)
-		{
-			DataRef<Entity> entityRef = info.get(Entity.class, matcher.group(1).toLowerCase());
-			Collection<String> regions = RegionAliaser.match(matcher.group(3));
-			if(!regions.isEmpty() && entityRef != null)
-				return new EntityRegion(matcher.group(), matcher.group(2) != null, entityRef, regions);
-			return null;
-		}
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+			{
+				@Override
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				{
+					Collection<String> regions = RegionAliaser.match(m.group(2));
+					if(regions.isEmpty()) return null;
+					
+					return new EntityRegion(entityDP, m.group(1) != null, regions);
+				}
+			});
 	}
 }

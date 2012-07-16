@@ -10,26 +10,26 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.util.Vector;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Matchables.EntityType;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.IntRef;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Matchables.EntityType;
 import com.ModDamage.Routines.Routines;
 
 public class LaunchProjectile extends NestedRoutine
 {
-	private final DataRef<LivingEntity> entityRef;
+	private final IDataProvider<LivingEntity> livingDP;
 	private final Class<? extends Projectile> launchType;
 	private final Routines routines;
-	public LaunchProjectile(String configString, DataRef<LivingEntity> entityRef, Class<? extends Projectile> launchType, Routines routines)
+	public LaunchProjectile(String configString, IDataProvider<LivingEntity> livingDP, Class<? extends Projectile> launchType, Routines routines)
 	{
 		super(configString);
-		this.entityRef = entityRef;
+		this.livingDP = livingDP;
 		this.launchType = launchType;
 		this.routines = routines;
 	}
@@ -37,17 +37,17 @@ public class LaunchProjectile extends NestedRoutine
 	static EventInfo myInfo = new SimpleEventInfo(
 			Projectile.class, "projectile",
 			EntityType.class, "projectile",
-			IntRef.class, "yaw",
-			IntRef.class, "pitch",
-			IntRef.class, "speed");
+			Integer.class, "yaw",
+			Integer.class, "pitch",
+			Integer.class, "speed");
 	static EventInfo explosiveInfo = new SimpleEventInfo(
-			IntRef.class, "yield",
-			IntRef.class, "incendiary");
+			Integer.class, "yield",
+			Integer.class, "incendiary");
 
 	@Override
 	public void run(EventData data) throws BailException 
 	{
-		LivingEntity entity = entityRef.get(data);
+		LivingEntity entity = livingDP.get(data);
 		if (entity == null)
 			return;
 		
@@ -60,29 +60,40 @@ public class LaunchProjectile extends NestedRoutine
 		
 		Location loc = entity.getEyeLocation();
 		
-		IntRef yaw = new IntRef((int) loc.getYaw());
-		IntRef pitch = new IntRef((int) loc.getPitch());
-		IntRef speed = new IntRef((int) (projectile.getVelocity().length() * 10));
+		int yaw = (int) loc.getYaw();
+		int pitch = (int) loc.getPitch();
+		int speed = (int) (projectile.getVelocity().length() * 10);
 		
-		EventData newData = myInfo.makeChainedData(data, 
+		EventData baseData = myInfo.makeChainedData(data, 
 				projectile, EntityType.get(projectile), yaw, pitch, speed);
+		EventData newData = baseData;
 		
 
-		IntRef yield = null, incendiary = null;
+		int yield = 0, incendiary = 0;
 		if (explosive != null)
 		{
-			yield = new IntRef((int)(explosive.getYield() * 10));
-			incendiary = new IntRef(explosive.isIncendiary()? 1 : 0);
+			yield = (int)(explosive.getYield() * 10);
+			incendiary = explosive.isIncendiary()? 1 : 0;
 			
-			newData = explosiveInfo.makeChainedData(newData, yield, incendiary);
+			newData = explosiveInfo.makeChainedData(baseData, yield, incendiary);
 		}
 		
 		routines.run(newData);
 		
-		loc.setYaw(yaw.value);
-		loc.setPitch(pitch.value);
+		yaw = baseData.get(Integer.class, baseData.start + 2);
+		pitch = baseData.get(Integer.class, baseData.start + 3);
+		speed = baseData.get(Integer.class, baseData.start + 4);
+		if (explosive != null)
+		{
+			yield = newData.get(Integer.class, baseData.start + 0);
+			incendiary = newData.get(Integer.class, baseData.start + 1);
+			
+		}
+		
+		loc.setYaw(yaw);
+		loc.setPitch(pitch);
 		projectile.teleport(loc);
-		Vector direction = loc.getDirection().multiply(speed.value / 10.0);
+		Vector direction = loc.getDirection().multiply(speed / 10.0);
 		
 		// This is what you're supposed to do with Fireballs, but this is broken
 		// and setting velocity works just fine.
@@ -93,8 +104,8 @@ public class LaunchProjectile extends NestedRoutine
 		
 		if (explosive != null)
 		{
-			explosive.setYield(yield.value / 10.0f);
-			explosive.setIsIncendiary(incendiary.value != 0);
+			explosive.setYield(yield / 10.0f);
+			explosive.setIsIncendiary(incendiary != 0);
 		}
 	}
 	
@@ -116,8 +127,8 @@ public class LaunchProjectile extends NestedRoutine
 				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Not a launchable projectile: "+matcher.group(2));
 				return null;
 			}
-			DataRef<LivingEntity> entityRef = info.get(LivingEntity.class, matcher.group(1).toLowerCase());
-			if (entityRef == null) return null;
+			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, matcher.group(1));
+			if (livingDP == null) return null;
 
 			EventInfo einfo = info.chain(myInfo);
 			boolean isExplosive = Explosive.class.isAssignableFrom(launchType.myClass);
@@ -127,7 +138,7 @@ public class LaunchProjectile extends NestedRoutine
 			if(routines == null) return null;
 			
 			NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End Projectile Launch");
-			return new LaunchProjectile(matcher.group(), entityRef, (Class<? extends Projectile>)launchType.myClass, routines);
+			return new LaunchProjectile(matcher.group(), livingDP, (Class<? extends Projectile>)launchType.myClass, routines);
 		}
 	}
 }

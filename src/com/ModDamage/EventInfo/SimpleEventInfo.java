@@ -107,6 +107,19 @@ public class SimpleEventInfo extends EventInfo
 	}
 
 	@Override
+	public Map<String, Class<?>> getAllNames()
+	{
+		Map<String, Class<?>> allNames = new HashMap<String, Class<?>>();
+		for (Entry<Class<?>, Map<String, Integer>> entry : map.entrySet())
+		{
+			for (String name : entry.getValue().keySet())
+				if (!name.startsWith("-"))
+					allNames.put(name, entry.getKey());
+		}
+		return allNames;
+	}
+
+	@Override
 	public Set<String> getAllNames(Class<?> cls)
 	{
 		Set<String> names = new HashSet<String>();

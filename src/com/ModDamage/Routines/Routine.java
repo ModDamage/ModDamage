@@ -44,7 +44,6 @@ abstract public class Routine
 	public static void registerVanillaRoutines()
 	{
 		registeredBaseRoutines.clear();
-		ValueChange.register();
 		AliasedRoutine.register();
 		Tag.registerRoutine();
 		PlayEffect.register();
@@ -56,6 +55,7 @@ abstract public class Routine
 		AddPotionEffect.register();
 		RemovePotionEffect.register();
 		ChangeCreatureTarget.register();
+		ValueChange.register();
 	}
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)

@@ -8,8 +8,10 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
 public class InterpolatedString
 {
@@ -21,7 +23,6 @@ public class InterpolatedString
 	
 	public InterpolatedString(String message, EventInfo info, boolean colorize)
 	{
-		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		Matcher interpolationMatcher = interpolationPattern.matcher(message);
 		int start = 0;
 		while(interpolationMatcher.find(start))
@@ -33,10 +34,9 @@ public class InterpolatedString
 			
 			start = interpolationMatcher.end();
 			
-			StringExp match = StringExp.getNew(interpolationMatcher.group(1), info);
+			IDataProvider<String> match = DataProvider.parse(info, String.class, interpolationMatcher.group(1));
 			if(match != null)
 			{
-				//ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Matched dynamic string: \"" + match.toString() + "\"");
 				addPart(match);
 			}
 			else
@@ -62,7 +62,7 @@ public class InterpolatedString
 		minSize += str.length();
 	}
 	
-	private void addPart(StringExp str)
+	private void addPart(IDataProvider<String> str)
 	{
 		parts.add(new DynamicStringPart(str));
 		minSize += 4; // just a guess, many will be small numbers
@@ -102,9 +102,9 @@ public class InterpolatedString
 	}
 	
 	private static class DynamicStringPart implements InterpolatedPart {
-		private StringExp dstring;
-		public DynamicStringPart(StringExp str) { dstring = str; }
-		public String toString(EventData data) throws BailException { return dstring.getString(data); }
-		public String toString() { return "%{" + dstring.toString() + "}"; }
+		private IDataProvider<String> dstring;
+		public DynamicStringPart(IDataProvider<String> str) { dstring = str; }
+		public String toString(EventData data) throws BailException { return dstring.get(data); }
+		public String toString() { return "%{" + dstring + "}"; }
 	}
 }

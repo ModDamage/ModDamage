@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
@@ -18,9 +17,10 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.AliasManager;
 import com.ModDamage.Alias.MessageAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.Expressions.InterpolatedString;
 import com.ModDamage.Routines.Routine;
 
@@ -80,14 +80,14 @@ public class Message extends NestedRoutine
 					};
 			if (key.equalsIgnoreCase("world"))
 			{
-				final DataRef<World> worldRef = info.get(World.class, "world");
-				if (worldRef == null) return null;
+				final IDataProvider<World> worldDP = DataProvider.parse(info, World.class, "world");
+				if (worldDP == null) return null;
 				return new MessageTarget()
 					{
 						@Override
-						public void sendMessages(String[] msgs, EventData data)
+						public void sendMessages(String[] msgs, EventData data) throws BailException
 						{
-							List<Player> players = worldRef.get(data).getPlayers();
+							List<Player> players = worldDP.get(data).getPlayers();
 							for(Player player : players)
 								for(String msg : msgs)
 									player.sendMessage(msg);
@@ -98,28 +98,25 @@ public class Message extends NestedRoutine
 			}
 			
 			{
-				final DataRef<Player> playerRef = info.get(Player.class, key);
-				if(playerRef == null) return null;
+				final IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, key);
+				if(playerDP == null) return null;
 				return new MessageTarget()
 				{
 					@Override
-					public void sendMessages(String[] msgs, EventData data)
+					public void sendMessages(String[] msgs, EventData data) throws BailException
 					{
-						Entity entity = playerRef.get(data);
-						if (entity instanceof Player)
-						{
-							Player player = (Player) entity;
-							for(String msg : msgs)
-								player.sendMessage(msg);
-						}
+						Player player = playerDP.get(data);
+						if (player == null) return;
+						for(String msg : msgs)
+							player.sendMessage(msg);
 					}
 
-					@Override public String toString() { return playerRef.toString(); }
+					@Override public String toString() { return playerDP.toString(); }
 				};
 			}
 		}
 		
-		abstract public void sendMessages(String[] msgs, EventData data);
+		abstract public void sendMessages(String[] msgs, EventData data) throws BailException;
 		abstract public String toString();
 	}
 	

@@ -7,19 +7,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Utils;
 import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Utils;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Conditionals.Conditional;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.Routines.Routines;
 
 public class SwitchRoutine extends NestedRoutine 
 {
-	protected final List<Conditional> switchCases = new ArrayList<Conditional>();
+	protected final List<IDataProvider<Boolean>> switchCases = new ArrayList<IDataProvider<Boolean>>();
 	protected final List<Routines> switchRoutines = new ArrayList<Routines>();
 	protected final boolean all;
 	public final boolean isLoaded;
@@ -34,7 +35,7 @@ public class SwitchRoutine extends NestedRoutine
 		{
 			//get the case first, see if it refers to anything valid
 			String switchCase = switchCases.get(i);
-			Conditional matchedCase = Conditional.getNew(switchType + "." + switchCases.get(i), info);
+			IDataProvider<Boolean> matchedCase = DataProvider.parse(info, Boolean.class, switchType + "." + switchCases.get(i));
 			if(matchedCase != null)
 				NestedRoutine.paddedLogRecord(OutputPreset.INFO, " case: \"" + switchCase + "\"");
 			else
@@ -64,8 +65,8 @@ public class SwitchRoutine extends NestedRoutine
 	{
 		for(int i = 0; i < switchCases.size(); i++)
 		{
-			Conditional condition = switchCases.get(i);
-			if(condition.evaluate(data))
+			IDataProvider<Boolean> condition = switchCases.get(i);
+			if(condition.get(data))
 			{
 				try
 				{

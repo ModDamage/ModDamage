@@ -9,17 +9,18 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.Routines.Routines;
 
 public class Delay extends NestedRoutine
 {	
-	protected final IntegerExp delay;
+	protected final IDataProvider<Integer> delay;
 	protected final Routines routines;
 	protected static final Pattern delayPattern = Pattern.compile("delay\\.(.*)", Pattern.CASE_INSENSITIVE);
-	public Delay(String configString, IntegerExp delayValue, Routines routines)
+	public Delay(String configString, IDataProvider<Integer> delayValue, Routines routines)
 	{
 		super(configString);
 		this.delay = delayValue;
@@ -29,7 +30,7 @@ public class Delay extends NestedRoutine
 	public void run(EventData data) throws BailException
 	{
 		DelayedRunnable dr = new DelayedRunnable(data.clone());
-		Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, dr, delay.getValue(data));
+		Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, dr, delay.get(data));
 	}
 		
 	public static void register(){ NestedRoutine.registerRoutine(delayPattern, new RoutineBuilder()); }
@@ -47,7 +48,7 @@ public class Delay extends NestedRoutine
 					Routines routines = RoutineAliaser.parseRoutines(nestedContent, info);
 					if(routines != null)
 					{
-						IntegerExp numberMatch = IntegerExp.getNew(matcher.group(1), info);
+						IDataProvider<Integer> numberMatch = DataProvider.parse(info, Integer.class, matcher.group(1));
 						if(numberMatch != null)
 						{
 							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "End Delay \"" + matcher.group() + "\"\n");

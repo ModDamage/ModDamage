@@ -7,75 +7,64 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.Entity;
+
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Backend.BailException;
+import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.EnumHelper;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
 @SuppressWarnings("rawtypes")
-public class EnumEquals extends Conditional
+public class EnumEquals extends Conditional<Enum>
 {
-	public static final Pattern pattern = Pattern.compile("(\\w+)\\.is\\.([\\w,]+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.is\\.([\\w,]+)", Pattern.CASE_INSENSITIVE);
 	
-	private final DataRef<Enum> matchableRef;
 	private final Collection<Enum> types;
 	
-	public EnumEquals(String configString, DataRef<Enum> matchableRef, Collection<Enum> types)
+	public EnumEquals(IDataProvider<?> matchableDP, Collection<Enum> types)
 	{ 
-		super(configString);
-		this.matchableRef = matchableRef;
+		super(Enum.class, matchableDP);
 		this.types = types;
 	}
 	@Override
-	protected boolean myEvaluate(EventData data) throws BailException
+	public Boolean get(Enum matchable, EventData data)
 	{
-		Enum matchable = matchableRef.get(data);
-		if(matchable != null)
-			for(Enum type : types)
-				if(matchable == type)
-					return true;
+		for(Enum type : types)
+			if(matchable == type)
+				return true;
 		return false;
 	}
 	
 	public static void register()
 	{
-		Conditional.register(new ConditionalBuilder());
-	}
-	
-	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
-	{
-		public ConditionalBuilder() { super(pattern); }
-
-		@Override
-		public EnumEquals getNew(Matcher matcher, EventInfo info)
-		{
-			String name = matcher.group(1).toLowerCase();
-			
-			
-			DataRef<Enum> enumRef = (DataRef<Enum>) info.get(Enum.class, name);
-			if (enumRef == null) return null;
-			
-			Map<String, Enum<?>> possibleTypes = EnumHelper.getTypeMapForEnum(enumRef.infoCls);
-			
-			List<Enum> types = new ArrayList<Enum>();
-			
-			for (String typeStr : matcher.group(2).split(","))
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
 			{
-				Enum type = possibleTypes.get(typeStr.toUpperCase());
-				if (type == null)
+				@Override
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> enumDP, Matcher m, StringMatcher sm)
 				{
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + typeStr + "\" is not a valid " + enumRef.infoCls.getSimpleName());
-					return null;
+					Map<String, Enum<?>> possibleTypes = EnumHelper.getTypeMapForEnum(enumDP.provides());
+					
+					List<Enum> types = new ArrayList<Enum>();
+					
+					for (String typeStr : m.group(1).split(","))
+					{
+						Enum type = possibleTypes.get(typeStr.toUpperCase());
+						if (type == null)
+						{
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + typeStr + "\" is not a valid " + enumDP.provides().getSimpleName());
+							return null;
+						}
+						types.add(type);
+					}
+					
+					if(types == null || types.isEmpty()) return null;
+					
+					return new EnumEquals(enumDP, types);
 				}
-				types.add(type);
-			}
-			
-			if(types != null && !types.isEmpty())
-				return new EnumEquals(matcher.group(), enumRef, types);
-			return null;
-		}
+			});
 	}
 }

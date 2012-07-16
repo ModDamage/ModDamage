@@ -4,38 +4,37 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 
-import com.ModDamage.Backend.BailException;
+import com.ModDamage.StringMatcher;
+import com.ModDamage.EventInfo.DataProvider;
+import com.ModDamage.EventInfo.DataProvider.IDataParser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
-public class ServerOnlineMode extends Conditional
+public class ServerOnlineMode implements IDataProvider<Boolean>
 {
 	public static final Pattern pattern = Pattern.compile("server\\.onlineMode", Pattern.CASE_INSENSITIVE);
-	protected ServerOnlineMode(String configString)
-	{
-		super(configString);
-	}
 	
 	@Override
-	protected boolean myEvaluate(EventData data) throws BailException
+	public Boolean get(EventData data)
 	{
 		return Bukkit.getOnlineMode();
 	}
+
+	@Override
+	public Class<Boolean> provides() { return Boolean.class; }
 	
 	public static void register()
 	{
-		Conditional.register(new ConditionalBuilder());
-	}
-	
-	protected static class ConditionalBuilder extends Conditional.SimpleConditionalBuilder
-	{
-		public ConditionalBuilder() { super(pattern); }
-
-		@Override
-		public ServerOnlineMode getNew(Matcher matcher, EventInfo info)
-		{
-			return new ServerOnlineMode(matcher.group());
-		}
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+			{
+				@Override
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				{
+					return new ServerOnlineMode();
+				}
+			});
 	}
 }

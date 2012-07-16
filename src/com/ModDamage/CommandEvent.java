@@ -18,11 +18,9 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.IntRef;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Matchables.EntityType;
 import com.ModDamage.Routines.Routines;
 
 
@@ -127,7 +125,6 @@ public class CommandEvent
 			// build info list for my eventInfo object
 			List<Object> infoList = new ArrayList<Object>(2*args.length + 4);
 			infoList.add(Player.class);
-			infoList.add(EntityType.class);
 			infoList.add("sender");
 			infoList.add(World.class);
 			infoList.add("world");
@@ -154,7 +151,6 @@ public class CommandEvent
 				public void addToEventInfoList(List<Object> infoList)
 				{
 					infoList.add(Player.class);
-					infoList.add(EntityType.class);
 				}
 			},
 		Number("#") {
@@ -163,7 +159,7 @@ public class CommandEvent
 				{
 					try
 					{
-						return new IntRef(Integer.parseInt(arg));
+						return Integer.parseInt(arg);
 					}
 					catch (NumberFormatException e)
 					{
@@ -174,7 +170,7 @@ public class CommandEvent
 				@Override
 				public void addToEventInfoList(List<Object> infoList)
 				{
-					infoList.add(IntRef.class);
+					infoList.add(Integer.class);
 				}
 			};
 		
@@ -234,8 +230,7 @@ public class CommandEvent
 				if (!(cmd.catchAll? words.length - 1 >= cmd.args.length : words.length - 1 == cmd.args.length))
 					continue;
 				
-				List<Object> dataArgs = new ArrayList<Object>(cmd.args.length + 4);
-				dataArgs.add(event.getPlayer()); dataArgs.add(EntityType.get(event.getPlayer()));
+				List<Object> dataArgs = new ArrayList<Object>(cmd.args.length + 3);
 				dataArgs.add(event.getPlayer().getWorld());
 				
 				for (int i = 1; i < words.length; i++)
@@ -250,8 +245,6 @@ public class CommandEvent
 						continue commandLoop;
 					
 					dataArgs.add(obj);
-					if (arg.type == ArgumentType.Player)
-						dataArgs.add(EntityType.get(obj));
 				}
 				
 				EventData data = cmd.eventInfo.makeData(dataArgs.toArray(), false);

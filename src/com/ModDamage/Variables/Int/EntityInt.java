@@ -1,4 +1,4 @@
-package com.ModDamage.Variables.Ints;
+package com.ModDamage.Variables.Int;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,13 +10,14 @@ import org.bukkit.entity.Slime;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataRef;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Expressions.SettableIntegerExp;
 import com.ModDamage.Matchables.EntityType;
 
-public class EntityInt extends IntegerExp
+public class EntityInt extends SettableIntegerExp<Entity>
 {
 	public enum EntityProperty
 	{
@@ -167,43 +168,32 @@ public class EntityInt extends IntegerExp
 		}
 	}
 	
-	protected final DataRef<Entity> entityRef;
-	protected final DataRef<EntityType> entityElementRef;
 	private final EntityProperty propertyMatch;
 	
 	public static void register()
 	{
-		IntegerExp.register(
-				Pattern.compile("([a-z]+)_("+ Utils.joinBy("|", EntityProperty.values()) +")", Pattern.CASE_INSENSITIVE),
-				new DynamicIntegerBuilder()
+		DataProvider.register(Integer.class, Entity.class, Pattern.compile("_("+ Utils.joinBy("|", EntityProperty.values()) +")", Pattern.CASE_INSENSITIVE), new IDataParser<Integer>()
+			{
+				@Override
+				public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
 				{
-					@Override
-					public IntegerExp getNewFromFront(Matcher matcher, StringMatcher sm, EventInfo info)
-					{
-						String name = matcher.group(1).toLowerCase();
-						DataRef<Entity> entityRef = info.get(Entity.class, name);
-						DataRef<EntityType> entityElementRef = info.get(EntityType.class, name);
-						if (entityRef == null || entityElementRef == null) return null;
-						
-						return sm.acceptIf(new EntityInt(
-								entityRef, entityElementRef,
-								EntityProperty.valueOf(matcher.group(2).toUpperCase())));
-					}
-				});
+					return sm.acceptIf(new EntityInt(
+							entityDP,
+							EntityProperty.valueOf(m.group(1).toUpperCase())));
+				}
+			});
 	}
 	
-	EntityInt(DataRef<Entity> entityRef, DataRef<EntityType> entityElementRef, EntityProperty propertyMatch)
+	EntityInt(IDataProvider<?> entityDP, EntityProperty propertyMatch)
 	{
-		this.entityRef = entityRef;
-		this.entityElementRef = entityElementRef;
+		super(Entity.class, entityDP);
 		this.propertyMatch = propertyMatch;
 	}
 	
 	@Override
-	protected int myGetValue(EventData data) throws BailException
+	public Integer myGet(Entity entity, EventData data) throws BailException
 	{
-		Entity entity = entityRef.get(data);
-		EntityType element = entityElementRef.get(data);
+		EntityType element = EntityType.get(entity);
 		
 		if(element != null && entity != null && element.matches(propertyMatch.requiredElement))
 			return propertyMatch.getValue(entity);
@@ -212,12 +202,11 @@ public class EntityInt extends IntegerExp
 	}
 	
 	@Override
-	public void setValue(EventData data, int value)
+	public void mySet(Entity entity, EventData data, Integer value)
 	{
-		if(!propertyMatch.settable) return;
+		if(!isSettable()) return;
 		
-		Entity entity = entityRef.get(data);
-		EntityType element = entityElementRef.get(data);
+		EntityType element = EntityType.get(entity);
 		
 		if (element != null && element.matches(propertyMatch.requiredElement))
 			propertyMatch.setValue(entity, value);
@@ -232,6 +221,6 @@ public class EntityInt extends IntegerExp
 	@Override
 	public String toString()
 	{
-		return entityRef + "_" + propertyMatch.name().toLowerCase();
+		return startDP + "_" + propertyMatch.name().toLowerCase();
 	}
 }

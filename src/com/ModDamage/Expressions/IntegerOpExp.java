@@ -9,10 +9,12 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
 
-public class IntegerOpExp extends IntegerExp
+public class IntegerOpExp extends IntegerExp<Integer>
 {	
 	public static enum Operator
 	{
@@ -90,14 +92,12 @@ public class IntegerOpExp extends IntegerExp
 	public static void register()
 	{
 		final Pattern endPattern = Pattern.compile("\\s*\\)");
-		IntegerExp.register(
-				Pattern.compile("\\("),
-				new DynamicIntegerBuilder()
+		DataProvider.register(Integer.class, Integer.class, Pattern.compile("\\("), new IDataParser<Integer>()
 				{
 					@Override
-					public IntegerExp getNewFromFront(Matcher m, StringMatcher sm, EventInfo info)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
 					{
-						IntegerExp left = IntegerExp.getIntegerFromFront(sm.spawn(), info);
+						IDataProvider<Integer> left = DataProvider.parse(info, Integer.class, sm.spawn());
 						if (left == null)
 						{
 							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+sm.string+"\"");
@@ -111,7 +111,7 @@ public class IntegerOpExp extends IntegerExp
 							return null;
 						}
 						
-						IntegerExp right = IntegerExp.getIntegerFromFront(sm.spawn(), info);
+						IDataProvider<Integer> right = DataProvider.parse(info, Integer.class, sm.spawn());
 						if (right == null)
 						{
 							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+sm.string+"\"");
@@ -129,25 +129,24 @@ public class IntegerOpExp extends IntegerExp
 				});
 	}
 	
-	private final IntegerExp left;
 	private final Operator operator;
-	private final IntegerExp right;
-	protected IntegerOpExp(IntegerExp left, Operator operator, IntegerExp right)
+	private final IDataProvider<Integer> rightDP;
+	protected IntegerOpExp(IDataProvider<Integer> left, Operator operator, IDataProvider<Integer> right)
 	{
-		this.left = left;
+		super(Integer.class, left);
 		this.operator = operator;
-		this.right = right;
+		this.rightDP = right;
 	}
 
 	@Override
-	protected int myGetValue(EventData data) throws BailException
+	public Integer myGet(Integer left, EventData data) throws BailException
 	{
-		return operator.operate(left.getValue(data), right.getValue(data));
+		return operator.operate(left, rightDP.get(data));
 	}
 	
 	@Override
 	public String toString()
 	{
-		return "(" + left + " " + operator.operatorRegex.replace("\\", "") + " " + right + ")";
+		return "(" + startDP + " " + operator.operatorRegex.replace("\\", "") + " " + rightDP + ")";
 	}
 }
