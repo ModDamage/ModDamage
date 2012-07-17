@@ -107,6 +107,7 @@ public class CompoundConditional extends Conditional<Boolean>
 					IDataProvider<Boolean> rightDP = DataProvider.parse(info, Boolean.class, sm.spawn());
 					if (rightDP == null) return null;
 					
+					sm.accept();
 					return new CompoundConditional(leftDP, operator, rightDP);
 				}
 			});
