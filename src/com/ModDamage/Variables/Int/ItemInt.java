@@ -21,10 +21,10 @@ public class ItemInt extends SettableIntegerExp<ItemStack>
 	{
 		DataProvider.register(Integer.class, ItemStack.class, 
 				Pattern.compile("_("+Utils.joinBy("|", ItemProperty.values()) +")", Pattern.CASE_INSENSITIVE),
-				new IDataParser<Integer>()
+				new IDataParser<Integer, ItemStack>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> itemDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<ItemStack> itemDP, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new ItemInt(
 								itemDP, 
@@ -87,7 +87,7 @@ public class ItemInt extends SettableIntegerExp<ItemStack>
 	
 	private final ItemProperty itemAttribute;
 
-	public ItemInt(IDataProvider<?> itemDP, ItemProperty itemAttribute)
+	public ItemInt(IDataProvider<ItemStack> itemDP, ItemProperty itemAttribute)
 	{
 		super(ItemStack.class, itemDP);
 		this.itemAttribute = itemAttribute;

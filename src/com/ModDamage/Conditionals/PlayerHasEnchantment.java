@@ -5,7 +5,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.StringMatcher;
@@ -21,7 +20,7 @@ public class PlayerHasEnchantment extends Conditional<Player>
 	
 	protected final Collection<Enchantment> enchantments;
 	
-	public PlayerHasEnchantment(IDataProvider<?> playerDP, Collection<Enchantment> enchantments)
+	public PlayerHasEnchantment(IDataProvider<Player> playerDP, Collection<Enchantment> enchantments)
 	{
 		super(Player.class, playerDP);
 		this.enchantments = enchantments;
@@ -38,10 +37,10 @@ public class PlayerHasEnchantment extends Conditional<Player>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
 					Collection<Enchantment> enchantments = EnchantmentAliaser.match(m.group(1));
 					if(enchantments.isEmpty())	return null;

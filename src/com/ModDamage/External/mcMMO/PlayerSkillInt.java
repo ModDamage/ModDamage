@@ -25,10 +25,10 @@ public class PlayerSkillInt extends IntegerExp<Player>
 	{
 		DataProvider.register(Integer.class, Player.class, 
 				Pattern.compile("_SKILL(|"+Utils.joinBy("|", SkillProperty.values())+")_(\\w+)", Pattern.CASE_INSENSITIVE),
-				new IDataParser<Integer>()
+				new IDataParser<Integer, Player>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> playerDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 					{
 						String skillProp = m.group(1).toUpperCase();
 						String skillType = m.group(2).toUpperCase();
@@ -87,7 +87,7 @@ public class PlayerSkillInt extends IntegerExp<Player>
 	protected final SkillProperty skillProperty;
 	protected final SkillType skillType;
 	
-	PlayerSkillInt(IDataProvider<?> playerDP, SkillProperty skillProperty, SkillType skillType)
+	PlayerSkillInt(IDataProvider<Player> playerDP, SkillProperty skillProperty, SkillType skillType)
 	{
 		super(Player.class, playerDP);
 		this.skillProperty = skillProperty;

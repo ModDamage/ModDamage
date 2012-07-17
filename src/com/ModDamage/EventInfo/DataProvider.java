@@ -14,19 +14,34 @@ import com.ModDamage.Backend.BailException;
 
 public abstract class DataProvider<T, S> implements IDataProvider<T>
 {
-	public interface IDataParser<T>
+	public interface IDataParser<T, S>
 	{
-		IDataProvider<T> parse(EventInfo info, IDataProvider<?> startDP, Matcher m, StringMatcher sm);
+		IDataProvider<T> parse(EventInfo info, IDataProvider<S> startDP, Matcher m, StringMatcher sm);
 	}
+	
+	public abstract static class BaseDataParser<T> implements IDataParser<T, Object>
+	{
+		@Override
+		public final IDataProvider<T> parse(EventInfo info, IDataProvider<Object> nullDP, Matcher m, StringMatcher sm)
+		{
+			assert(nullDP == null);
+			return parse(info, m, sm);
+		}
+		
+		public abstract IDataProvider<T> parse(EventInfo info, Matcher m, StringMatcher sm);
+	}
+
+
+
+	
 	
 	protected IDataProvider<S> startDP;
 	protected final Class<S> wantStart;
 	
-	@SuppressWarnings("unchecked")
-	protected DataProvider(Class<S> wantStart, IDataProvider<?> startDP)
+	protected DataProvider(Class<S> wantStart, IDataProvider<S> startDP)
 	{
 		this.wantStart = wantStart;
-		this.startDP = (IDataProvider<S>) startDP;
+		this.startDP = startDP;
 	}
 	
 	@Override
@@ -45,17 +60,17 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 	
 	
-	static class ParserData<T>
+	static class ParserData<T, S>
 	{
 		final Class<T> provides;
-		final Class<?> wants;
+		final Class<S> wants;
 		final Pattern pattern;
-		final IDataParser<T> parser;
+		final IDataParser<T, S> parser;
 		
 		final int numGroups;
 		int compiledGroup;
 		
-		public ParserData(Class<T> provides, Class<?> wants, Pattern pattern, IDataParser<T> parser)
+		public ParserData(Class<T> provides, Class<S> wants, Pattern pattern, IDataParser<T, S> parser)
 		{
 			this.provides = provides;
 			this.wants = wants;
@@ -64,12 +79,18 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			
 			numGroups = pattern == null? 0 : pattern.matcher("").groupCount();
 		}
+
+		@SuppressWarnings("unchecked")
+		IDataProvider<T> parse(EventInfo info, IDataProvider<?> dp, Matcher m, StringMatcher sm)
+		{
+			return parser.parse(info, (IDataProvider<S>) dp, m, sm);
+		}
 	}
 	
 	
 	
 	@SuppressWarnings("serial")
-	static class Parsers extends ArrayList<ParserData<?>>
+	static class Parsers extends ArrayList<ParserData<?, ?>>
 	{
 		Pattern compiledPattern;
 	}
@@ -77,9 +98,9 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 	
 	static Map<Class<?>, Parsers> parsersByStart = new HashMap<Class<?>, Parsers>();
-	static Map<Class<?>, ArrayList<ParserData<?>>> transformersByStart = new HashMap<Class<?>, ArrayList<ParserData<?>>>();
+	static Map<Class<?>, ArrayList<ParserData<?, ?>>> transformersByStart = new HashMap<Class<?>, ArrayList<ParserData<?, ?>>>();
 	
-	public static <T> void register(Class<T> provides, Class<?> wants, Pattern pattern, IDataParser<T> parser)
+	public static <T, S> void register(Class<T> provides, Class<S> wants, Pattern pattern, IDataParser<T, S> parser)
 	{
 		Parsers parserList = parsersByStart.get(wants);
 		if (parserList == null)
@@ -88,19 +109,24 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			parsersByStart.put(wants, parserList);
 		}
 		
-		parserList.add(new ParserData<T>(provides, wants, pattern, parser));
+		parserList.add(new ParserData<T, S>(provides, wants, pattern, parser));
 	}
 	
-	public static <T> void registerTransformer(Class<T> provides, Class<?> wants, IDataParser<T> parser)
+	public static <T> void register(Class<T> provides, Pattern pattern, BaseDataParser<T> parser)
 	{
-		ArrayList<ParserData<?>> transformersList = transformersByStart.get(wants);
+		register(provides, null, pattern, parser);
+	}
+	
+	public static <T, S> void registerTransformer(Class<T> provides, Class<S> wants, IDataParser<T, S> parser)
+	{
+		ArrayList<ParserData<?, ?>> transformersList = transformersByStart.get(wants);
 		if (transformersList == null)
 		{
 			transformersList = new Parsers();
 			transformersByStart.put(wants, transformersList);
 		}
 		
-		transformersList.add(new ParserData<T>(provides, wants, null, parser));
+		transformersList.add(new ParserData<T, S>(provides, wants, null, parser));
 	}
 	
 	public static void clear()
@@ -118,7 +144,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			int currentGroup = 1;
 			
 			boolean first = true;
-			for (ParserData<?> parserData : parsers)
+			for (ParserData<?, ?> parserData : parsers)
 			{
 				if (first) first = false;
 				else sb.append("|");
@@ -171,7 +197,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			{
 				StringMatcher sm2 = sm.spawn();
 				sm2.matchFront(substr);
-				dp = parseHelper(info, cls, info.mget(entry.getValue(), substr), sm2.spawn());
+				dp = parseHelper(info, cls, info.get(entry.getValue(), substr), sm2.spawn());
 				tdp = maybeTransform(info, cls, dp, sm2.spawn(), finish);
 				if (tdp != null)
 				{
@@ -227,16 +253,16 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		
 		Class<?> dpProvides = dp.provides();
 		
-		for (Entry<Class<?>, ArrayList<ParserData<?>>> entry : transformersByStart.entrySet())
+		for (Entry<Class<?>, ArrayList<ParserData<?, ?>>> entry : transformersByStart.entrySet())
 		{
 			Class<?> ecls = entry.getKey();
 			if (classesMatch(ecls, dpProvides))
 			{
-				for (ParserData<?> parserData : entry.getValue())
+				for (ParserData<?, ?> parserData : entry.getValue())
 				{
 					if (parserData.provides != cls) continue;
 					
-					IDataProvider<T> transDP = (IDataProvider<T>) parserData.parser.parse(info, dp, null, sm.spawn());
+					IDataProvider<T> transDP = (IDataProvider<T>) parserData.parse(info, dp, null, sm.spawn());
 					if (transDP != null) {
 						sm.accept();
 						return transDP;
@@ -283,20 +309,20 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 				}
 				else // look for a transformer that can transform dp to the correct type
 				{
-					for (Entry<Class<?>, ArrayList<ParserData<?>>> transEntry : transformersByStart.entrySet())
+					for (Entry<Class<?>, ArrayList<ParserData<?, ?>>> transEntry : transformersByStart.entrySet())
 					{
 						Class<?> tcls = transEntry.getKey();
 						if (!classesMatch(tcls, dpProvides))
 							continue;
 						
-						for (ParserData<?> parserData : transEntry.getValue())
+						for (ParserData<?, ?> parserData : transEntry.getValue())
 						{
 							if (!classesMatch(parserData.provides, pcls))
 								continue;
 							
 							StringMatcher sm2 = sm.spawn();
 							
-							IDataProvider<?> transDP = parserData.parser.parse(info, dp, null, sm2.spawn());
+							IDataProvider<?> transDP = parserData.parse(info, dp, null, sm2.spawn());
 							if (transDP == null) 
 								continue;
 							
@@ -321,7 +347,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 	private static IDataProvider<?> tryParsers(EventInfo info, IDataProvider<?> dp, Matcher m, StringMatcher sm, Parsers parserList)
 	{
-		for (ParserData<?> parserData : parserList)
+		for (ParserData<?, ?> parserData : parserList)
 		{
 			if (m.group(parserData.compiledGroup) == null) 
 				continue;
@@ -333,7 +359,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 				continue;
 			}
 			
-			IDataProvider<?> provider = parserData.parser.parse(info, dp, m2, sm2.spawn());
+			IDataProvider<?> provider = parserData.parse(info, dp, m2, sm2.spawn());
 			if (provider != null) {
 				sm2.accept();
 				sm.accept();
@@ -342,5 +368,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		}
 		return null;
 	}
+
+	
 	
 }

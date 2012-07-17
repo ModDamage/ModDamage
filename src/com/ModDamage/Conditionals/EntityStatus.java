@@ -71,7 +71,7 @@ public class EntityStatus extends Conditional<Entity>
 
 	private final StatusType statusType;
 	
-	protected EntityStatus(IDataProvider<?> entityDP, StatusType statusType)
+	protected EntityStatus(IDataProvider<Entity> entityDP, StatusType statusType)
 	{
 		super(Entity.class, entityDP);
 		this.statusType = statusType;
@@ -85,10 +85,10 @@ public class EntityStatus extends Conditional<Entity>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean, Entity>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 				{
 					StatusType statusType = null;
 					for(StatusType type : StatusType.values())

@@ -19,7 +19,7 @@ public class EntityBiome extends Conditional<Entity>
 	public static final Pattern pattern = Pattern.compile("\\.biome\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	protected final Collection<Biome> biomes;
 	
-	public EntityBiome(IDataProvider<?> entityDP, Collection<Biome> biomes)
+	public EntityBiome(IDataProvider<Entity> entityDP, Collection<Biome> biomes)
 	{
 		super(Entity.class, entityDP);
 		this.biomes = biomes;
@@ -33,10 +33,10 @@ public class EntityBiome extends Conditional<Entity>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean, Entity>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 				{
 					Collection<Biome> biomes = BiomeAliaser.match(m.group(1));
 					if(biomes.isEmpty()) return null;

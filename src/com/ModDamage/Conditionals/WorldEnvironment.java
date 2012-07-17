@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 
 import org.bukkit.World;
 import org.bukkit.World.Environment;
-import org.bukkit.entity.Entity;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.EventInfo.DataProvider;
@@ -19,7 +18,7 @@ public class WorldEnvironment extends Conditional<World>
 	
 	protected final Environment environment;
 	
-	public WorldEnvironment(IDataProvider<?> worldDP, Environment environment)
+	public WorldEnvironment(IDataProvider<World> worldDP, Environment environment)
 	{
 		super(World.class, worldDP);
 		this.environment = environment;
@@ -32,10 +31,10 @@ public class WorldEnvironment extends Conditional<World>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, World.class, pattern, new IDataParser<Boolean, World>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> worldDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
 				{
 					try
 					{

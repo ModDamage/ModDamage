@@ -21,7 +21,7 @@ public class EntityRegion extends Conditional<Entity>
 	private final boolean inclusiveComparison;
 	private final Collection<String> regions;
 	
-	public EntityRegion(IDataProvider<?> entityDP, boolean inclusiveComparison, Collection<String> regions)
+	public EntityRegion(IDataProvider<Entity> entityDP, boolean inclusiveComparison, Collection<String> regions)
 	{
 		super(Entity.class, entityDP);
 		this.inclusiveComparison = inclusiveComparison;
@@ -52,10 +52,10 @@ public class EntityRegion extends Conditional<Entity>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean, Entity>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 				{
 					Collection<String> regions = RegionAliaser.match(m.group(2));
 					if(regions.isEmpty()) return null;

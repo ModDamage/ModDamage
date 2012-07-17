@@ -23,9 +23,9 @@ public class EnumEquals extends Conditional<Enum>
 	
 	private final Collection<Enum> types;
 	
-	public EnumEquals(IDataProvider<?> matchableDP, Collection<Enum> types)
+	public EnumEquals(IDataProvider<Enum> enumDP, Collection<Enum> types)
 	{ 
-		super(Enum.class, matchableDP);
+		super(Enum.class, enumDP);
 		this.types = types;
 	}
 	@Override
@@ -39,10 +39,10 @@ public class EnumEquals extends Conditional<Enum>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Enum.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Enum.class, pattern, new IDataParser<Boolean, Enum>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> enumDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Enum> enumDP, Matcher m, StringMatcher sm)
 				{
 					Map<String, Enum<?>> possibleTypes = EnumHelper.getTypeMapForEnum(enumDP.provides());
 					

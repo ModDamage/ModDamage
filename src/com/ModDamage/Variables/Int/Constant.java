@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.EventInfo.DataProvider;
-import com.ModDamage.EventInfo.DataProvider.IDataParser;
+import com.ModDamage.EventInfo.DataProvider.BaseDataParser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
@@ -14,10 +14,10 @@ public class Constant implements IDataProvider<Integer>
 {
 	public static void register()
 	{
-		DataProvider.register(Integer.class, null, Pattern.compile("[0-9]+"), new IDataParser<Integer>()
+		DataProvider.register(Integer.class, Pattern.compile("[0-9]+"), new BaseDataParser<Integer>()
 			{
 				@Override
-				public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> start, Matcher m, StringMatcher sm)
+				public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
 				{
 					return sm.acceptIf(new Constant(Integer.parseInt(m.group(0))));
 				}

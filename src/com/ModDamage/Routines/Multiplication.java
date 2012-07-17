@@ -36,7 +36,7 @@ public class Multiplication extends ValueChange
 		{ 
 			IDataProvider<Integer> match = DataProvider.parse(info, Integer.class, matcher.group(1));
 			if (match == null) return null;
-			ISettableDataProvider<Integer> defaultDP = info.mget(Integer.class, "-default");
+			ISettableDataProvider<Integer> defaultDP = info.get(Integer.class, "-default");
 			if (defaultDP == null) return null;
 			
 			ModDamage.addToLogRecord(OutputPreset.INFO, "Multiply" + changeType.getStringAppend() + ": " + matcher.group(1));

@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ModDamage;
@@ -24,7 +23,7 @@ public class ItemMatches extends Conditional<ItemStack>
 	
 	private final Collection<ModDamageItemStack> items;
 	
-	public ItemMatches(IDataProvider<?> itemDP, Collection<ModDamageItemStack> items)
+	public ItemMatches(IDataProvider<ItemStack> itemDP, Collection<ModDamageItemStack> items)
 	{
 		super(ItemStack.class, itemDP);
 		this.items = items;
@@ -43,10 +42,10 @@ public class ItemMatches extends Conditional<ItemStack>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, ItemStack.class, pattern, new IDataParser<Boolean, ItemStack>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> itemDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<ItemStack> itemDP, Matcher m, StringMatcher sm)
 				{
 					Collection<ModDamageItemStack> matchedItems = ItemAliaser.match(m.group(2), info);
 					if(matchedItems.isEmpty()) return null;

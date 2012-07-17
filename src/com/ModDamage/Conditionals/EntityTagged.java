@@ -18,7 +18,7 @@ public class EntityTagged extends Conditional<Entity>
 	
 	private final String tag;
 	
-	public EntityTagged(IDataProvider<?> entityDP, String tag)
+	public EntityTagged(IDataProvider<Entity> entityDP, String tag)
 	{
 		super(Entity.class, entityDP);
 		this.tag = tag;
@@ -32,10 +32,10 @@ public class EntityTagged extends Conditional<Entity>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean, Entity>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 				{
 					return new EntityTagged(entityDP, m.group(1).toLowerCase());
 				}

@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.EventInfo.DataProvider;
-import com.ModDamage.EventInfo.DataProvider.IDataParser;
+import com.ModDamage.EventInfo.DataProvider.BaseDataParser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
@@ -17,12 +17,12 @@ public class ServerInt implements IDataProvider<Integer>
 {
 	public static void register()
 	{
-		DataProvider.register(Integer.class, null, 
+		DataProvider.register(Integer.class, 
 				Pattern.compile("server_("+ Utils.joinBy("|", ServerProperty.values()) +")", Pattern.CASE_INSENSITIVE), 
-				new IDataParser<Integer>()
+				new BaseDataParser<Integer>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> nullDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new ServerInt(
 								ServerProperty.valueOf(m.group(1).toUpperCase())));

@@ -28,7 +28,7 @@ public class MatchableType extends Conditional<Matchable>
 	
 	private final Collection<Matchable> types;
 	
-	public MatchableType(IDataProvider<?> matchableDP, Collection<Matchable> types)
+	public MatchableType(IDataProvider<Matchable> matchableDP, Collection<Matchable> types)
 	{ 
 		super(Matchable.class, matchableDP);
 		this.types = types;
@@ -46,10 +46,10 @@ public class MatchableType extends Conditional<Matchable>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Matchable.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Matchable.class, pattern, new IDataParser<Boolean, Matchable>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> matchableDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Matchable> matchableDP, Matcher m, StringMatcher sm)
 				{
 					@SuppressWarnings("unchecked")
 					Map<String, Matchable<?>> possibleTypes = (Map) EnumHelper.getTypeMapForEnum(matchableDP.provides());
@@ -73,10 +73,10 @@ public class MatchableType extends Conditional<Matchable>
 				}
 			});
 		
-		DataProvider.registerTransformer(EntityType.class, Entity.class, new IDataParser<EntityType>()
+		DataProvider.registerTransformer(EntityType.class, Entity.class, new IDataParser<EntityType, Entity>()
 			{
 				@Override
-				public IDataProvider<EntityType> parse(EventInfo info, final IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<EntityType> parse(EventInfo info, final IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 				{
 					return new IDataProvider<EntityType>() // can't be DataProvider because we (probably?) never want to return
 						{

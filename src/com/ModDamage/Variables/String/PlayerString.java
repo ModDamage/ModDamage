@@ -108,7 +108,7 @@ public class PlayerString extends StringExp<Player>
 
 	private final PlayerStringProperty propertyMatch;
 	
-	public PlayerString(IDataProvider<?> playerDP, PlayerStringProperty propertyMatch)
+	public PlayerString(IDataProvider<Player> playerDP, PlayerStringProperty propertyMatch)
 	{
 		super(Player.class, playerDP);
 		this.propertyMatch = propertyMatch;
@@ -122,10 +122,10 @@ public class PlayerString extends StringExp<Player>
 	
 	public static void register()
 	{
-		DataProvider.register(String.class, Player.class, pattern, new IDataParser<String>()
+		DataProvider.register(String.class, Player.class, pattern, new IDataParser<String, Player>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, IDataProvider<?> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<String> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
 					sm.accept();
 					return new PlayerString(playerDP, PlayerStringProperty.valueOf(m.group(1).toUpperCase()));

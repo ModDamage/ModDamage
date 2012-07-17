@@ -4,11 +4,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.EventInfo.DataProvider;
-import com.ModDamage.EventInfo.DataProvider.IDataParser;
+import com.ModDamage.EventInfo.DataProvider.BaseDataParser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
@@ -28,10 +27,10 @@ public class ServerOnlineMode implements IDataProvider<Boolean>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, pattern, new BaseDataParser<Boolean>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, Matcher m, StringMatcher sm)
 				{
 					return new ServerOnlineMode();
 				}

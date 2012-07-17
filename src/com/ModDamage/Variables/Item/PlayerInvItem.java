@@ -15,10 +15,10 @@ import com.ModDamage.EventInfo.IDataProvider;
 
 public class PlayerInvItem extends DataProvider<ItemStack, Player>
 {
-	public static final Pattern pattern = Pattern.compile("\\.iteminslot\\.([^.]*?)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.(?:iteminslot|invitem|item)\\.([^.]*?)", Pattern.CASE_INSENSITIVE);
 	private final IDataProvider<Integer> slot;
 	
-	public PlayerInvItem(IDataProvider<?> playerDP, IDataProvider<Integer> slot)
+	public PlayerInvItem(IDataProvider<Player> playerDP, IDataProvider<Integer> slot)
 	{
 		super(Player.class, playerDP);
 		this.slot = slot;
@@ -35,10 +35,10 @@ public class PlayerInvItem extends DataProvider<ItemStack, Player>
 	
 	public static void register()
 	{
-		DataProvider.register(ItemStack.class, Player.class, pattern, new IDataParser<ItemStack>()
+		DataProvider.register(ItemStack.class, Player.class, pattern, new IDataParser<ItemStack, Player>()
 			{
 				@Override
-				public IDataProvider<ItemStack> parse(EventInfo info, IDataProvider<?> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<ItemStack> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
 					IDataProvider<Integer> slot = DataProvider.parse(info, Integer.class, m.group(1)); if (slot == null) return null;
 					

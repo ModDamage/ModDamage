@@ -19,7 +19,7 @@ public class WorldNamed extends Conditional<World>
 	
 	protected final Collection<String> worlds;
 
-	public WorldNamed(IDataProvider<?> worldDP, Collection<String> worlds)
+	public WorldNamed(IDataProvider<World> worldDP, Collection<String> worlds)
 	{
 		super(World.class, worldDP);
 		this.worlds = worlds;
@@ -33,10 +33,10 @@ public class WorldNamed extends Conditional<World>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, World.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, World.class, pattern, new IDataParser<Boolean, World>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> worldDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
 				{
 					Collection<String> worlds = WorldAliaser.match(m.group(1));
 					if (worlds.isEmpty()) return null;

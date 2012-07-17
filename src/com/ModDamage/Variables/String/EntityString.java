@@ -51,7 +51,7 @@ public class EntityString extends StringExp<Entity>
 
 	private final EntityStringProperty propertyMatch;
 	
-	public EntityString(IDataProvider<?> entityDP, EntityStringProperty propertyMatch)
+	public EntityString(IDataProvider<Entity> entityDP, EntityStringProperty propertyMatch)
 	{
 		super(Entity.class, entityDP);
 		this.propertyMatch = propertyMatch;
@@ -65,10 +65,10 @@ public class EntityString extends StringExp<Entity>
 	
 	public static void register()
 	{
-		DataProvider.register(String.class, Entity.class, pattern, new IDataParser<String>()
+		DataProvider.register(String.class, Entity.class, pattern, new IDataParser<String, Entity>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<String> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 				{
 					return new EntityString(entityDP, EntityStringProperty.valueOf(m.group(1).toUpperCase()));
 				}

@@ -23,7 +23,7 @@ public class EntityBlockStatus extends Conditional<Entity>
 	private final BlockStatusType statusType;
 	private final Collection<Material> materials;
 	
-	protected EntityBlockStatus(IDataProvider<?> entityDP, BlockStatusType statusType, Collection<Material> materials)
+	protected EntityBlockStatus(IDataProvider<Entity> entityDP, BlockStatusType statusType, Collection<Material> materials)
 	{
 		super(Entity.class, entityDP);
 		this.statusType = statusType;
@@ -93,10 +93,10 @@ public class EntityBlockStatus extends Conditional<Entity>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean, Entity>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 				{
 					BlockStatusType statusType = null;
 					for(BlockStatusType type : BlockStatusType.values())

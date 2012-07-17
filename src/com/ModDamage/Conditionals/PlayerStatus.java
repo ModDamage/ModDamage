@@ -3,7 +3,6 @@ package com.ModDamage.Conditionals;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.StringMatcher;
@@ -45,7 +44,7 @@ public class PlayerStatus extends Conditional<Player>
 
 	private final StatusType statusType;
 	
-	protected PlayerStatus(IDataProvider<?> playerDP, StatusType statusType)
+	protected PlayerStatus(IDataProvider<Player> playerDP, StatusType statusType)
 	{
 		super(Player.class, playerDP);
 		this.statusType = statusType;
@@ -59,10 +58,10 @@ public class PlayerStatus extends Conditional<Player>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> entityDP, Matcher m, StringMatcher sm)
 				{
 					StatusType statusType = null;
 					for(StatusType type : StatusType.values())

@@ -94,10 +94,10 @@ public class IntegerOpInt extends IntegerExp<Integer>
 	
 	public static void register()
 	{
-		DataProvider.register(Integer.class, Integer.class, Operator.operatorPattern, new IDataParser<Integer>()
+		DataProvider.register(Integer.class, Integer.class, Operator.operatorPattern, new IDataParser<Integer, Integer>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> leftDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Integer> leftDP, Matcher m, StringMatcher sm)
 					{
 						Operator operator = Operator.operatorMap.get(m.group(1));
 						
@@ -130,7 +130,7 @@ public class IntegerOpInt extends IntegerExp<Integer>
 	
 	private final Operator operator;
 	private final IDataProvider<Integer> rightDP;
-	protected IntegerOpInt(IDataProvider<?> leftDP, Operator operator, IDataProvider<Integer> rightDP)
+	protected IntegerOpInt(IDataProvider<Integer> leftDP, Operator operator, IDataProvider<Integer> rightDP)
 	{
 		super(Integer.class, leftDP);
 		this.operator = operator;

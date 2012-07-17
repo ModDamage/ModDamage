@@ -20,10 +20,10 @@ public class WorldInt extends SettableIntegerExp<World>
 	{
 		DataProvider.register(Integer.class, World.class, 
 				Pattern.compile("_("+ Utils.joinBy("|", WorldPropertyMatch.values()) +")", Pattern.CASE_INSENSITIVE),
-				new IDataParser<Integer>()
+				new IDataParser<Integer, World>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> worldDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new WorldInt(worldDP,
 								WorldPropertyMatch.valueOf(m.group(1).toUpperCase())));
@@ -61,7 +61,7 @@ public class WorldInt extends SettableIntegerExp<World>
 	
 	private final WorldPropertyMatch propertyMatch;
 	
-	WorldInt(IDataProvider<?> worldDP, WorldPropertyMatch propertyMatch)
+	WorldInt(IDataProvider<World> worldDP, WorldPropertyMatch propertyMatch)
 	{
 		super(World.class, worldDP);
 		this.propertyMatch = propertyMatch;

@@ -7,7 +7,7 @@ import com.ModDamage.Backend.BailException;
 
 public abstract class SettableDataProvider<T, S> extends DataProvider<T, S> implements ISettableDataProvider<T>
 {
-	protected SettableDataProvider(Class<S> wantStart, IDataProvider<?> startDP)
+	protected SettableDataProvider(Class<S> wantStart, IDataProvider<S> startDP)
 	{
 		super(wantStart, startDP);
 	}

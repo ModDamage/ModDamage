@@ -3,7 +3,6 @@ package com.ModDamage.Conditionals;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.StringMatcher;
@@ -18,7 +17,7 @@ public class PlayerHasPermission extends Conditional<Player>
 	
 	private final String permission;
 	
-	public PlayerHasPermission(IDataProvider<?> playerDP, String permission)
+	public PlayerHasPermission(IDataProvider<Player> playerDP, String permission)
 	{
 		super(Player.class, playerDP);
 		this.permission = permission;
@@ -31,10 +30,10 @@ public class PlayerHasPermission extends Conditional<Player>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
 					return new PlayerHasPermission(playerDP, m.group(1));
 				}

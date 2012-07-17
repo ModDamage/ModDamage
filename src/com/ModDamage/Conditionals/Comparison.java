@@ -84,7 +84,7 @@ public class Comparison extends Conditional<Integer>
 	protected final IDataProvider<Integer> right;
 	protected final ComparisonType comparisonType;
 	
-	protected Comparison(IDataProvider<?> left, ComparisonType comparisonType, IDataProvider<Integer> right)
+	protected Comparison(IDataProvider<Integer> left, ComparisonType comparisonType, IDataProvider<Integer> right)
 	{
 		super(Integer.class, left);
 		this.comparisonType = comparisonType;
@@ -100,10 +100,10 @@ public class Comparison extends Conditional<Integer>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Integer.class, operatorPattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Integer.class, operatorPattern, new IDataParser<Boolean, Integer>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> leftDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Integer> leftDP, Matcher m, StringMatcher sm)
 				{
 					ComparisonType comparisonType = ComparisonType.nameMap.get(m.group(1));
 					

@@ -11,7 +11,7 @@ import com.ModDamage.Expressions.StringExp;
 
 public class IntString extends StringExp<Integer>
 {
-	public IntString(IDataProvider<?> intDP)
+	public IntString(IDataProvider<Integer> intDP)
 	{
 		super(Integer.class, intDP);
 	}
@@ -24,12 +24,12 @@ public class IntString extends StringExp<Integer>
 	
 	public static void register()
 	{
-		DataProvider.registerTransformer(String.class, Integer.class, new IDataParser<String>()
+		DataProvider.registerTransformer(String.class, Integer.class, new IDataParser<String, Integer>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<String> parse(EventInfo info, IDataProvider<Integer> intDP, Matcher m, StringMatcher sm)
 				{
-					return new IntString(entityDP);
+					return new IntString(intDP);
 				}
 			});
 	}

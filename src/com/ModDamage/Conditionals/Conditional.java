@@ -21,8 +21,8 @@ public abstract class Conditional<S> extends DataProvider<Boolean, S>
 		EntityRegion.register();
 		EntityStatus.register();
 		EntityTagged.register();
-		EntityWearing.register();
-		EntityWielding.register();
+		PlayerWearing.register();
+		PlayerWielding.register();
 		//Player
 		PlayerHasEnchantment.register();
 		PlayerHasItem.register();
@@ -45,7 +45,7 @@ public abstract class Conditional<S> extends DataProvider<Boolean, S>
 	}
 	
 	
-	protected Conditional(Class<S> wantStart, IDataProvider<?> startDP)
+	protected Conditional(Class<S> wantStart, IDataProvider<S> startDP)
 	{
 		super(wantStart, startDP);
 	}

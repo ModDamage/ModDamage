@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.DataProvider;
-import com.ModDamage.EventInfo.DataProvider.IDataParser;
+import com.ModDamage.EventInfo.DataProvider.BaseDataParser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
@@ -33,10 +33,10 @@ public class InvertBoolean implements IDataProvider<Boolean>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, null, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, pattern, new BaseDataParser<Boolean>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> nullDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, Matcher m, StringMatcher sm)
 				{
 					IDataProvider<Boolean> bool = DataProvider.parse(info, Boolean.class, sm.spawn());
 					if (bool == null) return null;

@@ -20,10 +20,10 @@ public class ItemEnchantmentInt extends SettableIntegerExp<ItemStack>
 {
 	public static void register()
 	{
-		DataProvider.register(Integer.class, ItemStack.class, Pattern.compile("_enchant(?:ment)?_?level_(\\w+)", Pattern.CASE_INSENSITIVE), new IDataParser<Integer>()
+		DataProvider.register(Integer.class, ItemStack.class, Pattern.compile("_enchant(?:ment)?_?level_(\\w+)", Pattern.CASE_INSENSITIVE), new IDataParser<Integer, ItemStack>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> itemDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<ItemStack> itemDP, Matcher m, StringMatcher sm)
 					{
 						Enchantment enchantment = Enchantment.getByName(m.group(1).toUpperCase());
 						if (enchantment == null)
@@ -40,7 +40,7 @@ public class ItemEnchantmentInt extends SettableIntegerExp<ItemStack>
 	
 	private final Enchantment enchantment;
 	
-	ItemEnchantmentInt(IDataProvider<?> itemDP, Enchantment enchantment)
+	ItemEnchantmentInt(IDataProvider<ItemStack> itemDP, Enchantment enchantment)
 	{
 		super(ItemStack.class, itemDP);
 		this.enchantment = enchantment;

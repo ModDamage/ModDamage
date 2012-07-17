@@ -21,10 +21,10 @@ public class PlayerInt extends SettableIntegerExp<Player>
 	{
 		DataProvider.register(Integer.class, Player.class, 
 				Pattern.compile("_("+Utils.joinBy("|", PlayerIntProperty.values()) +")", Pattern.CASE_INSENSITIVE),
-				new IDataParser<Integer>()
+				new IDataParser<Integer, Player>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> playerDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new PlayerInt(
 								playerDP,
@@ -57,7 +57,7 @@ public class PlayerInt extends SettableIntegerExp<Player>
 		public void setValue(Player player, int value) {}
 	}
 	
-	PlayerInt(IDataProvider<?> playerDP, PlayerIntProperty propertyMatch)
+	PlayerInt(IDataProvider<Player> playerDP, PlayerIntProperty propertyMatch)
 	{
 		super(Player.class, playerDP);
 		this.propertyMatch = propertyMatch;

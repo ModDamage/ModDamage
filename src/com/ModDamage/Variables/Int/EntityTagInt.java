@@ -18,10 +18,10 @@ public class EntityTagInt extends SettableIntegerExp<Entity>
 {	
 	public static void register()
 	{
-		DataProvider.register(Integer.class, Entity.class, Pattern.compile("_tag(?:value)?_(\\w+)", Pattern.CASE_INSENSITIVE), new IDataParser<Integer>()
+		DataProvider.register(Integer.class, Entity.class, Pattern.compile("_tag(?:value)?_(\\w+)", Pattern.CASE_INSENSITIVE), new IDataParser<Integer, Entity>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new EntityTagInt(
 								entityDP,
@@ -32,7 +32,7 @@ public class EntityTagInt extends SettableIntegerExp<Entity>
 	
 	protected final String tag;
 	
-	EntityTagInt(IDataProvider<?> entityDP, String tag)
+	EntityTagInt(IDataProvider<Entity> entityDP, String tag)
 	{
 		super(Entity.class, entityDP);
 		this.tag = tag;

@@ -35,7 +35,7 @@ public class Division extends ValueChange
 		public Division getNew(Matcher matcher, ValueChangeType changeType, EventInfo info)
 		{ 
 			IDataProvider<Integer> match = DataProvider.parse(info, Integer.class, matcher.group(1));
-			ISettableDataProvider<Integer> defaultDP = info.mget(Integer.class, "-default");
+			ISettableDataProvider<Integer> defaultDP = info.get(Integer.class, "-default");
 			if(match != null && defaultDP != null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Divide" + changeType.getStringAppend() + ": " + matcher.group(1));

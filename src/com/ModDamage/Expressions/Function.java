@@ -12,7 +12,7 @@ import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.DataProvider;
-import com.ModDamage.EventInfo.DataProvider.IDataParser;
+import com.ModDamage.EventInfo.DataProvider.BaseDataParser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
@@ -113,10 +113,10 @@ public class Function implements IDataProvider<Integer>
 	{
 		final Pattern commaPattern = Pattern.compile("\\s*,\\s*");
 		final Pattern endPattern = Pattern.compile("\\s*\\)");
-		DataProvider.register(Integer.class, null, Pattern.compile("(\\w+)\\s*\\("), new IDataParser<Integer>()
+		DataProvider.register(Integer.class, Pattern.compile("(\\w+)\\s*\\("), new BaseDataParser<Integer>()
 			{
 				@Override
-				public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> start, Matcher m, StringMatcher sm)
+				public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
 				{
 					FunctionType ftype = FunctionType.match(m.group(1));
 					if (ftype == null)

@@ -24,7 +24,7 @@ import com.ModDamage.Variables.Int.WorldTagInt;
 
 public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 {
-	protected IntegerExp(Class<From> wantStart, IDataProvider<?> startDP)
+	protected IntegerExp(Class<From> wantStart, IDataProvider<From> startDP)
 	{
 		super(wantStart, startDP);
 	}

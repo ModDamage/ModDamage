@@ -7,7 +7,7 @@ import com.ModDamage.EventInfo.SettableDataProvider;
 
 public abstract class SettableIntegerExp<From> extends SettableDataProvider<Integer, From>
 {
-	protected SettableIntegerExp(Class<From> wantStart, IDataProvider<?> startDP)
+	protected SettableIntegerExp(Class<From> wantStart, IDataProvider<From> startDP)
 	{
 		super(wantStart, startDP);
 	}

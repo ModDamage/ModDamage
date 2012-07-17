@@ -93,7 +93,7 @@ public class ValueChange extends Routine
 			}
 			IDataProvider<Integer> integer = DataProvider.parse(info, Integer.class, matcher.group(4));
 			if (integer == null) return null;
-			ISettableDataProvider<Integer> defaultDP = info.mget(Integer.class, "-default");
+			ISettableDataProvider<Integer> defaultDP = info.get(Integer.class, "-default");
 			if (defaultDP == null) return null;
 			
 			ModDamage.addToLogRecord(OutputPreset.INFO, changeType.name() + ": " + matcher.group(4));

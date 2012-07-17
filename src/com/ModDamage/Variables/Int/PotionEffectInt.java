@@ -44,10 +44,10 @@ public class PotionEffectInt extends IntegerExp<LivingEntity>
 	{
 		DataProvider.register(Integer.class, LivingEntity.class,
 				Pattern.compile("_potioneffect_(\\w+?)_("+PotionEffectProperty.regexString+")", Pattern.CASE_INSENSITIVE),
-				new IDataParser<Integer>()
+				new IDataParser<Integer, LivingEntity>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> livingDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
 					{
 						PotionEffectType type = PotionEffectType.getByName(m.group(1).toUpperCase());
 						if (type == null)
@@ -67,7 +67,7 @@ public class PotionEffectInt extends IntegerExp<LivingEntity>
 	private final PotionEffectType type;
 	private final PotionEffectProperty property;
 	
-	PotionEffectInt(IDataProvider<?> livingDP, PotionEffectType type, PotionEffectProperty property)
+	PotionEffectInt(IDataProvider<LivingEntity> livingDP, PotionEffectType type, PotionEffectProperty property)
 	{
 		super(LivingEntity.class, livingDP);
 		this.type = type;

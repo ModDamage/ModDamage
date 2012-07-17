@@ -20,10 +20,10 @@ public class PlayerItem extends DataProvider<ItemStack, Player>
 	{
 		DataProvider.register(ItemStack.class, Player.class, 
 				Pattern.compile("_("+Utils.joinBy("|", PlayerItemTarget.values()) +")", Pattern.CASE_INSENSITIVE),
-				new IDataParser<ItemStack>()
+				new IDataParser<ItemStack, Player>()
 				{
 					@Override
-					public IDataProvider<ItemStack> parse(EventInfo info, IDataProvider<?> playerDP, Matcher m, StringMatcher sm)
+					public IDataProvider<ItemStack> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new PlayerItem(
 								playerDP, 
@@ -65,7 +65,7 @@ public class PlayerItem extends DataProvider<ItemStack, Player>
 
 	private final PlayerItemTarget playerItemTarget;
 
-	public PlayerItem(IDataProvider<?> playerDP, PlayerItemTarget playerItemTarget)
+	public PlayerItem(IDataProvider<Player> playerDP, PlayerItemTarget playerItemTarget)
 	{
 		super(Player.class, playerDP);
 		this.playerItemTarget = playerItemTarget;

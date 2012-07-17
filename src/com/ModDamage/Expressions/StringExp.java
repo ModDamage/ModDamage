@@ -9,7 +9,7 @@ import com.ModDamage.Variables.String.WorldString;
 
 public abstract class StringExp<From> extends DataProvider<String, From>
 {
-	protected StringExp(Class<From> wantStart, IDataProvider<?> startDP)
+	protected StringExp(Class<From> wantStart, IDataProvider<From> startDP)
 	{
 		super(wantStart, startDP);
 	}

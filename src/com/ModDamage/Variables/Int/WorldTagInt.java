@@ -18,13 +18,13 @@ public class WorldTagInt extends SettableIntegerExp<World>
 {	
 	public static void register()
 	{
-		DataProvider.register(Integer.class, World.class, Pattern.compile("_tag(?:value)?_(\\w+)", Pattern.CASE_INSENSITIVE), new IDataParser<Integer>()
+		DataProvider.register(Integer.class, World.class, Pattern.compile("_tag(?:value)?_(\\w+)", Pattern.CASE_INSENSITIVE), new IDataParser<Integer, World>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
 					{
 						return new WorldTagInt(
-								entityDP,
+								worldDP,
 								m.group(1).toLowerCase());
 					}
 				});
@@ -32,7 +32,7 @@ public class WorldTagInt extends SettableIntegerExp<World>
 	
 	protected final String tag;
 	
-	WorldTagInt(IDataProvider<?> worldDP, String tag)
+	WorldTagInt(IDataProvider<World> worldDP, String tag)
 	{
 		super(World.class, worldDP);
 		this.tag = tag;
@@ -42,7 +42,8 @@ public class WorldTagInt extends SettableIntegerExp<World>
 	@Override
 	public Integer myGet(World world, EventData data) throws BailException
 	{
-		return ModDamage.getTagger().getTagValue(world, tag);
+		Integer value = ModDamage.getTagger().getTagValue(world, tag);
+		return value;
 	}
 	
 	@Override

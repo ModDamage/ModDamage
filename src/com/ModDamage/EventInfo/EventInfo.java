@@ -25,8 +25,8 @@ public abstract class EventInfo
 	
 	
 	
-	public <T> EventDataProvider<T> mget(Class<T> cls, String name) { return mget(cls, name, true); }
-	public <T> EventDataProvider<T> mget(Class<T> cls, String name, boolean complain)
+	public <T> EventDataProvider<T> get(Class<T> cls, String name) { return get(cls, name, true); }
+	public <T> EventDataProvider<T> get(Class<T> cls, String name, boolean complain)
 	{
 		int index = getIndex(cls, name, complain);
 		if (index == -1) return null;

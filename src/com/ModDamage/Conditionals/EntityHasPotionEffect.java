@@ -20,7 +20,7 @@ public class EntityHasPotionEffect extends Conditional<LivingEntity>
 	
 	protected final PotionEffectType[] effectTypes;
 	
-	public EntityHasPotionEffect(IDataProvider<?> livingDP, PotionEffectType[] effectTypes)
+	public EntityHasPotionEffect(IDataProvider<LivingEntity> livingDP, PotionEffectType[] effectTypes)
 	{
 		super(LivingEntity.class, livingDP);
 		this.effectTypes = effectTypes;
@@ -38,10 +38,10 @@ public class EntityHasPotionEffect extends Conditional<LivingEntity>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, LivingEntity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, LivingEntity.class, pattern, new IDataParser<Boolean, LivingEntity>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> livingDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
 				{
 					String[] effectTypeStrs = m.group(1).split(",");
 					PotionEffectType[] effectTypes = new PotionEffectType[effectTypeStrs.length];

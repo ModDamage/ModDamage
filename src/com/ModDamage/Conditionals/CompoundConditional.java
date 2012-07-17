@@ -82,7 +82,7 @@ public class CompoundConditional extends Conditional<Boolean>
 	
 	private final LogicalOperator operator;
 	private final IDataProvider<Boolean> right;
-	public CompoundConditional(IDataProvider<?> left, LogicalOperator operator, IDataProvider<Boolean> right)
+	public CompoundConditional(IDataProvider<Boolean> left, LogicalOperator operator, IDataProvider<Boolean> right)
 	{
 		super(Boolean.class, left);
 		this.operator = operator;
@@ -97,17 +97,17 @@ public class CompoundConditional extends Conditional<Boolean>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Boolean.class, LogicalOperator.pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Boolean.class, LogicalOperator.pattern, new IDataParser<Boolean, Boolean>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> start, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Boolean> leftDP, Matcher m, StringMatcher sm)
 				{
 					LogicalOperator operator = LogicalOperator.match(m.group(1));
 					
-					IDataProvider<Boolean> right = DataProvider.parse(info, Boolean.class, sm.spawn());
-					if (right == null) return null;
+					IDataProvider<Boolean> rightDP = DataProvider.parse(info, Boolean.class, sm.spawn());
+					if (rightDP == null) return null;
 					
-					return new CompoundConditional(start, operator, right);
+					return new CompoundConditional(leftDP, operator, rightDP);
 				}
 			});
 	}

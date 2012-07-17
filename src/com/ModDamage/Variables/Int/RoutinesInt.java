@@ -15,7 +15,7 @@ public class RoutinesInt implements IDataProvider<Integer>
 	public RoutinesInt(Routines routines, EventInfo info)
 	{
 		this.routines = routines;
-		this.defaultDP = info.mget(Integer.class, "-default");
+		this.defaultDP = info.get(Integer.class, "-default");
 	}
 	
 	@Override

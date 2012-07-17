@@ -3,7 +3,6 @@ package com.ModDamage.Conditionals;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.StringMatcher;
@@ -30,24 +29,24 @@ public class LivingEntityStatus extends Conditional<LivingEntity>
 
 	private final StatusType statusType;
 	
-	protected LivingEntityStatus(IDataProvider<?> entityDP, StatusType statusType)
+	protected LivingEntityStatus(IDataProvider<LivingEntity> livingDP, StatusType statusType)
 	{
-		super(LivingEntity.class, entityDP);
+		super(LivingEntity.class, livingDP);
 		this.statusType = statusType;
 	}
 
 	@Override
-	public Boolean get(LivingEntity entity, EventData data)
+	public Boolean get(LivingEntity living, EventData data)
 	{
-		return statusType.isTrue(entity);
+		return statusType.isTrue(living);
 	}
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, LivingEntity.class, pattern, new IDataParser<Boolean, LivingEntity>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
 				{
 					StatusType statusType = null;
 					for(StatusType type : StatusType.values())
@@ -55,7 +54,7 @@ public class LivingEntityStatus extends Conditional<LivingEntity>
 								statusType = type;
 					if(statusType == null) return null;
 					
-					return new LivingEntityStatus(entityDP, statusType);
+					return new LivingEntityStatus(livingDP, statusType);
 				}
 			});
 	}

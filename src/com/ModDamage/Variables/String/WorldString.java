@@ -4,7 +4,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
@@ -43,7 +42,7 @@ public class WorldString extends StringExp<World>
 
 	private final WorldStringProperty property;
 	
-	private WorldString(IDataProvider<?> worldDP, WorldStringProperty property)
+	private WorldString(IDataProvider<World> worldDP, WorldStringProperty property)
 	{
 		super(World.class, worldDP);
 		this.property = property;
@@ -56,10 +55,10 @@ public class WorldString extends StringExp<World>
 	
 	public static void register()
 	{
-		DataProvider.register(String.class, Player.class, pattern, new IDataParser<String>()
+		DataProvider.register(String.class, World.class, pattern, new IDataParser<String, World>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, IDataProvider<?> worldDP, Matcher m, StringMatcher sm)
+				public IDataProvider<String> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
 				{
 					return new WorldString(worldDP, WorldStringProperty.valueOf(m.group(1).toUpperCase()));
 				}

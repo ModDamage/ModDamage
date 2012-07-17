@@ -76,7 +76,7 @@ public class AbilityConditional extends Conditional<Player>
 	
 	protected final Ability ability;
 	
-	protected AbilityConditional(IDataProvider<?> playerDP, Ability ability) 
+	protected AbilityConditional(IDataProvider<Player> playerDP, Ability ability) 
 	{
 		super(Player.class, playerDP);
 		this.ability = ability;
@@ -91,10 +91,10 @@ public class AbilityConditional extends Conditional<Player>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
 					Ability mcMMOability = null;
 					for(Ability ability : Ability.values())
