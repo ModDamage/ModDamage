@@ -14,7 +14,7 @@ import com.ModDamage.EventInfo.IDataProvider;
 
 public class Chance implements IDataProvider<Boolean>
 {
-	public static final Pattern pattern = Pattern.compile("chance\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("chance\\.", Pattern.CASE_INSENSITIVE);
 	
 	protected final Random random = new Random();
 	protected final IDataProvider<Integer> probability;
