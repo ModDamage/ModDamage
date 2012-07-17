@@ -49,32 +49,32 @@ public class Tag extends NestedRoutine
 		if (worldDP != null)
 		{
 			World world = worldDP.get(data);
-			if (world != null)
+			if (world == null)
+				return;
+			
+			if(integer != null)
 			{
-				if(integer != null)
-				{
-					Integer oldTagValue = ModDamage.getTagger().getTagValue(world, tag);
-					EventData myData = myInfo.makeChainedData(data, oldTagValue == null? 0 : oldTagValue);
-					ModDamage.getTagger().addTag(world, tag, integer.get(myData));
-				}
-				else
-					ModDamage.getTagger().removeTag(world, tag);
+				Integer oldTagValue = ModDamage.getTagger().getTagValue(world, tag);
+				EventData myData = myInfo.makeChainedData(data, oldTagValue == null? 0 : oldTagValue);
+				ModDamage.getTagger().addTag(world, tag, integer.get(myData));
 			}
+			else
+				ModDamage.getTagger().removeTag(world, tag);
 		}
 		else
 		{
 			Entity entity = entityDP.get(data);
-			if(entity != null)
+			if(entity == null)
+				return;
+			
+			if(integer != null)
 			{
-				if(integer != null)
-				{
-					Integer oldTagValue = ModDamage.getTagger().getTagValue(entity, tag);
-					EventData myData = myInfo.makeChainedData(data, oldTagValue == null? 0 : oldTagValue);
-					ModDamage.getTagger().addTag(entity, tag, integer.get(myData));
-				}
-				else
-					ModDamage.getTagger().removeTag(entity, tag);
+				Integer oldTagValue = ModDamage.getTagger().getTagValue(entity, tag);
+				EventData myData = myInfo.makeChainedData(data, oldTagValue == null? 0 : oldTagValue);
+				ModDamage.getTagger().addTag(entity, tag, integer.get(myData));
 			}
+			else
+				ModDamage.getTagger().removeTag(entity, tag);
 		}
 	}
 
@@ -134,13 +134,13 @@ public class Tag extends NestedRoutine
 				entityDP = DataProvider.parse(info, Entity.class, name);
 				if(entityDP == null) return null;
 			}
+
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(1) + ", " + matcher.group(2));
 			
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			if(routines == null) return null;
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(1) + ", " + matcher.group(2));
-			
 			IDataProvider<Integer> integer = IntegerExp.getNew(routines, einfo);
 			if(integer == null) return null;
 			

@@ -43,7 +43,6 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Matchables.DamageType;
-import com.ModDamage.Matchables.EntityType;
 import com.ModDamage.Matchables.HealType;
 import com.ModDamage.Routines.Routines;
 
@@ -128,7 +127,7 @@ enum ModDamageEventHandler
 				
 				Entity entity = event.getEntity();
 				EventData data = Heal.eventInfo.makeData(
-						entity, EntityType.get(entity),
+						entity,
 						entity.getWorld(),
 						HealType.get(event.getRegainReason()),
 						event.getAmount());
@@ -199,13 +198,13 @@ enum ModDamageEventHandler
 				
 				LivingEntity entity = (LivingEntity)event.getEntity();
 				EventData data = Spawn.eventInfo.makeData(
-						entity, EntityType.get(entity),
+						entity,
 						entity.getWorld(),
 						entity.getHealth());
 				
 				Spawn.runRoutines(data);
 				
-				int health = data.get(Integer.class, data.start + 3);
+				int health = data.get(Integer.class, data.start + 2);
 				
 				if (health > 0)
 					entity.setHealth(health);
@@ -638,11 +637,8 @@ enum ModDamageEventHandler
 		DamageType damageElement = DamageType.get(event.getCause());
 		
 		Entity attacker = null;
-		EntityType attackerType = EntityType.NONE;
 		Projectile projectile = null;
-		EntityType projectileType = EntityType.NONE;
 		Entity target = event.getEntity();
-		EntityType targetType = EntityType.get(target);
 		World world = target.getWorld();
 		
 		if(event instanceof EntityDamageByEntityEvent)
@@ -655,9 +651,6 @@ enum ModDamageEventHandler
 				projectile = (Projectile)damager;
 				
 				attacker = projectile.getShooter();
-				
-				if(attacker == null)
-					attackerType = EntityType.DISPENSER;
 			}
 			else
 			{
@@ -665,15 +658,10 @@ enum ModDamageEventHandler
 			}
 		}
 		
-		if (attacker != null)
-			attackerType = EntityType.get(attacker);
-		if (projectile != null)
-			projectileType = EntityType.get(projectile);
-		
 	    return Damage.eventInfo.makeData(
-	    		attacker, attackerType,
-	    		projectile, projectileType,
-	    		target, targetType,
+	    		attacker,
+	    		projectile,
+	    		target,
 	    		world,
 	    		damageElement,
 	    		event.getDamage());
