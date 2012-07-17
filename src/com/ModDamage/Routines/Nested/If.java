@@ -47,10 +47,11 @@ public class If extends NestedRoutine
 			if(matcher == null || nestedContent == null)
 				return null;
 			
-			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "If: \"" + matcher.group() + "\"");
 			
 			IDataProvider<Boolean> conditional = DataProvider.parse(info, Boolean.class, matcher.group(2));
 			if (conditional == null) return null;
+			
+			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "If: " + conditional);
 			
 			if (matcher.group(1) != null)
 				conditional = new InvertBoolean(conditional);
