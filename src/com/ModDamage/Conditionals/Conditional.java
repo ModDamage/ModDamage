@@ -48,6 +48,7 @@ public abstract class Conditional<S> extends DataProvider<Boolean, S>
 	protected Conditional(Class<S> wantStart, IDataProvider<S> startDP)
 	{
 		super(wantStart, startDP);
+		defaultValue = false;
 	}
 
 	@Override

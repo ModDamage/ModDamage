@@ -49,25 +49,21 @@ public class If extends NestedRoutine
 			
 			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "If: \"" + matcher.group() + "\"");
 			
-			String conditionalStr = matcher.group(2);
-			
-			IDataProvider<Boolean> conditional = DataProvider.parse(info, Boolean.class, conditionalStr);
-			
-			if (conditional == null)
-				return null;
+			IDataProvider<Boolean> conditional = DataProvider.parse(info, Boolean.class, matcher.group(2));
+			if (conditional == null) return null;
 			
 			if (matcher.group(1) != null)
 				conditional = new InvertBoolean(conditional);
 			
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, info);
-			if(routines != null)
+			if(routines == null)
 			{
-				NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End If");
-				return new If(matcher.group(), conditional, routines);
+				NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid content in If");
+				return null;
 			}
-			else NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid content in If");
 			
-			return null;
+			NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End If");
+			return new If(matcher.group(), conditional, routines);
 		}
 	}
 }

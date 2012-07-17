@@ -109,12 +109,11 @@ public class Comparison extends Conditional<Integer>
 					
 					IDataProvider<Integer> right = DataProvider.parse(info, Integer.class, sm.spawn());
 					
-					if(comparisonType != null)
-					{
-						sm.accept();
-						return new Comparison(leftDP, comparisonType, right);
-					}
-					return null;
+					if(comparisonType == null)
+						return null;
+					
+					sm.accept();
+					return new Comparison(leftDP, comparisonType, right);
 				}
 			});
 	}

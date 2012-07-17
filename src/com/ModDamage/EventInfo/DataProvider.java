@@ -37,6 +37,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 	protected IDataProvider<S> startDP;
 	protected final Class<S> wantStart;
+	protected T defaultValue = null;
 	
 	protected DataProvider(Class<S> wantStart, IDataProvider<S> startDP)
 	{
@@ -50,9 +51,13 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	{
 		Object ostart = startDP.get(data);
 		if (ostart != null && wantStart.isInstance(ostart))
-			return get((S) ostart, data);
+		{
+			T value = get((S) ostart, data);
+			if (value == null) value = defaultValue;
+			return value;
+		}
 		
-		return null;
+		return defaultValue;
 	}
 	public abstract T get(S start, EventData data) throws BailException;
 

@@ -27,6 +27,7 @@ public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 	protected IntegerExp(Class<From> wantStart, IDataProvider<From> startDP)
 	{
 		super(wantStart, startDP);
+		defaultValue = 0;
 	}
 	
 	public final Integer get(From from, EventData data) throws BailException

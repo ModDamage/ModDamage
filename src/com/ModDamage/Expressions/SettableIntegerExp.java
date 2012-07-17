@@ -10,6 +10,7 @@ public abstract class SettableIntegerExp<From> extends SettableDataProvider<Inte
 	protected SettableIntegerExp(Class<From> wantStart, IDataProvider<From> startDP)
 	{
 		super(wantStart, startDP);
+		defaultValue = 0;
 	}
 	
 	public final Integer get(From from, EventData data) throws BailException
