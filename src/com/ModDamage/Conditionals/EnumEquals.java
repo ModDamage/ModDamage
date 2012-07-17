@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.Entity;
-
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
@@ -41,7 +39,7 @@ public class EnumEquals extends Conditional<Enum>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Enum.class, pattern, new IDataParser<Boolean>()
 			{
 				@Override
 				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> enumDP, Matcher m, StringMatcher sm)

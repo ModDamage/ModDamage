@@ -170,7 +170,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			{
 				StringMatcher sm2 = sm.spawn();
 				sm2.matchFront(substr);
-				dp = parseHelper(info, cls, info.mget(entry.getValue(), substr), sm2);
+				dp = parseHelper(info, cls, info.mget(entry.getValue(), substr), sm2.spawn());
 				tdp = maybeTransform(info, cls, dp, sm2, finish);
 				if (tdp != null)
 				{
@@ -181,7 +181,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			}
 		}
 		
-		IDataProvider<?> dp2 = parseHelper(info, cls, null, sm);
+		IDataProvider<?> dp2 = parseHelper(info, cls, null, sm.spawn());
 		tdp = maybeTransform(info, cls, dp2, sm, finish);
 		if (tdp != null)
 		{
@@ -213,7 +213,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		
 		if (cls == null) return (IDataProvider<T>) dp;
 		
-		if (cls.isAssignableFrom(dp.provides()))
+		if (cls.isAssignableFrom(dp.provides()) || dp.provides().isAssignableFrom(cls))
 			return (IDataProvider<T>) dp;
 		
 		// dp doesn't match the required cls, look for any transformers that may convert it to the correct class
@@ -229,10 +229,10 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 				{
 					if (parserData.provides != cls) continue;
 					
-					IDataProvider<T> provider = (IDataProvider<T>) parserData.parser.parse(info, dp, null, sm.spawn());
-					if (provider != null) {
+					IDataProvider<T> transDP = (IDataProvider<T>) parserData.parser.parse(info, dp, null, sm.spawn());
+					if (transDP != null) {
 						sm.accept();
-						return provider;
+						return transDP;
 					}
 				}
 			}
@@ -252,35 +252,55 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 	private static IDataProvider<?> parseHelper(EventInfo info, Class<?> cls, IDataProvider<?> dp, StringMatcher sm)
 	{
-		/*if (dp == null)
-		{
-			Parsers parsers = parsersByStart.get(null);
-			if (parsers == null) return null;
-			IDataProvider<?> end = tryParsers(info, dp, sm.spawn(), parsers);
-			if (end != null)
-			{
-				sm.accept();
-				return end;
-			}
-			
-			return null;
-		}*/
-		
 		outerLoop: while (!sm.isEmpty())
 		{
 			Class<?> dpProvides = dp == null? null : dp.provides();
 			
-			for (Entry<Class<?>, Parsers> entry : parsersByStart.entrySet())
+			for (Entry<Class<?>, Parsers> parserEntry : parsersByStart.entrySet())
 			{
-				Class<?> ecls = entry.getKey();
+				Class<?> pcls = parserEntry.getKey();
+				Parsers parsers = parserEntry.getValue();
+
+				Matcher m = parsers.compiledPattern.matcher(sm.string);
+				if (!m.lookingAt())
+					continue;
 				
-				if (classesMatch(ecls, dpProvides))
+				if (classesMatch(pcls, dpProvides))
 				{
-					IDataProvider<?> dp2 = tryParsers(info, dp, sm.spawn(), entry.getValue());
+					IDataProvider<?> dp2 = tryParsers(info, dp, m, sm.spawn(), parserEntry.getValue());
 					if (dp2 != null)
 					{
 						dp = dp2;
 						continue outerLoop;
+					}
+				}
+				else // look for a transformer that can transform dp to the correct type
+				{
+					for (Entry<Class<?>, ArrayList<ParserData<?>>> transEntry : transformersByStart.entrySet())
+					{
+						Class<?> tcls = transEntry.getKey();
+						if (!classesMatch(tcls, dpProvides))
+							continue;
+						
+						for (ParserData<?> parserData : transEntry.getValue())
+						{
+							if (!classesMatch(parserData.provides, pcls))
+								continue;
+							
+							StringMatcher sm2 = sm.spawn();
+							
+							IDataProvider<?> transDP = parserData.parser.parse(info, dp, null, sm2.spawn());
+							if (transDP == null) 
+								continue;
+							
+							IDataProvider<?> dp2 = tryParsers(info, transDP, m, sm2.spawn(), parsers);
+							if (dp2 != null)
+							{
+								sm2.accept();
+								dp = dp2;
+								continue outerLoop;
+							}
+						}
 					}
 				}
 			}
@@ -292,12 +312,8 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		return dp;
 	}
 	
-	private static IDataProvider<?> tryParsers(EventInfo info, IDataProvider<?> dp, StringMatcher sm, Parsers parserList)
+	private static IDataProvider<?> tryParsers(EventInfo info, IDataProvider<?> dp, Matcher m, StringMatcher sm, Parsers parserList)
 	{
-		Matcher m = parserList.compiledPattern.matcher(sm.string);
-		if (!m.lookingAt())
-			return null;
-		
 		for (ParserData<?> parserData : parserList)
 		{
 			if (m.group(parserData.compiledGroup) == null) 
@@ -315,33 +331,8 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 				sm2.accept();
 				sm.accept();
 				return provider;
-				/*IDataProvider<T> end = parseHelper(info, cls, provider, sm2.spawn());
-				Class<?> endProvides = end.provides();
-				if (end != null && (cls == null || cls.isAssignableFrom(endProvides) || endProvides.isAssignableFrom(cls)))
-				{
-					sm2.accept();
-					sm.accept();
-					return end;
-				}*/
 			}
 		}
-		/*for (ParserData<?> parserData : parserList)
-		{
-			StringMatcher sm2 = sm.spawn();
-			Matcher m = sm.matchFront(parserData.pattern);
-			if (m == null) continue;
-			IDataProvider<?> provider = parserData.parser.parse(info, dp, m, sm2.spawn());
-			if (provider != null) {
-				IDataProvider<T> end = parseHelper(info, cls, provider, sm2.spawn());
-				Class<?> endProvides = end.provides();
-				if (end != null && (cls == null || cls.isAssignableFrom(endProvides) || endProvides.isAssignableFrom(cls)))
-				{
-					sm2.accept();
-					sm.accept();
-					return end;
-				}
-			}
-		}*/
 		return null;
 	}
 	

@@ -71,7 +71,7 @@ public class AddPotionEffect extends Routine
 			IDataProvider<Integer> amplifier = DataProvider.parse(info, Integer.class, sm.spawn()); if (amplifier == null) return null;
 			if (!sm.isEmpty()) return null;
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "AddPotionEffect: to " + livingDP + ", " + type + ", " + duration + ", " + amplifier);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "AddPotionEffect: to " + livingDP + ", " + type.getName() + ", " + duration + ", " + amplifier);
 			return new AddPotionEffect(matcher.group(), livingDP, type, duration, amplifier);
 		}
 	}

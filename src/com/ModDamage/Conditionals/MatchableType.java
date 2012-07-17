@@ -12,11 +12,13 @@ import org.bukkit.entity.Entity;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnumHelper;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Matchables.EntityType;
 import com.ModDamage.Matchables.Matchable;
 
 @SuppressWarnings("rawtypes")
@@ -44,7 +46,7 @@ public class MatchableType extends Conditional<Matchable>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Matchable.class, pattern, new IDataParser<Boolean>()
 			{
 				@Override
 				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> matchableDP, Matcher m, StringMatcher sm)
@@ -68,6 +70,28 @@ public class MatchableType extends Conditional<Matchable>
 					if(types == null || types.isEmpty()) return null;
 					
 					return new MatchableType(matchableDP, types);
+				}
+			});
+		
+		DataProvider.registerTransformer(EntityType.class, Entity.class, new IDataParser<EntityType>()
+			{
+				@Override
+				public IDataProvider<EntityType> parse(EventInfo info, final IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+				{
+					return new IDataProvider<EntityType>() // can't be DataProvider because we (probably?) never want to return
+						{
+							@Override
+							public EntityType get(EventData data) throws BailException
+							{
+								return EntityType.get(entityDP.get(data));
+							}
+
+							@Override
+							public Class<EntityType> provides()
+							{
+								return EntityType.class;
+							}
+						};
 				}
 			});
 	}

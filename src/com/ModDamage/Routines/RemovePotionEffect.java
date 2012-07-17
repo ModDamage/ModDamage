@@ -55,7 +55,7 @@ public class RemovePotionEffect extends Routine
 				return null;
 			}
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "RemovePotionEffect: from " + livingDP + ", " + type);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "RemovePotionEffect: from " + livingDP + ", " + type.getName());
 			return new RemovePotionEffect(matcher.group(), livingDP, type);
 		}
 	}

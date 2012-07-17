@@ -89,6 +89,6 @@ public class PotionEffectInt extends IntegerExp<LivingEntity>
 	@Override
 	public String toString()
 	{
-		return startDP + "_potioneffect_" + type.getName() + "_" + property.name();
+		return startDP + "_potioneffect_" + type.getName() + "_" + property.name().toLowerCase();
 	}
 }
