@@ -100,7 +100,7 @@ public class Comparison extends Conditional<Integer>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Boolean.class, operatorPattern, new IDataParser<Boolean>()
+		DataProvider.register(Boolean.class, Integer.class, operatorPattern, new IDataParser<Boolean>()
 			{
 				@Override
 				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<?> leftDP, Matcher m, StringMatcher sm)

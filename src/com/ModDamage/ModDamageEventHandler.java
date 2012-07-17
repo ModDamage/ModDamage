@@ -108,7 +108,7 @@ enum ModDamageEventHandler
 				
 				EventData data = Death.eventInfo.makeChainedData(damageData, event.getDroppedExp());
 				Death.runRoutines(data);
-				event.setDroppedExp(data.get(Integer.class, data.start + 1));
+				event.setDroppedExp(data.get(Integer.class, data.start));
 			}
 		}),
 	
@@ -134,7 +134,7 @@ enum ModDamageEventHandler
 				
 				Heal.runRoutines(data);
 				
-				int newHealAmount = data.get(Integer.class, data.start + 4);
+				int newHealAmount = data.get(Integer.class, data.start + 3);
 				
 				if (newHealAmount <= 0)
 					event.setCancelled(true);
@@ -188,7 +188,7 @@ enum ModDamageEventHandler
 				
 				Spawn.runRoutines(data);
 				
-				player.setHealth(data.get(Integer.class, data.start + 3));
+				player.setHealth(data.get(Integer.class, data.start + 2));
 			}
 			
 			@EventHandler(priority=EventPriority.HIGHEST)
@@ -256,7 +256,7 @@ enum ModDamageEventHandler
 				
 				PickupExp.runRoutines(data);
 				
-				int experience = data.get(Integer.class, data.start + 3);
+				int experience = data.get(Integer.class, data.start + 2);
 				
 				event.setAmount(experience);
 			}
@@ -291,11 +291,9 @@ enum ModDamageEventHandler
 				
 				PrepareEnchant.runRoutines(data);
 				
-				
-				
-				levels[0] = data.get(Integer.class, data.start + 5);
-				levels[1] = data.get(Integer.class, data.start + 6);
-				levels[2] = data.get(Integer.class, data.start + 7);
+				levels[0] = data.get(Integer.class, data.start + 4);
+				levels[1] = data.get(Integer.class, data.start + 5);
+				levels[2] = data.get(Integer.class, data.start + 6);
 			}
 		}),
 	
@@ -324,7 +322,7 @@ enum ModDamageEventHandler
 					
 					Enchant.runRoutines(data);
 					
-					int level = data.get(Integer.class, data.start + 5);
+					int level = data.get(Integer.class, data.start + 4);
 					
 					event.setExpLevelCost(level);
 				}
@@ -537,7 +535,7 @@ enum ModDamageEventHandler
 					
 					Combust.runRoutines(data);
 					
-					event.setDuration((Integer) data.get(data.start + 4));
+					event.setDuration((Integer) data.get(data.start + 2));
 				}
 			});
 	
