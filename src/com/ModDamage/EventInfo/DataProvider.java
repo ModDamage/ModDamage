@@ -19,7 +19,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		IDataProvider<T> parse(EventInfo info, IDataProvider<?> startDP, Matcher m, StringMatcher sm);
 	}
 	
-	protected final IDataProvider<S> startDP;
+	protected IDataProvider<S> startDP;
 	protected final Class<S> wantStart;
 	
 	@SuppressWarnings("unchecked")
@@ -155,6 +155,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> cls, StringMatcher sm, boolean finish)
 	{
 		String startString = sm.string;
+		String soFar = null;
 		
 		IDataProvider<?> dp = null;
 		IDataProvider<T> tdp = null;
@@ -171,25 +172,31 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 				StringMatcher sm2 = sm.spawn();
 				sm2.matchFront(substr);
 				dp = parseHelper(info, cls, info.mget(entry.getValue(), substr), sm2.spawn());
-				tdp = maybeTransform(info, cls, dp, sm2, finish);
+				tdp = maybeTransform(info, cls, dp, sm2.spawn(), finish);
 				if (tdp != null)
 				{
 					sm2.accept();
 					sm.accept();
 					return tdp;
 				}
+				
+				soFar = sm2.string;
 			}
 		}
 		
 		IDataProvider<?> dp2 = parseHelper(info, cls, null, sm.spawn());
-		tdp = maybeTransform(info, cls, dp2, sm, finish);
+		tdp = maybeTransform(info, cls, dp2, sm.spawn(), finish);
 		if (tdp != null)
 		{
 			sm.accept();
 			return (IDataProvider<T>) dp2;
 		}
 		
-		if (dp == null) dp = dp2;
+		if (dp == null)
+		{
+			dp = dp2;
+			soFar = sm.string;
+		}
 		
 		Class<?> dpProvides = dp == null? null : dp.provides();
 		String provName = dpProvides == null? "null" : dpProvides.getSimpleName();
@@ -198,7 +205,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		if (sm.isEmpty())
 			error += ": wanted "+cls.getSimpleName()+", got "+provName;
 		else
-			error += " at "+provName+" \""+sm.string+"\"";
+			error += " at "+provName+" \""+soFar+"\"";
 		
 		ModDamage.addToLogRecord(OutputPreset.FAILURE, error);
 		
@@ -246,7 +253,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		if (cls1 == cls2) return true;
 		if (cls1 == null || cls2 == null) return false;
 		
-		return cls1.isAssignableFrom(cls2) || cls2.isAssignableFrom(cls1);
+		return cls1.isAssignableFrom(cls2) || cls2.isAssignableFrom(cls1); // basically is castable
 	}
 	
 	

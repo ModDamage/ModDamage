@@ -1,4 +1,4 @@
-package com.ModDamage.Expressions;
+package com.ModDamage.Variables.Int;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,12 +13,13 @@ import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Expressions.IntegerExp;
 
-public class IntegerOpExp extends IntegerExp<Integer>
+public class IntegerOpInt extends IntegerExp<Integer>
 {	
 	public static enum Operator
 	{
-		ADD("+")
+		ADD("+", 1)
 		{
 			@Override
 			int operate(int operand_1, int operand_2)
@@ -26,7 +27,7 @@ public class IntegerOpExp extends IntegerExp<Integer>
 				return operand_1 + operand_2;
 			}
 		},
-		SUBTRACT("\\-")
+		SUBTRACT("\\-", 1)
 		{
 			@Override
 			int operate(int operand_1, int operand_2)
@@ -34,7 +35,7 @@ public class IntegerOpExp extends IntegerExp<Integer>
 				return operand_1 - operand_2;
 			}
 		},
-		MULTIPLY("*")
+		MULTIPLY("*", 2)
 		{
 			@Override
 			int operate(int operand_1, int operand_2)
@@ -42,7 +43,7 @@ public class IntegerOpExp extends IntegerExp<Integer>
 				return operand_1 * operand_2;
 			}
 		},
-		DIVIDE("/")
+		DIVIDE("/", 2)
 		{
 			@Override
 			int operate(int operand_1, int operand_2)
@@ -50,7 +51,7 @@ public class IntegerOpExp extends IntegerExp<Integer>
 				return operand_1 / operand_2;
 			}
 		},
-		EXPONENTIATE("^")
+		EXPONENTIATE("^", 3)
 		{
 			@Override
 			int operate(int operand_1, int operand_2)
@@ -58,7 +59,7 @@ public class IntegerOpExp extends IntegerExp<Integer>
 				return (int)Math.pow(operand_1, operand_2);
 			}
 		},
-		MODULUS("%")
+		MODULUS("%", 2)
 		{
 			@Override
 			int operate(int operand_1, int operand_2)
@@ -68,9 +69,11 @@ public class IntegerOpExp extends IntegerExp<Integer>
 		};
 		
 		public final String operatorRegex;
-		private Operator(String operatorRegex)
+		public final Integer precedence;
+		private Operator(String operatorRegex, Integer precedence)
 		{
 			this.operatorRegex = operatorRegex;
+			this.precedence = precedence;
 		}
 		
 		public static final Pattern operatorPattern;
@@ -91,51 +94,47 @@ public class IntegerOpExp extends IntegerExp<Integer>
 	
 	public static void register()
 	{
-		final Pattern endPattern = Pattern.compile("\\s*\\)");
-		DataProvider.register(Integer.class, Integer.class, Pattern.compile("\\("), new IDataParser<Integer>()
+		DataProvider.register(Integer.class, Integer.class, Operator.operatorPattern, new IDataParser<Integer>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> leftDP, Matcher m, StringMatcher sm)
 					{
-						IDataProvider<Integer> left = DataProvider.parse(info, Integer.class, sm.spawn());
-						if (left == null)
+						Operator operator = Operator.operatorMap.get(m.group(1));
+						
+						IDataProvider<Integer> rightDP = DataProvider.parse(info, Integer.class, sm.spawn());
+						if (rightDP == null)
 						{
 							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+sm.string+"\"");
 							return null;
 						}
 						
-						Matcher matcher = sm.matchFront(Operator.operatorPattern);
-						if (matcher == null)
+						IntegerOpInt ioi;
+						// precedence calculations here
+						if (rightDP instanceof IntegerOpInt && ((IntegerOpInt)rightDP).operator.precedence > operator.precedence)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Couldn't match operator: \""+sm.string+"\"");
-							return null;
+							IntegerOpInt r = (IntegerOpInt) rightDP;
+							r.startDP = new IntegerOpInt(leftDP, operator, r.startDP);
+							ioi = r;
+						}
+						else
+						{
+							ioi = new IntegerOpInt(leftDP, operator, rightDP);
 						}
 						
-						IDataProvider<Integer> right = DataProvider.parse(info, Integer.class, sm.spawn());
-						if (right == null)
-						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+sm.string+"\"");
-							return null;
-						}
+						sm.accept();
 						
-						if (sm.matchFront(endPattern) == null)
-						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Missing close paren: \""+sm.string+"\"");
-							return null;
-						}
-						
-						return sm.acceptIf(new IntegerOpExp(left, Operator.operatorMap.get(matcher.group(1)), right));
+						return ioi;
 					}
 				});
 	}
 	
 	private final Operator operator;
 	private final IDataProvider<Integer> rightDP;
-	protected IntegerOpExp(IDataProvider<Integer> left, Operator operator, IDataProvider<Integer> right)
+	protected IntegerOpInt(IDataProvider<?> leftDP, Operator operator, IDataProvider<Integer> rightDP)
 	{
-		super(Integer.class, left);
+		super(Integer.class, leftDP);
 		this.operator = operator;
-		this.rightDP = right;
+		this.rightDP = rightDP;
 	}
 
 	@Override

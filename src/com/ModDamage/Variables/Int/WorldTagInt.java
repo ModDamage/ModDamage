@@ -23,9 +23,9 @@ public class WorldTagInt extends SettableIntegerExp<World>
 					@Override
 					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<?> entityDP, Matcher m, StringMatcher sm)
 					{
-						return sm.acceptIf(new WorldTagInt(
+						return new WorldTagInt(
 								entityDP,
-								m.group(1).toLowerCase()));
+								m.group(1).toLowerCase());
 					}
 				});
 	}

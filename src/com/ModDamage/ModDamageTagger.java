@@ -423,7 +423,7 @@ public class ModDamageTagger
 			return;
 		}
 		if(entityTags.containsKey(tag))
-			entityTags.get(tag).remove(entity.getEntityId());
+			entityTags.get(tag).remove(entity);
 	}
 	
 	public void removeTag(OfflinePlayer player, String tag)
