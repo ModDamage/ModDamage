@@ -45,6 +45,36 @@ public class EntityBlockStatus extends Conditional<Entity>
 				return materials.contains(entity.getLocation().add(0, -1, 0).getBlock().getType());
 			}
 		},
+		IN
+		{
+			@Override
+			public boolean isTrue(Collection<Material> materials, Entity entity)
+			{
+				if (entity instanceof LivingEntity &&
+						materials.contains(((LivingEntity)entity).getEyeLocation().getBlock().getType()))
+					return true;
+				return materials.contains(entity.getLocation().getBlock().getType());
+			}
+		},
+		STANDINGIN
+		{
+			@Override
+			public boolean isTrue(Collection<Material> materials, Entity entity)
+			{
+				return materials.contains(entity.getLocation().getBlock().getType());
+			}
+		},
+		BREATHING
+		{
+			@Override
+			public boolean isTrue(Collection<Material> materials, Entity entity)
+			{
+				if (entity instanceof LivingEntity &&
+						materials.contains(((LivingEntity)entity).getEyeLocation().getBlock().getType()))
+					return true;
+				return false;
+			}
+		},
 		OVER
 		{
 			@Override
