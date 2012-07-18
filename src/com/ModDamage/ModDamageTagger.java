@@ -123,14 +123,6 @@ public class ModDamageTagger
 			Map<String, Object> tagMap = (Map<String, Object>)tagFileObject;
 			
 			
-			// Backwards compatibility - remove eventually
-			if (!tagMap.containsKey("tagsVersion"))
-			{
-				oldLoad(entities, tagMap);
-				return;
-			}
-			// End Backwards compatibility - remove eventually
-			
 			
 			@SuppressWarnings("unchecked")
 			Map<String, Map<String, Integer>> entitiesMap = (Map<String, Map<String, Integer>>) tagMap.get("entity");
@@ -156,7 +148,14 @@ public class ModDamageTagger
 			{
 				for (Entry<String, Map<String, Integer>> tagEntry : playersMap.entrySet())
 				{
-					playerTags.put(tagEntry.getKey(), tagEntry.getValue());
+					Map<String, Integer> pmap = new HashMap<String, Integer>(tagEntry.getValue().size());
+					
+					for (Entry<String, Integer> pentry : tagEntry.getValue().entrySet())
+					{
+						pmap.put(pentry.getKey(), pentry.getValue());
+					}
+					
+					playerTags.put(tagEntry.getKey(), pmap);
 				}
 			}
 			
@@ -175,54 +174,6 @@ public class ModDamageTagger
 		catch(Exception e){ ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error loading tags: "+e.toString()); }
 	}
 	
-	// Backwards compatibility - remove eventually
-	public void oldLoad(Map<UUID, Entity> entities, Map<String, Object> tagMap)
-	{
-		for(Entry<String, Object> entry : tagMap.entrySet())
-		{
-			if(!(entry.getValue() instanceof Map))
-			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read nested content under tag \"" + entry.getKey() + "\".");
-				continue;
-			}
-			
-			Map<Entity, Integer> entityMap = new WeakHashMap<Entity, Integer>();
-			Map<String, Integer> playerMap = new HashMap<String, Integer>();
-			
-			@SuppressWarnings("unchecked")
-			Map<String, Object> rawUuidMap = (Map<String, Object>)entry.getValue();
-			for(Entry<String, Object> tagEntry : rawUuidMap.entrySet())
-			{
-				Integer integer = tagEntry.getValue() != null && tagEntry.getValue() instanceof Integer? 
-						(Integer)tagEntry.getValue() : null;
-				if (integer == null) 
-				{
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read value for entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
-					continue;
-				}
-				
-				if (tagEntry.getKey().startsWith("player:"))
-					playerMap.put(tagEntry.getKey().substring(7), integer);
-				else
-				{
-					try
-					{
-						Entity entity = entities.get(UUID.fromString(tagEntry.getKey()));
-						if (entity != null) entityMap.put(entity, integer);
-					}
-					catch (IllegalArgumentException e)
-					{
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Could not read entity UUID " + tagEntry.getKey() + " under tag \"" + tagEntry + "\".");
-					}
-				}
-			}
-			if(!entityMap.isEmpty())
-				entityTags.put(entry.getKey(), entityMap);
-			if(!playerMap.isEmpty())
-				playerTags.put(entry.getKey(), playerMap);
-		}
-	}
-	// End Backwards compatibility - remove eventually
 	
 	/**
 	 * Saves all tags to a file.
@@ -251,6 +202,20 @@ public class ModDamageTagger
 					entityMap.put(tagEntry.getKey(), savedEntities);
 			}
 			
+			Map<String, Map<String, Integer>> playerMap = new HashMap<String, Map<String, Integer>>();
+			for(Entry<String, Map<String, Integer>> tagEntry : playerTags.entrySet())
+			{
+				HashMap<String, Integer> savedPlayers = new HashMap<String, Integer>();
+				
+				if (tagEntry.getValue().isEmpty()) continue;
+				
+				for(Entry<String, Integer> entry : tagEntry.getValue().entrySet())
+					savedPlayers.put(entry.getKey(), entry.getValue());
+				
+				if (!savedPlayers.isEmpty())
+					playerMap.put(tagEntry.getKey(), savedPlayers);
+			}
+			
 			Map<String, Map<String, Integer>> worldMap = new HashMap<String, Map<String, Integer>>();
 			for (Entry<World, Map<String, Integer>> worldEntry : worldTags.entrySet())
 			{
@@ -267,7 +232,7 @@ public class ModDamageTagger
 			
 			saveMap.put("tagsVersion", 1);
 			saveMap.put("entity", entityMap);
-			saveMap.put("player", playerTags);
+			saveMap.put("player", playerMap);
 			saveMap.put("world", worldMap);
 			
 			try
@@ -346,17 +311,17 @@ public class ModDamageTagger
 	public boolean isTagged(Entity entity, String tag)
 	{
 		if (entity instanceof OfflinePlayer) return isTagged((OfflinePlayer)entity, tag);
-		return entityTags.containsKey(tag) && entityTags.get(tag).containsKey(entity);
+		return entityTags.containsKey(tag) && entityTags.get(tag).get(entity) != null;
 	}
 	
 	public boolean isTagged(OfflinePlayer player, String tag)
 	{
-		return playerTags.containsKey(tag) && playerTags.get(tag).containsKey(player);
+		return playerTags.containsKey(tag) && playerTags.get(tag).get(player.getName()) != null;
 	}
 	
 	public boolean isTagged(World world, String tag)
 	{
-		return worldTags.containsKey(world) && worldTags.get(world).containsKey(tag);
+		return worldTags.containsKey(world) && worldTags.get(world).get(tag) != null;
 	}
 	
 	/**
@@ -393,23 +358,26 @@ public class ModDamageTagger
 	public Integer getTagValue(Entity entity, String tag)
 	{
 		if (entity instanceof OfflinePlayer) return getTagValue((OfflinePlayer)entity, tag);
-		if(isTagged(entity, tag))
-			return entityTags.get(tag).get(entity);
-		return null;
+		Map<Entity, Integer> tags = entityTags.get(tag);
+		if (tags == null) return null;
+		
+		return tags.get(entity);
 	}
 	
 	public Integer getTagValue(OfflinePlayer player, String tag)
 	{
-		if(isTagged(player, tag))
-			return playerTags.get(tag).get(player);
-		return null;
+		Map<String, Integer> tags = playerTags.get(tag);
+		if (tags == null) return null;
+		
+		return tags.get(player.getName());
 	}
 	
 	public Integer getTagValue(World world, String tag)
 	{
-		if(isTagged(world, tag))
-			return worldTags.get(world).get(tag);
-		return null;
+		Map<String, Integer> tags = worldTags.get(world);
+		if (tags == null) return null;
+		
+		return tags.get(tag);
 	}
 	
 	/**
@@ -429,7 +397,7 @@ public class ModDamageTagger
 	public void removeTag(OfflinePlayer player, String tag)
 	{
 		if(playerTags.containsKey(tag))
-			playerTags.get(tag).remove(player);
+			playerTags.get(tag).remove(player.getName());
 	}
 	
 	public void removeTag(World world, String tag)
