@@ -8,8 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import com.ModDamage.misc.Multimap;
 
 public class SimpleEventInfo extends EventInfo
 {
@@ -112,7 +111,7 @@ public class SimpleEventInfo extends EventInfo
 	@Override
 	public Multimap<String, Class<?>> getAllNames()
 	{
-		Multimap<String, Class<?>> allNames = HashMultimap.create();
+		Multimap<String, Class<?>> allNames = new Multimap<String, Class<?>>();
 		for (Entry<Class<?>, Map<String, Integer>> entry : map.entrySet())
 		{
 			for (String name : entry.getValue().keySet())

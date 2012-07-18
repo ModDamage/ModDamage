@@ -4,7 +4,7 @@ import java.util.Set;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.google.common.collect.Multimap;
+import com.ModDamage.misc.Multimap;
 
 public abstract class EventInfo
 {

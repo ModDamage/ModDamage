@@ -3,7 +3,7 @@ package com.ModDamage.EventInfo;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.google.common.collect.Multimap;
+import com.ModDamage.misc.Multimap;
 
 public class EventInfoChain extends EventInfo
 {
