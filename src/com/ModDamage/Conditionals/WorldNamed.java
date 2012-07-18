@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.bukkit.World;
 
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
 import com.ModDamage.Alias.WorldAliaser;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
@@ -30,6 +31,13 @@ public class WorldNamed extends Conditional<World>
 	{
 		return worlds.contains(world.getName());
 	}
+	
+	@Override
+	public String toString()
+	{
+		return startDP + ".named." + Utils.joinBy(",", worlds);
+	}
+	
 	
 	public static void register()
 	{

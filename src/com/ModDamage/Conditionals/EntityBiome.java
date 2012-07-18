@@ -8,6 +8,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
 import com.ModDamage.Alias.BiomeAliaser;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
@@ -30,6 +31,13 @@ public class EntityBiome extends Conditional<Entity>
 	{ 
 		return biomes.contains(entity.getLocation().getBlock().getBiome());
 	}
+	
+	@Override
+	public String toString()
+	{
+		return startDP + ".biome." + Utils.joinBy(",", biomes);
+	}
+	
 	
 	public static void register()
 	{

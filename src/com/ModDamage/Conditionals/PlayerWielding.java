@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
 import com.ModDamage.Alias.ItemAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ModDamageItemStack;
@@ -39,6 +40,13 @@ public class PlayerWielding extends Conditional<Player>
 		}
 		return false;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return startDP + ".iswielding." + Utils.joinBy(",", items);
+	}
+	
 	
 	public static void register()
 	{

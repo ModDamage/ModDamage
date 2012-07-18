@@ -54,4 +54,6 @@ public abstract class Conditional<S> extends DataProvider<Boolean, S>
 
 	@Override
 	public Class<Boolean> provides() { return Boolean.class; }
+	
+	public abstract String toString();
 }

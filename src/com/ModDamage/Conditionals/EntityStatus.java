@@ -83,6 +83,13 @@ public class EntityStatus extends Conditional<Entity>
 		return statusType.isTrue(entity);
 	}
 	
+	@Override
+	public String toString()
+	{
+		return startDP + ".is" + statusType.name().toLowerCase();
+	}
+	
+	
 	public static void register()
 	{
 		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean, Entity>()

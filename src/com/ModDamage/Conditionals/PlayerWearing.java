@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
 import com.ModDamage.Alias.ArmorAliaser;
 import com.ModDamage.Backend.ArmorSet;
 import com.ModDamage.EventInfo.DataProvider;
@@ -16,7 +17,7 @@ import com.ModDamage.EventInfo.IDataProvider;
 
 public class PlayerWearing extends Conditional<Player>
 {
-	public static final Pattern pattern = Pattern.compile("\\.wearing(only)?\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.(?:is)?wearing(only)?\\.([\\w*]+)", Pattern.CASE_INSENSITIVE);
 	
 	private final boolean only;
 	private final Collection<ArmorSet> armorSets;
@@ -37,6 +38,13 @@ public class PlayerWearing extends Conditional<Player>
 					return true;
 		return false;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return startDP + ".wearing" + (only? "only":"") + "." + Utils.joinBy(",", armorSets);
+	}
+	
 	
 	public static void register()
 	{

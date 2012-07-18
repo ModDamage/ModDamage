@@ -88,6 +88,12 @@ public class AbilityConditional extends Conditional<Player>
 		return ability.isActivated(player);
 	}
 	
+	@Override
+	public String toString()
+	{
+		return startDP + ".hasactive." + ability.name().toLowerCase();
+	}
+	
 	
 	public static void register()
 	{

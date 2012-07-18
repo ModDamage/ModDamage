@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Utils;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.ItemAliaser;
@@ -39,6 +40,13 @@ public class ItemMatches extends Conditional<ItemStack>
 		}
 		return false;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return startDP + ".matches." + Utils.joinBy(",", items);
+	}
+	
 	
 	public static void register()
 	{

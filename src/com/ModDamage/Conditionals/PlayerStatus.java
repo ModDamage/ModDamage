@@ -56,6 +56,13 @@ public class PlayerStatus extends Conditional<Player>
 		return statusType.isTrue(player);
 	}
 	
+	@Override
+	public String toString()
+	{
+		return startDP + ".is" + statusType.name().toLowerCase();
+	}
+	
+	
 	public static void register()
 	{
 		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()

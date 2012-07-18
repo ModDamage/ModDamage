@@ -81,19 +81,26 @@ public class CompoundConditional extends Conditional<Boolean>
 	
 	
 	private final LogicalOperator operator;
-	private final IDataProvider<Boolean> right;
+	private final IDataProvider<Boolean> rightDP;
 	public CompoundConditional(IDataProvider<Boolean> left, LogicalOperator operator, IDataProvider<Boolean> right)
 	{
 		super(Boolean.class, left);
 		this.operator = operator;
-		this.right = right;
+		this.rightDP = right;
 	}
 
 	@Override
 	public Boolean get(Boolean left, EventData data) throws BailException
 	{
-		return operator.operate(data, left, right);
+		return operator.operate(data, left, rightDP);
 	}
+
+	@Override
+	public String toString()
+	{
+		return startDP + " " + operator.name().toLowerCase() + " " + rightDP;
+	}
+	
 	
 	public static void register()
 	{

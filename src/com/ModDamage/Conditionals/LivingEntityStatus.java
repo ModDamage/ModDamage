@@ -41,6 +41,13 @@ public class LivingEntityStatus extends Conditional<LivingEntity>
 		return statusType.isTrue(living);
 	}
 	
+	@Override
+	public String toString()
+	{
+		return startDP + ".is" + statusType.name().toLowerCase();
+	}
+	
+	
 	public static void register()
 	{
 		DataProvider.register(Boolean.class, LivingEntity.class, pattern, new IDataParser<Boolean, LivingEntity>()

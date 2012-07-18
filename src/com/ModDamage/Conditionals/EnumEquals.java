@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Utils;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.EnumHelper;
@@ -36,6 +37,13 @@ public class EnumEquals extends Conditional<Enum>
 				return true;
 		return false;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return startDP + ".is." + Utils.joinBy(",", types);
+	}
+	
 	
 	public static void register()
 	{

@@ -81,20 +81,29 @@ public class Comparison extends Conditional<Integer>
 	}
 	
 	public static final Pattern operatorPattern = Pattern.compile("\\s*(>=?|<=?|==?|!=)\\s*"); // doing it like above won't match >= correctly
-	protected final IDataProvider<Integer> right;
+	protected final IDataProvider<Integer> rightDP;
 	protected final ComparisonType comparisonType;
 	
 	protected Comparison(IDataProvider<Integer> left, ComparisonType comparisonType, IDataProvider<Integer> right)
 	{
 		super(Integer.class, left);
 		this.comparisonType = comparisonType;
-		this.right = right;
+		this.rightDP = right;
 	}
 
 	@Override
 	public Boolean get(Integer left, EventData data) throws BailException
 	{
-		return comparisonType.compare(left, right.get(data));
+		return comparisonType.compare(left, rightDP.get(data));
+	}
+
+	@Override
+	public Class<Boolean> provides() { return Boolean.class; }
+	
+	@Override
+	public String toString()
+	{
+		return startDP + comparisonType.operators[0] + rightDP;
 	}
 
 	
@@ -117,7 +126,4 @@ public class Comparison extends Conditional<Integer>
 				}
 			});
 	}
-
-	@Override
-	public Class<Boolean> provides() { return Boolean.class; }
 }

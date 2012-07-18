@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
 import com.ModDamage.Alias.RegionAliaser;
 import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.EventInfo.DataProvider;
@@ -49,6 +50,14 @@ public class EntityRegion extends Conditional<Entity>
 	{
 		return ExternalPluginManager.getRegionsManager().getRegions(entity.getLocation());
 	}
+	
+	@Override
+	public String toString()
+	{
+		return startDP + ".inregion" + (inclusiveComparison? "only":"") + "." + Utils.joinBy(",", regions);
+	}
+	
+	
 	
 	public static void register()
 	{

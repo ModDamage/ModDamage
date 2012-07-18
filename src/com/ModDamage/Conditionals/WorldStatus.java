@@ -37,6 +37,13 @@ public class WorldStatus extends Conditional<World>
 		return statusType.get(world);
 	}
 	
+	@Override
+	public String toString()
+	{
+		return startDP + ".is" + statusType.name().toLowerCase();
+	}
+	
+	
 	public static void register()
 	{
 		DataProvider.register(Boolean.class, World.class, pattern, new IDataParser<Boolean, World>()

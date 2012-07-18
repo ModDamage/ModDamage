@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
 import com.ModDamage.Alias.GroupAliaser;
 import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.EventInfo.DataProvider;
@@ -16,7 +17,7 @@ import com.ModDamage.EventInfo.IDataProvider;
 
 public class PlayerInGroup extends Conditional<Player>
 {
-	public static final Pattern pattern = Pattern.compile("\\.group\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.(?:in)?group\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
 	private final Collection<String> groups;
 	
@@ -33,6 +34,13 @@ public class PlayerInGroup extends Conditional<Player>
 				return true;
 		return false;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return startDP + ".group." + Utils.joinBy(",", groups);
+	}
+	
 	
 	public static void register()
 	{

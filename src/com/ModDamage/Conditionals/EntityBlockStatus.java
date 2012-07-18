@@ -10,6 +10,7 @@ import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
 import com.ModDamage.Alias.MaterialAliaser;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
@@ -20,20 +21,6 @@ public class EntityBlockStatus extends Conditional<Entity>
 {
 	public static final Pattern pattern = Pattern.compile("\\.is(\\w+)block\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
-	private final BlockStatusType statusType;
-	private final Collection<Material> materials;
-	
-	protected EntityBlockStatus(IDataProvider<Entity> entityDP, BlockStatusType statusType, Collection<Material> materials)
-	{
-		super(Entity.class, entityDP);
-		this.statusType = statusType;
-		this.materials = materials;
-	}
-	@Override
-	public Boolean get(Entity entity, EventData data)
-	{
-		return statusType.isTrue(materials, entity);
-	}
 	
 	private enum BlockStatusType
 	{
@@ -120,6 +107,29 @@ public class EntityBlockStatus extends Conditional<Entity>
 			return false;
 		}
 	}
+	
+	
+	private final BlockStatusType statusType;
+	private final Collection<Material> materials;
+	
+	protected EntityBlockStatus(IDataProvider<Entity> entityDP, BlockStatusType statusType, Collection<Material> materials)
+	{
+		super(Entity.class, entityDP);
+		this.statusType = statusType;
+		this.materials = materials;
+	}
+	@Override
+	public Boolean get(Entity entity, EventData data)
+	{
+		return statusType.isTrue(materials, entity);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return startDP + ".is" + statusType.name().toLowerCase() + "." + Utils.joinBy(",", materials);
+	}
+	
 	
 	public static void register()
 	{

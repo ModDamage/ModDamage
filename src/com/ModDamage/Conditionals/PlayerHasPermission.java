@@ -28,6 +28,13 @@ public class PlayerHasPermission extends Conditional<Player>
 		return player.hasPermission(permission);
 	}
 	
+	@Override
+	public String toString()
+	{
+		return startDP + ".haspermission." + permission;
+	}
+	
+	
 	public static void register()
 	{
 		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()

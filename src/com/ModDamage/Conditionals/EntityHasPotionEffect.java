@@ -7,6 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Utils;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.EventInfo.DataProvider;
@@ -35,6 +36,13 @@ public class EntityHasPotionEffect extends Conditional<LivingEntity>
 				return true;
 		return false;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return startDP + ".haspotioneffect." + Utils.joinBy(",", effectTypes);
+	}
+	
 	
 	public static void register()
 	{

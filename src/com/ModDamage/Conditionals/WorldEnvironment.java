@@ -29,6 +29,13 @@ public class WorldEnvironment extends Conditional<World>
 		return world.getEnvironment().equals(environment);
 	}
 	
+	@Override
+	public String toString()
+	{
+		return startDP + ".environment." + environment.name().toLowerCase();
+	}
+	
+	
 	public static void register()
 	{
 		DataProvider.register(Boolean.class, World.class, pattern, new IDataParser<Boolean, World>()

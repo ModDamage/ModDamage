@@ -8,6 +8,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
 import com.ModDamage.Alias.EnchantmentAliaser;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
@@ -34,6 +35,13 @@ public class PlayerHasEnchantment extends Conditional<Player>
 				return true;
 		return false;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return startDP + ".hasenchantment." + Utils.joinBy(",", enchantments);
+	}
+	
 	
 	public static void register()
 	{
