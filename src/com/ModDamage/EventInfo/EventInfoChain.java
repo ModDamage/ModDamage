@@ -1,8 +1,9 @@
 package com.ModDamage.EventInfo;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.Multimap;
 
 public class EventInfoChain extends EventInfo
 {
@@ -40,9 +41,9 @@ public class EventInfoChain extends EventInfo
 	}
 
 
-	public Map<String, Class<?>> getAllNames()
+	public Multimap<String, Class<?>> getAllNames()
 	{
-		Map<String, Class<?>> allNames = first.getAllNames();
+		Multimap<String, Class<?>> allNames = first.getAllNames();
 		allNames.putAll(second.getAllNames());
 		return allNames;
 	}

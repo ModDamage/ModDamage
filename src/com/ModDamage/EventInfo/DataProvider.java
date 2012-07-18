@@ -11,6 +11,7 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.google.common.collect.Multimap;
 
 public abstract class DataProvider<T, S> implements IDataProvider<T>
 {
@@ -192,8 +193,8 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		IDataProvider<T> tdp = null;
 		
 		// Match EventInfo names first, since they are the most common start
-		Map<String, Class<?>> infoMap = info.getAllNames();
-		for (Entry<String, Class<?>> entry : infoMap.entrySet())
+		Multimap<String, Class<?>> infoMap = info.getAllNames();
+		for (Entry<String, Class<?>> entry : infoMap.entries())
 		{
 			if (sm.string.length() < entry.getKey().length()) continue;
 			
@@ -373,7 +374,4 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		}
 		return null;
 	}
-
-	
-	
 }

@@ -230,7 +230,8 @@ public class CommandEvent
 				if (!(cmd.catchAll? words.length - 1 >= cmd.args.length : words.length - 1 == cmd.args.length))
 					continue;
 				
-				List<Object> dataArgs = new ArrayList<Object>(cmd.args.length + 3);
+				List<Object> dataArgs = new ArrayList<Object>(cmd.args.length + 2);
+				dataArgs.add(event.getPlayer());
 				dataArgs.add(event.getPlayer().getWorld());
 				
 				for (int i = 1; i < words.length; i++)

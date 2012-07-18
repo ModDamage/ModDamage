@@ -51,10 +51,11 @@ public class MatchableType extends Conditional<Matchable>
 				@Override
 				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Matchable> matchableDP, Matcher m, StringMatcher sm)
 				{
+					assert(Enum.class.isAssignableFrom(matchableDP.provides()));
 					@SuppressWarnings("unchecked")
 					Map<String, Matchable<?>> possibleTypes = (Map) EnumHelper.getTypeMapForEnum(matchableDP.provides());
 					
-					List<Matchable> types = new ArrayList<Matchable>();
+					List<Matchable> types = new ArrayList<Matchable>(1);
 					
 					for (String typeStr : m.group(1).split(","))
 					{

@@ -1,10 +1,10 @@
 package com.ModDamage.EventInfo;
 
-import java.util.Map;
 import java.util.Set;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.google.common.collect.Multimap;
 
 public abstract class EventInfo
 {
@@ -14,7 +14,7 @@ public abstract class EventInfo
 	protected abstract int myGetIndex(Class<?> cls, String name);
 	protected abstract Class<?> getClass(int index);
 
-	public abstract Map<String, Class<?>> getAllNames();
+	public abstract Multimap<String, Class<?>> getAllNames();
 	public abstract Set<String> getAllNames(Class<?> cls);
 	public abstract Set<String> getAllNames(Class<?> cls, String name);
 
