@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Utils;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
@@ -92,8 +93,20 @@ public class MatchableType extends Conditional<Matchable>
 							{
 								return EntityType.class;
 							}
+							
+							@Override
+							public String toString()
+							{
+								return entityDP.toString();
+							}
 						};
 				}
 			});
+	}
+	
+	@Override
+	public String toString()
+	{
+		return startDP + ".type." + Utils.joinBy(",", types);
 	}
 }

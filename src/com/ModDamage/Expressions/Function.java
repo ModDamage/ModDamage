@@ -161,7 +161,6 @@ public class Function implements IDataProvider<Integer>
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public String toString()
 	{
 		return funcType.name().toLowerCase() + "(" + Utils.joinBy(", ", args) + ")";

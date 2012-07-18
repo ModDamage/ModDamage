@@ -1,8 +1,24 @@
 package com.ModDamage;
 
+
 public final class Utils
 {
 	private Utils() {}
+	
+	public static String joinBy(String sep, Iterable<?> objs)
+	{
+		boolean first = true;
+		
+		StringBuilder sb = new StringBuilder();
+		for(Object obj : objs)
+		{
+			if (first) first = false;
+			else sb.append(sep);
+			sb.append(obj);
+		}
+		
+		return sb.toString();
+	}
 	
 	public static <T> String joinBy(String sep, T... objs)
 	{
