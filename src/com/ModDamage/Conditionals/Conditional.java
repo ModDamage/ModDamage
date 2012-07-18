@@ -34,6 +34,7 @@ public abstract class Conditional<S> extends DataProvider<Boolean, S>
 		//World
 		WorldEnvironment.register();
 		WorldNamed.register();
+		WorldStatus.register();
 		//Other
 		MatchableType.register();
 		EnumEquals.register();
