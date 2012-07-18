@@ -9,9 +9,9 @@ import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.Expressions.StringExp;
 
-public class IntString extends StringExp<Integer>
+public class IntAsString extends StringExp<Integer>
 {
-	public IntString(IDataProvider<Integer> intDP)
+	public IntAsString(IDataProvider<Integer> intDP)
 	{
 		super(Integer.class, intDP);
 	}
@@ -29,7 +29,7 @@ public class IntString extends StringExp<Integer>
 				@Override
 				public IDataProvider<String> parse(EventInfo info, IDataProvider<Integer> intDP, Matcher m, StringMatcher sm)
 				{
-					return new IntString(intDP);
+					return new IntAsString(intDP);
 				}
 			});
 	}
