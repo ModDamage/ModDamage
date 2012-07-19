@@ -29,6 +29,7 @@ import org.bukkit.entity.Fish;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Giant;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
@@ -36,6 +37,7 @@ import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.NPC;
+import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Painting;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.PigZombie;
@@ -51,6 +53,7 @@ import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Squid;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.ThrownExpBottle;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.entity.Villager;
@@ -68,6 +71,8 @@ public enum EntityType implements Matchable<EntityType>
 			ANIMAL(LIVING, Animals.class),
 				CHICKEN(ANIMAL, org.bukkit.entity.EntityType.CHICKEN, Chicken.class),
 				COW(ANIMAL, org.bukkit.entity.EntityType.COW, Cow.class),
+				MUSHROOMCOW(ANIMAL, org.bukkit.entity.EntityType.MUSHROOM_COW, MushroomCow.class),
+				OCELOT(ANIMAL, org.bukkit.entity.EntityType.OCELOT, Ocelot.class),
 				PIG(ANIMAL, org.bukkit.entity.EntityType.PIG, Pig.class),
 				SHEEP(ANIMAL, org.bukkit.entity.EntityType.SHEEP, Sheep.class),
 				SQUID(ANIMAL, org.bukkit.entity.EntityType.SQUID, Squid.class),
@@ -99,14 +104,15 @@ public enum EntityType implements Matchable<EntityType>
 						public LivingEntity spawnCreature(Location location)
 						{
 							Wolf wolf = ((Wolf)location.getWorld().spawnCreature(location, this.getCreatureType()));
-							wolf.setTamed(true);//FIXME Who would this belong to?
+							wolf.setTamed(true);
 							return wolf;
 						}
 					},
 				
 			HUMAN(LIVING, HumanEntity.class),
 				PLAYER(HUMAN, Player.class),
-				NPC(HUMAN, NPC.class),//FIXME Does this work?
+				NPC(HUMAN, NPC.class),
+					IRONGOLEM(NPC, org.bukkit.entity.EntityType.IRON_GOLEM, IronGolem.class),
 					VILLAGER(NPC, org.bukkit.entity.EntityType.VILLAGER, Villager.class),
 			
 			MOB(LIVING, Monster.class),
@@ -251,28 +257,29 @@ public enum EntityType implements Matchable<EntityType>
 		
 		NONLIVING(ENTITY),
 			PROJECTILE(NONLIVING, Projectile.class),
-				ARROW(PROJECTILE, Arrow.class),
-				EGG(PROJECTILE, Egg.class),
-				ENDERPEARL(PROJECTILE, EnderPearl.class),
-				FIREBALL(PROJECTILE, Fireball.class),
-					FIREBALL_SMALL(FIREBALL, SmallFireball.class),
+				ARROW(PROJECTILE, org.bukkit.entity.EntityType.ARROW,  Arrow.class),
+				EGG(PROJECTILE, org.bukkit.entity.EntityType.EGG, Egg.class),
+				ENDERPEARL(PROJECTILE, org.bukkit.entity.EntityType.ENDER_PEARL, EnderPearl.class),
+				FIREBALL(PROJECTILE, org.bukkit.entity.EntityType.FIREBALL, Fireball.class),
+					FIREBALL_SMALL(FIREBALL, org.bukkit.entity.EntityType.SMALL_FIREBALL, SmallFireball.class),
 				FISHINGROD(PROJECTILE, Fish.class),
 				POTION(PROJECTILE, ThrownPotion.class),
-				SNOWBALL(PROJECTILE, Snowball.class),
+				SNOWBALL(PROJECTILE, org.bukkit.entity.EntityType.SNOWBALL, Snowball.class),
+				EXPBOTTLE(PROJECTILE, org.bukkit.entity.EntityType.THROWN_EXP_BOTTLE, ThrownExpBottle.class),
 			
 			TRAP(NONLIVING),
 				DISPENSER(TRAP),
 				
 			VEHICLE(NONLIVING, Vehicle.class),
-				BOAT(NONLIVING, Boat.class),
-				MINECART(NONLIVING, Minecart.class),
+				BOAT(NONLIVING, org.bukkit.entity.EntityType.BOAT, Boat.class),
+				MINECART(NONLIVING, org.bukkit.entity.EntityType.MINECART, Minecart.class),
 				
-			ENDERSIGNAL(NONLIVING, EnderSignal.class),
-			EXPERIENCEORB(NONLIVING, ExperienceOrb.class),
+			ENDERSIGNAL(NONLIVING, org.bukkit.entity.EntityType.ENDER_SIGNAL, EnderSignal.class),
+			EXPERIENCEORB(NONLIVING, org.bukkit.entity.EntityType.EXPERIENCE_ORB, ExperienceOrb.class),
 			FALLINGSAND(NONLIVING, FallingSand.class),
 			ITEM(NONLIVING, Item.class),
-			PAINTING(NONLIVING, Painting.class),
-			TNTPRIMED(NONLIVING, TNTPrimed.class);
+			PAINTING(NONLIVING, org.bukkit.entity.EntityType.PAINTING, Painting.class),
+			TNTPRIMED(NONLIVING, org.bukkit.entity.EntityType.PRIMED_TNT, TNTPrimed.class);
 	
 	private static Map<Class<?>, EntityType> byClass = new HashMap<Class<?>, EntityType>();
 	
@@ -388,11 +395,11 @@ public enum EntityType implements Matchable<EntityType>
 		return null;
 	}
 	
-	public boolean canSpawnCreature(){ return creatureType != null; }
+	public boolean canSpawnCreature(){ return creatureType != null && creatureType.isSpawnable(); }
 	public LivingEntity spawnCreature(Location location)
 	{
 		if(creatureType != null)
 			return location.getWorld().spawnCreature(location, creatureType);
-		else throw new IllegalArgumentException("Cannot spawn " + (this.matches(LIVING)?"nonliving":"abstract living") + " element" + name() + "!");
+		else throw new IllegalArgumentException("Cannot spawn " + name() + "!");
 	}
 }
