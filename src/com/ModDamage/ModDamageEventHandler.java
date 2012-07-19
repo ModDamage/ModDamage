@@ -20,6 +20,7 @@ import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
@@ -536,6 +537,32 @@ enum ModDamageEventHandler
 					Combust.runRoutines(data);
 					
 					event.setDuration((Integer) data.get(data.start + 2));
+				}
+			}),
+			
+	Explode(
+			new SimpleEventInfo(
+					Entity.class,	"entity",
+					World.class,	"world",
+					Integer.class,	"yield"),
+					
+			new Listener() {
+				@EventHandler(priority=EventPriority.HIGHEST)
+				public void onExplode(EntityExplodeEvent event)
+				{
+					if(!ModDamage.isEnabled) return;
+					
+					Entity entity = event.getEntity();
+					Integer yield = (int) (event.getYield() * 10);
+					
+					EventData data = Explode.eventInfo.makeData(
+							entity,
+							entity.getWorld(),
+							yield);
+					
+					Explode.runRoutines(data);
+					
+					event.setYield(((Integer) data.get(data.start + 2)) / 10.0f);
 				}
 			});
 	
