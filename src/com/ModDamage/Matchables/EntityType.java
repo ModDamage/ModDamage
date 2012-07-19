@@ -233,16 +233,16 @@ public enum EntityType implements Matchable<EntityType>
 					},
 					SPIDER_RIDERLESS(SPIDER, org.bukkit.entity.EntityType.SPIDER),
 				ZOMBIE(MOB, org.bukkit.entity.EntityType.ZOMBIE, Zombie.class),
-				ZOMBIEPIGMAN(MOB, org.bukkit.entity.EntityType.PIG_ZOMBIE, PigZombie.class)
+				PIGZOMBIE(MOB, org.bukkit.entity.EntityType.PIG_ZOMBIE, PigZombie.class)
 				{
 					@Override
 					protected EntityType getMostSpecificType(Object obj)
 					{
-						if (((PigZombie)obj).isAngry()) return ZOMBIEPIGMAN_ANGRY;
-						return ZOMBIEPIGMAN_NORMAL;
+						if (((PigZombie)obj).isAngry()) return PIGZOMBIE_ANGRY;
+						return PIGZOMBIE_NORMAL;
 					}
 				},
-					ZOMBIEPIGMAN_ANGRY(ZOMBIEPIGMAN, org.bukkit.entity.EntityType.PIG_ZOMBIE)
+					PIGZOMBIE_ANGRY(PIGZOMBIE, org.bukkit.entity.EntityType.PIG_ZOMBIE)
 					{
 						@Override
 						public LivingEntity spawnCreature(Location location)
@@ -252,7 +252,7 @@ public enum EntityType implements Matchable<EntityType>
 							return pigZombie;
 						}
 					},
-					ZOMBIEPIGMAN_NORMAL(ZOMBIEPIGMAN, org.bukkit.entity.EntityType.PIG_ZOMBIE),
+					PIGZOMBIE_NORMAL(PIGZOMBIE, org.bukkit.entity.EntityType.PIG_ZOMBIE),
 			SNOWMAN(LIVING, org.bukkit.entity.EntityType.SNOWMAN, Snowman.class),
 		
 		NONLIVING(ENTITY),
@@ -276,8 +276,8 @@ public enum EntityType implements Matchable<EntityType>
 				
 			ENDERSIGNAL(NONLIVING, org.bukkit.entity.EntityType.ENDER_SIGNAL, EnderSignal.class),
 			EXPERIENCEORB(NONLIVING, org.bukkit.entity.EntityType.EXPERIENCE_ORB, ExperienceOrb.class),
-			FALLINGSAND(NONLIVING, FallingSand.class),
-			ITEM(NONLIVING, Item.class),
+			FALLINGSAND(NONLIVING, org.bukkit.entity.EntityType.FALLING_BLOCK, FallingSand.class),
+			ITEM(NONLIVING, org.bukkit.entity.EntityType.DROPPED_ITEM, Item.class),
 			PAINTING(NONLIVING, org.bukkit.entity.EntityType.PAINTING, Painting.class),
 			TNTPRIMED(NONLIVING, org.bukkit.entity.EntityType.PRIMED_TNT, TNTPrimed.class);
 	
