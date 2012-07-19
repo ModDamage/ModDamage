@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 public class Multimap<K, V> implements Iterable<Multimap.Entry<K, V>>
 {
 	private HashMap<K, ArrayList<V>> map;
@@ -146,7 +144,7 @@ public class Multimap<K, V> implements Iterable<Multimap.Entry<K, V>>
 				@Override
 				public void remove()
 				{
-					throw new NotImplementedException(); // LazinessException?
+					throw new RuntimeException(); // LazinessException?
 				}
 			};
 			
