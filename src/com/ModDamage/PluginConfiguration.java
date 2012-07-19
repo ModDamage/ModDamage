@@ -8,12 +8,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,13 +36,13 @@ public class PluginConfiguration
 
 	public final Plugin plugin;
 	private final File configFile;
-	private int configPages = 0;
+//	private int configPages = 0;
 	private LinkedHashMap<String, Object> configMap;
 	public static String newline = System.getProperty("line.separator");
-	private List<String> configStrings_ingame = new ArrayList<String>();
-	private List<OutputPreset> configStrings_consoleFilters = new ArrayList<OutputPreset>();
-	private List<String> configStrings_console = new ArrayList<String>();
-	private List<OutputPreset> configStrings_ingameFilters = new ArrayList<OutputPreset>();
+//	private List<String> configStrings_ingame = new ArrayList<String>();
+//	private List<OutputPreset> configStrings_consoleFilters = new ArrayList<OutputPreset>();
+//	private List<String> configStrings_console = new ArrayList<String>();
+//	private List<OutputPreset> configStrings_ingameFilters = new ArrayList<OutputPreset>();
 	public static int indentation = 0;
 
 	DebugSetting currentSetting = DebugSetting.VERBOSE;
@@ -142,10 +140,10 @@ public class PluginConfiguration
 		long reloadStartTime = System.nanoTime();
 		LoadState.pluginState = LoadState.NOT_LOADED;
 
-		configStrings_ingame.clear();
-		configStrings_ingameFilters.clear();
-		configStrings_console.clear();
-		configStrings_consoleFilters.clear();
+//		configStrings_ingame.clear();
+//		configStrings_ingameFilters.clear();
+//		configStrings_console.clear();
+//		configStrings_consoleFilters.clear();
 
 		addToLogRecord(OutputPreset.CONSTANT, "[" + plugin.getDescription().getName() + "] v" + plugin.getDescription().getVersion() + " loading...");
 
@@ -230,20 +228,20 @@ public class PluginConfiguration
 		}
 		
 		// Default message settings
-		ModDamageEventHandler.disableDeathMessages = getBooleanValue(configMap, "disable-deathmessages", false);
-		if(ModDamageEventHandler.disableDeathMessages)
+		MDEvent.disableDeathMessages = getBooleanValue(configMap, "disable-deathmessages", false);
+		if(MDEvent.disableDeathMessages)
 			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla death messages disabled.");
 		else
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla death messages enabled.");
 		
-		ModDamageEventHandler.disableJoinMessages = getBooleanValue(configMap, "disable-joinmessages", false);
-		if(ModDamageEventHandler.disableJoinMessages)
+		MDEvent.disableJoinMessages = getBooleanValue(configMap, "disable-joinmessages", false);
+		if(MDEvent.disableJoinMessages)
 			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla join messages disabled.");
 		else
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla join messages enabled.");
 		
-		ModDamageEventHandler.disableQuitMessages = getBooleanValue(configMap, "disable-quitmessages", false);
-		if(ModDamageEventHandler.disableQuitMessages)
+		MDEvent.disableQuitMessages = getBooleanValue(configMap, "disable-quitmessages", false);
+		if(MDEvent.disableQuitMessages)
 			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla quit messages disabled.");
 		else
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla quit messages enabled.");
@@ -255,9 +253,9 @@ public class PluginConfiguration
 		CommandEvent.reload();
 
 		// Routines
-		ModDamageEventHandler.reload();
+		MDEvent.reload();
 
-		LoadState.pluginState = LoadState.combineStates(ModDamageEventHandler.state, AliasManager.getState());
+		LoadState.pluginState = LoadState.combineStates(MDEvent.state, AliasManager.getState());
 		
 		String timer = "(" + (System.nanoTime() - reloadStartTime)/1000 + " μs) ";
 		
@@ -305,8 +303,8 @@ public class PluginConfiguration
 
 		outputString += newline + "#Events";
 		outputString += newline + "Command:";
-		for(ModDamageEventHandler eventType : ModDamageEventHandler.values())
-			outputString += newline + eventType.name() + ":";
+		for(MDEvent event : MDEvent.events)
+			outputString += newline + event.name() + ":";
 		
 		
 		outputString += newline + newline + "Aliases:";
@@ -373,88 +371,89 @@ public class PluginConfiguration
 	
 	public void addToLogRecord(OutputPreset preset, String message)
 	{
-		if(message.length() > 50)
-		{
-			configStrings_ingame.add(preset.color + "" +  indentation + "] " + message.substring(0, 49));
-			configStrings_ingameFilters.add(preset);
-			String ingameString = message.substring(49);
-			while (ingameString.length() > 50)
-			{
-				configStrings_ingame.add("     " + preset.color + ingameString.substring(0, 49));
-				configStrings_ingameFilters.add(preset);
-				ingameString = ingameString.substring(49);
-			}
-			configStrings_ingame.add("     " + preset.color + ingameString);
-			configStrings_ingameFilters.add(preset);
-		}
-		else
-		{
-			configStrings_ingame.add(preset.color + "" + indentation + "] " + message);
-			configStrings_ingameFilters.add(preset);
-		}
-		configPages = configStrings_ingame.size() / 9 + (configStrings_ingame.size() % 9 > 0 ? 1 : 0);
-
+//		if(message.length() > 50)
+//		{
+//			configStrings_ingame.add(preset.color + "" +  indentation + "] " + message.substring(0, 49));
+//			configStrings_ingameFilters.add(preset);
+//			String ingameString = message.substring(49);
+//			while (ingameString.length() > 50)
+//			{
+//				configStrings_ingame.add("     " + preset.color + ingameString.substring(0, 49));
+//				configStrings_ingameFilters.add(preset);
+//				ingameString = ingameString.substring(49);
+//			}
+//			configStrings_ingame.add("     " + preset.color + ingameString);
+//			configStrings_ingameFilters.add(preset);
+//		}
+//		else
+//		{
+//			configStrings_ingame.add(preset.color + "" + indentation + "] " + message);
+//			configStrings_ingameFilters.add(preset);
+//		}
+//		configPages = configStrings_ingame.size() / 9 + (configStrings_ingame.size() % 9 > 0 ? 1 : 0);
+//
 		String nestIndentation = "";
 		for(int i = 0; i < indentation; i++)
 			nestIndentation += "    ";
-		configStrings_console.add(nestIndentation + message);
-		configStrings_consoleFilters.add(preset);
+//		configStrings_console.add(nestIndentation + message);
+//		configStrings_consoleFilters.add(preset);
 
 		if(getDebugSetting().shouldOutput(preset.debugSetting))
 			log.log(preset.level, nestIndentation + message);
 	}
 
 	// Spout GUI?
-	public boolean sendLogRecord(Player player, int pageNumber)
-	{
-		if(player == null)
-		{
-			for(int i = 0; i < configStrings_console.size(); i++)
-				if(getDebugSetting().shouldOutput(configStrings_consoleFilters.get(i).debugSetting))
-					log.log(configStrings_consoleFilters.get(i).level, configStrings_console.get(i));
-			return true;
-		}
-		else if(pageNumber > 0)
-		{
-			if(pageNumber <= configPages)
-			{
-				player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Log Record: (" + pageNumber + "/" + configPages + ")");
-				for(int i = (9 * (pageNumber - 1)); i < (configStrings_ingame.size() < (9 * pageNumber) ? configStrings_ingame.size() : (9 * pageNumber)); i++)
-					if(!configStrings_ingameFilters.get(i).equals(OutputPreset.CONSOLE_ONLY) && getDebugSetting().shouldOutput(configStrings_ingameFilters.get(i).debugSetting))
-						player.sendMessage(configStrings_ingame.get(i));
-				return true;
-			}
-		}
-		else
-		{
-			player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Config Overview: " + LoadState.pluginState.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
-			player.sendMessage(ChatColor.AQUA + "Aliases:    " + AliasManager.getState().statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + ModDamageEventHandler.state.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Armor:     " + AliasManager.Armor.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Damage: " + ModDamageEventHandler.Damage.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Element:   " + AliasManager.Type.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Death:  " + ModDamageEventHandler.Death.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Group:     " + AliasManager.Group.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Heal:  " + ModDamageEventHandler.Heal.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Material:   " + AliasManager.Material.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "ProjectileHit:  " + ModDamageEventHandler.ProjectileHit.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Message:  " + AliasManager.Message.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Spawn:  " + ModDamageEventHandler.Spawn.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Region:     " + AliasManager.Region.getSpecificLoadState().statusString() + "        " + ChatColor.DARK_GREEN + "Tame:  " + ModDamageEventHandler.Tame.specificLoadState.statusString());
-			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:    " + AliasManager.Routine.getSpecificLoadState().statusString());
-			String bottomString = null;
-			switch(LoadState.pluginState)
-			{
-				case NOT_LOADED:
-					bottomString = ChatColor.GRAY + "No configuration found.";
-					break;
-				case FAILURE:
-					bottomString = ChatColor.DARK_RED + "There were one or more read errors in config.";
-					break;
-				case SUCCESS:
-					bottomString = ChatColor.GREEN + "No errors loading configuration!";
-					break;
-					
-				default: assert(false);
-			}
-			player.sendMessage(bottomString);
-		}
-		return false;
-	}
+//	public boolean sendLogRecord(Player player, int pageNumber)
+//	{
+//		if(player == null)
+//		{
+//			for(int i = 0; i < configStrings_console.size(); i++)
+//				if(getDebugSetting().shouldOutput(configStrings_consoleFilters.get(i).debugSetting))
+//					log.log(configStrings_consoleFilters.get(i).level, configStrings_console.get(i));
+//			return true;
+//		}
+//		else if(pageNumber > 0)
+//		{
+//			if(pageNumber <= configPages)
+//			{
+//				player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Log Record: (" + pageNumber + "/" + configPages + ")");
+//				for(int i = (9 * (pageNumber - 1)); i < (configStrings_ingame.size() < (9 * pageNumber) ? configStrings_ingame.size() : (9 * pageNumber)); i++)
+//					if(!configStrings_ingameFilters.get(i).equals(OutputPreset.CONSOLE_ONLY) && getDebugSetting().shouldOutput(configStrings_ingameFilters.get(i).debugSetting))
+//						player.sendMessage(configStrings_ingame.get(i));
+//				return true;
+//			}
+//		}
+//		else
+//		{
+//			player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Config Overview: " + LoadState.pluginState.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
+//			player.sendMessage(ChatColor.AQUA + "Aliases:    " + AliasManager.getState().statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + MDEvent.state.statusString());
+////			player.sendMessage(ChatColor.DARK_AQUA + " Armor: " + AliasManager.Armor.getSpecificLoadState().statusString() + " " + ChatColor.DARK_GREEN + "Damage: " + ModDamageEventHandler.Damage.specificLoadState.statusString());
+////			player.sendMessage(ChatColor.DARK_AQUA + " Element: " + AliasManager.Type.getSpecificLoadState().statusString() + " " + ChatColor.DARK_GREEN + "Death: " + ModDamageEventHandler.Death.specificLoadState.statusString());
+////			player.sendMessage(ChatColor.DARK_AQUA + " Group: " + AliasManager.Group.getSpecificLoadState().statusString() + " " + ChatColor.DARK_GREEN + "Heal: " + ModDamageEventHandler.Heal.specificLoadState.statusString());
+////			player.sendMessage(ChatColor.DARK_AQUA + " Material: " + AliasManager.Material.getSpecificLoadState().statusString() + " " + ChatColor.DARK_GREEN + "ProjectileHit: " + ModDamageEventHandler.ProjectileHit.specificLoadState.statusString());
+////			player.sendMessage(ChatColor.DARK_AQUA + " Message: " + AliasManager.Message.getSpecificLoadState().statusString() + " " + ChatColor.DARK_GREEN + "Spawn: " + ModDamageEventHandler.Spawn.specificLoadState.statusString());
+////			player.sendMessage(ChatColor.DARK_AQUA + " Region: " + AliasManager.Region.getSpecificLoadState().statusString() + " " + ChatColor.DARK_GREEN + "Tame: " + ModDamageEventHandler.Tame.specificLoadState.statusString());
+////			player.sendMessage(ChatColor.DARK_AQUA + " Routine: " + AliasManager.Routine.getSpecificLoadState().statusString());
+//			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:    " + AliasManager.Routine.getSpecificLoadState().statusString());
+//			String bottomString = null;
+//			switch(LoadState.pluginState)
+//			{
+//				case NOT_LOADED:
+//					bottomString = ChatColor.GRAY + "No configuration found.";
+//					break;
+//				case FAILURE:
+//					bottomString = ChatColor.DARK_RED + "There were one or more read errors in config.";
+//					break;
+//				case SUCCESS:
+//					bottomString = ChatColor.GREEN + "No errors loading configuration!";
+//					break;
+//					
+//				default: assert(false);
+//			}
+//			player.sendMessage(bottomString);
+//		}
+//		return false;
+//	}
 
 	public void toggleDebugging(Player player)
 	{

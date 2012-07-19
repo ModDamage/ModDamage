@@ -112,28 +112,28 @@ public class ModDamage extends JavaPlugin
 
 	private enum PluginCommand
 	{
-		CHECK(false, "\\sc(?:heck)?(\\s\\d+)?")
-		{
-			@Override
-			protected void handleCommand(Player player, Matcher matcher)
-			{
-				if(player == null)
-				{
-					configuration.printToLog(Level.INFO, "Complete log record for this server:");
-					configuration.sendLogRecord(null, 9001);
-					configuration.printToLog(Level.INFO, "End of log record.");
-				}
-				else
-				{
-					if(matcher.group(1) == null)
-					{
-						if(hasPermission(player, "moddamage.check"))
-							configuration.sendLogRecord(player, 0);
-					}
-					else configuration.sendLogRecord(player, Integer.parseInt(matcher.group(1).substring(1)));
-				}
-			}
-		},
+//		CHECK(false, "\\sc(?:heck)?(\\s\\d+)?")
+//		{
+//			@Override
+//			protected void handleCommand(Player player, Matcher matcher)
+//			{
+//				if(player == null)
+//				{
+//					configuration.printToLog(Level.INFO, "Complete log record for this server:");
+//					configuration.sendLogRecord(null, 9001);
+//					configuration.printToLog(Level.INFO, "End of log record.");
+//				}
+//				else
+//				{
+//					if(matcher.group(1) == null)
+//					{
+//						if(hasPermission(player, "moddamage.check"))
+//							configuration.sendLogRecord(player, 0);
+//					}
+//					else configuration.sendLogRecord(player, Integer.parseInt(matcher.group(1).substring(1)));
+//				}
+//			}
+//		},
 		DEBUG(false, "\\sd(?:ebug)?(?:\\s(\\w+))?")
 		{
 			@Override
