@@ -68,7 +68,7 @@ public class EntityString extends StringExp<Entity>
 		DataProvider.register(String.class, Entity.class, pattern, new IDataParser<String, Entity>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<String> parse(EventInfo info, Class<?> want, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 				{
 					return new EntityString(entityDP, EntityStringProperty.valueOf(m.group(1).toUpperCase()));
 				}

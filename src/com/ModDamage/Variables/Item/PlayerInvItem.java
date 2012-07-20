@@ -38,7 +38,7 @@ public class PlayerInvItem extends DataProvider<ItemStack, Player>
 		DataProvider.register(ItemStack.class, Player.class, pattern, new IDataParser<ItemStack, Player>()
 			{
 				@Override
-				public IDataProvider<ItemStack> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<ItemStack> parse(EventInfo info, Class<?> want, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
 					IDataProvider<Integer> slot = DataProvider.parse(info, Integer.class, m.group(1)); if (slot == null) return null;
 					

@@ -15,27 +15,6 @@ import com.ModDamage.misc.Multimap;
 
 public abstract class DataProvider<T, S> implements IDataProvider<T>
 {
-	public interface IDataParser<T, S>
-	{
-		IDataProvider<T> parse(EventInfo info, IDataProvider<S> startDP, Matcher m, StringMatcher sm);
-	}
-	
-	public abstract static class BaseDataParser<T> implements IDataParser<T, Object>
-	{
-		@Override
-		public final IDataProvider<T> parse(EventInfo info, IDataProvider<Object> nullDP, Matcher m, StringMatcher sm)
-		{
-			assert(nullDP == null);
-			return parse(info, m, sm);
-		}
-		
-		public abstract IDataProvider<T> parse(EventInfo info, Matcher m, StringMatcher sm);
-	}
-
-
-
-	
-	
 	protected IDataProvider<S> startDP;
 	protected final Class<S> wantStart;
 	protected T defaultValue = null;
@@ -66,6 +45,24 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 	
 	
+
+	public interface IDataParser<T, S>
+	{
+		IDataProvider<T> parse(EventInfo info, Class<?> want, IDataProvider<S> startDP, Matcher m, StringMatcher sm);
+	}
+	
+	public abstract static class BaseDataParser<T> implements IDataParser<T, Object>
+	{
+		@Override
+		public final IDataProvider<T> parse(EventInfo info, Class<?> want, IDataProvider<Object> nullDP, Matcher m, StringMatcher sm)
+		{
+			assert(nullDP == null);
+			return parse(info, want, m, sm);
+		}
+		
+		public abstract IDataProvider<T> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm);
+	}
+	
 	static class ParserData<T, S>
 	{
 		final Class<T> provides;
@@ -87,9 +84,9 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		}
 
 		@SuppressWarnings("unchecked")
-		IDataProvider<T> parse(EventInfo info, IDataProvider<?> dp, Matcher m, StringMatcher sm)
+		IDataProvider<T> parse(EventInfo info, Class<?> want, IDataProvider<?> dp, Matcher m, StringMatcher sm)
 		{
-			return parser.parse(info, (IDataProvider<S>) dp, m, sm);
+			return parser.parse(info, want, (IDataProvider<S>) dp, m, sm);
 		}
 	}
 	
@@ -245,14 +242,14 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static <T> IDataProvider<T> maybeTransform(EventInfo info, Class<T> cls, IDataProvider<?> dp, StringMatcher sm, boolean finish)
+	public static <T> IDataProvider<T> maybeTransform(EventInfo info, Class<T> want, IDataProvider<?> dp, StringMatcher sm, boolean finish)
 	{
 		if (dp == null) return null;
 		if (finish && !sm.isEmpty()) return null;
 		
-		if (cls == null) return (IDataProvider<T>) dp;
+		if (want == null) return (IDataProvider<T>) dp;
 		
-		if (cls.isAssignableFrom(dp.provides()) || dp.provides().isAssignableFrom(cls))
+		if (want.isAssignableFrom(dp.provides()) || dp.provides().isAssignableFrom(want))
 			return (IDataProvider<T>) dp;
 		
 		// dp doesn't match the required cls, look for any transformers that may convert it to the correct class
@@ -266,9 +263,9 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			{
 				for (ParserData<?, ?> parserData : entry.getValue())
 				{
-					if (parserData.provides != cls) continue;
+					if (parserData.provides != want) continue;
 					
-					IDataProvider<T> transDP = (IDataProvider<T>) parserData.parse(info, dp, null, sm.spawn());
+					IDataProvider<T> transDP = (IDataProvider<T>) parserData.parse(info, want, dp, null, sm.spawn());
 					if (transDP != null) {
 						sm.accept();
 						return transDP;
@@ -289,7 +286,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	}
 	
 	
-	private static IDataProvider<?> parseHelper(EventInfo info, Class<?> cls, IDataProvider<?> dp, StringMatcher sm)
+	private static IDataProvider<?> parseHelper(EventInfo info, Class<?> want, IDataProvider<?> dp, StringMatcher sm)
 	{
 		outerLoop: while (!sm.isEmpty())
 		{
@@ -306,7 +303,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 				
 				if (classesMatch(pcls, dpProvides))
 				{
-					IDataProvider<?> dp2 = tryParsers(info, dp, m, sm.spawn(), parserEntry.getValue());
+					IDataProvider<?> dp2 = tryParsers(info, want, dp, m, sm.spawn(), parserEntry.getValue());
 					if (dp2 != null)
 					{
 						dp = dp2;
@@ -328,11 +325,11 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 							
 							StringMatcher sm2 = sm.spawn();
 							
-							IDataProvider<?> transDP = parserData.parse(info, dp, null, sm2.spawn());
+							IDataProvider<?> transDP = parserData.parse(info, want, dp, null, sm2.spawn());
 							if (transDP == null) 
 								continue;
 							
-							IDataProvider<?> dp2 = tryParsers(info, transDP, m, sm2.spawn(), parsers);
+							IDataProvider<?> dp2 = tryParsers(info, want, transDP, m, sm2.spawn(), parsers);
 							if (dp2 != null)
 							{
 								sm2.accept();
@@ -351,7 +348,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		return dp;
 	}
 	
-	private static IDataProvider<?> tryParsers(EventInfo info, IDataProvider<?> dp, Matcher m, StringMatcher sm, Parsers parserList)
+	private static IDataProvider<?> tryParsers(EventInfo info, Class<?> want, IDataProvider<?> dp, Matcher m, StringMatcher sm, Parsers parserList)
 	{
 		for (ParserData<?, ?> parserData : parserList)
 		{
@@ -365,7 +362,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 				continue;
 			}
 			
-			IDataProvider<?> provider = parserData.parse(info, dp, m2, sm2.spawn());
+			IDataProvider<?> provider = parserData.parse(info, want, dp, m2, sm2.spawn());
 			if (provider != null) {
 				sm2.accept();
 				sm.accept();

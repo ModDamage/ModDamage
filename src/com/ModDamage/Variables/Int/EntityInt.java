@@ -177,7 +177,7 @@ public class EntityInt extends SettableIntegerExp<Entity>
 				new IDataParser<Integer, Entity>()
 			{
 				@Override
-				public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Integer> parse(EventInfo info, Class<?> want, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 				{
 					return sm.acceptIf(new EntityInt(
 							entityDP,

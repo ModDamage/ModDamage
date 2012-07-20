@@ -21,6 +21,7 @@ import ru.tehkode.permissions.PermissionManager;
 import com.ModDamage.ModDamage.ModDamageExtension;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Expressions.NestedExp;
 import com.ModDamage.Expressions.StringExp;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
@@ -48,6 +49,7 @@ public class ExternalPluginManager
 		
 		IntegerExp.registerAllIntegers();
 		StringExp.register();
+		NestedExp.register();
 		
 		// ItemExps
 		PlayerItem.register();

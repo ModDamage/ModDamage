@@ -27,7 +27,7 @@ public class IntAsString extends StringExp<Integer>
 		DataProvider.registerTransformer(String.class, Integer.class, new IDataParser<String, Integer>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, IDataProvider<Integer> intDP, Matcher m, StringMatcher sm)
+				public IDataProvider<String> parse(EventInfo info, Class<?> want, IDataProvider<Integer> intDP, Matcher m, StringMatcher sm)
 				{
 					return new IntAsString(intDP);
 				}

@@ -50,7 +50,7 @@ public class MatchableType extends Conditional<Matchable>
 		DataProvider.register(Boolean.class, Matchable.class, pattern, new IDataParser<Boolean, Matchable>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Matchable> matchableDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Matchable> matchableDP, Matcher m, StringMatcher sm)
 				{
 					assert(Enum.class.isAssignableFrom(matchableDP.provides()));
 					@SuppressWarnings("unchecked")
@@ -78,7 +78,7 @@ public class MatchableType extends Conditional<Matchable>
 		DataProvider.registerTransformer(EntityType.class, Entity.class, new IDataParser<EntityType, Entity>()
 			{
 				@Override
-				public IDataProvider<EntityType> parse(EventInfo info, final IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<EntityType> parse(EventInfo info, Class<?> want, final IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 				{
 					return new IDataProvider<EntityType>() // can't be DataProvider because we (probably?) never want to return
 						{

@@ -32,7 +32,7 @@ public class EntityAsString extends StringExp<Entity>
 		DataProvider.registerTransformer(String.class, Entity.class, new IDataParser<String, Entity>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<String> parse(EventInfo info, Class<?> want, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 				{
 					return new EntityAsString(entityDP);
 				}

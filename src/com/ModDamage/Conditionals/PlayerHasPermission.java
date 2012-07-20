@@ -40,7 +40,7 @@ public class PlayerHasPermission extends Conditional<Player>
 		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
 					return new PlayerHasPermission(playerDP, m.group(1));
 				}

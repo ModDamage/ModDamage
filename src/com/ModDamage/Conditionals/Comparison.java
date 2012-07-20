@@ -112,7 +112,7 @@ public class Comparison extends Conditional<Integer>
 		DataProvider.register(Boolean.class, Integer.class, operatorPattern, new IDataParser<Boolean, Integer>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Integer> leftDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Integer> leftDP, Matcher m, StringMatcher sm)
 				{
 					ComparisonType comparisonType = ComparisonType.nameMap.get(m.group(1));
 					

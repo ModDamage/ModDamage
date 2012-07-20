@@ -4,7 +4,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
@@ -24,7 +23,7 @@ public class PlayerInt extends SettableIntegerExp<Player>
 				new IDataParser<Integer, Player>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, Class<?> want, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new PlayerInt(
 								playerDP,
@@ -100,22 +99,6 @@ public class PlayerInt extends SettableIntegerExp<Player>
 			
 			@Override
 			public void setValue(Player player, int value) { player.setTotalExperience(value); }
-		},
-		WIELDMATERIAL(true)
-		{
-			@Override
-			public int getValue(Player player) { return player.getItemInHand().getTypeId(); }
-			
-			@Override
-			public void setValue(Player player, int value) { player.setItemInHand(new ItemStack(value, player.getItemInHand().getAmount())); }
-		},
-		WIELDQUANTITY(true)
-		{
-			@Override
-			public int getValue(Player player) { return player.getItemInHand().getAmount(); }
-			
-			@Override
-			public void setValue(Player player, int value) { player.setItemInHand(new ItemStack(player.getItemInHand().getType(), value)); }
 		};
 		
 		public boolean settable = false;

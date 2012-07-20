@@ -17,7 +17,7 @@ public class Constant implements IDataProvider<Integer>
 		DataProvider.register(Integer.class, Pattern.compile("[0-9]+"), new BaseDataParser<Integer>()
 			{
 				@Override
-				public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
+				public IDataProvider<Integer> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)
 				{
 					return sm.acceptIf(new Constant(Integer.parseInt(m.group(0))));
 				}

@@ -21,7 +21,7 @@ public class EntityTagInt extends SettableIntegerExp<Entity>
 		DataProvider.register(Integer.class, Entity.class, Pattern.compile("_tag(?:value)?_(\\w+)", Pattern.CASE_INSENSITIVE), new IDataParser<Integer, Entity>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, Class<?> want, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new EntityTagInt(
 								entityDP,

@@ -107,7 +107,7 @@ public class CompoundConditional extends Conditional<Boolean>
 		DataProvider.register(Boolean.class, Boolean.class, LogicalOperator.pattern, new IDataParser<Boolean, Boolean>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Boolean> leftDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Boolean> leftDP, Matcher m, StringMatcher sm)
 				{
 					LogicalOperator operator = LogicalOperator.match(m.group(1));
 					

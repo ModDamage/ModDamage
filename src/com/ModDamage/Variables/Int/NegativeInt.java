@@ -18,7 +18,7 @@ public class NegativeInt implements IDataProvider<Integer>
 		DataProvider.register(Integer.class, Pattern.compile("-"), new BaseDataParser<Integer>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)
 					{
 						IDataProvider<Integer> integer = DataProvider.parse(info, Integer.class, sm.spawn());
 						if (integer == null) return null;

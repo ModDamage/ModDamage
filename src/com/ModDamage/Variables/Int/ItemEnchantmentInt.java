@@ -23,7 +23,7 @@ public class ItemEnchantmentInt extends SettableIntegerExp<ItemStack>
 		DataProvider.register(Integer.class, ItemStack.class, Pattern.compile("_enchant(?:ment)?_?level_(\\w+)", Pattern.CASE_INSENSITIVE), new IDataParser<Integer, ItemStack>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<ItemStack> itemDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, Class<?> want, IDataProvider<ItemStack> itemDP, Matcher m, StringMatcher sm)
 					{
 						Enchantment enchantment = Enchantment.getByName(m.group(1).toUpperCase());
 						if (enchantment == null)

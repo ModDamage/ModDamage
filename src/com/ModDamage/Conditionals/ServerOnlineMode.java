@@ -30,7 +30,7 @@ public class ServerOnlineMode implements IDataProvider<Boolean>
 		DataProvider.register(Boolean.class, pattern, new BaseDataParser<Boolean>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)
 				{
 					return new ServerOnlineMode();
 				}

@@ -21,7 +21,7 @@ public class WorldTagInt extends SettableIntegerExp<World>
 		DataProvider.register(Integer.class, World.class, Pattern.compile("_tag(?:value)?_(\\w+)", Pattern.CASE_INSENSITIVE), new IDataParser<Integer, World>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, Class<?> want, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
 					{
 						return new WorldTagInt(
 								worldDP,

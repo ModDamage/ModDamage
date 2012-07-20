@@ -13,7 +13,6 @@ public abstract class Conditional<S> extends DataProvider<Boolean, S>
 		Comparison.register();
 		CompoundConditional.register();
 		InvertBoolean.register();
-		NestedBool.register();
 		//Entity
 		EntityBiome.register();
 		EntityBlockStatus.register();

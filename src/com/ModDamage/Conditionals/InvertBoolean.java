@@ -36,7 +36,7 @@ public class InvertBoolean implements IDataProvider<Boolean>
 		DataProvider.register(Boolean.class, pattern, new BaseDataParser<Boolean>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)
 				{
 					IDataProvider<Boolean> bool = DataProvider.parse(info, Boolean.class, sm.spawn());
 					if (bool == null) return null;

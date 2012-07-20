@@ -1,4 +1,4 @@
-package com.ModDamage.Variables.Int;
+package com.ModDamage.Expressions;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,47 +11,48 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 
-public class NestedInt implements IDataProvider<Integer>
+public class NestedExp<T> implements IDataProvider<T>
 {
 	public static final Pattern openParen = Pattern.compile("\\s*\\(\\s*");
 	public static final Pattern closeParen = Pattern.compile("\\s*\\)\\s*");
 	
 	public static void register()
 	{
-		DataProvider.register(Integer.class, openParen, new BaseDataParser<Integer>()
+		DataProvider.register(Object.class, openParen, new BaseDataParser<Object>()
 			{
 				@Override
-				public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
+				@SuppressWarnings({ "rawtypes", "unchecked" })
+				public IDataProvider<Object> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)
 				{
-					IDataProvider<Integer> intDP = DataProvider.parse(info, Integer.class, sm.spawn());
+					IDataProvider<?> nestedDP = DataProvider.parse(info, null, sm.spawn());
 					
 					if (!sm.matchesFront(closeParen)) return null;
 					
 					sm.accept();
-					return new NestedInt(intDP);
+					return (IDataProvider<Object>) new NestedExp(nestedDP);
 				}
 			});
 	}
 	
-	IDataProvider<Integer> integer;
+	IDataProvider<T> inner;
 	
-	public NestedInt(IDataProvider<Integer> integer)
+	public NestedExp(IDataProvider<T> inner)
 	{
-		this.integer = integer;
+		this.inner = inner;
 	}
 	
 	@Override
-	public Integer get(EventData data) throws BailException
+	public T get(EventData data) throws BailException
 	{
-		return integer.get(data);
+		return inner.get(data);
 	}
 	
 	@Override
-	public Class<Integer> provides() { return Integer.class; }
+	public Class<T> provides() { return inner.provides(); }
 	
 	@Override
 	public String toString()
 	{
-		return ""+integer;
+		return ""+inner;
 	}
 }

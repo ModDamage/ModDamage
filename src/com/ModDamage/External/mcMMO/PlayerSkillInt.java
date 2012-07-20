@@ -28,7 +28,7 @@ public class PlayerSkillInt extends IntegerExp<Player>
 				new IDataParser<Integer, Player>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, Class<?> want, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 					{
 						String skillProp = m.group(1).toUpperCase();
 						String skillType = m.group(2).toUpperCase();

@@ -23,7 +23,7 @@ public class PlayerItem extends DataProvider<ItemStack, Player>
 				new IDataParser<ItemStack, Player>()
 				{
 					@Override
-					public IDataProvider<ItemStack> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+					public IDataProvider<ItemStack> parse(EventInfo info, Class<?> want, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new PlayerItem(
 								playerDP, 
