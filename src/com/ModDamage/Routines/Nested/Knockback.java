@@ -49,8 +49,8 @@ public class Knockback extends NestedRoutine
 		
 		routines.run(myData);
 		
-		int xRef = myData.get(Integer.class, myData.start + 1);
-		int yRef = myData.get(Integer.class, myData.start + 2);
+		int xRef = myData.get(Integer.class, myData.start + 0);
+		int yRef = myData.get(Integer.class, myData.start + 1);
 		
 	
 		double hLength = Math.sqrt(Math.pow(vector.getX(), 2) + Math.pow(vector.getZ(), 2));
