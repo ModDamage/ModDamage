@@ -81,7 +81,7 @@ public class Knockback extends NestedRoutine
 				otherName = matcher.group(2).toLowerCase();
 			else
 				otherName = "-" + matcher.group(1).toLowerCase() + "-other";
-			IDataProvider<Entity> entityOtherDP = DataProvider.parse(info, Entity.class, otherName);
+			IDataProvider<Entity> entityOtherDP = info.get(Entity.class, otherName, false);
 			if (entityOtherDP == null)
 			{
 				if (!explicitFrom)
