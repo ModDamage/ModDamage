@@ -25,7 +25,8 @@ import com.ModDamage.Expressions.NestedExp;
 import com.ModDamage.Expressions.StringExp;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
-import com.ModDamage.Variables.Entity.EntityEntity;
+import com.ModDamage.Variables.EntityEntity;
+import com.ModDamage.Variables.EntityWorld;
 import com.ModDamage.Variables.Item.PlayerInvItem;
 import com.ModDamage.Variables.Item.PlayerItem;
 import com.elbukkit.api.elregions.elRegionsPlugin;
@@ -58,6 +59,7 @@ public class ExternalPluginManager
 		
 		// Other
 		EntityEntity.register();
+		EntityWorld.register();
 		
 		for(ModDamageExtension plugin : registeredPlugins)
 			plugin.reloadRoutines();
