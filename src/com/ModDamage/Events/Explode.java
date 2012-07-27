@@ -32,7 +32,7 @@ public class Explode extends MDEvent implements Listener
 		
 		EventData data = myInfo.makeData(
 				entity,
-				entity.getWorld(),
+				entity != null? entity.getWorld() : null,
 				yield);
 		
 		runRoutines(data);
