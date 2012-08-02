@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -23,6 +22,7 @@ import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Events.Command;
 
 /**
  * "ModDamage" for Bukkit
@@ -48,7 +48,7 @@ public class ModDamage extends JavaPlugin
 		for (MDEvent event : MDEvent.events)
 			Bukkit.getPluginManager().registerEvents(event, this);
 		
-		Bukkit.getPluginManager().registerEvents(new CommandEvent.CommandEventHandler(), this);
+		Bukkit.getPluginManager().registerEvents(new Command.CommandEventHandler(), this);
 		
 		PluginCommand.setPlugin(this);
 		configuration = new PluginConfiguration(this);
@@ -96,7 +96,7 @@ public class ModDamage extends JavaPlugin
 
 	// //COMMAND PARSING ////
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
+	public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args)
 	{
 		Player player = ((sender instanceof Player) ? ((Player) sender) : null);
 		if(args.length == 0) sendCommandUsage(player, false);

@@ -1,4 +1,4 @@
-package com.ModDamage;
+package com.ModDamage.Events;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +15,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
+import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
@@ -24,9 +26,9 @@ import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Routines.Routines;
 
 
-public class CommandEvent
+public class Command
 {
-	static Map<String, List<Command>> commandMap = new HashMap<String, List<Command>>();
+	static Map<String, List<CommandInfo>> commandMap = new HashMap<String, List<CommandInfo>>();
 	
 	@SuppressWarnings("unchecked")
 	public static void reload()
@@ -74,29 +76,29 @@ public class CommandEvent
 			
 			for (int i = 1; i < commandSpec.length - (catchAll?1:0); i++)
 			{				
-				ArgumentType type = ArgumentType.get(commandSpec[i].substring(0, 1));
-				if (type == null) {
+				Argument arg = Argument.get(commandSpec[i]);
+				if (arg == null) {
 					ModDamage.addToLogRecord(OutputPreset.FAILURE, 
-							"Please prefix command arguments with # for number or & for player, not "
+							"Please prefix command arguments with # for number or & for player, or [a-z] for raw, not "
 							+commandSpec[i].substring(0, 1));
 					continue entryLoop;
 				}
-				args[i-1] = new Argument(commandSpec[i].substring(1), type);
-				logSB.append(" "+args[i-1].name+"("+type.name()+")");
+				args[i-1] = arg;
+				logSB.append(" "+arg.name+"("+arg.type+")");
 			}
 			if (catchAll) 
 				logSB.append(" *");
 			
-			Command command = new Command(name, args, catchAll);
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Command ["+command.name+"]: "+logSB.toString());
+			CommandInfo command = new CommandInfo(name, args, catchAll);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Command ["+command.name+"]: "+logSB.toString());
 			command.routines = RoutineAliaser.parseRoutines(commandEntry.getValue(), command.eventInfo);
 			if (command.routines == null)
 				continue;
 			
-			List<Command> cmds = commandMap.get(name);
+			List<CommandInfo> cmds = commandMap.get(name);
 			if (cmds == null)
 			{
-				cmds = new ArrayList<Command>();
+				cmds = new ArrayList<CommandInfo>();
 				commandMap.put(name, cmds);
 			}
 			cmds.add(command);
@@ -106,7 +108,7 @@ public class CommandEvent
 	}
 	
 	
-	static class Command
+	static class CommandInfo
 	{
 		String name;
 		Argument[] args;
@@ -116,7 +118,7 @@ public class CommandEvent
 		
 		boolean catchAll;
 		
-		public Command(String name, Argument[] args, boolean catchAll)
+		public CommandInfo(String name, Argument[] args, boolean catchAll)
 		{
 			this.name = name;
 			this.args = args;
@@ -132,88 +134,79 @@ public class CommandEvent
 			for (Argument arg : args)
 				arg.addToEventInfoList(infoList);
 			
-			//ModDamage.addToLogRecord(OutputPreset.INFO, "INFOARR: "+Utils.joinBy(", ", infoArr));
-			
 			eventInfo = new SimpleEventInfo(infoList.toArray(), false);
 		}
 	}
 	
-	static enum ArgumentType
+	static abstract class Argument
 	{
-		Player("&") {
-				@Override
-				public Object parseArgument(String arg)
-				{
-					return Bukkit.getPlayer(arg);
-				}
-
-				@Override
-				public void addToEventInfoList(List<Object> infoList)
-				{
-					infoList.add(Player.class);
-				}
-			},
-		Number("#") {
-				@Override
-				public Object parseArgument(String arg)
-				{
-					try
-					{
-						return Integer.parseInt(arg);
-					}
-					catch (NumberFormatException e)
-					{
-						return null;
-					}
-				}
-
-				@Override
-				public void addToEventInfoList(List<Object> infoList)
-				{
-					infoList.add(Integer.class);
-				}
-			};
-		
-		String prefix;
-		
-		private ArgumentType(String prefix)
-		{
-			this.prefix = prefix;
-		}
-		
-		public static ArgumentType get(String prefix)
-		{
-			for (ArgumentType type : values())
-			{
-				if (type.prefix.equals(prefix))
-					return type;
-			}
-			return null;
-		}
-		
-		public abstract Object parseArgument(String arg);
-		public abstract void addToEventInfoList(List<Object> infoList);
-	}
-	
-	static class Argument
-	{
+		String type;
 		String name;
-		ArgumentType type;
 		
-		public Argument(String name, ArgumentType type)
+		public Argument(String name, String type)
 		{
 			this.name = name;
 			this.type = type;
 		}
 		
+		public static Argument get(String string)
+		{
+			if (string.startsWith("&"))
+				return new Argument(string.substring(1), "Player") {
+					@Override
+					public boolean addToEventDataList(List<Object> dataList, String arg)
+					{
+						Player player = Bukkit.getPlayer(arg);
+						if (player == null) return false;
+						dataList.add(player);
+						return true;
+					}
+					public void addToEventInfoList(List<Object> list)
+					{
+						list.add(Player.class);
+						super.addToEventInfoList(list);
+					}
+					
+				};
+			if (string.startsWith("#"))
+				return new Argument(string.substring(1), "Number") {
+					@Override
+					public boolean addToEventDataList(List<Object> dataList, String arg)
+					{
+						Player player = Bukkit.getPlayer(arg);
+						if (player == null) return false;
+						dataList.add(player);
+						return true;
+					}
+					public void addToEventInfoList(List<Object> list)
+					{
+						list.add(Player.class);
+						super.addToEventInfoList(list);
+					}
+				};
+			if (string.matches("^[a-zA-Z].*"))
+				return new Argument(string, "Word") {
+					@Override
+					public boolean addToEventDataList(List<Object> dataList, String arg)
+					{
+						return arg.equalsIgnoreCase(name);
+					}
+					public void addToEventInfoList(List<Object> list)
+					{
+					}
+				};
+			return null;
+		}
+
+		public abstract boolean addToEventDataList(List<Object> dataList, String arg);
+		
 		public void addToEventInfoList(List<Object> list)
 		{
-			type.addToEventInfoList(list);
 			list.add(name);
 		}
 	}
 	
-	static class CommandEventHandler implements Listener
+	public static class CommandEventHandler implements Listener
 	{
 		@EventHandler(priority=EventPriority.LOW)
 		public void onPlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent event)
@@ -223,14 +216,14 @@ public class CommandEvent
 			String[] words = event.getMessage().split("\\s+");
 			if (words.length == 0) return;
 			
-			List<Command> commands = commandMap.get(words[0]);
+			List<CommandInfo> commands = commandMap.get(words[0]);
 			if (commands == null) return;
-			commandLoop: for (Command cmd : commands)
+			commandLoop: for (CommandInfo cmd : commands)
 			{
 				if (!(cmd.catchAll? words.length - 1 >= cmd.args.length : words.length - 1 == cmd.args.length))
 					continue;
 				
-				List<Object> dataArgs = new ArrayList<Object>(cmd.args.length + 2);
+				List<Object> dataArgs = new ArrayList<Object>(cmd.args.length + 1); // estimate
 				dataArgs.add(event.getPlayer());
 				dataArgs.add(event.getPlayer().getWorld());
 				
@@ -239,13 +232,8 @@ public class CommandEvent
 					if (i-1 >= cmd.args.length)
 						break;
 					
-					Argument arg = cmd.args[i-1];
-					
-					Object obj = arg.type.parseArgument(words[i]);
-					if (obj == null)
+					if (!cmd.args[i-1].addToEventDataList(dataArgs, words[i]))
 						continue commandLoop;
-					
-					dataArgs.add(obj);
 				}
 				
 				EventData data = cmd.eventInfo.makeData(dataArgs.toArray(), false);
