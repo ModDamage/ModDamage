@@ -71,7 +71,6 @@ public enum EntityType implements Matchable<EntityType>
 			ANIMAL(LIVING, Animals.class),
 				CHICKEN(ANIMAL, org.bukkit.entity.EntityType.CHICKEN, Chicken.class),
 				COW(ANIMAL, org.bukkit.entity.EntityType.COW, Cow.class),
-				MUSHROOMCOW(ANIMAL, org.bukkit.entity.EntityType.MUSHROOM_COW, MushroomCow.class),
 				OCELOT(ANIMAL, org.bukkit.entity.EntityType.OCELOT, Ocelot.class),
 				PIG(ANIMAL, org.bukkit.entity.EntityType.PIG, Pig.class),
 				SHEEP(ANIMAL, org.bukkit.entity.EntityType.SHEEP, Sheep.class),
