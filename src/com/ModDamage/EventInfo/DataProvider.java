@@ -206,15 +206,20 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 
 	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> cls, String s)
 	{
-		return parse(info, cls, new StringMatcher(s), true);
+		return parse(info, cls, new StringMatcher(s), true, true);
+	}
+
+	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> cls, String s, boolean finish, boolean complain)
+	{
+		return parse(info, cls, new StringMatcher(s), finish, complain);
 	}
 
 	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> cls, StringMatcher sm)
 	{
-		return parse(info, cls, sm, false);
+		return parse(info, cls, sm, false, true);
 	}
 	@SuppressWarnings("unchecked")
-	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> cls, StringMatcher sm, boolean finish)
+	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> cls, StringMatcher sm, boolean finish, boolean complain)
 	{
 		String startString = sm.string;
 		String soFar = null;
@@ -224,7 +229,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		
 		// Match EventInfo names first, since they are the most common start
 		Multimap<String, Class<?>> infoMap = info.getAllNames();
-		for (com.ModDamage.misc.Multimap.Entry<String, Class<?>> entry : infoMap)
+		for (Multimap.Entry<String, Class<?>> entry : infoMap)
 		{
 			if (sm.string.length() < entry.getKey().length()) continue;
 			
@@ -260,16 +265,19 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			soFar = sm.string;
 		}
 		
-		Class<?> dpProvides = dp == null? null : dp.provides();
-		String provName = dpProvides == null? "null" : dpProvides.getSimpleName();
-		
-		String error = "Unable to parse \""+startString+"\"";
-		if (sm.isEmpty())
-			error += ": wanted "+cls.getSimpleName()+", got "+provName;
-		else
-			error += " at "+provName+" \""+soFar+"\"";
-		
-		ModDamage.addToLogRecord(OutputPreset.FAILURE, error);
+		if (complain)
+		{
+			Class<?> dpProvides = dp == null? null : dp.provides();
+			String provName = dpProvides == null? "null" : dpProvides.getSimpleName();
+			
+			String error = "Unable to parse \""+startString+"\"";
+			if (sm.isEmpty())
+				error += ": wanted "+cls.getSimpleName()+", got "+provName;
+			else
+				error += " at "+provName+" \""+soFar+"\" for \""+cls.getSimpleName()+"\"";
+			
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, error);
+		}
 		
 		return null;
 	}

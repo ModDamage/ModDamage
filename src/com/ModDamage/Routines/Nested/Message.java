@@ -78,25 +78,25 @@ public class Message extends NestedRoutine
 
 						@Override public String toString() { return "server"; }
 					};
-			if (key.equalsIgnoreCase("world"))
+			// try a world first
 			{
-				final IDataProvider<World> worldDP = DataProvider.parse(info, World.class, "world");
-				if (worldDP == null) return null;
-				return new MessageTarget()
-					{
-						@Override
-						public void sendMessages(String[] msgs, EventData data) throws BailException
+				final IDataProvider<World> worldDP = DataProvider.parse(info, World.class, key, true, false);
+				if (worldDP != null)
+					return new MessageTarget()
 						{
-							List<Player> players = worldDP.get(data).getPlayers();
-							for(Player player : players)
-								for(String msg : msgs)
-									player.sendMessage(msg);
-						}
-
-						@Override public String toString() { return "world"; }
-					};
+							@Override
+							public void sendMessages(String[] msgs, EventData data) throws BailException
+							{
+								List<Player> players = worldDP.get(data).getPlayers();
+								for(Player player : players)
+									for(String msg : msgs)
+										player.sendMessage(msg);
+							}
+	
+							@Override public String toString() { return worldDP.toString(); }
+						};
 			}
-			
+			// otherwise try to find a player
 			{
 				final IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, key);
 				if(playerDP == null) return null;
