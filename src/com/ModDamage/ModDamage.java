@@ -60,6 +60,7 @@ public class ModDamage extends JavaPlugin
 	public void onDisable()
 	{
 		if (tagger != null) tagger.close();
+		isEnabled = false;
 		configuration.printToLog(Level.INFO, "Disabled.");
 	}
 	
