@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.server.ServerCommandEvent;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration;
@@ -215,6 +216,12 @@ public class Command
 			if (event.isCancelled()) return;
 			
 			event.setCancelled(handleCommand(event.getPlayer(), event.getMessage().split("\\s+")));
+		}
+		
+		@EventHandler(priority=EventPriority.LOW)
+		public void onServerCommand(ServerCommandEvent event)
+		{
+			handleCommand(event.getSender(), event.getCommand().split("\\s+"));
 		}
 		
 		
