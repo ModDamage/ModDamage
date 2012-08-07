@@ -104,7 +104,11 @@ public class InterpolatedString
 	private static class DynamicStringPart implements InterpolatedPart {
 		private IDataProvider<String> dstring;
 		public DynamicStringPart(IDataProvider<String> str) { dstring = str; }
-		public String toString(EventData data) throws BailException { return dstring.get(data); }
+		public String toString(EventData data) throws BailException {
+			String str = dstring.get(data);
+			if (str == null) str = "";
+			return str;
+		}
 		public String toString() { return "%{" + dstring + "}"; }
 	}
 }
