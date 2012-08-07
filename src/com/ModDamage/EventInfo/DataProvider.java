@@ -15,8 +15,8 @@ import com.ModDamage.misc.Multimap;
 
 public abstract class DataProvider<T, S> implements IDataProvider<T>
 {
-	protected IDataProvider<S> startDP;
 	protected final Class<S> wantStart;
+	protected IDataProvider<S> startDP;
 	protected T defaultValue = null;
 	
 	protected DataProvider(Class<S> wantStart, IDataProvider<S> startDP)
@@ -43,6 +43,39 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 
 	public abstract Class<T> provides();
 	
+	
+	public static class CastDataProvider<T> implements IDataProvider<T>
+	{
+		private final IDataProvider<?> inner;
+		private final Class<T> want;
+		
+		public CastDataProvider(IDataProvider<?> inner, Class<T> want)
+		{
+			this.inner = inner;
+			this.want = want;
+		}
+		
+		@Override
+		@SuppressWarnings("unchecked")
+		public T get(EventData data) throws BailException
+		{
+			Object obj = inner.get(data);
+			if (want.isInstance(obj)) return (T) obj;
+			return null;
+		}
+
+		@Override
+		public Class<T> provides()
+		{
+			return want;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return inner.toString();
+		}
+	}
 	
 	
 
@@ -250,7 +283,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		if (want == null) return (IDataProvider<T>) dp;
 		
 		if (want.isAssignableFrom(dp.provides()) || dp.provides().isAssignableFrom(want))
-			return (IDataProvider<T>) dp;
+			return new CastDataProvider<T>(dp, want);
 		
 		// dp doesn't match the required cls, look for any transformers that may convert it to the correct class
 		
