@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -213,19 +214,24 @@ public class Command
 		{
 			if (event.isCancelled()) return;
 			
-			String[] words = event.getMessage().split("\\s+");
-			if (words.length == 0) return;
+			event.setCancelled(handleCommand(event.getPlayer(), event.getMessage().split("\\s+")));
+		}
+		
+		
+		public static boolean handleCommand(CommandSender sender, String[] words)
+		{
+			if (words.length == 0) return false;
 			
 			List<CommandInfo> commands = commandMap.get(words[0]);
-			if (commands == null) return;
+			if (commands == null) return false;
 			commandLoop: for (CommandInfo cmd : commands)
 			{
 				if (!(cmd.catchAll? words.length - 1 >= cmd.args.length : words.length - 1 == cmd.args.length))
 					continue;
 				
 				List<Object> dataArgs = new ArrayList<Object>(cmd.args.length + 1); // estimate
-				dataArgs.add(event.getPlayer());
-				dataArgs.add(event.getPlayer().getWorld());
+				dataArgs.add(sender);
+				dataArgs.add(sender instanceof Player? ((Player)sender).getWorld() : null);
 				
 				for (int i = 1; i < words.length; i++)
 				{
@@ -247,11 +253,10 @@ public class Command
 					ModDamage.reportBailException(e);
 				}
 				
-				event.setCancelled(true);
-				
-				return;
+				return true;
 			}
 			
+			return false;
 		}
 	}
 }
