@@ -10,6 +10,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 
+import com.ModDamage.ModDamage;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
@@ -17,6 +18,7 @@ import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 
 public class EntityEntity extends DataProvider<Entity, Entity>
 {
@@ -36,28 +38,41 @@ public class EntityEntity extends DataProvider<Entity, Entity>
 				});
 		DataProvider.register(LivingEntity.class, Creature.class, Pattern.compile("_target", Pattern.CASE_INSENSITIVE),
 				new IDataParser<LivingEntity, Creature>() {
-					public IDataProvider<LivingEntity> parse(EventInfo info, Class<?> want, IDataProvider<Creature> creatureDP, Matcher m, StringMatcher sm) {
+					public IDataProvider<LivingEntity> parse(EventInfo info, Class<?> want, final IDataProvider<Creature> creatureDP, Matcher m, StringMatcher sm) {
 						return new DataProvider<LivingEntity, Creature>(Creature.class, creatureDP) {
 								public LivingEntity get(Creature creature, EventData data) { return creature.getTarget(); }
 								public Class<LivingEntity> provides() { return LivingEntity.class; }
+								public String toString() { return creatureDP + "_target"; }
 							};
 					}
 				});
 		DataProvider.register(Player.class, LivingEntity.class, Pattern.compile("_killer", Pattern.CASE_INSENSITIVE),
 				new IDataParser<Player, LivingEntity>() {
-					public IDataProvider<Player> parse(EventInfo info, Class<?> want, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm) {
+					public IDataProvider<Player> parse(EventInfo info, Class<?> want, final IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm) {
 						return new DataProvider<Player, LivingEntity>(LivingEntity.class, livingDP) {
 								public Player get(LivingEntity living, EventData data) { return living.getKiller(); }
 								public Class<Player> provides() { return Player.class; }
+								public String toString() { return livingDP + "_killer"; }
 							};
 					}
 				});
-		DataProvider.register(AnimalTamer.class, Tameable.class, Pattern.compile("_owner", Pattern.CASE_INSENSITIVE),
-				new IDataParser<AnimalTamer, Tameable>() {
-					public IDataProvider<AnimalTamer> parse(EventInfo info, Class<?> want, IDataProvider<Tameable> tameableDP, Matcher m, StringMatcher sm) {
-						return new DataProvider<AnimalTamer, Tameable>(Tameable.class, tameableDP) {
-								public AnimalTamer get(Tameable tameable, EventData data) { return tameable.getOwner(); }
-								public Class<AnimalTamer> provides() { return AnimalTamer.class; }
+		DataProvider.register(Player.class, Entity.class, Pattern.compile("_owner", Pattern.CASE_INSENSITIVE),
+				new IDataParser<Player, Entity>() {
+					public IDataProvider<Player> parse(EventInfo info, Class<?> want, final IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm) {
+						return new DataProvider<Player, Entity>(Entity.class, entityDP) {
+								public Player get(Entity entity, EventData data) {
+									if (!(entity instanceof Tameable)) return null;
+									AnimalTamer tamer = ((Tameable)entity).getOwner();
+									if (tamer == null) return null;
+									if (!(tamer instanceof Player))
+									{
+										ModDamage.addToLogRecord(OutputPreset.WARNING, "Unknown tamer class: "+tamer.getClass().getName());
+										return null;
+									}
+									return (Player) tamer;
+								}
+								public Class<Player> provides() { return Player.class; }
+								public String toString() { return entityDP + "_owner"; }
 							};
 					}
 				});
