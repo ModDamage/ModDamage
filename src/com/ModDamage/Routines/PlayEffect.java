@@ -31,7 +31,10 @@ public class PlayEffect extends Routine
 		BLOCK_BREAK(Effect.STEP_SOUND),
 		POTION_BREAK(Effect.POTION_BREAK),
 		ENDER_SIGNAL(Effect.ENDER_SIGNAL),
-		MOBSPAWNER_FLAMES(Effect.MOBSPAWNER_FLAMES);
+		MOBSPAWNER_FLAMES(Effect.MOBSPAWNER_FLAMES),
+		ZOMBIE_CHEW_IRON_DOOR(Effect.ZOMBIE_CHEW_IRON_DOOR),
+		ZOMBIE_CHEW_WOODEN_DOOR(Effect.ZOMBIE_CHEW_WOODEN_DOOR),
+		ZOMBIE_DESTROY_DOOR(Effect.ZOMBIE_DESTROY_DOOR);
 		
 		private final Effect effect;
 		private EffectType(Effect effect) { this.effect = effect; }
