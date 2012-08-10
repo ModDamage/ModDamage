@@ -253,6 +253,7 @@ public class ExternalPluginManager
 			@Override
 			public List<String> getRegions(Location location)
 			{
+				//regionManager.get(location.getWorld()).getApplicableRegions(toVector(location)).
 				return regionManager.get(location.getWorld()).getApplicableRegionsIDs(toVector(location));
 			}
 			

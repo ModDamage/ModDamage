@@ -11,6 +11,7 @@ import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Events.Combust;
 import com.ModDamage.Events.Damage;
 import com.ModDamage.Events.Death;
+import com.ModDamage.Events.DropItem;
 import com.ModDamage.Events.Enchant;
 import com.ModDamage.Events.Explode;
 import com.ModDamage.Events.Heal;
@@ -33,6 +34,7 @@ public class MDEvent implements Listener
 			new Combust(),
 			new Damage(),
 			new Death(),
+			new DropItem(),
 			new Enchant(),
 			new Explode(),
 			new Heal(),
