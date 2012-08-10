@@ -290,12 +290,14 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		
 		if (want == null) return (IDataProvider<T>) dp;
 		
-		if (want.isAssignableFrom(dp.provides()) || dp.provides().isAssignableFrom(want))
+		Class<?> dpProvides = dp.provides();
+		
+		if (want.equals(dpProvides)) return (IDataProvider<T>) dp;
+		
+		if (want.isAssignableFrom(dpProvides) || dpProvides.isAssignableFrom(want))
 			return new CastDataProvider<T>(dp, want);
 		
 		// dp doesn't match the required cls, look for any transformers that may convert it to the correct class
-		
-		Class<?> dpProvides = dp.provides();
 		
 		for (Entry<Class<?>, ArrayList<ParserData<?, ?>>> entry : transformersByStart.entrySet())
 		{
