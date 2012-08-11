@@ -21,7 +21,8 @@ public class Target extends MDEvent implements Listener
 			Entity.class,	"entity",
 			World.class,	"world",
 			Entity.class,	"target",
-			EntityTargetEvent.TargetReason.class, "reason");
+			EntityTargetEvent.TargetReason.class, "reason",
+			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onTarget(EntityTargetEvent event)
@@ -34,8 +35,11 @@ public class Target extends MDEvent implements Listener
 				entity,
 				entity.getWorld(),
 				target,
-				event.getReason());
+				event.getReason(),
+				event.isCancelled());
 		
 		runRoutines(data);
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }

@@ -25,7 +25,8 @@ public class PrepareEnchant extends MDEvent implements Listener
 			Integer.class,		"bonus",
 			Integer.class,		"level_1",
 			Integer.class,		"level_2",
-			Integer.class,		"level_3");
+			Integer.class,		"level_3",
+			Boolean.class,		"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPrepareItemEnchant(PrepareItemEnchantEvent event)
@@ -40,7 +41,8 @@ public class PrepareEnchant extends MDEvent implements Listener
 				player.getWorld(),
 				event.getItem(),
 				bonus,
-				levels[0], levels[1], levels[2]
+				levels[0], levels[1], levels[2],
+				event.isCancelled()
 				);
 		
 		runRoutines(data);
@@ -48,5 +50,7 @@ public class PrepareEnchant extends MDEvent implements Listener
 		levels[0] = data.get(Integer.class, data.start + 4);
 		levels[1] = data.get(Integer.class, data.start + 5);
 		levels[2] = data.get(Integer.class, data.start + 6);
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }

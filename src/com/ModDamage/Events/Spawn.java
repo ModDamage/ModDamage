@@ -23,7 +23,8 @@ public class Spawn extends MDEvent implements Listener
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Entity.class,	"entity",
 			World.class,	"world",
-			Integer.class,	"health", "-default");
+			Integer.class,	"health", "-default",
+			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerRespawn(PlayerRespawnEvent event)
@@ -34,7 +35,8 @@ public class Spawn extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				player, // entity
 				player.getWorld(),
-				player.getMaxHealth()
+				player.getMaxHealth(),
+				null
 				);
 		
 		runRoutines(data);
@@ -51,9 +53,12 @@ public class Spawn extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				entity,
 				entity.getWorld(),
-				entity.getHealth());
+				entity.getHealth(),
+				event.isCancelled());
 		
 		runRoutines(data);
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 		
 		int health = data.get(Integer.class, data.start + 2);
 		

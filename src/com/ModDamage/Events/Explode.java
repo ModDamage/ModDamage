@@ -20,7 +20,8 @@ public class Explode extends MDEvent implements Listener
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Entity.class,	"entity",
 			World.class,	"world",
-			Integer.class,	"yield");
+			Integer.class,	"yield",
+			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onExplode(EntityExplodeEvent event)
@@ -33,10 +34,13 @@ public class Explode extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				entity,
 				entity != null? entity.getWorld() : null,
-				yield);
+				yield,
+				event.isCancelled());
 		
 		runRoutines(data);
 		
 		event.setYield(((Integer) data.get(data.start + 2)) / 10.0f);
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }

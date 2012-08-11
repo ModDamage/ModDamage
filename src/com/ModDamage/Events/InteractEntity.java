@@ -21,7 +21,8 @@ public class InteractEntity extends MDEvent implements Listener
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Player.class,	"player",
 			World.class,	"world",
-			Entity.class,	"target");
+			Entity.class,	"target",
+			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onInteractEntity(PlayerInteractEntityEvent event)
@@ -33,8 +34,11 @@ public class InteractEntity extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				player,
 				player.getWorld(),
-				target);
+				target,
+				event.isCancelled());
 		
 		runRoutines(data);
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }

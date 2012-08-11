@@ -29,7 +29,8 @@ public class Damage extends MDEvent implements Listener
 			Entity.class, 		"target", "-attacker-other",
 			World.class,		"world",
 			DamageType.class, 	"damage", // e.g. damage.type.FIRE
-			Integer.class, 		"damage", "-default");
+			Integer.class, 		"damage", "-default",
+			Boolean.class,		"cancelled");
 	
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -44,6 +45,9 @@ public class Damage extends MDEvent implements Listener
 			{
 				runRoutines(data);
 				event.setDamage(data.get(Integer.class, data.start + 5));
+				
+				event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
+				
 				if (event.getDamage() <= 0)
 					event.setCancelled(true);
 			}
@@ -86,6 +90,7 @@ public class Damage extends MDEvent implements Listener
 	    		target,
 	    		world,
 	    		damageElement,
-	    		event.getDamage());
+	    		event.getDamage(),
+	    		event.isCancelled());
 	}
 }

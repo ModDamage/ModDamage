@@ -26,7 +26,8 @@ public class Combust extends MDEvent implements Listener
 			Integer.class,	"duration",
 			Entity.class,	"combustor",
 			Integer.class,	"block_type",
-			Integer.class,	"block_data");
+			Integer.class,	"block_data",
+			Boolean.class,  "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onCombust(EntityCombustEvent event)
@@ -58,10 +59,13 @@ public class Combust extends MDEvent implements Listener
 				duration,
 				combustor,
 				block_type,
-				block_data);
+				block_data,
+				event.isCancelled());
 		
 		runRoutines(data);
 		
 		event.setDuration((Integer) data.get(data.start + 2));
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }

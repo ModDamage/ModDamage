@@ -24,7 +24,8 @@ public class Enchant extends MDEvent implements Listener
 			World.class,			"world",
 			ItemStack.class, 		"item",
 			EnchantmentsRef.class,	"enchantments",
-			Integer.class,			"level");
+			Integer.class,			"level",
+			Boolean.class,			"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onEnchantItem(EnchantItemEvent event)
@@ -37,7 +38,8 @@ public class Enchant extends MDEvent implements Listener
 				player.getWorld(),
 				event.getItem(),
 				new EnchantmentsRef(event.getEnchantsToAdd()),
-				event.getExpLevelCost()
+				event.getExpLevelCost(),
+				event.isCancelled()
 				);
 		
 		runRoutines(data);
@@ -45,5 +47,7 @@ public class Enchant extends MDEvent implements Listener
 		int level = data.get(Integer.class, data.start + 4);
 		
 		event.setExpLevelCost(level);
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }

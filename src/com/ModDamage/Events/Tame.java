@@ -21,7 +21,8 @@ public class Tame extends MDEvent implements Listener
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Entity.class,	"entity",
 			Entity.class,	"tamer",
-			World.class,	"world");
+			World.class,	"world",
+			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onEntityTame(EntityTameEvent event)
@@ -33,8 +34,11 @@ public class Tame extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				entity,
 				owner,
-				entity.getWorld());
+				entity.getWorld(),
+				event.isCancelled());
 		
 		runRoutines(data);
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }

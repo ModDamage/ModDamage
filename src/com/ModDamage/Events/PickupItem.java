@@ -22,7 +22,8 @@ public class PickupItem extends MDEvent implements Listener
 			Player.class,	"player",
 			World.class,	"world",
 			Item.class,		"item",
-			Integer.class, 	"remaining");
+			Integer.class, 	"remaining",
+			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPickupItem(PlayerPickupItemEvent event)
@@ -34,8 +35,11 @@ public class PickupItem extends MDEvent implements Listener
 				player,
 				player.getWorld(),
 				event.getItem(),
-				event.getRemaining());
+				event.getRemaining(),
+				event.isCancelled());
 		
 		runRoutines(data);
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }

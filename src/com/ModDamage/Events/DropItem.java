@@ -21,7 +21,8 @@ public class DropItem extends MDEvent implements Listener
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Player.class,	"player",
 			World.class,	"world",
-			Item.class,		"item");
+			Item.class,		"item",
+			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onDropItem(PlayerDropItemEvent event)
@@ -32,8 +33,11 @@ public class DropItem extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				player,
 				player.getWorld(),
-				event.getItemDrop());
+				event.getItemDrop(),
+				event.isCancelled());
 		
 		runRoutines(data);
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }
