@@ -13,6 +13,7 @@ import com.ModDamage.Variables.Int.EntityTagInt;
 import com.ModDamage.Variables.Int.IntegerOpInt;
 import com.ModDamage.Variables.Int.ItemEnchantmentInt;
 import com.ModDamage.Variables.Int.ItemInt;
+import com.ModDamage.Variables.Int.LocationInt;
 import com.ModDamage.Variables.Int.NegativeInt;
 import com.ModDamage.Variables.Int.PlayerInt;
 import com.ModDamage.Variables.Int.PotionEffectInt;
@@ -63,6 +64,7 @@ public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 		IntegerOpInt.register();
 		ItemEnchantmentInt.register();
 		ItemInt.register();
+		LocationInt.register();
 		NegativeInt.register();
 		PlayerInt.register();
 		PotionEffectInt.register();

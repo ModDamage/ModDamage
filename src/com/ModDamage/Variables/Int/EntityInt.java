@@ -122,27 +122,6 @@ public class EntityInt extends SettableIntegerExp<Entity>
 			{
 				if(entity instanceof Slime) ((Slime)entity).setSize(value);
 			}
-		},
-		X
-		{
-			@Override public int getValue(Entity entity)
-			{
-				return entity.getLocation().getBlockX();
-			}
-		},
-		Y
-		{
-			@Override public int getValue(Entity entity)
-			{
-				return entity.getLocation().getBlockY();
-			}
-		},
-		Z
-		{
-			@Override public int getValue(Entity entity)
-			{
-				return entity.getLocation().getBlockZ();
-			}
 		};
 		
 		public boolean settable = false;
