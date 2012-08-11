@@ -26,6 +26,7 @@ import com.ModDamage.Events.Quit;
 import com.ModDamage.Events.Spawn;
 import com.ModDamage.Events.Tame;
 import com.ModDamage.Events.Target;
+import com.ModDamage.Events.Teleport;
 import com.ModDamage.Routines.Routines;
 
 public class MDEvent implements Listener
@@ -48,7 +49,8 @@ public class MDEvent implements Listener
 			new Quit(),
 			new Spawn(),
 			new Tame(),
-			new Target()
+			new Target(),
+			new Teleport(),
 		};
 
 	public static boolean disableDeathMessages = false;
