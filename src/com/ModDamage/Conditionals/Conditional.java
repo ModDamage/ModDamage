@@ -11,6 +11,7 @@ public abstract class Conditional<S> extends DataProvider<Boolean, S>
 	{
 		Chance.register();
 		Comparison.register();
+		Equality.register();
 		CompoundConditional.register();
 		InvertBoolean.register();
 		//Entity

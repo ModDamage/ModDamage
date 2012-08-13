@@ -17,16 +17,6 @@ public class Comparison extends Conditional<Integer>
 {
 	private enum ComparisonType
 	{ 
-		EQUALS("==?", "=", "==")
-		{
-			@Override
-			public boolean compare(int operand1, int operand2){ return operand1 == operand2; }
-		},
-		NOTEQUALS("!=", "!=")
-		{
-			@Override
-			public boolean compare(int operand1, int operand2){ return operand1 != operand2; }
-		},
 		LESSTHAN("<", "<")
 		{
 			@Override
