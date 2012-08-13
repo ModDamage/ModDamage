@@ -25,9 +25,11 @@ import com.ModDamage.Expressions.NestedExp;
 import com.ModDamage.Expressions.StringExp;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
+import com.ModDamage.Variables.BlockLocation;
 import com.ModDamage.Variables.EntityEntity;
 import com.ModDamage.Variables.EntityLocation;
 import com.ModDamage.Variables.EntityWorld;
+import com.ModDamage.Variables.LocationBlock;
 import com.ModDamage.Variables.LocationWorld;
 import com.ModDamage.Variables.Item.ItemTransformer;
 import com.ModDamage.Variables.Item.PlayerInvItem;
@@ -62,9 +64,11 @@ public class ExternalPluginManager
 		ItemTransformer.register();
 		
 		// Other
+		BlockLocation.register();
 		EntityEntity.register();
 		EntityLocation.register();
 		EntityWorld.register();
+		LocationBlock.register();
 		LocationWorld.register();
 		
 		for(ModDamageExtension plugin : registeredPlugins)

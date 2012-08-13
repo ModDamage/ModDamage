@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.Entity;
+import org.bukkit.Location;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
@@ -15,24 +15,24 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 
-public class EntityRegion extends Conditional<Entity>
+public class LocationRegion extends Conditional<Location>
 {
 	public static final Pattern pattern = Pattern.compile("\\.(?:in)?region(only)?.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
 	private final boolean inclusiveComparison;
 	private final Collection<String> regions;
 	
-	public EntityRegion(IDataProvider<Entity> entityDP, boolean inclusiveComparison, Collection<String> regions)
+	public LocationRegion(IDataProvider<Location> locDP, boolean inclusiveComparison, Collection<String> regions)
 	{
-		super(Entity.class, entityDP);
+		super(Location.class, locDP);
 		this.inclusiveComparison = inclusiveComparison;
 		this.regions = regions;		
 	}
 
 	@Override
-	public Boolean get(Entity entity, EventData data)
+	public Boolean get(Location loc, EventData data)
 	{
-		Collection<String> entityRegions = getRegions(entity);
+		Collection<String> entityRegions = getRegions(loc);
 		for(String region : entityRegions)
 			if(inclusiveComparison) {
 				if (regions.contains(region))
@@ -46,9 +46,9 @@ public class EntityRegion extends Conditional<Entity>
 		return false;
 	}
 	
-	protected Collection<String> getRegions(Entity entity) 
+	protected Collection<String> getRegions(Location loc) 
 	{
-		return ExternalPluginManager.getRegionsManager().getRegions(entity.getLocation());
+		return ExternalPluginManager.getRegionsManager().getRegions(loc);
 	}
 	
 	@Override
@@ -61,15 +61,15 @@ public class EntityRegion extends Conditional<Entity>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean, Entity>()
+		DataProvider.register(Boolean.class, Location.class, pattern, new IDataParser<Boolean, Location>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Location> locDP, Matcher m, StringMatcher sm)
 				{
 					Collection<String> regions = RegionAliaser.match(m.group(2));
 					if(regions.isEmpty()) return null;
 					
-					return new EntityRegion(entityDP, m.group(1) != null, regions);
+					return new LocationRegion(locDP, m.group(1) != null, regions);
 				}
 			});
 	}

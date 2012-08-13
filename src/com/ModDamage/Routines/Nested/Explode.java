@@ -3,7 +3,7 @@ package com.ModDamage.Routines.Nested;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.Entity;
+import org.bukkit.Location;
 
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
@@ -15,15 +15,15 @@ import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Routines;
 
-public class EntityExplode extends NestedRoutine
+public class Explode extends NestedRoutine
 {
-	private final IDataProvider<Entity> entityDP;
+	private final IDataProvider<Location> locDP;
 	private final IDataProvider<Integer> strength;
 	
-	public EntityExplode(String configString, IDataProvider<Entity> entityDP, IDataProvider<Integer> strength)
+	public Explode(String configString, IDataProvider<Location> locDP, IDataProvider<Integer> strength)
 	{
 		super(configString);
-		this.entityDP = entityDP;
+		this.locDP = locDP;
 		this.strength = strength;
 	}
 	
@@ -32,23 +32,23 @@ public class EntityExplode extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		Entity entity = entityDP.get(data);
+		Location entity = locDP.get(data);
 		
 		EventData myData = myInfo.makeChainedData(data, 0);
-		entity.getWorld().createExplosion(entity.getLocation(), strength.get(myData)/10.0f);
+		entity.getWorld().createExplosion(entity, strength.get(myData)/10.0f);
 	}
 	
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(.*)effect\\.explode", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(.*?)(?:effect)?\\.explode", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{	
 		@Override
-		public EntityExplode getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public Explode getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
+			IDataProvider<Location> locDP = DataProvider.parse(info, Location.class, matcher.group(1));
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
@@ -56,8 +56,8 @@ public class EntityExplode extends NestedRoutine
 			
 			IDataProvider<Integer> strength = IntegerExp.getNew(routines, einfo);
 			
-			if(entityDP != null && strength != null)
-				return new EntityExplode(matcher.group(), entityDP, strength);
+			if(locDP != null && strength != null)
+				return new Explode(matcher.group(), locDP, strength);
 			
 			return null;
 		}

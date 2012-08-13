@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Location;
 import org.bukkit.block.Biome;
-import org.bukkit.entity.Entity;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
@@ -15,21 +15,21 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 
-public class EntityBiome extends Conditional<Entity>
+public class LocationBiome extends Conditional<Location>
 {
 	public static final Pattern pattern = Pattern.compile("\\.biome\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	protected final Collection<Biome> biomes;
 	
-	public EntityBiome(IDataProvider<Entity> entityDP, Collection<Biome> biomes)
+	public LocationBiome(IDataProvider<Location> locDP, Collection<Biome> biomes)
 	{
-		super(Entity.class, entityDP);
+		super(Location.class, locDP);
 		this.biomes = biomes;
 	}
 	
 	@Override
-	public Boolean get(Entity entity, EventData data)
+	public Boolean get(Location loc, EventData data)
 	{ 
-		return biomes.contains(entity.getLocation().getBlock().getBiome());
+		return biomes.contains(loc.getBlock().getBiome());
 	}
 	
 	@Override
@@ -41,15 +41,15 @@ public class EntityBiome extends Conditional<Entity>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Entity.class, pattern, new IDataParser<Boolean, Entity>()
+		DataProvider.register(Boolean.class, Location.class, pattern, new IDataParser<Boolean, Location>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Location> locDP, Matcher m, StringMatcher sm)
 				{
 					Collection<Biome> biomes = BiomeAliaser.match(m.group(1));
 					if(biomes.isEmpty()) return null;
 					
-					return new EntityBiome(entityDP, biomes);
+					return new LocationBiome(locDP, biomes);
 				}
 			});
 	}

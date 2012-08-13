@@ -14,10 +14,10 @@ public abstract class Conditional<S> extends DataProvider<Boolean, S>
 		CompoundConditional.register();
 		InvertBoolean.register();
 		//Entity
-		EntityBiome.register();
+		LocationBiome.register();
 		EntityBlockStatus.register();
 		EntityHasPotionEffect.register();
-		EntityRegion.register();
+		LocationRegion.register();
 		EntityStatus.register();
 		EntityTagged.register();
 		PlayerWearing.register();

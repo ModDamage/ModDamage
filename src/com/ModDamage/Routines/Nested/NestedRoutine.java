@@ -27,12 +27,12 @@ public abstract class NestedRoutine extends Routine
 		Message.registerNested();
 		Knockback.register();
 		SwitchRoutine.register();
-		EntitySpawn.register();
+		Spawn.register();
 		EntityItemAction.registerNested();
 		EntityHurt.register();
 		EntityUnknownHurt.register();
 		EntityHeal.register();
-		EntityExplode.register();
+		Explode.register();
 		LaunchProjectile.register();
 		Nearby.register();
 		ChangeProperty.register();

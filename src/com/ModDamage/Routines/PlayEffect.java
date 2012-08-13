@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Effect;
-import org.bukkit.entity.Entity;
+import org.bukkit.Location;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
@@ -42,15 +42,15 @@ public class PlayEffect extends Routine
 		public Integer dataForExtra(String extra) { return null; }
 	}
 	
-	private final IDataProvider<Entity> entityDP;
+	private final IDataProvider<Location> locDP;
 	private final EffectType effectType;
 	private final IDataProvider<Integer> effectData;
 	private final IDataProvider<Integer> radius;
 	
-	protected PlayEffect(String configString, IDataProvider<Entity> entityDP, EffectType effectType, IDataProvider<Integer> effectData, IDataProvider<Integer> radius)
+	protected PlayEffect(String configString, IDataProvider<Location> locDP, EffectType effectType, IDataProvider<Integer> effectData, IDataProvider<Integer> radius)
 	{
 		super(configString);
-		this.entityDP = entityDP;
+		this.locDP = locDP;
 		this.effectType = effectType;
 		this.effectData = effectData;
 		this.radius = radius;
@@ -59,13 +59,13 @@ public class PlayEffect extends Routine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		Entity entity = entityDP.get(data);
-		if (entity == null) return;
+		Location loc = locDP.get(data);
+		if (loc == null) return;
 		
 		if (radius == null)
-			entity.getWorld().playEffect(entity.getLocation(), effectType.effect, effectData.get(data));
+			loc.getWorld().playEffect(loc, effectType.effect, effectData.get(data));
 		else
-			entity.getWorld().playEffect(entity.getLocation(), effectType.effect, effectData.get(data).intValue(), radius.get(data).intValue());
+			loc.getWorld().playEffect(loc, effectType.effect, effectData.get(data).intValue(), radius.get(data).intValue());
 	}
 
 	public static void register()
@@ -78,8 +78,8 @@ public class PlayEffect extends Routine
 		@Override
 		public PlayEffect getNew(Matcher matcher, EventInfo info)
 		{ 
-			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
-			if (entityDP == null) return null;
+			IDataProvider<Location> locDP = DataProvider.parse(info, Location.class, matcher.group(1));
+			if (locDP == null) return null;
 			
 			EffectType effectType;
 			try
@@ -121,8 +121,8 @@ public class PlayEffect extends Routine
 				}
 			}
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "PlayEffect: " + entityDP + " " + effectType + " " + data + (radius != null? " " + radius : ""));
-			return new PlayEffect(matcher.group(), entityDP, effectType, data, radius);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "PlayEffect: " + locDP + " " + effectType + " " + data + (radius != null? " " + radius : ""));
+			return new PlayEffect(matcher.group(), locDP, effectType, data, radius);
 		}
 	}
 }
