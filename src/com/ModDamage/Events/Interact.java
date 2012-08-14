@@ -28,8 +28,7 @@ public class Interact extends MDEvent implements Listener
 			Boolean.class,		"interact_right",
 			Boolean.class,		"interact_block",
 			Boolean.class,		"interact_air",
-			Integer.class,		"interact_block_type",
-			Integer.class,		"interact_block_data",
+			Block.class,		"interact_block",
 			Boolean.class,		"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -41,13 +40,6 @@ public class Interact extends MDEvent implements Listener
 		Action action = event.getAction();
 		
 		Block clickedBlock = event.getClickedBlock();
-		int block_type = 0;
-		int block_data = 0;
-		if (clickedBlock != null)
-		{
-			block_type = clickedBlock.getTypeId();
-			block_data = clickedBlock.getData();
-		}
 		
 		EventData data = myInfo.makeData(
 				player,
@@ -57,8 +49,7 @@ public class Interact extends MDEvent implements Listener
 				action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK,
 				action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK,
 				action == Action.LEFT_CLICK_AIR || action == Action.RIGHT_CLICK_AIR,
-				block_type,
-				block_data,
+				clickedBlock,
 				event.isCancelled());
 		
 		runRoutines(data);
