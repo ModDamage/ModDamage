@@ -19,7 +19,7 @@ import com.ModDamage.EventInfo.IDataProvider;
 
 public class EntityBlockStatus extends Conditional<Entity>
 {
-	public static final Pattern pattern = Pattern.compile("\\.is(\\w+)block\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.is(\\w+)(?:block)?\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
 	
 	private enum BlockStatusType
