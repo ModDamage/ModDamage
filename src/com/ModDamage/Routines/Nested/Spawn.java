@@ -44,7 +44,7 @@ public class Spawn extends NestedRoutine
 		if (loc == null)
 			return; //entity = EntityReference.TARGET.getEntity(data);
 		
-		LivingEntity newEntity = spawnType.spawnCreature(loc);
+		LivingEntity newEntity = spawnType.spawn(loc);
 		
 		EventData newData = myInfo.makeChainedData(data, 
 				newEntity, EntityType.get(newEntity), newEntity.getHealth());
@@ -66,7 +66,7 @@ public class Spawn extends NestedRoutine
 		{
 			EntityType spawnType = EntityType.getElementNamed(matcher.group(2));
 			if (spawnType == null) return null;
-			if (!spawnType.canSpawnCreature())
+			if (!spawnType.canSpawn())
 			{
 				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Cannot spawn "+matcher.group(2));
 				return null;

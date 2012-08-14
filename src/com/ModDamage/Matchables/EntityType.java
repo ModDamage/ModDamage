@@ -90,9 +90,9 @@ public enum EntityType implements Matchable<EntityType>
 					WOLF_ANGRY(WOLF, org.bukkit.entity.EntityType.WOLF)
 					{
 						@Override
-						public LivingEntity spawnCreature(Location location)
+						public LivingEntity spawn(Location location)
 						{
-							Wolf wolf = ((Wolf)location.getWorld().spawnCreature(location, this.getCreatureType()));
+							Wolf wolf = ((Wolf)location.getWorld().spawnEntity(location, this.getCreatureType()));
 							wolf.setAngry(true);
 							return wolf;
 						}
@@ -100,9 +100,9 @@ public enum EntityType implements Matchable<EntityType>
 					WOLF_TAME(WOLF, org.bukkit.entity.EntityType.WOLF)
 					{
 						@Override
-						public LivingEntity spawnCreature(Location location)
+						public LivingEntity spawn(Location location)
 						{
-							Wolf wolf = ((Wolf)location.getWorld().spawnCreature(location, this.getCreatureType()));
+							Wolf wolf = ((Wolf)location.getWorld().spawnEntity(location, this.getCreatureType()));
 							wolf.setTamed(true);
 							return wolf;
 						}
@@ -130,9 +130,9 @@ public enum EntityType implements Matchable<EntityType>
 					CREEPER_CHARGED(CREEPER, org.bukkit.entity.EntityType.CREEPER)
 					{
 						@Override
-						public LivingEntity spawnCreature(Location location)
+						public LivingEntity spawn(Location location)
 						{
-							Creeper creeper = ((Creeper)location.getWorld().spawnCreature(location, this.getCreatureType()));
+							Creeper creeper = ((Creeper)location.getWorld().spawnEntity(location, this.getCreatureType()));
 							creeper.setPowered(true);
 							return creeper;
 						}
@@ -164,9 +164,9 @@ public enum EntityType implements Matchable<EntityType>
 					SLIME_HUGE(SLIME, org.bukkit.entity.EntityType.SLIME)
 					{
 						@Override
-						public LivingEntity spawnCreature(Location location)
+						public LivingEntity spawn(Location location)
 						{
-							Slime slime = ((Slime)location.getWorld().spawnCreature(location, this.getCreatureType()));
+							Slime slime = ((Slime)location.getWorld().spawnEntity(location, this.getCreatureType()));
 							slime.setSize(SIZE_HUGE);
 							return slime;
 						}
@@ -174,9 +174,9 @@ public enum EntityType implements Matchable<EntityType>
 					SLIME_LARGE(SLIME, org.bukkit.entity.EntityType.SLIME)
 					{
 						@Override
-						public LivingEntity spawnCreature(Location location)
+						public LivingEntity spawn(Location location)
 						{
-							Slime slime = ((Slime)location.getWorld().spawnCreature(location, this.getCreatureType()));
+							Slime slime = ((Slime)location.getWorld().spawnEntity(location, this.getCreatureType()));
 							slime.setSize(SIZE_LARGE);
 							return slime;
 						}
@@ -184,9 +184,9 @@ public enum EntityType implements Matchable<EntityType>
 					SLIME_MEDIUM(SLIME, org.bukkit.entity.EntityType.SLIME)
 					{
 						@Override
-						public LivingEntity spawnCreature(Location location)
+						public LivingEntity spawn(Location location)
 						{
-							Slime slime = ((Slime)location.getWorld().spawnCreature(location, this.getCreatureType()));
+							Slime slime = ((Slime)location.getWorld().spawnEntity(location, this.getCreatureType()));
 							slime.setSize(SIZE_MEDIUM);
 							return slime;
 						}
@@ -194,9 +194,9 @@ public enum EntityType implements Matchable<EntityType>
 					SLIME_SMALL(SLIME, org.bukkit.entity.EntityType.SLIME)
 					{
 						@Override
-						public LivingEntity spawnCreature(Location location)
+						public LivingEntity spawn(Location location)
 						{
-							Slime slime = ((Slime)location.getWorld().spawnCreature(location, this.getCreatureType()));
+							Slime slime = ((Slime)location.getWorld().spawnEntity(location, this.getCreatureType()));
 							slime.setSize(SIZE_SMALL);
 							return slime;
 						}
@@ -204,9 +204,9 @@ public enum EntityType implements Matchable<EntityType>
 					SLIME_OTHER(SLIME, org.bukkit.entity.EntityType.SLIME)
 					{
 						@Override
-						public LivingEntity spawnCreature(Location location)
+						public LivingEntity spawn(Location location)
 						{
-							Slime slime = ((Slime)location.getWorld().spawnCreature(location, this.getCreatureType()));
+							Slime slime = ((Slime)location.getWorld().spawnEntity(location, this.getCreatureType()));
 							slime.setSize((int)Math.random()%10 + SIZE_HUGE);
 							return slime;
 						}
@@ -223,10 +223,10 @@ public enum EntityType implements Matchable<EntityType>
 					SPIDER_JOCKEY(SPIDER, org.bukkit.entity.EntityType.SPIDER)
 					{
 						@Override
-						public LivingEntity spawnCreature(Location location)
+						public LivingEntity spawn(Location location)
 						{
-							LivingEntity spider = location.getWorld().spawnCreature(location, this.getCreatureType());
-							spider.setPassenger(location.getWorld().spawnCreature(location, org.bukkit.entity.EntityType.SKELETON));
+							LivingEntity spider = (LivingEntity) location.getWorld().spawnEntity(location, this.getCreatureType());
+							spider.setPassenger(location.getWorld().spawnEntity(location, org.bukkit.entity.EntityType.SKELETON));
 							return spider;
 						}
 					},
@@ -244,9 +244,9 @@ public enum EntityType implements Matchable<EntityType>
 					PIGZOMBIE_ANGRY(PIGZOMBIE, org.bukkit.entity.EntityType.PIG_ZOMBIE)
 					{
 						@Override
-						public LivingEntity spawnCreature(Location location)
+						public LivingEntity spawn(Location location)
 						{
-							PigZombie pigZombie = (PigZombie)location.getWorld().spawnCreature(location, this.getCreatureType());
+							PigZombie pigZombie = (PigZombie)location.getWorld().spawnEntity(location, this.getCreatureType());
 							pigZombie.setAngry(true);
 							return pigZombie;
 						}
@@ -394,11 +394,11 @@ public enum EntityType implements Matchable<EntityType>
 		return null;
 	}
 	
-	public boolean canSpawnCreature(){ return creatureType != null && creatureType.isSpawnable(); }
-	public LivingEntity spawnCreature(Location location)
+	public boolean canSpawn(){ return creatureType != null && creatureType.isSpawnable(); }
+	public LivingEntity spawn(Location location)
 	{
 		if(creatureType != null)
-			return location.getWorld().spawnCreature(location, creatureType);
+			return (LivingEntity) location.getWorld().spawnEntity(location, creatureType);
 		else throw new IllegalArgumentException("Cannot spawn " + name() + "!");
 	}
 }
