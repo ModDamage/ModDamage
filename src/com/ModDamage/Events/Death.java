@@ -41,7 +41,8 @@ public class Death extends MDEvent implements Listener
 					entity,
 					entity.getWorld(),
 					DamageType.UNKNOWN,
-					0
+					0,
+					null
 					);
 		
 		EventData data = myInfo.makeChainedData(damageData, event.getDroppedExp());
