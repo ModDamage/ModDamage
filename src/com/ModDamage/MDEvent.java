@@ -20,6 +20,7 @@ import com.ModDamage.Events.InteractEntity;
 import com.ModDamage.Events.ItemHeld;
 import com.ModDamage.Events.Join;
 import com.ModDamage.Events.PickupExp;
+import com.ModDamage.Events.PickupItem;
 import com.ModDamage.Events.PrepareEnchant;
 import com.ModDamage.Events.ProjectileHit;
 import com.ModDamage.Events.Quit;
@@ -44,6 +45,7 @@ public class MDEvent implements Listener
 			new ItemHeld(),
 			new Join(),
 			new PickupExp(),
+			new PickupItem(),
 			new PrepareEnchant(),
 			new ProjectileHit(),
 			new Quit(),
