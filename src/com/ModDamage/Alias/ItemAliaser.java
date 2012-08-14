@@ -16,7 +16,7 @@ import com.ModDamage.EventInfo.EventInfo;
 public class ItemAliaser extends Aliaser<Object, Collection<String>> 
 {
 	public static ItemAliaser aliaser = new ItemAliaser();
-	public static Collection<ModDamageItemStack> match(String string, EventInfo info) { return aliaser.matchAlias(string, info); }
+	public static List<ModDamageItemStack> match(String string, EventInfo info) { return aliaser.matchAlias(string, info); }
 	
 	public ItemAliaser() { super(AliasManager.Item.name()); }
 	
@@ -36,7 +36,7 @@ public class ItemAliaser extends Aliaser<Object, Collection<String>>
 		aliases.addAll(items);
 	}
 	
-	public Collection<ModDamageItemStack> matchAlias(String key, EventInfo info)
+	public List<ModDamageItemStack> matchAlias(String key, EventInfo info)
 	{
 		Collection<String> values = getAlias(key);
 		if (values == null)

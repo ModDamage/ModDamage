@@ -58,7 +58,7 @@ public class ModDamageItemStack
 		}
 	}
 	
-	public boolean matches(ItemStack itemStack)
+	public boolean typeMatches(ItemStack itemStack)
 	{
 		if (itemStack == null)
 			return material == Material.AIR;
@@ -67,10 +67,21 @@ public class ModDamageItemStack
 			return false;
 		
 		if (material == Material.AIR)
-			// ignore data and amount for air
+			// ignore data for air
 			return true;
 		
-		return itemStack.getAmount() >= lastAmount && (data == null? true : itemStack.getDurability() == lastData);
+		return data == null? true : itemStack.getDurability() == lastData;
+	}
+	
+	public boolean matches(ItemStack itemStack)
+	{
+		if (!typeMatches(itemStack)) return false;
+		
+		if (material == Material.AIR)
+			// ignore amount for air
+			return true;
+		
+		return itemStack.getAmount() >= lastAmount;
 	}
 	
 	public ItemStack toItemStack()
@@ -153,9 +164,13 @@ public class ModDamageItemStack
 		return stacks;
 	}
 	
+	public int getAmount() {
+		return lastAmount;
+	}
+	
 	@Override
 	public String toString()
 	{
-		return material.name() + "*" + amount.toString();
+		return material.name() + (data == null? "" : "@" + data) + "*" + amount.toString();
 	}
 }

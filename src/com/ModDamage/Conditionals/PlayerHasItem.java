@@ -1,6 +1,6 @@
 package com.ModDamage.Conditionals;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,12 +20,12 @@ import com.ModDamage.EventInfo.IDataProvider;
 
 public class PlayerHasItem extends Conditional<Player>
 {
-	public static final Pattern pattern = Pattern.compile("\\.has((?:all)?items|item)\\.([\\w,@*]+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.has(?:((?:all)?items)|anyitem)\\.([\\w,@*]+)", Pattern.CASE_INSENSITIVE);
 	
 	private final boolean allItems;
-	private final Collection<ModDamageItemStack> items;
+	private final List<ModDamageItemStack> items;
 	
-	public PlayerHasItem(IDataProvider<Player> playerDP, boolean allItems, Collection<ModDamageItemStack> items)
+	public PlayerHasItem(IDataProvider<Player> playerDP, boolean allItems, List<ModDamageItemStack> items)
 	{
 		super(Player.class, playerDP);
 		this.allItems = allItems;
@@ -38,30 +38,38 @@ public class PlayerHasItem extends Conditional<Player>
 		for(ModDamageItemStack item : items)
 			item.update(data);
 		Inventory inventory = player.getInventory();
+		int[] counts = new int[items.size()];
+		
+		outerLoop: for (ItemStack stack : inventory)
+		{
+			int i = -1;
+			for(ModDamageItemStack item : items)
+			{
+				i++;
+				if (item.typeMatches(stack))
+				{
+					counts[i] += stack.getAmount();
+					continue outerLoop;
+				}
+			}
+		}
+		
+		
 		if(allItems)
 		{
-			outerLoop: for(ModDamageItemStack item : items)
+			for (int i = 0; i < counts.length; i++)
 			{
-				for (ItemStack stack : inventory)
-					if (item.matches(stack))
-						continue outerLoop;
-				return false;
-				//ItemStack temp = item.toItemStack();
-				//if(!inventory.contains(temp.getType(), temp.getAmount()))
-				//	return false;
+				if (counts[i] < items.get(i).getAmount())
+					return false;
 			}
 			return true;
 		}
 		else
 		{
-			for(ModDamageItemStack item : items)
+			for (int i = 0; i < counts.length; i++)
 			{
-				for (ItemStack stack : inventory)
-					if (item.matches(stack))
-						return true;
-				//ItemStack temp = item.toItemStack();
-				//if(inventory.contains(temp.getType(), temp.getAmount()))
-				//	return true;
+				if (counts[i] >= items.get(i).getAmount())
+					return true;
 			}
 			return false;
 		}
@@ -81,10 +89,10 @@ public class PlayerHasItem extends Conditional<Player>
 				@Override
 				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
-					Collection<ModDamageItemStack> items = ItemAliaser.match(m.group(2), info);
+					List<ModDamageItemStack> items = ItemAliaser.match(m.group(2), info);
 					if(items == null || items.isEmpty()) return null;
 					
-					return new PlayerHasItem(playerDP, m.group(1).equalsIgnoreCase("allitems"), items);
+					return new PlayerHasItem(playerDP, m.group(1) != null, items);
 				}
 			});
 	}
