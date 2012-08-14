@@ -28,8 +28,10 @@ public class EventData implements Cloneable
 	
 	public Object get(int i)
 	{
-		if (i - start >= objects.length)
+		if (i - start >= objects.length) {
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad index of "+i+" / "+start+"+"+objects.length);
+			return null;
+		}
 		if (i >= start) return objects[i - start];
 		return parent.get(i);
 	}
