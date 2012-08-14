@@ -23,6 +23,7 @@ public class Transformers
 						return new DataProvider<Location, Block>(Block.class, blockDP) {
 								public Location get(Block block, EventData data) { return block.getLocation(); }
 								public Class<Location> provides() { return Location.class; }
+								public String toString() { return startDP.toString(); }
 							};
 					}
 				});
@@ -33,6 +34,7 @@ public class Transformers
 						return new DataProvider<Location, Entity>(Entity.class, entityDP) {
 								public Location get(Entity entity, EventData data) { return entity.getLocation(); }
 								public Class<Location> provides() { return Location.class; }
+								public String toString() { return startDP.toString(); }
 							};
 					}
 				});
@@ -43,6 +45,7 @@ public class Transformers
 						return new DataProvider<Block, Location>(Location.class, locDP) {
 								public Block get(Location loc, EventData data) { return loc.getBlock(); }
 								public Class<Block> provides() { return Block.class; }
+								public String toString() { return startDP.toString(); }
 							};
 					}
 				});

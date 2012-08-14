@@ -48,4 +48,10 @@ public class Chance implements IDataProvider<Boolean>
 				}
 			});
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "chance." + probability;
+	}
 }

@@ -23,6 +23,7 @@ public class EntityTargetBlock
 						return new DataProvider<Block, LivingEntity>(LivingEntity.class, entityDP) {
 								public Block get(LivingEntity entity, EventData data) { return entity.getTargetBlock(null, 100); }
 								public Class<Block> provides() { return Block.class; }
+								public String toString() { return startDP + "_targetblock"; }
 							};
 					}
 				});

@@ -46,4 +46,10 @@ public class InvertBoolean implements IDataProvider<Boolean>
 				}
 			});
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "!" + bool;
+	}
 }
