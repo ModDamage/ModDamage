@@ -6,6 +6,7 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.Routines.Routines;
+import com.ModDamage.Variables.Int.BlockInt;
 import com.ModDamage.Variables.Int.Constant;
 import com.ModDamage.Variables.Int.EnchantmentInt;
 import com.ModDamage.Variables.Int.EntityInt;
@@ -58,6 +59,7 @@ public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 		Function.register();
 		
 		Constant.register();
+		BlockInt.register();
 		EnchantmentInt.register();
 		EntityInt.register();
 		EntityTagInt.register();
