@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -50,7 +51,8 @@ public class Interact extends MDEvent implements Listener
 				action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK,
 				action == Action.LEFT_CLICK_AIR || action == Action.RIGHT_CLICK_AIR,
 				clickedBlock,
-				event.isCancelled());
+				event.useInteractedBlock() == Result.DENY && event.useItemInHand() == Result.DENY //event.isCancelled()
+				);
 		
 		runRoutines(data);
 		
