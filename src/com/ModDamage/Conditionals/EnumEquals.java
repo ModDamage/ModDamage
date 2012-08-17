@@ -58,6 +58,11 @@ public class EnumEquals extends Conditional<Enum>
 					
 					for (String typeStr : m.group(1).split(","))
 					{
+						if (typeStr.equalsIgnoreCase("none"))
+						{
+							types.add(null);
+							continue;
+						}
 						Enum type = possibleTypes.get(typeStr.toUpperCase());
 						if (type == null)
 						{
