@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import com.ModDamage.MDEvent;
@@ -24,6 +25,7 @@ public class Spawn extends MDEvent implements Listener
 			Entity.class,	"entity",
 			World.class,	"world",
 			Integer.class,	"health", "-default",
+			SpawnReason.class, "reason", "spawn_reason",
 			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -36,6 +38,7 @@ public class Spawn extends MDEvent implements Listener
 				player, // entity
 				player.getWorld(),
 				player.getMaxHealth(),
+				null,
 				null
 				);
 		
@@ -54,6 +57,7 @@ public class Spawn extends MDEvent implements Listener
 				entity,
 				entity.getWorld(),
 				entity.getHealth(),
+				event.getSpawnReason(),
 				event.isCancelled());
 		
 		runRoutines(data);
