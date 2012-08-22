@@ -13,17 +13,17 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 
-public class EntityTargetBlock
+public class EntityBlockTarget
 {
 	public static void register()
 	{
-		DataProvider.register(Block.class, LivingEntity.class, Pattern.compile("_targetblock", Pattern.CASE_INSENSITIVE),
+		DataProvider.register(Block.class, LivingEntity.class, Pattern.compile("_blocktarget", Pattern.CASE_INSENSITIVE),
 				new IDataParser<Block, LivingEntity>() {
 					public IDataProvider<Block> parse(EventInfo info, Class<?> want, IDataProvider<LivingEntity> entityDP, Matcher m, StringMatcher sm) {
 						return new DataProvider<Block, LivingEntity>(LivingEntity.class, entityDP) {
 								public Block get(LivingEntity entity, EventData data) { return entity.getTargetBlock(null, 100); }
 								public Class<Block> provides() { return Block.class; }
-								public String toString() { return startDP + "_targetblock"; }
+								public String toString() { return startDP + "_blocktarget"; }
 							};
 					}
 				});
