@@ -22,6 +22,7 @@ import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ReflectionMagic;
 import com.ModDamage.Events.Command;
 
 /**
@@ -51,6 +52,7 @@ public class ModDamage extends JavaPlugin
 		Bukkit.getPluginManager().registerEvents(new Command.CommandEventHandler(), this);
 		
 		PluginCommand.setPlugin(this);
+		ReflectionMagic.setLogDir(new File(this.getDataFolder(), "log"));
 		configuration = new PluginConfiguration(this);
 		isEnabled = true;
 		reload(true);

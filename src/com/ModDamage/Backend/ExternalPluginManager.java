@@ -26,7 +26,7 @@ import com.ModDamage.Expressions.StringExp;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 import com.ModDamage.Variables.EntityEntity;
-import com.ModDamage.Variables.EntityTargetBlock;
+import com.ModDamage.Variables.EntityBlockTarget;
 import com.ModDamage.Variables.EntityWorld;
 import com.ModDamage.Variables.LocationWorld;
 import com.ModDamage.Variables.Transformers;
@@ -49,6 +49,7 @@ public class ExternalPluginManager
 	private static void reloadModDamageRoutines()
 	{
 		DataProvider.clear();
+		ReflectionMagic.clear();
 		
 		Routine.registerVanillaRoutines();
 		NestedRoutine.registerVanillaRoutines();

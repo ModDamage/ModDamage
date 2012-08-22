@@ -32,6 +32,8 @@
 		<jar destfile="${env.JOB_NAME}.jar" update="no">
 			<fileset dir="${buildFolder}" includes="**/*.class"/>
 			<fileset dir="." includes="plugin.yml"/>
+			<zipfileset src="${dependencyFolder}/asm-4.0.jar" includes="**/*.java **/*.class"/>
+			<zipfileset src="${dependencyFolder}/asm-util-4.0.jar" includes="**/*.java **/*.class"/>
 			<manifest>
 				<attribute name="Job" value="${env.JOB_NAME}"/>
 				<attribute name="Built-By" value="ModDamage Jenkins"/>

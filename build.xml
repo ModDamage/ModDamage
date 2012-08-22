@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ModDamage" default="jar" basedir=".">
+	<property environment="env"/>
+	<property name="sourceFolder" location="src"/>
+	<property name="buildFolder" location="bin"/>
+	<property name="dependencyFolder" location="resource"/>
+	
 	<target name="clean">
 		<delete dir="bin"/>
 	</target>
@@ -9,7 +14,7 @@
 		<javac srcdir="src" destdir="bin" includeantruntime="false">
 			<compilerarg value="-Xlint"/>
 			<classpath>
-				<fileset dir="resource">
+				<fileset dir="${dependencyFolder}">
 					<include name="*.jar"/>
 				</fileset>
 			</classpath>
@@ -20,6 +25,8 @@
 		<jar destfile="ModDamage.jar" update="no">
 			<fileset dir="bin" includes="**/*.class" />
 			<fileset dir="." includes="plugin.yml" />
+			<!--zipfileset src="${dependencyFolder}/asm-4.0.jar" includes="**/*.class"/-->
+			<zipfileset src="${dependencyFolder}/asm-all-4.0.jar" includes="**/*.class"/>
 		</jar>
 	</target>
 </project>
