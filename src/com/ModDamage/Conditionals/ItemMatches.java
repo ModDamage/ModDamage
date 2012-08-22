@@ -56,7 +56,7 @@ public class ItemMatches extends Conditional<ItemStack>
 				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<ItemStack> itemDP, Matcher m, StringMatcher sm)
 				{
 					Collection<ModDamageItemStack> matchedItems = ItemAliaser.match(m.group(2), info);
-					if(matchedItems.isEmpty()) return null;
+					if(matchedItems == null || matchedItems.isEmpty()) return null;
 						
 					if (m.group(1).equalsIgnoreCase("material"))
 						ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Using the material version is deprecated. Please use '"+ itemDP +".matches."+ m.group(2) +"' instead.");
