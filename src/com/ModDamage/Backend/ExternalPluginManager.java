@@ -66,7 +66,7 @@ public class ExternalPluginManager
 		Transformers.register();
 		
 		EntityEntity.register();
-		EntityTargetBlock.register();
+		EntityBlockTarget.register();
 		EntityWorld.register();
 		LocationWorld.register();
 		
