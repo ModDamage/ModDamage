@@ -46,6 +46,27 @@ public class WorldInt extends SettableIntegerExp<World>
 				world.setTime(value);
 			}
 		},
+		FULLTIME(true) {
+			@Override protected int getValue(World world){
+				return (int)world.getFullTime();
+			}
+			@Override protected void setValue(World world, int value){
+				world.setFullTime(value);
+			}
+		},
+		DAY(true) {
+			@Override protected int getValue(World world){
+				return (int)(world.getFullTime() / 24000);
+			}
+			@Override protected void setValue(World world, int value){
+				world.setFullTime(value * 24000 + world.getTime());
+			}
+		},
+		MOONPHASE(false) {
+			@Override protected int getValue(World world){
+				return (int)(world.getFullTime() / 24000) % 8;
+			}
+		},
 		SEED(false) {
 			@Override protected int getValue(World world){
 				return (int)world.getSeed();
