@@ -56,7 +56,8 @@ public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 	
 	public static void registerAllIntegers()
 	{
-		Function.register();
+		IntFunction.register();
+		BlockLocFunction.register();
 		
 		Constant.register();
 		BlockInt.register();

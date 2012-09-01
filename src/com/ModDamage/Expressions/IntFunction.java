@@ -17,7 +17,7 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 
-public class Function implements IDataProvider<Integer>
+public class IntFunction implements IDataProvider<Integer>
 {
 	public static final Random random = new Random();
 	
@@ -88,7 +88,7 @@ public class Function implements IDataProvider<Integer>
 	private final FunctionType funcType;
 	private final List<IDataProvider<Integer>> args;
 	
-	private Function(FunctionType funcType, List<IDataProvider<Integer>> args)
+	private IntFunction(FunctionType funcType, List<IDataProvider<Integer>> args)
 	{
 		this.funcType = funcType;
 		this.args = args;
@@ -108,12 +108,11 @@ public class Function implements IDataProvider<Integer>
 	@Override
 	public Class<Integer> provides() { return Integer.class; }
 	
-	
+	static final Pattern commaPattern = Pattern.compile("\\s*,\\s*");
+	static final Pattern endPattern = Pattern.compile("\\s*\\)");
 	public static void register()
 	{
-		final Pattern commaPattern = Pattern.compile("\\s*,\\s*");
-		final Pattern endPattern = Pattern.compile("\\s*\\)");
-		DataProvider.register(Integer.class, Pattern.compile("(\\w+)\\s*\\("), new BaseDataParser<Integer>()
+		DataProvider.register(Integer.class, Pattern.compile("("+Utils.joinBy("|", FunctionType.values())+")\\s*\\("), new BaseDataParser<Integer>()
 			{
 				@Override
 				public IDataProvider<Integer> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)
@@ -155,7 +154,7 @@ public class Function implements IDataProvider<Integer>
 						return null;
 					}
 					
-					return sm.acceptIf(new Function(ftype, args));
+					return sm.acceptIf(new IntFunction(ftype, args));
 				}
 			});
 	}
