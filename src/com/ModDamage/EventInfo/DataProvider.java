@@ -403,7 +403,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			StringMatcher sm2 = sm.spawn();
 			Matcher m2 = sm2.matchFront(parserData.pattern);
 			if (m2 == null) {
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Matched group failed to match??");
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Matched group failed to match?? "+parserData.parser.getClass().getName()+" \""+parserData.pattern.pattern()+"\"");
 				continue;
 			}
 			
