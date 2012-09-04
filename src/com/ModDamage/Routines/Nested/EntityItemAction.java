@@ -137,7 +137,7 @@ public class EntityItemAction extends NestedRoutine
 	
 	private static final EventInfo myInfo = new SimpleEventInfo(
 			ItemStack.class, 		"item",
-			EnchantmentsRef.class,	"-enchantments");
+			EnchantmentsRef.class,	"enchantments");
 	
 	protected static class NestedRoutineBuilder extends NestedRoutine.RoutineBuilder
 	{
