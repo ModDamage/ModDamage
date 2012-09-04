@@ -18,6 +18,7 @@ import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Routines.Routines;
 
 public class EntityHurt extends NestedRoutine
@@ -72,7 +73,12 @@ public class EntityHurt extends NestedRoutine
 			String name = matcher.group(1).toLowerCase();
 			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, name);
 			String otherName = "-" + name + "-other";
-			IDataProvider<Entity> entityOtherDP = DataProvider.parse(info, Entity.class, otherName);
+			IDataProvider<Entity> entityOtherDP = info.get(Entity.class, otherName);
+			if (entityOtherDP == null)
+			{
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "The entity '"+livingDP+"' doesn't have a natural opposite. Maybe you want unknownhurt instead?");
+				return null;
+			}
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);

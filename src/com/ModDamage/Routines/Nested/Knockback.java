@@ -76,17 +76,18 @@ public class Knockback extends NestedRoutine
 			if (entityDP == null) return null;
 			
 			boolean explicitFrom = matcher.group(2) != null;
-			String otherName;
-			if (explicitFrom)
-				otherName = matcher.group(2).toLowerCase();
-			else
-				otherName = "-" + matcher.group(1).toLowerCase() + "-other";
-			IDataProvider<Entity> entityOtherDP = info.get(Entity.class, otherName, false);
-			if (entityOtherDP == null)
-			{
-				if (!explicitFrom)
+			IDataProvider<Entity> entityOtherDP;
+			if (explicitFrom) {
+				entityOtherDP = DataProvider.parse(info, Entity.class, matcher.group(2));
+				if (entityOtherDP == null)
+					return null;
+			} else {
+				entityOtherDP = info.get(Entity.class, "-" + matcher.group(1).toLowerCase() + "-other", false);
+				if (entityOtherDP == null)
+				{
 					ModDamage.addToLogRecord(OutputPreset.FAILURE, "The entity '"+entityDP+"' doesn't have a natural opposite, so you need to specify one using '"+matcher.group()+".from.{entity}'");
-				return null;
+					return null;
+				}
 			}
 
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, info.chain(myInfo));
