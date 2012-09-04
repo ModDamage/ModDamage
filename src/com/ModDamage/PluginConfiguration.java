@@ -140,6 +140,7 @@ public class PluginConfiguration
 	{
 		long reloadStartTime = System.nanoTime();
 		LoadState.pluginState = LoadState.NOT_LOADED;
+		logMessagesSoFar = 0;
 
 //		configStrings_ingame.clear();
 //		configStrings_ingameFilters.clear();
@@ -274,6 +275,9 @@ public class PluginConfiguration
 				
 			default: assert(false);
 		}
+		
+		if (getDebugSetting() == DebugSetting.QUIET && logMessagesSoFar >= maxLogMessagesToShow)
+			log.log(Level.INFO, "Suppressed "+(logMessagesSoFar-maxLogMessagesToShow)+" error messages");
 
 		return true;
 	}
@@ -370,6 +374,9 @@ public class PluginConfiguration
 		return null;
 	}
 	
+	public static int maxLogMessagesToShow = 50;
+	public static int logMessagesSoFar = 0;
+	
 	public void addToLogRecord(OutputPreset preset, String message)
 	{
 //		if(message.length() > 50)
@@ -399,8 +406,11 @@ public class PluginConfiguration
 //		configStrings_console.add(nestIndentation + message);
 //		configStrings_consoleFilters.add(preset);
 
-		if(getDebugSetting().shouldOutput(preset.debugSetting))
-			log.log(preset.level, nestIndentation + message);
+		if(getDebugSetting().shouldOutput(preset.debugSetting)) {
+			if (getDebugSetting() != DebugSetting.QUIET || logMessagesSoFar < maxLogMessagesToShow)
+				log.log(preset.level, nestIndentation + message);
+			logMessagesSoFar ++;
+		}
 	}
 
 	// Spout GUI?
