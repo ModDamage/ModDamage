@@ -38,6 +38,11 @@ public class PlayerItem extends DataProvider<ItemStack, Player>
 				return player.getItemInHand();
 			}
 		},
+		HELD {
+			public ItemStack getItem(Player player) {
+				return player.getItemInHand();
+			}
+		},
 		HELMET {
 			public ItemStack getItem(Player player) {
 				return player.getInventory().getHelmet();
