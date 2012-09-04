@@ -112,7 +112,7 @@ public class IntFunction implements IDataProvider<Integer>
 	static final Pattern endPattern = Pattern.compile("\\s*\\)");
 	public static void register()
 	{
-		DataProvider.register(Integer.class, Pattern.compile("("+Utils.joinBy("|", FunctionType.values())+")\\s*\\("), new BaseDataParser<Integer>()
+		DataProvider.register(Integer.class, Pattern.compile("("+Utils.joinBy("|", FunctionType.values())+")\\s*\\(", Pattern.CASE_INSENSITIVE), new BaseDataParser<Integer>()
 			{
 				@Override
 				public IDataProvider<Integer> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)

@@ -270,11 +270,13 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			Class<?> dpProvides = dp == null? null : dp.provides();
 			String provName = dpProvides == null? "null" : dpProvides.getSimpleName();
 			
+			String simpleName = cls == null? "null" : cls.getSimpleName();
+			
 			String error = "Unable to parse \""+startString+"\"";
 			if (sm.isEmpty())
-				error += ": wanted "+cls.getSimpleName()+", got "+provName;
+				error += ": wanted "+simpleName+", got "+provName;
 			else
-				error += " at "+provName+" \""+soFar+"\" for \""+cls.getSimpleName()+"\"";
+				error += " at "+provName+" \""+soFar+"\" for \""+simpleName+"\"";
 			
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, error);
 		}
