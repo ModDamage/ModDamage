@@ -24,7 +24,7 @@ public class NestedExp<T> implements IDataProvider<T>
 				@SuppressWarnings({ "rawtypes", "unchecked" })
 				public IDataProvider<Object> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)
 				{
-					IDataProvider<?> nestedDP = DataProvider.parse(info, null, sm.spawn());
+					IDataProvider<?> nestedDP = DataProvider.parse(info, want, sm.spawn());
 					
 					if (!sm.matchesFront(closeParen)) return null;
 					
