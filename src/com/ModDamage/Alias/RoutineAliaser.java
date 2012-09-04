@@ -70,7 +70,7 @@ public class RoutineAliaser extends Aliaser<Object, Object>
 		aliasedRoutines.put(infoPair, routines);
 		if(routines == null)
 		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error parsing " + values.toString());
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error parsing routines in alias" + alias);
 			runWhenDone.clear();
 			return null;
 		}
