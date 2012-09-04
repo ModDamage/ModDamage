@@ -25,7 +25,12 @@ public class EnchantmentInt extends SettableIntegerExp<EnchantmentsRef>
 					@Override
 					public IDataProvider<Integer> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)
 					{
-						IDataProvider<EnchantmentsRef> enchantmentsDP = info.get(EnchantmentsRef.class, "enchantments");
+						IDataProvider<EnchantmentsRef> enchantmentsDP = info.get(EnchantmentsRef.class, "enchantments", false);
+						if (enchantmentsDP == null)
+						{
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "You can only use '"+m.group()+"' inside of an Enchant or PrepareEnchant event");
+							return null;
+						}
 						
 						Enchantment enchantment = Enchantment.getByName(m.group(1).toUpperCase());
 						if (enchantment == null)
