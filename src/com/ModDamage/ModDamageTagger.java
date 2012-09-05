@@ -83,7 +83,7 @@ public class ModDamageTagger
 		}
 		Plugin modDamage = Bukkit.getPluginManager().getPlugin("ModDamage");
 		
-		saveTaskID = Bukkit.getScheduler().scheduleAsyncRepeatingTask(modDamage, new Runnable(){
+		saveTaskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(modDamage, new Runnable(){
 			@Override public void run()
 			{
 				save();
