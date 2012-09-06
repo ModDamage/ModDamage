@@ -82,8 +82,8 @@ public class ExternalPluginManager
 	private static mcMMO mcMMOplugin;
 	public static mcMMO getMcMMOPlugin(){ return mcMMOplugin; }
 	
-	private static GroupsManager permissionsManager = GroupsManager.None;
-	public static GroupsManager getPermissionsManager(){ return permissionsManager; }
+	private static GroupsManager groupsManager = GroupsManager.None;
+	public static GroupsManager getGroupsManager(){ return groupsManager; }
 	public enum GroupsManager
 	{
 		None
@@ -334,7 +334,7 @@ public class ExternalPluginManager
 	
 	public static void reload()
 	{
-		permissionsManager = GroupsManager.reload();
+		groupsManager = GroupsManager.reload();
 		regionsManager = RegionsManager.reload();
 		mcMMOplugin = (mcMMO) Bukkit.getPluginManager().getPlugin("mcMMO");
 		reloadModDamageRoutines();

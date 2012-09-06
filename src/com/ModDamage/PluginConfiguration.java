@@ -26,7 +26,7 @@ import org.yaml.snakeyaml.error.YAMLException;
 
 import com.ModDamage.Alias.AliasManager;
 import com.ModDamage.Backend.ExternalPluginManager;
-import com.ModDamage.Backend.ExternalPluginManager.PermissionsManager;
+import com.ModDamage.Backend.ExternalPluginManager.GroupsManager;
 import com.ModDamage.Backend.ExternalPluginManager.RegionsManager;
 import com.ModDamage.Events.Command;
 
@@ -186,10 +186,10 @@ public class PluginConfiguration
 		if(reloadingAll)
 		{
 			ExternalPluginManager.reload();
-			if(ExternalPluginManager.getPermissionsManager() == PermissionsManager.None)
+			if(ExternalPluginManager.getGroupsManager() == GroupsManager.None)
 				addToLogRecord(OutputPreset.INFO_VERBOSE, "Permissions: No permissions plugin found.");
 			else
-				addToLogRecord(OutputPreset.CONSTANT, "Permissions: " + ExternalPluginManager.getPermissionsManager().name() + " v" + ExternalPluginManager.getPermissionsManager().getVersion());
+				addToLogRecord(OutputPreset.CONSTANT, "Permissions: " + ExternalPluginManager.getGroupsManager().name() + " v" + GroupsManager.getVersion());
 			
 			if(ExternalPluginManager.getRegionsManager() == RegionsManager.NONE)
 				addToLogRecord(OutputPreset.INFO_VERBOSE, "Regions: No regional plugins found.");

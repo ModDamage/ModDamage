@@ -32,7 +32,7 @@ public class PlayerString extends StringExp<Player>
 		{
 			@Override protected String getString(Player player)
 			{
-				return ExternalPluginManager.getPermissionsManager().getGroups(player).toString();
+				return ExternalPluginManager.getGroupsManager().getGroups(player).toString();
 			}
 		},
 		NAME

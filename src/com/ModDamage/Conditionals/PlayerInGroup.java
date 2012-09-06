@@ -29,7 +29,7 @@ public class PlayerInGroup extends Conditional<Player>
 	@Override
 	public Boolean get(Player player, EventData data)
 	{
-		for(String group : ExternalPluginManager.getPermissionsManager().getGroups(player))
+		for(String group : ExternalPluginManager.getGroupsManager().getGroups(player))
 			if(groups.contains(group))
 				return true;
 		return false;
