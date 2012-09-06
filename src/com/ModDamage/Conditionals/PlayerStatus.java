@@ -18,11 +18,16 @@ public class PlayerStatus extends Conditional<Player>
 	
 	private enum StatusType
 	{
-		/*Blocking
+		Blocking
 		{
 			@Override
-			public boolean isTrue(Entity entity){ return ((Player)entity).is() <= 0; }
-		},FIXME Get this into Bukkit if not already present. */
+			public boolean isTrue(Player player){ return player.isBlocking(); }
+		},
+		Flying
+		{
+			@Override
+			public boolean isTrue(Player player){ return player.isFlying(); }
+		},
 		Sleeping
 		{
 			@Override
