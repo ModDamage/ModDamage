@@ -22,11 +22,18 @@ public class NestedExp<T> implements IDataProvider<T>
 			{
 				@Override
 				@SuppressWarnings({ "rawtypes", "unchecked" })
-				public IDataProvider<Object> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)
+				public IDataProvider<Object> parse(EventInfo info, Matcher m, StringMatcher sm)
 				{
-					IDataProvider<?> nestedDP = DataProvider.parse(info, want, sm.spawn());
+					IDataProvider<?> nestedDP;
+					DataProvider.pushEndPattern(closeParen);
+					try {
+						nestedDP = DataProvider.parse(info, null, sm.spawn(), true);
+					}
+					finally {
+						DataProvider.popEndPattern();
+					}
 					
-					if (!sm.matchesFront(closeParen)) return null;
+					if (nestedDP == null || !sm.matchesFront(closeParen)) return null;
 					
 					sm.accept();
 					return (IDataProvider<Object>) new NestedExp(nestedDP);
@@ -53,6 +60,6 @@ public class NestedExp<T> implements IDataProvider<T>
 	@Override
 	public String toString()
 	{
-		return ""+inner;
+		return "("+inner+")";
 	}
 }

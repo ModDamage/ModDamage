@@ -22,17 +22,17 @@ public abstract class SettableDataProvider<T, S> extends DataProvider<T, S> impl
 	public abstract void set(S start, EventData data, T value) throws BailException;
 	
 	
-	public static <T> ISettableDataProvider<T> parse(EventInfo info, Class<T> cls, String s)
+	public static <T> ISettableDataProvider<T> parse(EventInfo info, Class<T> want, String s)
 	{
-		return parse(info, cls, new StringMatcher(s));
+		return parse(info, want, new StringMatcher(s));
 	}
 	
-	public static <T> ISettableDataProvider<T> parse(EventInfo info, Class<T> cls, StringMatcher sm)
+	public static <T> ISettableDataProvider<T> parse(EventInfo info, Class<T> want, StringMatcher sm)
 	{
-		IDataProvider<T> dp = DataProvider.parse(info, cls, sm);
+		IDataProvider<T> dp = DataProvider.parse(info, want, sm);
 		if (dp == null) return null;
 		
-		if (!(dp instanceof ISettableDataProvider) || !((ISettableDataProvider<T>)dp).isSettable())
+		if (!(dp instanceof ISettableDataProvider) || !((ISettableDataProvider<?>)dp).isSettable())
 		{
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, dp+" is not settable");
 			return null;

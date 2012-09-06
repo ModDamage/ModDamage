@@ -49,7 +49,7 @@ public class EntityHasPotionEffect extends Conditional<LivingEntity>
 		DataProvider.register(Boolean.class, LivingEntity.class, pattern, new IDataParser<Boolean, LivingEntity>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
 				{
 					String[] effectTypeStrs = m.group(1).split(",");
 					PotionEffectType[] effectTypes = new PotionEffectType[effectTypeStrs.length];

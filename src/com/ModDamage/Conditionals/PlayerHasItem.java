@@ -87,7 +87,7 @@ public class PlayerHasItem extends Conditional<Player>
 		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
 					List<ModDamageItemStack> items = ItemAliaser.match(m.group(2), info);
 					if(items == null || items.isEmpty()) return null;

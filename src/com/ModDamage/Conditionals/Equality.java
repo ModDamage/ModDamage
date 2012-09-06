@@ -45,7 +45,7 @@ public class Equality extends Conditional<Object>
 		DataProvider.register(Boolean.class, Object.class, operatorPattern, new IDataParser<Boolean, Object>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Object> leftDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Object> leftDP, Matcher m, StringMatcher sm)
 				{
 					boolean equalTo = !m.group(1).equals("!");
 					

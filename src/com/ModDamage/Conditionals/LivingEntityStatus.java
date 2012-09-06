@@ -53,7 +53,7 @@ public class LivingEntityStatus extends Conditional<LivingEntity>
 		DataProvider.register(Boolean.class, LivingEntity.class, pattern, new IDataParser<Boolean, LivingEntity>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
 				{
 					StatusType statusType = null;
 					for(StatusType type : StatusType.values())

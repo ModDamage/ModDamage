@@ -29,7 +29,7 @@ public class EntityEntity extends DataProvider<Entity, Entity>
 				new IDataParser<Entity, Entity>()
 				{
 					@Override
-					public IDataProvider<Entity> parse(EventInfo info, Class<?> want, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Entity> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new EntityEntity(
 								entityDP, 
@@ -38,7 +38,7 @@ public class EntityEntity extends DataProvider<Entity, Entity>
 				});
 		DataProvider.register(LivingEntity.class, Creature.class, Pattern.compile("_target", Pattern.CASE_INSENSITIVE),
 				new IDataParser<LivingEntity, Creature>() {
-					public IDataProvider<LivingEntity> parse(EventInfo info, Class<?> want, final IDataProvider<Creature> creatureDP, Matcher m, StringMatcher sm) {
+					public IDataProvider<LivingEntity> parse(EventInfo info, final IDataProvider<Creature> creatureDP, Matcher m, StringMatcher sm) {
 						return new DataProvider<LivingEntity, Creature>(Creature.class, creatureDP) {
 								public LivingEntity get(Creature creature, EventData data) { return creature.getTarget(); }
 								public Class<LivingEntity> provides() { return LivingEntity.class; }
@@ -48,7 +48,7 @@ public class EntityEntity extends DataProvider<Entity, Entity>
 				});
 		DataProvider.register(Player.class, LivingEntity.class, Pattern.compile("_killer", Pattern.CASE_INSENSITIVE),
 				new IDataParser<Player, LivingEntity>() {
-					public IDataProvider<Player> parse(EventInfo info, Class<?> want, final IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm) {
+					public IDataProvider<Player> parse(EventInfo info, final IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm) {
 						return new DataProvider<Player, LivingEntity>(LivingEntity.class, livingDP) {
 								public Player get(LivingEntity living, EventData data) { return living.getKiller(); }
 								public Class<Player> provides() { return Player.class; }
@@ -58,7 +58,7 @@ public class EntityEntity extends DataProvider<Entity, Entity>
 				});
 		DataProvider.register(Player.class, Entity.class, Pattern.compile("_owner", Pattern.CASE_INSENSITIVE),
 				new IDataParser<Player, Entity>() {
-					public IDataProvider<Player> parse(EventInfo info, Class<?> want, final IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm) {
+					public IDataProvider<Player> parse(EventInfo info, final IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm) {
 						return new DataProvider<Player, Entity>(Entity.class, entityDP) {
 								public Player get(Entity entity, EventData data) {
 									if (!(entity instanceof Tameable)) return null;

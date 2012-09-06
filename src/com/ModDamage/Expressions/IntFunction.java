@@ -115,7 +115,7 @@ public class IntFunction implements IDataProvider<Integer>
 		DataProvider.register(Integer.class, Pattern.compile("("+Utils.joinBy("|", FunctionType.values())+")\\s*\\(", Pattern.CASE_INSENSITIVE), new BaseDataParser<Integer>()
 			{
 				@Override
-				public IDataProvider<Integer> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)
+				public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
 				{
 					FunctionType ftype = FunctionType.match(m.group(1));
 					if (ftype == null)

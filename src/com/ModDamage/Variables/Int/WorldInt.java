@@ -23,7 +23,7 @@ public class WorldInt extends SettableIntegerExp<World>
 				new IDataParser<Integer, World>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, Class<?> want, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new WorldInt(worldDP,
 								WorldPropertyMatch.valueOf(m.group(1).toUpperCase())));

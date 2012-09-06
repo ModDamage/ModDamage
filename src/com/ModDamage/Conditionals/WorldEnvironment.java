@@ -41,7 +41,7 @@ public class WorldEnvironment extends Conditional<World>
 		DataProvider.register(Boolean.class, World.class, pattern, new IDataParser<Boolean, World>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
 				{
 					try
 					{

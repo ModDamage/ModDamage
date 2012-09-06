@@ -53,7 +53,7 @@ public class ItemMatches extends Conditional<ItemStack>
 		DataProvider.register(Boolean.class, ItemStack.class, pattern, new IDataParser<Boolean, ItemStack>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<ItemStack> itemDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<ItemStack> itemDP, Matcher m, StringMatcher sm)
 				{
 					Collection<ModDamageItemStack> matchedItems = ItemAliaser.match(m.group(2), info);
 					if(matchedItems == null || matchedItems.isEmpty()) return null;

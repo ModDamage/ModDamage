@@ -19,7 +19,7 @@ public class EntityBlockTarget
 	{
 		DataProvider.register(Block.class, LivingEntity.class, Pattern.compile("_blocktarget", Pattern.CASE_INSENSITIVE),
 				new IDataParser<Block, LivingEntity>() {
-					public IDataProvider<Block> parse(EventInfo info, Class<?> want, IDataProvider<LivingEntity> entityDP, Matcher m, StringMatcher sm) {
+					public IDataProvider<Block> parse(EventInfo info, IDataProvider<LivingEntity> entityDP, Matcher m, StringMatcher sm) {
 						return new DataProvider<Block, LivingEntity>(LivingEntity.class, entityDP) {
 								public Block get(LivingEntity entity, EventData data) { return entity.getTargetBlock(null, 100); }
 								public Class<Block> provides() { return Block.class; }

@@ -47,8 +47,8 @@ public class BlockLocFunction extends DataProvider<Location, World>
 		DataProvider.register(Location.class, World.class, Pattern.compile("_(block|loc)\\s*\\("), new IDataParser<Location, World>()
 			{
 				@Override
-				public IDataProvider<Location> parse(EventInfo info, Class<?> want, IDataProvider<World> worldDP,
-						Matcher m, StringMatcher sm)
+				public IDataProvider<Location> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m,
+						StringMatcher sm)
 				{
 					@SuppressWarnings("unchecked")
 					IDataProvider<Integer>[] args = new IDataProvider[3];

@@ -125,7 +125,7 @@ public class PlayerString extends StringExp<Player>
 		DataProvider.register(String.class, Player.class, pattern, new IDataParser<String, Player>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, Class<?> want, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<String> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
 					sm.accept();
 					return new PlayerString(playerDP, PlayerStringProperty.valueOf(m.group(1).toUpperCase()));

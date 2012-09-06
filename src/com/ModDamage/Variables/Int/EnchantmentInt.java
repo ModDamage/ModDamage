@@ -23,7 +23,7 @@ public class EnchantmentInt extends SettableIntegerExp<EnchantmentsRef>
 		DataProvider.register(Integer.class, Pattern.compile("enchant(?:ment)?_?level_(\\w+)", Pattern.CASE_INSENSITIVE), new BaseDataParser<Integer>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
 					{
 						IDataProvider<EnchantmentsRef> enchantmentsDP = info.get(EnchantmentsRef.class, "enchantments", false);
 						if (enchantmentsDP == null)

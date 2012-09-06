@@ -1,8 +1,5 @@
 package com.ModDamage.Variables.String;
 
-import java.util.regex.Matcher;
-
-import com.ModDamage.StringMatcher;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
@@ -24,10 +21,10 @@ public class IntAsString extends StringExp<Integer>
 	
 	public static void register()
 	{
-		DataProvider.registerTransformer(String.class, Integer.class, new IDataParser<String, Integer>()
+		DataProvider.registerTransformer(String.class, Integer.class, new IDataTransformer<String, Integer>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, Class<?> want, IDataProvider<Integer> intDP, Matcher m, StringMatcher sm)
+				public IDataProvider<String> transform(EventInfo info, IDataProvider<Integer> intDP)
 				{
 					return new IntAsString(intDP);
 				}

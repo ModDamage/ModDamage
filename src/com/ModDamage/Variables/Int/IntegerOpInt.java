@@ -97,7 +97,7 @@ public class IntegerOpInt extends IntegerExp<Integer>
 		DataProvider.register(Integer.class, Integer.class, Operator.operatorPattern, new IDataParser<Integer, Integer>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, Class<?> want, IDataProvider<Integer> leftDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Integer> leftDP, Matcher m, StringMatcher sm)
 					{
 						Operator operator = Operator.operatorMap.get(m.group(1));
 						

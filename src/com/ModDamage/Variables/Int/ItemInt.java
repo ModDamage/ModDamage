@@ -24,7 +24,7 @@ public class ItemInt extends SettableIntegerExp<ItemStack>
 				new IDataParser<Integer, ItemStack>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, Class<?> want, IDataProvider<ItemStack> itemDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<ItemStack> itemDP, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new ItemInt(
 								itemDP, 

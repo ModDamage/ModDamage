@@ -64,7 +64,7 @@ public class LocationRegion extends Conditional<Location>
 		DataProvider.register(Boolean.class, Location.class, pattern, new IDataParser<Boolean, Location>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Location> locDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Location> locDP, Matcher m, StringMatcher sm)
 				{
 					Collection<String> regions = RegionAliaser.match(m.group(2));
 					if(regions.isEmpty()) return null;

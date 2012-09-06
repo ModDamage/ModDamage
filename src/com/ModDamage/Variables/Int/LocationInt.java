@@ -66,7 +66,7 @@ public class LocationInt extends SettableIntegerExp<Location>
 				new IDataParser<Integer, Location>()
 			{
 				@Override
-				public IDataProvider<Integer> parse(EventInfo info, Class<?> want, IDataProvider<Location> locDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Location> locDP, Matcher m, StringMatcher sm)
 				{
 					return sm.acceptIf(new LocationInt(
 							locDP,

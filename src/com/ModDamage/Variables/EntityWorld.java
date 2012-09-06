@@ -19,7 +19,7 @@ public class EntityWorld
 	{
 		DataProvider.register(World.class, Entity.class, Pattern.compile("_world", Pattern.CASE_INSENSITIVE),
 				new IDataParser<World, Entity>() {
-					public IDataProvider<World> parse(EventInfo info, Class<?> want, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm) {
+					public IDataProvider<World> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm) {
 						return new DataProvider<World, Entity>(Entity.class, entityDP) {
 								public World get(Entity entity, EventData data) { return entity.getWorld(); }
 								public Class<World> provides() { return World.class; }

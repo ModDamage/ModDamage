@@ -38,7 +38,7 @@ public class Chance implements IDataProvider<Boolean>
 		DataProvider.register(Boolean.class, pattern, new BaseDataParser<Boolean>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, Matcher m, StringMatcher sm)
 				{
 					IDataProvider<Integer> probability = DataProvider.parse(info, Integer.class, sm.spawn());
 					if (probability == null) return null;

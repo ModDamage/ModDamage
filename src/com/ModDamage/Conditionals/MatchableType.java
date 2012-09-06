@@ -10,9 +10,9 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Utils;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnumHelper;
 import com.ModDamage.EventInfo.DataProvider;
@@ -50,7 +50,7 @@ public class MatchableType extends Conditional<Matchable>
 		DataProvider.register(Boolean.class, Matchable.class, pattern, new IDataParser<Boolean, Matchable>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Matchable> matchableDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Matchable> matchableDP, Matcher m, StringMatcher sm)
 				{
 					assert(Enum.class.isAssignableFrom(matchableDP.provides()));
 					@SuppressWarnings("unchecked")
@@ -75,10 +75,10 @@ public class MatchableType extends Conditional<Matchable>
 				}
 			});
 		
-		DataProvider.registerTransformer(EntityType.class, Entity.class, new IDataParser<EntityType, Entity>()
+		DataProvider.registerTransformer(EntityType.class, Entity.class, new IDataTransformer<EntityType, Entity>()
 			{
 				@Override
-				public IDataProvider<EntityType> parse(EventInfo info, Class<?> want, final IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<EntityType> transform(EventInfo info, final IDataProvider<Entity> entityDP)
 				{
 					return new IDataProvider<EntityType>() // can't be DataProvider because we (probably?) never want to return
 						{

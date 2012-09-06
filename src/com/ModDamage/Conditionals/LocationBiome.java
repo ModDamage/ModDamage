@@ -44,7 +44,7 @@ public class LocationBiome extends Conditional<Location>
 		DataProvider.register(Boolean.class, Location.class, pattern, new IDataParser<Boolean, Location>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Location> locDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Location> locDP, Matcher m, StringMatcher sm)
 				{
 					Collection<Biome> biomes = BiomeAliaser.match(m.group(1));
 					if(biomes.isEmpty()) return null;

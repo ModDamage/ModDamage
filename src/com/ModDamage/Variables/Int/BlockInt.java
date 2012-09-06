@@ -101,7 +101,7 @@ public class BlockInt extends SettableIntegerExp<Block>
 				new IDataParser<Integer, Block>()
 			{
 				@Override
-				public IDataProvider<Integer> parse(EventInfo info, Class<?> want, IDataProvider<Block> blockDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Block> blockDP, Matcher m, StringMatcher sm)
 				{
 					return sm.acceptIf(new BlockInt(
 							blockDP,

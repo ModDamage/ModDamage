@@ -47,7 +47,7 @@ public class PotionEffectInt extends IntegerExp<LivingEntity>
 				new IDataParser<Integer, LivingEntity>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, Class<?> want, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
 					{
 						PotionEffectType type = PotionEffectType.getByName(m.group(1).toUpperCase());
 						if (type == null)

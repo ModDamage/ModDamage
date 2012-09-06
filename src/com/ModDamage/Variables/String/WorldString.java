@@ -58,7 +58,7 @@ public class WorldString extends StringExp<World>
 		DataProvider.register(String.class, World.class, pattern, new IDataParser<String, World>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, Class<?> want, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
+				public IDataProvider<String> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
 				{
 					return new WorldString(worldDP, WorldStringProperty.valueOf(m.group(1).toUpperCase()));
 				}

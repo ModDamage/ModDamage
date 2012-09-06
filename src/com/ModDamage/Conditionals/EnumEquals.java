@@ -50,7 +50,7 @@ public class EnumEquals extends Conditional<Enum>
 		DataProvider.register(Boolean.class, Enum.class, pattern, new IDataParser<Boolean, Enum>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Class<?> want, IDataProvider<Enum> enumDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Enum> enumDP, Matcher m, StringMatcher sm)
 				{
 					Map<String, Enum<?>> possibleTypes = EnumHelper.getTypeMapForEnum(enumDP.provides());
 					

@@ -22,7 +22,7 @@ public class ServerInt implements IDataProvider<Integer>
 				new BaseDataParser<Integer>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, Class<?> want, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new ServerInt(
 								ServerProperty.valueOf(m.group(1).toUpperCase())));
