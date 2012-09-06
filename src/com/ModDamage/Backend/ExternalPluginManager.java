@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
+import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
+
 import org.anjocaido.groupmanager.GroupManager;
 import org.anjocaido.groupmanager.data.User;
 import org.anjocaido.groupmanager.dataholder.OverloadedWorldHolder;
@@ -25,8 +28,8 @@ import com.ModDamage.Expressions.NestedExp;
 import com.ModDamage.Expressions.StringExp;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
-import com.ModDamage.Variables.EntityEntity;
 import com.ModDamage.Variables.EntityBlockTarget;
+import com.ModDamage.Variables.EntityEntity;
 import com.ModDamage.Variables.EntityWorld;
 import com.ModDamage.Variables.LocationWorld;
 import com.ModDamage.Variables.Transformers;
@@ -79,9 +82,9 @@ public class ExternalPluginManager
 	private static mcMMO mcMMOplugin;
 	public static mcMMO getMcMMOPlugin(){ return mcMMOplugin; }
 	
-	private static PermissionsManager permissionsManager = PermissionsManager.None;
-	public static PermissionsManager getPermissionsManager(){ return permissionsManager; }
-	public enum PermissionsManager
+	private static GroupsManager permissionsManager = GroupsManager.None;
+	public static GroupsManager getPermissionsManager(){ return permissionsManager; }
+	public enum GroupsManager
 	{
 		None
 		{
@@ -175,31 +178,54 @@ public class ExternalPluginManager
 					wh = this.plugin.getWorldsHolder();
 				}
 			}
+		},
+		SimpleClans
+		{
+			SimpleClans plugin = null;
+			
+			@Override
+			public List<String> getGroups(Player player)
+			{
+				if(player != null)
+				{
+					ClanPlayer cp = plugin.getClanManager().getClanPlayer(player);
+					if (cp != null) {
+						return Arrays.asList(cp.getClan().getTag());
+					}
+				}
+				return Arrays.asList();
+			}
+			
+			@Override
+			protected void reload(Plugin plugin)
+			{
+				this.plugin = (SimpleClans)plugin;
+			}
 		};
 
 		private static String version;
 		
 		abstract public List<String> getGroups(Player player);
 
-		public static PermissionsManager reload()
+		public static GroupsManager reload()
 		{
-			for(PermissionsManager permsPlugin : PermissionsManager.values())
+			for(GroupsManager groupsPlugin : GroupsManager.values())
 			{
-				if(permsPlugin.equals(PermissionsManager.None)) continue;
-				Plugin plugin = Bukkit.getPluginManager().getPlugin(permsPlugin.name());
+				if(groupsPlugin.equals(GroupsManager.None)) continue;
+				Plugin plugin = Bukkit.getPluginManager().getPlugin(groupsPlugin.name());
 				if (plugin != null)
 				{
-					permsPlugin.reload(plugin);
+					groupsPlugin.reload(plugin);
 					version = plugin.getDescription().getVersion();
-					return permsPlugin;
+					return groupsPlugin;
 				}
 			}
 			version = null;
-			return PermissionsManager.None;
+			return GroupsManager.None;
 		}
 		abstract protected void reload(Plugin plugin);
 		
-		public String getVersion(){ return version; }
+		public static String getVersion(){ return version; }
 	}
 	
 	private static RegionsManager regionsManager = null;
@@ -308,7 +334,7 @@ public class ExternalPluginManager
 	
 	public static void reload()
 	{
-		permissionsManager = PermissionsManager.reload();
+		permissionsManager = GroupsManager.reload();
 		regionsManager = RegionsManager.reload();
 		mcMMOplugin = (mcMMO) Bukkit.getPluginManager().getPlugin("mcMMO");
 		reloadModDamageRoutines();
