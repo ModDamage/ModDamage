@@ -8,14 +8,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Utils;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
 import com.ModDamage.Backend.EnumHelper;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Matchables.Matchable;
 
 @SuppressWarnings("rawtypes")
 public class EnumEquals extends Conditional<Enum>
@@ -29,9 +30,18 @@ public class EnumEquals extends Conditional<Enum>
 		super(Enum.class, enumDP);
 		this.types = types;
 	}
+	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Boolean get(Enum matchable, EventData data)
 	{
+		if (matchable instanceof Matchable) {
+			Matchable m = (Matchable) matchable;
+
+			for(Enum type : types)
+				if(m.matches((Matchable) type))
+					return true;
+		}
 		for(Enum type : types)
 			if(matchable == type)
 				return true;
