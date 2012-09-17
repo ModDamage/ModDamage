@@ -63,7 +63,7 @@ public class PlayEffect extends Routine
 		if (loc == null) return;
 		
 		if (radius == null)
-			loc.getWorld().playEffect(loc, effectType.effect, effectData.get(data));
+			loc.getWorld().playEffect(loc, effectType.effect, effectData.get(data).intValue());
 		else
 			loc.getWorld().playEffect(loc, effectType.effect, effectData.get(data).intValue(), radius.get(data).intValue());
 	}
