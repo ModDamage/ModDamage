@@ -126,7 +126,7 @@ public class Message extends NestedRoutine
 	}
 	public static void registerNested()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("message.(\\w+)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("message\\.(\\w+)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
 	}
 	
 	protected static class BaseRoutineBuilder extends Routine.RoutineBuilder
