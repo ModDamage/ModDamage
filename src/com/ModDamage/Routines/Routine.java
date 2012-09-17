@@ -55,6 +55,7 @@ abstract public class Routine
 		AddPotionEffect.register();
 		RemovePotionEffect.register();
 		ChangeCreatureTarget.register();
+		ChangeTameableOwner.register();
 		Cancel.register();
 		
 		// this must go last to avoid misleading parse errors
