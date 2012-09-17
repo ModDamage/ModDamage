@@ -25,13 +25,7 @@ public class NestedExp<T> implements IDataProvider<T>
 				public IDataProvider<Object> parse(EventInfo info, Matcher m, StringMatcher sm)
 				{
 					IDataProvider<?> nestedDP;
-					DataProvider.pushEndPattern(closeParen);
-					try {
-						nestedDP = DataProvider.parse(info, null, sm.spawn(), true);
-					}
-					finally {
-						DataProvider.popEndPattern();
-					}
+					nestedDP = DataProvider.parse(info, null, sm.spawn(), false, true, closeParen);
 					
 					if (nestedDP == null || !sm.matchesFront(closeParen)) return null;
 					

@@ -80,7 +80,7 @@ public class Message extends NestedRoutine
 					};
 			// try a world first
 			{
-				final IDataProvider<World> worldDP = DataProvider.parse(info, World.class, key, false);
+				final IDataProvider<World> worldDP = DataProvider.parse(info, World.class, key, true, false);
 				if (worldDP != null)
 					return new MessageTarget()
 						{

@@ -229,33 +229,22 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		}
 	}
 	
-	public static Pattern endPattern = Pattern.compile("$");
-	private static ArrayList<Pattern> patternStack = new ArrayList<Pattern>();
-	public static void pushEndPattern(Pattern newEndPattern) {
-		patternStack.add(endPattern);
-		endPattern = newEndPattern;
-	}
-	public static void popEndPattern() {
-		assert(patternStack.size() > 0);
-		endPattern = patternStack.remove(patternStack.size()-1);
-	}
-	
 	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> want, String s)
 	{
-		return parse(info, want, new StringMatcher(s), true);
+		return parse(info, want, s, true, true);
 	}
 	
-	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> want, String s, boolean complain)
+	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> want, String s, boolean finish, boolean complain)
 	{
-		return parse(info, want, new StringMatcher(s), complain);
+		return parse(info, want, new StringMatcher(s), finish, complain, null);
 	}
 
 	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> want, StringMatcher sm)
 	{
-		return parse(info, want, sm, true);
+		return parse(info, want, sm, false, true, null);
 	}
 	
-	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> want, StringMatcher sm, boolean complain)
+	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> want, StringMatcher sm, boolean finish, boolean complain, Pattern endPattern)
 	{
 		String startString = sm.string;
 		String soFar = null;
@@ -276,13 +265,10 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 				sm2.matchFront(substr);
 				dp = parseHelper(info, info.get(entry.getValue(), substr), sm2.spawn());
 				
-				StringMatcher sm3 = sm2.spawn();
-				if (endPattern.matcher(sm3.string).lookingAt())
-				{
+				if ((!finish || sm2.isEmpty()) && (endPattern == null || endPattern.matcher(sm2.string).lookingAt())) {
 					tdp = transform(want, dp, info, false);
 					if (tdp != null)
 					{
-						sm3.accept();
 						sm2.accept();
 						sm.accept();
 						return tdp;
@@ -294,13 +280,12 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		}
 		
 		IDataProvider<?> dp2 = parseHelper(info, null, sm.spawn());
-		StringMatcher sm2 = sm.spawn();
-		if (endPattern.matcher(sm2.string).lookingAt())
-		{
+		
+
+		if ((!finish || sm.isEmpty()) && (endPattern == null || endPattern.matcher(sm.string).lookingAt())) {
 			tdp = transform(want, dp2, info, false);
 			if (tdp != null)
 			{
-				sm2.accept();
 				sm.accept();
 				return tdp;
 			}
@@ -317,11 +302,13 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			Class<?> dpProvides = dp == null? null : dp.provides();
 			String provName = dpProvides == null? "null" : dpProvides.getSimpleName();
 			
+			String simpleName = want == null? "null" : want.getSimpleName();
+			
 			String error = "Unable to parse \""+startString+"\"";
 			if (sm.isEmpty())
-				error += ": got "+provName;
+				error += ": wanted "+simpleName+", got "+provName;
 			else
-				error += " at "+provName+" \""+soFar+"\"";
+				error += " at "+provName+" \""+soFar+"\" for \""+simpleName+"\"";
 			
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, error);
 		}
