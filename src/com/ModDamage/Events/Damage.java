@@ -28,7 +28,7 @@ public class Damage extends MDEvent implements Listener
 			Projectile.class, 	"projectile",
 			Entity.class, 		"target", "-attacker-other",
 			World.class,		"world",
-			DamageType.class, 	"damage", // e.g. damage.type.FIRE
+			DamageType.class, 	"damage_type", // e.g. damage_type.type.FIRE
 			Integer.class, 		"damage", "-default",
 			Boolean.class,		"cancelled");
 	
