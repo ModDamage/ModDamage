@@ -116,9 +116,11 @@ public class Command
 			}
 			cmds.add(command);
 			
-			MDCommand mdcommand = new MDCommand(command);
-			cmap.register("md", mdcommand);
-			bukkitCommands.add(mdcommand);
+			if (cmds.size() == 1) {
+				MDCommand mdcommand = new MDCommand(command.name);
+				cmap.register("md", mdcommand);
+				bukkitCommands.add(mdcommand);
+			}
 		}
 
 		ModDamage.changeIndentation(false);
@@ -126,12 +128,9 @@ public class Command
 	
 	static class MDCommand extends org.bukkit.command.Command implements PluginIdentifiableCommand
 	{
-		CommandInfo command;
-		
-		public MDCommand(CommandInfo command)
+		public MDCommand(String name)
 		{
-			super(command.name, "", command.name, new ArrayList<String>());
-			this.command = command;
+			super(name, "", name, new ArrayList<String>());
 		}
 
 		@Override
@@ -148,7 +147,10 @@ public class Command
 			for (int i = 0; i < oldargs.length; i++)
 				args[i+1] = oldargs[i];
 			args[0] = commandLabel;
-			return CommandEventHandler.handleCommand(sender, args);
+			boolean success = CommandEventHandler.handleCommand(sender, args);
+			if (!success) 
+		        sender.sendMessage("Unknown command. Type \"help\" for help.");
+			return success;
 		}
 	}
 	
@@ -218,14 +220,17 @@ public class Command
 					@Override
 					public boolean addToEventDataList(List<Object> dataList, String arg)
 					{
-						Player player = Bukkit.getPlayer(arg);
-						if (player == null) return false;
-						dataList.add(player);
-						return true;
+						try {
+							Integer integer = Integer.parseInt(arg);
+							dataList.add(integer);
+							return true;
+						}
+						catch (NumberFormatException e) { }
+						return false;
 					}
 					public void addToEventInfoList(List<Object> list)
 					{
-						list.add(Player.class);
+						list.add(Integer.class);
 						super.addToEventInfoList(list);
 					}
 				};
