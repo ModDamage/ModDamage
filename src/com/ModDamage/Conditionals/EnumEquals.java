@@ -21,7 +21,7 @@ import com.ModDamage.Matchables.Matchable;
 @SuppressWarnings("rawtypes")
 public class EnumEquals extends Conditional<Enum>
 {
-	public static final Pattern pattern = Pattern.compile("\\.is\\.([\\w,]+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.(?:is|type)\\.([\\w,]+)", Pattern.CASE_INSENSITIVE);
 	
 	private final Collection<Enum> types;
 	

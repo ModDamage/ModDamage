@@ -4,14 +4,17 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.DataProvider.IDataTransformer;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Matchables.EntityType;
 
 public class Transformers
 {
+	@SuppressWarnings("rawtypes")
 	public static void register()
 	{
 		DataProvider.registerTransformer(Location.class, Block.class,
@@ -46,5 +49,20 @@ public class Transformers
 							};
 					}
 				});
+		
+		DataProvider.registerTransformer(Enum.class, Entity.class,
+				new IDataTransformer<Enum, Entity>() {
+					public IDataProvider<Enum> transform(EventInfo info, final IDataProvider<Entity> entityDP) {
+						return new IDataProvider<Enum>() {
+								public EntityType get(EventData data) throws BailException { return EntityType.get(entityDP.get(data)); }
+								@SuppressWarnings("unchecked")
+								public Class provides() { return EntityType.class; }
+								public String toString() { return entityDP.toString(); }
+							};
+					}
+				});
+
+
+
 	}
 }
