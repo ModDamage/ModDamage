@@ -75,12 +75,12 @@ public class MatchableType extends Conditional<Matchable>
 				}
 			});
 		
-		DataProvider.registerTransformer(EntityType.class, Entity.class, new IDataTransformer<EntityType, Entity>()
+		DataProvider.registerTransformer(Matchable.class, Entity.class, new IDataTransformer<Matchable, Entity>()
 			{
 				@Override
-				public IDataProvider<EntityType> transform(EventInfo info, final IDataProvider<Entity> entityDP)
+				public IDataProvider<Matchable> transform(EventInfo info, final IDataProvider<Entity> entityDP)
 				{
-					return new IDataProvider<EntityType>() // can't be DataProvider because we (probably?) never want to return
+					return new IDataProvider<Matchable>() // can't be DataProvider because we (probably?) never want to return
 						{
 							@Override
 							public EntityType get(EventData data) throws BailException
@@ -88,8 +88,9 @@ public class MatchableType extends Conditional<Matchable>
 								return EntityType.get(entityDP.get(data));
 							}
 
+							@SuppressWarnings("unchecked")
 							@Override
-							public Class<EntityType> provides()
+							public Class provides()
 							{
 								return EntityType.class;
 							}
