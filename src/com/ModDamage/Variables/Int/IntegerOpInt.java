@@ -48,7 +48,16 @@ public class IntegerOpInt extends IntegerExp<Integer>
 			@Override
 			int operate(int operand_1, int operand_2)
 			{
-				return operand_1 / operand_2;
+				try
+				{
+					return operand_1 / operand_2;
+				}
+				catch (ArithmeticException a)
+				{
+					if (operand_1 > 0) return Integer.MAX_VALUE;
+					if (operand_1 < 0) return Integer.MIN_VALUE;
+					return 0;
+				}
 			}
 		},
 		EXPONENTIATE("^", 3)
