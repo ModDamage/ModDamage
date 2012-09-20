@@ -10,12 +10,11 @@ import java.util.Map.Entry;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginIdentifiableCommand;
+import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.plugin.Plugin;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration;
@@ -31,11 +30,22 @@ import com.ModDamage.Routines.Routines;
 public class Command
 {
 	static Map<String, List<CommandInfo>> commandMap = new HashMap<String, List<CommandInfo>>();
+	static ArrayList<MDCommand> bukkitCommands = new ArrayList<MDCommand>();
 	
 	@SuppressWarnings("unchecked")
 	public static void reload()
 	{
+		CraftServer server = (CraftServer) Bukkit.getServer();
+		SimpleCommandMap cmap = server.getCommandMap();
+		
 		commandMap.clear();
+		
+		for (org.bukkit.command.Command cmd : bukkitCommands)
+		{
+			cmap.getCommands().remove(cmd);
+			cmd.unregister(cmap);
+		}
+		bukkitCommands.clear();
 		
 		LinkedHashMap<String, Object> entries = ModDamage.getPluginConfiguration().getConfigMap();
 		Object commands = PluginConfiguration.getCaseInsensitiveValue(entries, "Command");
@@ -57,6 +67,7 @@ public class Command
 		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading commands...");
 		
 		ModDamage.changeIndentation(true);
+		
 		
 		entryLoop: for (LinkedHashMap<String, Object> commandConfigMap : commandConfigMaps)
 		for (Entry<String, Object> commandEntry : commandConfigMap.entrySet())
@@ -104,9 +115,41 @@ public class Command
 				commandMap.put(name, cmds);
 			}
 			cmds.add(command);
+			
+			MDCommand mdcommand = new MDCommand(command);
+			cmap.register("md", mdcommand);
+			bukkitCommands.add(mdcommand);
 		}
 
 		ModDamage.changeIndentation(false);
+	}
+	
+	static class MDCommand extends org.bukkit.command.Command implements PluginIdentifiableCommand
+	{
+		CommandInfo command;
+		
+		public MDCommand(CommandInfo command)
+		{
+			super(command.name, "", command.name, new ArrayList<String>());
+			this.command = command;
+		}
+
+		@Override
+		public Plugin getPlugin()
+		{
+			return ModDamage.getPluginConfiguration().plugin;
+		}
+
+		@Override
+		public boolean execute(CommandSender sender, String commandLabel, String[] args)
+		{
+			String[] oldargs = args;
+			args = new String[args.length + 1];
+			for (int i = 0; i < oldargs.length; i++)
+				args[i+1] = oldargs[i];
+			args[0] = commandLabel;
+			return CommandEventHandler.handleCommand(sender, args);
+		}
 	}
 	
 	
@@ -208,21 +251,21 @@ public class Command
 		}
 	}
 	
-	public static class CommandEventHandler implements Listener
+	public static class CommandEventHandler// implements Listener
 	{
-		@EventHandler(priority=EventPriority.LOW)
-		public void onPlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent event)
-		{
-			if (event.isCancelled()) return;
-			
-			event.setCancelled(handleCommand(event.getPlayer(), event.getMessage().split("\\s+")));
-		}
-		
-		@EventHandler(priority=EventPriority.LOW)
-		public void onServerCommand(ServerCommandEvent event)
-		{
-			handleCommand(event.getSender(), event.getCommand().split("\\s+"));
-		}
+//		@EventHandler(priority=EventPriority.LOW)
+//		public void onPlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent event)
+//		{
+//			if (event.isCancelled()) return;
+//			
+//			event.setCancelled(handleCommand(event.getPlayer(), event.getMessage().split("\\s+")));
+//		}
+//		
+//		@EventHandler(priority=EventPriority.LOW)
+//		public void onServerCommand(ServerCommandEvent event)
+//		{
+//			handleCommand(event.getSender(), event.getCommand().split("\\s+"));
+//		}
 		
 		
 		public static boolean handleCommand(CommandSender sender, String[] words)
@@ -237,7 +280,7 @@ public class Command
 					continue;
 				
 				List<Object> dataArgs = new ArrayList<Object>(cmd.args.length + 1); // estimate
-				dataArgs.add(sender);
+				dataArgs.add(sender instanceof Player? (Player) sender : null);
 				dataArgs.add(sender instanceof Player? ((Player)sender).getWorld() : null);
 				
 				for (int i = 1; i < words.length; i++)

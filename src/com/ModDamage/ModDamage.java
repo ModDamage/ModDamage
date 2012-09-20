@@ -22,7 +22,6 @@ import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Events.Command;
 
 /**
  * "ModDamage" for Bukkit
@@ -48,7 +47,7 @@ public class ModDamage extends JavaPlugin
 		for (MDEvent event : MDEvent.events)
 			Bukkit.getPluginManager().registerEvents(event, this);
 		
-		Bukkit.getPluginManager().registerEvents(new Command.CommandEventHandler(), this);
+		//Bukkit.getPluginManager().registerEvents(new Command.CommandEventHandler(), this);
 		
 		PluginCommand.setPlugin(this);
 		configuration = new PluginConfiguration(this);
