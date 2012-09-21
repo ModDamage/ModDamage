@@ -29,6 +29,7 @@ import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.Backend.ExternalPluginManager.GroupsManager;
 import com.ModDamage.Backend.ExternalPluginManager.RegionsManager;
 import com.ModDamage.Events.Command;
+import com.ModDamage.Events.Repeat;
 
 public class PluginConfiguration
 {
@@ -251,8 +252,11 @@ public class PluginConfiguration
 		// Aliasing
 		AliasManager.reload();
 		
-		// Command Event
+		// Command Events
 		Command.reload();
+		
+		// Repeat Events
+		Repeat.reload();
 
 		// Routines
 		MDEvent.reload();

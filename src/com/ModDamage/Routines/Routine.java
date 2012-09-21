@@ -57,6 +57,7 @@ abstract public class Routine
 		ChangeCreatureTarget.register();
 		ChangeTameableOwner.register();
 		Cancel.register();
+		RepeatControl.register();
 		
 		// this must go last to avoid misleading parse errors
 		ValueChange.register();
