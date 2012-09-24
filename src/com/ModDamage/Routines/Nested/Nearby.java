@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
+import com.ModDamage.ModDamage;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.DataProvider;
@@ -14,6 +15,7 @@ import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Matchables.EntityType;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Routines.Routines;
 
 public class Nearby extends NestedRoutine
@@ -33,7 +35,7 @@ public class Nearby extends NestedRoutine
 	}
 
 	static EventInfo myInfo = new SimpleEventInfo(
-			Entity.class, EntityType.class, "nearby", "it");
+			Entity.class, "nearby", "it");
 	
 	@Override
 	public void run(EventData data) throws BailException
@@ -44,7 +46,7 @@ public class Nearby extends NestedRoutine
 		ENTITIES: for (Entity e : entity.getNearbyEntities(r, r, r))
 		{
 			if (entClass.isAssignableFrom(e.getClass())){
-				EventData newData = myInfo.makeChainedData(data, e, EntityType.get(e));
+				EventData newData = myInfo.makeChainedData(data, e);
 				
 				routines.run(newData);
 				
@@ -63,13 +65,15 @@ public class Nearby extends NestedRoutine
 		@Override
 		public Nearby getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
-			EntityType element = EntityType.getElementNamed(matcher.group(2));
-			IDataProvider<Integer> radius = DataProvider.parse(info, Integer.class, matcher.group(3));
+			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1)); if (entityDP == null) return null;
+			EntityType element = EntityType.getElementNamed(matcher.group(2)); if (element == null) return null;
+			IDataProvider<Integer> radius = DataProvider.parse(info, Integer.class, matcher.group(3)); if (radius == null) return null;
 
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Nearby: " + entityDP + ", " + element + ", " + radius);
+			
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			if(element != null && entityDP != null && radius != null && routines != null)
+			if(routines != null)
 				return new Nearby(matcher.group(), entityDP, element, radius, routines);
 			return null;
 		}
