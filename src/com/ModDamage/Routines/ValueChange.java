@@ -83,7 +83,7 @@ public class ValueChange extends Routine
 				changeType = ValueChangeType.Subtract;
 			else if(matcher.group(3) != null)
 				changeType = ValueChangeType.Set;
-			assert(changeType != null);
+			if (changeType == null) throw new Error("changeType == null $VC86");
 			
 			for(Entry<Pattern, ValueBuilder> entry : builders.entrySet())
 			{

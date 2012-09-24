@@ -122,7 +122,7 @@ public class MDEvent implements Listener
 					ModDamage.addToLogRecord(OutputPreset.INFO, "End " + event.name() + " configuration.");
 					break;
 					
-				default: assert(false);
+				default: throw new Error("Unknown state: "+event.specificLoadState+" $MDE125");
 			}
 			state = LoadState.combineStates(state, event.specificLoadState);
 		}
@@ -140,7 +140,7 @@ public class MDEvent implements Listener
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Routines loaded!");
 				break;
 				
-			default: assert(false);
+			default: throw new Error("Unknown state: "+state+" $MDE143");
 		}
 	}
 };

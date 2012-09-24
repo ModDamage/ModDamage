@@ -277,7 +277,7 @@ public class PluginConfiguration
 				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Finished loading configuration.");
 				break;
 				
-			default: assert(false);
+			default: throw new Error("Unknown state: "+LoadState.pluginState+" $PC280");
 		}
 		
 		if (getDebugSetting() == DebugSetting.QUIET && logMessagesSoFar >= maxLogMessagesToShow)
@@ -463,7 +463,7 @@ public class PluginConfiguration
 //					bottomString = ChatColor.GREEN + "No errors loading configuration!";
 //					break;
 //					
-//				default: assert(false);
+//				default: throw new Error("Unknown state: "+LoadState.pluginState+" $PC466");
 //			}
 //			player.sendMessage(bottomString);
 //		}

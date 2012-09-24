@@ -173,7 +173,7 @@ public class ModDamage extends JavaPlugin
 							player.sendMessage(chatPrepend(ChatColor.GRAY) + "No configuration loaded! Are any routines defined?");
 							break;
 							
-						default: assert(false);
+						default: throw new Error("Unknown state: "+LoadState.pluginState+" $MD176");
 					}
 			}
 		},

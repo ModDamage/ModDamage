@@ -15,7 +15,7 @@ public class ArmorSet
 	public ArmorSet(){ armorSet = new Material[4]; }
 	public ArmorSet(Material[] materials)
 	{
-		assert(materials.length == 4);
+		if (materials.length != 4) throw new Error("Materials.length != 4 $AS18");
 		armorSet = materials;
 		for (Material material : armorSet)
 		{

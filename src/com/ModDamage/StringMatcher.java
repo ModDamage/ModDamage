@@ -45,7 +45,7 @@ public class StringMatcher
 	 */
 	public void accept()
 	{
-		assert(string != null);
+		if (string == null) throw new Error("Null string $SM50");
 		if (parent == null) return; // top level
 		parent.string = string;
 		string = null;

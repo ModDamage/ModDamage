@@ -82,7 +82,7 @@ public enum AliasManager
 					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliases loaded!");
 					break;
 				
-				default: assert(false);
+				default: throw new Error("Bad state: "+state+" $AM85");
 			}
 			return;
 		}

@@ -89,7 +89,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		@Override
 		public final IDataProvider<T> parse(EventInfo info, IDataProvider<Object> nullDP, Matcher m, StringMatcher sm)
 		{
-			assert(nullDP == null);
+			if (nullDP != null) return null;
 			return parse(info, m, sm);
 		}
 		
@@ -225,7 +225,8 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			parsers.compiledPattern = Pattern.compile(sb.toString(), Pattern.CASE_INSENSITIVE);
 			
 			int groupCount = parsers.compiledPattern.matcher("").groupCount();
-			assert (groupCount == currentGroup - 1);
+			if (groupCount != currentGroup - 1)
+				throw new Error("BAD! $DP228");
 		}
 	}
 	
