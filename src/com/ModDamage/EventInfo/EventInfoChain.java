@@ -64,6 +64,18 @@ public class EventInfoChain extends EventInfo
 	}
 	
 	@Override
+	public IDataProvider<Integer> getLocal(String name)
+	{
+		return first.getLocal(name);
+	}
+	
+	@Override
+	public int getNumLocals()
+	{
+		return first.getNumLocals();
+	}
+	
+	@Override
 	protected void verify(EventData data)
 	{
 		// verify data.parent.info == first if EventData stored its EventInfo

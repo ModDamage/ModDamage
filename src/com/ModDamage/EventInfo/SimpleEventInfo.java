@@ -16,6 +16,9 @@ public class SimpleEventInfo extends EventInfo
 	private final List<Class<?>> classes;
 	private final int size;
 	private final int hashCode;
+	
+	private final Map<String, Integer> localMap = new HashMap<String, Integer>();
+	private int numLocals;
 
 	public SimpleEventInfo(Object... objs)
 	{
@@ -149,6 +152,33 @@ public class SimpleEventInfo extends EventInfo
 				names.add(entry.getKey());
 		
 		return names;
+	}
+	
+	@Override
+	public IDataProvider<Integer> getLocal(final String name)
+	{
+		Integer i = localMap.get(name);
+		if (i == null) {
+			i = numLocals;
+			localMap.put(name, numLocals++);
+		}
+		final int localIndex = i;
+		
+		return new ISettableDataProvider<Integer>() {
+				public Integer get(EventData data) { return data.getLocal(localIndex); }
+				public void set(EventData data, Integer value) { data.setLocal(localIndex, value); }
+				
+				public Class<Integer> provides() { return Integer.class; }
+				public boolean isSettable() { return true; }
+				
+				public String toString() { return "$" + name; }
+			};
+	}
+	
+	@Override
+	public int getNumLocals()
+	{
+		return numLocals;
 	}
 
 	@Override

@@ -8,23 +8,30 @@ public class EventData implements Cloneable
 	public final EventData parent;
 	public final int start;
 	public final Object[] objects;
+	public final int[] locals;
 	
-	EventData(Object... objects) {
-		this(null, objects);
-	}
-	EventData(EventData parent, Object... objects)
+//	EventData(int numLocals, Object... objects) {
+//		this.parent = null;
+//		this.start = 0;
+//		this.objects = objects;
+//		this.locals = new int[numLocals];
+//	}
+	EventData(EventData parent, int numLocals, Object... objects)
 	{
 		this.parent = parent;
 		this.start = parent == null? 0 : parent.start + parent.objects.length;
 		this.objects = objects;
+		if (parent != null) locals = null;
+		else locals = new int[numLocals];
 	}
 	
-	private EventData(EventData parent, int start, Object[] objects)
-	{
-		this.parent = parent;
-		this.start = start;
-		this.objects = objects;
-	}
+//	private EventData(EventData parent, int start, Object[] objects)
+//	{
+//		this.parent = parent;
+//		this.start = start;
+//		this.objects = objects;
+//		this.locals = null;
+//	}
 	
 	public Object get(int i)
 	{
@@ -68,6 +75,17 @@ public class EventData implements Cloneable
 			parent.set(i, obj);
 		else
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Setting bad index "+i+" to "+obj+" type "+cls.getSimpleName());
+	}
+	
+	public int getLocal(int localIndex) {
+		if (locals == null) return parent.getLocal(localIndex);
+		return locals[localIndex];
+	}
+	
+	public void setLocal(int localIndex, Integer value) {
+		if (locals == null) parent.setLocal(localIndex, value);
+		else if (value == null) locals[localIndex] = 0;
+		else locals[localIndex] = value;
 	}
 	
 	
