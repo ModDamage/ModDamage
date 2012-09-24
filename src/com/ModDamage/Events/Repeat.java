@@ -1,5 +1,6 @@
 package com.ModDamage.Events;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,6 +29,10 @@ public class Repeat
 	@SuppressWarnings("unchecked")
 	public static void reload()
 	{
+		for (RepeatInfo info : repeatMap.values())
+			info.stopAll();
+		repeatMap.clear();
+		
 		LinkedHashMap<String, Object> entries = ModDamage.getPluginConfiguration().getConfigMap();
 		Object commands = PluginConfiguration.getCaseInsensitiveValue(entries, "Repeat");
 		
@@ -85,6 +90,12 @@ public class Repeat
 		public RepeatInfo(String name)
 		{
 			this.name = name;
+		}
+		
+		public void stopAll() {
+			List<RepeatData> datasCopy = new ArrayList<RepeatData>(datas.values());
+			for (RepeatData data : datasCopy)
+				data.stop();
 		}
 		
 		public class RepeatData implements Runnable
