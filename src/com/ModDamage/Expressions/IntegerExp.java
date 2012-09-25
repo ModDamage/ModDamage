@@ -5,6 +5,9 @@ import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Expressions.Function.BlockLocFunction;
+import com.ModDamage.Expressions.Function.DistanceFunction;
+import com.ModDamage.Expressions.Function.IntFunction;
 import com.ModDamage.Routines.Routines;
 import com.ModDamage.Variables.Int.BlockInt;
 import com.ModDamage.Variables.Int.Constant;
@@ -59,6 +62,7 @@ public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 	{
 		IntFunction.register();
 		BlockLocFunction.register();
+		DistanceFunction.register();
 		
 		Constant.register();
 		LocalInt.register();

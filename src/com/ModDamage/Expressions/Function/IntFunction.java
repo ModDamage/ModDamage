@@ -1,4 +1,4 @@
-package com.ModDamage.Expressions;
+package com.ModDamage.Expressions.Function;
 
 import java.util.ArrayList;
 import java.util.List;

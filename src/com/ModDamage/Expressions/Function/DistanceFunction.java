@@ -1,61 +1,61 @@
-package com.ModDamage.Expressions;
+package com.ModDamage.Expressions.Function;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Location;
-import org.bukkit.World;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
-import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.DataProvider;
+import com.ModDamage.EventInfo.DataProvider.BaseDataParser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 
-public class BlockLocFunction extends DataProvider<Location, World>
+public class DistanceFunction implements IDataProvider<Integer>
 {
-	private final IDataProvider<Integer>[] args;
+	private final IDataProvider<Location> first, second;
 	
-	private BlockLocFunction(IDataProvider<World> worldDP, IDataProvider<Integer>[] args)
+	private DistanceFunction(IDataProvider<Location> first, IDataProvider<Location> second)
 	{
-		super(World.class, worldDP);
-		this.args = args;
+		this.first = first;
+		this.second = second;
 	}
 
 	@Override
-	public Location get(World world, EventData data) throws BailException
+	public Integer get(EventData data) throws BailException
 	{
-		int[] argValues = new int[args.length];
+		Location f = first.get(data);
+		Location s = second.get(data);
+		if (f == null || s == null) return 0;
 		
-		for (int i = 0; i < argValues.length; i++)
-			argValues[i] = args[i].get(data);
-		
-		return new Location(world, argValues[0], argValues[1], argValues[2]);
+		return (int) f.distance(s);
 	}
 
 	@Override
-	public Class<Location> provides() { return Location.class; }
+	public Class<Integer> provides()
+	{
+		return Integer.class;
+	}
 	
 	static final Pattern commaPattern = Pattern.compile("\\s*,\\s*");
 	static final Pattern endPattern = Pattern.compile("\\s*\\)");
 	public static void register()
 	{
-		DataProvider.register(Location.class, World.class, Pattern.compile("_(block|loc)\\s*\\("), new IDataParser<Location, World>()
+		DataProvider.register(Integer.class, Pattern.compile("(dist(?:ance)?)\\s*\\("), new BaseDataParser<Integer>()
 			{
 				@Override
-				public IDataProvider<Location> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m,
-						StringMatcher sm)
+				public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
 				{
 					@SuppressWarnings("unchecked")
-					IDataProvider<Integer>[] args = new IDataProvider[3];
+					IDataProvider<Location>[] args = new IDataProvider[2];
 					
-					for (int i = 0; i < 3; i++)
+					for (int i = 0; i < 2; i++)
 					{
-						IDataProvider<Integer> arg = DataProvider.parse(info, Integer.class, sm.spawn());
+						IDataProvider<Location> arg = DataProvider.parse(info, Location.class, sm.spawn());
 						if (arg == null)
 						{
 							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \"" + sm.string + "\"");
@@ -79,7 +79,7 @@ public class BlockLocFunction extends DataProvider<Location, World>
 						return null;
 					}
 					
-					return sm.acceptIf(new BlockLocFunction(worldDP, args));
+					return sm.acceptIf(new DistanceFunction(args[0], args[1]));
 				}
 			});
 	}
@@ -87,6 +87,6 @@ public class BlockLocFunction extends DataProvider<Location, World>
 	@Override
 	public String toString()
 	{
-		return "loc(" + Utils.joinBy(", ", args) + ")";
+		return "distance(" + first + ", " + second + ")";
 	}
 }
