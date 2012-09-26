@@ -30,6 +30,9 @@ import com.ModDamage.Events.Spawn;
 import com.ModDamage.Events.Tame;
 import com.ModDamage.Events.Target;
 import com.ModDamage.Events.Teleport;
+import com.ModDamage.Events.ToggleFlight;
+import com.ModDamage.Events.ToggleSneak;
+import com.ModDamage.Events.ToggleSprint;
 import com.ModDamage.Routines.Routines;
 
 public class MDEvent implements Listener
@@ -57,6 +60,9 @@ public class MDEvent implements Listener
 			new Tame(),
 			new Target(),
 			new Teleport(),
+			new ToggleFlight(),
+			new ToggleSneak(),
+			new ToggleSprint(),
 		};
 
 	public static boolean disableDeathMessages = false;
