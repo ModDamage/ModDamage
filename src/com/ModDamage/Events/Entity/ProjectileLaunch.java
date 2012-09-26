@@ -36,7 +36,8 @@ public class ProjectileLaunch extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				shooter,
 				projectile,
-				projectile.getWorld());
+				projectile.getWorld(),
+				event.isCancelled());
 		
 		runRoutines(data);
 		
