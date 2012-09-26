@@ -2,6 +2,7 @@ package com.ModDamage.Events.Block;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -22,6 +23,9 @@ public class PlaceBlock extends MDEvent implements Listener
 			Player.class,	"player",
 			World.class,	"world",
 			Block.class,	"block",
+			Block.class,	"againstblock",
+			Item.class, 	"item",
+			Boolean.class, 	"canbuild",
 			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -33,10 +37,15 @@ public class PlaceBlock extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				player,
 				player.getWorld(),
-				event.getBlock(),
+				event.getBlockPlaced(),
+				event.getBlockAgainst(),
+				event.getItemInHand(),
+				event.canBuild(),
 				event.isCancelled());
 		
 		runRoutines(data);
+		
+		event.setBuild(data.get(Boolean.class, data.start + 5));
 		
 		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}

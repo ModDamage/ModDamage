@@ -22,6 +22,7 @@ public class BreakBlock extends MDEvent implements Listener
 			Player.class,	"player",
 			World.class,	"world",
 			Block.class,	"block",
+			Integer.class,	"experience", "-default",
 			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -37,6 +38,8 @@ public class BreakBlock extends MDEvent implements Listener
 				event.isCancelled());
 		
 		runRoutines(data);
+		
+		event.setExpToDrop(data.get(Integer.class, data.start + 3));
 		
 		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
