@@ -27,7 +27,7 @@ public class Chance implements IDataProvider<Boolean>
 	@Override
 	public Boolean get(EventData data) throws BailException
 	{
-		return Math.abs(random.nextInt()%101) <= probability.get(data);
+		return Math.abs(random.nextInt()%101) < probability.get(data);
 	}
 	
 	@Override
