@@ -25,8 +25,7 @@ public class Combust extends MDEvent implements Listener
 			World.class,	"world",
 			Integer.class,	"duration",
 			Entity.class,	"combustor",
-			Integer.class,	"block_type",
-			Integer.class,	"block_data",
+			Block.class,	"block",
 			Boolean.class,  "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -37,29 +36,21 @@ public class Combust extends MDEvent implements Listener
 		Entity entity = event.getEntity();
 		Integer duration = event.getDuration();
 		Entity combustor = null;
-		Integer block_type = 0;
-		Integer block_data = 0;
 		
 		if (event instanceof EntityCombustByEntityEvent)
 			combustor = ((EntityCombustByEntityEvent)event).getCombuster();
 		
+		Block combustorBlock = null;
+		
 		if (event instanceof EntityCombustByBlockEvent)
-		{
-			Block combustorBlock = ((EntityCombustByBlockEvent)event).getCombuster();
-			if (combustorBlock != null)
-			{
-				block_type = combustorBlock.getTypeId();
-				block_data = (int) combustorBlock.getData();
-			}
-		}
+			combustorBlock = ((EntityCombustByBlockEvent)event).getCombuster();
 		
 		EventData data = myInfo.makeData(
 				entity,
 				entity.getWorld(),
 				duration,
 				combustor,
-				block_type,
-				block_data,
+				combustorBlock,
 				event.isCancelled());
 		
 		runRoutines(data);
