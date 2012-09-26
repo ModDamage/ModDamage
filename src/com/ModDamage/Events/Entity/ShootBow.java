@@ -21,7 +21,8 @@ public class ShootBow extends MDEvent implements Listener
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Entity.class, 		"shooter", "entity",
 			Entity.class,		"projectile",
-			World.class,		"world");
+			World.class,		"world",
+			Boolean.class, 		"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onShootBow(EntityShootBowEvent event)
@@ -34,8 +35,11 @@ public class ShootBow extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				shooter,
 				projectile,
-				projectile.getWorld());
+				projectile.getWorld(),
+				event.isCancelled());
 		
 		runRoutines(data);
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }
