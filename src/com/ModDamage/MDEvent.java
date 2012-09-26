@@ -11,6 +11,8 @@ import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Events.Block.BreakBlock;
+import com.ModDamage.Events.Block.PlaceBlock;
 import com.ModDamage.Events.Entity.Combust;
 import com.ModDamage.Events.Entity.Damage;
 import com.ModDamage.Events.Entity.Death;
@@ -42,6 +44,11 @@ public class MDEvent implements Listener
 {
 	public static Map<String, MDEvent[]> eventCategories = new HashMap<String, MDEvent[]>();
 	static {
+		eventCategories.put("Block", new MDEvent[] {
+				new BreakBlock(),
+				new PlaceBlock(),
+				});
+		
 		eventCategories.put("Entity", new MDEvent[] {
 				new Combust(),
 				new Damage(),
