@@ -1,4 +1,4 @@
-package com.ModDamage.Events;
+package com.ModDamage.Events.Entity;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;

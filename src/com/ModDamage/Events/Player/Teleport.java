@@ -1,12 +1,13 @@
-package com.ModDamage.Events;
+package com.ModDamage.Events.Player;
 
+import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
@@ -14,26 +15,29 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 
-public class DropItem extends MDEvent implements Listener
+public class Teleport extends MDEvent implements Listener
 {
-	public DropItem() { super(myInfo); }
-	
+	public Teleport() { super(myInfo); }
+
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Player.class,	"player",
 			World.class,	"world",
-			Item.class,		"item",
-			Boolean.class,	"cancelled");
+			TeleportCause.class,	"cause",
+			Location.class,	"from",
+			Location.class,	"to",
+			Boolean.class,  "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onDropItem(PlayerDropItemEvent event)
+	public void onTeleport(PlayerTeleportEvent event)
 	{
 		if(!ModDamage.isEnabled) return;
 		
-		Player player = event.getPlayer();
 		EventData data = myInfo.makeData(
-				player,
-				player.getWorld(),
-				event.getItemDrop(),
+				event.getPlayer(),
+				event.getPlayer().getWorld(),
+				event.getCause(),
+				event.getFrom(),
+				event.getTo(),
 				event.isCancelled());
 		
 		runRoutines(data);

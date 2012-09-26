@@ -1,11 +1,12 @@
-package com.ModDamage.Events;
+package com.ModDamage.Events.Item;
 
 import org.bukkit.World;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
@@ -13,18 +14,19 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 
-public class ToggleFlight extends MDEvent implements Listener
+public class PickupItem extends MDEvent implements Listener
 {
-	public ToggleFlight() { super(myInfo); }
+	public PickupItem() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Player.class,	"player",
 			World.class,	"world",
-			Boolean.class, 	"isFlying",
+			Item.class,		"item",
+			Integer.class, 	"remaining",
 			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onToggleFlight(PlayerToggleFlightEvent event)
+	public void onPickupItem(PlayerPickupItemEvent event)
 	{
 		if(!ModDamage.isEnabled) return;
 		
@@ -32,7 +34,8 @@ public class ToggleFlight extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				player,
 				player.getWorld(),
-				event.isFlying(),
+				event.getItem(),
+				event.getRemaining(),
 				event.isCancelled());
 		
 		runRoutines(data);

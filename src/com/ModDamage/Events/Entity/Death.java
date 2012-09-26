@@ -1,4 +1,4 @@
-package com.ModDamage.Events;
+package com.ModDamage.Events.Entity;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;

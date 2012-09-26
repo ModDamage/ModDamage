@@ -44,8 +44,9 @@ public class ModDamage extends JavaPlugin
 	public void onEnable()
 	{
 		// register plugin-related stuff with the server's plugin manager
-		for (MDEvent event : MDEvent.events)
-			Bukkit.getPluginManager().registerEvents(event, this);
+		for (MDEvent[] events : MDEvent.eventCategories.values())
+			for (MDEvent event : events)
+				Bukkit.getPluginManager().registerEvents(event, this);
 		
 		//Bukkit.getPluginManager().registerEvents(new Command.CommandEventHandler(), this);
 		

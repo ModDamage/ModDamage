@@ -1,4 +1,4 @@
-package com.ModDamage.Events;
+package com.ModDamage.Events.Entity;
 
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -7,7 +7,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
@@ -15,18 +15,17 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 
-public class ProjectileLaunch extends MDEvent implements Listener
+public class ProjectileHit extends MDEvent implements Listener
 {
-	public ProjectileLaunch() { super(myInfo); }
+	public ProjectileHit() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Entity.class, 		"shooter", "entity",
 			Projectile.class,	"projectile",
-			World.class,		"world",
-			Boolean.class, 		"cancelled");
+			World.class,		"world");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onProjectileLaunch(ProjectileLaunchEvent event)
+	public void onProjectileHit(ProjectileHitEvent event)
 	{
 		if(!ModDamage.isEnabled) return;
 		
@@ -39,7 +38,5 @@ public class ProjectileLaunch extends MDEvent implements Listener
 				projectile.getWorld());
 		
 		runRoutines(data);
-		
-		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }

@@ -1,11 +1,11 @@
-package com.ModDamage.Events;
+package com.ModDamage.Events.Player;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleSprintEvent;
 
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
@@ -13,27 +13,30 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 
-public class Quit extends MDEvent implements Listener
+public class ToggleSprint extends MDEvent implements Listener
 {
-	public Quit() { super(myInfo); }
+	public ToggleSprint() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Player.class,	"player",
-			World.class,	"world");
+			World.class,	"world",
+			Boolean.class, 	"isSprinting",
+			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onQuit(PlayerQuitEvent event)
+	public void onToggleSprint(PlayerToggleSprintEvent event)
 	{
 		if(!ModDamage.isEnabled) return;
-		
-		if (disableQuitMessages)
-			event.setQuitMessage(null);
 		
 		Player player = event.getPlayer();
 		EventData data = myInfo.makeData(
 				player,
-				player.getWorld());
+				player.getWorld(),
+				event.isSprinting(),
+				event.isCancelled());
 		
 		runRoutines(data);
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }

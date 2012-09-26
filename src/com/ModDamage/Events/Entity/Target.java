@@ -1,52 +1,45 @@
-package com.ModDamage.Events;
+package com.ModDamage.Events.Entity;
 
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Matchables.HealType;
 
-public class Heal extends MDEvent implements Listener
+public class Target extends MDEvent implements Listener
 {
-	public Heal() { super(myInfo); }
+	public Target() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Entity.class,	"entity",
 			World.class,	"world",
-			HealType.class,	"heal", // e.g. heal.type.EATING
-			Integer.class, 	"heal_amount", "-default",
+			Entity.class,	"target",
+			EntityTargetEvent.TargetReason.class, "reason",
 			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onEntityRegainHealth(EntityRegainHealthEvent event)
+	public void onTarget(EntityTargetEvent event)
 	{
-		if(!ModDamage.isEnabled || event.isCancelled()) return;
+		if(!ModDamage.isEnabled) return;
 		
 		Entity entity = event.getEntity();
+		Entity target = event.getTarget();
 		EventData data = myInfo.makeData(
 				entity,
 				entity.getWorld(),
-				HealType.get(event.getRegainReason()),
-				event.getAmount(),
+				target,
+				event.getReason(),
 				event.isCancelled());
 		
 		runRoutines(data);
 		
-		int newHealAmount = data.get(Integer.class, data.start + 3);
-		
 		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
-		
-		if (newHealAmount <= 0)
-			event.setCancelled(true);
-		else
-			event.setAmount(newHealAmount);
 	}
 }

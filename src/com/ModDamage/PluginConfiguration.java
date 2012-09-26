@@ -310,10 +310,19 @@ public class PluginConfiguration
 		String outputString = "#Auto-generated config at " + (new Date()).toString() + "." + newline + "#See the wiki at https://github.com/ModDamage/ModDamage/wiki for more information." + newline;
 
 
-		outputString += newline + "#Events";
+		outputString += newline + "# Events";
+		for (Entry<String, MDEvent[]> category : MDEvent.eventCategories.entrySet())
+		{
+			outputString += newline + "## "+category.getKey()+" Events";
+			for (MDEvent event : category.getValue())
+				outputString += newline + event.name() + ":";
+			outputString += newline;
+		}
+		
+		outputString += newline + "## Misc events";
 		outputString += newline + "Command:";
-		for(MDEvent event : MDEvent.events)
-			outputString += newline + event.name() + ":";
+		outputString += newline + "Repeat:";
+		outputString += newline;
 		
 		
 		outputString += newline + newline + "Aliases:";

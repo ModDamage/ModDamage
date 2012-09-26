@@ -1,11 +1,11 @@
-package com.ModDamage.Events;
+package com.ModDamage.Events.Player;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
@@ -13,18 +13,18 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 
-public class ItemHeld extends MDEvent implements Listener
+public class ToggleFlight extends MDEvent implements Listener
 {
-	public ItemHeld() { super(myInfo); }
+	public ToggleFlight() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Player.class,	"player",
 			World.class,	"world",
-			Integer.class,	"prevslot",
-			Integer.class,	"newslot");
+			Boolean.class, 	"isFlying",
+			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onItemHeld(PlayerItemHeldEvent event)
+	public void onToggleFlight(PlayerToggleFlightEvent event)
 	{
 		if(!ModDamage.isEnabled) return;
 		
@@ -32,9 +32,11 @@ public class ItemHeld extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				player,
 				player.getWorld(),
-				event.getPreviousSlot(),
-				event.getNewSlot());
+				event.isFlying(),
+				event.isCancelled());
 		
 		runRoutines(data);
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }

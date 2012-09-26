@@ -1,5 +1,8 @@
 package com.ModDamage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.event.Listener;
 
 import com.ModDamage.PluginConfiguration.LoadState;
@@ -8,62 +11,71 @@ import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Events.Combust;
-import com.ModDamage.Events.Damage;
-import com.ModDamage.Events.Death;
-import com.ModDamage.Events.DropItem;
-import com.ModDamage.Events.Enchant;
-import com.ModDamage.Events.Explode;
-import com.ModDamage.Events.Heal;
-import com.ModDamage.Events.Interact;
-import com.ModDamage.Events.InteractEntity;
-import com.ModDamage.Events.ItemHeld;
-import com.ModDamage.Events.Join;
-import com.ModDamage.Events.PickupExp;
-import com.ModDamage.Events.PickupItem;
-import com.ModDamage.Events.PrepareEnchant;
-import com.ModDamage.Events.ProjectileHit;
-import com.ModDamage.Events.ProjectileLaunch;
-import com.ModDamage.Events.Quit;
-import com.ModDamage.Events.ShootBow;
-import com.ModDamage.Events.Spawn;
-import com.ModDamage.Events.Tame;
-import com.ModDamage.Events.Target;
-import com.ModDamage.Events.Teleport;
-import com.ModDamage.Events.ToggleFlight;
-import com.ModDamage.Events.ToggleSneak;
-import com.ModDamage.Events.ToggleSprint;
+import com.ModDamage.Events.Entity.Combust;
+import com.ModDamage.Events.Entity.Damage;
+import com.ModDamage.Events.Entity.Death;
+import com.ModDamage.Events.Entity.Explode;
+import com.ModDamage.Events.Entity.Heal;
+import com.ModDamage.Events.Entity.ProjectileHit;
+import com.ModDamage.Events.Entity.ProjectileLaunch;
+import com.ModDamage.Events.Entity.ShootBow;
+import com.ModDamage.Events.Entity.Spawn;
+import com.ModDamage.Events.Entity.Tame;
+import com.ModDamage.Events.Entity.Target;
+import com.ModDamage.Events.Item.DropItem;
+import com.ModDamage.Events.Item.Enchant;
+import com.ModDamage.Events.Item.ItemHeld;
+import com.ModDamage.Events.Item.PickupItem;
+import com.ModDamage.Events.Item.PrepareEnchant;
+import com.ModDamage.Events.Player.Interact;
+import com.ModDamage.Events.Player.InteractEntity;
+import com.ModDamage.Events.Player.Join;
+import com.ModDamage.Events.Player.PickupExp;
+import com.ModDamage.Events.Player.Quit;
+import com.ModDamage.Events.Player.Teleport;
+import com.ModDamage.Events.Player.ToggleFlight;
+import com.ModDamage.Events.Player.ToggleSneak;
+import com.ModDamage.Events.Player.ToggleSprint;
 import com.ModDamage.Routines.Routines;
 
 public class MDEvent implements Listener
 {
-	public static MDEvent[] events = new MDEvent[] {
-			new Combust(),
-			new Damage(),
-			new Death(),
-			new DropItem(),
-			new Enchant(),
-			new Explode(),
-			new Heal(),
-			new Interact(),
-			new InteractEntity(),
-			new ItemHeld(),
-			new Join(),
-			new PickupExp(),
-			new PickupItem(),
-			new PrepareEnchant(),
-			new ProjectileHit(),
-			new ProjectileLaunch(),
-			new Quit(),
-			new ShootBow(),
-			new Spawn(),
-			new Tame(),
-			new Target(),
-			new Teleport(),
-			new ToggleFlight(),
-			new ToggleSneak(),
-			new ToggleSprint(),
-		};
+	public static Map<String, MDEvent[]> eventCategories = new HashMap<String, MDEvent[]>();
+	static {
+		eventCategories.put("Entity", new MDEvent[] {
+				new Combust(),
+				new Damage(),
+				new Death(),
+				new Explode(),
+				new Heal(),
+				new ProjectileHit(),
+				new ProjectileLaunch(),
+				new ShootBow(),
+				new Spawn(),
+				new Tame(),
+				new Target(),
+				});
+
+		eventCategories.put("Item", new MDEvent[] {
+				new DropItem(),
+				new PickupItem(),
+				new ItemHeld(),
+				new Enchant(),
+				new PrepareEnchant(),
+				});
+
+		eventCategories.put("Player", new MDEvent[] {
+				new Interact(),
+				new InteractEntity(),
+				new Join(),
+				new PickupExp(),
+				new Quit(),
+				new Teleport(),
+				new ToggleFlight(),
+				new ToggleSneak(),
+				new ToggleSprint(),
+				});
+	}
 
 	public static boolean disableDeathMessages = false;
 	public static boolean disableJoinMessages = false;
@@ -102,39 +114,42 @@ public class MDEvent implements Listener
 		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading routines...");
 		state = LoadState.NOT_LOADED;
 		ModDamage.changeIndentation(true);
-		for(MDEvent event : events)
+		for (MDEvent[] events : eventCategories.values())
 		{
-			Object nestedContent = PluginConfiguration.getCaseInsensitiveValue(ModDamage.getPluginConfiguration().getConfigMap(), event.name());
-			if(nestedContent != null)
+			for (MDEvent event : events)
 			{
+				Object nestedContent = PluginConfiguration.getCaseInsensitiveValue(ModDamage.getPluginConfiguration().getConfigMap(), event.name());
+				if(nestedContent != null)
+				{
+					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+					ModDamage.addToLogRecord(OutputPreset.INFO, event.name() + " configuration:");
+					Routines routines = RoutineAliaser.parseRoutines(nestedContent, event.myInfo);
+					event.specificLoadState = routines != null? LoadState.SUCCESS : LoadState.FAILURE;
+					if(event.specificLoadState.equals(LoadState.SUCCESS))
+						event.routines = routines;
+				}
+				else
+				{
+					event.specificLoadState = LoadState.NOT_LOADED;
+					event.routines = new Routines();
+				}
 				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-				ModDamage.addToLogRecord(OutputPreset.INFO, event.name() + " configuration:");
-				Routines routines = RoutineAliaser.parseRoutines(nestedContent, event.myInfo);
-				event.specificLoadState = routines != null? LoadState.SUCCESS : LoadState.FAILURE;
-				if(event.specificLoadState.equals(LoadState.SUCCESS))
-					event.routines = routines;
+				switch(event.specificLoadState)
+				{
+					case NOT_LOADED:
+						ModDamage.addToLogRecord(OutputPreset.WARNING, event.name() + " configuration not found.");
+						break;
+					case FAILURE:
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error in " + event.name() + " configuration.");
+						break;
+					case SUCCESS:
+						ModDamage.addToLogRecord(OutputPreset.INFO, "End " + event.name() + " configuration.");
+						break;
+						
+					default: throw new Error("Unknown state: "+event.specificLoadState+" $MDE125");
+				}
+				state = LoadState.combineStates(state, event.specificLoadState);
 			}
-			else
-			{
-				event.specificLoadState = LoadState.NOT_LOADED;
-				event.routines = new Routines();
-			}
-			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-			switch(event.specificLoadState)
-			{
-				case NOT_LOADED:
-					ModDamage.addToLogRecord(OutputPreset.WARNING, event.name() + " configuration not found.");
-					break;
-				case FAILURE:
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error in " + event.name() + " configuration.");
-					break;
-				case SUCCESS:
-					ModDamage.addToLogRecord(OutputPreset.INFO, "End " + event.name() + " configuration.");
-					break;
-					
-				default: throw new Error("Unknown state: "+event.specificLoadState+" $MDE125");
-			}
-			state = LoadState.combineStates(state, event.specificLoadState);
 		}
 		ModDamage.changeIndentation(false);
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
