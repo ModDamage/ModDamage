@@ -23,6 +23,7 @@ import com.ModDamage.Events.PickupExp;
 import com.ModDamage.Events.PickupItem;
 import com.ModDamage.Events.PrepareEnchant;
 import com.ModDamage.Events.ProjectileHit;
+import com.ModDamage.Events.ProjectileLaunch;
 import com.ModDamage.Events.Quit;
 import com.ModDamage.Events.ShootBow;
 import com.ModDamage.Events.Spawn;
@@ -49,6 +50,7 @@ public class MDEvent implements Listener
 			new PickupItem(),
 			new PrepareEnchant(),
 			new ProjectileHit(),
+			new ProjectileLaunch(),
 			new Quit(),
 			new ShootBow(),
 			new Spawn(),
