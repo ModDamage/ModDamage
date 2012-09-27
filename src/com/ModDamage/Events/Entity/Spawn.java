@@ -16,6 +16,7 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Events.Init;
 
 public class Spawn extends MDEvent implements Listener
 {
@@ -70,5 +71,8 @@ public class Spawn extends MDEvent implements Listener
 			entity.setHealth(health);
 		else
 			event.setCancelled(true);
+		
+		if (!event.isCancelled())
+			Init.onInit(entity);
 	}
 }

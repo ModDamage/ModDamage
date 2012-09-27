@@ -29,6 +29,7 @@ import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.Backend.ExternalPluginManager.GroupsManager;
 import com.ModDamage.Backend.ExternalPluginManager.RegionsManager;
 import com.ModDamage.Events.Command;
+import com.ModDamage.Events.Init;
 import com.ModDamage.Events.Repeat;
 
 public class PluginConfiguration
@@ -283,6 +284,8 @@ public class PluginConfiguration
 		if (getDebugSetting() == DebugSetting.QUIET && logMessagesSoFar >= maxLogMessagesToShow)
 			log.log(Level.INFO, "Suppressed "+(logMessagesSoFar-maxLogMessagesToShow)+" error messages");
 
+		Init.initAll();
+		
 		return true;
 	}
 
@@ -322,6 +325,7 @@ public class PluginConfiguration
 		outputString += newline + "## Misc events";
 		outputString += newline + "Command:";
 		outputString += newline + "Repeat:";
+		outputString += newline + "Init:";
 		outputString += newline;
 		
 		

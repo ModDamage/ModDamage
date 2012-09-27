@@ -12,6 +12,7 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Events.Init;
 
 public class Join extends MDEvent implements Listener
 {
@@ -35,5 +36,7 @@ public class Join extends MDEvent implements Listener
 				player.getWorld());
 		
 		runRoutines(data);
+		
+		Init.onInit(player);
 	}
 }
