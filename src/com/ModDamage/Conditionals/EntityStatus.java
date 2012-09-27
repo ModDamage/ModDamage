@@ -36,7 +36,8 @@ public class EntityStatus extends Conditional<Entity>
 					loc = ((LivingEntity)entity).getEyeLocation();
 				int i = loc.getBlockX();
 				int k = loc.getBlockZ();
-				for(int j = loc.getBlockY(); j < 128; j++)
+				int worldHeight = entity.getWorld().getMaxHeight();
+				for(int j = loc.getBlockY(); j < worldHeight; j++)
 					if(!ModDamage.goThroughThese.contains(entity.getWorld().getBlockAt(i, j, k).getType()))
 						return false;
 				return true;
