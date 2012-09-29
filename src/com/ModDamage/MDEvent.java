@@ -32,6 +32,7 @@ import com.ModDamage.Events.Item.PrepareEnchant;
 import com.ModDamage.Events.Player.Interact;
 import com.ModDamage.Events.Player.InteractEntity;
 import com.ModDamage.Events.Player.Join;
+import com.ModDamage.Events.Player.LevelChange;
 import com.ModDamage.Events.Player.PickupExp;
 import com.ModDamage.Events.Player.Quit;
 import com.ModDamage.Events.Player.Teleport;
@@ -75,6 +76,7 @@ public class MDEvent implements Listener
 				new Interact(),
 				new InteractEntity(),
 				new Join(),
+				new LevelChange(),
 				new PickupExp(),
 				new Quit(),
 				new Teleport(),
