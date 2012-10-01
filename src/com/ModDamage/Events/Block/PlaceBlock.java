@@ -2,12 +2,12 @@ package com.ModDamage.Events.Block;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
@@ -24,7 +24,7 @@ public class PlaceBlock extends MDEvent implements Listener
 			World.class,	"world",
 			Block.class,	"block",
 			Block.class,	"againstblock",
-			Item.class, 	"item",
+			ItemStack.class, "item",
 			Boolean.class, 	"canbuild",
 			Boolean.class,	"cancelled");
 	
