@@ -1,6 +1,7 @@
 package com.ModDamage.Variables;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 
@@ -62,7 +63,16 @@ public class Transformers
 					}
 				});
 
-
+		DataProvider.registerTransformer(Material.class, Block.class,
+				new IDataTransformer<Material, Block>() {
+					public IDataProvider<Material> transform(EventInfo info, IDataProvider<Block> blockDP) {
+						return new DataProvider<Material, Block>(Block.class, blockDP) {
+								public Material get(Block block, EventData data) { return block.getType(); }
+								public Class<Material> provides() { return Material.class; }
+								public String toString() { return startDP.toString(); }
+							};
+					}
+				});
 
 	}
 }
