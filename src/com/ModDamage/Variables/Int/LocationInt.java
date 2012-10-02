@@ -38,6 +38,20 @@ public class LocationInt extends SettableIntegerExp<Location>
 			{
 				return loc.getBlockZ();
 			}
+		},
+		YAW
+		{
+			@Override public int getValue(Location loc)
+			{
+				return (int) loc.getYaw();
+			}
+		},
+		PITCH
+		{
+			@Override public int getValue(Location loc)
+			{
+				return (int) loc.getPitch();
+			}
 		};
 		
 		public boolean settable = false;
