@@ -2,10 +2,11 @@ package com.ModDamage.Events.Player;
 
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
@@ -20,7 +21,7 @@ public class Teleport extends MDEvent implements Listener
 	public Teleport() { super(myInfo); }
 
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
+			Entity.class,	"entity",
 			World.class,	"world",
 			TeleportCause.class,	"cause",
 			Location.class,	"from",
@@ -36,6 +37,24 @@ public class Teleport extends MDEvent implements Listener
 				event.getPlayer(),
 				event.getPlayer().getWorld(),
 				event.getCause(),
+				event.getFrom(),
+				event.getTo(),
+				event.isCancelled());
+		
+		runRoutines(data);
+		
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
+	}
+	
+	@EventHandler(priority=EventPriority.HIGHEST)
+	public void onTeleport(EntityTeleportEvent event)
+	{
+		if(!ModDamage.isEnabled) return;
+		
+		EventData data = myInfo.makeData(
+				event.getEntity(),
+				event.getEntity().getWorld(),
+				null,
 				event.getFrom(),
 				event.getTo(),
 				event.isCancelled());
