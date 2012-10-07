@@ -46,6 +46,7 @@ abstract public class Routine
 		registeredBaseRoutines.clear();
 		AliasedRoutine.register();
 		Tag.registerRoutine();
+		TagString.registerRoutine();
 		PlayEffect.register();
 		Message.registerRoutine();
 		EntityItemAction.registerRoutine();

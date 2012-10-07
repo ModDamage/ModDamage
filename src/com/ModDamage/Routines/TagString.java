@@ -8,24 +8,24 @@ import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
+import com.ModDamage.Alias.MessageAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Expressions.InterpolatedString;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 
-public class Tag extends NestedRoutine
+public class TagString extends NestedRoutine
 {
 	private final String tag;
 	private final IDataProvider<Entity> entityDP;
 	private final IDataProvider<World> worldDP;
-	private final IDataProvider<Integer> value;
+	private final IDataProvider<String> value;
 	
-	protected Tag(String configString, String tag, IDataProvider<Entity> entityDP, IDataProvider<World> worldDP, IDataProvider<Integer> value)
+	protected TagString(String configString, String tag, IDataProvider<Entity> entityDP, IDataProvider<World> worldDP, IDataProvider<String> value)
 	{
 		super(configString);
 		this.tag = tag;
@@ -34,7 +34,7 @@ public class Tag extends NestedRoutine
 		this.value = value;
 	}
 	
-	protected Tag(String configString, String tag, IDataProvider<Entity> entityDP, IDataProvider<World> worldDP)
+	protected TagString(String configString, String tag, IDataProvider<Entity> entityDP, IDataProvider<World> worldDP)
 	{
 		super(configString);
 		this.tag = tag;
@@ -54,12 +54,12 @@ public class Tag extends NestedRoutine
 			
 			if(value != null)
 			{
-				Integer oldTagValue = ModDamage.getTagger().intTags.getTagValue(world, tag);
-				EventData myData = myInfo.makeChainedData(data, oldTagValue == null? 0 : oldTagValue);
-				ModDamage.getTagger().intTags.addTag(world, tag, value.get(myData));
+				String oldTagValue = ModDamage.getTagger().stringTags.getTagValue(world, tag);
+				EventData myData = myInfo.makeChainedData(data, oldTagValue == null? "" : oldTagValue);
+				ModDamage.getTagger().stringTags.addTag(world, tag, value.get(myData));
 			}
 			else
-				ModDamage.getTagger().intTags.removeTag(world, tag);
+				ModDamage.getTagger().stringTags.removeTag(world, tag);
 		}
 		else
 		{
@@ -69,30 +69,30 @@ public class Tag extends NestedRoutine
 			
 			if(value != null)
 			{
-				Integer oldTagValue = ModDamage.getTagger().intTags.getTagValue(entity, tag);
-				EventData myData = myInfo.makeChainedData(data, oldTagValue == null? 0 : oldTagValue);
-				ModDamage.getTagger().intTags.addTag(entity, tag, value.get(myData));
+				String oldTagValue = ModDamage.getTagger().stringTags.getTagValue(entity, tag);
+				EventData myData = myInfo.makeChainedData(data, oldTagValue == null? "" : oldTagValue);
+				ModDamage.getTagger().stringTags.addTag(entity, tag, value.get(myData));
 			}
 			else
-				ModDamage.getTagger().intTags.removeTag(entity, tag);
+				ModDamage.getTagger().stringTags.removeTag(entity, tag);
 		}
 	}
 
 	public static void registerRoutine()
 	{
-		Routine.registerRoutine(Pattern.compile("untag\\.(\\w+)\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("unstag\\.(\\w+)\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	public static void registerNested()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("tag\\.(\\w+)\\.(\\w+)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("stag\\.(\\w+)\\.(\\w+)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
 	}
 	
-	public static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "value", "-default");
+	public static final EventInfo myInfo = new SimpleEventInfo(String.class, "value", "-default");
 	
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
 	{
 		@Override
-		public Tag getNew(Matcher matcher, EventInfo info)
+		public TagString getNew(Matcher matcher, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
 			IDataProvider<Entity> entityDP = null;
@@ -110,15 +110,15 @@ public class Tag extends NestedRoutine
 			}
 			
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Untag: " + matcher.group(1) + ", " + matcher.group(2));
-			return new Tag(matcher.group(), matcher.group(2).toLowerCase(), entityDP, worldDP);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "UnSTag: " + matcher.group(1) + ", " + matcher.group(2));
+			return new TagString(matcher.group(), matcher.group(2).toLowerCase(), entityDP, worldDP);
 		}
 	}
 	
 	protected static class NestedRoutineBuilder extends NestedRoutine.RoutineBuilder
 	{
 		@Override
-		public Tag getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public TagString getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
 			IDataProvider<Entity> entityDP = null;
@@ -135,17 +135,24 @@ public class Tag extends NestedRoutine
 				if(entityDP == null) return null;
 			}
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Tag: " + matcher.group(1) + ", " + matcher.group(2));
+			ModDamage.addToLogRecord(OutputPreset.INFO, "STag: " + matcher.group(1) + ", " + matcher.group(2));
 			
 			EventInfo einfo = info.chain(myInfo);
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			if(routines == null) return null;
+			
+			String string;
+			
+			if (nestedContent instanceof String)
+				string = (String) nestedContent;
+			else {
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Only one string allowed for stag");
+				return null;
+			}
 
-			IDataProvider<Integer> value = IntegerExp.getNew(routines, einfo);
+			InterpolatedString value = MessageAliaser.match(string, einfo).iterator().next();
 			if(value == null) return null;
 			
 			
-			return new Tag(matcher.group(), matcher.group(2).toLowerCase(), entityDP, worldDP, value);
+			return new TagString(matcher.group(), matcher.group(2).toLowerCase(), entityDP, worldDP, value);
 		}
 	}
 }

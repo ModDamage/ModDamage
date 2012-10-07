@@ -13,7 +13,7 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 
-public class InterpolatedString
+public class InterpolatedString implements IDataProvider<String>
 {
 	private static final Pattern interpolationPattern = Pattern.compile("%\\{([^}]+)\\}", Pattern.CASE_INSENSITIVE);
 	private static final Pattern colorReplacePattern = Pattern.compile("&([0-9a-fk-o])", Pattern.CASE_INSENSITIVE);
@@ -110,5 +110,17 @@ public class InterpolatedString
 			return str;
 		}
 		public String toString() { return "%{" + dstring + "}"; }
+	}
+
+	@Override
+	public String get(EventData data) throws BailException
+	{
+		return toString(data);
+	}
+
+	@Override
+	public Class<String> provides()
+	{
+		return String.class;
 	}
 }

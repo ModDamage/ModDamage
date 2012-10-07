@@ -14,20 +14,27 @@ import com.ModDamage.EventInfo.IDataProvider;
 
 public class EntityTagged extends Conditional<Entity>
 {
-	public static final Pattern pattern = Pattern.compile("\\.istagged\\.(\\w+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.is(s?)tagged\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
 	private final String tag;
+	private final boolean isString;
 	
-	public EntityTagged(IDataProvider<Entity> entityDP, String tag)
+	public EntityTagged(IDataProvider<Entity> entityDP, String tag, boolean isString)
 	{
 		super(Entity.class, entityDP);
 		this.tag = tag;
+		this.isString = isString;
 	}
 
 	@Override
 	public Boolean get(Entity entity, EventData data)
 	{
-		return entity != null && ModDamage.getTagger().intTags.isTagged(entity, tag);
+		if (entity == null) return false;
+		
+		if (isString)
+			return ModDamage.getTagger().stringTags.isTagged(entity, tag);
+		else
+			return ModDamage.getTagger().intTags.isTagged(entity, tag);
 	}
 	
 	public static void register()
@@ -37,7 +44,7 @@ public class EntityTagged extends Conditional<Entity>
 				@Override
 				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 				{
-					return new EntityTagged(entityDP, m.group(1).toLowerCase());
+					return new EntityTagged(entityDP, m.group(2).toLowerCase(), m.group(1).equalsIgnoreCase("s"));
 				}
 			});
 	}

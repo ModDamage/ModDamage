@@ -336,6 +336,7 @@ public class ModDamageTagger
 	}
 	
 	public final TagsHolder<Integer> intTags = new TagsHolder<Integer>();
+	public final TagsHolder<String> stringTags = new TagsHolder<String>();
 	
 	
 	private long saveInterval;
@@ -427,11 +428,8 @@ public class ModDamageTagger
 			else // New way
 			{
 				intTags.loadTags((Map<String, Object>) tagMap.get("int"), entities);
+				stringTags.loadTags((Map<String, Object>) tagMap.get("string"), entities);
 			}
-			
-			
-			
-			
 		}
 		catch(Exception e){ ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error loading tags: "+e.toString()); }
 	}
@@ -449,12 +447,11 @@ public class ModDamageTagger
 				entities.addAll(world.getEntities());
 
 			
-			
-			
 			Map<String, Object> saveMap = new HashMap<String, Object>();
 			
 			saveMap.put("tagsVersion", 2);
 			saveMap.put("int", intTags.saveTags(entities));
+			saveMap.put("string", stringTags.saveTags(entities));
 			
 			try
 			{
@@ -473,8 +470,6 @@ public class ModDamageTagger
 		}
 	}
 	
-
-	
 	/**
 	 * This is used in the ModDamage main to finish any file IO.
 	 */
@@ -492,5 +487,6 @@ public class ModDamageTagger
 	public void clear()
 	{
 		intTags.clear();
+		stringTags.clear();
 	}
 }
