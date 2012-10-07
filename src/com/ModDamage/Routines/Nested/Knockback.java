@@ -41,7 +41,7 @@ public class Knockback extends NestedRoutine
 	{
 		Entity firstEntity = entityDP.get(data);
 		Entity secondEntity = entityOtherDP.get(data);
-		if(secondEntity == null) return;
+		if(firstEntity == null || secondEntity == null) return;
 		
 		Vector vector = firstEntity.getLocation().toVector().subtract(secondEntity.getLocation().toVector());
 		
