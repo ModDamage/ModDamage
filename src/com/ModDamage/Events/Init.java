@@ -12,13 +12,13 @@ import com.ModDamage.EventInfo.SimpleEventInfo;
 
 public class Init extends MDEvent
 {
-	public Init() { super(myInfo); }
+	private Init() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Entity.class,	"entity",
 			World.class,	"world");
 	
-	private static Init instance = new Init();
+	public static Init instance = new Init();
 	
 	public static void onInit(Entity entity)
 	{

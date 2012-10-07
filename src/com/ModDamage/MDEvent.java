@@ -11,6 +11,9 @@ import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Events.Command;
+import com.ModDamage.Events.Init;
+import com.ModDamage.Events.Repeat;
 import com.ModDamage.Events.Block.BreakBlock;
 import com.ModDamage.Events.Block.PlaceBlock;
 import com.ModDamage.Events.Entity.Combust;
@@ -84,6 +87,12 @@ public class MDEvent implements Listener
 				new ToggleSneak(),
 				new ToggleSprint(),
 				});
+
+		eventCategories.put("Misc", new MDEvent[] {
+				Init.instance,
+				Command.instance,
+				Repeat.instance,
+				});
 	}
 
 	public static boolean disableDeathMessages = false;
@@ -117,6 +126,14 @@ public class MDEvent implements Listener
 	
 	protected String name() { return this.getClass().getSimpleName(); }
 	
+	protected void load(Object nestedContent)
+	{
+		routines = RoutineAliaser.parseRoutines(nestedContent, myInfo);
+		specificLoadState = routines != null? LoadState.SUCCESS : LoadState.FAILURE;
+		if (specificLoadState != LoadState.SUCCESS)
+			this.routines = null;
+	}
+	
 	protected static void reload()
 	{
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
@@ -132,10 +149,7 @@ public class MDEvent implements Listener
 				{
 					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 					ModDamage.addToLogRecord(OutputPreset.INFO, event.name() + " configuration:");
-					Routines routines = RoutineAliaser.parseRoutines(nestedContent, event.myInfo);
-					event.specificLoadState = routines != null? LoadState.SUCCESS : LoadState.FAILURE;
-					if(event.specificLoadState.equals(LoadState.SUCCESS))
-						event.routines = routines;
+					event.load(nestedContent);
 				}
 				else
 				{

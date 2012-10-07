@@ -28,9 +28,7 @@ import com.ModDamage.Alias.AliasManager;
 import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.Backend.ExternalPluginManager.GroupsManager;
 import com.ModDamage.Backend.ExternalPluginManager.RegionsManager;
-import com.ModDamage.Events.Command;
 import com.ModDamage.Events.Init;
-import com.ModDamage.Events.Repeat;
 
 public class PluginConfiguration
 {
@@ -252,12 +250,6 @@ public class PluginConfiguration
 		
 		// Aliasing
 		AliasManager.reload();
-		
-		// Command Events
-		Command.reload();
-		
-		// Repeat Events
-		Repeat.reload();
 
 		// Routines
 		MDEvent.reload();
@@ -321,12 +313,6 @@ public class PluginConfiguration
 				outputString += newline + event.name() + ":";
 			outputString += newline;
 		}
-		
-		outputString += newline + "## Misc events";
-		outputString += newline + "Command:";
-		outputString += newline + "Repeat:";
-		outputString += newline + "Init:";
-		outputString += newline;
 		
 		
 		outputString += newline + newline + "Aliases:";

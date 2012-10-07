@@ -16,8 +16,9 @@ import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration;
+import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
@@ -27,14 +28,23 @@ import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Routines.Routines;
 
 
-public class Command
+public class Command extends MDEvent
 {
-	static Map<String, List<CommandInfo>> commandMap = new HashMap<String, List<CommandInfo>>();
-	static ArrayList<MDCommand> bukkitCommands = new ArrayList<MDCommand>();
+	public static final Command instance = new Command();
+	
+	private Command() {super(null);}
+	
+	Map<String, List<CommandInfo>> commandMap = new HashMap<String, List<CommandInfo>>();
+	ArrayList<MDCommand> bukkitCommands = new ArrayList<MDCommand>();
+	
 	
 	@SuppressWarnings("unchecked")
-	public static void reload()
+	protected void load(Object commands)
 	{
+		specificLoadState = LoadState.FAILURE;
+		
+		boolean failed = false;
+		
 		CraftServer server = (CraftServer) Bukkit.getServer();
 		SimpleCommandMap cmap = server.getCommandMap();
 		
@@ -47,8 +57,8 @@ public class Command
 		}
 		bukkitCommands.clear();
 		
-		LinkedHashMap<String, Object> entries = ModDamage.getPluginConfiguration().getConfigMap();
-		Object commands = PluginConfiguration.getCaseInsensitiveValue(entries, "Command");
+		//LinkedHashMap<String, Object> entries = ModDamage.getPluginConfiguration().getConfigMap();
+		//Object commands = PluginConfiguration.getCaseInsensitiveValue(entries, "Command");
 		
 		if(commands == null)
 			return;
@@ -94,6 +104,7 @@ public class Command
 					ModDamage.addToLogRecord(OutputPreset.FAILURE, 
 							"Please prefix command arguments with # for number or & for player, or [a-z] for raw, not "
 							+commandSpec[i].substring(0, 1));
+					failed = true;
 					continue entryLoop;
 				}
 				args[i-1] = arg;
@@ -106,7 +117,10 @@ public class Command
 			ModDamage.addToLogRecord(OutputPreset.INFO, "Command ["+command.name+"]: "+logSB.toString());
 			command.routines = RoutineAliaser.parseRoutines(commandEntry.getValue(), command.eventInfo);
 			if (command.routines == null)
+			{
+				failed = true;
 				continue;
+			}
 			
 			List<CommandInfo> cmds = commandMap.get(name);
 			if (cmds == null)
@@ -124,6 +138,8 @@ public class Command
 		}
 
 		ModDamage.changeIndentation(false);
+		
+		if (!failed) specificLoadState = LoadState.SUCCESS;
 	}
 	
 	static class MDCommand extends org.bukkit.command.Command implements PluginIdentifiableCommand
@@ -256,28 +272,13 @@ public class Command
 		}
 	}
 	
-	public static class CommandEventHandler// implements Listener
+	public static class CommandEventHandler
 	{
-//		@EventHandler(priority=EventPriority.LOW)
-//		public void onPlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent event)
-//		{
-//			if (event.isCancelled()) return;
-//			
-//			event.setCancelled(handleCommand(event.getPlayer(), event.getMessage().split("\\s+")));
-//		}
-//		
-//		@EventHandler(priority=EventPriority.LOW)
-//		public void onServerCommand(ServerCommandEvent event)
-//		{
-//			handleCommand(event.getSender(), event.getCommand().split("\\s+"));
-//		}
-		
-		
 		public static boolean handleCommand(CommandSender sender, String[] words)
 		{
 			if (words.length == 0) return false;
 			
-			List<CommandInfo> commands = commandMap.get(words[0]);
+			List<CommandInfo> commands = instance.commandMap.get(words[0]);
 			if (commands == null) return false;
 			commandLoop: for (CommandInfo cmd : commands)
 			{
