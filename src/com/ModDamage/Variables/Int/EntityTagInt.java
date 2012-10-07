@@ -42,13 +42,13 @@ public class EntityTagInt extends SettableIntegerExp<Entity>
 	@Override
 	public Integer myGet(Entity entity, EventData data) throws BailException
 	{
-		return ModDamage.getTagger().getTagValue(entity, tag);
+		return ModDamage.getTagger().intTags.getTagValue(entity, tag);
 	}
 	
 	@Override
 	public void mySet(Entity entity, EventData data, Integer value)
 	{
-		ModDamage.getTagger().addTag(entity, tag, value);
+		ModDamage.getTagger().intTags.addTag(entity, tag, value);
 	}
 	
 	@Override

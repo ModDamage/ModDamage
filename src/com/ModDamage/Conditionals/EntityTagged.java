@@ -27,7 +27,7 @@ public class EntityTagged extends Conditional<Entity>
 	@Override
 	public Boolean get(Entity entity, EventData data)
 	{
-		return entity != null && ModDamage.getTagger().isTagged(entity, tag);
+		return entity != null && ModDamage.getTagger().intTags.isTagged(entity, tag);
 	}
 	
 	public static void register()
