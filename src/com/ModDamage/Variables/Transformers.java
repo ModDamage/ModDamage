@@ -68,23 +68,23 @@ public class Transformers
 		
 		
 
-		DataProvider.registerTransformer(ItemStack.class, Item.class,
-				new IDataTransformer<ItemStack, Item>() {
-					public IDataProvider<ItemStack> transform(EventInfo info, IDataProvider<Item> itemDP) {
-						return new DataProvider<ItemStack, Item>(Item.class, itemDP) {
-								public ItemStack get(Item start, EventData data) { return start.getItemStack(); }
-								public Class<ItemStack> provides() { return ItemStack.class; }
-								public String toString() { return startDP.toString(); }
-							};
-					}
-			});
+//		DataProvider.registerTransformer(ItemStack.class, Item.class,
+//				new IDataTransformer<ItemStack, Item>() {
+//					public IDataProvider<ItemStack> transform(EventInfo info, IDataProvider<Item> itemDP) {
+//						return new DataProvider<ItemStack, Item>(Item.class, itemDP) {
+//								public ItemStack get(Item start, EventData data) { return start.getItemStack(); }
+//								public Class<ItemStack> provides() { return ItemStack.class; }
+//								public String toString() { return startDP.toString(); }
+//							};
+//					}
+//			});
 		
 		
-		DataProvider.registerTransformer(Material.class, Item.class,
-				new IDataTransformer<Material, Item>() {
-					public IDataProvider<Material> transform(EventInfo info, IDataProvider<Item> blockDP) {
-						return new DataProvider<Material, Item>(Item.class, blockDP) {
-								public Material get(Item block, EventData data) { return block.getItemStack().getType(); }
+		DataProvider.registerTransformer(Material.class, ItemStack.class,
+				new IDataTransformer<Material, ItemStack>() {
+					public IDataProvider<Material> transform(EventInfo info, IDataProvider<ItemStack> itemDP) {
+						return new DataProvider<Material, ItemStack>(ItemStack.class, itemDP) {
+								public Material get(ItemStack item, EventData data) { return item.getType(); }
 								public Class<Material> provides() { return Material.class; }
 								public String toString() { return startDP.toString(); }
 							};
