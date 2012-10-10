@@ -135,7 +135,6 @@ public class TagString extends NestedRoutine
 				if(entityDP == null) return null;
 			}
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "STag: " + matcher.group(1) + ", " + matcher.group(2));
 			
 			EventInfo einfo = info.chain(myInfo);
 			
@@ -150,6 +149,9 @@ public class TagString extends NestedRoutine
 
 			InterpolatedString value = MessageAliaser.match(string, einfo).iterator().next();
 			if(value == null) return null;
+			
+
+			ModDamage.addToLogRecord(OutputPreset.INFO, "STag: " + matcher.group(1) + ", " + matcher.group(2) + ": \"" + value + "\"");
 			
 			
 			return new TagString(matcher.group(), matcher.group(2).toLowerCase(), entityDP, worldDP, value);
