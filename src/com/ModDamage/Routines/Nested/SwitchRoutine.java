@@ -84,7 +84,7 @@ public class SwitchRoutine extends NestedRoutine
 	
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("switch(all)?\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("switch(all)?[\\. ](.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected final static class RoutineBuilder extends NestedRoutine.RoutineBuilder
