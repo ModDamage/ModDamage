@@ -344,7 +344,8 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			{
 				for (TransformerData<?, ?> transformer : entry.getValue())
 				{
-					if (transformer.provides != want) continue;
+					if (!want.isAssignableFrom(transformer.provides) && !transformer.provides.isAssignableFrom(want))
+						continue;
 					
 					IDataProvider<T> transDP = (IDataProvider<T>) transformer.transform(info, dp);
 					if (transDP != null)

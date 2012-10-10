@@ -46,7 +46,7 @@ public class BlockInt extends SettableIntegerExp<Block>
 				return block.getLightFromSky();
 			}
 		},
-		TYPE(true)
+		TYPEID(true)
 		{
 			@Override
 			public int getValue(Block block)

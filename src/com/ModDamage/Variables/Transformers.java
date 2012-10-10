@@ -4,6 +4,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.DataProvider;
@@ -15,20 +17,8 @@ import com.ModDamage.Matchables.EntityType;
 
 public class Transformers
 {
-	@SuppressWarnings("rawtypes")
 	public static void register()
 	{
-		DataProvider.registerTransformer(Location.class, Block.class,
-				new IDataTransformer<Location, Block>() {
-					public IDataProvider<Location> transform(EventInfo info, IDataProvider<Block> blockDP) {
-						return new DataProvider<Location, Block>(Block.class, blockDP) {
-								public Location get(Block block, EventData data) { return block.getLocation(); }
-								public Class<Location> provides() { return Location.class; }
-								public String toString() { return startDP.toString(); }
-							};
-					}
-				});
-		
 		DataProvider.registerTransformer(Location.class, Entity.class,
 				new IDataTransformer<Location, Entity>() {
 					public IDataProvider<Location> transform(EventInfo info, IDataProvider<Entity> entityDP) {
@@ -40,35 +30,89 @@ public class Transformers
 					}
 				});
 		
-		DataProvider.registerTransformer(Block.class, Location.class,
-				new IDataTransformer<Block, Location>() {
-					public IDataProvider<Block> transform(EventInfo info, IDataProvider<Location> locDP) {
-						return new DataProvider<Block, Location>(Location.class, locDP) {
-								public Block get(Location loc, EventData data) { return loc.getBlock(); }
-								public Class<Block> provides() { return Block.class; }
-								public String toString() { return startDP.toString(); }
-							};
-					}
-				});
-		
-		DataProvider.registerTransformer(Enum.class, Entity.class,
-				new IDataTransformer<Enum, Entity>() {
-					public IDataProvider<Enum> transform(EventInfo info, final IDataProvider<Entity> entityDP) {
-						return new IDataProvider<Enum>() {
+		DataProvider.registerTransformer(EntityType.class, Entity.class,
+				new IDataTransformer<EntityType, Entity>() {
+					public IDataProvider<EntityType> transform(EventInfo info, final IDataProvider<Entity> entityDP) {
+						return new IDataProvider<EntityType>() {
 								public EntityType get(EventData data) throws BailException { return EntityType.get(entityDP.get(data)); }
-								@SuppressWarnings("unchecked")
-								public Class provides() { return EntityType.class; }
+								public Class<EntityType> provides() { return EntityType.class; }
 								public String toString() { return entityDP.toString(); }
 							};
 					}
 				});
+		
+		
+		
+		DataProvider.registerTransformer(Location.class, Block.class,
+				new IDataTransformer<Location, Block>() {
+					public IDataProvider<Location> transform(EventInfo info, IDataProvider<Block> blockDP) {
+						return new DataProvider<Location, Block>(Block.class, blockDP) {
+								public Location get(Block block, EventData data) { return block.getLocation(); }
+								public Class<Location> provides() { return Location.class; }
+								public String toString() { return startDP.toString(); }
+							};
+					}
+				});
 
+		
 		DataProvider.registerTransformer(Material.class, Block.class,
 				new IDataTransformer<Material, Block>() {
 					public IDataProvider<Material> transform(EventInfo info, IDataProvider<Block> blockDP) {
 						return new DataProvider<Material, Block>(Block.class, blockDP) {
 								public Material get(Block block, EventData data) { return block.getType(); }
 								public Class<Material> provides() { return Material.class; }
+								public String toString() { return startDP.toString(); }
+							};
+					}
+				});
+		
+		
+
+		DataProvider.registerTransformer(ItemStack.class, Item.class,
+				new IDataTransformer<ItemStack, Item>() {
+					public IDataProvider<ItemStack> transform(EventInfo info, IDataProvider<Item> itemDP) {
+						return new DataProvider<ItemStack, Item>(Item.class, itemDP) {
+								public ItemStack get(Item start, EventData data) { return start.getItemStack(); }
+								public Class<ItemStack> provides() { return ItemStack.class; }
+								public String toString() { return startDP.toString(); }
+							};
+					}
+			});
+		
+		
+		DataProvider.registerTransformer(Material.class, Item.class,
+				new IDataTransformer<Material, Item>() {
+					public IDataProvider<Material> transform(EventInfo info, IDataProvider<Item> blockDP) {
+						return new DataProvider<Material, Item>(Item.class, blockDP) {
+								public Material get(Item block, EventData data) { return block.getItemStack().getType(); }
+								public Class<Material> provides() { return Material.class; }
+								public String toString() { return startDP.toString(); }
+							};
+					}
+				});
+		
+		
+		
+		
+		DataProvider.registerTransformer(Integer.class, Material.class,
+				new IDataTransformer<Integer, Material>() {
+					public IDataProvider<Integer> transform(EventInfo info, IDataProvider<Material> materialDP) {
+						return new DataProvider<Integer, Material>(Material.class, materialDP) {
+								public Integer get(Material material, EventData data) { return material.getId(); }
+								public Class<Integer> provides() { return Integer.class; }
+								public String toString() { return startDP.toString(); }
+							};
+					}
+				});
+		
+
+		
+		DataProvider.registerTransformer(String.class, Object.class,
+				new IDataTransformer<String, Object>() {
+					public IDataProvider<String> transform(EventInfo info, IDataProvider<Object> objDP) {
+						return new DataProvider<String, Object>(Object.class, objDP) {
+								public String get(Object obj, EventData data) { return obj.toString(); }
+								public Class<String> provides() { return String.class; }
 								public String toString() { return startDP.toString(); }
 							};
 					}

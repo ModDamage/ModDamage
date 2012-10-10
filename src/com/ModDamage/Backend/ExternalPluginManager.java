@@ -32,8 +32,8 @@ import com.ModDamage.Variables.EntityBlockTarget;
 import com.ModDamage.Variables.EntityEntity;
 import com.ModDamage.Variables.EntityWorld;
 import com.ModDamage.Variables.LocationWorld;
+import com.ModDamage.Variables.MiscProperties;
 import com.ModDamage.Variables.Transformers;
-import com.ModDamage.Variables.Item.ItemTransformer;
 import com.ModDamage.Variables.Item.PlayerInvItem;
 import com.ModDamage.Variables.Item.PlayerItem;
 import com.elbukkit.api.elregions.elRegionsPlugin;
@@ -63,10 +63,10 @@ public class ExternalPluginManager
 		// ItemExps
 		PlayerItem.register();
 		PlayerInvItem.register();
-		ItemTransformer.register();
 		
 		// Other
 		Transformers.register();
+		MiscProperties.register();
 		
 		EntityEntity.register();
 		EntityBlockTarget.register();
