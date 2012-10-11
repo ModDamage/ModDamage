@@ -271,7 +271,7 @@ public class ModDamage extends JavaPlugin
 			if(forError) player.sendMessage(ChatColor.RED + "Error: invalid command syntax.");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "ModDamage commands:");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/moddamage | /md - bring up this help message");
-			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (check | c) - check configuration");
+			//player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (check | c) - check configuration");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (debug | d) [debugType] - change debug type");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (disable|enable) - disable/enable ModDamage");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (reload | r) - reload configuration");
