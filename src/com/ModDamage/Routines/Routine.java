@@ -59,6 +59,7 @@ abstract public class Routine
 		ChangeTameableOwner.register();
 		Cancel.register();
 		RepeatControl.register();
+		Despawn.register();
 		
 		// this must go last to avoid misleading parse errors
 		ValueChange.register();
