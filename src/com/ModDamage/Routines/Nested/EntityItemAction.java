@@ -7,6 +7,8 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -27,9 +29,11 @@ import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Routines;
 import com.ModDamage.Variables.Int.Constant;
 
+import static com.ModDamage.PluginConfiguration.OutputPreset;
+
 public class EntityItemAction extends NestedRoutine
 {
-	public static final Pattern pattern = Pattern.compile("(.*)effect\\.(give|drop|take)Item\\.(.+?)(?:\\.\\s*(.+))?", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("(.*)(?:effect)?\\.(give|drop|take)Item\\.(.+?)(?:\\.\\s*(.+))?", Pattern.CASE_INSENSITIVE);
 	
 	protected enum ItemAction
 	{
@@ -152,13 +156,15 @@ public class EntityItemAction extends NestedRoutine
 				Routines routines = null;
 				if (nestedContent != null)
 					routines = RoutineAliaser.parseRoutines(nestedContent, info.chain(myInfo));
-				
+
 				
 				IDataProvider<Integer> quantity;
 				if (matcher.group(4) != null)
 					quantity = DataProvider.parse(info, Integer.class, matcher.group(4));
 				else
 					quantity = new Constant(1);
+
+                ModDamage.addToLogRecord(OutputPreset.INFO, name.charAt(0) + name.substring(1).toLowerCase() + " at/to " + livingDP + ": " + items);
 				
 				return new EntityItemAction(matcher.group(), livingDP, ItemAction.valueOf(matcher.group(2).toUpperCase()), items, quantity, routines);
 			}
