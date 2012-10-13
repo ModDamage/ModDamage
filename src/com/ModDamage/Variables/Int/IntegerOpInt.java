@@ -119,7 +119,7 @@ public class IntegerOpInt extends IntegerExp<Integer>
 						
 						IntegerOpInt ioi;
 						// precedence calculations here
-						if (rightDP instanceof IntegerOpInt && ((IntegerOpInt)rightDP).operator.precedence > operator.precedence)
+						if (rightDP instanceof IntegerOpInt && ((IntegerOpInt)rightDP).operator.precedence >= operator.precedence)
 						{
 							IntegerOpInt r = (IntegerOpInt) rightDP;
 							r.startDP = new IntegerOpInt(leftDP, operator, r.startDP);
