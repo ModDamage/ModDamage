@@ -40,6 +40,7 @@ public abstract class NestedRoutine extends Routine
 		ChangeProperty.register();
 		ModifySkill.register();
 		Command.registerNested();
+		PlayerChat.registerNested();
 	}
 	
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)
