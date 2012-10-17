@@ -33,7 +33,7 @@ import static com.ModDamage.PluginConfiguration.OutputPreset;
 
 public class EntityItemAction extends NestedRoutine
 {
-	public static final Pattern pattern = Pattern.compile("(.*)(?:effect)?\\.(give|drop|take)Item\\.(.+?)(?:\\.\\s*(.+))?", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("(.*?)(?:effect)?\\.(give|drop|take)Item\\.(.+?)(?:\\.\\s*(.+))?", Pattern.CASE_INSENSITIVE);
 	
 	protected enum ItemAction
 	{
