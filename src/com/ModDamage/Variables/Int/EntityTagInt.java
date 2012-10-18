@@ -3,6 +3,7 @@ package com.ModDamage.Variables.Int;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.Expressions.InterpolatedString;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
@@ -18,37 +19,49 @@ public class EntityTagInt extends SettableIntegerExp<Entity>
 {	
 	public static void register()
 	{
-		DataProvider.register(Integer.class, Entity.class, Pattern.compile("_tag(?:value)?_(\\w+)", Pattern.CASE_INSENSITIVE), new IDataParser<Integer, Entity>()
+		DataProvider.register(Integer.class, Entity.class, Pattern.compile("_tag(?:value)?_", Pattern.CASE_INSENSITIVE),
+            new IDataParser<Integer, Entity>()
 				{
 					@Override
 					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm)
 					{
+                        IDataProvider<String> tagDP = InterpolatedString.parseWord(InterpolatedString.word, sm.spawn(), info);
+                        if (tagDP == null) return null;
+
 						return sm.acceptIf(new EntityTagInt(
 								entityDP,
-								m.group(1).toLowerCase()));
+								tagDP));
 					}
 				});
 	}
 	
-	protected final String tag;
+	protected final IDataProvider<String> tagDP;
 	
-	EntityTagInt(IDataProvider<Entity> entityDP, String tag)
+	EntityTagInt(IDataProvider<Entity> entityDP, IDataProvider<String> tagDP)
 	{
 		super(Entity.class, entityDP);
-		this.tag = tag;
+		this.tagDP = tagDP;
 	}
 	
 	
 	@Override
 	public Integer myGet(Entity entity, EventData data) throws BailException
 	{
-		return ModDamage.getTagger().intTags.getTagValue(entity, tag);
+        String tag = tagDP.get(data);
+        if (tag == null) return null;
+        tag = tag.toLowerCase();
+
+        return ModDamage.getTagger().intTags.getTagValue(entity, tag);
 	}
 	
 	@Override
-	public void mySet(Entity entity, EventData data, Integer value)
+	public void mySet(Entity entity, EventData data, Integer value) throws BailException
 	{
-		ModDamage.getTagger().intTags.addTag(entity, tag, value);
+        String tag = tagDP.get(data);
+        if (tag == null) return;
+        tag = tag.toLowerCase();
+
+        ModDamage.getTagger().intTags.addTag(entity, tag, value);
 	}
 	
 	@Override
@@ -60,6 +73,6 @@ public class EntityTagInt extends SettableIntegerExp<Entity>
 	@Override
 	public String toString()
 	{
-		return startDP + "_tag_" + tag;
+		return startDP + "_tag_" + tagDP;
 	}
 }

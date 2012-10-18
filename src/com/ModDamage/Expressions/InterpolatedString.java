@@ -52,6 +52,73 @@ public class InterpolatedString implements IDataProvider<String>
 			part = colorReplace(part);
 		addPart(part);
 	}
+
+    /**
+     * Used by parseWord
+     */
+    private InterpolatedString() {}
+
+
+
+    /**
+     * This parses a word that may include %{interpolations}.
+     * @param wordPattern The pattern for the text before, after, and inbetween interpolations. It should NOT match empty.
+     * @param sm sm.spawn()
+     * @param info The current EventInfo
+     * @return The new InterpolatedString or null if parsing failed
+     */
+    public static IDataProvider<String> parseWord(Pattern wordPattern, StringMatcher sm, EventInfo info) {
+        InterpolatedString is = new InterpolatedString();
+
+        Matcher m;
+
+        while (true) {
+            m = sm.matchFront(interpolationStartPattern);
+            if (m != null) {
+                IDataProvider<String> stringDP = DataProvider.parse(info, String.class, sm.spawn(), false, true, interpolationEndPattern);
+                if (stringDP == null) return null;
+                if (!sm.matchesFront(interpolationEndPattern)) return null;
+                is.addPart(stringDP);
+                continue;
+            }
+
+            m = sm.matchFront(wordPattern);
+            if (m != null) {
+                is.addPart(m.group());
+                continue;
+            }
+
+            break;
+        }
+
+        sm.accept();
+        return is;
+    }
+
+    public static final Pattern word = Pattern.compile("\\w+");
+    public static final Pattern comma = Pattern.compile(",");
+
+    /**
+     * This parses a word that may include %{interpolations}.
+     * @param wordPattern The pattern for the text before, after, and inbetween interpolations. It should NOT match empty.
+     * @param seperatorPattern The pattern to use between words. Often just InterpolatedString.comma
+     * @param sm sm.spawn()
+     * @param info The current EventInfo
+     * @return The new InterpolatedString or null if parsing failed
+     */
+    public static Collection<IDataProvider<String>> parseWordList(Pattern wordPattern, Pattern seperatorPattern, StringMatcher sm, EventInfo info) {
+        List<IDataProvider<String>> iss = new ArrayList<IDataProvider<String>>(1);
+
+        while (true) {
+            IDataProvider<String> is = parseWord(wordPattern, sm.spawn(), info);
+            if (is == null) return null;
+            iss.add(is);
+
+            if (!sm.matchesFront(seperatorPattern)) break;
+        }
+
+        return iss;
+    }
 	
 	private String colorReplace(String str)
 	{

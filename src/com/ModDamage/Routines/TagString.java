@@ -3,6 +3,7 @@ package com.ModDamage.Routines;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.StringMatcher;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
@@ -20,24 +21,24 @@ import com.ModDamage.Routines.Nested.NestedRoutine;
 
 public class TagString extends NestedRoutine
 {
-	private final String tag;
+    private final IDataProvider<String> tagDP;
 	private final IDataProvider<Entity> entityDP;
 	private final IDataProvider<World> worldDP;
 	private final IDataProvider<String> value;
 	
-	protected TagString(String configString, String tag, IDataProvider<Entity> entityDP, IDataProvider<World> worldDP, IDataProvider<String> value)
+	protected TagString(String configString, IDataProvider<String> tagDP, IDataProvider<Entity> entityDP, IDataProvider<World> worldDP, IDataProvider<String> value)
 	{
 		super(configString);
-		this.tag = tag;
+        this.tagDP = tagDP;
 		this.entityDP = entityDP;
 		this.worldDP = worldDP;
 		this.value = value;
 	}
 	
-	protected TagString(String configString, String tag, IDataProvider<Entity> entityDP, IDataProvider<World> worldDP)
+	protected TagString(String configString, IDataProvider<String> tagDP, IDataProvider<Entity> entityDP, IDataProvider<World> worldDP)
 	{
 		super(configString);
-		this.tag = tag;
+        this.tagDP = tagDP;
 		this.entityDP = entityDP;
 		this.worldDP = worldDP;
 		this.value = null;
@@ -46,7 +47,11 @@ public class TagString extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		if (worldDP != null)
+        String tag = tagDP.get(data);
+        if (tag == null) return;
+        tag = tag.toLowerCase();
+
+        if (worldDP != null)
 		{
 			World world = worldDP.get(data);
 			if (world == null)
@@ -80,11 +85,11 @@ public class TagString extends NestedRoutine
 
 	public static void registerRoutine()
 	{
-		Routine.registerRoutine(Pattern.compile("unstag\\.(\\w+)\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("unstag\\.(\\w+)\\.(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	public static void registerNested()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("stag\\.(\\w+)\\.(\\w+)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("stag\\.(\\w+)\\.(.+)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
 	}
 	
 	public static final EventInfo myInfo = new SimpleEventInfo(String.class, "value", "-default");
@@ -95,7 +100,10 @@ public class TagString extends NestedRoutine
 		public TagString getNew(Matcher matcher, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
-			IDataProvider<Entity> entityDP = null;
+            IDataProvider<String> tagDP = InterpolatedString.parseWord(InterpolatedString.word, new StringMatcher(matcher.group(2)), info);
+            if (tagDP == null) return null;
+
+            IDataProvider<Entity> entityDP = null;
 			IDataProvider<World> worldDP = null;
 			
 			if (name.equals("world"))
@@ -110,8 +118,8 @@ public class TagString extends NestedRoutine
 			}
 			
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "UnSTag: " + matcher.group(1) + ", " + matcher.group(2));
-			return new TagString(matcher.group(), matcher.group(2).toLowerCase(), entityDP, worldDP);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "UnSTag: " + matcher.group(1) + ", " + tagDP);
+			return new TagString(matcher.group(), tagDP, entityDP, worldDP);
 		}
 	}
 	
@@ -121,7 +129,10 @@ public class TagString extends NestedRoutine
 		public TagString getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
-			IDataProvider<Entity> entityDP = null;
+            IDataProvider<String> tagDP = InterpolatedString.parseWord(InterpolatedString.word, new StringMatcher(matcher.group(2)), info);
+            if (tagDP == null) return null;
+
+            IDataProvider<Entity> entityDP = null;
 			IDataProvider<World> worldDP = null;
 			
 			if (name.equals("world"))
@@ -151,10 +162,10 @@ public class TagString extends NestedRoutine
 			if(value == null) return null;
 			
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "STag: " + matcher.group(1) + ", " + matcher.group(2) + ": \"" + value + "\"");
+			ModDamage.addToLogRecord(OutputPreset.INFO, "STag: " + name + ", " + tagDP + ": \"" + value + "\"");
 			
 			
-			return new TagString(matcher.group(), matcher.group(2).toLowerCase(), entityDP, worldDP, value);
+			return new TagString(matcher.group(), tagDP, entityDP, worldDP, value);
 		}
 	}
 }
