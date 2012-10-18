@@ -18,7 +18,7 @@ public abstract class NestedRoutine extends Routine
 	private static LinkedHashMap<Pattern, RoutineBuilder> registeredNestedRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
 
 	protected NestedRoutine(String configString){ super(configString); }
-	
+
 	public static void registerVanillaRoutines()
 	{
 		registeredNestedRoutines.clear();
@@ -31,6 +31,7 @@ public abstract class NestedRoutine extends Routine
 		SwitchRoutine.register();
 		Spawn.register();
 		EntityItemAction.registerNested();
+        DropItem.registerNested();
 		EntityHurt.register();
 		EntityUnknownHurt.register();
 		EntityHeal.register();
@@ -42,12 +43,12 @@ public abstract class NestedRoutine extends Routine
 		Command.registerNested();
 		PlayerChat.registerNested();
 	}
-	
+
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)
 	{
 		registeredNestedRoutines.put(pattern, builder);
 	}
-	
+
 	public static NestedRoutine getNew(String string, Object nestedContent, EventInfo info)
 	{
 		for(Entry<Pattern, RoutineBuilder> entry : registeredNestedRoutines.entrySet())
@@ -63,12 +64,12 @@ public abstract class NestedRoutine extends Routine
 		ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for nested routine \"" + string + "\"");		
 		return null;
 	}
-	
+
 	protected static abstract class RoutineBuilder
 	{
 		public abstract NestedRoutine getNew(Matcher anyMatcher, Object nestedContent, EventInfo info);
 	}
-	
+
 	public static void paddedLogRecord(OutputPreset preset, String message)
 	{		
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");

@@ -12,6 +12,7 @@ import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Routines.Nested.Command;
+import com.ModDamage.Routines.Nested.DropItem;
 import com.ModDamage.Routines.Nested.EntityItemAction;
 import com.ModDamage.Routines.Nested.Message;
 
@@ -50,6 +51,7 @@ abstract public class Routine
 		PlayEffect.register();
 		Message.registerRoutine();
 		EntityItemAction.registerRoutine();
+        DropItem.registerRoutine();
 		Command.registerRoutine();
 		ClearEnchantments.register();
 		Teleport.register();
