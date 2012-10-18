@@ -250,8 +250,22 @@ public class Command extends MDEvent
 						super.addToEventInfoList(list);
 					}
 				};
+            if (string.startsWith("%"))
+                return new Argument(string.substring(1), "Word") {
+                    @Override
+                    public boolean addToEventDataList(List<Object> dataList, String arg)
+                    {
+                        dataList.add(arg);
+                        return true;
+                    }
+                    public void addToEventInfoList(List<Object> list)
+                    {
+                        list.add(String.class);
+                        super.addToEventInfoList(list);
+                    }
+                };
 			if (string.matches("^[a-zA-Z].*"))
-				return new Argument(string, "Word") {
+				return new Argument(string, "RawWord") {
 					@Override
 					public boolean addToEventDataList(List<Object> dataList, String arg)
 					{
