@@ -62,6 +62,7 @@ abstract public class Routine
 		Cancel.register();
 		RepeatControl.register();
 		Despawn.register();
+        ClearList.register();
 		
 		// this must go last to avoid misleading parse errors
 		ValueChange.register();

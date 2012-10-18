@@ -15,12 +15,15 @@ import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Matchables.DamageType;
 
+import java.util.List;
+
 public class Death extends MDEvent implements Listener
 {
 	public Death() { super(myInfo); }
 	
 	static final EventInfo myInfo = Damage.myInfo.chain(new SimpleEventInfo(
-			Integer.class, "experience", "-default"));
+			Integer.class, "experience", "-default",
+            List.class, "drops"));
 			
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onEntityDeath(EntityDeathEvent event)
@@ -45,7 +48,9 @@ public class Death extends MDEvent implements Listener
 					null
 					);
 		
-		EventData data = myInfo.makeChainedData(damageData, event.getDroppedExp());
+		EventData data = myInfo.makeChainedData(damageData,
+                event.getDroppedExp(),
+                event.getDrops());
 		
 		runRoutines(data);
 		
