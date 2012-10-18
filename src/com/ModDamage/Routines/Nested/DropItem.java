@@ -106,7 +106,7 @@ public class DropItem extends NestedRoutine
 		{
 			String name = matcher.group(1).toLowerCase();
 			IDataProvider<Location> locationDP = DataProvider.parse(info, Location.class, name); if (locationDP == null) return null;
-			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
+			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(2), info);
 			if(items != null && !items.isEmpty())
 			{
 				Routines routines = null;
@@ -116,7 +116,7 @@ public class DropItem extends NestedRoutine
 				
 				IDataProvider<Integer> quantity;
 				if (matcher.group(4) != null)
-					quantity = DataProvider.parse(info, Integer.class, matcher.group(4));
+					quantity = DataProvider.parse(info, Integer.class, matcher.group(3));
 				else
 					quantity = new Constant(1);
 
