@@ -149,7 +149,7 @@ public class EntityItemAction extends NestedRoutine
 					quantity = DataProvider.parse(info, Integer.class, matcher.group(4));
 				else
 					quantity = new Constant(1);
-                
+
                 if (quantity == null) return null;
 
 
