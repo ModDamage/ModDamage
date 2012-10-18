@@ -1,6 +1,7 @@
 package com.ModDamage.Expressions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,10 +13,13 @@ import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.StringMatcher;
 
 public class InterpolatedString implements IDataProvider<String>
 {
-	private static final Pattern interpolationPattern = Pattern.compile("%\\{([^}]+)\\}", Pattern.CASE_INSENSITIVE);
+    private static final Pattern interpolationStartPattern = Pattern.compile("%\\{");
+    private static final Pattern interpolationEndPattern = Pattern.compile("}");
+	//private static final Pattern interpolationPattern = Pattern.compile("%\\{([^}]+)\\}", Pattern.CASE_INSENSITIVE);
 	private static final Pattern colorReplacePattern = Pattern.compile("&([0-9a-fk-o])", Pattern.CASE_INSENSITIVE);
 	
 	private final List<InterpolatedPart> parts = new ArrayList<InterpolatedPart>();
@@ -23,29 +27,27 @@ public class InterpolatedString implements IDataProvider<String>
 	
 	public InterpolatedString(String message, EventInfo info, boolean colorize)
 	{
-		Matcher interpolationMatcher = interpolationPattern.matcher(message);
-		int start = 0;
-		while(interpolationMatcher.find(start))
+		StringMatcher sm = new StringMatcher(message);
+        String part;
+		while((part = sm.skipTo(interpolationStartPattern)) != null)
 		{
-			String part = message.substring(start, interpolationMatcher.start());
 			if (colorize)
 				part = colorReplace(part);
 			addPart(part);
+
+            Matcher start = sm.matchFront(interpolationStartPattern); // already know this is true because of the while condition
 			
-			start = interpolationMatcher.end();
-			
-			IDataProvider<String> match = DataProvider.parse(info, String.class, interpolationMatcher.group(1));
-			if(match != null)
-			{
-				addPart(match);
-			}
-			else
-			{
-				ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "String expression not matched!");
-				addPart(message.substring(interpolationMatcher.start(1), interpolationMatcher.end(1)));
-			}
+			IDataProvider<String> match = DataProvider.parse(info, String.class, sm.spawn(), false, true, interpolationEndPattern);
+			if(match == null) {
+                ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "String expression not matched!");
+                addPart(start.group());
+                continue;
+            }
+            if (!sm.matchesFront(interpolationEndPattern)) continue; // Why would this ever not match?
+
+			addPart(match);
 		}
-		String part = message.substring(start);
+		part = sm.string;
 		if (colorize)
 			part = colorReplace(part);
 		addPart(part);
@@ -65,7 +67,7 @@ public class InterpolatedString implements IDataProvider<String>
 	private void addPart(IDataProvider<String> str)
 	{
 		parts.add(new DynamicStringPart(str));
-		minSize += 4; // just a guess, many will be small numbers
+		minSize += 3; // just a guess, many will be small numbers
 	}
 	
 	public String toString(EventData data) throws BailException

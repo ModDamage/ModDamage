@@ -120,6 +120,24 @@ public class StringMatcher
 		return matchAll(str) != null;
 	}
 
+    public String skipTo(String str)
+    {
+        int i = string.indexOf(str);
+        if (i == -1) return null;
+        String pre = string.substring(0, i);
+        string = string.substring(i);
+        return pre;
+    }
+
+    public String skipTo(Pattern pattern)
+    {
+        Matcher m = pattern.matcher(string);
+        if (!m.find()) return null;
+        String pre = string.substring(0, m.start());
+        string = string.substring(m.start());
+        return pre;
+    }
+
 
 	public boolean isEmpty()
 	{
