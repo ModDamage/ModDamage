@@ -115,7 +115,7 @@ public class DropItem extends NestedRoutine
 
 				
 				IDataProvider<Integer> quantity;
-				if (matcher.group(4) != null)
+				if (matcher.group(3) != null)
 					quantity = DataProvider.parse(info, Integer.class, matcher.group(3));
 				else
 					quantity = new Constant(1);
