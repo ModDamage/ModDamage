@@ -117,6 +117,7 @@ public class InterpolatedString implements IDataProvider<String>
             if (!sm.matchesFront(seperatorPattern)) break;
         }
 
+        sm.accept();
         return iss;
     }
 	
