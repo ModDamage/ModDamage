@@ -120,6 +120,8 @@ public class DropItem extends NestedRoutine
 				else
 					quantity = new Constant(1);
 
+                if (quantity == null) return null;
+
                 ModDamage.addToLogRecord(OutputPreset.INFO, "Drop item at " + locationDP + ": " + items);
 				
 				return new DropItem(matcher.group(), locationDP, items, quantity, routines);

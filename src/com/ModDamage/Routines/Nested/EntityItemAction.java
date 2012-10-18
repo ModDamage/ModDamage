@@ -149,6 +149,8 @@ public class EntityItemAction extends NestedRoutine
 					quantity = DataProvider.parse(info, Integer.class, matcher.group(4));
 				else
 					quantity = new Constant(1);
+                
+                if (quantity == null) return null;
 
 
                 ModDamage.addToLogRecord(OutputPreset.INFO, action.charAt(0) + action.substring(1).toLowerCase() + " at/to " + humanDP + ": " + items);
