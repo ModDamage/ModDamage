@@ -32,11 +32,10 @@ public class PlaceBlock extends MDEvent implements Listener
 	public void onBlockPlace(BlockPlaceEvent event)
 	{
 		if(!ModDamage.isEnabled) return;
-		
-		Player player = event.getPlayer();
+
 		EventData data = myInfo.makeData(
-				player,
-				player.getWorld(),
+                event.getPlayer(),
+				event.getBlockPlaced().getWorld(),
 				event.getBlockPlaced(),
 				event.getBlockAgainst(),
 				event.getItemInHand(),

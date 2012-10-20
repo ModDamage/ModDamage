@@ -28,11 +28,10 @@ public class BreakBlock extends MDEvent implements Listener
 	public void onBlockBreak(BlockBreakEvent event)
 	{
 		if(!ModDamage.isEnabled) return;
-		
-		Player player = event.getPlayer();
+
 		EventData data = myInfo.makeData(
-				player,
-				player.getWorld(),
+                event.getPlayer(),
+                event.getBlock().getWorld(),
 				event.getBlock(),
 				event.isCancelled());
 		
