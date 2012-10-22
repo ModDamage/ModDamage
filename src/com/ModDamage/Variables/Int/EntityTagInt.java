@@ -51,7 +51,7 @@ public class EntityTagInt extends SettableIntegerExp<Entity>
         if (tag == null) return null;
         tag = tag.toLowerCase();
 
-        return ModDamage.getTagger().intTags.getTagValue(entity, tag);
+        return ModDamage.getTagger().intTags.onEntity.getTagValue(entity, tag);
 	}
 	
 	@Override
@@ -61,7 +61,7 @@ public class EntityTagInt extends SettableIntegerExp<Entity>
         if (tag == null) return;
         tag = tag.toLowerCase();
 
-        ModDamage.getTagger().intTags.addTag(entity, tag, value);
+        ModDamage.getTagger().intTags.onEntity.addTag(entity, tag, value);
 	}
 	
 	@Override

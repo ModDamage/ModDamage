@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.Tags.TagManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -37,7 +38,7 @@ public class ModDamage extends JavaPlugin
 	public static boolean isEnabled = false;
 	private static final String errorString_Permissions = chatPrepend(ChatColor.RED) + "You don't have access to that command.";
 
-	private static ModDamageTagger tagger = null;
+	private static TagManager tagger = null;
 
 	// //////////////////////// INITIALIZATION
 	@Override
@@ -72,11 +73,11 @@ public class ModDamage extends JavaPlugin
 		{
 			if(tagger != null) tagger.close();
 
-			long[] tagConfigIntegers = { ModDamageTagger.defaultInterval, ModDamageTagger.defaultInterval * 4 };
+			long[] tagConfigIntegers = { TagManager.defaultInterval, TagManager.defaultInterval * 4 };
 			LinkedHashMap<String, Object> tagConfigurationTree = configuration.castToStringMap("Tagging", configuration.getConfigMap().get("Tagging"));
 			if(tagConfigurationTree != null)
 			{
-				String[] tagConfigStrings = { ModDamageTagger.configString_save, ModDamageTagger.configString_clean };
+				String[] tagConfigStrings = { TagManager.configString_save, TagManager.configString_clean };
 				Object[] tagConfigObjects =	{PluginConfiguration.getCaseInsensitiveValue(tagConfigurationTree, tagConfigStrings[0]), PluginConfiguration.getCaseInsensitiveValue(tagConfigurationTree, tagConfigStrings[1]) };
 				for(int i = 0; i < tagConfigObjects.length; i++)
 				{
@@ -88,7 +89,7 @@ public class ModDamage extends JavaPlugin
 					}
 				}
 			}
-			tagger = new ModDamageTagger(taggerFile, tagConfigIntegers[0], tagConfigIntegers[1]);
+			tagger = new TagManager(taggerFile, tagConfigIntegers[0], tagConfigIntegers[1]);
 			
 			for(ModDamageExtension extension : extensions)
 				extension.reloadRoutines();
@@ -294,7 +295,7 @@ public class ModDamage extends JavaPlugin
 
 	public static DebugSetting getDebugSetting(){ return configuration.currentSetting; }
 
-	public static ModDamageTagger getTagger(){ return tagger; }
+	public static TagManager getTagger(){ return tagger; }
 
 	public static PluginConfiguration getPluginConfiguration(){ return configuration; }
 	

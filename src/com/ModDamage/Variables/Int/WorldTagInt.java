@@ -42,14 +42,14 @@ public class WorldTagInt extends SettableIntegerExp<World>
 	@Override
 	public Integer myGet(World world, EventData data) throws BailException
 	{
-		Integer value = ModDamage.getTagger().intTags.getTagValue(world, tag);
+		Integer value = ModDamage.getTagger().intTags.onWorld.getTagValue(world, tag);
 		return value;
 	}
 	
 	@Override
 	public void mySet(World world, EventData data, Integer value)
 	{
-		ModDamage.getTagger().intTags.addTag(world, tag, value);
+		ModDamage.getTagger().intTags.onWorld.addTag(world, tag, value);
 	}
 	
 	@Override

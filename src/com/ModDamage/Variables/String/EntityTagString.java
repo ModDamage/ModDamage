@@ -50,7 +50,7 @@ public class EntityTagString extends SettableDataProvider<String, Entity>
         if (tag == null) return null;
         tag = tag.toLowerCase();
 
-        return ModDamage.getTagger().stringTags.getTagValue(entity, tag);
+        return ModDamage.getTagger().stringTags.onEntity.getTagValue(entity, tag);
 	}
 	
 	@Override
@@ -60,7 +60,7 @@ public class EntityTagString extends SettableDataProvider<String, Entity>
         if (tag == null) return;
         tag = tag.toLowerCase();
 
-        ModDamage.getTagger().stringTags.addTag(entity, tag, value);
+        ModDamage.getTagger().stringTags.onEntity.addTag(entity, tag, value);
 	}
 	
 	@Override

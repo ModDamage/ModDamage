@@ -42,13 +42,13 @@ public class WorldTagString extends SettableDataProvider<String, World>
 	@Override
 	public String get(World world, EventData data) throws BailException
 	{
-		return ModDamage.getTagger().stringTags.getTagValue(world, tag);
+		return ModDamage.getTagger().stringTags.onWorld.getTagValue(world, tag);
 	}
 	
 	@Override
 	public void set(World world, EventData data, String value)
 	{
-		ModDamage.getTagger().stringTags.addTag(world, tag, value);
+		ModDamage.getTagger().stringTags.onWorld.addTag(world, tag, value);
 	}
 	
 	@Override

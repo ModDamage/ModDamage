@@ -32,9 +32,9 @@ public class EntityTagged extends Conditional<Entity>
 		if (entity == null) return false;
 		
 		if (isString)
-			return ModDamage.getTagger().stringTags.isTagged(entity, tag);
+			return ModDamage.getTagger().stringTags.onEntity.isTagged(entity, tag);
 		else
-			return ModDamage.getTagger().intTags.isTagged(entity, tag);
+			return ModDamage.getTagger().intTags.onEntity.isTagged(entity, tag);
 	}
 	
 	public static void register()

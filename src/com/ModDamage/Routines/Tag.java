@@ -60,12 +60,12 @@ public class Tag extends NestedRoutine
 			
 			if(value != null)
 			{
-				Integer oldTagValue = ModDamage.getTagger().intTags.getTagValue(world, tag);
+				Integer oldTagValue = ModDamage.getTagger().intTags.onWorld.getTagValue(world, tag);
 				EventData myData = myInfo.makeChainedData(data, oldTagValue == null? 0 : oldTagValue);
-				ModDamage.getTagger().intTags.addTag(world, tag, value.get(myData));
+				ModDamage.getTagger().intTags.onWorld.addTag(world, tag, value.get(myData));
 			}
 			else
-				ModDamage.getTagger().intTags.removeTag(world, tag);
+				ModDamage.getTagger().intTags.onWorld.removeTag(world, tag);
 		}
 		else
 		{
@@ -75,12 +75,12 @@ public class Tag extends NestedRoutine
 			
 			if(value != null)
 			{
-				Integer oldTagValue = ModDamage.getTagger().intTags.getTagValue(entity, tag);
+				Integer oldTagValue = ModDamage.getTagger().intTags.onEntity.getTagValue(entity, tag);
 				EventData myData = myInfo.makeChainedData(data, oldTagValue == null? 0 : oldTagValue);
-				ModDamage.getTagger().intTags.addTag(entity, tag, value.get(myData));
+				ModDamage.getTagger().intTags.onEntity.addTag(entity, tag, value.get(myData));
 			}
 			else
-				ModDamage.getTagger().intTags.removeTag(entity, tag);
+				ModDamage.getTagger().intTags.onEntity.removeTag(entity, tag);
 		}
 	}
 

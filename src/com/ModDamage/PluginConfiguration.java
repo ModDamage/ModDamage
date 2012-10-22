@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.Tags.TagManager;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -343,8 +344,8 @@ public class PluginConfiguration
 		outputString += newline + "disable-joinMessages: false";
 		outputString += newline + "disable-quitMessages: false";
 		outputString += newline + "Tagging: #These intervals should be tinkered with ONLY if you understand the implications.";
-		outputString += newline + "    interval-save: " + ModDamageTagger.defaultInterval;
-		outputString += newline + "    interval-clean: " + ModDamageTagger.defaultInterval;
+		outputString += newline + "    interval-save: " + TagManager.defaultInterval;
+		outputString += newline + "    interval-clean: " + TagManager.defaultInterval;
 		printToLog(Level.INFO, "Completed auto-generation of " + configString_defaultConfigPath + ".");
 
 		try
