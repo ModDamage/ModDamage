@@ -9,23 +9,7 @@ import com.ModDamage.Expressions.Function.BlockLocFunction;
 import com.ModDamage.Expressions.Function.DistanceFunction;
 import com.ModDamage.Expressions.Function.IntFunction;
 import com.ModDamage.Routines.Routines;
-import com.ModDamage.Variables.Int.BlockInt;
-import com.ModDamage.Variables.Int.Constant;
-import com.ModDamage.Variables.Int.EnchantmentInt;
-import com.ModDamage.Variables.Int.EntityInt;
-import com.ModDamage.Variables.Int.EntityTagInt;
-import com.ModDamage.Variables.Int.IntegerOpInt;
-import com.ModDamage.Variables.Int.ItemEnchantmentInt;
-import com.ModDamage.Variables.Int.ItemInt;
-import com.ModDamage.Variables.Int.LocalInt;
-import com.ModDamage.Variables.Int.LocationInt;
-import com.ModDamage.Variables.Int.NegativeInt;
-import com.ModDamage.Variables.Int.PlayerInt;
-import com.ModDamage.Variables.Int.PotionEffectInt;
-import com.ModDamage.Variables.Int.RoutinesInt;
-import com.ModDamage.Variables.Int.ServerInt;
-import com.ModDamage.Variables.Int.WorldInt;
-import com.ModDamage.Variables.Int.WorldTagInt;
+import com.ModDamage.Variables.Int.*;
 
 public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 {
@@ -69,7 +53,6 @@ public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 		BlockInt.register();
 		EnchantmentInt.register();
 		EntityInt.register();
-		EntityTagInt.register();
 		IntegerOpInt.register();
 		ItemEnchantmentInt.register();
 		ItemInt.register();

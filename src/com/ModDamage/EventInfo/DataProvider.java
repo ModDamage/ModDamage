@@ -1,8 +1,6 @@
 package com.ModDamage.EventInfo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -73,7 +71,9 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		@Override
 		public String toString()
 		{
-			return inner.toString();
+            return inner.toString();
+
+			//return "("+inner.provides().getSimpleName() + "->" + want.getSimpleName() + ")" + inner.toString();
 		}
 	}
 	
@@ -102,7 +102,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		final Class<S> wants;
 		final Pattern pattern;
 		final IDataParser<T, S> parser;
-		
+
 		final int numGroups;
 		int compiledGroup;
 		
@@ -112,7 +112,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			this.wants = wants;
 			this.pattern = pattern;
 			this.parser = parser;
-			
+
 			numGroups = pattern == null? 0 : pattern.matcher("").groupCount();
 		}
 
@@ -132,7 +132,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 	
 	
-	static Map<Class<?>, Parsers> parsersByStart = new HashMap<Class<?>, Parsers>();
+	static Map<Class<?>, Parsers> parsersByStart = new LinkedHashMap<Class<?>, Parsers>();
 	
 	
 	public interface IDataTransformer<T, S>
@@ -160,7 +160,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	}
 	
 	
-	static Map<Class<?>, ArrayList<TransformerData<?, ?>>> transformersByStart = new HashMap<Class<?>, ArrayList<TransformerData<?, ?>>>();
+	static Map<Class<?>, ArrayList<TransformerData<?, ?>>> transformersByStart = new LinkedHashMap<Class<?>, ArrayList<TransformerData<?, ?>>>();
 	
 	public static <T, S> void register(Class<T> provides, Class<S> wants, Pattern pattern, IDataParser<T, S> parser)
 	{
@@ -198,9 +198,18 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 	public static void compile()
 	{
-		for (Entry<Class<?>, Parsers> parsersEntry : parsersByStart.entrySet())
+        for (Entry<Class<?>, Parsers> parsersEntry : parsersByStart.entrySet())
 		{
 			Parsers parsers = parsersEntry.getValue();
+
+            // this is a cheap attempt at fixing some parsing issues: always put longer matches first
+            Collections.sort(parsers, new Comparator<ParserData<?, ?>>() {
+                @Override
+                public int compare(ParserData<?, ?> o1, ParserData<?, ?> o2) {
+                    return o2.pattern.pattern().length() - o1.pattern.pattern().length();
+                }
+            });
+
 			StringBuilder sb = new StringBuilder("^(?:");
 			
 			int currentGroup = 1;

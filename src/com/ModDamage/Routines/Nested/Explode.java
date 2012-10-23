@@ -33,6 +33,7 @@ public class Explode extends NestedRoutine
 	public void run(EventData data) throws BailException
 	{
 		Location entity = locDP.get(data);
+        if (entity == null) return;
 		
 		EventData myData = myInfo.makeChainedData(data, 0);
 		entity.getWorld().createExplosion(entity, strength.get(myData)/10.0f);

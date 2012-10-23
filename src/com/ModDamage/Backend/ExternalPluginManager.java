@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.ModDamage.Variables.TagValue;
 import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
 import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
 
@@ -59,6 +60,7 @@ public class ExternalPluginManager
 		IntegerExp.registerAllIntegers();
 		StringExp.register();
 		NestedExp.register();
+        TagValue.register();
 		
 		// ItemExps
 		PlayerItem.register();

@@ -53,7 +53,10 @@ public class ValueChange extends Routine
 	
 	@Override
 	public final void run(final EventData data) throws BailException{
-		Integer def = defaultDP.get(data);
+		Integer defI = defaultDP.get(data);
+        int def;
+        if (defI == null) def = 0;
+        else def = defI;
 		defaultDP.set(data, changeType.changeValue(
 				def, getValue(def, data)));
 	}

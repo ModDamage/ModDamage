@@ -20,7 +20,7 @@ public abstract class Conditional<S> extends DataProvider<Boolean, S>
 		EntityHasPotionEffect.register();
 		LocationRegion.register();
 		EntityStatus.register();
-		EntityTagged.register();
+		IsTagged.register();
 		PlayerWearing.register();
 		PlayerWielding.register();
 		//Player

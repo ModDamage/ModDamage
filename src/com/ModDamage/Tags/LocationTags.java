@@ -13,20 +13,20 @@ public class LocationTags<T> implements ITags<T, Location> {
 
     LocationTags() {}
 
-    private Map<String, Map<BlockVector, T>> getTags(String tag, boolean create) {
-        Map<String, Map<BlockVector, T>> tags1 = tags.get(tag);
+    private Map<String, Map<BlockVector, T>> getTags(String worldName, boolean create) {
+        Map<String, Map<BlockVector, T>> tags1 = tags.get(worldName);
         if (tags1 == null && create) {
             tags1 = new HashMap<String, Map<BlockVector, T>>();
-            tags.put(tag, tags1);
+            tags.put(worldName, tags1);
         }
         return tags1;
     }
 
     private Map<BlockVector, T> getWorldTags(String tag, String worldName, boolean create) {
-        Map<String, Map<BlockVector, T>> tags1 = getTags(tag, create);
+        Map<String, Map<BlockVector, T>> tags1 = getTags(worldName, create);
         if (tags1 == null) return null;
 
-        Map<BlockVector, T> tags2 = tags1.get(worldName);
+        Map<BlockVector, T> tags2 = tags1.get(tag);
         if (tags2 == null && create) {
             tags2 = new HashMap<BlockVector, T>();
             tags1.put(tag, tags2);
@@ -76,7 +76,7 @@ public class LocationTags<T> implements ITags<T, Location> {
         Map<BlockVector, T> tags2 = getWorldTags(tag, loc.getWorld().getName(), false);
         if (tags2 == null) return null;
 
-        return tags2.get(new BlockVector(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+        return tags2.get(toBlockVector(loc));
     }
 
     /**

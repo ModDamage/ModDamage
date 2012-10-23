@@ -9,9 +9,8 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.External.mcMMO.ModifySkill;
+import com.ModDamage.Routines.TagAction;
 import com.ModDamage.Routines.Routine;
-import com.ModDamage.Routines.Tag;
-import com.ModDamage.Routines.TagString;
 
 public abstract class NestedRoutine extends Routine
 {
@@ -24,8 +23,7 @@ public abstract class NestedRoutine extends Routine
 		registeredNestedRoutines.clear();
 		If.register();
         While.register();
-		Tag.registerNested();
-		TagString.registerNested();
+		TagAction.registerNested();
 		Delay.register();
 		Message.registerNested();
 		Knockback.register();
