@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.ModDamage.Variables.TagValue;
+import com.ModDamage.Variables.*;
 import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
 import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
 
@@ -29,12 +29,6 @@ import com.ModDamage.Expressions.NestedExp;
 import com.ModDamage.Expressions.StringExp;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
-import com.ModDamage.Variables.EntityBlockTarget;
-import com.ModDamage.Variables.EntityEntity;
-import com.ModDamage.Variables.EntityWorld;
-import com.ModDamage.Variables.LocationWorld;
-import com.ModDamage.Variables.MiscProperties;
-import com.ModDamage.Variables.Transformers;
 import com.ModDamage.Variables.Item.PlayerInvItem;
 import com.ModDamage.Variables.Item.PlayerItem;
 import com.elbukkit.api.elregions.elRegionsPlugin;
@@ -69,11 +63,14 @@ public class ExternalPluginManager
 		// Other
 		Transformers.register();
 		MiscProperties.register();
+        OfflinePlayerProperties.register();
 		
 		EntityEntity.register();
 		EntityBlockTarget.register();
 		EntityWorld.register();
 		LocationWorld.register();
+        PlayerNamed.register();
+        WorldNamed.register();
 		
 		for(ModDamageExtension plugin : registeredPlugins)
 			plugin.reloadRoutines();
