@@ -51,7 +51,7 @@ public class While extends NestedRoutine
 			IDataProvider<Boolean> conditional = DataProvider.parse(info, Boolean.class, matcher.group(1));
 			if (conditional == null) return null;
 			
-			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "If: " + conditional);
+			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "While: " + conditional);
 			
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, info);
 			if(routines == null)
