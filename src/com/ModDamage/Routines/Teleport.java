@@ -46,7 +46,7 @@ public class Teleport extends Routine
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("([a-z]+?)(?:effect)?\\.teleport\\.(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(.+?)(?:effect)?\\.teleport\\.(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	private static Pattern dotPattern = Pattern.compile("\\s*\\.\\s*");
