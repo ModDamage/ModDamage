@@ -3,6 +3,8 @@ package com.ModDamage.Conditionals;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.Backend.BailException;
+import com.ModDamage.Expressions.InterpolatedString;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.StringMatcher;
@@ -13,26 +15,28 @@ import com.ModDamage.EventInfo.IDataProvider;
 
 public class PlayerHasPermission extends Conditional<Player>
 {
-	public static final Pattern pattern = Pattern.compile("\\.haspermission\\.([\\w.]+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.haspermission\\.", Pattern.CASE_INSENSITIVE);
 	
-	private final String permission;
+	private final IDataProvider<String> permissionDP;
 	
-	public PlayerHasPermission(IDataProvider<Player> playerDP, String permission)
+	public PlayerHasPermission(IDataProvider<Player> playerDP, IDataProvider<String> permissionDP)
 	{
 		super(Player.class, playerDP);
-		this.permission = permission;
+		this.permissionDP = permissionDP;
 	}
 	@Override
-	public Boolean get(Player player, EventData data)
+	public Boolean get(Player player, EventData data) throws BailException
  	{
-		return player.hasPermission(permission);
+		return player.hasPermission(permissionDP.get(data));
 	}
 	
 	@Override
 	public String toString()
 	{
-		return startDP + ".haspermission." + permission;
+		return startDP + ".haspermission." + permissionDP;
 	}
+
+    static final Pattern wordPattern = Pattern.compile("[\\w.]+");
 	
 	
 	public static void register()
@@ -42,7 +46,11 @@ public class PlayerHasPermission extends Conditional<Player>
 				@Override
 				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
-					return new PlayerHasPermission(playerDP, m.group(1));
+                    IDataProvider<String> permissionDP = InterpolatedString.parseWord(wordPattern, sm.spawn(), info);
+                    if (permissionDP == null) return null;
+
+                    sm.accept();
+					return new PlayerHasPermission(playerDP, permissionDP);
 				}
 			});
 	}
