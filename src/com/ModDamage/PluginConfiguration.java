@@ -192,10 +192,10 @@ public class PluginConfiguration
 			else
 				addToLogRecord(OutputPreset.CONSTANT, "Permissions: " + ExternalPluginManager.getGroupsManager().name() + " v" + GroupsManager.getVersion());
 			
-			if(ExternalPluginManager.getRegionsManager() == RegionsManager.NONE)
-				addToLogRecord(OutputPreset.INFO_VERBOSE, "Regions: No regional plugins found.");
+			if(ExternalPluginManager.regionsManagers.isEmpty())
+				addToLogRecord(OutputPreset.INFO_VERBOSE, "Region Plugins: No regional plugins found.");
 			else
-				addToLogRecord(OutputPreset.CONSTANT, "Regions: " + ExternalPluginManager.getRegionsManager().name() + " v" + ExternalPluginManager.getRegionsManager().getVersion());
+				addToLogRecord(OutputPreset.CONSTANT, "Region Plugins: " + Utils.joinBy(", ", ExternalPluginManager.regionsManagers));
 			
 			if(ExternalPluginManager.getMcMMOPlugin() == null)
 				addToLogRecord(OutputPreset.INFO_VERBOSE, "mcMMO: Plugin not found.");

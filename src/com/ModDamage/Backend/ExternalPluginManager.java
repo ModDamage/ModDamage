@@ -230,21 +230,31 @@ public class ExternalPluginManager
 		public static String getVersion(){ return version; }
 	}
 	
-	private static RegionsManager regionsManager = null;
-	public static RegionsManager getRegionsManager(){ return regionsManager; }
+	public static List<RegionsManager> regionsManagers = new ArrayList<RegionsManager>();
+    public static List<String> getRegions(Location location) {
+        if (regionsManagers.isEmpty()) return new ArrayList<String>(0);
+        List<String> regions = null;
+        for (RegionsManager rm : regionsManagers){
+            if (regions == null)
+                regions = rm.getRegions(location);
+            else
+                regions.addAll(rm.getRegions(location));
+        }
+        return regions;
+    }
+    public static List<String> getAllRegions() {
+        if (regionsManagers.isEmpty()) return new ArrayList<String>(0);
+        List<String> regions = null;
+        for (RegionsManager rm : regionsManagers){
+            if (regions == null)
+                regions = rm.getAllRegions();
+            else
+                regions.addAll(rm.getAllRegions());
+        }
+        return regions;
+    }
 	public enum RegionsManager
 	{
-		NONE
-		{
-			@Override
-			public void reload(Plugin plugin){}
-
-			@Override
-			public List<String> getRegions(Location location){ return Arrays.asList(); }
-			
-			@Override
-			public List<String> getAllRegions(){ return Arrays.asList(); }
-		},
 		elRegions
 		{
 			elRegionsPlugin regionsPlugin = null;
@@ -286,7 +296,7 @@ public class ExternalPluginManager
 		WorldGuard
 		{
 			private GlobalRegionManager regionManager = null;
-			
+
 			@Override
 			public List<String> getRegions(Location location)
 			{
@@ -309,7 +319,8 @@ public class ExternalPluginManager
 				regionManager = ((WorldGuardPlugin)plugin).getGlobalRegionManager();
 			}
 		},
-        Towny {
+        Towny
+        {
             public Towny towny;
 
             @Override
@@ -338,34 +349,31 @@ public class ExternalPluginManager
             }
         };
 
-		private static String version = null;
 		abstract public List<String> getRegions(Location location);
 		abstract public List<String> getAllRegions();
 		
-		public static RegionsManager reload()
+		public static List<RegionsManager> reload()
 		{
+            List<RegionsManager> rms = new ArrayList<RegionsManager>();
+
 			for(RegionsManager regionalPlugin : RegionsManager.values())
 			{
-				if(regionalPlugin.equals(RegionsManager.NONE)) continue;
 				Plugin plugin = Bukkit.getPluginManager().getPlugin(regionalPlugin.name());
 				if (plugin != null)
 				{
 					regionalPlugin.reload(plugin);
-					version = plugin.getDescription().getVersion();
-					return regionalPlugin;
+					rms.add(regionalPlugin);
 				}
 			}
-			version = null;
-			return RegionsManager.NONE;
+			return rms;
 		}
 		abstract protected void reload(Plugin plugin);
-		public String getVersion(){ return version; }
 	}
 	
 	public static void reload()
 	{
 		groupsManager = GroupsManager.reload();
-		regionsManager = RegionsManager.reload();
+		regionsManagers = RegionsManager.reload();
 		mcMMOplugin = (mcMMO) Bukkit.getPluginManager().getPlugin("mcMMO");
 		reloadModDamageRoutines();
 	}

@@ -27,7 +27,7 @@ public class EntityString extends StringExp<Entity>
 		{
 			@Override protected String getString(Entity entity)
 			{
-				return ExternalPluginManager.getRegionsManager().getRegions(entity.getLocation()).toString();
+				return ExternalPluginManager.getRegions(entity.getLocation()).toString();
 			}
 		},
 		TAGS

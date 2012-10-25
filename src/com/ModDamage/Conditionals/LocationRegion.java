@@ -48,7 +48,7 @@ public class LocationRegion extends Conditional<Location>
 	
 	protected Collection<String> getRegions(Location loc) 
 	{
-		return ExternalPluginManager.getRegionsManager().getRegions(loc);
+		return ExternalPluginManager.getRegions(loc);
 	}
 	
 	@Override
