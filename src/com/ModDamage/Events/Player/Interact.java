@@ -28,8 +28,8 @@ public class Interact extends MDEvent implements Listener
 			Action.class, 		"action",
 			Boolean.class,		"interact_left",
 			Boolean.class,		"interact_right",
-			Boolean.class,		"interact_block",
-			Boolean.class,		"interact_air",
+			Boolean.class,		"interact_with_block",
+			Boolean.class,		"interact_air", "interact_with_air",
 			Block.class,		"interact_block",
 			Boolean.class,		"cancelled");
 	
