@@ -52,7 +52,7 @@ public class WorldTags<T> implements ITags<T, World> {
 
     public void load(Map tagMap, Map<UUID, Entity> entities) {
         @SuppressWarnings("unchecked")
-        Map<String, Map<String, T>> worldsMap = (Map<String, Map<String, T>>) tagMap.get("world");
+        Map<String, Map<String, T>> worldsMap = (Map<String, Map<String, T>>) tagMap;
         if (worldsMap != null)
         {
             for (Map.Entry<String, Map<String, T>> tagEntry : worldsMap.entrySet())
