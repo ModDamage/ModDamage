@@ -7,6 +7,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.ModDamage.Variables.*;
+import com.palmergames.bukkit.towny.Towny;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownyUniverse;
 import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
 import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
 
@@ -305,7 +308,35 @@ public class ExternalPluginManager
 			{
 				regionManager = ((WorldGuardPlugin)plugin).getGlobalRegionManager();
 			}
-		};
+		},
+        Towny {
+            public Towny towny;
+
+            @Override
+            public List<String> getRegions(Location location) {
+                List<String> regions = new ArrayList<String>();
+                String town = TownyUniverse.getTownName(location);
+                if (town != null)
+                    regions.add(town);
+                if (TownyUniverse.isWilderness(location.getBlock()))
+                    regions.add("wilderness");
+                return regions;
+            }
+
+            @Override
+            public List<String> getAllRegions() {
+                List<String> regions = new ArrayList<String>();
+                for (Town town : TownyUniverse.getDataSource().getTowns())
+                    regions.add(town.getName());
+                regions.add("wilderness");
+                return regions;
+            }
+
+            @Override
+            protected void reload(Plugin plugin) {
+                towny = (Towny) plugin;
+            }
+        };
 
 		private static String version = null;
 		abstract public List<String> getRegions(Location location);
