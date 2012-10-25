@@ -3,6 +3,7 @@ package com.ModDamage;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ModDamage.Events.Player.*;
 import org.bukkit.event.Listener;
 
 import com.ModDamage.PluginConfiguration.LoadState;
@@ -32,16 +33,6 @@ import com.ModDamage.Events.Item.Enchant;
 import com.ModDamage.Events.Item.ItemHeld;
 import com.ModDamage.Events.Item.PickupItem;
 import com.ModDamage.Events.Item.PrepareEnchant;
-import com.ModDamage.Events.Player.Interact;
-import com.ModDamage.Events.Player.InteractEntity;
-import com.ModDamage.Events.Player.Join;
-import com.ModDamage.Events.Player.LevelChange;
-import com.ModDamage.Events.Player.PickupExp;
-import com.ModDamage.Events.Player.Quit;
-import com.ModDamage.Events.Player.Teleport;
-import com.ModDamage.Events.Player.ToggleFlight;
-import com.ModDamage.Events.Player.ToggleSneak;
-import com.ModDamage.Events.Player.ToggleSprint;
 import com.ModDamage.Routines.Routines;
 
 public class MDEvent implements Listener
@@ -86,6 +77,7 @@ public class MDEvent implements Listener
 				new ToggleFlight(),
 				new ToggleSneak(),
 				new ToggleSprint(),
+                new Fish(),
 				});
 
 		eventCategories.put("Misc", new MDEvent[] {
