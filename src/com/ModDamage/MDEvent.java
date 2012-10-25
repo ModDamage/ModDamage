@@ -3,6 +3,7 @@ package com.ModDamage;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ModDamage.Events.Block.LeavesDecay;
 import com.ModDamage.Events.Player.*;
 import org.bukkit.event.Listener;
 
@@ -42,6 +43,7 @@ public class MDEvent implements Listener
 		eventCategories.put("Block", new MDEvent[] {
 				new BreakBlock(),
 				new PlaceBlock(),
+                new LeavesDecay(),
 				});
 		
 		eventCategories.put("Entity", new MDEvent[] {
