@@ -1,12 +1,9 @@
 package com.ModDamage.Events;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
+import com.ModDamage.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -86,11 +83,14 @@ public class Command extends MDEvent
 			String name = commandSpec[0];
 			Argument[] args;
 			boolean catchAll = false;
+            String catchAllName = null;
 			
-			if (commandSpec.length > 1 && commandSpec[commandSpec.length-1].equals("*"))
+			if (commandSpec.length > 1 && commandSpec[commandSpec.length-1].startsWith("*"))
 			{
-				args = new Argument[commandSpec.length - 2];
 				catchAll = true;
+                if (commandSpec[commandSpec.length-1].length() > 1)
+                    catchAllName = commandSpec[commandSpec.length-1].substring(1);
+                args = new Argument[commandSpec.length - 2];
 			}
 			else
 				args = new Argument[commandSpec.length - 1];
@@ -110,10 +110,13 @@ public class Command extends MDEvent
 				args[i-1] = arg;
 				logSB.append(" "+arg.name+"("+arg.type+")");
 			}
-			if (catchAll) 
+			if (catchAll) {
 				logSB.append(" *");
+                if (catchAllName != null)
+                    logSB.append(catchAllName);
+            }
 			
-			CommandInfo command = new CommandInfo(name, args, catchAll);
+			CommandInfo command = new CommandInfo(name, args, catchAll, catchAllName);
 			ModDamage.addToLogRecord(OutputPreset.INFO, "Command ["+command.name+"]: "+logSB.toString());
 			command.routines = RoutineAliaser.parseRoutines(commandEntry.getValue(), command.eventInfo);
 			if (command.routines == null)
@@ -180,12 +183,14 @@ public class Command extends MDEvent
 		Routines routines;
 		
 		boolean catchAll;
+        String catchAllName;
 		
-		public CommandInfo(String name, Argument[] args, boolean catchAll)
+		public CommandInfo(String name, Argument[] args, boolean catchAll, String catchAllName)
 		{
 			this.name = name;
 			this.args = args;
 			this.catchAll = catchAll;
+            this.catchAllName = catchAllName;
 			
 			// build info list for my eventInfo object
 			List<Object> infoList = new ArrayList<Object>(2*args.length + 4);
@@ -196,6 +201,10 @@ public class Command extends MDEvent
 			
 			for (Argument arg : args)
 				arg.addToEventInfoList(infoList);
+            if (catchAll && catchAllName != null) {
+                infoList.add(String.class);
+                infoList.add(catchAllName);
+            }
 			
 			eventInfo = new SimpleEventInfo(infoList.toArray(), false);
 		}
@@ -311,6 +320,10 @@ public class Command extends MDEvent
 					if (!cmd.args[i-1].addToEventDataList(dataArgs, words[i]))
 						continue commandLoop;
 				}
+
+                if (cmd.catchAll && cmd.catchAllName != null) {
+                    dataArgs.add(Utils.joinBy(" ", Arrays.copyOfRange(words, cmd.args.length+1, words.length)));
+                }
 				
 				EventData data = cmd.eventInfo.makeData(dataArgs.toArray(), false);
 				try
