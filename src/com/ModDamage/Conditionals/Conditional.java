@@ -30,6 +30,7 @@ public abstract class Conditional<S> extends DataProvider<Boolean, S>
 		PlayerInGroup.register();
         PlayerNamed.register();
 		PlayerStatus.register();
+        PlayerGameMode.register();
 		//Server
 		ServerOnlineMode.register();
 		//World
