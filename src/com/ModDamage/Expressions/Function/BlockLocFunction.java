@@ -64,9 +64,9 @@ public class BlockLocFunction extends DataProvider<Location, World>
 						
 						args[i] = arg;
 						
-						if ((sm.matchFront(commaPattern) == null) != (i != 2))
+						if (sm.matchesFront(commaPattern) != (i != 2))
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Wrong number of parameters for " + m.group(1) + " function");
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Wrong number of parameters for " + m.group(1) + " function: "+i);
 							return null;
 						}
 					}
@@ -87,6 +87,6 @@ public class BlockLocFunction extends DataProvider<Location, World>
 	@Override
 	public String toString()
 	{
-		return "loc(" + Utils.joinBy(", ", args) + ")";
+		return startDP + "_loc(" + Utils.joinBy(", ", args) + ")";
 	}
 }
