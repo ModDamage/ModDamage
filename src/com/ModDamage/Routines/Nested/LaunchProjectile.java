@@ -85,9 +85,8 @@ public class LaunchProjectile extends NestedRoutine
 		speed = baseData.get(Integer.class, baseData.start + 4);
 		if (explosive != null)
 		{
-			yield = newData.get(Integer.class, baseData.start + 0);
-			incendiary = newData.get(Integer.class, baseData.start + 1);
-			
+			yield = newData.get(Integer.class, newData.start + 0);
+			incendiary = newData.get(Integer.class, newData.start + 1);
 		}
 		
 		loc.setYaw(yaw);
@@ -111,7 +110,7 @@ public class LaunchProjectile extends NestedRoutine
 	
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(.*)effect\\.launch\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(.*)(?:effect)?\\.launch\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
