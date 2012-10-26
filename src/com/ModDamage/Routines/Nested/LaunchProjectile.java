@@ -60,8 +60,8 @@ public class LaunchProjectile extends NestedRoutine
 		
 		Location loc = entity.getEyeLocation();
 		
-		int yaw = (int) loc.getYaw();
-		int pitch = (int) loc.getPitch();
+		int yaw = Math.round(loc.getYaw());
+		int pitch = Math.round(loc.getPitch());
 		int speed = (int) (projectile.getVelocity().length() * 10);
 		
 		EventData baseData = myInfo.makeChainedData(data, 
