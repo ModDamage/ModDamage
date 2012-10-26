@@ -71,7 +71,13 @@ public class WorldInt extends SettableIntegerExp<World>
 			@Override protected int getValue(World world){
 				return (int)world.getSeed();
 			}
-		};
+		},
+        MAXHEIGHT(false) {
+            @Override
+            protected int getValue(World world) {
+                return world.getMaxHeight();
+            }
+        };
 		
 		public boolean settable = false;
 		private WorldPropertyMatch(boolean settable){ this.settable = settable; }
