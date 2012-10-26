@@ -27,7 +27,7 @@ public class TagValue<T, S> extends SettableDataProvider<T, S>
 
                         Taggable<?> taggable = Taggable.get(objDP, info);
 
-						return sm.acceptIf(new TagValue(tag, taggable));
+						return sm.acceptIf(new TagValue(tag, taggable, tag.defaultValue));
 					}
 				});
 	}
@@ -35,11 +35,12 @@ public class TagValue<T, S> extends SettableDataProvider<T, S>
     private final Tag<T> tag;
     private final Taggable<S> taggable;
 	
-	TagValue(Tag<T> tag, Taggable<S> taggable)
+	TagValue(Tag<T> tag, Taggable<S> taggable, T defaultValue)
 	{
 		super(taggable.inner.provides(), taggable.inner);
         this.tag = tag;
         this.taggable = taggable;
+        super.defaultValue = defaultValue;
     }
 	
 	

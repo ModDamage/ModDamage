@@ -2,27 +2,28 @@ package com.ModDamage.Tags;
 
 
 import com.ModDamage.EventInfo.IDataProvider;
-import org.bukkit.entity.Entity;
 
 public abstract class Tag<T> {
     public final IDataProvider<String> name;
     public final Class<T> type;
+    public final T defaultValue;
 
-    private Tag(IDataProvider<String> name, Class<T> type) {
+    private Tag(IDataProvider<String> name, Class<T> type, T defaultValue) {
         this.name = name;
         this.type = type;
+        this.defaultValue = defaultValue;
     }
 
     public static Tag<?> get(IDataProvider<String> name, String typeString) {
         if (typeString.isEmpty())
-            return new Tag<Integer>(name, Integer.class) {
+            return new Tag<Integer>(name, Integer.class, 0) {
                 @Override
                 public TagsHolder<Integer> getHolder(TagManager tagManager) {
                     return tagManager.intTags;
                 }
             };
         else if (typeString.equalsIgnoreCase("s"))
-            return new Tag<String>(name, String.class) {
+            return new Tag<String>(name, String.class, null) {
                 @Override
                 public TagsHolder<String> getHolder(TagManager tagManager) {
                     return tagManager.stringTags;
