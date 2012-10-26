@@ -23,6 +23,7 @@ public class EntityWorld
 						return new DataProvider<World, Entity>(Entity.class, entityDP) {
 								public World get(Entity entity, EventData data) { return entity.getWorld(); }
 								public Class<World> provides() { return World.class; }
+                                public String toString() { return startDP + "_world"; }
 							};
 					}
 				});

@@ -19,6 +19,7 @@ public class LocationWorld
 						return new DataProvider<World, Location>(Location.class, locDP) {
 								public World get(Location loc, EventData data) { return loc.getWorld(); }
 								public Class<World> provides() { return World.class; }
+                                public String toString() { return startDP + "_world"; }
 							};
 					}
 				});
