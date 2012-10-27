@@ -295,28 +295,32 @@ public class ExternalPluginManager
 		},
 		WorldGuard
 		{
-			private GlobalRegionManager regionManager = null;
+			private WorldGuardPlugin worldGuardPlugin = null;
 
 			@Override
 			public List<String> getRegions(Location location)
 			{
-				//regionManager.get(location.getWorld()).getApplicableRegions(toVector(location)).
-				return regionManager.get(location.getWorld()).getApplicableRegionsIDs(toVector(location));
+                com.sk89q.worldguard.protection.managers.RegionManager rm = worldGuardPlugin.getRegionManager(location.getWorld());
+                if (rm == null) return Arrays.asList();
+				return rm.getApplicableRegionsIDs(toVector(location));
 			}
 			
 			@Override
 			public List<String> getAllRegions()
 			{
 				List<String> regions = new ArrayList<String>();
-				for(World world : Bukkit.getWorlds())
-					regions.addAll(regionManager.get(world).getRegions().keySet());
+				for(World world : Bukkit.getWorlds()) {
+                    com.sk89q.worldguard.protection.managers.RegionManager rm = worldGuardPlugin.getRegionManager(world);
+                    if (rm == null) return Arrays.asList();
+                    regions.addAll(rm.getRegions().keySet());
+                }
 				return regions;
 			}
 			
 			@Override
 			protected void reload(Plugin plugin)
 			{
-				regionManager = ((WorldGuardPlugin)plugin).getGlobalRegionManager();
+                worldGuardPlugin = ((WorldGuardPlugin)plugin);
 			}
 		},
         Towny

@@ -17,15 +17,15 @@ import com.ModDamage.EventInfo.IDataProvider;
 
 public class LocationRegion extends Conditional<Location>
 {
-	public static final Pattern pattern = Pattern.compile("\\.(?:in)?region(only)?.(\\w+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.(?:in)?regions?(exact)?.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
-	private final boolean inclusiveComparison;
+	private final boolean exact;
 	private final Collection<String> regions;
 	
-	public LocationRegion(IDataProvider<Location> locDP, boolean inclusiveComparison, Collection<String> regions)
+	public LocationRegion(IDataProvider<Location> locDP, boolean exact, Collection<String> regions)
 	{
 		super(Location.class, locDP);
-		this.inclusiveComparison = inclusiveComparison;
+		this.exact = exact;
 		this.regions = regions;		
 	}
 
@@ -34,14 +34,14 @@ public class LocationRegion extends Conditional<Location>
 	{
 		Collection<String> entityRegions = getRegions(loc);
 		for(String region : entityRegions)
-			if(inclusiveComparison) {
-				if (regions.contains(region))
-					return true;
+			if(exact) {
+                if (entityRegions.size() == regions.size() && regions.containsAll(entityRegions))
+                    return true;
 			}
 			else
 			{
-				if (entityRegions.size() == regions.size() && regions.containsAll(entityRegions))
-					return true;
+                if (regions.contains(region))
+                    return true;
 			}
 		return false;
 	}
@@ -54,7 +54,7 @@ public class LocationRegion extends Conditional<Location>
 	@Override
 	public String toString()
 	{
-		return startDP + ".inregion" + (inclusiveComparison? "only":"") + "." + Utils.joinBy(",", regions);
+		return startDP + ".inregion" + (exact ? "exact":"") + "." + Utils.joinBy(",", regions);
 	}
 	
 	
