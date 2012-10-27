@@ -36,14 +36,14 @@ public class PlayEntityEffect extends Routine
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("([a-z]+).playentityeffect.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("([a-z]+)\\.playentityeffect\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
 	{
 		@Override
 		public PlayEntityEffect getNew(Matcher matcher, EventInfo info)
-		{ 
+		{
 			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
 			if (entityDP == null) return null;
 			
