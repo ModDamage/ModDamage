@@ -1,10 +1,12 @@
 package com.ModDamage.Tags;
 
 
+import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.IDataProvider;
 
 public abstract class Tag<T> {
-    public final IDataProvider<String> name;
+    private final IDataProvider<String> name;
     public final Class<T> type;
     public final T defaultValue;
 
@@ -31,6 +33,10 @@ public abstract class Tag<T> {
             };
         else
             throw new IllegalArgumentException("Bad Tag type: "+typeString);
+    }
+
+    public String getName(EventData data) throws BailException {
+        return name.get(data).toLowerCase();
     }
 
     public abstract TagsHolder<T> getHolder(TagManager tagManager);

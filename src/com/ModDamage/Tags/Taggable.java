@@ -61,38 +61,38 @@ public abstract class Taggable<T> {
         ModDamage.addToLogRecord(OutputPreset.FAILURE, dp.provides().getSimpleName() + " is not a taggable type: "+dp);
         return null;
     }
-
+    
     public <D> D get(Tag<D> tag, EventData data) throws BailException {
-        return getTags(tag.getHolder(ModDamage.getTagger())).getTagValue(inner.get(data), tag.name.get(data));
+        return getTags(tag.getHolder(ModDamage.getTagger())).getTagValue(inner.get(data), tag.getName(data));
     }
 
     public <D> void set(Tag<D> tag, EventData data, D value) throws BailException {
-        getTags(tag.getHolder(ModDamage.getTagger())).addTag(inner.get(data), tag.name.get(data), value);
+        getTags(tag.getHolder(ModDamage.getTagger())).addTag(inner.get(data), tag.getName(data), value);
     }
 
     public boolean has(Tag<?> tag, EventData data) throws BailException {
-        return getTags(tag.getHolder(ModDamage.getTagger())).isTagged(inner.get(data), tag.name.get(data));
+        return getTags(tag.getHolder(ModDamage.getTagger())).isTagged(inner.get(data), tag.getName(data));
     }
 
     public void remove(Tag<?> tag, EventData data) throws BailException {
-        getTags(tag.getHolder(ModDamage.getTagger())).removeTag(inner.get(data), tag.name.get(data));
+        getTags(tag.getHolder(ModDamage.getTagger())).removeTag(inner.get(data), tag.getName(data));
     }
 
     // Avoid double getting inner in some cases
     public <D> D get(Tag<D> tag, T obj, EventData data) throws BailException {
-        return getTags(tag.getHolder(ModDamage.getTagger())).getTagValue(obj, tag.name.get(data));
+        return getTags(tag.getHolder(ModDamage.getTagger())).getTagValue(obj, tag.getName(data));
     }
 
     public <D> void set(Tag<D> tag, T obj, EventData data, D value) throws BailException {
-        getTags(tag.getHolder(ModDamage.getTagger())).addTag(obj, tag.name.get(data), value);
+        getTags(tag.getHolder(ModDamage.getTagger())).addTag(obj, tag.getName(data), value);
     }
 
     public boolean has(Tag<?> tag, T obj, EventData data) throws BailException {
-        return getTags(tag.getHolder(ModDamage.getTagger())).isTagged(obj, tag.name.get(data));
+        return getTags(tag.getHolder(ModDamage.getTagger())).isTagged(obj, tag.getName(data));
     }
 
     public void remove(Tag<?> tag, T obj, EventData data) throws BailException {
-        getTags(tag.getHolder(ModDamage.getTagger())).removeTag(obj, tag.name.get(data));
+        getTags(tag.getHolder(ModDamage.getTagger())).removeTag(obj, tag.getName(data));
     }
 
     protected abstract <D> ITags<D, T> getTags(TagsHolder<D> holder);
