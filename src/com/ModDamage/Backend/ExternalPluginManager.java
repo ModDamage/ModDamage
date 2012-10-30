@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.ModDamage.Variables.*;
 import com.palmergames.bukkit.towny.Towny;
+import com.palmergames.bukkit.towny.db.TownyDataSource;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
 import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
@@ -341,8 +342,10 @@ public class ExternalPluginManager
             @Override
             public List<String> getAllRegions() {
                 List<String> regions = new ArrayList<String>();
-                for (Town town : TownyUniverse.getDataSource().getTowns())
-                    regions.add(town.getName());
+                TownyDataSource tds = TownyUniverse.getDataSource();
+                if (tds != null)
+                    for (Town town : tds.getTowns())
+                        regions.add(town.getName());
                 regions.add("wilderness");
                 return regions;
             }
