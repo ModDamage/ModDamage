@@ -34,7 +34,6 @@ public class Spawn extends NestedRoutine
 	
 	static EventInfo myInfo = new SimpleEventInfo(
 			Entity.class, "spawned",
-			EntityType.class, "spawned",
 			Integer.class, "health", "-default");
 
 	@Override
