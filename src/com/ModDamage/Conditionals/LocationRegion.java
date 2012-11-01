@@ -17,7 +17,7 @@ import com.ModDamage.EventInfo.IDataProvider;
 
 public class LocationRegion extends Conditional<Location>
 {
-	public static final Pattern pattern = Pattern.compile("\\.(?:in)?regions?(exact)?.(\\w+)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("\\.(?:in)?regions?(exact)?\\.(\\w+)", Pattern.CASE_INSENSITIVE);
 	
 	private final boolean exact;
 	private final Collection<String> regions;
