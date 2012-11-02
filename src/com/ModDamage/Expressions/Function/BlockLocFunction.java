@@ -15,8 +15,9 @@ import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
+import org.bukkit.block.Block;
 
-public class BlockLocFunction extends DataProvider<Location, World>
+public class BlockLocFunction extends DataProvider<Block, World>
 {
 	private final IDataProvider<Integer>[] args;
 	
@@ -27,27 +28,27 @@ public class BlockLocFunction extends DataProvider<Location, World>
 	}
 
 	@Override
-	public Location get(World world, EventData data) throws BailException
+	public Block get(World world, EventData data) throws BailException
 	{
 		int[] argValues = new int[args.length];
 		
 		for (int i = 0; i < argValues.length; i++)
 			argValues[i] = args[i].get(data);
 		
-		return new Location(world, argValues[0], argValues[1], argValues[2]);
+		return world.getBlockAt(argValues[0], argValues[1], argValues[2]);
 	}
 
 	@Override
-	public Class<Location> provides() { return Location.class; }
+	public Class<Block> provides() { return Block.class; }
 	
 	static final Pattern commaPattern = Pattern.compile("\\s*,\\s*");
 	static final Pattern endPattern = Pattern.compile("\\s*\\)");
 	public static void register()
 	{
-		DataProvider.register(Location.class, World.class, Pattern.compile("_(block|loc)\\s*\\("), new IDataParser<Location, World>()
+		DataProvider.register(Block.class, World.class, Pattern.compile("_(block|loc)\\s*\\("), new IDataParser<Block, World>()
 			{
 				@Override
-				public IDataProvider<Location> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m,
+				public IDataProvider<Block> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m,
 						StringMatcher sm)
 				{
 					@SuppressWarnings("unchecked")
@@ -87,6 +88,6 @@ public class BlockLocFunction extends DataProvider<Location, World>
 	@Override
 	public String toString()
 	{
-		return startDP + "_loc(" + Utils.joinBy(", ", args) + ")";
+		return startDP + "_block(" + Utils.joinBy(", ", args) + ")";
 	}
 }
