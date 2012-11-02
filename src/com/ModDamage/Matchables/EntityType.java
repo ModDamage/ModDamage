@@ -8,66 +8,18 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.bukkit.Location;
-import org.bukkit.entity.Animals;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Blaze;
-import org.bukkit.entity.Boat;
-import org.bukkit.entity.CaveSpider;
-import org.bukkit.entity.Chicken;
-import org.bukkit.entity.Cow;
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.Egg;
-import org.bukkit.entity.EnderDragon;
-import org.bukkit.entity.EnderPearl;
-import org.bukkit.entity.EnderSignal;
-import org.bukkit.entity.Enderman;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.FallingSand;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.Fish;
-import org.bukkit.entity.Ghast;
-import org.bukkit.entity.Giant;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.IronGolem;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.MagmaCube;
-import org.bukkit.entity.Minecart;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.MushroomCow;
-import org.bukkit.entity.NPC;
-import org.bukkit.entity.Ocelot;
-import org.bukkit.entity.Painting;
-import org.bukkit.entity.Pig;
-import org.bukkit.entity.PigZombie;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Sheep;
-import org.bukkit.entity.Silverfish;
-import org.bukkit.entity.Skeleton;
-import org.bukkit.entity.Slime;
-import org.bukkit.entity.SmallFireball;
-import org.bukkit.entity.Snowball;
-import org.bukkit.entity.Snowman;
-import org.bukkit.entity.Spider;
-import org.bukkit.entity.Squid;
-import org.bukkit.entity.TNTPrimed;
-import org.bukkit.entity.ThrownExpBottle;
-import org.bukkit.entity.ThrownPotion;
-import org.bukkit.entity.Vehicle;
-import org.bukkit.entity.Villager;
-import org.bukkit.entity.Wolf;
-import org.bukkit.entity.Zombie;
+import org.bukkit.entity.*;
 
 import com.ModDamage.ModDamage;
 
 public enum EntityType implements Matchable<EntityType>
 {
 	NONE(null),
-	UNKNOWN(null),
+	UNKNOWN(null, org.bukkit.entity.EntityType.UNKNOWN),
 	ENTITY(null, Entity.class),
 		LIVING(ENTITY, LivingEntity.class),
+            AMBIENT(LIVING, Ambient.class),
+                BAT(AMBIENT, org.bukkit.entity.EntityType.BAT, Bat.class),
 			ANIMAL(LIVING, Animals.class),
 				CHICKEN(ANIMAL, org.bukkit.entity.EntityType.CHICKEN, Chicken.class),
 				COW(ANIMAL, org.bukkit.entity.EntityType.COW, Cow.class),
@@ -109,7 +61,7 @@ public enum EntityType implements Matchable<EntityType>
 					},
 				
 			HUMAN(LIVING, HumanEntity.class),
-				PLAYER(HUMAN, Player.class),
+				PLAYER(HUMAN, org.bukkit.entity.EntityType.PLAYER, Player.class),
 				NPC(HUMAN, NPC.class),
 					IRONGOLEM(NPC, org.bukkit.entity.EntityType.IRON_GOLEM, IronGolem.class),
 					VILLAGER(NPC, org.bukkit.entity.EntityType.VILLAGER, Villager.class),
@@ -252,6 +204,8 @@ public enum EntityType implements Matchable<EntityType>
 						}
 					},
 					PIGZOMBIE_NORMAL(PIGZOMBIE, org.bukkit.entity.EntityType.PIG_ZOMBIE),
+                WITCH(MOB, org.bukkit.entity.EntityType.WITCH, Witch.class),
+                WITHER(MOB, org.bukkit.entity.EntityType.WITHER, Wither.class),
 			SNOWMAN(LIVING, org.bukkit.entity.EntityType.SNOWMAN, Snowman.class),
 		
 		NONLIVING(ENTITY),
@@ -259,12 +213,13 @@ public enum EntityType implements Matchable<EntityType>
 				ARROW(PROJECTILE, org.bukkit.entity.EntityType.ARROW,  Arrow.class),
 				EGG(PROJECTILE, org.bukkit.entity.EntityType.EGG, Egg.class),
 				ENDERPEARL(PROJECTILE, org.bukkit.entity.EntityType.ENDER_PEARL, EnderPearl.class),
+                EXPBOTTLE(PROJECTILE, org.bukkit.entity.EntityType.THROWN_EXP_BOTTLE, ThrownExpBottle.class),
 				FIREBALL(PROJECTILE, org.bukkit.entity.EntityType.FIREBALL, Fireball.class),
 					FIREBALL_SMALL(FIREBALL, org.bukkit.entity.EntityType.SMALL_FIREBALL, SmallFireball.class),
-				FISHINGROD(PROJECTILE, Fish.class),
-				POTION(PROJECTILE, ThrownPotion.class),
+				FISHINGROD(PROJECTILE, org.bukkit.entity.EntityType.FISHING_HOOK, Fish.class),
+				POTION(PROJECTILE, org.bukkit.entity.EntityType.SPLASH_POTION, ThrownPotion.class),
 				SNOWBALL(PROJECTILE, org.bukkit.entity.EntityType.SNOWBALL, Snowball.class),
-				EXPBOTTLE(PROJECTILE, org.bukkit.entity.EntityType.THROWN_EXP_BOTTLE, ThrownExpBottle.class),
+                WITHER_SKULL(PROJECTILE, org.bukkit.entity.EntityType.WITHER_SKULL, WitherSkull.class),
 			
 			TRAP(NONLIVING),
 				DISPENSER(TRAP),
@@ -275,8 +230,9 @@ public enum EntityType implements Matchable<EntityType>
 				
 			ENDERSIGNAL(NONLIVING, org.bukkit.entity.EntityType.ENDER_SIGNAL, EnderSignal.class),
 			EXPERIENCEORB(NONLIVING, org.bukkit.entity.EntityType.EXPERIENCE_ORB, ExperienceOrb.class),
-			FALLINGSAND(NONLIVING, org.bukkit.entity.EntityType.FALLING_BLOCK, FallingSand.class),
+			FALLINGBLOCK(NONLIVING, org.bukkit.entity.EntityType.FALLING_BLOCK, FallingBlock.class),
 			ITEM(NONLIVING, org.bukkit.entity.EntityType.DROPPED_ITEM, Item.class),
+            ITEM_FRAME(NONLIVING, org.bukkit.entity.EntityType.ITEM_FRAME, ItemFrame.class),
 			PAINTING(NONLIVING, org.bukkit.entity.EntityType.PAINTING, Painting.class),
 			TNTPRIMED(NONLIVING, org.bukkit.entity.EntityType.PRIMED_TNT, TNTPrimed.class);
 	
@@ -316,7 +272,7 @@ public enum EntityType implements Matchable<EntityType>
 	{
 		this(parent, creatureType, null);
 	}
-	EntityType(EntityType parent, org.bukkit.entity.EntityType creatureType, Class<?> myClass) 
+	EntityType(EntityType parent, org.bukkit.entity.EntityType creatureType, Class<?> myClass)
 	{
 		this.parent = parent;
 		this.creatureType = creatureType;
