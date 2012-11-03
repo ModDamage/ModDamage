@@ -46,7 +46,7 @@ public class Spawn extends NestedRoutine
 		LivingEntity newEntity = spawnType.spawn(loc);
 		
 		EventData newData = myInfo.makeChainedData(data, 
-				newEntity, EntityType.get(newEntity), newEntity.getHealth());
+				newEntity, newEntity.getHealth());
 		
 		routines.run(newData);
 		
