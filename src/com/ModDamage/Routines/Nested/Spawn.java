@@ -50,7 +50,7 @@ public class Spawn extends NestedRoutine
 		
 		routines.run(newData);
 		
-		newEntity.setHealth(newData.get(Integer.class, newData.start + 2));
+		newEntity.setHealth(newData.get(Integer.class, newData.start + 1));
 	}
 	
 	public static void register()
