@@ -72,6 +72,8 @@ public class EntityHurt extends NestedRoutine
 		{
 			String name = matcher.group(1).toLowerCase();
 			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, name);
+            if (livingDP == null) return null;
+
 			String otherName = "-" + name + "-other";
 			IDataProvider<Entity> entityOtherDP = info.get(Entity.class, otherName);
 			if (entityOtherDP == null)
@@ -80,13 +82,14 @@ public class EntityHurt extends NestedRoutine
 				return null;
 			}
 
+            ModDamage.addToLogRecord(OutputPreset.INFO, "Hurt "+livingDP+":");
+
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			IDataProvider<Integer> hurt_amount = IntegerExp.getNew(routines, einfo);
-			
-			if(livingDP != null && entityOtherDP != null)
-				return new EntityHurt(matcher.group(), livingDP, entityOtherDP, hurt_amount);
-			return null;
+            if (hurt_amount == null) return null;
+
+			return new EntityHurt(matcher.group(), livingDP, entityOtherDP, hurt_amount);
 		}
 	}
 }

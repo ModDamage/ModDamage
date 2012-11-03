@@ -90,10 +90,11 @@ public class Knockback extends NestedRoutine
 				}
 			}
 
+            ModDamage.addToLogRecord(OutputPreset.INFO, "KnockBack " + entityDP + " from " + entityOtherDP);
+
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, info.chain(myInfo));
 			if (routines == null) return null;
-			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "KnockBack: " + entityDP + " from " + entityOtherDP);
+
 			return new Knockback(matcher.group(), entityDP, entityOtherDP, routines);
 
 		}

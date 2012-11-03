@@ -3,6 +3,8 @@ package com.ModDamage.Routines.Nested;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.Alias.RoutineAliaser;
@@ -40,7 +42,7 @@ public class EntityHeal extends NestedRoutine
 
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(.*)effect\\.heal", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(.*?)(?:effect)?\\.heal", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
@@ -50,13 +52,16 @@ public class EntityHeal extends NestedRoutine
 		{
 			String name = matcher.group(1).toLowerCase();
 			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, name);
+            if (livingDP == null) return null;
+
+            ModDamage.addToLogRecord(OutputPreset.INFO, "Heal "+livingDP+":");
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			IDataProvider<Integer> heal_amount = IntegerExp.getNew(routines, einfo);
-			if(livingDP != null)
-				return new EntityHeal(matcher.group(), livingDP, heal_amount);
-			return null;
+            if (heal_amount == null) return null;
+
+			return new EntityHeal(matcher.group(), livingDP, heal_amount);
 		}
 	}
 }

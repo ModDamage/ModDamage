@@ -71,12 +71,15 @@ public class Spawn extends NestedRoutine
 				return null;
 			}
 			IDataProvider<Location> locDP = DataProvider.parse(info, Location.class, matcher.group(1));
+            if (locDP == null) return null;
+
+            ModDamage.addToLogRecord(OutputPreset.INFO, "Spawn "+spawnType+" at "+locDP);
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			if(locDP != null && routines != null)
-				return new Spawn(matcher.group(), locDP, spawnType, routines);
-			return null;
+			if(routines == null) return null;
+
+            return new Spawn(matcher.group(), locDP, spawnType, routines);
 		}
 	}
 }

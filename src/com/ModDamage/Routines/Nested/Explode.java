@@ -3,6 +3,8 @@ package com.ModDamage.Routines.Nested;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import org.bukkit.Location;
 
 import com.ModDamage.Alias.RoutineAliaser;
@@ -50,17 +52,18 @@ public class Explode extends NestedRoutine
 		public Explode getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			IDataProvider<Location> locDP = DataProvider.parse(info, Location.class, matcher.group(1));
+            if (locDP == null) return null;
+
+            ModDamage.addToLogRecord(OutputPreset.INFO, "Explode at " + locDP + ":");
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			if (routines == null) return null;
 			
 			IDataProvider<Integer> strength = IntegerExp.getNew(routines, einfo);
-			
-			if(locDP != null && strength != null)
-				return new Explode(matcher.group(), locDP, strength);
-			
-			return null;
+			if(strength == null) return null;
+
+			return new Explode(matcher.group(), locDP, strength);
 		}
 	}
 }

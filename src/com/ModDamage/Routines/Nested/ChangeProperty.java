@@ -47,16 +47,19 @@ public final class ChangeProperty extends NestedRoutine
 		public ChangeProperty getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			ISettableDataProvider<Integer> targetPropertyMatch = SettableDataProvider.parse(info, Integer.class, matcher.group(1));
+            if (targetPropertyMatch == null) return null;
+            if (!targetPropertyMatch.isSettable()) {
+                ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: Variable \"" + matcher.group(1) + "\" is read-only.");
+                return null;
+            }
+
+            ModDamage.addToLogRecord(OutputPreset.INFO, "Set "+targetPropertyMatch+":");
+
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			if(targetPropertyMatch != null && routines != null)
-			{
-				if(targetPropertyMatch.isSettable())
-					return new ChangeProperty(matcher.group(), routines, targetPropertyMatch);
-				else
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: Variable \"" + matcher.group(1) + "\" is read-only.");
-			}
-			return null;
+			if(routines == null) return null;
+
+            return new ChangeProperty(matcher.group(), routines, targetPropertyMatch);
 		}
 	}
 }
