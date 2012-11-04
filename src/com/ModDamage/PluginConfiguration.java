@@ -276,8 +276,6 @@ public class PluginConfiguration
 		
 		if (getDebugSetting() == DebugSetting.QUIET && logMessagesSoFar >= maxLogMessagesToShow)
 			log.log(Level.INFO, "Suppressed "+(logMessagesSoFar-maxLogMessagesToShow)+" error messages");
-
-		Init.initAll();
 		
 		return true;
 	}

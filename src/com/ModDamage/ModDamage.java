@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.Events.Init;
 import com.ModDamage.Tags.TagManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -94,6 +95,8 @@ public class ModDamage extends JavaPlugin
 			for(ModDamageExtension extension : extensions)
 				extension.reloadRoutines();
 		}
+
+        Init.initAll();
 	}
 
 	// //COMMAND PARSING ////
