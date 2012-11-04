@@ -97,7 +97,7 @@ public class EntityItemAction extends NestedRoutine
                         if (entry.getValue() == 0)
                             vanillaItem.removeEnchantment(entry.getKey());
                         else
-                            vanillaItem.addEnchantment(entry.getKey(), entry.getValue());
+                            vanillaItem.addUnsafeEnchantment(entry.getKey(), entry.getValue());
                     }
                 }
 

@@ -58,7 +58,7 @@ public class ItemEnchantmentInt extends SettableIntegerExp<ItemStack>
 		// lock the enchantment value inside the acceptable range
 		value = Math.min(Math.max(enchantment.getStartLevel(), value), enchantment.getMaxLevel());
 		
-		item.addEnchantment(enchantment, value);
+		item.addUnsafeEnchantment(enchantment, value);
 	}
 	
 	@Override
