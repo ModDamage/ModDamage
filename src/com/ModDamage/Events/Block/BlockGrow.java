@@ -36,7 +36,7 @@ public class BlockGrow extends MDEvent implements Listener
 				event.getBlock(),
                 event.getNewState().getType(),
                 event.getNewState().getTypeId(),
-                event.getNewState().getData().getData(),
+                (int) event.getNewState().getData().getData(),
 				event.isCancelled());
 		
 		runRoutines(data);
