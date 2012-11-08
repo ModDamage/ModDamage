@@ -73,7 +73,9 @@ public class ItemInt extends SettableIntegerExp<ItemStack>
 		},
 		MAX_DURABILITY {
 			public int getAttribute(ItemStack item) {
-				return ((CraftItemStack) item).getHandle().getItem().getMaxDurability();
+                net.minecraft.server.ItemStack handle = ((CraftItemStack) item).getHandle();
+                if (handle == null || handle.getItem() == null) return 0;
+				return handle.getItem().getMaxDurability();
 			}
 		};
 		
