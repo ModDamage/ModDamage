@@ -50,6 +50,7 @@ public class MDEvent implements Listener
 				new Spawn(),
 				new Tame(),
 				new Target(),
+                new Teleport(),
 				});
 
 		eventCategories.put("Item", new MDEvent[] {
@@ -67,7 +68,6 @@ public class MDEvent implements Listener
 				new LevelChange(),
 				new PickupExp(),
 				new Quit(),
-				new Teleport(),
 				new ToggleFlight(),
 				new ToggleSneak(),
 				new ToggleSprint(),
