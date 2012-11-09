@@ -3,6 +3,7 @@ package com.ModDamage.Routines.Nested;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
@@ -20,15 +21,15 @@ import com.ModDamage.Routines.Routines;
 public class Knockback extends NestedRoutine
 {	
 	protected final IDataProvider<Entity> entityDP;
-	protected final IDataProvider<Entity> entityOtherDP;
+	protected final IDataProvider<Location> fromDP;
 	
 	protected final Routines routines;
 
-	protected Knockback(String configString, IDataProvider<Entity> entityDP, IDataProvider<Entity> entityOtherDP, Routines routines)
+	protected Knockback(String configString, IDataProvider<Entity> entityDP, IDataProvider<Location> fromDP, Routines routines)
 	{
 		super(configString);
 		this.entityDP = entityDP;
-		this.entityOtherDP = entityOtherDP;
+		this.fromDP = fromDP;
 		this.routines = routines;
 	}
 	
@@ -39,11 +40,11 @@ public class Knockback extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		Entity firstEntity = entityDP.get(data);
-		Entity secondEntity = entityOtherDP.get(data);
-		if(firstEntity == null || secondEntity == null) return;
+		Entity entity = entityDP.get(data);
+		Location from = fromDP.get(data);
+		if(entity == null || from == null) return;
 		
-		Vector vector = firstEntity.getLocation().toVector().subtract(secondEntity.getLocation().toVector());
+		Vector vector = entity.getLocation().toVector().subtract(from.toVector());
 		
 		EventData myData = myInfo.makeChainedData(data, 0, 0);
 		
@@ -58,7 +59,7 @@ public class Knockback extends NestedRoutine
 		double horizValue = ((float)xRef) / 10.0;
 		double verticalValue = ((float)yRef) / 10.0;
 		
-		firstEntity.setVelocity(firstEntity.getVelocity().add(
+		entity.setVelocity(entity.getVelocity().add(
 				new Vector(vector.getX() / hLength * horizValue, verticalValue, vector.getZ() / hLength * horizValue)));
 	}
 	
@@ -76,26 +77,26 @@ public class Knockback extends NestedRoutine
 			if (entityDP == null) return null;
 			
 			boolean explicitFrom = matcher.group(2) != null;
-			IDataProvider<Entity> entityOtherDP;
+			IDataProvider<Location> fromDP;
 			if (explicitFrom) {
-				entityOtherDP = DataProvider.parse(info, Entity.class, matcher.group(2));
-				if (entityOtherDP == null)
+                fromDP = DataProvider.parse(info, Location.class, matcher.group(2));
+				if (fromDP == null)
 					return null;
 			} else {
-				entityOtherDP = info.get(Entity.class, "-" + matcher.group(1).toLowerCase() + "-other", false);
-				if (entityOtherDP == null)
+                fromDP = info.get(Location.class, "-" + matcher.group(1).toLowerCase() + "-other", false);
+				if (fromDP == null)
 				{
 					ModDamage.addToLogRecord(OutputPreset.FAILURE, "The entity '"+entityDP+"' doesn't have a natural opposite, so you need to specify one using '"+matcher.group()+".from.{entity}'");
 					return null;
 				}
 			}
 
-            ModDamage.addToLogRecord(OutputPreset.INFO, "KnockBack " + entityDP + " from " + entityOtherDP);
+            ModDamage.addToLogRecord(OutputPreset.INFO, "KnockBack " + entityDP + " from " + fromDP);
 
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, info.chain(myInfo));
 			if (routines == null) return null;
 
-			return new Knockback(matcher.group(), entityDP, entityOtherDP, routines);
+			return new Knockback(matcher.group(), entityDP, fromDP, routines);
 
 		}
 	}
