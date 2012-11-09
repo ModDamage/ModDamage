@@ -1,4 +1,4 @@
-package com.ModDamage.Events.Player;
+package com.ModDamage.Events.Entity;
 
 import org.bukkit.Location;
 import org.bukkit.World;
