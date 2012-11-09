@@ -64,7 +64,7 @@ public class Knockback extends NestedRoutine
 	
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(\\w+)effect\\.knockback(?:\\.from\\.(\\w+))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(.+?)(?:effect)?\\.knockback(?:\\.from\\.(.+))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
