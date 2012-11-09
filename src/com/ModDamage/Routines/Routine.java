@@ -49,6 +49,7 @@ abstract public class Routine
 		TagAction.registerRoutine();
 		PlayEffect.register();
         PlayEntityEffect.register();
+        PlaySound.register();
 		Message.registerRoutine();
 		EntityItemAction.registerRoutine();
         DropItem.registerRoutine();
