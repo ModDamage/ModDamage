@@ -53,7 +53,7 @@ public class Spawn extends MDEvent implements Listener
 	{
 		if(!ModDamage.isEnabled || event.isCancelled()) return;
 		
-		LivingEntity entity = (LivingEntity)event.getEntity();
+		LivingEntity entity = event.getEntity();
 		EventData data = myInfo.makeData(
 				entity,
 				entity.getWorld(),
