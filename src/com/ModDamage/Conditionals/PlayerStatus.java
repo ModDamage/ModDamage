@@ -75,13 +75,13 @@ public class PlayerStatus extends Conditional<Player>
 				@Override
 				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> entityDP, Matcher m, StringMatcher sm)
 				{
-					StatusType statusType = null;
-					for(StatusType type : StatusType.values())
-						if(m.group(1).equalsIgnoreCase(type.name()))
-								statusType = type;
-					if(statusType == null) return null;
-					
-					return new PlayerStatus(entityDP, statusType);
+                StatusType statusType = null;
+                for(StatusType type : StatusType.values())
+                    if(m.group(1).equalsIgnoreCase(type.name()))
+                        statusType = type;
+                if(statusType == null) return null;
+
+                return new PlayerStatus(entityDP, statusType);
 				}
 			});
 	}
