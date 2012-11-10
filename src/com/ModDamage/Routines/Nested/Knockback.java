@@ -77,13 +77,15 @@ public class Knockback extends NestedRoutine
 			if (entityDP == null) return null;
 			
 			boolean explicitFrom = matcher.group(2) != null;
-			IDataProvider<Location> fromDP;
+			IDataProvider<Location> fromDP = null;
 			if (explicitFrom) {
                 fromDP = DataProvider.parse(info, Location.class, matcher.group(2));
 				if (fromDP == null)
 					return null;
 			} else {
-                fromDP = info.get(Location.class, "-" + matcher.group(1).toLowerCase() + "-other", false);
+                IDataProvider<Entity> otherEntityDP = info.get(Entity.class, "-" + matcher.group(1).toLowerCase() + "-other", false);
+                if (otherEntityDP != null)
+                    fromDP = DataProvider.transform(Location.class, otherEntityDP, info, false);
 				if (fromDP == null)
 				{
 					ModDamage.addToLogRecord(OutputPreset.FAILURE, "The entity '"+entityDP+"' doesn't have a natural opposite, so you need to specify one using '"+matcher.group()+".from.{entity}'");
