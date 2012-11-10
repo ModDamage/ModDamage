@@ -45,19 +45,23 @@ public class Knockback extends NestedRoutine
 		if(entity == null || from == null) return;
 		
 		Vector vector = entity.getLocation().toVector().subtract(from.toVector());
-		
+
 		EventData myData = myInfo.makeChainedData(data, 0, 0);
 		
 		routines.run(myData);
 		
 		int xRef = myData.get(Integer.class, myData.start + 0);
 		int yRef = myData.get(Integer.class, myData.start + 1);
-		
 	
 		double hLength = Math.sqrt(Math.pow(vector.getX(), 2) + Math.pow(vector.getZ(), 2));
 		
 		double horizValue = ((float)xRef) / 10.0;
 		double verticalValue = ((float)yRef) / 10.0;
+
+        if (Math.abs(hLength) < 0.01) {
+            hLength = 1;
+            horizValue = 0;
+        }
 		
 		entity.setVelocity(entity.getVelocity().add(
 				new Vector(vector.getX() / hLength * horizValue, verticalValue, vector.getZ() / hLength * horizValue)));
