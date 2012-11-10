@@ -18,16 +18,15 @@ import com.ModDamage.EventInfo.IDataProvider;
 public class Teleport extends Routine
 {
 	private final IDataProvider<Entity> entityDP;
-	private final IDataProvider<Integer> x, y, z, yaw, pitch;
-	protected Teleport(String configString, IDataProvider<Entity> entityDP, IDataProvider<Integer> x, IDataProvider<Integer> y, IDataProvider<Integer> z, IDataProvider<Integer> yaw, IDataProvider<Integer> pitch)
+    private final IDataProvider<Location> locDP;
+	private final IDataProvider<Integer> yawDP, pitchDP;
+	protected Teleport(String configString, IDataProvider<Entity> entityDP, IDataProvider<Location> locDP, IDataProvider<Integer> yawDP, IDataProvider<Integer> pitchDP)
 	{
 		super(configString);
 		this.entityDP = entityDP;
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.yaw = yaw;
-		this.pitch = pitch;
+		this.locDP = locDP;
+		this.yawDP = yawDP;
+		this.pitchDP = pitchDP;
 	}
 
 	@Override
@@ -36,11 +35,21 @@ public class Teleport extends Routine
 		Entity entity = entityDP.get(data);
 		if (entity == null) return;
 
-		Location loc;
-		if (yaw != null && pitch != null)
-			loc = new Location(entity.getWorld(), x.get(data), y.get(data), z.get(data), yaw.get(data), pitch.get(data));
-		else
-			loc = new Location(entity.getWorld(), x.get(data), y.get(data), z.get(data), entity.getLocation().getYaw(), entity.getLocation().getPitch());
+		Location loc = locDP.get(data);
+        if (loc == null) return;
+        float yaw, pitch;
+		if (yawDP != null && pitchDP != null) {
+			yaw = yawDP.get(data);
+            pitch = pitchDP.get(data);
+        }
+        else {
+            yaw = entity.getLocation().getYaw();
+            pitch = entity.getLocation().getPitch();
+        }
+
+        loc.setYaw(yaw);
+        loc.setPitch(pitch);
+
 		entity.teleport(loc);
 	}
 
@@ -61,12 +70,8 @@ public class Teleport extends Routine
 			
 			StringMatcher sm = new StringMatcher(matcher.group(2));
 			
-			IDataProvider<Integer> x, y, z;
-			x = DataProvider.parse(info, Integer.class, sm.spawn()); if (x == null) return null;
-			if (!sm.matchesFront(dotPattern)) return null;
-			y = DataProvider.parse(info, Integer.class, sm.spawn()); if (y == null) return null;
-			if (!sm.matchesFront(dotPattern)) return null;
-			z = DataProvider.parse(info, Integer.class, sm.spawn()); if (z == null) return null;
+			IDataProvider<Location> locDP;
+            locDP = DataProvider.parse(info, Location.class, sm.spawn()); if (locDP == null) return null;
 			
 			IDataProvider<Integer> yaw = null, pitch = null;
 			String yaw_pitch = "";
@@ -81,8 +86,8 @@ public class Teleport extends Routine
 				yaw_pitch = ", "+yaw+", "+pitch;
 			}
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Teleport: " + entityDP + " to " + x + ", " + y + ", " + z + yaw_pitch);
-			return new Teleport(matcher.group(), entityDP, x, y, z, yaw, pitch);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Teleport: " + entityDP + " to " + locDP + yaw_pitch);
+			return new Teleport(matcher.group(), entityDP, locDP, yaw, pitch);
 		}
 	}
 }
