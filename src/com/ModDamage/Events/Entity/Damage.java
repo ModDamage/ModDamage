@@ -44,12 +44,14 @@ public class Damage extends MDEvent implements Listener
 			if(data != null)
 			{
 				runRoutines(data);
-				event.setDamage(data.get(Integer.class, data.start + 5));
+                int newDamage = data.get(Integer.class, data.start + 5);
 				
 				event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 				
-				if (event.getDamage() <= 0)
+				if (event.getDamage() != newDamage && newDamage <= 0)
 					event.setCancelled(true);
+
+                event.setDamage(newDamage);
 			}
 			else PluginConfiguration.log.severe("[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + 
 					"] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
