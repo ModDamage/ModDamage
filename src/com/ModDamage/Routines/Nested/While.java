@@ -36,7 +36,6 @@ public class While extends NestedRoutine
 	public static void register()
 	{
 		NestedRoutine.registerRoutine(Pattern.compile("while\\s+(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
-		Conditional.register();
 	}
 
 	protected final static class RoutineBuilder extends NestedRoutine.RoutineBuilder
