@@ -3,6 +3,7 @@ package com.ModDamage.Variables;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.EventInfo.*;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
@@ -14,10 +15,6 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataProvider;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 
 public class EntityEntity extends DataProvider<Entity, Entity>
@@ -36,16 +33,32 @@ public class EntityEntity extends DataProvider<Entity, Entity>
 								EntityType.valueOf(m.group(1).toUpperCase())));
 					}
 				});
-		DataProvider.register(LivingEntity.class, Creature.class, Pattern.compile("_target", Pattern.CASE_INSENSITIVE),
-				new IDataParser<LivingEntity, Creature>() {
-					public IDataProvider<LivingEntity> parse(EventInfo info, final IDataProvider<Creature> creatureDP, Matcher m, StringMatcher sm) {
-						return new DataProvider<LivingEntity, Creature>(Creature.class, creatureDP) {
-								public LivingEntity get(Creature creature, EventData data) { return creature.getTarget(); }
-								public Class<LivingEntity> provides() { return LivingEntity.class; }
-								public String toString() { return creatureDP + "_target"; }
-							};
-					}
-				});
+		SettableDataProvider.register(LivingEntity.class, Creature.class, Pattern.compile("_target", Pattern.CASE_INSENSITIVE),
+                new IDataParser<LivingEntity, Creature>() {
+                    public ISettableDataProvider<LivingEntity> parse(EventInfo info, final IDataProvider<Creature> creatureDP, Matcher m, StringMatcher sm) {
+                        return new SettableDataProvider<LivingEntity, Creature>(Creature.class, creatureDP) {
+                            public LivingEntity get(Creature creature, EventData data) {
+                                return creature.getTarget();
+                            }
+
+                            public void set(Creature creature, EventData data, LivingEntity target) throws BailException {
+                                creature.setTarget(target);
+                            }
+
+                            public boolean isSettable() {
+                                return true;
+                            }
+
+                            public Class<LivingEntity> provides() {
+                                return LivingEntity.class;
+                            }
+
+                            public String toString() {
+                                return creatureDP + "_target";
+                            }
+                        };
+                    }
+                });
 		DataProvider.register(Player.class, LivingEntity.class, Pattern.compile("_killer", Pattern.CASE_INSENSITIVE),
 				new IDataParser<Player, LivingEntity>() {
 					public IDataProvider<Player> parse(EventInfo info, final IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm) {
@@ -58,22 +71,32 @@ public class EntityEntity extends DataProvider<Entity, Entity>
 				});
 		DataProvider.register(Player.class, Entity.class, Pattern.compile("_owner", Pattern.CASE_INSENSITIVE),
 				new IDataParser<Player, Entity>() {
-					public IDataProvider<Player> parse(EventInfo info, final IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm) {
-						return new DataProvider<Player, Entity>(Entity.class, entityDP) {
-								public Player get(Entity entity, EventData data) {
-									if (!(entity instanceof Tameable)) return null;
-									AnimalTamer tamer = ((Tameable)entity).getOwner();
-									if (tamer == null) return null;
-									if (!(tamer instanceof Player))
-									{
-										ModDamage.addToLogRecord(OutputPreset.WARNING, "Unknown tamer class: "+tamer.getClass().getName());
-										return null;
-									}
-									return (Player) tamer;
-								}
-								public Class<Player> provides() { return Player.class; }
-								public String toString() { return entityDP + "_owner"; }
-							};
+					public ISettableDataProvider<Player> parse(EventInfo info, final IDataProvider<Entity> entityDP, Matcher m, StringMatcher sm) {
+						return new SettableDataProvider<Player, Entity>(Entity.class, entityDP) {
+                            public Player get(Entity entity, EventData data) {
+                                if (!(entity instanceof Tameable)) return null;
+                                AnimalTamer tamer = ((Tameable)entity).getOwner();
+                                if (tamer == null) return null;
+                                if (!(tamer instanceof Player))
+                                {
+                                    ModDamage.addToLogRecord(OutputPreset.WARNING, "Unknown tamer class: "+tamer.getClass().getName());
+                                    return null;
+                                }
+                                return (Player) tamer;
+                            }
+
+                            public void set(Entity entity, EventData data, Player owner) throws BailException {
+                                if (!(entity instanceof Tameable)) return;
+                                ((Tameable)entity).setOwner(owner);
+                            }
+
+                            public boolean isSettable() {
+                                return true;
+                            }
+
+                            public Class<Player> provides() { return Player.class; }
+                            public String toString() { return entityDP + "_owner"; }
+                        };
 					}
 				});
 	}
