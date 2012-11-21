@@ -21,12 +21,14 @@ public class Explode extends NestedRoutine
 {
 	private final IDataProvider<Location> locDP;
 	private final IDataProvider<Integer> strength;
-	
-	public Explode(String configString, IDataProvider<Location> locDP, IDataProvider<Integer> strength)
+	private final boolean fire;
+
+	public Explode(String configString, IDataProvider<Location> locDP, IDataProvider<Integer> strength, boolean fire)
 	{
 		super(configString);
 		this.locDP = locDP;
 		this.strength = strength;
+		this.fire = fire;
 	}
 
 	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "strength", "-default");
@@ -38,14 +40,14 @@ public class Explode extends NestedRoutine
 		if (entity == null) return;
 
 		EventData myData = myInfo.makeChainedData(data, 0);
-		entity.getWorld().createExplosion(entity, strength.get(myData)/10.0f);
+		entity.getWorld().createExplosion(entity, strength.get(myData)/10.0f, fire);
 	}
-	
+
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(.*?)(?:effect)?\\.explode", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(.*?)(?:effect)?\\.explode(\\.withfire)?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
-	
+
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{	
 		@Override
@@ -63,7 +65,7 @@ public class Explode extends NestedRoutine
 			IDataProvider<Integer> strength = IntegerExp.getNew(routines, einfo);
 			if(strength == null) return null;
 
-			return new Explode(matcher.group(), locDP, strength);
+			return new Explode(matcher.group(), locDP, strength, matcher.group(2) != null);
 		}
 	}
 }
