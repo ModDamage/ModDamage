@@ -57,28 +57,33 @@ public class Nearby extends NestedRoutine
 			Entity nearestEntity = null;
 
 			for (Entity e : entities) {
+				if (!entClass.isAssignableFrom(e.getClass())) continue;
+
 				double edist = eloc.distanceSquared(e.getLocation());
 				if (edist < distance) {
 					distance = edist;
 					nearestEntity = e;
 				}
 			}
-			
-			EventData newData = myInfo.makeChainedData(data, nearestEntity);
-			
-			routines.run(newData);
-			
-			return;
-		}
-		
-		ENTITIES: for (Entity e : entities)
-		{
-			if (entClass.isAssignableFrom(e.getClass())){
-				EventData newData = myInfo.makeChainedData(data, e);
-				
+
+			if (nearestEntity != null)
+			{
+				EventData newData = myInfo.makeChainedData(data, nearestEntity);
+
 				routines.run(newData);
-				
-				continue ENTITIES;
+			}
+		}
+		else
+		{
+			for (Entity e : entities)
+			{
+				if (entClass.isAssignableFrom(e.getClass())){
+					EventData newData = myInfo.makeChainedData(data, e);
+
+					routines.run(newData);
+
+					continue;
+				}
 			}
 		}
 	}
