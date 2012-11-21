@@ -132,6 +132,8 @@ public class ArmorSet
 		
 		private static ArmorElement matchElement(Material material)
 		{
+            if (material == null) return null;
+
 			switch(material)
 			{
 			//Headwear
