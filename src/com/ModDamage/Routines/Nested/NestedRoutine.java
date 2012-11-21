@@ -38,7 +38,7 @@ public abstract class NestedRoutine extends Routine
 		Explode.register();
 		LaunchProjectile.register();
 		Nearby.register();
-		ChangeProperty.register();
+		SetProperty.register();
 		ModifySkill.register();
 		Command.registerNested();
 		PlayerChat.registerNested();

@@ -14,11 +14,11 @@ import com.ModDamage.EventInfo.SettableDataProvider;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Routines.Routines;
 
-public final class ChangeProperty extends NestedRoutine
+public final class SetProperty extends NestedRoutine
 {	
 	private final Routines routines;
 	protected final ISettableDataProvider<Integer> targetPropertyMatch;
-	public ChangeProperty(String configString, Routines routines, ISettableDataProvider<Integer> targetPropertyMatch)
+	public SetProperty(String configString, Routines routines, ISettableDataProvider<Integer> targetPropertyMatch)
 	{
 		super(configString);
 		this.routines = routines;
@@ -44,7 +44,7 @@ public final class ChangeProperty extends NestedRoutine
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{	
 		@Override
-		public ChangeProperty getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public SetProperty getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			ISettableDataProvider<Integer> targetPropertyMatch = SettableDataProvider.parse(info, Integer.class, matcher.group(1));
             if (targetPropertyMatch == null) return null;
@@ -59,7 +59,7 @@ public final class ChangeProperty extends NestedRoutine
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			if(routines == null) return null;
 
-            return new ChangeProperty(matcher.group(), routines, targetPropertyMatch);
+            return new SetProperty(matcher.group(), routines, targetPropertyMatch);
 		}
 	}
 }
