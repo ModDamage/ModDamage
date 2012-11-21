@@ -9,7 +9,11 @@ import com.ModDamage.Expressions.Function.BlockLocFunction;
 import com.ModDamage.Expressions.Function.DistanceFunction;
 import com.ModDamage.Expressions.Function.IntFunction;
 import com.ModDamage.Routines.Routines;
+import com.ModDamage.StringMatcher;
 import com.ModDamage.Variables.Int.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 {
@@ -31,6 +35,31 @@ public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 		}
 	}
 	protected abstract Integer myGet(From from, EventData data) throws BailException;
+
+    public static final Pattern literalInteger = Pattern.compile("[0-9]+");
+
+    /**
+     * This parses either a literal number (123) or %{integer}
+     * @param sm sm.spawn()
+     * @param info The current EventInfo
+     * @return The new Integer IDataProvider or null if parsing failed
+     */
+    public static IDataProvider<Integer> parse(StringMatcher sm, EventInfo info) {
+        Matcher m = sm.matchFront(InterpolatedString.interpolationStartPattern);
+        if (m != null) {
+            IDataProvider<Integer> integerDP = DataProvider.parse(info, Integer.class, sm.spawn(), false, true, InterpolatedString.interpolationEndPattern);
+            if (integerDP == null) return null;
+            if (!sm.matchesFront(InterpolatedString.interpolationEndPattern)) return null;
+            return integerDP;
+        }
+
+        m = sm.matchFront(literalInteger);
+        if (m != null) {
+            return new Constant(Integer.parseInt(m.group()));
+        }
+
+        return null;
+    }
 	
 	@Override
 	public Class<Integer> provides() { return Integer.class; }

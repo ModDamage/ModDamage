@@ -17,10 +17,10 @@ import com.ModDamage.StringMatcher;
 
 public class InterpolatedString implements IDataProvider<String>
 {
-    private static final Pattern interpolationStartPattern = Pattern.compile("%\\{");
-    private static final Pattern interpolationEndPattern = Pattern.compile("}");
+    public static final Pattern interpolationStartPattern = Pattern.compile("%\\{");
+    public static final Pattern interpolationEndPattern = Pattern.compile("}");
 	//private static final Pattern interpolationPattern = Pattern.compile("%\\{([^}]+)\\}", Pattern.CASE_INSENSITIVE);
-	private static final Pattern colorReplacePattern = Pattern.compile("&([0-9a-fk-o])", Pattern.CASE_INSENSITIVE);
+	private static final Pattern colorReplacePattern = Pattern.compile("&([0-9a-fk-or])", Pattern.CASE_INSENSITIVE);
 	
 	private final List<InterpolatedPart> parts = new ArrayList<InterpolatedPart>();
 	private int minSize;

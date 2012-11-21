@@ -3,6 +3,7 @@ package com.ModDamage.Variables.Item;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.Expressions.IntegerExp;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -15,7 +16,7 @@ import com.ModDamage.EventInfo.IDataProvider;
 
 public class PlayerInvItem extends DataProvider<ItemStack, Player>
 {
-	public static final Pattern pattern = Pattern.compile("\\.(?:iteminslot|invitem|item)\\.([^.]*?)", Pattern.CASE_INSENSITIVE);
+	public static final Pattern pattern = Pattern.compile("_(?:iteminslot|invitem|item)_", Pattern.CASE_INSENSITIVE);
 	private final IDataProvider<Integer> slot;
 	
 	public PlayerInvItem(IDataProvider<Player> playerDP, IDataProvider<Integer> slot)
@@ -40,7 +41,8 @@ public class PlayerInvItem extends DataProvider<ItemStack, Player>
 				@Override
 				public IDataProvider<ItemStack> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
-					IDataProvider<Integer> slot = DataProvider.parse(info, Integer.class, m.group(1)); if (slot == null) return null;
+					IDataProvider<Integer> slot = IntegerExp.parse(sm, info);
+                    if (slot == null) return null;
 					
 					return new PlayerInvItem(playerDP, slot);
 				}
