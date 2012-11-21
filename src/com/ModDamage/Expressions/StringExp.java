@@ -1,12 +1,12 @@
 package com.ModDamage.Expressions;
 
 import com.ModDamage.EventInfo.DataProvider;
+import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
-import com.ModDamage.Variables.String.EntityAsString;
-import com.ModDamage.Variables.String.EntityString;
-import com.ModDamage.Variables.String.IntAsString;
-import com.ModDamage.Variables.String.PlayerString;
-import com.ModDamage.Variables.String.WorldString;
+import com.ModDamage.Variables.String.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class StringExp<From> extends DataProvider<String, From>
 {
@@ -25,5 +25,25 @@ public abstract class StringExp<From> extends DataProvider<String, From>
 		EntityAsString.register();
 		PlayerString.register();
 		WorldString.register();
+	}
+
+
+	public static List<IDataProvider<String>> getStrings(Object nestedContent, EventInfo info)
+	{
+		List<String> strings = new ArrayList<String>();
+		if (nestedContent instanceof String)
+			strings.add((String)nestedContent);
+		else if(nestedContent instanceof List)
+			strings.addAll((List<String>) nestedContent);
+		else
+			return null;
+
+		List<IDataProvider<String>> istrings = new ArrayList<IDataProvider<String>>();
+		for(String string : strings)
+		{
+			istrings.add(new InterpolatedString(string, info, true));
+		}
+
+		return istrings;
 	}
 }
