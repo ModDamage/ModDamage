@@ -28,15 +28,15 @@ public class Explode extends NestedRoutine
 		this.locDP = locDP;
 		this.strength = strength;
 	}
-	
+
 	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "strength", "-default");
-	
+
 	@Override
 	public void run(EventData data) throws BailException
 	{
 		Location entity = locDP.get(data);
-        if (entity == null) return;
-		
+		if (entity == null) return;
+
 		EventData myData = myInfo.makeChainedData(data, 0);
 		entity.getWorld().createExplosion(entity, strength.get(myData)/10.0f);
 	}
@@ -52,14 +52,14 @@ public class Explode extends NestedRoutine
 		public Explode getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
 			IDataProvider<Location> locDP = DataProvider.parse(info, Location.class, matcher.group(1));
-            if (locDP == null) return null;
+			if (locDP == null) return null;
 
-            ModDamage.addToLogRecord(OutputPreset.INFO, "Explode at " + locDP + ":");
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Explode at " + locDP + ":");
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			if (routines == null) return null;
-			
+
 			IDataProvider<Integer> strength = IntegerExp.getNew(routines, einfo);
 			if(strength == null) return null;
 

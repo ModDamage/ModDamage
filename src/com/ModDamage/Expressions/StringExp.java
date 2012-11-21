@@ -14,10 +14,10 @@ public abstract class StringExp<From> extends DataProvider<String, From>
 	{
 		super(wantStart, startDP);
 	}
-	
+
 	@Override
 	public Class<String> provides() { return String.class; }
-	
+
 	public static void register()
 	{
 		EntityString.register();

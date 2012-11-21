@@ -16,43 +16,43 @@ import java.util.regex.Pattern;
 public class With extends NestedRoutine
 {
 	protected final List<IDataProvider<?>> dps;
-    protected final EventInfo myInfo;
+	protected final EventInfo myInfo;
 	protected final Routines routines;
 
 	private With(String configString, List<IDataProvider<?>> dps, EventInfo myInfo, Routines routines)
 	{
 		super(configString);
 		this.dps = dps;
-        this.myInfo = myInfo;
+		this.myInfo = myInfo;
 		this.routines = routines;
 	}
-	
+
 	@Override
 	public void run(EventData data) throws BailException
 	{
 		Object[] myDataObjs = new Object[dps.size()];
 
-        for (int i = 0; i < myDataObjs.length; i++) {
-            myDataObjs[i] = dps.get(i).get(data);
-        }
+		for (int i = 0; i < myDataObjs.length; i++) {
+			myDataObjs[i] = dps.get(i).get(data);
+		}
 
-        EventData myData = myInfo.makeChainedData(data, myDataObjs, true);
+		EventData myData = myInfo.makeChainedData(data, myDataObjs, true);
 
-        routines.run(myData);
+		routines.run(myData);
 
-        for (int i = 0; i < myDataObjs.length; i++) {
-            IDataProvider dp = dps.get(i);
-            if (dp instanceof ISettableDataProvider) {
-                ISettableDataProvider sdp = (ISettableDataProvider) dp;
+		for (int i = 0; i < myDataObjs.length; i++) {
+			IDataProvider dp = dps.get(i);
+			if (dp instanceof ISettableDataProvider) {
+				ISettableDataProvider sdp = (ISettableDataProvider) dp;
 
-                if (sdp.isSettable())
-                    sdp.set(data, myData.objects[i]);
-            }
-        }
+				if (sdp.isSettable())
+					sdp.set(data, myData.objects[i]);
+			}
+		}
 	}
-	
+
 	private static Pattern asPattern = Pattern.compile("\\s+as\\s+(\\w+)");
-    private static Pattern commaPattern = Pattern.compile("\\s*,\\s*");
+	private static Pattern commaPattern = Pattern.compile("\\s*,\\s*");
 	public static void register()
 	{
 		NestedRoutine.registerRoutine(Pattern.compile("with\\s+(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
@@ -69,41 +69,41 @@ public class With extends NestedRoutine
 
 
 
-            List<Object> infos = new ArrayList<Object>();
-            List<IDataProvider<?>> dps = new ArrayList<IDataProvider<?>>();
-            StringBuilder logSb = new StringBuilder();
+			List<Object> infos = new ArrayList<Object>();
+			List<IDataProvider<?>> dps = new ArrayList<IDataProvider<?>>();
+			StringBuilder logSb = new StringBuilder();
 
-            StringMatcher sm = new StringMatcher(matcher.group(1));
+			StringMatcher sm = new StringMatcher(matcher.group(1));
 
-            do {
+			do {
 
-                IDataProvider<?> dp = DataProvider.parse(info, null, sm.spawn());
-                if (dp == null) return null;
+				IDataProvider<?> dp = DataProvider.parse(info, null, sm.spawn());
+				if (dp == null) return null;
 
-                Matcher m = sm.matchFront(asPattern);
-                if (m == null) return null;
+				Matcher m = sm.matchFront(asPattern);
+				if (m == null) return null;
 
-                infos.add(dp.provides()); // type of object
-                infos.add(m.group(1)); // name of object
+				infos.add(dp.provides()); // type of object
+				infos.add(m.group(1)); // name of object
 
-                if (!dps.isEmpty()) logSb.append(", ");
-                logSb.append(dp).append(" as ").append(m.group(1));
+				if (!dps.isEmpty()) logSb.append(", ");
+				logSb.append(dp).append(" as ").append(m.group(1));
 
-                dps.add(dp);
+				dps.add(dp);
 
-            } while (sm.matchesFront(commaPattern));
+			} while (sm.matchesFront(commaPattern));
 
-            EventInfo myInfo = info.chain(new SimpleEventInfo(infos.toArray(), true));
+			EventInfo myInfo = info.chain(new SimpleEventInfo(infos.toArray(), true));
 
-            NestedRoutine.paddedLogRecord(OutputPreset.INFO, "With: " + logSb.toString());
-			
+			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "With: " + logSb.toString());
+
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, myInfo);
 			if(routines == null)
 			{
 				NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid content in With");
 				return null;
 			}
-			
+
 			NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End With");
 			return new With(matcher.group(), dps, myInfo, routines);
 		}

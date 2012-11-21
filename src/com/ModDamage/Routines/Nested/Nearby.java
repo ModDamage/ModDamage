@@ -40,7 +40,7 @@ public class Nearby extends NestedRoutine
 
 	static EventInfo myInfo = new SimpleEventInfo(
 			Entity.class, "nearby", "it");
-	
+
 	@Override
 	public void run(EventData data) throws BailException
 	{
@@ -49,13 +49,13 @@ public class Nearby extends NestedRoutine
 		int r = radius.get(data);
 		List<Entity> entities = entity.getNearbyEntities(r, r, r);
 		if (entities.isEmpty()) return;
-		
+
 		if (nearest) {
 			Location eloc = entity.getLocation();
-			
+
 			double distance = Float.MAX_VALUE;
 			Entity nearestEntity = null;
-			
+
 			for (Entity e : entities) {
 				double edist = eloc.distanceSquared(e.getLocation());
 				if (edist < distance) {
@@ -82,12 +82,12 @@ public class Nearby extends NestedRoutine
 			}
 		}
 	}
-	
+
 	public static void register()
 	{
 		NestedRoutine.registerRoutine(Pattern.compile("near(by|est)\\.([^.]*)\\.([^.]*)\\.([^.]*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
-	
+
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{
 		@Override
@@ -99,7 +99,7 @@ public class Nearby extends NestedRoutine
 			IDataProvider<Integer> radius = DataProvider.parse(info, Integer.class, matcher.group(4)); if (radius == null) return null;
 
 			ModDamage.addToLogRecord(OutputPreset.INFO, "Near" + (nearest? "est" : "by") + ": " + entityDP + ", " + element + ", " + radius);
-			
+
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			if(routines != null)

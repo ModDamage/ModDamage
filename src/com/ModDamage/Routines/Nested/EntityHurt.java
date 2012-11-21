@@ -26,7 +26,7 @@ public class EntityHurt extends NestedRoutine
 	private final IDataProvider<LivingEntity> livingDP;
 	private final IDataProvider<Entity> entityOtherDP;
 	private final IDataProvider<Integer> hurt_amount;
-	
+
 	public EntityHurt(String configString, IDataProvider<LivingEntity> livingDP, IDataProvider<Entity> entityOtherDP, IDataProvider<Integer> hurt_amount)
 	{
 		super(configString);
@@ -36,7 +36,7 @@ public class EntityHurt extends NestedRoutine
 	}
 
 	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "hurt_amount", "-default");
-	
+
 	@Override
 	public void run(EventData data) throws BailException
 	{
@@ -64,7 +64,7 @@ public class EntityHurt extends NestedRoutine
 	{
 		NestedRoutine.registerRoutine(Pattern.compile("(.*)effect\\.hurt", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
-	
+
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{	
 		@Override
@@ -72,7 +72,7 @@ public class EntityHurt extends NestedRoutine
 		{
 			String name = matcher.group(1).toLowerCase();
 			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, name);
-            if (livingDP == null) return null;
+			if (livingDP == null) return null;
 
 			String otherName = "-" + name + "-other";
 			IDataProvider<Entity> entityOtherDP = info.get(Entity.class, otherName);
@@ -82,12 +82,12 @@ public class EntityHurt extends NestedRoutine
 				return null;
 			}
 
-            ModDamage.addToLogRecord(OutputPreset.INFO, "Hurt "+livingDP+":");
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Hurt "+livingDP+":");
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			IDataProvider<Integer> hurt_amount = IntegerExp.getNew(routines, einfo);
-            if (hurt_amount == null) return null;
+			if (hurt_amount == null) return null;
 
 			return new EntityHurt(matcher.group(), livingDP, entityOtherDP, hurt_amount);
 		}

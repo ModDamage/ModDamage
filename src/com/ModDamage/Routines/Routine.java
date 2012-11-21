@@ -21,7 +21,7 @@ abstract public class Routine
 	protected static final Pattern anyPattern = Pattern.compile(".*");
 	//private static final RoutineBuilder builder = new RoutineBuilder();
 	private static final Map<Pattern, RoutineBuilder> registeredBaseRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
-	
+
 	private final String configString;
 
 	protected Routine(String configString)
@@ -33,26 +33,26 @@ abstract public class Routine
 	{
 		return configString;
 	}
-	
+
 	@Override
 	public String toString()
 	{
 		return configString;
 	}
-	
+
 	abstract public void run(final EventData data) throws BailException;
-	
+
 	public static void registerVanillaRoutines()
 	{
 		registeredBaseRoutines.clear();
 		AliasedRoutine.register();
 		TagAction.registerRoutine();
 		PlayEffect.register();
-        PlayEntityEffect.register();
-        PlaySound.register();
+		PlayEntityEffect.register();
+		PlaySound.register();
 		Message.registerRoutine();
 		EntityItemAction.registerRoutine();
-        DropItem.registerRoutine();
+		DropItem.registerRoutine();
 		Command.registerRoutine();
 		ClearEnchantments.register();
 		Teleport.register();
@@ -63,18 +63,18 @@ abstract public class Routine
 		Cancel.register();
 		RepeatControl.register();
 		Despawn.register();
-        ClearList.register();
-        Lightning.register();
-		
+		ClearList.register();
+		Lightning.register();
+
 		// this must go last to avoid misleading parse errors
 		ValueChange.register();
 	}
-	
+
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)
 	{
 		registeredBaseRoutines.put(pattern, builder);
 	}
-	
+
 	public static Routine getNew(String string, EventInfo info)
 	{
 		for(Entry<Pattern, RoutineBuilder> entry : registeredBaseRoutines.entrySet())

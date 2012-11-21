@@ -20,7 +20,7 @@ import org.bukkit.block.Block;
 public class BlockLocFunction extends DataProvider<Block, World>
 {
 	private final IDataProvider<Integer>[] args;
-	
+
 	private BlockLocFunction(IDataProvider<World> worldDP, IDataProvider<Integer>[] args)
 	{
 		super(World.class, worldDP);
@@ -31,16 +31,16 @@ public class BlockLocFunction extends DataProvider<Block, World>
 	public Block get(World world, EventData data) throws BailException
 	{
 		int[] argValues = new int[args.length];
-		
+
 		for (int i = 0; i < argValues.length; i++)
 			argValues[i] = args[i].get(data);
-		
+
 		return world.getBlockAt(argValues[0], argValues[1], argValues[2]);
 	}
 
 	@Override
 	public Class<Block> provides() { return Block.class; }
-	
+
 	static final Pattern commaPattern = Pattern.compile("\\s*,\\s*");
 	static final Pattern endPattern = Pattern.compile("\\s*\\)");
 	public static void register()
@@ -53,7 +53,7 @@ public class BlockLocFunction extends DataProvider<Block, World>
 				{
 					@SuppressWarnings("unchecked")
 					IDataProvider<Integer>[] args = new IDataProvider[3];
-					
+
 					for (int i = 0; i < 3; i++)
 					{
 						IDataProvider<Integer> arg = DataProvider.parse(info, Integer.class, sm.spawn());
@@ -62,24 +62,24 @@ public class BlockLocFunction extends DataProvider<Block, World>
 							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \"" + sm.string + "\"");
 							return null;
 						}
-						
+
 						args[i] = arg;
-						
+
 						if (sm.matchesFront(commaPattern) != (i != 2))
 						{
 							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Wrong number of parameters for " + m.group(1) + " function: "+i);
 							return null;
 						}
 					}
-					
-					
+
+
 					Matcher endMatcher = sm.matchFront(endPattern);
 					if (endMatcher == null)
 					{
 						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Missing end paren: \"" + sm.string + "\"");
 						return null;
 					}
-					
+
 					return sm.acceptIf(new BlockLocFunction(worldDP, args));
 				}
 			});

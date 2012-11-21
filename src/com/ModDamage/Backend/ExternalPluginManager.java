@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.ModDamage.Expressions.ListExp;
 import com.ModDamage.Variables.*;
 import com.palmergames.bukkit.towny.Towny;
 import com.palmergames.bukkit.towny.db.TownyDataSource;
@@ -41,7 +42,6 @@ import com.elbukkit.api.elregions.region.RegionManager;
 import com.gmail.nossr50.mcMMO;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.GlobalRegionManager;
 
 import de.bananaco.permissions.Permissions;
 
@@ -51,40 +51,40 @@ public class ExternalPluginManager
 	private static void reloadModDamageRoutines()
 	{
 		DataProvider.clear();
-		
+
 		Routine.registerVanillaRoutines();
 		NestedRoutine.registerVanillaRoutines();
-		
+
 		IntegerExp.registerAllIntegers();
 		StringExp.register();
 		NestedExp.register();
-        TagValue.register();
-		
+		TagValue.register();
+
 		// ItemExps
 		PlayerItem.register();
 		PlayerInvItem.register();
-		
+
 		// Other
 		Transformers.register();
 		MiscProperties.register();
-        OfflinePlayerProperties.register();
-		
+		OfflinePlayerProperties.register();
+
 		EntityEntity.register();
 		EntityBlockTarget.register();
 		EntityWorld.register();
 		LocationWorld.register();
-        PlayerNamed.register();
-        WorldNamed.register();
-		
+		PlayerNamed.register();
+		WorldNamed.register();
+
 		for(ModDamageExtension plugin : registeredPlugins)
 			plugin.reloadRoutines();
-		
+
 		DataProvider.compile();
 	}
-	
+
 	private static mcMMO mcMMOplugin;
 	public static mcMMO getMcMMOPlugin(){ return mcMMOplugin; }
-	
+
 	private static GroupsManager groupsManager = GroupsManager.None;
 	public static GroupsManager getGroupsManager(){ return groupsManager; }
 	public enum GroupsManager
@@ -107,7 +107,7 @@ public class ExternalPluginManager
 					return Arrays.asList(permissionManager.getUser(player).getGroupsNames(player.getWorld().getName()));
 				return Arrays.asList();
 			}
-			
+
 			@Override
 			protected void reload(Plugin plugin)
 			{
@@ -123,14 +123,14 @@ public class ExternalPluginManager
 					return Permissions.getWorldPermissionsManager().getPermissionSet(player.getWorld()).getGroups(player);
 				return Arrays.asList();
 			}
-			
+
 			@Override
 			public void reload(Plugin plugin){}
 		},
 		PermissionsBukkit
 		{
 			PermissionsPlugin plugin = null;
-			
+
 			@Override
 			public List<String> getGroups(Player player)
 			{
@@ -143,7 +143,7 @@ public class ExternalPluginManager
 				}
 				return Arrays.asList();
 			}
-			
+
 			@Override
 			protected void reload(Plugin plugin)
 			{
@@ -154,7 +154,7 @@ public class ExternalPluginManager
 		{
 			GroupManager plugin = null;
 			WorldsHolder wh = null;
-			
+
 			@Override
 			public List<String> getGroups(Player player)
 			{
@@ -162,7 +162,7 @@ public class ExternalPluginManager
 				{
 					OverloadedWorldHolder wd = wh.getWorldData(player);
 					User user = wd.getUser(player.getName());
-					
+
 					List<String> groupStrings = new ArrayList<String>(1 + user.subGroupsSize());
 					groupStrings.add(user.getGroupName());
 					for(String group : user.subGroupListStringCopy())
@@ -171,7 +171,7 @@ public class ExternalPluginManager
 				}
 				return Arrays.asList();
 			}
-			
+
 			@Override
 			protected void reload(Plugin plugin)
 			{
@@ -185,7 +185,7 @@ public class ExternalPluginManager
 		SimpleClans
 		{
 			SimpleClans plugin = null;
-			
+
 			@Override
 			public List<String> getGroups(Player player)
 			{
@@ -198,7 +198,7 @@ public class ExternalPluginManager
 				}
 				return Arrays.asList();
 			}
-			
+
 			@Override
 			protected void reload(Plugin plugin)
 			{
@@ -207,7 +207,7 @@ public class ExternalPluginManager
 		};
 
 		private static String version;
-		
+
 		abstract public List<String> getGroups(Player player);
 
 		public static GroupsManager reload()
@@ -227,39 +227,39 @@ public class ExternalPluginManager
 			return GroupsManager.None;
 		}
 		abstract protected void reload(Plugin plugin);
-		
+
 		public static String getVersion(){ return version; }
 	}
-	
+
 	public static List<RegionsManager> regionsManagers = new ArrayList<RegionsManager>();
-    public static List<String> getRegions(Location location) {
-        if (regionsManagers.isEmpty()) return new ArrayList<String>(0);
-        List<String> regions = null;
-        for (RegionsManager rm : regionsManagers){
-            if (regions == null)
-                regions = rm.getRegions(location);
-            else
-                regions.addAll(rm.getRegions(location));
-        }
-        return regions;
-    }
-    public static List<String> getAllRegions() {
-        if (regionsManagers.isEmpty()) return new ArrayList<String>(0);
-        List<String> regions = null;
-        for (RegionsManager rm : regionsManagers){
-            if (regions == null)
-                regions = rm.getAllRegions();
-            else
-                regions.addAll(rm.getAllRegions());
-        }
-        return regions;
-    }
+	public static List<String> getRegions(Location location) {
+		if (regionsManagers.isEmpty()) return new ArrayList<String>(0);
+		List<String> regions = null;
+		for (RegionsManager rm : regionsManagers){
+			if (regions == null)
+				regions = rm.getRegions(location);
+			else
+				regions.addAll(rm.getRegions(location));
+		}
+		return regions;
+	}
+	public static List<String> getAllRegions() {
+		if (regionsManagers.isEmpty()) return new ArrayList<String>(0);
+		List<String> regions = null;
+		for (RegionsManager rm : regionsManagers){
+			if (regions == null)
+				regions = rm.getAllRegions();
+			else
+				regions.addAll(rm.getAllRegions());
+		}
+		return regions;
+	}
 	public enum RegionsManager
 	{
 		elRegions
 		{
 			elRegionsPlugin regionsPlugin = null;
-			
+
 			@Override
 			public List<String> getRegions(Location location)
 			{
@@ -273,7 +273,7 @@ public class ExternalPluginManager
 				}
 				return Arrays.asList();
 			}
-			
+
 			@Override
 			public List<String> getAllRegions()
 			{
@@ -287,7 +287,7 @@ public class ExternalPluginManager
 				}
 				return regions;
 			}
-			
+
 			@Override
 			protected void reload(Plugin plugin)
 			{
@@ -301,67 +301,67 @@ public class ExternalPluginManager
 			@Override
 			public List<String> getRegions(Location location)
 			{
-                com.sk89q.worldguard.protection.managers.RegionManager rm = worldGuardPlugin.getRegionManager(location.getWorld());
-                if (rm == null) return Arrays.asList();
+				com.sk89q.worldguard.protection.managers.RegionManager rm = worldGuardPlugin.getRegionManager(location.getWorld());
+				if (rm == null) return Arrays.asList();
 				return rm.getApplicableRegionsIDs(toVector(location));
 			}
-			
+
 			@Override
 			public List<String> getAllRegions()
 			{
 				List<String> regions = new ArrayList<String>();
 				for(World world : Bukkit.getWorlds()) {
-                    com.sk89q.worldguard.protection.managers.RegionManager rm = worldGuardPlugin.getRegionManager(world);
-                    if (rm == null) return Arrays.asList();
-                    regions.addAll(rm.getRegions().keySet());
-                }
+					com.sk89q.worldguard.protection.managers.RegionManager rm = worldGuardPlugin.getRegionManager(world);
+					if (rm == null) return Arrays.asList();
+					regions.addAll(rm.getRegions().keySet());
+				}
 				return regions;
 			}
-			
+
 			@Override
 			protected void reload(Plugin plugin)
 			{
-                worldGuardPlugin = ((WorldGuardPlugin)plugin);
+				worldGuardPlugin = ((WorldGuardPlugin)plugin);
 			}
 		},
-        Towny
-        {
-            public Towny towny;
+		Towny
+		{
+			public Towny towny;
 
-            @Override
-            public List<String> getRegions(Location location) {
-                List<String> regions = new ArrayList<String>();
-                String town = TownyUniverse.getTownName(location);
-                if (town != null)
-                    regions.add(town);
-                if (TownyUniverse.isWilderness(location.getBlock()))
-                    regions.add("wilderness");
-                return regions;
-            }
+			@Override
+			public List<String> getRegions(Location location) {
+				List<String> regions = new ArrayList<String>();
+				String town = TownyUniverse.getTownName(location);
+				if (town != null)
+					regions.add(town);
+				if (TownyUniverse.isWilderness(location.getBlock()))
+					regions.add("wilderness");
+				return regions;
+			}
 
-            @Override
-            public List<String> getAllRegions() {
-                List<String> regions = new ArrayList<String>();
-                TownyDataSource tds = TownyUniverse.getDataSource();
-                if (tds != null)
-                    for (Town town : tds.getTowns())
-                        regions.add(town.getName());
-                regions.add("wilderness");
-                return regions;
-            }
+			@Override
+			public List<String> getAllRegions() {
+				List<String> regions = new ArrayList<String>();
+				TownyDataSource tds = TownyUniverse.getDataSource();
+				if (tds != null)
+					for (Town town : tds.getTowns())
+						regions.add(town.getName());
+				regions.add("wilderness");
+				return regions;
+			}
 
-            @Override
-            protected void reload(Plugin plugin) {
-                towny = (Towny) plugin;
-            }
-        };
+			@Override
+			protected void reload(Plugin plugin) {
+				towny = (Towny) plugin;
+			}
+		};
 
 		abstract public List<String> getRegions(Location location);
 		abstract public List<String> getAllRegions();
-		
+
 		public static List<RegionsManager> reload()
 		{
-            List<RegionsManager> rms = new ArrayList<RegionsManager>();
+			List<RegionsManager> rms = new ArrayList<RegionsManager>();
 
 			for(RegionsManager regionalPlugin : RegionsManager.values())
 			{
@@ -376,7 +376,7 @@ public class ExternalPluginManager
 		}
 		abstract protected void reload(Plugin plugin);
 	}
-	
+
 	public static void reload()
 	{
 		groupsManager = GroupsManager.reload();
