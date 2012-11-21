@@ -69,6 +69,7 @@ public class ExternalPluginManager
 		Transformers.register();
 		MiscProperties.register();
 		OfflinePlayerProperties.register();
+		ChunkProperties.register();
 
 		EntityEntity.register();
 		EntityBlockTarget.register();
