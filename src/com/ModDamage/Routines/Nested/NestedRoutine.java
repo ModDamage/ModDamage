@@ -24,6 +24,7 @@ public abstract class NestedRoutine extends Routine
 		If.register();
 		While.register();
 		With.register();
+		Foreach.register();
 		TagAction.registerNested();
 		Delay.register();
 		Message.registerNested();

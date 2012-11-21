@@ -1,6 +1,10 @@
 package com.ModDamage;
 
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public final class Utils
 {
 	private Utils() {}
@@ -58,5 +62,13 @@ public final class Utils
 		{
 			return "error!";
 		}
+	}
+
+	public static <T> List<T> asList(Collection<T> coll)
+	{
+		if (coll instanceof List)
+			return (List<T>)coll;
+		else
+			return new ArrayList<T>(coll);
 	}
 }

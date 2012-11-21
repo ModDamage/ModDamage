@@ -59,6 +59,7 @@ public class ExternalPluginManager
 		StringExp.register();
 		NestedExp.register();
 		TagValue.register();
+		ListExp.register();
 
 		// ItemExps
 		PlayerItem.register();
