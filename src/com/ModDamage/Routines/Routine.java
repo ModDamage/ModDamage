@@ -90,7 +90,7 @@ abstract public class Routine
 		ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for base routine \"" + string + "\"");
 		return null;
 	}
-	
+
 	protected abstract static class RoutineBuilder
 	{
 		public abstract Routine getNew(Matcher matcher, EventInfo info);
