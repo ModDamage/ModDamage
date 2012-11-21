@@ -1,5 +1,6 @@
 package com.ModDamage.Tags;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -13,6 +14,7 @@ public final class TagsHolder<T>
     public final ITags<T, Entity> onEntity = new EntityTags<T>(this);
     public final ITags<T, OfflinePlayer> onPlayer = new PlayerTags<T>();
     public final ITags<T, World> onWorld = new WorldTags<T>();
+    public final ITags<T, Chunk> onChunk = new ChunkTags<T>();
 
     /**
      * Only the ModDamage main should use this method.
@@ -22,6 +24,7 @@ public final class TagsHolder<T>
         onEntity.clear();
         onPlayer.clear();
         onWorld.clear();
+        onChunk.clear();
     }
 
 
@@ -30,6 +33,7 @@ public final class TagsHolder<T>
         onEntity.load((Map) tagMap.get("entity"), entities);
         onPlayer.load((Map) tagMap.get("player"), entities);
         onWorld.load((Map) tagMap.get("world"), entities);
+        onChunk.load((Map) tagMap.get("chunk"), entities);
     }
 
 
@@ -40,6 +44,7 @@ public final class TagsHolder<T>
         saveMap.put("entity", onEntity.save(entities));
         saveMap.put("player", onPlayer.save(entities));
         saveMap.put("world", onWorld.save(entities));
+        saveMap.put("chunk", onChunk.save(entities));
 
         return saveMap;
     }

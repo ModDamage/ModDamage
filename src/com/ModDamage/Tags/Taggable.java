@@ -8,6 +8,8 @@ import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.ModDamage;
 import static com.ModDamage.PluginConfiguration.OutputPreset;
+
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -53,6 +55,18 @@ public abstract class Taggable<T> {
                     @Override
                     protected <D> ITags<D, Location> getTags(TagsHolder<D> holder) {
                         return holder.onLocation;
+                    }
+                };
+            }
+        }
+
+        {
+            IDataProvider<Chunk> chunkDP = DataProvider.transform(Chunk.class, dp, info, false);
+            if (chunkDP != null) {
+                return new Taggable<Chunk>(chunkDP) {
+                    @Override
+                    protected <D> ITags<D, Chunk> getTags(TagsHolder<D> holder) {
+                        return holder.onChunk;
                     }
                 };
             }
