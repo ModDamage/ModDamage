@@ -58,8 +58,6 @@ abstract public class Routine
 		Teleport.register();
 		AddPotionEffect.register();
 		RemovePotionEffect.register();
-		ChangeCreatureTarget.register();
-		ChangeTameableOwner.register();
 		Cancel.register();
 		RepeatControl.register();
 		Despawn.register();
