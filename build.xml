@@ -6,7 +6,7 @@
 
 	<target name="build" description="compile the source">
 		<mkdir dir="bin"/>
-		<javac srcdir="src" destdir="bin" includeantruntime="false">
+		<javac srcdir="src" destdir="bin" includeantruntime="false" encoding="UTF-8">
 			<compilerarg value="-Xlint"/>
 			<classpath>
 				<fileset dir="resource">
