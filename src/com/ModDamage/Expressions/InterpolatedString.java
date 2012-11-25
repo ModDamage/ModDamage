@@ -123,7 +123,7 @@ public class InterpolatedString implements IDataProvider<String>
 	
 	private String colorReplace(String str)
 	{
-		return colorReplacePattern.matcher(str).replaceAll("§$1");
+		return colorReplacePattern.matcher(str).replaceAll("\u00a7$1");
 	}
 	
 	private void addPart(String str)

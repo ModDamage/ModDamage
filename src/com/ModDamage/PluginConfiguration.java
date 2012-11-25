@@ -257,7 +257,7 @@ public class PluginConfiguration
 
 		LoadState.pluginState = LoadState.combineStates(MDEvent.state, AliasManager.getState());
 		
-		String timer = "(" + (System.nanoTime() - reloadStartTime)/1000 + " μs) ";
+		String timer = "(" + (System.nanoTime() - reloadStartTime)/1000 + " \u00b5s) ";
 		
 		switch(LoadState.pluginState)
 		{
