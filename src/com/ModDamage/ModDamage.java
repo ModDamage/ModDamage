@@ -1,6 +1,7 @@
 package com.ModDamage;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -56,6 +57,16 @@ public class ModDamage extends JavaPlugin
 		configuration = new PluginConfiguration(this);
 		isEnabled = true;
 		reload(true);
+		
+		try 
+		{
+		    Metrics metrics = new Metrics(this);
+		    metrics.start();
+		} 
+		catch (IOException e) 
+		{
+		    // Failed to submit the stats :-(
+		}
 	}
 
 	@Override
