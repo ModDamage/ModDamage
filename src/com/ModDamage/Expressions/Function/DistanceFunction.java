@@ -64,9 +64,9 @@ public class DistanceFunction implements IDataProvider<Integer>
 						
 						args[i] = arg;
 						
-						if ((sm.matchFront(commaPattern) == null) != (i != 2))
+						if ((sm.matchFront(commaPattern) == null) != (i == 1))
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Wrong number of parameters for " + m.group(1) + " function");
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Wrong number of parameters for " + m.group(1) + " function: "+i);
 							return null;
 						}
 					}
