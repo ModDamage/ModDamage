@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 
 public class PlayerNamed implements IDataProvider<OfflinePlayer>
 {
+    public static final Pattern word = Pattern.compile("[\\w\\[\\]]+");
+
 	public static void register()
 	{
 		DataProvider.register(OfflinePlayer.class,
@@ -26,7 +28,7 @@ public class PlayerNamed implements IDataProvider<OfflinePlayer>
 					@Override
 					public IDataProvider<OfflinePlayer> parse(EventInfo info, Matcher m, StringMatcher sm)
 					{
-                        IDataProvider<String> name = InterpolatedString.parseWord(InterpolatedString.word, sm.spawn(), info);
+                        IDataProvider<String> name = InterpolatedString.parseWord(word, sm.spawn(), info);
                         if (name == null) return null;
 
                         sm.accept();
