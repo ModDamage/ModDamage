@@ -1,5 +1,8 @@
 package com.ModDamage.EventInfo;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -10,6 +13,11 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.misc.Multimap;
+import dk.brics.automaton.Automaton;
+import dk.brics.automaton.RegExp;
+import dk.brics.automaton.State;
+import krum.automaton.TokenAutomaton;
+import krum.automaton.TokenResult;
 
 public abstract class DataProvider<T, S> implements IDataProvider<T>
 {
@@ -101,10 +109,23 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		final Class<T> provides;
 		final Class<S> wants;
 		final Pattern pattern;
+        final Automaton automaton;
 		final IDataParser<T, S> parser;
+//        final String regex;
 
-		final int numGroups;
-		int compiledGroup;
+        final static Map<Character,Set<Character>> casemap;
+
+        static {
+            Map<Character,Set<Character>> map = new HashMap<Character,Set<Character>>();
+            for (char c1 = 'a', c2 = 'A'; c1 <= 'z'; c1++, c2++) {
+                Set<Character> chars = new HashSet<Character>();
+                chars.add(c1);
+                chars.add(c2);
+                map.put(c1, chars);
+                map.put(c2, chars);
+            }
+            casemap = map;
+        }
 		
 		public ParserData(Class<T> provides, Class<S> wants, Pattern pattern, IDataParser<T, S> parser)
 		{
@@ -113,7 +134,17 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			this.pattern = pattern;
 			this.parser = parser;
 
-			numGroups = pattern == null? 0 : pattern.matcher("").groupCount();
+            String regex = pattern.pattern()
+                    .replace("[\\w", "[a-z0-9_")
+                    .replace("\\w", "[a-z0-9_]")
+                    .replace("\\s", "[ \t]")
+                    .replace("(?:", "(");
+
+            automaton = new RegExp(regex, RegExp.NONE).toAutomaton().subst(casemap);
+            automaton.minimize();
+
+            for (State s : automaton.getAcceptStates())
+                s.setInfo(this);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -127,7 +158,8 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	@SuppressWarnings("serial")
 	static class Parsers extends ArrayList<ParserData<?, ?>>
 	{
-		Pattern compiledPattern;
+//		Pattern compiledPattern;
+        TokenAutomaton automaton;
 	}
 	
 	
@@ -198,45 +230,86 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 	public static void compile()
 	{
-        for (Entry<Class<?>, Parsers> parsersEntry : parsersByStart.entrySet())
-		{
-			Parsers parsers = parsersEntry.getValue();
+//        File dotFolder = new File(ModDamage.getPluginConfiguration().plugin.getDataFolder(), "dot");
 
-            // this is a cheap attempt at fixing some parsing issues: always put longer matches first
-            Collections.sort(parsers, new Comparator<ParserData<?, ?>>() {
-                @Override
-                public int compare(ParserData<?, ?> o1, ParserData<?, ?> o2) {
-                    return o2.pattern.pattern().length() - o1.pattern.pattern().length();
+
+//        try {
+
+            for (Entry<Class<?>, Parsers> parsersEntry : parsersByStart.entrySet())
+            {
+                Parsers parsers = parsersEntry.getValue();
+
+                // this is a cheap attempt at fixing some parsing issues: always put longer matches first
+                Collections.sort(parsers, new Comparator<ParserData<?, ?>>() {
+                    @Override
+                    public int compare(ParserData<?, ?> o1, ParserData<?, ?> o2) {
+                        return o2.pattern.pattern().length() - o1.pattern.pattern().length();
+                    }
+                });
+
+                Automaton a = null;
+
+//                String start = parsersEntry.getKey() == null? "null" : parsersEntry.getKey().getSimpleName();
+//                FileWriter fstream = new FileWriter(new File(dotFolder, start+"-patterns.txt"));
+
+                for (ParserData<?, ?> parserData : parsers)
+                {
+//                    String wants = parserData.wants == null? "null" : parserData.wants.getSimpleName();
+//                    String provides = parserData.provides == null? "null" : parserData.provides.getSimpleName();
+//                    fstream.write(wants + " " + provides + ": " + parserData.regex + "\n");
+
+                    if (a == null) {
+                        a = parserData.automaton;
+                        continue;
+                    }
+                    a = a.union(parserData.automaton);
                 }
-            });
 
-			StringBuilder sb = new StringBuilder("^(?:");
-			
-			int currentGroup = 1;
-			
-			boolean first = true;
-			for (ParserData<?, ?> parserData : parsers)
-			{
-				if (first) first = false;
-				else sb.append("|");
-				
-				sb.append("(");
-				
-				sb.append(parserData.pattern.pattern());
-				
-				sb.append(")");
-				
-				parserData.compiledGroup = currentGroup;
-				currentGroup += 1 + parserData.numGroups;
-			}
-			
-			sb.append(")");
-			parsers.compiledPattern = Pattern.compile(sb.toString(), Pattern.CASE_INSENSITIVE);
-			
-			int groupCount = parsers.compiledPattern.matcher("").groupCount();
-			if (groupCount != currentGroup - 1)
-				throw new Error("BAD! $DP228");
-		}
+//                fstream.close();
+
+
+                assert a != null;
+                a.determinize();
+
+
+//                fstream = new FileWriter(new File(dotFolder, start+".dot"));
+//                fstream.write(a.toDot());
+//                fstream.close();
+
+                parsers.automaton = new TokenAutomaton(a);
+
+    //			StringBuilder sb = new StringBuilder("^(?:");
+    //
+    //			int currentGroup = 1;
+    //
+    //			boolean first = true;
+    //			for (ParserData<?, ?> parserData : parsers)
+    //			{
+    //				if (first) first = false;
+    //				else sb.append("|");
+    //
+    //				sb.append("(");
+    //
+    //				sb.append(parserData.pattern.pattern());
+    //
+    //				sb.append(")");
+    //
+    //				parserData.compiledGroup = currentGroup;
+    //				currentGroup += 1 + parserData.numGroups;
+    //			}
+    //
+    //			sb.append(")");
+    //			parsers.compiledPattern = Pattern.compile(sb.toString(), Pattern.CASE_INSENSITIVE);
+    //
+    //			int groupCount = parsers.compiledPattern.matcher("").groupCount();
+    //			if (groupCount != currentGroup - 1)
+    //				throw new Error("BAD! $DP228");
+            }
+
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return;
+//        }
 	}
 	
 	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> want, String s)
@@ -386,9 +459,15 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 				Class<?> pcls = parserEntry.getKey();
 				Parsers parsers = parserEntry.getValue();
 
-				Matcher m = parsers.compiledPattern.matcher(sm.string);
-				if (!m.lookingAt())
-					continue;
+//				Matcher m = parsers.compiledPattern.matcher(sm.string);
+//				if (!m.lookingAt())
+//					continue;
+                TokenResult tr = new TokenResult();
+                if (!(parsers.automaton.find(sm.string, 0, true, tr)))
+                    continue;
+
+                if (tr.info == null || !(tr.info instanceof ParserData))
+                    System.err.println("FIWHEOGIHWQ#!");
 				
 				IDataProvider<?> tryDP = dp;
 				
@@ -398,14 +477,17 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 					if (tryDP == null)
 						continue;
 				}
-				
-				IDataProvider<?> dp2 = tryParsers(info, tryDP, m, sm.spawn(), parserEntry.getValue());
+
+                ParserData<?, ?> parserData = (ParserData<?, ?>) tr.info;
+
+				IDataProvider<?> dp2 = tryParser(info, tryDP, sm.spawn(), parserData);
 				if (dp2 != null)
 				{
 					dp = dp2;
 					continue outerLoop;
 				}
-				
+
+
 			}
 			
 			break;
@@ -415,27 +497,22 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		return dp;
 	}
 	
-	private static IDataProvider<?> tryParsers(EventInfo info, IDataProvider<?> dp, Matcher m, StringMatcher sm, Parsers parserList)
+	private static IDataProvider<?> tryParser(EventInfo info, IDataProvider<?> dp, StringMatcher sm, ParserData<?, ?> parserData)
 	{
-		for (ParserData<?, ?> parserData : parserList)
-		{
-			if (m.group(parserData.compiledGroup) == null) 
-				continue;
-			
-			StringMatcher sm2 = sm.spawn();
-			Matcher m2 = sm2.matchFront(parserData.pattern);
-			if (m2 == null) {
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Matched group failed to match?? "+parserData.parser.getClass().getName()+" \""+parserData.pattern.pattern()+"\"");
-				continue;
-			}
-			
-			IDataProvider<?> provider = parserData.parse(info, dp, m2, sm2.spawn());
-			if (provider != null) {
-				sm2.accept();
-				sm.accept();
-				return provider;
-			}
-		}
-		return null;
+        StringMatcher sm2 = sm.spawn();
+        Matcher m2 = sm2.matchFront(parserData.pattern);
+        if (m2 == null) {
+            ModDamage.addToLogRecord(OutputPreset.FAILURE, "Matched group failed to match?? "+parserData.parser.getClass().getName()+" \""+parserData.pattern.pattern()+"\"");
+            return null;
+        }
+
+        IDataProvider<?> provider = parserData.parse(info, dp, m2, sm2.spawn());
+        if (provider != null) {
+            sm2.accept();
+            sm.accept();
+            return provider;
+        }
+
+        return null;
 	}
 }
