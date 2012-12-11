@@ -62,7 +62,7 @@ public class EntityHurt extends NestedRoutine
 
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(.*)effect\\.hurt", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(.+?)(?:effect)?\\.hurt(?:\\.from\\.(.+))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
@@ -74,13 +74,24 @@ public class EntityHurt extends NestedRoutine
 			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, name);
 			if (livingDP == null) return null;
 
-			String otherName = "-" + name + "-other";
-			IDataProvider<Entity> entityOtherDP = info.get(Entity.class, otherName);
-			if (entityOtherDP == null)
-			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "The entity '"+livingDP+"' doesn't have a natural opposite. Maybe you want unknownhurt instead?");
-				return null;
-			}
+
+            IDataProvider<Entity> entityOtherDP;
+            if (matcher.group(2) != null)
+            {
+                entityOtherDP = DataProvider.parse(info, Entity.class, matcher.group(2));
+
+                if (entityOtherDP == null) return null;
+            }
+            else
+            {
+                String otherName = "-" + name + "-other";
+                entityOtherDP = info.get(Entity.class, otherName);
+                if (entityOtherDP == null)
+                {
+                    ModDamage.addToLogRecord(OutputPreset.FAILURE, "The entity '"+livingDP+"' doesn't have a natural opposite. Use .hurt.from.{entity}");
+                    return null;
+                }
+            }
 
 			ModDamage.addToLogRecord(OutputPreset.INFO, "Hurt "+livingDP+":");
 
