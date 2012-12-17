@@ -152,6 +152,11 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		{
 			return parser.parse(info, (IDataProvider<S>) dp, m, sm);
 		}
+
+        public String toString()
+        {
+            return " {"+ pattern.pattern() +"} :" + parser;
+        }
 	}
 	
 	
@@ -164,7 +169,8 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 	
 	
-	static Map<Class<?>, Parsers> parsersByStart = new LinkedHashMap<Class<?>, Parsers>();
+//	static Map<Class<?>, Parsers> parsersByStart = new LinkedHashMap<Class<?>, Parsers>();
+    static Parsers parsers = new Parsers();
 	
 	
 	public interface IDataTransformer<T, S>
@@ -196,14 +202,15 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 	public static <T, S> void register(Class<T> provides, Class<S> wants, Pattern pattern, IDataParser<T, S> parser)
 	{
-		Parsers parserList = parsersByStart.get(wants);
-		if (parserList == null)
-		{
-			parserList = new Parsers();
-			parsersByStart.put(wants, parserList);
-		}
-		
-		parserList.add(new ParserData<T, S>(provides, wants, pattern, parser));
+//		Parsers parserList = parsersByStart.get(wants);
+//		if (parserList == null)
+//		{
+//			parserList = new Parsers();
+//			parsersByStart.put(wants, parserList);
+//		}
+//
+//		parserList.add(new ParserData<T, S>(provides, wants, pattern, parser));
+        parsers.add(new ParserData<T, S>(provides, wants, pattern, parser));
 	}
 	
 	public static <T> void register(Class<T> provides, Pattern pattern, BaseDataParser<T> parser)
@@ -225,32 +232,34 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 	public static void clear()
 	{
-		parsersByStart.clear();
+//		parsersByStart.clear();
+        parsers.clear();
 	}
 	
 	public static void compile()
 	{
-//        File dotFolder = new File(ModDamage.getPluginConfiguration().plugin.getDataFolder(), "dot");
+        File dotFolder = new File(ModDamage.getPluginConfiguration().plugin.getDataFolder(), "dot");
+        int conflictNum = 0;
 
+        try {
 
-//        try {
-
-            for (Entry<Class<?>, Parsers> parsersEntry : parsersByStart.entrySet())
-            {
-                Parsers parsers = parsersEntry.getValue();
+//            for (Entry<Class<?>, Parsers> parsersEntry : parsersByStart.entrySet())
+//            {
+//                Parsers parsers = parsersEntry.getValue();
 
                 // this is a cheap attempt at fixing some parsing issues: always put longer matches first
-                Collections.sort(parsers, new Comparator<ParserData<?, ?>>() {
-                    @Override
-                    public int compare(ParserData<?, ?> o1, ParserData<?, ?> o2) {
-                        return o2.pattern.pattern().length() - o1.pattern.pattern().length();
-                    }
-                });
+//                Collections.sort(parsers, new Comparator<ParserData<?, ?>>() {
+//                    @Override
+//                    public int compare(ParserData<?, ?> o1, ParserData<?, ?> o2) {
+//                        return o2.pattern.pattern().length() - o1.pattern.pattern().length();
+//                    }
+//                });
 
                 Automaton a = null;
 
+                FileWriter fstream;
 //                String start = parsersEntry.getKey() == null? "null" : parsersEntry.getKey().getSimpleName();
-//                FileWriter fstream = new FileWriter(new File(dotFolder, start+"-patterns.txt"));
+//                fstream = new FileWriter(new File(dotFolder, start+"-patterns.txt"));
 
                 for (ParserData<?, ?> parserData : parsers)
                 {
@@ -262,7 +271,24 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
                         a = parserData.automaton;
                         continue;
                     }
+
+                    Automaton intersect = a.intersection(parserData.automaton);
                     a = a.union(parserData.automaton);
+
+                    if (!intersect.isEmpty())
+                    {
+                        //System.err.println(intersect);
+
+                        System.out.println("Conflict "+conflictNum+": "+parserData);
+
+                        fstream = new FileWriter(new File(dotFolder, "conflict_"+(conflictNum++)+".dot"));
+                        fstream.write(intersect.toDot());
+                        fstream.close();
+
+                        a = a.minus(intersect).union(intersect);
+                    }
+
+//                    a.determinize();
                 }
 
 //                fstream.close();
@@ -271,12 +297,31 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
                 assert a != null;
                 a.determinize();
 
+            for (State s : a.getAcceptStates()) {
+                Object info = s.getInfo();
+                if (info instanceof ParserData)
+                    s.setInfo(Arrays.asList(info));
+                else if (info instanceof List) {
+                    List list = new ArrayList(2);
+                    // flatten info
+                    flatten(list, (List) info);
+
+                    s.setInfo(list);
+                }
+                else
+                    System.err.println("WHAT?!? " + info);
+            }
+
 
 //                fstream = new FileWriter(new File(dotFolder, start+".dot"));
 //                fstream.write(a.toDot());
 //                fstream.close();
 
                 parsers.automaton = new TokenAutomaton(a);
+
+                fstream = new FileWriter(new File(dotFolder, "automaton.dot"));
+                fstream.write(a.toDot());
+                fstream.close();
 
     //			StringBuilder sb = new StringBuilder("^(?:");
     //
@@ -304,13 +349,23 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
     //			int groupCount = parsers.compiledPattern.matcher("").groupCount();
     //			if (groupCount != currentGroup - 1)
     //				throw new Error("BAD! $DP228");
-            }
+//            }
 
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return;
-//        }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 	}
+
+    private static void flatten(List target, List theList) {
+        for (Object o : theList) {
+            if (o instanceof List) {
+                flatten(target, (List) o);
+            }
+            else
+                target.add(o);
+        }
+    }
 	
 	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> want, String s)
 	{
@@ -454,38 +509,48 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		{
 			Class<?> dpProvides = dp == null? null : dp.provides();
 			
-			for (Entry<Class<?>, Parsers> parserEntry : parsersByStart.entrySet())
-			{
-				Class<?> pcls = parserEntry.getKey();
-				Parsers parsers = parserEntry.getValue();
+//			for (Entry<Class<?>, Parsers> parserEntry : parsersByStart.entrySet())
+//			{
+//				Class<?> pcls = parserEntry.getKey();
+//				Parsers parsers = parserEntry.getValue();
 
 //				Matcher m = parsers.compiledPattern.matcher(sm.string);
 //				if (!m.lookingAt())
 //					continue;
                 TokenResult tr = new TokenResult();
                 if (!(parsers.automaton.find(sm.string, 0, true, tr)))
-                    continue;
+                    break;
 
-                if (tr.info == null || !(tr.info instanceof ParserData))
-                    System.err.println("FIWHEOGIHWQ#!");
-				
-				IDataProvider<?> tryDP = dp;
-				
-				if (!classesMatch(pcls, dpProvides)) // look for a transformer that can transform dp to the correct type
-				{
-					tryDP = transform(pcls, dp, info, true);
-					if (tryDP == null)
-						continue;
-				}
+                if (tr.info == null || !(tr.info instanceof List))
+                {
+                    System.out.println("FIWHEOGIHWQ#! " + (tr.info != null? tr.info.getClass().getSimpleName() : "null") + " : " + tr.info);
+                    //return null;
+                    break;
+                }
+                //ParserData<?, ?> parserData = (ParserData<?, ?>) tr.info;
 
-                ParserData<?, ?> parserData = (ParserData<?, ?>) tr.info;
+                for (ParserData parserData : (ArrayList<ParserData>) tr.info) {
 
-				IDataProvider<?> dp2 = tryParser(info, tryDP, sm.spawn(), parserData);
-				if (dp2 != null)
-				{
-					dp = dp2;
-					continue outerLoop;
-				}
+                    Class<?> pcls = parserData.wants;
+
+                    IDataProvider<?> tryDP = dp;
+
+                    if (!classesMatch(pcls, dpProvides)) // look for a transformer that can transform dp to the correct type
+                    {
+                        tryDP = transform(pcls, dp, info, true);
+                        if (tryDP == null)
+    						continue;
+//                            break;
+                    }
+
+
+                    IDataProvider<?> dp2 = tryParser(info, tryDP, sm.spawn(), parserData);
+                    if (dp2 != null)
+                    {
+                        dp = dp2;
+                        continue outerLoop;
+                    }
+//                    else break;
 
 
 			}

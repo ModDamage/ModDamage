@@ -25,6 +25,7 @@ public abstract class StringExp<From> extends DataProvider<String, From>
 		EntityAsString.register();
 		PlayerString.register();
 		WorldString.register();
+		ItemString.register();
 	}
 
 

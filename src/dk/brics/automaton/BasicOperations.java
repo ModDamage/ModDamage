@@ -30,15 +30,7 @@
 
 package dk.brics.automaton;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Basic automata operations.
@@ -313,6 +305,9 @@ final public class BasicOperations {
 			else if(p.s2.info != null && p.s1.info == null) {
 				p.s.info = p.s2.info;
 			}
+            else if (p.s1.info != null && p.s2.info != null) {
+                p.s.info = Arrays.asList(p.s1.info, p.s2.info);
+            }
 						
 			Transition[] t1 = transitions1[p.s1.number];
 			Transition[] t2 = transitions2[p.s2.number];
@@ -485,7 +480,10 @@ final public class BasicOperations {
 					r.accept = true;
 					
 					// FIXME: this seems to work for my purposes, but i dunno
-					r.info = q.info;
+                    if (r.info == null)
+                        r.info = q.info;
+                    else if (q.info != null)
+					    r.info = Arrays.asList(r.info, q.info);
 					
 					break;
 				}

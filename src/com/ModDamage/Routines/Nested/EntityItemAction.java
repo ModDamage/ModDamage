@@ -1,30 +1,25 @@
 package com.ModDamage.Routines.Nested;
 
+import com.ModDamage.Alias.ItemAliaser;
+import com.ModDamage.Alias.RoutineAliaser;
+import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.EnchantmentsRef;
+import com.ModDamage.Backend.ModDamageItemStack;
+import com.ModDamage.EventInfo.*;
+import com.ModDamage.ModDamage;
+import com.ModDamage.Routines.Routine;
+import com.ModDamage.Routines.Routines;
+import com.ModDamage.Variables.Int.Constant;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.inventory.ItemStack;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.ModDamage.ModDamage;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.inventory.ItemStack;
-
-import com.ModDamage.Alias.ItemAliaser;
-import com.ModDamage.Alias.RoutineAliaser;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.EnchantmentsRef;
-import com.ModDamage.Backend.ModDamageItemStack;
-import com.ModDamage.EventInfo.DataProvider;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.IDataProvider;
-import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Routines.Routine;
-import com.ModDamage.Routines.Routines;
-import com.ModDamage.Variables.Int.Constant;
 
 import static com.ModDamage.PluginConfiguration.OutputPreset;
 
