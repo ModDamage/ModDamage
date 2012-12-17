@@ -3,7 +3,6 @@ package com.ModDamage.Variables;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.EventInfo.*;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
@@ -12,10 +11,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.EventInfo.DataProvider;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.EventInfo.ISettableDataProvider;
+import com.ModDamage.EventInfo.SettableDataProvider;
 
 public class EntityEntity extends DataProvider<Entity, Entity>
 {

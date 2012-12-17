@@ -1,9 +1,11 @@
 package com.ModDamage.EventInfo;
 
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.Nullable;
 
 public interface IDataProvider<T>
 {
-	public T get(EventData data) throws BailException;
-	public abstract Class<T> provides();
+	@Nullable
+    public T get(EventData data) throws BailException;
+	public abstract Class<? extends T> provides();
 }

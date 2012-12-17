@@ -1,8 +1,11 @@
 package com.ModDamage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.ModDamage.Backend.EventFinishedListener;
 import com.ModDamage.Events.Block.BlockGrow;
 import com.ModDamage.Events.Block.LeavesDecay;
 import com.ModDamage.Events.Entity.*;
@@ -96,13 +99,17 @@ public class MDEvent implements Listener
 	{
 		try
 		{
-			if (routines != null)
-				routines.run(data);
+			if (routines != null) {
+                routines.run(data);
+                eventFinished(true);
+                return;
+            }
 		}
 		catch (BailException e)
 		{
 			ModDamage.reportBailException(e);
 		}
+        eventFinished(false);
 	}
 	protected Routines routines = null;
 	protected LoadState specificLoadState = LoadState.NOT_LOADED;
@@ -177,4 +184,24 @@ public class MDEvent implements Listener
 			default: throw new Error("Unknown state: "+state+" $MDE143");
 		}
 	}
+
+
+    private static List<EventFinishedListener> whenEventFinishesList = new ArrayList<EventFinishedListener>();
+
+    public static void whenEventFinishes(EventFinishedListener task) {
+        whenEventFinishesList.add(task);
+    }
+
+    private static void eventFinished(boolean success) {
+        for (EventFinishedListener task : whenEventFinishesList) {
+            try {
+                task.eventFinished(success);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        whenEventFinishesList.clear();
+    }
 };

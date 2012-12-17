@@ -31,6 +31,7 @@
 package dk.brics.automaton;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -212,5 +213,29 @@ public class State implements Serializable, Comparable<State> {
 	@Override
 	public int hashCode() {
 		return super.hashCode();
+	}
+	
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Object mergeInfo(Object a, Object b)
+	{
+		if (a == null)
+			return b;
+		if (b == null)
+			return a;
+
+		List list = new ArrayList();
+		
+		if (a instanceof List)
+			list.addAll((List)a);
+		else
+			list.add(a);
+		
+		if (b instanceof List)
+			list.addAll((List)b);
+		else
+			list.add(b);
+		
+		return list;
 	}
 }

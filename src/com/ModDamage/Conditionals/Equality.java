@@ -49,7 +49,8 @@ public class Equality extends Conditional<Object>
 				{
 					boolean equalTo = !m.group(1).equals("!");
 					
-					IDataProvider<Object> right = DataProvider.parse(info, leftDP.provides(), sm.spawn());
+					@SuppressWarnings("unchecked")
+					IDataProvider<Object> right = DataProvider.parse(info, (Class<Object>) leftDP.provides(), sm.spawn());
 					
 					sm.accept();
 					return new Equality(leftDP.provides(), leftDP, equalTo, right);

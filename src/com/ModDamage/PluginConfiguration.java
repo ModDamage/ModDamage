@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.Tags.TagManager;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -28,8 +27,7 @@ import org.yaml.snakeyaml.error.YAMLException;
 import com.ModDamage.Alias.AliasManager;
 import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.Backend.ExternalPluginManager.GroupsManager;
-import com.ModDamage.Backend.ExternalPluginManager.RegionsManager;
-import com.ModDamage.Events.Init;
+import com.ModDamage.Tags.TagManager;
 
 public class PluginConfiguration
 {

@@ -50,6 +50,7 @@ public class WorldTags<T> implements ITags<T, World> {
         tags.clear();
     }
 
+    @SuppressWarnings("rawtypes")
     public void load(Map tagMap, Map<UUID, Entity> entities) {
         @SuppressWarnings("unchecked")
         Map<String, Map<String, T>> worldsMap = (Map<String, Map<String, T>>) tagMap;
@@ -64,6 +65,7 @@ public class WorldTags<T> implements ITags<T, World> {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public Map save(Set<Entity> entities) {
         Map<String, Map<String, T>> worldMap = new HashMap<String, Map<String, T>>();
         for (Map.Entry<World, Map<String, T>> worldEntry : tags.entrySet())

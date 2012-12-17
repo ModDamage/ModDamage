@@ -593,7 +593,7 @@ public class Automaton implements Serializable, Cloneable {
 		for (State s : states) {
 			b.append("  ").append(s.number);
 			if (s.accept)
-				b.append(" [shape=doublecircle,label=\"\"];\n");
+				b.append(" [shape=doublecircle,label=\""+s.info+"\"];\n");
 			else
 				b.append(" [shape=circle,label=\"\"];\n");
 			if (s == initial) {

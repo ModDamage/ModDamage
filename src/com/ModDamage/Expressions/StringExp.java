@@ -28,6 +28,7 @@ public abstract class StringExp<From> extends DataProvider<String, From>
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public static List<IDataProvider<String>> getStrings(Object nestedContent, EventInfo info)
 	{
 		List<String> strings = new ArrayList<String>();

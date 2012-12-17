@@ -21,6 +21,7 @@ public abstract class Taggable<T> {
         this.inner = inner;
     }
 
+    @SuppressWarnings("rawtypes")
     public static Taggable<?> get(IDataProvider dp, EventInfo info) {
         if (dp == null) return null;
 

@@ -1,17 +1,21 @@
 package com.ModDamage.Routines.Nested;
 
-import com.ModDamage.Alias.RoutineAliaser;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Conditionals.Conditional;
-import com.ModDamage.EventInfo.*;
-import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Routines.Routines;
-import com.ModDamage.StringMatcher;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.StringMatcher;
+import com.ModDamage.Alias.RoutineAliaser;
+import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.DataProvider;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.EventInfo.ISettableDataProvider;
+import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Routines.Routines;
 
 public class With extends NestedRoutine
 {
@@ -27,6 +31,7 @@ public class With extends NestedRoutine
 		this.routines = routines;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void run(EventData data) throws BailException
 	{

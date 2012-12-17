@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("rawtypes")
 public class ClearList extends NestedRoutine
 {
 	private final ISettableDataProvider<List> listDP;

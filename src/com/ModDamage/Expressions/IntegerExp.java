@@ -79,18 +79,18 @@ public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 		
 		Constant.register();
 		LocalInt.register();
-		BlockInt.register();
+//		BlockInt.register();
 		EnchantmentInt.register();
-		EntityInt.register();
+//		EntityInt.register();
 		IntegerOpInt.register();
 		ItemEnchantmentInt.register();
-		ItemInt.register();
-		LocationInt.register();
+//		ItemInt.register();
+//		LocationInt.register();
 		NegativeInt.register();
-		PlayerInt.register();
+//		PlayerInt.register();
 		PotionEffectInt.register();
 		ServerInt.register();
-		WorldInt.register();
+//		WorldInt.register();
 		WorldTagInt.register();
 
 		com.ModDamage.External.mcMMO.PlayerInt.register();

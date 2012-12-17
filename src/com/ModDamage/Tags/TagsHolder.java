@@ -28,6 +28,7 @@ public final class TagsHolder<T>
     }
 
 
+    @SuppressWarnings("rawtypes")
     public void loadTags(Map<String, Object> tagMap, Map<UUID, Entity> entities) {
         onLocation.load((Map) tagMap.get("location"), entities);
         onEntity.load((Map) tagMap.get("entity"), entities);

@@ -76,7 +76,8 @@ public class ChunkTags<T> implements ITags<T, Chunk> {
         tags.clear();
     }
 
-    public void load(Map tagMap, Map<UUID, Entity> entities) {
+    @SuppressWarnings("rawtypes")
+	public void load(Map tagMap, Map<UUID, Entity> entities) {
         if (tagMap == null) return;
 
         @SuppressWarnings("unchecked")
@@ -107,6 +108,7 @@ public class ChunkTags<T> implements ITags<T, Chunk> {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public Map save(Set<Entity> entities) {
         Map<String, Map<String, Map<String, T>>> chunkMap = new HashMap<String, Map<String, Map<String, T>>>();
         for (Map.Entry<World, Map<Chunk, Map<String, T>>> worldEntry : tags.entrySet())

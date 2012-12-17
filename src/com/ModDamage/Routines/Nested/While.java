@@ -1,18 +1,16 @@
 package com.ModDamage.Routines.Nested;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Conditionals.Conditional;
-import com.ModDamage.Conditionals.InvertBoolean;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Routines.Routines;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class While extends NestedRoutine
 {

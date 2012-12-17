@@ -32,6 +32,7 @@ package dk.brics.automaton;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -218,6 +219,7 @@ final public class MinimizationOperations {
 	/** 
 	 * Minimizes the given automaton using Hopcroft's algorithm. 
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void minimizeHopcroft(Automaton a) {
 		a.determinize();
 		Set<Transition> tr = a.initial.getTransitions();

@@ -93,7 +93,9 @@ public class SwitchRoutine extends NestedRoutine
 		@Override
 		public SwitchRoutine getNew(Matcher switchMatcher, Object nestedContent, EventInfo info)
 		{
-			if(switchMatcher != null && nestedContent != null)
+			if(switchMatcher == null) return null;
+			
+			if(nestedContent != null)
 			{
 				NestedRoutine.paddedLogRecord(OutputPreset.INFO, "Switch: \"" + switchMatcher.group() + "\"");
 				
@@ -141,7 +143,7 @@ public class SwitchRoutine extends NestedRoutine
 					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 				}
 			}
-				
+			
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: invalid switch \"" + switchMatcher.group() + "\"" + (ModDamage.getDebugSetting().equals(DebugSetting.VERBOSE)?"\n":""));
 			
 			return null;

@@ -1,13 +1,18 @@
 package com.ModDamage.Variables;
 
-import com.ModDamage.EventInfo.*;
-import com.ModDamage.EventInfo.DataProvider.IDataParser;
-import com.ModDamage.StringMatcher;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.ModDamage.StringMatcher;
+import com.ModDamage.EventInfo.DataProvider;
+import com.ModDamage.EventInfo.DataProvider.IDataParser;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.EventInfo.SettableDataProvider;
 
 public class OfflinePlayerProperties
 {

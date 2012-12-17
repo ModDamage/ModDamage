@@ -307,12 +307,13 @@ final public class BasicOperations {
 			p.s.accept = p.s1.accept && p.s2.accept;
 			
 			// FIXME: this seems to work for my purposes, but i dunno
-			if(p.s1.info != null && p.s2.info == null) {
-				p.s.info = p.s1.info;
-			}
-			else if(p.s2.info != null && p.s1.info == null) {
-				p.s.info = p.s2.info;
-			}
+//			if(p.s1.info != null && p.s2.info == null) {
+//				p.s.info = p.s1.info;
+//			}
+//			else if(p.s2.info != null && p.s1.info == null) {
+//				p.s.info = p.s2.info;
+//			}
+			p.s.info = State.mergeInfo(p.s1.info, p.s2.info);
 						
 			Transition[] t1 = transitions1[p.s1.number];
 			Transition[] t2 = transitions2[p.s2.number];
@@ -480,16 +481,29 @@ final public class BasicOperations {
 		while (worklist.size() > 0) {
 			Set<State> s = worklist.removeFirst();
 			State r = newstate.get(s);
+			List list = new ArrayList();
 			for (State q : s) {
 				if (q.accept) {
 					r.accept = true;
 					
 					// FIXME: this seems to work for my purposes, but i dunno
-					r.info = q.info;
+//					r.info = q.info;
 					
-					break;
+//					r.info = State.mergeInfo(r.info, q.info);
+					if (q.info != null)
+					{
+						if (q.info instanceof List)
+							list.addAll((List) q.info);
+						else
+							list.add(q.info);
+					}
+					
+					//break;
 				}
 			}
+			if (!list.isEmpty())
+				r.info = list;
+			
 			for (int n = 0; n < points.length; n++) {
 				Set<State> p = new HashSet<State>();
 				for (State q : s)

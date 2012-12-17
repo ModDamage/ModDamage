@@ -3,13 +3,16 @@ package com.ModDamage.Variables;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.EventInfo.*;
+import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.DataProvider;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.EventInfo.SettableDataProvider;
 import com.ModDamage.Expressions.InterpolatedString;
 import com.ModDamage.Tags.Tag;
 import com.ModDamage.Tags.Taggable;
-
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.BailException;
 
 public class TagValue<T, S> extends SettableDataProvider<T, S>
 {	
@@ -19,7 +22,7 @@ public class TagValue<T, S> extends SettableDataProvider<T, S>
             new IDataParser<Object, Object>()
 				{
 					@Override
-                    @SuppressWarnings("unchecked")
+                    @SuppressWarnings({ "unchecked", "rawtypes" })
 					public IDataProvider<Object> parse(EventInfo info, IDataProvider<Object> objDP, Matcher m, StringMatcher sm)
 					{
                         Tag<?> tag = Tag.get(InterpolatedString.parseWord(InterpolatedString.word, sm.spawn(), info), m.group(1));
@@ -35,9 +38,10 @@ public class TagValue<T, S> extends SettableDataProvider<T, S>
     private final Tag<T> tag;
     private final Taggable<S> taggable;
 	
+	@SuppressWarnings("unchecked")
 	TagValue(Tag<T> tag, Taggable<S> taggable, T defaultValue)
 	{
-		super(taggable.inner.provides(), taggable.inner);
+		super((Class<S>)taggable.inner.provides(), taggable.inner);
         this.tag = tag;
         this.taggable = taggable;
         super.defaultValue = defaultValue;
