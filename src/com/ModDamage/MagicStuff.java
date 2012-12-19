@@ -1,6 +1,7 @@
 package com.ModDamage;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
@@ -49,7 +50,35 @@ public class MagicStuff
 	{
 		try
 		{
-			return cls.getDeclaredField(name);
+			Field field = cls.getDeclaredField(name);
+			field.setAccessible(true);
+			return field;
+		}
+		catch (Exception e)
+		{
+			System.err.println("ModDamage is out of date! Error: " + e);
+		}
+		return null;
+	}
+	public static Object safeGet(Object obj, Field field)
+	{
+		try
+		{
+			return field.get(obj);
+		}
+		catch (Exception e)
+		{
+			System.err.println("ModDamage is out of date! Error: " + e);
+		}
+		return null;
+	}
+	public static Method safeGetMethod(Class<?> cls, String name)
+	{
+		try
+		{
+			Method method = cls.getDeclaredMethod(name);
+			method.setAccessible(true);
+			return method;
 		}
 		catch (Exception e)
 		{
@@ -105,8 +134,7 @@ public class MagicStuff
 
 	////////////////////// getGroundBlock //////////////////////
 	
-	static final FieldAccess CraftArrow_f;
-	static final int CraftArrow_handle;
+	static final Method CraftArrow_getHandle;
 	
 	static final Field NMSEntityArrow_inGround;
 	static final Field NMSEntityArrow_x;
@@ -115,8 +143,8 @@ public class MagicStuff
 	
 	static
 	{
-		CraftArrow_f = FieldAccess.get(safeClassForName(obc + ".entity.CraftArrow"));
-		CraftArrow_handle = CraftArrow_f.getIndex("entity");
+		Class<?> CraftArrow = safeClassForName(obc + ".entity.CraftArrow");
+		CraftArrow_getHandle = safeGetMethod(CraftArrow, "getHandle");
 		
 		Class<?> NMSEntityArrow = safeClassForName(nms + ".EntityArrow");
 		NMSEntityArrow_inGround = safeGetField(NMSEntityArrow, "inGround");
@@ -127,10 +155,10 @@ public class MagicStuff
 	
 	public static Block getGroundBlock(Arrow arrow)
 	{
-		Object handle = CraftArrow_f.get(arrow, CraftArrow_handle);
-
 		try
 		{
+			Object handle = CraftArrow_getHandle.invoke(arrow);
+			
 			boolean inGround = NMSEntityArrow_inGround.getBoolean(handle);
 			if (!inGround) return null;
 			
@@ -140,11 +168,7 @@ public class MagicStuff
 			
 			return arrow.getWorld().getBlockAt(x, y, z);
 		}
-		catch (IllegalArgumentException e)
-		{
-			e.printStackTrace();
-		}
-		catch (IllegalAccessException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
