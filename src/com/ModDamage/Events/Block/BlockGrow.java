@@ -1,10 +1,5 @@
 package com.ModDamage.Events.Block;
 
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.MDEvent;
-import com.ModDamage.ModDamage;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -12,7 +7,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockGrowEvent;
-import org.bukkit.event.block.LeavesDecayEvent;
+
+import com.ModDamage.MDEvent;
+import com.ModDamage.ModDamage;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.SimpleEventInfo;
 
 public class BlockGrow extends MDEvent implements Listener
 {

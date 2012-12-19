@@ -122,9 +122,9 @@ public class ModDamageItemStack
 			return null;
 		}
 		
-		if (materials.size() > 1)
+		if (materials == null || materials.size() > 1)
 		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: matched "+materials.size()+" materials, wanted only one: \"" + m.group() + "\"");
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: matched "+(materials == null? 0:materials.size())+" materials, wanted only one: \"" + m.group() + "\"");
 			return null;
 		}
 		

@@ -252,7 +252,9 @@ public class ModDamage extends JavaPlugin
 
 	private static boolean hasPermission(Player player, String permission)
 	{
-		boolean has = player != null ? player.hasPermission("moddamage.reload") : true;
+		if (player == null) return true; // console
+		
+		boolean has = player.hasPermission(permission);
 		if(!has) player.sendMessage(errorString_Permissions);
 		return has;
 	}

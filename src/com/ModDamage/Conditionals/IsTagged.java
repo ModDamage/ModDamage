@@ -21,9 +21,10 @@ public class IsTagged<T> extends Conditional<T>
     private final Tag<?> tag;
     private final Taggable<T> taggable;
 	
+	@SuppressWarnings("unchecked")
 	public IsTagged(Taggable<T> taggable, Tag<?> tag)
 	{
-		super(taggable.inner.provides(), taggable.inner);
+		super((Class<T>) taggable.inner.provides(), taggable.inner);
 		this.tag = tag;
         this.taggable = taggable;
 	}
@@ -41,7 +42,7 @@ public class IsTagged<T> extends Conditional<T>
 		DataProvider.register(Boolean.class, Object.class, pattern, new IDataParser<Boolean, Object>()
 			{
 				@Override
-                @SuppressWarnings("unchecked")
+                @SuppressWarnings({ "unchecked", "rawtypes" })
 				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Object> objDP, Matcher m, StringMatcher sm)
 				{
                     Tag<?> tag = Tag.get(InterpolatedString.parseWord(InterpolatedString.word, sm.spawn(), info), m.group(1));

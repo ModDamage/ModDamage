@@ -94,6 +94,7 @@ public class LocationTags<T> implements ITags<T, Location> {
         tags.clear();
     }
 
+    @SuppressWarnings("rawtypes")
     public void load(Map tagMap, Map<UUID, Entity> entities) {
         @SuppressWarnings("unchecked")
         Map<String, Map<String, Map<String, T>>> locationMap = (Map<String, Map<String, Map<String, T>>>) tagMap;
@@ -118,6 +119,7 @@ public class LocationTags<T> implements ITags<T, Location> {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public Map save(Set<Entity> entities) {
         Map<String, Map<String, Map<String, T>>> locationMap = new HashMap<String, Map<String, Map<String, T>>>();
         for(Map.Entry<String, Map<String, Map<BlockVector, T>>> tagEntry : tags.entrySet())
@@ -128,8 +130,6 @@ public class LocationTags<T> implements ITags<T, Location> {
 
             for(Map.Entry<String, Map<BlockVector, T>> worldEntry : tagEntry.getValue().entrySet()) {
                 if (worldEntry.getValue().isEmpty()) continue;
-
-                String world = worldEntry.getKey();
 
                 HashMap<String, T> savedLocations = new HashMap<String, T>(worldEntry.getValue().size());
 

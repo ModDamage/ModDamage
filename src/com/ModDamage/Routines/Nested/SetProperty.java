@@ -13,6 +13,7 @@ import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Routines.Routines;
 
+@SuppressWarnings("rawtypes")
 public final class SetProperty extends NestedRoutine
 {
 	protected final ISettableDataProvider propertyDP;
@@ -29,6 +30,7 @@ public final class SetProperty extends NestedRoutine
 
 	//static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "value", "-default");
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void run(EventData data) throws BailException
 	{
@@ -48,6 +50,7 @@ public final class SetProperty extends NestedRoutine
 
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{	
+		@SuppressWarnings("unchecked")
 		@Override
 		public SetProperty getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{

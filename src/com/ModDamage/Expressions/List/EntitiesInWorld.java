@@ -1,20 +1,25 @@
 package com.ModDamage.Expressions.List;
 
 
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.*;
-import com.ModDamage.Expressions.ListExp;
-import com.ModDamage.Matchables.EntityType;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Utils;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+
+import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
+import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.DataProvider;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Expressions.ListExp;
+import com.ModDamage.Matchables.EntityType;
+
+@SuppressWarnings("rawtypes")
 public class EntitiesInWorld extends ListExp {
     public final EntityType entityType;
     public final IDataProvider<World> worldDP;

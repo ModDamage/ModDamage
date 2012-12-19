@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+@SuppressWarnings("rawtypes")
 public interface ITags<T, O> {
     void addTag(O obj, String tag, T tagValue);
     boolean isTagged(O obj, String tag);

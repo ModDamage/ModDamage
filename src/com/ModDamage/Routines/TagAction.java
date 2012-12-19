@@ -21,6 +21,7 @@ import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 
+@SuppressWarnings("rawtypes")
 public class TagAction<T, D> extends NestedRoutine
 {
 	private final Tag<D> tag;
@@ -58,6 +59,7 @@ public class TagAction<T, D> extends NestedRoutine
 	
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
 	{
+		@SuppressWarnings("unchecked")
 		@Override
 		public TagAction getNew(Matcher matcher, EventInfo info)
 		{

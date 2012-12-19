@@ -1,5 +1,12 @@
 package com.ModDamage.Variables;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+
+import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.DataProvider.BaseDataParser;
@@ -7,13 +14,6 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.Expressions.InterpolatedString;
-import com.ModDamage.StringMatcher;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class PlayerNamed implements IDataProvider<OfflinePlayer>
 {

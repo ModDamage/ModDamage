@@ -1,16 +1,21 @@
 package com.ModDamage.Routines.Nested;
 
-import com.ModDamage.Alias.RoutineAliaser;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.*;
-import com.ModDamage.Expressions.ListExp;
-import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Routines.Routines;
-
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Alias.RoutineAliaser;
+import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.DataProvider;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Expressions.ListExp;
+import com.ModDamage.Routines.Routines;
+
+@SuppressWarnings("rawtypes")
 public class Foreach extends NestedRoutine
 {
 	protected final IDataProvider<List> listDP;

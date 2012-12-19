@@ -50,6 +50,7 @@ public class PlayerTags<T> implements ITags<T, OfflinePlayer> {
         tags.clear();
     }
 
+    @SuppressWarnings("rawtypes")
     public void load(Map tagMap, Map<UUID, Entity> entities) {
         @SuppressWarnings("unchecked")
         Map<String, Map<String, T>> playersMap = (Map<String, Map<String, T>>) tagMap;
@@ -69,6 +70,7 @@ public class PlayerTags<T> implements ITags<T, OfflinePlayer> {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public Map save(Set<Entity> entities) {
         Map<String, Map<String, T>> playerMap = new HashMap<String, Map<String, T>>();
         for(Map.Entry<String, Map<String, T>> tagEntry : tags.entrySet())

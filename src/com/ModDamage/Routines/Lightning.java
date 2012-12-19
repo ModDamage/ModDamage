@@ -1,17 +1,17 @@
 package com.ModDamage.Routines;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.bukkit.Location;
+
+import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Lightning extends Routine
 {

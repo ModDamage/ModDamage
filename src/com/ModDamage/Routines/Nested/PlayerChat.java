@@ -1,24 +1,19 @@
 package com.ModDamage.Routines.Nested;
 
-import com.ModDamage.Alias.AliasManager;
-import com.ModDamage.Alias.CommandAliaser;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.bukkit.entity.Player;
+
+import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.IDataProvider;
-import com.ModDamage.Expressions.InterpolatedString;
 import com.ModDamage.Expressions.StringExp;
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class PlayerChat extends NestedRoutine
 {
@@ -50,7 +45,6 @@ public class PlayerChat extends NestedRoutine
 
 	protected static class NestedRoutineBuilder extends RoutineBuilder
 	{
-		@SuppressWarnings("unchecked")
 		@Override
 		public PlayerChat getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{

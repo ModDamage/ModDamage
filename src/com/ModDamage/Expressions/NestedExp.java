@@ -49,7 +49,7 @@ public class NestedExp<T> implements IDataProvider<T>
 	}
 	
 	@Override
-	public Class<T> provides() { return inner.provides(); }
+	public Class<? extends T> provides() { return inner.provides(); }
 	
 	@Override
 	public String toString()

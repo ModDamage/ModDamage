@@ -354,7 +354,6 @@ public class ExternalPluginManager
 
 			@Override
 			protected void reload(Plugin plugin) {
-				towny = (Towny) plugin;
 			}
 		};
 

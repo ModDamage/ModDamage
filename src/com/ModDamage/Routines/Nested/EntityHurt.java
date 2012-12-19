@@ -46,7 +46,7 @@ public class EntityHurt extends NestedRoutine
 		{
 			final EventData myData = myInfo.makeChainedData(data, 0);
 			final int damage = hurt_amount.get(myData);
-			Bukkit.getScheduler().scheduleAsyncDelayedTask(ModDamage.getPluginConfiguration().plugin, new Runnable()
+			Bukkit.getScheduler().runTask(ModDamage.getPluginConfiguration().plugin, new Runnable()
 				{
 					@Override
 					public void run()
