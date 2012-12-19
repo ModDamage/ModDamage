@@ -5,29 +5,55 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.ModDamage.Backend.EventFinishedListener;
-import com.ModDamage.Events.Block.BlockGrow;
-import com.ModDamage.Events.Block.LeavesDecay;
-import com.ModDamage.Events.Entity.*;
-import com.ModDamage.Events.Player.*;
 import org.bukkit.event.Listener;
 
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.EventFinishedListener;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Events.Command;
 import com.ModDamage.Events.Init;
 import com.ModDamage.Events.Repeat;
+import com.ModDamage.Events.Block.BlockBurn;
+import com.ModDamage.Events.Block.BlockFade;
+import com.ModDamage.Events.Block.BlockFlow;
+import com.ModDamage.Events.Block.BlockForm;
+import com.ModDamage.Events.Block.BlockGrow;
+import com.ModDamage.Events.Block.BlockIgnite;
+import com.ModDamage.Events.Block.BlockSpread;
 import com.ModDamage.Events.Block.BreakBlock;
+import com.ModDamage.Events.Block.LeavesDecay;
 import com.ModDamage.Events.Block.PlaceBlock;
+import com.ModDamage.Events.Entity.Combust;
+import com.ModDamage.Events.Entity.Damage;
+import com.ModDamage.Events.Entity.Death;
+import com.ModDamage.Events.Entity.Explode;
+import com.ModDamage.Events.Entity.Heal;
+import com.ModDamage.Events.Entity.ProjectileHit;
+import com.ModDamage.Events.Entity.ProjectileLaunch;
+import com.ModDamage.Events.Entity.ShootBow;
+import com.ModDamage.Events.Entity.Spawn;
+import com.ModDamage.Events.Entity.Tame;
+import com.ModDamage.Events.Entity.Target;
+import com.ModDamage.Events.Entity.Teleport;
 import com.ModDamage.Events.Item.DropItem;
 import com.ModDamage.Events.Item.Enchant;
 import com.ModDamage.Events.Item.ItemHeld;
 import com.ModDamage.Events.Item.PickupItem;
 import com.ModDamage.Events.Item.PrepareEnchant;
+import com.ModDamage.Events.Player.Fish;
+import com.ModDamage.Events.Player.Interact;
+import com.ModDamage.Events.Player.InteractEntity;
+import com.ModDamage.Events.Player.Join;
+import com.ModDamage.Events.Player.LevelChange;
+import com.ModDamage.Events.Player.PickupExp;
+import com.ModDamage.Events.Player.Quit;
+import com.ModDamage.Events.Player.ToggleFlight;
+import com.ModDamage.Events.Player.ToggleSneak;
+import com.ModDamage.Events.Player.ToggleSprint;
 import com.ModDamage.Routines.Routines;
 
 public class MDEvent implements Listener
@@ -35,10 +61,16 @@ public class MDEvent implements Listener
 	public static Map<String, MDEvent[]> eventCategories = new HashMap<String, MDEvent[]>();
 	static {
 		eventCategories.put("Block", new MDEvent[] {
+                new BlockBurn(),
+                new BlockFade(),
+                new BlockFlow(),
+                new BlockForm(),
+                new BlockGrow(),
+                new BlockIgnite(),
+                new BlockSpread(),
 				new BreakBlock(),
 				new PlaceBlock(),
                 new LeavesDecay(),
-                new BlockGrow(),
 				});
 		
 		eventCategories.put("Entity", new MDEvent[] {
