@@ -23,12 +23,15 @@ import com.ModDamage.Routines.Routines;
 
 public class LaunchProjectile extends NestedRoutine
 {
+	private final IDataProvider<Location> locDP;
 	private final IDataProvider<LivingEntity> livingDP;
 	private final Class<? extends Projectile> launchType;
 	private final Routines routines;
-	public LaunchProjectile(String configString, IDataProvider<LivingEntity> livingDP, Class<? extends Projectile> launchType, Routines routines)
+	
+	public LaunchProjectile(String configString, IDataProvider<Location> locDP, IDataProvider<LivingEntity> livingDP, Class<? extends Projectile> launchType, Routines routines)
 	{
 		super(configString);
+		this.locDP = locDP;
 		this.livingDP = livingDP;
 		this.launchType = launchType;
 		this.routines = routines;
@@ -47,18 +50,36 @@ public class LaunchProjectile extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException 
 	{
-		LivingEntity entity = livingDP.get(data);
-		if (entity == null)
-			return;
+		LivingEntity entity = null;
+		if (livingDP != null) {
+			entity = livingDP.get(data);
+			if (entity == null)
+				return;
+		}
 		
-		Projectile projectile = entity.launchProjectile(launchType);
-		projectile.setShooter(entity); // this is automatically set for some projectiles, but not Fireball and possibly others
+		Location loc = null;
+		if (locDP != null) {
+			loc = locDP.get(data);
+			if (loc == null)
+				return;
+		}
+		else {
+			if (entity == null) return;
+			
+			loc = entity.getEyeLocation();
+		}
+
+		Projectile projectile = loc.getWorld().spawn(loc, launchType);
+		
+		if (entity != null) {
+			projectile.setShooter(entity); // this is automatically set for some projectiles, but not Fireball and possibly others
+		}
 		
 		Explosive explosive = null;
 		if (projectile instanceof Explosive)
 			explosive = (Explosive) projectile;
 		
-		Location loc = entity.getEyeLocation();
+		//Location loc = entity.getEyeLocation();
 		
 		int yaw = Math.round(loc.getYaw());
 		int pitch = Math.round(loc.getPitch());
@@ -110,7 +131,7 @@ public class LaunchProjectile extends NestedRoutine
 	
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(.*?)(?:effect)?\\.launch\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(?:(.*?)(?:effect)?\\.)?launch\\.(.*?)(?:\\.at\\.(.*?))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
@@ -126,8 +147,24 @@ public class LaunchProjectile extends NestedRoutine
 				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Not a launchable projectile: "+matcher.group(2));
 				return null;
 			}
-			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, matcher.group(1));
-			if (livingDP == null) return null;
+			
+			if (matcher.group(1) == null && matcher.group(3) == null)
+			{
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Either a shooter or a launch location must be specified!");
+				return null;
+			}
+			
+			IDataProvider<LivingEntity> livingDP = null;
+			if (matcher.group(1) != null) {
+				livingDP = DataProvider.parse(info, LivingEntity.class, matcher.group(1));
+				if (livingDP == null) return null;
+			}
+
+			IDataProvider<Location> locDP = null;
+			if (matcher.group(3) != null) {
+				locDP = DataProvider.parse(info, Location.class, matcher.group(3));
+				if (locDP == null) return null;
+			}
 
 			EventInfo einfo = info.chain(myInfo);
 			boolean isExplosive = Explosive.class.isAssignableFrom(launchType.myClass);
@@ -137,7 +174,7 @@ public class LaunchProjectile extends NestedRoutine
 			if(routines == null) return null;
 			
 			NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End Projectile Launch");
-			return new LaunchProjectile(matcher.group(), livingDP, (Class<? extends Projectile>)launchType.myClass, routines);
+			return new LaunchProjectile(matcher.group(), locDP, livingDP, (Class<? extends Projectile>)launchType.myClass, routines);
 		}
 	}
 }
