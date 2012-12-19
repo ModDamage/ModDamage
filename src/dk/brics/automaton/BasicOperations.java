@@ -480,16 +480,28 @@ final public class BasicOperations {
 		while (worklist.size() > 0) {
 			Set<State> s = worklist.removeFirst();
 			State r = newstate.get(s);
+			List list = new ArrayList();
 			for (State q : s) {
 				if (q.accept) {
 					r.accept = true;
 					
 					// FIXME: this seems to work for my purposes, but i dunno
-					r.info = q.info;
+//					r.info = q.info;
 					
-					break;
+					if (q.info != null)
+					{
+						if (q.info instanceof List)
+							list.addAll((List) q.info);
+						else
+							list.add(q.info);
+					}
+					
+					//break;
 				}
 			}
+			if (!list.isEmpty())
+				r.info = list;
+			
 			for (int n = 0; n < points.length; n++) {
 				Set<State> p = new HashSet<State>();
 				for (State q : s)

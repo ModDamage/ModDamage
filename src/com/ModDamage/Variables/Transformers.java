@@ -65,7 +65,18 @@ public class Transformers
 							};
 					}
 				});
-		
+
+		DataProvider.registerTransformer(Integer.class, Number.class,
+				new IDataTransformer<Integer, Number>() {
+					public IDataProvider<Integer> transform(EventInfo info, IDataProvider<Number> numDP) {
+						return new DataProvider<Integer, Number>(Number.class, numDP) {
+								public Integer get(Number num, EventData data) { return num.intValue(); }
+								public Class<Integer> provides() { return Integer.class; }
+								public String toString() { return startDP.toString(); }
+							};
+					}
+				});
+
 		
 
 //		DataProvider.registerTransformer(ItemStack.class, Item.class,
