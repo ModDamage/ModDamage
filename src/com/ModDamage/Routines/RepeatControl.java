@@ -3,6 +3,9 @@ package com.ModDamage.Routines;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
@@ -18,15 +21,17 @@ import com.ModDamage.Variables.Int.Constant;
 
 public class RepeatControl extends Routine
 {
-	private final IDataProvider<Entity> entityDP;
+	@SuppressWarnings("rawtypes")
+	private final IDataProvider itDP;
 	private final String repeatName;
 	private final IDataProvider<Integer> delay, count;
 	
-	protected RepeatControl(String configString, IDataProvider<Entity> entityDP, String repeatName,
+	@SuppressWarnings("rawtypes")
+	protected RepeatControl(String configString, IDataProvider itDP, String repeatName,
 			IDataProvider<Integer> delay, IDataProvider<Integer> count)
 	{
 		super(configString);
-		this.entityDP = entityDP;
+		this.itDP = itDP;
 		this.repeatName = repeatName;
 		this.delay = delay;
 		this.count = count;
@@ -35,16 +40,16 @@ public class RepeatControl extends Routine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		Entity entity = entityDP.get(data);
-		if (entity == null) return;
+		Object it = itDP.get(data);
+		if (it == null) return;
 
 		if (delay == null)
 		{
-			Repeat.stop(repeatName, entity);
+			Repeat.stop(repeatName, it);
 			return;
 		}
 		
-		Repeat.start(repeatName, entity, delay.get(data), count.get(data));
+		Repeat.start(repeatName, it, delay.get(data), count.get(data));
 	}
 
 	public static void register()
@@ -60,9 +65,16 @@ public class RepeatControl extends Routine
 	{
 		@Override
 		public RepeatControl getNew(Matcher matcher, EventInfo info)
-		{ 
-			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
-			if (entityDP == null) return null;
+		{
+			@SuppressWarnings("rawtypes")
+			IDataProvider itDP = DataProvider.parse(info, Entity.class, matcher.group(1), true, false);
+			if (itDP == null)
+				itDP = DataProvider.parse(info, Location.class, matcher.group(1), true, false);
+			if (itDP == null)
+				itDP = DataProvider.parse(info, Chunk.class, matcher.group(1), true, false);
+			if (itDP == null)
+				itDP = DataProvider.parse(info, World.class, matcher.group(1), true, false);
+			if (itDP == null) return null;
 			
 			IDataProvider<Integer> delay, count;
 			
@@ -94,10 +106,10 @@ public class RepeatControl extends Routine
 			}
 			
 			if (delay != null)
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Start Repeat: on " + entityDP + " named \""+repeatName+"\" delay " + delay + " count " + count);
+				ModDamage.addToLogRecord(OutputPreset.INFO, "Start Repeat: on " + itDP + " named \""+repeatName+"\" delay " + delay + " count " + count);
 			else
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Stop Repeat: on " + entityDP + " named \""+repeatName+"\"");
-			return new RepeatControl(matcher.group(), entityDP, repeatName, delay, count);
+				ModDamage.addToLogRecord(OutputPreset.INFO, "Stop Repeat: on " + itDP + " named \""+repeatName+"\"");
+			return new RepeatControl(matcher.group(), itDP, repeatName, delay, count);
 		}
 	}
 }

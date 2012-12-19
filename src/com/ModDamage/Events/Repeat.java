@@ -8,7 +8,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.MDEvent;
@@ -20,6 +23,7 @@ import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Events.Repeat.RepeatInfo.RepeatData;
 import com.ModDamage.Routines.Routines;
 
 
@@ -27,9 +31,16 @@ public class Repeat extends MDEvent
 {
 	public static final Repeat instance = new Repeat();
 
-	private Repeat() {super(null);}
+	private Repeat() {
+		super(null);
+		
+		repeatMap.put(Entity.class, new HashMap<String, Repeat.RepeatInfo<?>>());
+		repeatMap.put(Location.class, new HashMap<String, Repeat.RepeatInfo<?>>());
+		repeatMap.put(World.class, new HashMap<String, Repeat.RepeatInfo<?>>());
+		repeatMap.put(Chunk.class, new HashMap<String, Repeat.RepeatInfo<?>>());
+	}
 
-	Map<String, RepeatInfo> repeatMap = new HashMap<String, RepeatInfo>();
+	Map<Class<?>, Map<String, RepeatInfo<?>>> repeatMap = new HashMap<Class<?>, Map<String, RepeatInfo<?>>>();
 
 
 	@SuppressWarnings("unchecked")
@@ -39,9 +50,13 @@ public class Repeat extends MDEvent
 		specificLoadState = LoadState.FAILURE;
 		boolean failed = false;
 
-		for (RepeatInfo info : repeatMap.values())
-			info.stopAll();
-		repeatMap.clear();
+		for (Map<String, RepeatInfo<?>> specificMap : repeatMap.values())
+		{
+			for (RepeatInfo<?> info : specificMap.values())
+				info.stopAll();
+			
+			specificMap.clear();
+		}
 
 		// LinkedHashMap<String, Object> entries = ModDamage.getPluginConfiguration().getConfigMap();
 		// Object commands = PluginConfiguration.getCaseInsensitiveValue(entries, "Repeat");
@@ -68,18 +83,33 @@ public class Repeat extends MDEvent
 		for (LinkedHashMap<String, Object> repeatConfigMap : repeatConfigMaps)
 		for (Entry<String, Object> entry : repeatConfigMap.entrySet())
 		{
-			String name = entry.getKey();
+			String[] parts = entry.getKey().split("\\s+");
+			String name = parts[0];
+			Class<?> type;
+			if (parts.length == 1 || parts[1].equalsIgnoreCase("entity") || parts[1].equalsIgnoreCase("player"))
+				type = Entity.class;
+			else if (parts[1].equalsIgnoreCase("loc") || parts[1].equalsIgnoreCase("location") || parts[1].equalsIgnoreCase("block"))
+				type = Location.class;
+			else if (parts[1].equalsIgnoreCase("world"))
+				type = World.class;
+			else if (parts[1].equalsIgnoreCase("chunk"))
+				type = Chunk.class;
+			else {
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Illegal repeat type: "+parts[1]);
+				continue;
+			}
 
-			RepeatInfo repeat = new RepeatInfo(name);
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Repeat ["+repeat.name+"]");
-			repeat.routines = RoutineAliaser.parseRoutines(entry.getValue(), myInfo);
+			@SuppressWarnings("rawtypes")
+			RepeatInfo<?> repeat = new RepeatInfo(name, type);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Repeat ["+repeat.name+" "+repeat.repeatType.getSimpleName()+"]");
+			repeat.routines = RoutineAliaser.parseRoutines(entry.getValue(), repeat.myInfo);
 			if (repeat.routines == null)
 			{
 				failed = true;
 				continue;
 			}
 
-			repeatMap.put(repeat.name, repeat);
+			repeatMap.get(repeat.repeatType).put(repeat.name, repeat);
 		}
 
 		ModDamage.changeIndentation(false);
@@ -88,23 +118,27 @@ public class Repeat extends MDEvent
 	}
 
 
-	private static EventInfo myInfo = new SimpleEventInfo(
-			Entity.class, "entity",
-			World.class, "world",
-			Integer.class, "repeat_delay",
-			Integer.class, "repeat_count");
-
-	static class RepeatInfo
+	static class RepeatInfo<T>
 	{
 		String name;
+		Class<T> repeatType;
+		EventInfo myInfo;
 
 		Routines routines;
+		
 
-		Map<Entity, RepeatData> datas = new HashMap<Entity, RepeatData>();
+		Map<T, RepeatData> datas = new HashMap<T, RepeatData>();
 
-		public RepeatInfo(String name)
+		public RepeatInfo(String name, Class<T> repeatType)
 		{
 			this.name = name;
+			this.repeatType = repeatType;
+			
+			myInfo = new SimpleEventInfo(
+					repeatType, "it",
+					World.class, "world",
+					Integer.class, "repeat_delay",
+					Integer.class, "repeat_count");
 		}
 
 		public void stopAll() {
@@ -115,15 +149,15 @@ public class Repeat extends MDEvent
 
 		public class RepeatData implements Runnable
 		{
-			final Entity entity;
+			final T it;
 			int delay;
 			int count;
 
 			int taskId = -1;
 
-			public RepeatData(Entity entity, int delay, int count)
+			public RepeatData(T it, int delay, int count)
 			{
-				this.entity = entity;
+				this.it = it;
 				this.delay = delay;
 				this.count = count;
 			}
@@ -131,14 +165,31 @@ public class Repeat extends MDEvent
 			public void run()
 			{
 				taskId = -1;
-				if (!entity.isValid()) { stop(); return; }
 
 				if (count > 0) count --;
+				
+				World world;
+				
+				if (it instanceof World) {
+					world = (World) it;
+				}
+				else if (it instanceof Entity) {
+					world = ((Entity) it).getWorld();
+					if (!((Entity) it).isValid()) { stop(); return; }
+				}
+				else if (it instanceof Location) {
+					world = ((Location) it).getWorld();
+				}
+				else if (it instanceof Chunk) {
+					world = ((Chunk) it).getWorld();
+				}
+				else
+					throw new IllegalArgumentException("BAD it!");
 
 
 				EventData data = myInfo.makeData(
-						entity,
-						entity.getWorld(),
+						it,
+						world,
 						delay,
 						count
 						);
@@ -167,7 +218,7 @@ public class Repeat extends MDEvent
 
 				taskId = Bukkit.getScheduler().scheduleSyncDelayedTask(ModDamage.getPluginConfiguration().plugin, this, delay);
 
-				if (taskId != -1) datas.put(entity, this);
+				if (taskId != -1) datas.put(it, this);
 				else ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Unable to start repeat task!");
 			}
 
@@ -182,17 +233,34 @@ public class Repeat extends MDEvent
 	}
 
 
-	public static void start(String name, Entity entity, int delay, int count) {
-		RepeatInfo info = instance.repeatMap.get(name);
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void start(String name, Object it, int delay, int count) {
+		Class<?> type;
+		if (it instanceof Entity)
+			type = Entity.class;
+		else if (it instanceof Block) {
+			type = Location.class;
+			it = ((Block) it).getLocation();
+		}
+		else if (it instanceof Location)
+			type = Location.class;
+		else if (it instanceof World)
+			type = World.class;
+		else if (it instanceof Chunk)
+			type = Chunk.class;
+		else
+			throw new IllegalArgumentException("Invalid it type: "+it.getClass());
+			
+		RepeatInfo info = instance.repeatMap.get(type).get(name);
 		if (info == null) 
 		{
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "No Repeat named "+name);
 			return;
 		}
 
-		RepeatInfo.RepeatData data = info.datas.get(entity);
+		RepeatInfo.RepeatData data = (RepeatData) info.datas.get(it);
 		if (data == null)
-			data = info.new RepeatData(entity, delay, count);
+			data = info.new RepeatData(it, delay, count);
 		else
 		{
 			data.delay = delay;
@@ -204,11 +272,28 @@ public class Repeat extends MDEvent
 		data.start();
 	}
 
-	public static void stop(String name, Entity entity) {
-		RepeatInfo info = instance.repeatMap.get(name);
+	@SuppressWarnings("rawtypes")
+	public static void stop(String name, Object it) {
+		Class<?> type;
+		if (it instanceof Entity)
+			type = Entity.class;
+		else if (it instanceof Block) {
+			type = Location.class;
+			it = ((Block) it).getLocation();
+		}
+		else if (it instanceof Location)
+			type = Location.class;
+		else if (it instanceof World)
+			type = World.class;
+		else if (it instanceof Chunk)
+			type = Chunk.class;
+		else
+			throw new IllegalArgumentException("Invalid it type: "+it.getClass());
+		
+		RepeatInfo info = instance.repeatMap.get(type).get(name);
 		if (info == null) return;
 
-		RepeatInfo.RepeatData data = info.datas.get(entity);
+		RepeatInfo.RepeatData data = (RepeatData) info.datas.get(it);
 		if (data == null) return;
 
 		data.stop();
