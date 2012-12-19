@@ -30,21 +30,40 @@ public class PlayerSkillInt extends IntegerExp<Player>
 					@Override
 					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 					{
-						String skillProp = m.group(1).toUpperCase();
-						String skillType = m.group(2).toUpperCase();
-						
-						if (skillProp == "") skillProp = "LEVEL";
-						
+						String skillPropStr = m.group(1).toUpperCase();
+						String skillTypeStr = m.group(2).toUpperCase();
+
+						if (skillPropStr == "") skillPropStr = "LEVEL";
+
+						SkillProperty skillProp;
+						SkillType skillType;
+
 						try
 						{
+							try
+							{
+								skillProp = SkillProperty.valueOf(skillPropStr);
+							}
+							catch (IllegalArgumentException e) {
+								// SkillProperty.valueOf failed to find a match
+								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown skill property \""+skillPropStr+"\", valid values are: "+Utils.joinBy(", ", SkillProperty.values()));
+								return null;
+							}
+
+							try
+							{
+								skillType = SkillType.valueOf(skillTypeStr);
+							}
+							catch (IllegalArgumentException e) {
+								// SkillType.valueOf failed to find a match
+								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown skill type \""+skillTypeStr+"\", valid values are: "+Utils.joinBy(", ", SkillType.values()));
+								return null;
+							}
+
 							return sm.acceptIf(new PlayerSkillInt(
 									playerDP,
-									SkillProperty.valueOf(skillProp),
-									SkillType.valueOf(skillType)));
-						}
-						catch (IllegalArgumentException e) {
-							// SkillType.valueOf failed to find a match
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown skill type \""+skillType+"\", valid values are: "+Utils.joinBy(", ", SkillType.values()));
+									skillProp,
+									skillType));
 						}
 						catch (NoClassDefFoundError e) {
 							if (ExternalPluginManager.getMcMMOPlugin() == null)
