@@ -4,10 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.EntityEquipment;
 
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ItemHolder;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.DataProvider.IDataTransformer;
 import com.ModDamage.EventInfo.EventData;
@@ -77,6 +78,17 @@ public class Transformers
 					}
 				});
 
+
+		DataProvider.registerTransformer(EntityEquipment.class, LivingEntity.class,
+				new IDataTransformer<EntityEquipment, LivingEntity>() {
+					public IDataProvider<EntityEquipment> transform(EventInfo info, IDataProvider<LivingEntity> entityDP) {
+						return new DataProvider<EntityEquipment, LivingEntity>(LivingEntity.class, entityDP) {
+								public EntityEquipment get(LivingEntity entity, EventData data) { return entity.getEquipment(); }
+								public Class<EntityEquipment> provides() { return EntityEquipment.class; }
+								public String toString() { return startDP.toString(); }
+							};
+					}
+				});
 		
 
 //		DataProvider.registerTransformer(ItemStack.class, Item.class,
@@ -91,11 +103,11 @@ public class Transformers
 //			});
 		
 		
-		DataProvider.registerTransformer(Material.class, ItemStack.class,
-				new IDataTransformer<Material, ItemStack>() {
-					public IDataProvider<Material> transform(EventInfo info, IDataProvider<ItemStack> itemDP) {
-						return new DataProvider<Material, ItemStack>(ItemStack.class, itemDP) {
-								public Material get(ItemStack item, EventData data) { return item.getType(); }
+		DataProvider.registerTransformer(Material.class, ItemHolder.class,
+				new IDataTransformer<Material, ItemHolder>() {
+					public IDataProvider<Material> transform(EventInfo info, IDataProvider<ItemHolder> itemDP) {
+						return new DataProvider<Material, ItemHolder>(ItemHolder.class, itemDP) {
+								public Material get(ItemHolder item, EventData data) { return item.getType(); }
 								public Class<Material> provides() { return Material.class; }
 								public String toString() { return startDP.toString(); }
 							};

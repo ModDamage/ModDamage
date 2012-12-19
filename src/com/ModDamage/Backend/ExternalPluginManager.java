@@ -6,12 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.ModDamage.Expressions.ListExp;
-import com.ModDamage.Variables.*;
-import com.palmergames.bukkit.towny.Towny;
-import com.palmergames.bukkit.towny.db.TownyDataSource;
-import com.palmergames.bukkit.towny.object.Town;
-import com.palmergames.bukkit.towny.object.TownyUniverse;
 import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
 import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
 
@@ -30,16 +24,36 @@ import ru.tehkode.permissions.PermissionManager;
 import com.ModDamage.ModDamage.ModDamageExtension;
 import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Expressions.ListExp;
 import com.ModDamage.Expressions.NestedExp;
 import com.ModDamage.Expressions.StringExp;
+import com.ModDamage.Properties.BlockProps;
+import com.ModDamage.Properties.ChunkProps;
+import com.ModDamage.Properties.EntityProps;
+import com.ModDamage.Properties.EquipmentProps;
+import com.ModDamage.Properties.InventoryProps;
+import com.ModDamage.Properties.ItemProps;
+import com.ModDamage.Properties.LocationProps;
+import com.ModDamage.Properties.MaterialProps;
+import com.ModDamage.Properties.PlayerProps;
+import com.ModDamage.Properties.WorldProps;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
+import com.ModDamage.Variables.EntityEntity;
+import com.ModDamage.Variables.EntityWorld;
+import com.ModDamage.Variables.OfflinePlayerProperties;
+import com.ModDamage.Variables.PlayerNamed;
+import com.ModDamage.Variables.TagValue;
+import com.ModDamage.Variables.Transformers;
+import com.ModDamage.Variables.WorldNamed;
 import com.ModDamage.Variables.Item.PlayerInvItem;
-import com.ModDamage.Variables.Item.PlayerItem;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.elbukkit.api.elregions.region.Region;
 import com.elbukkit.api.elregions.region.RegionManager;
 import com.gmail.nossr50.mcMMO;
+import com.palmergames.bukkit.towny.db.TownyDataSource;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownyUniverse;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
@@ -62,19 +76,29 @@ public class ExternalPluginManager
 		ListExp.register();
 
 		// ItemExps
-		PlayerItem.register();
+//		PlayerItem.register();
 		PlayerInvItem.register();
 
 		// Other
 		Transformers.register();
-		MiscProperties.register();
+//		MiscProperties.register();
 		OfflinePlayerProperties.register();
-		ChunkProperties.register();
+		ChunkProps.register();
+		
+		BlockProps.register();
+		EntityProps.register();
+		EquipmentProps.register();
+		InventoryProps.register();
+		ItemProps.register();
+		LocationProps.register();
+		MaterialProps.register();
+		PlayerProps.register();
+		WorldProps.register();
 
 		EntityEntity.register();
-		EntityBlockTarget.register();
+//		EntityBlockTarget.register();
 		EntityWorld.register();
-		LocationWorld.register();
+//		LocationWorld.register();
 		PlayerNamed.register();
 		WorldNamed.register();
 
@@ -328,8 +352,6 @@ public class ExternalPluginManager
 		},
 		Towny
 		{
-			public Towny towny;
-
 			@Override
 			public List<String> getRegions(Location location) {
 				List<String> regions = new ArrayList<String>();
