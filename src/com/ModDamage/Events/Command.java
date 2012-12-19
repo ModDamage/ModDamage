@@ -1,22 +1,27 @@
 package com.ModDamage.Events;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import com.ModDamage.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginIdentifiableCommand;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.ModDamage.MDEvent;
+import com.ModDamage.MagicStuff;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Utils;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
@@ -42,8 +47,7 @@ public class Command extends MDEvent
 		
 		boolean failed = false;
 		
-		CraftServer server = (CraftServer) Bukkit.getServer();
-		SimpleCommandMap cmap = server.getCommandMap();
+		SimpleCommandMap cmap = MagicStuff.getCommandMap();
 		
 		commandMap.clear();
 		
