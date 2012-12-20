@@ -25,7 +25,7 @@ import com.ModDamage.Parsing.Property.Properties;
 public class InventoryProps
 {
     public static void register() {
-        Properties.register("name", Inventory.class, "getName");
+        Properties.register("invname", Inventory.class, "getName");
         Properties.register("type", Inventory.class, "getType");
         Properties.register("size", Inventory.class, "getSize");
         Properties.register("maxstacksize", Inventory.class, "getMaxStackSize", "setMaxStackSize");
