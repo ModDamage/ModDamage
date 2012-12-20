@@ -6,9 +6,9 @@ import java.util.regex.Pattern;
 import org.bukkit.Location;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Parsing.BaseDataParser;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Parsing.DataProvider.BaseDataParser;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;

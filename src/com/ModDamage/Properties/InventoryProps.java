@@ -17,6 +17,7 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.FunctionParser;
+import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Parsing.SettableDataProvider;
 import com.ModDamage.Parsing.Property.Properties;
@@ -52,7 +53,7 @@ public class InventoryProps
                 });
 
         DataProvider.register(Integer.class, InventoryView.class, Pattern.compile("_("+ Utils.joinBy("|", InventoryView.Property.values()) + ")"),
-                new DataProvider.IDataParser<Integer, InventoryView>() {
+                new IDataParser<Integer, InventoryView>() {
                     public IDataProvider<Integer> parse(EventInfo info, IDataProvider<InventoryView> startDP, Matcher m, StringMatcher sm) {
                         final InventoryView.Property property = InventoryView.Property.valueOf(m.group(1).toUpperCase());
                         return new SettableDataProvider<Integer, InventoryView>(InventoryView.class, startDP) {

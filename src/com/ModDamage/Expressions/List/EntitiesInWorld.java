@@ -16,6 +16,7 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.ListExp;
 import com.ModDamage.Matchables.EntityType;
+import com.ModDamage.Parsing.BaseDataParser;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 
@@ -61,7 +62,7 @@ public class EntitiesInWorld extends ListExp {
 
     public static void register()
     {
-        DataProvider.register(List.class, Pattern.compile("(?:all\\s+)?(\\w+) in "), new DataProvider.BaseDataParser<List>() {
+        DataProvider.register(List.class, Pattern.compile("(?:all\\s+)?(\\w+) in "), new BaseDataParser<List>() {
             public EntitiesInWorld parse(EventInfo info, Matcher m, StringMatcher sm) {
                 EntityType entityType = EntityType.getElementNamed(m.group(1));
                 if (entityType == null) return null;

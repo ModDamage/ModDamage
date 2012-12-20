@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.enchantments.Enchantment;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Parsing.BaseDataParser;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;

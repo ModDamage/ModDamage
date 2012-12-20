@@ -8,7 +8,7 @@ import com.ModDamage.StringMatcher;
 import com.ModDamage.EventInfo.EventInfo;
 
 @SuppressWarnings("rawtypes")
-public abstract class FunctionParser<T, S> implements DataProvider.IDataParser<T, S> {
+public abstract class FunctionParser<T, S> implements IDataParser<T, S> {
     public static final Pattern startParenPattern = Pattern.compile("\\(\\s*");
     public static final Pattern commaPattern = Pattern.compile("\\s*,\\s*");
     public static final Pattern endParenPattern = Pattern.compile("\\s*\\)");

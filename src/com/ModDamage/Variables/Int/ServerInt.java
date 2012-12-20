@@ -9,9 +9,9 @@ import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Parsing.BaseDataParser;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Parsing.DataProvider.BaseDataParser;
 
 public class ServerInt implements IDataProvider<Integer>
 {

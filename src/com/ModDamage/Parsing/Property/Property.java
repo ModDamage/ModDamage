@@ -4,7 +4,7 @@ package com.ModDamage.Parsing.Property;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.StringMatcher;
 
@@ -41,7 +41,7 @@ public abstract class Property<T, S> {
         return startDP + "_" + name;
     }
 
-    public DataProvider.IDataParser<T, S> parser()
+    public IDataParser<T, S> parser()
     {
         return new Parser();
     }
@@ -80,7 +80,7 @@ public abstract class Property<T, S> {
         }
     }
 
-    public class Parser implements DataProvider.IDataParser<T, S>
+    public class Parser implements IDataParser<T, S>
     {
         @Override
         public IDataProvider<T> parse(EventInfo info, IDataProvider<S> startDP, Matcher m, StringMatcher sm) {

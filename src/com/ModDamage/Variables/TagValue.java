@@ -9,6 +9,7 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.InterpolatedString;
 import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Parsing.SettableDataProvider;
 import com.ModDamage.Tags.Tag;

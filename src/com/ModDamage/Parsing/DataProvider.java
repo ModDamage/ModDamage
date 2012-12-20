@@ -60,41 +60,6 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	public abstract Class<? extends T> provides();
 	
 	
-	public static class CastDataProvider<T> implements IDataProvider<T>
-	{
-		private final IDataProvider<?> inner;
-		private final Class<T> want;
-		
-		public CastDataProvider(IDataProvider<?> inner, Class<T> want)
-		{
-			this.inner = inner;
-			this.want = want;
-		}
-		
-		@Override
-		@SuppressWarnings("unchecked")
-		public T get(EventData data) throws BailException
-		{
-			Object obj = inner.get(data);
-			if (want.isInstance(obj)) return (T) obj;
-			return null;
-		}
-
-		@Override
-		public Class<T> provides()
-		{
-			return want;
-		}
-		
-		@Override
-		public String toString()
-		{
-            return inner.toString();
-
-			//return "("+inner.provides().getSimpleName() + "->" + want.getSimpleName() + ")" + inner.toString();
-		}
-	}
-	
 	final static Map<Character,Set<Character>> casemap;
 
     static {
@@ -109,23 +74,6 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
         casemap = map;
     }
 
-	public interface IDataParser<T, S>
-	{
-		IDataProvider<T> parse(EventInfo info, IDataProvider<S> startDP, Matcher m, StringMatcher sm);
-	}
-	
-	public abstract static class BaseDataParser<T> implements IDataParser<T, Object>
-	{
-		@Override
-		public final IDataProvider<T> parse(EventInfo info, IDataProvider<Object> nullDP, Matcher m, StringMatcher sm)
-		{
-			if (nullDP != null) return null;
-			return parse(info, m, sm);
-		}
-		
-		public abstract IDataProvider<T> parse(EventInfo info, Matcher m, StringMatcher sm);
-	}
-	
 	static class ParserData<T, S>
 	{
 		final Class<T> provides;
