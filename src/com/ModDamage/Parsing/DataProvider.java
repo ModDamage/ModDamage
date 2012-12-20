@@ -170,6 +170,14 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		Property<T, S> property = ReflectedProperty.get("@transformer", wants, getterMethodName);
 		registerTransformer(property.provides, property.startsWith, new PropertyTransformer<T, S>(property));
 	}
+
+	/**
+	 * Casting transformer
+	 */
+	public static <T, S> void registerTransformer(Class<T> provides, Class<S> wants)
+	{
+		registerTransformer(provides, wants, new CastTransformer<T, S>(provides));
+	}
 	
 	public static <T, S> void registerTransformer(Class<T> provides, Class<S> wants, IDataTransformer<T, S> transformer)
 	{

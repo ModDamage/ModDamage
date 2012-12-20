@@ -35,18 +35,15 @@ import com.ModDamage.Properties.InventoryProps;
 import com.ModDamage.Properties.ItemProps;
 import com.ModDamage.Properties.LocationProps;
 import com.ModDamage.Properties.MaterialProps;
+import com.ModDamage.Properties.OfflinePlayerProps;
 import com.ModDamage.Properties.PlayerProps;
 import com.ModDamage.Properties.WorldProps;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
-import com.ModDamage.Variables.EntityEntity;
-import com.ModDamage.Variables.EntityWorld;
-import com.ModDamage.Variables.OfflinePlayerProperties;
 import com.ModDamage.Variables.PlayerNamed;
 import com.ModDamage.Variables.TagValue;
 import com.ModDamage.Variables.Transformers;
 import com.ModDamage.Variables.WorldNamed;
-import com.ModDamage.Variables.Item.PlayerInvItem;
 import com.elbukkit.api.elregions.elRegionsPlugin;
 import com.elbukkit.api.elregions.region.Region;
 import com.elbukkit.api.elregions.region.RegionManager;
@@ -75,14 +72,9 @@ public class ExternalPluginManager
 		TagValue.register();
 		ListExp.register();
 
-		// ItemExps
-//		PlayerItem.register();
-		PlayerInvItem.register();
-
 		// Other
 		Transformers.register();
-//		MiscProperties.register();
-		OfflinePlayerProperties.register();
+		OfflinePlayerProps.register();
 		ChunkProps.register();
 		
 		BlockProps.register();
@@ -95,10 +87,6 @@ public class ExternalPluginManager
 		PlayerProps.register();
 		WorldProps.register();
 
-		EntityEntity.register();
-//		EntityBlockTarget.register();
-		EntityWorld.register();
-//		LocationWorld.register();
 		PlayerNamed.register();
 		WorldNamed.register();
 
