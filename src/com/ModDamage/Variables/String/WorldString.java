@@ -69,6 +69,6 @@ public class WorldString extends StringExp<World>
 	@Override
 	public String toString()
 	{
-		return property == null? "null" : property.name().toLowerCase();
+		return startDP + "_" + (property == null? "null" : property.name().toLowerCase());
 	}
 }
