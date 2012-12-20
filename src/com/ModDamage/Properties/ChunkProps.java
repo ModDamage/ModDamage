@@ -4,7 +4,7 @@ package com.ModDamage.Properties;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 
-import com.ModDamage.EventInfo.Properties;
+import com.ModDamage.Parsing.Property.Properties;
 
 public class ChunkProps {
 

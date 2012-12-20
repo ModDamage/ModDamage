@@ -1,7 +1,10 @@
-package com.ModDamage.EventInfo;
+package com.ModDamage.Parsing.Property;
 
 
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.Parsing.IDataProvider;
+import com.ModDamage.Parsing.ISettableDataProvider;
 
 public abstract class SettableProperty<T, S> extends Property<T, S>
 {

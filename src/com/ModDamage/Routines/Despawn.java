@@ -6,12 +6,12 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.IDataProvider;
 
 public class Despawn extends Routine
 {

@@ -4,8 +4,8 @@ import org.bukkit.inventory.EntityEquipment;
 
 import com.ModDamage.Backend.ItemHolder;
 import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.Properties;
-import com.ModDamage.EventInfo.SettableProperty;
+import com.ModDamage.Parsing.Property.Properties;
+import com.ModDamage.Parsing.Property.SettableProperty;
 
 public class EquipmentProps
 {

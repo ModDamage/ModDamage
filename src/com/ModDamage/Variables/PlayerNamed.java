@@ -8,12 +8,12 @@ import org.bukkit.OfflinePlayer;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataProvider;
-import com.ModDamage.EventInfo.DataProvider.BaseDataParser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.Expressions.InterpolatedString;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
+import com.ModDamage.Parsing.DataProvider.BaseDataParser;
 
 public class PlayerNamed implements IDataProvider<OfflinePlayer>
 {

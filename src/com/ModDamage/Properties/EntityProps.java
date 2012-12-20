@@ -6,9 +6,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Slime;
 
 import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.Properties;
-import com.ModDamage.EventInfo.Property;
 import com.ModDamage.Matchables.EntityType;
+import com.ModDamage.Parsing.Property.Properties;
+import com.ModDamage.Parsing.Property.Property;
 
 public class EntityProps
 {

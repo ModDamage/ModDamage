@@ -3,8 +3,8 @@ package com.ModDamage.Expressions;
 
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.Expressions.List.EntitiesInWorld;
+import com.ModDamage.Parsing.IDataProvider;
 
 import java.util.List;
 

@@ -22,11 +22,11 @@ import org.bukkit.plugin.Plugin;
 import ru.tehkode.permissions.PermissionManager;
 
 import com.ModDamage.ModDamage.ModDamageExtension;
-import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Expressions.ListExp;
 import com.ModDamage.Expressions.NestedExp;
 import com.ModDamage.Expressions.StringExp;
+import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Properties.BlockProps;
 import com.ModDamage.Properties.ChunkProps;
 import com.ModDamage.Properties.EntityProps;

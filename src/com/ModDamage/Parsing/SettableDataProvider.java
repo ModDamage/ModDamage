@@ -1,9 +1,11 @@
-package com.ModDamage.EventInfo;
+package com.ModDamage.Parsing;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 
 public abstract class SettableDataProvider<T, S> extends DataProvider<T, S> implements ISettableDataProvider<T>
 {

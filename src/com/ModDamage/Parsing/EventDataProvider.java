@@ -1,10 +1,11 @@
-package com.ModDamage.EventInfo;
+package com.ModDamage.Parsing;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.EventData;
 
-class EventDataProvider<T> implements ISettableDataProvider<T>
+public class EventDataProvider<T> implements ISettableDataProvider<T>
 {
 	public final Class<T> givenCls;
 	public final Class<?> infoCls;

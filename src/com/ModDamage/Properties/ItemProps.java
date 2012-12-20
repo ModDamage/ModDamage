@@ -3,6 +3,8 @@ package com.ModDamage.Properties;
 import com.ModDamage.Backend.ItemEntityHolder;
 import com.ModDamage.Backend.ItemHolder;
 import com.ModDamage.EventInfo.*;
+import com.ModDamage.Parsing.Property.Properties;
+import com.ModDamage.Parsing.Property.Property;
 
 import org.bukkit.entity.Item;
 

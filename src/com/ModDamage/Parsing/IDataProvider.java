@@ -1,7 +1,8 @@
-package com.ModDamage.EventInfo;
+package com.ModDamage.Parsing;
 
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.Nullable;
+import com.ModDamage.EventInfo.EventData;
 
 public interface IDataProvider<T>
 {

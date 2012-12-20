@@ -3,7 +3,7 @@ package com.ModDamage.Tags;
 
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public abstract class Tag<T> {
     private final IDataProvider<String> name;

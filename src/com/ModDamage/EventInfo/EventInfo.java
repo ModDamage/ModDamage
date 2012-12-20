@@ -3,6 +3,8 @@ package com.ModDamage.EventInfo;
 import java.util.Set;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Parsing.EventDataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.misc.Multimap;
 

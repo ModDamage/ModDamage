@@ -1,4 +1,4 @@
-package com.ModDamage.EventInfo;
+package com.ModDamage.Parsing;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +18,11 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Parsing.Property.Property;
+import com.ModDamage.Parsing.Property.PropertyTransformer;
+import com.ModDamage.Parsing.Property.ReflectedProperty;
 import com.ModDamage.misc.Multimap;
 
 import dk.brics.automaton.Automaton;
@@ -211,6 +216,11 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	public static <T> void register(Class<T> provides, Pattern pattern, BaseDataParser<T> parser)
 	{
 		register(provides, null, pattern, parser);
+	}
+	
+	public static <T, S> void registerTransformer(Class<S> wants, String getterMethodName) {
+		Property<T, S> property = ReflectedProperty.get("@transformer", wants, getterMethodName);
+		registerTransformer(property.provides, property.startsWith, new PropertyTransformer<T, S>(property));
 	}
 	
 	public static <T, S> void registerTransformer(Class<T> provides, Class<S> wants, IDataTransformer<T, S> transformer)

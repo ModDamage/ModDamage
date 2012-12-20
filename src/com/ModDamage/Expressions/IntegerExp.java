@@ -1,13 +1,13 @@
 package com.ModDamage.Expressions;
 
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.Expressions.Function.BlockLocFunction;
 import com.ModDamage.Expressions.Function.DistanceFunction;
 import com.ModDamage.Expressions.Function.IntFunction;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routines;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Variables.Int.*;

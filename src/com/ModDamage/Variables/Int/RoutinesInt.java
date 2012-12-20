@@ -3,8 +3,8 @@ package com.ModDamage.Variables.Int;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.IDataProvider;
-import com.ModDamage.EventInfo.ISettableDataProvider;
+import com.ModDamage.Parsing.IDataProvider;
+import com.ModDamage.Parsing.ISettableDataProvider;
 import com.ModDamage.Routines.Routines;
 
 public class RoutinesInt implements IDataProvider<Integer>

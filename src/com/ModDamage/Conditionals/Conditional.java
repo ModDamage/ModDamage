@@ -1,8 +1,8 @@
 package com.ModDamage.Conditionals;
 
-import com.ModDamage.EventInfo.DataProvider;
-import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.External.mcMMO.AbilityConditional;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 
 public abstract class Conditional<S> extends DataProvider<Boolean, S>

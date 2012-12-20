@@ -3,6 +3,7 @@ package com.ModDamage.EventInfo;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.misc.Multimap;
 
 public class EventInfoChain extends EventInfo

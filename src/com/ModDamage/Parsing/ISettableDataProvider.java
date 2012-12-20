@@ -1,6 +1,7 @@
-package com.ModDamage.EventInfo;
+package com.ModDamage.Parsing;
 
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.EventInfo.EventData;
 
 public interface ISettableDataProvider<T> extends IDataProvider<T>
 {

@@ -1,10 +1,11 @@
-package com.ModDamage.EventInfo;
+package com.ModDamage.Parsing;
 
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
+import com.ModDamage.EventInfo.EventInfo;
 
 @SuppressWarnings("rawtypes")
 public abstract class FunctionParser<T, S> implements DataProvider.IDataParser<T, S> {

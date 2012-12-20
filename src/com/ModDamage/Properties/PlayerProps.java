@@ -3,8 +3,9 @@ package com.ModDamage.Properties;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.Properties;
-import com.ModDamage.EventInfo.SettableProperty;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.Property.Properties;
+import com.ModDamage.Parsing.Property.SettableProperty;
 
 public class PlayerProps
 {

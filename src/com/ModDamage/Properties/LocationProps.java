@@ -1,6 +1,7 @@
 package com.ModDamage.Properties;
 
-import com.ModDamage.EventInfo.Properties;
+import com.ModDamage.Parsing.Property.Properties;
+
 import org.bukkit.Location;
 
 public class LocationProps

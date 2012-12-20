@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.ModDamage.Parsing.IDataProvider;
+import com.ModDamage.Parsing.ISettableDataProvider;
 import com.ModDamage.misc.Multimap;
 
 public class SimpleEventInfo extends EventInfo

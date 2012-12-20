@@ -6,19 +6,20 @@ import java.util.regex.Pattern;
 
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.PlayerInventory;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.InventorySlot;
 import com.ModDamage.Backend.ItemHolder;
-import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.FunctionParser;
-import com.ModDamage.EventInfo.IDataProvider;
-import com.ModDamage.EventInfo.Properties;
-import com.ModDamage.EventInfo.SettableDataProvider;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.FunctionParser;
+import com.ModDamage.Parsing.IDataProvider;
+import com.ModDamage.Parsing.SettableDataProvider;
+import com.ModDamage.Parsing.Property.Properties;
 
 public class InventoryProps
 {
@@ -29,6 +30,8 @@ public class InventoryProps
         Properties.register("maxstacksize", Inventory.class, "getMaxStackSize", "setMaxStackSize");
 
         Properties.register("firstempty", Inventory.class, "firstEmpty");
+        
+        Properties.register("held_slot", PlayerInventory.class, "getHeldItemSlot");
 
         DataProvider.register(ItemHolder.class, Inventory.class, Pattern.compile("_item", Pattern.CASE_INSENSITIVE),
                 new FunctionParser<ItemHolder, Inventory>(Integer.class) {

@@ -10,13 +10,13 @@ import com.ModDamage.Tags.Tag;
 import com.ModDamage.Tags.Taggable;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Routines.Nested.NestedRoutine;

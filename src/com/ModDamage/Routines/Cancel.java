@@ -4,11 +4,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Parsing.ISettableDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.ISettableDataProvider;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 
 public class Cancel extends NestedRoutine

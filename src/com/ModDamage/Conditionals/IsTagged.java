@@ -5,14 +5,14 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Expressions.InterpolatedString;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Tags.Tag;
 import com.ModDamage.Tags.Taggable;
 
 import com.ModDamage.StringMatcher;
-import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.IDataProvider;
 
 public class IsTagged<T> extends Conditional<T>
 {

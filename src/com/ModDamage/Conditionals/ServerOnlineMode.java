@@ -6,11 +6,11 @@ import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 
 import com.ModDamage.StringMatcher;
-import com.ModDamage.EventInfo.DataProvider;
-import com.ModDamage.EventInfo.DataProvider.BaseDataParser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
+import com.ModDamage.Parsing.DataProvider.BaseDataParser;
 
 public class ServerOnlineMode implements IDataProvider<Boolean>
 {

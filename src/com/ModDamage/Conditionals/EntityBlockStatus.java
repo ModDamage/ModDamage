@@ -12,10 +12,10 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Alias.MaterialAliaser;
-import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.IDataProvider;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class EntityBlockStatus extends Conditional<Entity>
 {

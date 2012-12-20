@@ -1,6 +1,11 @@
 package com.ModDamage.Properties;
 
 import com.ModDamage.EventInfo.*;
+import com.ModDamage.Parsing.IDataProvider;
+import com.ModDamage.Parsing.Property.Properties;
+import com.ModDamage.Parsing.Property.Property;
+import com.ModDamage.Parsing.Property.SettableProperty;
+
 import org.bukkit.World;
 
 public class WorldProps

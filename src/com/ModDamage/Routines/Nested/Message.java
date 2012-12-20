@@ -13,14 +13,14 @@ import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.AliasManager;
 import com.ModDamage.Alias.MessageAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.DataProvider;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.IDataProvider;
 import com.ModDamage.Expressions.InterpolatedString;
 import com.ModDamage.Routines.Routine;
 
