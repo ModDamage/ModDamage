@@ -30,6 +30,11 @@ public class Transformers
 		DataProvider.registerTransformer(Block.class, "getType");
 
 		DataProvider.registerTransformer(Number.class, "intValue");
+		DataProvider.registerTransformer(Number.class, "byteValue");
+		DataProvider.registerTransformer(Number.class, "longValue");
+		DataProvider.registerTransformer(Number.class, "shortValue");
+		DataProvider.registerTransformer(Number.class, "floatValue");
+		DataProvider.registerTransformer(Number.class, "doubleValue");
 
 		DataProvider.registerTransformer(LivingEntity.class, "getEquipment");
 		
