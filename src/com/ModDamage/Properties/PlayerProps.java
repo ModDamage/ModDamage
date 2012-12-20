@@ -23,6 +23,6 @@ public class PlayerProps
         Properties.register("sleepticks", Player.class, "getSleepTicks");
         Properties.register("totalexperience", Player.class, "getTotalExperience", "setTotalExperience");
 
-        Properties.register("inv", Player.class, "getInventory");
+        DataProvider.registerTransformer(Player.class, "getInventory");
 	}
 }
