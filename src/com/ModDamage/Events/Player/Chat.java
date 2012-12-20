@@ -13,6 +13,7 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 
+@SuppressWarnings("deprecation")
 public class Chat extends MDEvent implements Listener
 {
 	public Chat() { super(myInfo); }
@@ -28,7 +29,6 @@ public class Chat extends MDEvent implements Listener
 	// behavior. The Async event would be way to much work to impliment
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
-	@SuppressWarnings("deprecation") 
 	public void onChat(PlayerChatEvent event)
 	{
 		if(!ModDamage.isEnabled) return;

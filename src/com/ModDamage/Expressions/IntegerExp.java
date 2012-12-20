@@ -85,7 +85,6 @@ public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 		NegativeInt.register();
 		PotionEffectInt.register();
 		ServerInt.register();
-		WorldTagInt.register();
 
 		com.ModDamage.External.mcMMO.PlayerInt.register();
 		com.ModDamage.External.mcMMO.PlayerSkillInt.register();
