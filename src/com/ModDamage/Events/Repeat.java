@@ -86,7 +86,7 @@ public class Repeat extends MDEvent
 			String[] parts = entry.getKey().split("\\s+");
 			String name = parts[0];
 			Class<?> type;
-			if (parts.length == 1 || parts[1].equalsIgnoreCase("entity") || parts[1].equalsIgnoreCase("player"))
+			if (parts.length == 1 || parts[1].equalsIgnoreCase("entity"))
 				type = Entity.class;
 			else if (parts[1].equalsIgnoreCase("loc") || parts[1].equalsIgnoreCase("location") || parts[1].equalsIgnoreCase("block"))
 				type = Location.class;
@@ -134,8 +134,11 @@ public class Repeat extends MDEvent
 			this.name = name;
 			this.repeatType = repeatType;
 			
+			String word = repeatType.getClass().getSimpleName().toLowerCase();
+			if (repeatType == Location.class) word = "loc";
+			
 			myInfo = new SimpleEventInfo(
-					repeatType, "it",
+					repeatType, "it", word,
 					World.class, "world",
 					Integer.class, "repeat_delay",
 					Integer.class, "repeat_count");
