@@ -15,7 +15,7 @@ public class ReflectedProperty<T, S> extends Property<T, S>
         try
         {
             Method getter = start.getMethod(getterMethodName);
-            return new ReflectedProperty<T, S>(name, (Class<T>) getter.getReturnType(), start, getter);
+            return new ReflectedProperty<T, S>(name, (Class<T>) Properties.toObjectClass(getter.getReturnType()), start, getter);
         }
         catch (Exception e)
         {

@@ -34,7 +34,7 @@ public class ReflectedSettableProperty<T, S> extends SettableProperty<T, S>
         }
         
         
-        return new ReflectedSettableProperty<T, S>(name, (Class<T>) getter.getReturnType(), start, getter, setter);
+        return new ReflectedSettableProperty<T, S>(name, (Class<T>) Properties.toObjectClass(getter.getReturnType()), start, getter, setter);
 	}
 	
 	public ReflectedSettableProperty(String name, Class<T> provides, Class<S> start, Method getter, Method setter)
