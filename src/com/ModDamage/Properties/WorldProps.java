@@ -29,5 +29,7 @@ public class WorldProps
 
         Properties.register("name", World.class, "getName");
         Properties.register("environment", World.class, "getEnvironment");
+        Properties.register("maxheight", World.class, "getMaxHeight");
+        Properties.register("sealevel", World.class, "getSeaLevel");
 	}
 }
