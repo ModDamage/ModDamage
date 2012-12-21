@@ -134,7 +134,7 @@ public class Repeat extends MDEvent
 			this.name = name;
 			this.repeatType = repeatType;
 			
-			String word = repeatType.getClass().getSimpleName().toLowerCase();
+			String word = repeatType.getSimpleName().toLowerCase();
 			if (repeatType == Location.class) word = "loc";
 			
 			myInfo = new SimpleEventInfo(
