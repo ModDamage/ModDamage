@@ -3,6 +3,8 @@ package com.ModDamage.Conditionals;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
@@ -45,13 +47,27 @@ public class Equality extends Conditional<Object>
 	{
 		DataProvider.register(Boolean.class, Object.class, operatorPattern, new IDataParser<Boolean, Object>()
 			{
+				@SuppressWarnings("unchecked")
 				@Override
 				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Object> leftDP, Matcher m, StringMatcher sm)
 				{
 					boolean equalTo = !m.group(1).equals("!");
 					
-					@SuppressWarnings("unchecked")
-					IDataProvider<Object> right = DataProvider.parse(info, (Class<Object>) leftDP.provides(), sm.spawn());
+					IDataProvider<Object> right = DataProvider.parse(info, Object.class, sm.spawn());
+					if (right == null) return null;
+					
+					IDataProvider<? extends Object> transformed = DataProvider.transform(leftDP.provides(), right, info, false);
+					if (transformed != null)
+						right = (IDataProvider<Object>) transformed;
+					else {
+						transformed = DataProvider.transform(right.provides(), leftDP, info, false);
+						if (transformed != null)
+							leftDP = (IDataProvider<Object>) transformed;
+						else {
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Cannot compare equality of types " + leftDP.provides().getSimpleName() + " and " + right.provides().getSimpleName());
+							return null;
+						}
+					}
 					
 					sm.accept();
 					return new Equality(leftDP.provides(), leftDP, equalTo, right);
