@@ -4,27 +4,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataParser;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ItemHolder;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.SettableIntegerExp;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataParser;
+import com.ModDamage.Parsing.IDataProvider;
 
-public class ItemEnchantmentInt extends SettableIntegerExp<ItemStack>
+public class ItemEnchantmentInt extends SettableIntegerExp<ItemHolder>
 {
 	public static void register()
 	{
-		DataProvider.register(Integer.class, ItemStack.class, Pattern.compile("_enchant(?:ment)?_?level_(\\w+)", Pattern.CASE_INSENSITIVE), new IDataParser<Integer, ItemStack>()
+		DataProvider.register(Integer.class, ItemHolder.class, Pattern.compile("_enchant(?:ment)?_?level_(\\w+)", Pattern.CASE_INSENSITIVE), new IDataParser<Integer, ItemHolder>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<ItemStack> itemDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<ItemHolder> itemDP, Matcher m, StringMatcher sm)
 					{
 						Enchantment enchantment = Enchantment.getByName(m.group(1).toUpperCase());
 						if (enchantment == null)
@@ -41,25 +41,22 @@ public class ItemEnchantmentInt extends SettableIntegerExp<ItemStack>
 	
 	private final Enchantment enchantment;
 	
-	ItemEnchantmentInt(IDataProvider<ItemStack> itemDP, Enchantment enchantment)
+	ItemEnchantmentInt(IDataProvider<ItemHolder> itemDP, Enchantment enchantment)
 	{
-		super(ItemStack.class, itemDP);
+		super(ItemHolder.class, itemDP);
 		this.enchantment = enchantment;
 	}
 	
 	@Override
-	public Integer myGet(ItemStack item, EventData data) throws BailException
+	public Integer myGet(ItemHolder item, EventData data) throws BailException
 	{
 		return item.getEnchantmentLevel(enchantment);
 	}
 	
 	@Override
-	public void mySet(ItemStack item, EventData data, Integer value)
+	public void mySet(ItemHolder item, EventData data, Integer value)
 	{
-		// lock the enchantment value inside the acceptable range
-		value = Math.min(Math.max(enchantment.getStartLevel(), value), enchantment.getMaxLevel());
-		
-		item.addUnsafeEnchantment(enchantment, value);
+		item.setEnchantmentLevel(enchantment, value);
 	}
 	
 	@Override
