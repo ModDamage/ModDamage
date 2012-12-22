@@ -67,11 +67,12 @@ public class EntitiesInWorld extends ListExp {
                 EntityType entityType = EntityType.getElementNamed(m.group(1));
                 if (entityType == null) return null;
 
-                IDataProvider<World> worldDP = DataProvider.parse(info, World.class, sm.spawn());
-                if (worldDP == null)
-                {
-                    if (!sm.matchesFront(serverPattern))
-                        return null;
+                IDataProvider<World> worldDP;
+                if (sm.matchesFront(serverPattern))
+                    worldDP = null;
+                else {
+                	worldDP = DataProvider.parse(info, World.class, sm.spawn());
+                	if (worldDP == null) return null;
                 }
 
                 sm.accept();
