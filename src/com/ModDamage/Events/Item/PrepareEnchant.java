@@ -6,10 +6,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
+import com.ModDamage.Backend.ItemHolder;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
@@ -21,7 +21,7 @@ public class PrepareEnchant extends MDEvent implements Listener
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Player.class,		"player",
 			World.class,		"world",
-			ItemStack.class, 	"item",
+			ItemHolder.class, 	"item",
 			Integer.class,		"bonus",
 			Integer.class,		"level_1",
 			Integer.class,		"level_2",
@@ -29,7 +29,7 @@ public class PrepareEnchant extends MDEvent implements Listener
 			Boolean.class,		"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onPrepareItemEnchant(PrepareItemEnchantEvent event)
+	public void onPrepareItemEnchant(final PrepareItemEnchantEvent event)
 	{
 		if(!ModDamage.isEnabled) return;
 		
@@ -39,7 +39,7 @@ public class PrepareEnchant extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				player,
 				player.getWorld(),
-				event.getItem(),
+				new ItemHolder(event.getItem()),
 				bonus,
 				levels[0], levels[1], levels[2],
 				event.isCancelled()

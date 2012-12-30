@@ -8,11 +8,11 @@ import com.ModDamage.MDEvent;
 import com.ModDamage.MagicStuff;
 
 
-public abstract class ItemHolder implements EventFinishedListener {
+public class ItemHolder implements EventFinishedListener {
     private ItemStack item;
     private boolean dirty = false;
 
-    protected ItemHolder(ItemStack item) {
+    public ItemHolder(ItemStack item) {
         this.item = item;
     }
 
@@ -118,5 +118,5 @@ public abstract class ItemHolder implements EventFinishedListener {
     }
 
     @Override
-    public abstract void eventFinished(boolean success);
+    public void eventFinished(boolean success) {}
 }

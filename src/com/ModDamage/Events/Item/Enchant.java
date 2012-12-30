@@ -6,11 +6,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.enchantment.EnchantItemEvent;
-import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
 import com.ModDamage.Backend.EnchantmentsRef;
+import com.ModDamage.Backend.ItemHolder;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
@@ -22,7 +22,7 @@ public class Enchant extends MDEvent implements Listener
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Player.class, 			"player",
 			World.class,			"world",
-			ItemStack.class, 		"item",
+			ItemHolder.class, 		"item",
 			EnchantmentsRef.class,	"enchantments",
 			Integer.class,			"level",
 			Boolean.class,			"cancelled");
@@ -36,7 +36,7 @@ public class Enchant extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				player,
 				player.getWorld(),
-				event.getItem(),
+				new ItemHolder(event.getItem()),
 				new EnchantmentsRef(event.getEnchantsToAdd()),
 				event.getExpLevelCost(),
 				event.isCancelled()
