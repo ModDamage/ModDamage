@@ -86,7 +86,7 @@ public class ModDamageItemStack
 	
 	public ItemStack toItemStack()
 	{
-		ItemStack item = new ItemStack(material, lastAmount, (short) 0, Byte.valueOf((byte) lastData));
+		ItemStack item = new ItemStack(material, lastAmount, (short) lastData);
 		
 		if (lastEnchants != null)
 		{
