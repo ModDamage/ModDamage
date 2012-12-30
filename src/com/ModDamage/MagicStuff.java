@@ -10,7 +10,6 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Arrow;
 import org.bukkit.inventory.ItemStack;
 
-import com.esotericsoftware.reflectasm.FieldAccess;
 import com.esotericsoftware.reflectasm.MethodAccess;
 
 public class MagicStuff
@@ -92,8 +91,7 @@ public class MagicStuff
 
 	////////////////////// getMaxDurability //////////////////////
 	
-	static final FieldAccess CraftItemStack_f;
-	static final int CraftItemStack_handle;
+	static final Field  CraftItemStack_handle;
 
 	static final MethodAccess NMSItemStack_m;
 	static final int NMSItemStack_getItem;
@@ -103,8 +101,8 @@ public class MagicStuff
 	
 	static
 	{
-		CraftItemStack_f = FieldAccess.get(safeClassForName(obc + ".inventory.CraftItemStack"));
-		CraftItemStack_handle = CraftItemStack_f.getIndex("handle");
+		Class<?> CraftItemStack = safeClassForName(obc + ".inventory.CraftItemStack");
+		CraftItemStack_handle = safeGetField(CraftItemStack, "handle");
 
 		NMSItemStack_m = MethodAccess.get(safeClassForName(nms + ".ItemStack"));
 		NMSItemStack_getItem = NMSItemStack_m.getIndex("getItem");
@@ -115,7 +113,7 @@ public class MagicStuff
 	
 	public static int getMaxDurability(ItemStack itemStack)
 	{
-		Object handle = CraftItemStack_f.get(itemStack, CraftItemStack_handle);
+		Object handle = safeGet(itemStack, CraftItemStack_handle);
 		if (handle == null) return 0;
 
 		Object item = NMSItemStack_m.invoke(handle, NMSItemStack_getItem);
