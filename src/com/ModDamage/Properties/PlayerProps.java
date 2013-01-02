@@ -22,6 +22,8 @@ public class PlayerProps
         Properties.register("saturation", Player.class, "getSaturation", "setSaturation");
         Properties.register("sleepticks", Player.class, "getSleepTicks");
         Properties.register("totalexperience", Player.class, "getTotalExperience", "setTotalExperience");
+        Properties.register("displayname", Player.class, "getDisplayName", "setDisplayName");
+        Properties.register("playerlistname", Player.class, "getPlayerListName", "setPlayerListName");
 
         DataProvider.registerTransformer(Player.class, "getInventory");
 	}
