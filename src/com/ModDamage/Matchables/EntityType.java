@@ -9,6 +9,7 @@ import java.util.logging.Level;
 
 import org.bukkit.Location;
 import org.bukkit.entity.*;
+import org.bukkit.entity.Skeleton.SkeletonType;
 
 import com.ModDamage.ModDamage;
 
@@ -97,7 +98,39 @@ public enum EntityType implements Matchable<EntityType>
 				MAGMA_CUBE(MOB, org.bukkit.entity.EntityType.MAGMA_CUBE, MagmaCube.class),
 				MUSHROOM_COW(MOB, org.bukkit.entity.EntityType.MUSHROOM_COW, MushroomCow.class),
 				SILVERFISH(MOB, org.bukkit.entity.EntityType.SILVERFISH, Silverfish.class),
-				SKELETON(MOB, org.bukkit.entity.EntityType.SKELETON, Skeleton.class),
+				SKELETON(MOB, org.bukkit.entity.EntityType.SKELETON, Skeleton.class)
+				{
+					@Override
+					protected EntityType getMostSpecificType(Object obj)
+					{
+						switch(((Skeleton)obj).getSkeletonType())
+						{
+							case NORMAL: 	return NORMAL_SKELETON;
+							case WITHER: 	return WITHER_SKELETON;
+							default:		return SKELETON;
+						}
+					}
+				},
+	            	NORMAL_SKELETON(SKELETON, org.bukkit.entity.EntityType.SKELETON)
+					{
+						@Override
+						public LivingEntity spawn(Location location)
+						{
+							Skeleton skeleton = ((Skeleton)location.getWorld().spawnEntity(location, this.getCreatureType()));
+							skeleton.setSkeletonType(SkeletonType.NORMAL);
+							return skeleton;
+						}
+					},
+                	WITHER_SKELETON(SKELETON, org.bukkit.entity.EntityType.SKELETON)
+					{
+						@Override
+						public LivingEntity spawn(Location location)
+						{
+							Skeleton skeleton = ((Skeleton)location.getWorld().spawnEntity(location, this.getCreatureType()));
+							skeleton.setSkeletonType(SkeletonType.WITHER);
+							return skeleton;
+						}
+					},
 				SLIME(MOB, org.bukkit.entity.EntityType.SLIME, Slime.class)
 				{
 					@Override
