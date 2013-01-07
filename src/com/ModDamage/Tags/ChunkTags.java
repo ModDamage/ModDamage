@@ -9,16 +9,16 @@ import org.bukkit.entity.Entity;
 import java.util.*;
 
 public class ChunkTags<T> implements ITags<T, Chunk> {
-    private final Map<World, Map<Chunk, Map<String, T>>> tags = new HashMap<World, Map<Chunk, Map<String,T>>>();
+    private final Map<World, Map<String, Map<String, T>>> tags = new HashMap<World, Map<String, Map<String,T>>>();
 
     public ChunkTags() { }
 
-    public Map<Chunk, Map<String, T>> getWorldChunkTags(World world, boolean create)
+    public Map<String, Map<String, T>> getWorldChunkTags(World world, boolean create)
     {
-        Map<Chunk, Map<String, T>> worldTags = this.tags.get(world);
+        Map<String, Map<String, T>> worldTags = this.tags.get(world);
 
         if (create && worldTags == null) {
-            worldTags = new HashMap<Chunk, Map<String, T>>();
+            worldTags = new HashMap<String, Map<String, T>>();
             this.tags.put(world, worldTags);
         }
 
@@ -27,14 +27,16 @@ public class ChunkTags<T> implements ITags<T, Chunk> {
 
     public Map<String, T> getChunkTags(Chunk chunk, boolean create)
     {
-        Map<Chunk, Map<String, T>> worldTags = getWorldChunkTags(chunk.getWorld(), create);
+        Map<String, Map<String, T>> worldTags = getWorldChunkTags(chunk.getWorld(), create);
         if (worldTags == null) return null;
+        
+        String chunkKey = chunk.getX() + ":" + chunk.getZ();
 
-        Map<String, T> tags = worldTags.get(chunk);
+        Map<String, T> tags = worldTags.get(chunkKey);
 
         if (create && tags == null) {
             tags = new HashMap<String, T>();
-            worldTags.put(chunk, tags);
+            worldTags.put(chunkKey, tags);
         }
 
         return tags;
@@ -111,12 +113,12 @@ public class ChunkTags<T> implements ITags<T, Chunk> {
     @SuppressWarnings("rawtypes")
     public Map save(Set<Entity> entities) {
         Map<String, Map<String, Map<String, T>>> chunkMap = new HashMap<String, Map<String, Map<String, T>>>();
-        for (Map.Entry<World, Map<Chunk, Map<String, T>>> worldEntry : tags.entrySet())
+        for (Map.Entry<World, Map<String, Map<String, T>>> worldEntry : tags.entrySet())
         {
             if (worldEntry.getValue().isEmpty()) continue;
 
             HashMap<String, Map<String, T>> savedWorldTags = new HashMap<String, Map<String, T>>();
-            for(Map.Entry<Chunk, Map<String, T>> chunkEntry : worldEntry.getValue().entrySet())
+            for(Map.Entry<String, Map<String, T>> chunkEntry : worldEntry.getValue().entrySet())
             {
                 if (chunkEntry.getValue().isEmpty()) continue;
 
@@ -124,8 +126,8 @@ public class ChunkTags<T> implements ITags<T, Chunk> {
                 for(Map.Entry<String, T> entry : chunkEntry.getValue().entrySet())
                     savedChunkTags.put(entry.getKey(), entry.getValue());
 
-                Chunk chunk = chunkEntry.getKey();
-                savedWorldTags.put(chunk.getX() + ":" + chunk.getZ(), savedChunkTags);
+                String chunkKey = chunkEntry.getKey();
+                savedWorldTags.put(chunkKey, savedChunkTags);
             }
             chunkMap.put(worldEntry.getKey().getName(), savedWorldTags);
         }
