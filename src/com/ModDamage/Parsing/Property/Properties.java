@@ -17,6 +17,7 @@ public final class Properties {
     }
 
     public static <T, S> void register(Property<T, S> property) {
+    	if (property == null) return;
         DataProvider.register(property.provides, property.startsWith, property.pattern, property.parser());
     }
 
