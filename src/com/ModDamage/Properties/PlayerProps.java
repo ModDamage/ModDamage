@@ -1,6 +1,9 @@
 package com.ModDamage.Properties;
 
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.PlayerInventory;
 
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.Parsing.DataProvider;
@@ -25,6 +28,7 @@ public class PlayerProps
         Properties.register("displayname", Player.class, "getDisplayName", "setDisplayName");
         Properties.register("playerlistname", Player.class, "getPlayerListName", "setPlayerListName");
 
-        DataProvider.registerTransformer(Player.class, "getInventory");
+        DataProvider.registerTransformer(HumanEntity.class, "getInventory");
+        DataProvider.registerTransformer(PlayerInventory.class, EntityEquipment.class);
 	}
 }
