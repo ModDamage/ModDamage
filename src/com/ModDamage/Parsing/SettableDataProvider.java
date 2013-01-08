@@ -1,5 +1,7 @@
 package com.ModDamage.Parsing;
 
+import java.util.regex.Pattern;
+
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
@@ -26,12 +28,22 @@ public abstract class SettableDataProvider<T, S> extends DataProvider<T, S> impl
 	
 	public static <T> ISettableDataProvider<T> parse(EventInfo info, Class<T> want, String s)
 	{
-		return parse(info, want, new StringMatcher(s));
+		return parse(info, want, s, true, true);
 	}
 	
+	public static <T> ISettableDataProvider<T> parse(EventInfo info, Class<T> want, String s, boolean finish, boolean complain)
+	{
+		return parse(info, want, new StringMatcher(s), finish, complain, null);
+	}
+
 	public static <T> ISettableDataProvider<T> parse(EventInfo info, Class<T> want, StringMatcher sm)
 	{
-		IDataProvider<T> dp = DataProvider.parse(info, want, sm);
+		return parse(info, want, sm, false, true, null);
+	}
+	
+	public static <T> ISettableDataProvider<T> parse(EventInfo info, Class<T> want, StringMatcher sm, boolean finish, boolean complain, Pattern endPattern)
+	{
+		IDataProvider<T> dp = DataProvider.parse(info, want, sm, finish, complain, endPattern);
 		if (dp == null) return null;
 		
 		if (!(dp instanceof ISettableDataProvider) || !((ISettableDataProvider<?>)dp).isSettable())
