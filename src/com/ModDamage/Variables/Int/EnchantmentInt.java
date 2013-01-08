@@ -29,7 +29,7 @@ public class EnchantmentInt extends SettableIntegerExp<EnchantmentsRef>
 						IDataProvider<EnchantmentsRef> enchantmentsDP = info.get(EnchantmentsRef.class, "enchantments", false);
 						if (enchantmentsDP == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "You can only use '"+m.group()+"' inside of an Enchant or PrepareEnchant event, or item action routines");
+							ModDamage.addToLogRecord(OutputPreset.FAILURE, "You can only use '"+m.group()+"' inside of an Enchant or PrepareEnchant event");
 							return null;
 						}
 						
