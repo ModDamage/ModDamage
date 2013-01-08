@@ -10,6 +10,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
@@ -18,7 +19,6 @@ import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Routines.Routines;
 
 public class EntityHurt extends NestedRoutine
@@ -54,7 +54,7 @@ public class EntityHurt extends NestedRoutine
 						EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(from, target, DamageCause.ENTITY_ATTACK, damage);
 						Bukkit.getPluginManager().callEvent(event);
 						if (!event.isCancelled())
-							target.damage(event.getDamage());
+							target.damage(event.getDamage(), from);
 					}
 				});
 		}
