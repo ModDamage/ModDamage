@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.inventory.InventoryHolder;
 
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
@@ -66,5 +67,9 @@ public class BlockProps
                         };
                     }
                 });
+        
+
+		DataProvider.registerTransformer(InventoryHolder.class, BlockState.class);
+		Properties.register("inventory", InventoryHolder.class, "getInventory");
 	}
 }
