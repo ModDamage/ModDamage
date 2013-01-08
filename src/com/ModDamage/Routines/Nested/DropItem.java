@@ -1,28 +1,23 @@
 package com.ModDamage.Routines.Nested;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Location;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.ItemAliaser;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.EnchantmentsRef;
+import com.ModDamage.Backend.ItemHolder;
 import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Routines;
 import com.ModDamage.Variables.Int.Constant;
@@ -58,24 +53,15 @@ public class DropItem extends NestedRoutine
         {
             for (ModDamageItemStack item : items)
             {
-                ItemStack vanillaItem = item.toItemStack();
+            	ItemHolder holder = new ItemHolder(item.toItemStack());
 
                 if (routines != null)
                 {
                     // have to copy the enchantments map because it is immutable
-                    Map<Enchantment, Integer> enchantments = new HashMap<Enchantment, Integer>(vanillaItem.getEnchantments());
-                    EnchantmentsRef enchants = new EnchantmentsRef(enchantments);
-                    routines.run(myInfo.makeChainedData(data, vanillaItem, enchants));
-                    for (Entry<Enchantment, Integer> entry : enchantments.entrySet())
-                    {
-                        if (entry.getValue() == 0)
-                            vanillaItem.removeEnchantment(entry.getKey());
-                        else
-                            vanillaItem.addUnsafeEnchantment(entry.getKey(), entry.getValue());
-                    }
+                    routines.run(myInfo.makeChainedData(data, holder));
                 }
 
-                loc.getWorld().dropItemNaturally(loc, vanillaItem);
+                loc.getWorld().dropItemNaturally(loc, holder.getItem());
             }
         }
 	}
@@ -98,8 +84,7 @@ public class DropItem extends NestedRoutine
 	}
 
 	private static final EventInfo myInfo = new SimpleEventInfo(
-			ItemStack.class, 		"item",
-			EnchantmentsRef.class,	"enchantments");
+			ItemHolder.class, 		"item");
 
 	protected static class NestedRoutineBuilder extends RoutineBuilder
 	{
