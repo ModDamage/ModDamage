@@ -3,6 +3,7 @@ package com.ModDamage.Backend;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import com.ModDamage.MDEvent;
 import com.ModDamage.MagicStuff;
@@ -105,7 +106,9 @@ public class ItemHolder implements EventFinishedListener {
     }
     
     public void setName(String name) {
-    	item.getItemMeta().setDisplayName(name);
+    	ItemMeta meta = item.getItemMeta();
+    	meta.setDisplayName(name);
+    	item.setItemMeta(meta);
     }
     
     
