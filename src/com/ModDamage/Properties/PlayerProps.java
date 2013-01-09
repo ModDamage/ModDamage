@@ -27,6 +27,7 @@ public class PlayerProps
         Properties.register("totalexperience", Player.class, "getTotalExperience", "setTotalExperience");
         Properties.register("displayname", Player.class, "getDisplayName", "setDisplayName");
         Properties.register("playerlistname", Player.class, "getPlayerListName", "setPlayerListName");
+        Properties.register("compasstarget", Player.class, "getCompassTarget", "setCompassTarget");
 
         DataProvider.registerTransformer(HumanEntity.class, "getInventory");
         DataProvider.registerTransformer(PlayerInventory.class, EntityEquipment.class);
