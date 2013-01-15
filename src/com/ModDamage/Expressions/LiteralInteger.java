@@ -1,4 +1,4 @@
-package com.ModDamage.Variables.Int;
+package com.ModDamage.Expressions;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,7 +10,7 @@ import com.ModDamage.Parsing.BaseDataParser;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 
-public class Constant implements IDataProvider<Integer>
+public class LiteralInteger implements IDataProvider<Integer>
 {
 	public static void register()
 	{
@@ -19,22 +19,22 @@ public class Constant implements IDataProvider<Integer>
 				@Override
 				public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
 				{
-					return sm.acceptIf(new Constant(Integer.parseInt(m.group(0))));
+					return sm.acceptIf(new LiteralInteger(Integer.parseInt(m.group(0))));
 				}
 			});
 	}
 	
-	int constant;
+	int value;
 	
-	public Constant(int constant)
+	public LiteralInteger(int value)
 	{
-		this.constant = constant;
+		this.value = value;
 	}
 	
 	@Override
 	public Integer get(EventData data)
 	{
-		return constant;
+		return value;
 	}
 	
 	@Override
@@ -43,6 +43,6 @@ public class Constant implements IDataProvider<Integer>
 	@Override
 	public String toString()
 	{
-		return ""+constant;
+		return ""+value;
 	}
 }

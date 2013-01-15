@@ -55,7 +55,7 @@ public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 
         m = sm.matchFront(literalInteger);
         if (m != null) {
-            return new Constant(Integer.parseInt(m.group()));
+            return new LiteralInteger(Integer.parseInt(m.group()));
         }
 
         return null;
@@ -77,7 +77,7 @@ public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 		BlockLocFunction.register();
 		DistanceFunction.register();
 		
-		Constant.register();
+		LiteralInteger.register();
 		LocalInt.register();
 		EnchantmentInt.register();
 		IntegerOpInt.register();

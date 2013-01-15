@@ -19,7 +19,7 @@ import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.MaterialAliaser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Variables.Int.Constant;
+import com.ModDamage.Expressions.LiteralInteger;
 
 public class ModDamageItemStack
 {
@@ -147,7 +147,7 @@ public class ModDamageItemStack
 			if (amount == null) return null;
 		}
 		else
-			amount = new Constant(1);
+			amount = new LiteralInteger(1);
 		
 		return sm.acceptIf(new ModDamageItemStack(material, data, amount));
 	}

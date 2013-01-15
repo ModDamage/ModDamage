@@ -13,7 +13,7 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Variables.Int.Constant;
+import com.ModDamage.Expressions.LiteralInteger;
 
 public class PlayEffect extends Routine
 {
@@ -93,7 +93,7 @@ public class PlayEffect extends Routine
 			}
 			IDataProvider<Integer> data;
 			if (matcher.group(3) == null)
-				data = new Constant(0);
+				data = new LiteralInteger(0);
 			else {
 				Integer ndata = effectType.dataForExtra(matcher.group(3));
 				if (ndata == null)
@@ -107,7 +107,7 @@ public class PlayEffect extends Routine
 					}
 				}
 				else
-					data = new Constant(ndata);
+					data = new LiteralInteger(ndata);
 			}
 			
 			IDataProvider<Integer> radius = null;

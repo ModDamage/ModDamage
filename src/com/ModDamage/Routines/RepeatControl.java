@@ -17,7 +17,7 @@ import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Events.Repeat;
-import com.ModDamage.Variables.Int.Constant;
+import com.ModDamage.Expressions.LiteralInteger;
 
 public class RepeatControl extends Routine
 {
@@ -101,7 +101,7 @@ public class RepeatControl extends Routine
 					count = DataProvider.parse(info, Integer.class, sm.spawn()); if (count == null) return null;
 				}
 				else
-					count = new Constant(-1);
+					count = new LiteralInteger(-1);
 				if (!sm.isEmpty()) return null;
 			}
 			

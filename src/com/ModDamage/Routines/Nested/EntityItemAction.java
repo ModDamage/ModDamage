@@ -17,11 +17,11 @@ import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Expressions.LiteralInteger;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Routines;
-import com.ModDamage.Variables.Int.Constant;
 
 public class EntityItemAction extends NestedRoutine
 {
@@ -133,7 +133,7 @@ public class EntityItemAction extends NestedRoutine
 				if (matcher.group(4) != null)
 					quantity = DataProvider.parse(info, Integer.class, matcher.group(4));
 				else
-					quantity = new Constant(1);
+					quantity = new LiteralInteger(1);
 
                 if (quantity == null) return null;
 
