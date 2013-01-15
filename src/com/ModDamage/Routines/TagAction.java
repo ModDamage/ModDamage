@@ -45,14 +45,16 @@ public class TagAction<T, D> extends NestedRoutine
         else
             taggable.set(tag, data, valueDP.get(myInfo.makeChainedData(data, taggable.get(tag, data))));
 	}
+	
+	private static final Pattern dotPattern = Pattern.compile("\\s*\\.\\s*");
 
 	public static void registerRoutine()
 	{
-		Routine.registerRoutine(Pattern.compile("un(s?)tag\\.(\\w+)\\.(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("un(s?)tag\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 	public static void registerNested()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(s?)tag\\.(\\w+)\\.(.+)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(s?)tag\\.(.*)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
 	}
 	
 	public final EventInfo myInfo;
@@ -63,13 +65,20 @@ public class TagAction<T, D> extends NestedRoutine
 		@Override
 		public TagAction getNew(Matcher matcher, EventInfo info)
 		{
-            StringMatcher sm = new StringMatcher(matcher.group(3));
+            StringMatcher sm = new StringMatcher(matcher.group(2));
+            
+            Taggable<?> taggable = Taggable.get(DataProvider.parse(info, null, sm.spawn()), info);
+            if (taggable == null) return null;
+            
+            if (!sm.matchesFront(dotPattern)) return null;
+            
             IDataProvider<String> tagNameDP = InterpolatedString.parseWord(InterpolatedString.word, sm.spawn(), info);
             if (tagNameDP == null) return null;
+            
+            if (!sm.isEmpty()) return null;
 
             Tag<?> tag = Tag.get(tagNameDP, matcher.group(1));
-            Taggable<?> taggable = Taggable.get(DataProvider.parse(info, null, matcher.group(2)), info);
-            if (tag == null || taggable == null) return null;
+            if (tag == null) return null;
 
 			ModDamage.addToLogRecord(OutputPreset.INFO, "un"+matcher.group(1)+"tag: \"" + tag + "\" on " + taggable);
 			return new TagAction(matcher.group(), tag, taggable, null, null);
@@ -82,13 +91,20 @@ public class TagAction<T, D> extends NestedRoutine
         @SuppressWarnings("unchecked")
 		public TagAction getNew(Matcher matcher, Object nestedContent, EventInfo info)
 		{
-            StringMatcher sm = new StringMatcher(matcher.group(3));
+            StringMatcher sm = new StringMatcher(matcher.group(2));
+            
+            Taggable<?> taggable = Taggable.get(DataProvider.parse(info, null, sm.spawn()), info);
+            if (taggable == null) return null;
+            
+            if (!sm.matchesFront(dotPattern)) return null;
+            
             IDataProvider<String> tagNameDP = InterpolatedString.parseWord(InterpolatedString.word, sm.spawn(), info);
             if (tagNameDP == null) return null;
+            
+            if (!sm.isEmpty()) return null;
 
             Tag<?> tag = Tag.get(tagNameDP, matcher.group(1));
-            Taggable<?> taggable = Taggable.get(DataProvider.parse(info, null, matcher.group(2)), info);
-            if (tag == null || taggable == null) return null;
+            if (tag == null) return null;
 
 			ModDamage.addToLogRecord(OutputPreset.INFO, ""+matcher.group(1)+"tag: \"" + tag + "\" on " + taggable);
 			
