@@ -80,7 +80,7 @@ public class StringConditionals extends Conditional<String>
 	@Override
 	public String toString()
 	{
-		return startDP + "." + conditional.name().toLowerCase() + "." + otherString;
+		return startDP + "." + (caseInsensitive?"i":"") + conditional.name().toLowerCase() + "." + otherString;
 	}
 	
 	
