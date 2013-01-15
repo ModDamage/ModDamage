@@ -96,7 +96,8 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
                     .replace("[\\w", "[a-z0-9_")
                     .replace("\\w", "[a-z0-9_]")
                     .replace("\\s", "[ \t]")
-                    .replace("(?:", "(");
+                    .replace("(?:", "(")
+                    .replace("\"", "\\\"");
 
             automaton = new RegExp(regex, RegExp.NONE).toAutomaton().subst(casemap);
             automaton.minimize();

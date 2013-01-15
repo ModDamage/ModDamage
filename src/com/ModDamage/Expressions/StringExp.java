@@ -20,6 +20,7 @@ public abstract class StringExp<From> extends DataProvider<String, From>
 
 	public static void register()
 	{
+		LiteralString.register();
 		EntityString.register();
 		EntityAsString.register();
 		PlayerString.register();
