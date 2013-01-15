@@ -41,6 +41,7 @@ public abstract class Conditional<S> extends DataProvider<Boolean, S>
 		EnumEquals.register();
 		ItemMatches.register();
 		LivingEntityStatus.register();
+		StringConditionals.register();
 		
 		//mcMMO
 		AbilityConditional.register();
