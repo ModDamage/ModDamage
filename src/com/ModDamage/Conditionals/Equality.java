@@ -39,7 +39,7 @@ public class Equality extends Conditional<Object>
 	@Override
 	public String toString()
 	{
-		return startDP + (equalTo?"==":"!=") + rightDP;
+		return startDP + (equalTo?" == ":" != ") + rightDP;
 	}
 
 	
