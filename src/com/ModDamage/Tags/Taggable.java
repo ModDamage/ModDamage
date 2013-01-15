@@ -1,18 +1,19 @@
 package com.ModDamage.Tags;
 
 
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+
+import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.ModDamage;
-import static com.ModDamage.PluginConfiguration.OutputPreset;
-
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Entity;
 
 public abstract class Taggable<T> {
     public final IDataProvider<T> inner;
@@ -32,6 +33,18 @@ public abstract class Taggable<T> {
                     @Override
                     protected <D> ITags<D, World> getTags(TagsHolder<D> holder) {
                         return holder.onWorld;
+                    }
+                };
+            }
+        }
+
+        {
+            IDataProvider<OfflinePlayer> playerDP = DataProvider.transform(OfflinePlayer.class, dp, info, false);
+            if (playerDP != null) {
+                return new Taggable<OfflinePlayer>(playerDP) {
+                    @Override
+                    protected <D> ITags<D, OfflinePlayer> getTags(TagsHolder<D> holder) {
+                        return holder.onPlayer;
                     }
                 };
             }
