@@ -35,6 +35,7 @@ import com.ModDamage.Properties.InventoryProps;
 import com.ModDamage.Properties.ItemProps;
 import com.ModDamage.Properties.LocationProps;
 import com.ModDamage.Properties.MaterialProps;
+import com.ModDamage.Properties.MiscProps;
 import com.ModDamage.Properties.OfflinePlayerProps;
 import com.ModDamage.Properties.PlayerProps;
 import com.ModDamage.Properties.WorldProps;
@@ -74,16 +75,17 @@ public class ExternalPluginManager
 
 		// Other
 		Transformers.register();
-		OfflinePlayerProps.register();
-		ChunkProps.register();
 		
 		BlockProps.register();
+		ChunkProps.register();
 		EntityProps.register();
 		EquipmentProps.register();
 		InventoryProps.register();
 		ItemProps.register();
 		LocationProps.register();
 		MaterialProps.register();
+		MiscProps.register();
+		OfflinePlayerProps.register();
 		PlayerProps.register();
 		WorldProps.register();
 
