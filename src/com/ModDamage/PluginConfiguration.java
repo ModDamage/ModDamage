@@ -247,6 +247,12 @@ public class PluginConfiguration
 		else
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla quit messages enabled.");
 		
+		MDEvent.disableKickMessages = getBooleanValue(configMap, "disable-kickmessages", false);
+		if(MDEvent.disableKickMessages)
+			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla kick messages disabled.");
+		else
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla kick messages enabled.");
+		
 		// Aliasing
 		AliasManager.reload();
 
@@ -339,6 +345,7 @@ public class PluginConfiguration
 		outputString += newline + "disable-deathMessages: false";
 		outputString += newline + "disable-joinMessages: false";
 		outputString += newline + "disable-quitMessages: false";
+		outputString += newline + "disable-kickMessages: false";
 		outputString += newline + "Tagging: #These intervals should be tinkered with ONLY if you understand the implications.";
 		outputString += newline + "    interval-save: " + TagManager.defaultInterval;
 		outputString += newline + "    interval-clean: " + TagManager.defaultInterval;

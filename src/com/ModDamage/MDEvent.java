@@ -49,6 +49,7 @@ import com.ModDamage.Events.Player.Fish;
 import com.ModDamage.Events.Player.Interact;
 import com.ModDamage.Events.Player.InteractEntity;
 import com.ModDamage.Events.Player.Join;
+import com.ModDamage.Events.Player.Kick;
 import com.ModDamage.Events.Player.LevelChange;
 import com.ModDamage.Events.Player.PickupExp;
 import com.ModDamage.Events.Player.Quit;
@@ -102,6 +103,7 @@ public class MDEvent implements Listener
 				new Interact(),
 				new InteractEntity(),
 				new Join(),
+				new Kick(),
 				new LevelChange(),
 				new PickupExp(),
 				new Quit(),
@@ -121,6 +123,7 @@ public class MDEvent implements Listener
 	public static boolean disableDeathMessages = false;
 	public static boolean disableJoinMessages = false;
 	public static boolean disableQuitMessages = false;
+	public static boolean disableKickMessages = false;
 	
 	
 	protected EventInfo myInfo;
