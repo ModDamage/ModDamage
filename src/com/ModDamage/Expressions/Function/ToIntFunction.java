@@ -42,7 +42,7 @@ public class ToIntFunction implements IDataProvider<Integer>
 	static final Pattern endPattern = Pattern.compile("\\s*\\)");
 	public static void register()
 	{
-		DataProvider.register(Integer.class, Pattern.compile("(?:to|as)int(?:eger)?\\("), new BaseDataParser<Integer>()
+		DataProvider.register(Integer.class, Pattern.compile("(?:to|as)int(?:eger)?\\(", Pattern.CASE_INSENSITIVE), new BaseDataParser<Integer>()
 			{
 				@Override
 				public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
