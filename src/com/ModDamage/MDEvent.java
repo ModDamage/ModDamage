@@ -27,6 +27,9 @@ import com.ModDamage.Events.Block.BlockSpread;
 import com.ModDamage.Events.Block.BreakBlock;
 import com.ModDamage.Events.Block.LeavesDecay;
 import com.ModDamage.Events.Block.PlaceBlock;
+import com.ModDamage.Events.Chunk.ChunkLoad;
+import com.ModDamage.Events.Chunk.ChunkPopulate;
+import com.ModDamage.Events.Chunk.ChunkUnload;
 import com.ModDamage.Events.Entity.Combust;
 import com.ModDamage.Events.Entity.Damage;
 import com.ModDamage.Events.Entity.Death;
@@ -73,6 +76,12 @@ public class MDEvent implements Listener
 				new BreakBlock(),
 				new PlaceBlock(),
                 new LeavesDecay(),
+				});
+		
+		eventCategories.put("Chunk", new MDEvent[] {
+                new ChunkLoad(),
+                new ChunkPopulate(),
+                new ChunkUnload(),
 				});
 		
 		eventCategories.put("Entity", new MDEvent[] {
