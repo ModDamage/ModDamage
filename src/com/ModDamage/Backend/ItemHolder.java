@@ -1,5 +1,7 @@
 package com.ModDamage.Backend;
 
+import java.util.List;
+
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -108,6 +110,30 @@ public class ItemHolder implements EventFinishedListener {
     public void setName(String name) {
     	ItemMeta meta = item.getItemMeta();
     	meta.setDisplayName(name);
+    	item.setItemMeta(meta);
+    }
+    
+    public String getLore(int index) {
+    	List<String> lore = item.getItemMeta().getLore();
+    	if (index < 0 || index >= lore.size()) return null;
+    	
+    	return lore.get(index);
+    }
+    
+    public void setLore(int index, String text) {
+    	ItemMeta meta = item.getItemMeta();
+
+    	List<String> lore = item.getItemMeta().getLore();
+    	if (index < 0 || index > lore.size()) return;
+    	
+    	if (text == null || text.equals(""))
+    		lore.remove(index);
+    	else if (index == lore.size())
+    		lore.add(text);
+    	else
+    		lore.set(index, text);
+
+    	meta.setLore(lore);
     	item.setItemMeta(meta);
     }
     
