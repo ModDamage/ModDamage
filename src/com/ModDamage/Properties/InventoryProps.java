@@ -48,6 +48,10 @@ public class InventoryProps
                             public Class<? extends ItemHolder> provides() {
                                 return InventorySlot.class;
                             }
+                            
+                            public String toString() {
+                            	return startDP + "_item(" + arguments[0] + ")";
+                            }
                         };
                     }
                 });
@@ -71,6 +75,10 @@ public class InventoryProps
 
                             public boolean isSettable() {
                                 return true;
+                            }
+                            
+                            public String toString() {
+                            	return startDP + "_" + property.name().toLowerCase();
                             }
                         };
                     }
