@@ -9,7 +9,9 @@ import org.bukkit.inventory.InventoryHolder;
 
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.DataProvider.IDataTransformer;
 import com.ModDamage.Parsing.FunctionParser;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Parsing.ISettableDataProvider;
@@ -55,11 +57,7 @@ public class BlockProps
                                 return String.class;
                             }
 
-							@Override
-							public boolean isSettable()
-							{
-								return true;
-							}
+							public boolean isSettable() { return true; }
 							
 							public String toString() {
 								return startDP + "_line(" + arguments[0] + ")";
@@ -69,7 +67,31 @@ public class BlockProps
                 });
         
 
-		DataProvider.registerTransformer(InventoryHolder.class, BlockState.class);
+		DataProvider.registerTransformer(InventoryHolder.class, Block.class, new IDataTransformer<InventoryHolder, Block>() {
+			public IDataProvider<InventoryHolder> transform(EventInfo info, final IDataProvider<Block> blockDP)
+			{
+				return new IDataProvider<InventoryHolder>() {
+						public InventoryHolder get(EventData data) throws BailException {
+							Block block = blockDP.get(data);
+							if (block == null) return null;
+							
+							BlockState state = block.getState();
+							if (state == null) return null;
+							if (state instanceof InventoryHolder)
+								return (InventoryHolder) state;
+							return null;
+						}
+						
+						public Class<? extends InventoryHolder> provides() {
+							return InventoryHolder.class;
+						}
+						
+						public String toString() {
+							return blockDP.toString();
+						}
+					};
+			}
+		});
 		Properties.register("inventory", InventoryHolder.class, "getInventory");
 	}
 }
