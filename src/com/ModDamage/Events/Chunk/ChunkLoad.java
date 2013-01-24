@@ -29,7 +29,8 @@ public class ChunkLoad extends MDEvent implements Listener
 
 		EventData data = myInfo.makeData(
                 event.getChunk().getWorld(),
-				event.getChunk());
+				event.getChunk(),
+				event.isNewChunk());
 		
 		runRoutines(data);
 	}
