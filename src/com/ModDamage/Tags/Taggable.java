@@ -91,35 +91,47 @@ public abstract class Taggable<T> {
     }
     
     public <D> D get(Tag<D> tag, EventData data) throws BailException {
-        return getTags(tag.getHolder(ModDamage.getTagger())).getTagValue(inner.get(data), tag.getName(data));
+    	T innerval = inner.get(data);
+    	if (innerval == null) return null;
+        return getTags(tag.getHolder(ModDamage.getTagger())).getTagValue(innerval, tag.getName(data));
     }
 
     public <D> void set(Tag<D> tag, EventData data, D value) throws BailException {
+    	T innerval = inner.get(data);
+    	if (innerval == null) return;
         getTags(tag.getHolder(ModDamage.getTagger())).addTag(inner.get(data), tag.getName(data), value);
     }
 
     public boolean has(Tag<?> tag, EventData data) throws BailException {
+    	T innerval = inner.get(data);
+    	if (innerval == null) return false;
         return getTags(tag.getHolder(ModDamage.getTagger())).isTagged(inner.get(data), tag.getName(data));
     }
 
     public void remove(Tag<?> tag, EventData data) throws BailException {
+    	T innerval = inner.get(data);
+    	if (innerval == null) return;
         getTags(tag.getHolder(ModDamage.getTagger())).removeTag(inner.get(data), tag.getName(data));
     }
 
     // Avoid double getting inner in some cases
     public <D> D get(Tag<D> tag, T obj, EventData data) throws BailException {
+    	if (obj == null) return null;
         return getTags(tag.getHolder(ModDamage.getTagger())).getTagValue(obj, tag.getName(data));
     }
 
     public <D> void set(Tag<D> tag, T obj, EventData data, D value) throws BailException {
+    	if (obj == null) return;
         getTags(tag.getHolder(ModDamage.getTagger())).addTag(obj, tag.getName(data), value);
     }
 
     public boolean has(Tag<?> tag, T obj, EventData data) throws BailException {
+    	if (obj == null) return false;
         return getTags(tag.getHolder(ModDamage.getTagger())).isTagged(obj, tag.getName(data));
     }
 
     public void remove(Tag<?> tag, T obj, EventData data) throws BailException {
+    	if (obj == null) return;
         getTags(tag.getHolder(ModDamage.getTagger())).removeTag(obj, tag.getName(data));
     }
 
