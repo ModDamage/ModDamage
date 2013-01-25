@@ -23,7 +23,7 @@ public class ItemEntityHolder extends ItemHolder {
     }
 
     @Override
-    public void eventFinished(boolean success) {
+    public void save() {
         itemEntity.setItemStack(getItem());
     }
 }

@@ -8,20 +8,14 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.ModDamage.MDEvent;
 import com.ModDamage.MagicStuff;
 
 
-public class ItemHolder implements EventFinishedListener {
+public class ItemHolder {
     private ItemStack item;
-    private boolean dirty = false;
 
     public ItemHolder(ItemStack item) {
         this.item = item;
-    }
-
-    public boolean isDirty() {
-        return dirty;
     }
 
     public ItemStack getItem() {
@@ -30,7 +24,8 @@ public class ItemHolder implements EventFinishedListener {
 
     protected void setItem(ItemStack item) {
         this.item = item;
-        dirty();
+    	
+    	save();
     }
 
     public Material getType() {
@@ -41,7 +36,8 @@ public class ItemHolder implements EventFinishedListener {
     public void setType(Material material) {
     	if (item == null) item = new ItemStack(material);
     	else item.setType(material);
-        if (!dirty) dirty();
+    	
+    	save();
     }
 
     public int getTypeId() {
@@ -52,7 +48,8 @@ public class ItemHolder implements EventFinishedListener {
     public void setTypeId(int type) {
     	if (item == null) item = new ItemStack(type);
     	else item.setTypeId(type);
-        if (!dirty) dirty();
+    	
+    	save();
     }
 
     public byte getData() {
@@ -63,7 +60,8 @@ public class ItemHolder implements EventFinishedListener {
     public void setData(byte data) {
     	if (item == null) item = new ItemStack(1);
         item.getData().setData(data);
-        if (!dirty) dirty();
+    	
+    	save();
     }
 
     public short getDurability() {
@@ -74,7 +72,8 @@ public class ItemHolder implements EventFinishedListener {
     public void setDurability(short durability) {
     	if (item == null) item = new ItemStack(1);
         item.setDurability(durability);
-        if (!dirty) dirty();
+    	
+    	save();
     }
 
     public int getMaxDurability() {
@@ -90,7 +89,8 @@ public class ItemHolder implements EventFinishedListener {
     public void setAmount(int amount) {
     	if (item == null) item = new ItemStack(1);
         item.setAmount(amount);
-        if (!dirty) dirty();
+    	
+    	save();
     }
 
     public int getMaxStackSize() {
@@ -105,7 +105,8 @@ public class ItemHolder implements EventFinishedListener {
     public void setEnchantmentLevel(Enchantment enchantment, int level) {
     	if (item == null) item = new ItemStack(1);
         item.addUnsafeEnchantment(enchantment, level);
-        if (!dirty) dirty();
+    	
+    	save();
     }
 
     public void clearEnchantments() {
@@ -113,7 +114,8 @@ public class ItemHolder implements EventFinishedListener {
         for (Enchantment enchantment : item.getEnchantments().keySet()) {
             item.removeEnchantment(enchantment);
         }
-        if (!dirty) dirty();
+    	
+    	save();
     }
     
     /// Meta info ///
@@ -128,6 +130,8 @@ public class ItemHolder implements EventFinishedListener {
     	ItemMeta meta = item.getItemMeta();
     	meta.setDisplayName(name);
     	item.setItemMeta(meta);
+    	
+    	save();
     }
     
     public String getLore(int index) {
@@ -155,19 +159,11 @@ public class ItemHolder implements EventFinishedListener {
 
     	meta.setLore(lore);
     	item.setItemMeta(meta);
-    }
-    
-    
-
-    private void dirty() {
-        if (!dirty) {
-            dirty = true;
-            MDEvent.whenEventFinishes(this);
-        }
+    	
+    	save();
     }
 
-    @Override
-    public void eventFinished(boolean success) {}
+    public void save() {}
     
     public String toString() {
     	if (item == null)

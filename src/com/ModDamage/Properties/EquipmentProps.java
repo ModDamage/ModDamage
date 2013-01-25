@@ -16,7 +16,7 @@ public class EquipmentProps
 
 			public ItemHolder get(final EntityEquipment equipment, EventData data) {
 				return new ItemHolder(equipment.getItemInHand()) {
-					public void eventFinished(boolean success) { equipment.setItemInHand(getItem()); }
+					public void save() { equipment.setItemInHand(getItem()); }
 				};
 			}
 		});
@@ -27,7 +27,7 @@ public class EquipmentProps
 	
 				public ItemHolder get(final EntityEquipment equipment, EventData data) {
 					return new ItemHolder(equipment.getItemInHand()) {
-						public void eventFinished(boolean success) { equipment.setItemInHand(getItem()); }
+						public void save() { equipment.setItemInHand(getItem()); }
 					};
 				}
 			});
@@ -38,7 +38,7 @@ public class EquipmentProps
 	
 				public ItemHolder get(final EntityEquipment equipment, EventData data) {
 					return new ItemHolder(equipment.getHelmet()) {
-						public void eventFinished(boolean success) { equipment.setHelmet(getItem()); }
+						public void save() { equipment.setHelmet(getItem()); }
 					};
 				}
 			});
@@ -49,7 +49,7 @@ public class EquipmentProps
 	
 				public ItemHolder get(final EntityEquipment equipment, EventData data) {
 					return new ItemHolder(equipment.getChestplate()) {
-						public void eventFinished(boolean success) { equipment.setChestplate(getItem()); }
+						public void save() { equipment.setChestplate(getItem()); }
 					};
 				}
 			});
@@ -60,7 +60,7 @@ public class EquipmentProps
 	
 				public ItemHolder get(final EntityEquipment equipment, EventData data) {
 					return new ItemHolder(equipment.getLeggings()) {
-						public void eventFinished(boolean success) { equipment.setLeggings(getItem()); }
+						public void save() { equipment.setLeggings(getItem()); }
 					};
 				}
 			});
@@ -71,7 +71,7 @@ public class EquipmentProps
 	
 				public ItemHolder get(final EntityEquipment equipment, EventData data) {
 					return new ItemHolder(equipment.getBoots()) {
-						public void eventFinished(boolean success) { equipment.setBoots(getItem()); }
+						public void save() { equipment.setBoots(getItem()); }
 					};
 				}
 			});

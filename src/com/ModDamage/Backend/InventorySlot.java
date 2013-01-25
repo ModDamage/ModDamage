@@ -27,7 +27,7 @@ public class InventorySlot extends ItemHolder {
 
 
     @Override
-    public void eventFinished(boolean success) {
+    public void save() {
         inventory.setItem(slotId, getItem());
     }
 }
