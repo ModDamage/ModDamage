@@ -1,5 +1,6 @@
 package com.ModDamage.Backend;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Material;
@@ -142,6 +143,7 @@ public class ItemHolder implements EventFinishedListener {
     	ItemMeta meta = item.getItemMeta();
 
     	List<String> lore = item.getItemMeta().getLore();
+    	if (lore == null) lore = new ArrayList<String>(1);
     	if (index < 0 || index > lore.size()) return;
     	
     	if (text == null || text.equals(""))
