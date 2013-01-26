@@ -37,8 +37,8 @@ public class SubstringFunction extends DataProvider<String, String>
 		while (last < 0)
 			last += str.length();
 		
-		if (last >= str.length())
-			last = str.length()-1;
+		if (last > str.length())
+			last = str.length();
 		
 		return str.substring(first, last);
 	}
