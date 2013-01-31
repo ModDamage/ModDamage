@@ -25,6 +25,14 @@ public class EventData implements Cloneable
 		else locals = new int[numLocals];
 	}
 	
+	EventData(EventData other) // copy constructor
+	{
+		parent = (other.parent != null)? other.parent.clone() : null;
+		start = other.start;
+		objects = other.objects.clone();
+		locals = (other.locals != null)? other.locals.clone() : null;
+	}
+	
 //	private EventData(EventData parent, int start, Object[] objects)
 //	{
 //		this.parent = parent;
@@ -91,6 +99,6 @@ public class EventData implements Cloneable
 	
 	@Override public EventData clone()
 	{
-		return new EventData(parent, start, objects.clone());
+		return new EventData(this);
 	}
 }
