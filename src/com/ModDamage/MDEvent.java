@@ -5,7 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
@@ -158,18 +162,18 @@ public class MDEvent implements Listener
         eventFinished(false);
 	}
 	protected Routines routines = null;
-	protected LoadState specificLoadState = LoadState.NOT_LOADED;
-	protected static LoadState state = LoadState.NOT_LOADED;
+	protected LoadState loadState = LoadState.NOT_LOADED;
+	protected static LoadState combinedLoadState = LoadState.NOT_LOADED;
 	
-	protected LoadState getState(){ return specificLoadState; }
+	protected LoadState getState(){ return loadState; }
 	
 	protected String name() { return this.getClass().getSimpleName(); }
 	
 	protected void load(Object nestedContent)
 	{
 		routines = RoutineAliaser.parseRoutines(nestedContent, myInfo);
-		specificLoadState = routines != null? LoadState.SUCCESS : LoadState.FAILURE;
-		if (specificLoadState != LoadState.SUCCESS)
+		loadState = routines != null? LoadState.SUCCESS : LoadState.FAILURE;
+		if (loadState != LoadState.SUCCESS)
 			this.routines = null;
 	}
 	
@@ -177,12 +181,18 @@ public class MDEvent implements Listener
 	{
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
 		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading routines...");
-		state = LoadState.NOT_LOADED;
+		combinedLoadState = LoadState.NOT_LOADED;
 		ModDamage.changeIndentation(true);
+		
+		PluginManager pluginManager = Bukkit.getPluginManager();
+		Plugin plugin = ModDamage.getPluginConfiguration().plugin;
+		
 		for (MDEvent[] events : eventCategories.values())
 		{
 			for (MDEvent event : events)
 			{
+				HandlerList.unregisterAll(event);
+				
 				Object nestedContent = PluginConfiguration.getCaseInsensitiveValue(ModDamage.getPluginConfiguration().getConfigMap(), event.name());
 				if(nestedContent != null)
 				{
@@ -192,11 +202,11 @@ public class MDEvent implements Listener
 				}
 				else
 				{
-					event.specificLoadState = LoadState.NOT_LOADED;
+					event.loadState = LoadState.NOT_LOADED;
 					event.routines = new Routines();
 				}
 				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-				switch(event.specificLoadState)
+				switch(event.loadState)
 				{
 					case NOT_LOADED:
 						ModDamage.addToLogRecord(OutputPreset.WARNING, event.name() + " configuration not found.");
@@ -208,14 +218,17 @@ public class MDEvent implements Listener
 						ModDamage.addToLogRecord(OutputPreset.INFO, "End " + event.name() + " configuration.");
 						break;
 						
-					default: throw new Error("Unknown state: "+event.specificLoadState+" $MDE125");
+					default: throw new Error("Unknown state: "+event.loadState+" $MDE125");
 				}
-				state = LoadState.combineStates(state, event.specificLoadState);
+				combinedLoadState = LoadState.combineStates(combinedLoadState, event.loadState);
+				
+				if (event.loadState == LoadState.SUCCESS)
+					pluginManager.registerEvents(event, plugin);
 			}
 		}
 		ModDamage.changeIndentation(false);
 		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-		switch(state)
+		switch(combinedLoadState)
 		{
 			case NOT_LOADED:
 				ModDamage.addToLogRecord(OutputPreset.WARNING, "No routines loaded! Are any routines defined?");
@@ -227,7 +240,7 @@ public class MDEvent implements Listener
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Routines loaded!");
 				break;
 				
-			default: throw new Error("Unknown state: "+state+" $MDE143");
+			default: throw new Error("Unknown state: "+combinedLoadState+" $MDE143");
 		}
 	}
 

@@ -43,7 +43,7 @@ public class Command extends MDEvent
 	@SuppressWarnings("unchecked")
 	protected void load(Object commands)
 	{
-		specificLoadState = LoadState.FAILURE;
+		loadState = LoadState.FAILURE;
 		
 		boolean failed = false;
 		
@@ -146,7 +146,7 @@ public class Command extends MDEvent
 
 		ModDamage.changeIndentation(false);
 		
-		if (!failed) specificLoadState = LoadState.SUCCESS;
+		if (!failed) loadState = LoadState.SUCCESS;
 	}
 	
 	static class MDCommand extends org.bukkit.command.Command implements PluginIdentifiableCommand

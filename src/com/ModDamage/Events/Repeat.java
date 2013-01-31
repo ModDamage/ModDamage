@@ -47,7 +47,7 @@ public class Repeat extends MDEvent
 	@Override
 	public void load(Object repeats)
 	{
-		specificLoadState = LoadState.FAILURE;
+		loadState = LoadState.FAILURE;
 		boolean failed = false;
 
 		for (Map<String, RepeatInfo<?>> specificMap : repeatMap.values())
@@ -114,7 +114,7 @@ public class Repeat extends MDEvent
 
 		ModDamage.changeIndentation(false);
 
-		if (!failed) specificLoadState = LoadState.SUCCESS;
+		if (!failed) loadState = LoadState.SUCCESS;
 	}
 
 
