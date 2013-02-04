@@ -3,16 +3,16 @@ package com.ModDamage.Events.Player;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
+import com.ModDamage.Backend.ItemHolder;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
@@ -24,7 +24,7 @@ public class Interact extends MDEvent implements Listener
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Player.class,		"player",
 			World.class,		"world",
-			ItemStack.class, 	"item",
+			ItemHolder.class, 	"item",
 			Action.class, 		"action",
 			Boolean.class,		"interact_left",
 			Boolean.class,		"interact_right",
@@ -46,7 +46,7 @@ public class Interact extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				player,
 				player.getWorld(),
-				event.getItem(),
+				new ItemHolder(event.getItem()),
 				action,
 				action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK,
 				action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK,
