@@ -29,6 +29,34 @@ public class PlayerProps
         Properties.register("playerlistname", Player.class, "getPlayerListName", "setPlayerListName");
         Properties.register("compasstarget", Player.class, "getCompassTarget", "setCompassTarget");
 
+        Properties.register("allowflight", Player.class, "getAllowFlight", "setAllowFlight");
+        Properties.register("isflying", Player.class, "isFlying", "setFlying");
+        Properties.register("issprinting", Player.class, "isSprinting", "setSprinting");
+        Properties.register("issneaking", Player.class, "isSneaking", "setSneaking");
+        
+        Properties.register(new SettableProperty<Integer, Player>("flyspeed", Integer.class, Player.class) {
+				public Integer get(Player player, EventData data) {
+					return (int)(player.getFlySpeed() * 100);
+				}
+				public void set(Player player, EventData data, Integer value) {
+					if (value > 100) value = 100;
+					if (value < -100) value = -100;
+					player.setFlySpeed(value / 100.0f);
+				}
+			});
+        Properties.register(new SettableProperty<Integer, Player>("walkspeed", Integer.class, Player.class) {
+				public Integer get(Player player, EventData data) {
+					return (int)(player.getWalkSpeed() * 100);
+				}
+				public void set(Player player, EventData data, Integer value) {
+					if (value > 100) value = 100;
+					if (value < -100) value = -100;
+					player.setWalkSpeed(value / 100.0f);
+				}
+			});
+        
+        
+
         DataProvider.registerTransformer(HumanEntity.class, "getInventory");
         DataProvider.registerTransformer(PlayerInventory.class, EntityEquipment.class);
 	}
