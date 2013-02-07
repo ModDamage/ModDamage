@@ -63,7 +63,10 @@ public class ThingsTagged extends ListExp {
 			tags = holder.onLocation;
 		else return null;
         
-        Map<?, ?> things = tags.getAllTagged(tagName.get(data));
+		String tag = tagName.get(data);
+		if (tag == null) return null;
+		
+        Map<?, ?> things = tags.getAllTagged(tag.toLowerCase());
         if (things == null) return null;
 
 
