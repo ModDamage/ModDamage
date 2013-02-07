@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
@@ -48,6 +49,7 @@ public class ModDamage extends JavaPlugin
 		PluginCommand.setPlugin(this);
 		configuration = new PluginConfiguration(this);
 		isEnabled = true;
+		MagicStuff.init();
 		reload(true);
 		
 		try

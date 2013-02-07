@@ -24,11 +24,11 @@ import com.esotericsoftware.reflectasm.MethodAccess;
 public class MagicStuff
 {
 	// simple package names for version immunity
-	public static final String obc; // replacement for org.bukkit.craftbukkit
-	public static final String nms; // replacement for net.minecraft.server
+	public static String obc; // replacement for org.bukkit.craftbukkit
+	public static String nms; // replacement for net.minecraft.server
 
 
-	static
+	public static void init()
 	{
 		Server server = null;
 		Class<?> serverClass = null;
