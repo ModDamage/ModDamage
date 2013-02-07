@@ -4,6 +4,7 @@ package com.ModDamage.Expressions;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.Expressions.List.EntitiesInWorld;
+import com.ModDamage.Expressions.List.ThingsTagged;
 import com.ModDamage.Parsing.IDataProvider;
 
 import java.util.List;
@@ -23,5 +24,6 @@ public abstract class ListExp<T> implements IDataProvider<List> {
 
     public static void register() {
         EntitiesInWorld.register();
+        ThingsTagged.register();
     }
 }

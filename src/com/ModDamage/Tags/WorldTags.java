@@ -1,11 +1,18 @@
 package com.ModDamage.Tags;
 
-import com.ModDamage.ModDamage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
-import java.util.*;
+import com.ModDamage.ModDamage;
 
 public class WorldTags<T> implements ITags<T, World> {
     private final Map<World, Map<String, T>> tags = new HashMap<World, Map<String, T>>();
@@ -32,6 +39,22 @@ public class WorldTags<T> implements ITags<T, World> {
         if (map != null)
             return new ArrayList<String>(map.keySet());
         return new ArrayList<String>();
+    }
+    
+    public Map<World, T> getAllTagged(String tag) {
+    	Map<World, T> tagged = new HashMap<World, T>();
+    	
+    	for (Entry<World, Map<String, T>> worldEntry : tags.entrySet())
+		{
+    		World world = worldEntry.getKey();
+		
+			T t = worldEntry.getValue().get(tag);
+			
+			if (t != null)
+				tagged.put(world, t);
+		}
+    	
+    	return tagged;
     }
 
     public T getTagValue(World world, String tag) {

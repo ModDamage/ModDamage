@@ -1,12 +1,19 @@
 package com.ModDamage.Tags;
 
-import com.ModDamage.ModDamage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
-import java.util.*;
+import com.ModDamage.ModDamage;
 
 public class ChunkTags<T> implements ITags<T, Chunk> {
     private final Map<World, Map<String, Map<String, T>>> tags = new HashMap<World, Map<String, Map<String,T>>>();
@@ -58,6 +65,32 @@ public class ChunkTags<T> implements ITags<T, Chunk> {
         if (tags != null)
             return new ArrayList<String>(tags.keySet());
         return new ArrayList<String>();
+    }
+    
+    public Map<Chunk, T> getAllTagged(String tag) {
+    	Map<Chunk, T> tagged = new HashMap<Chunk, T>();
+    	
+    	for (Entry<World, Map<String, Map<String, T>>> worldEntry : tags.entrySet())
+		{
+    		World world = worldEntry.getKey();
+    		
+			for (Entry<String, Map<String, T>> chunkEntry : worldEntry.getValue().entrySet())
+			{
+				T t = chunkEntry.getValue().get(tag);
+				
+				if (t != null) {
+	                String[] parts = chunkEntry.getKey().split(":");
+	                if (parts.length != 2) continue;
+
+	                int x = Integer.parseInt(parts[0]);
+	                int z = Integer.parseInt(parts[1]);
+	                
+					tagged.put(world.getChunkAt(x, z), t);
+				}
+			}
+		}
+    	
+    	return tagged;
     }
 
     public T getTagValue(Chunk chunk, String tag) {

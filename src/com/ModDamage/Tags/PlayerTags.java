@@ -1,10 +1,13 @@
 package com.ModDamage.Tags;
 
 import com.ModDamage.ModDamage;
+
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 public class PlayerTags<T> implements ITags<T, OfflinePlayer> {
     private final Map<String, Map<String, T>> tags = new HashMap<String, Map<String, T>>();
@@ -32,6 +35,23 @@ public class PlayerTags<T> implements ITags<T, OfflinePlayer> {
             if (entry.getValue().containsKey(player.getName()))
                 tagsList.add(entry.getKey());
         return tagsList;
+    }
+    
+    public Map<OfflinePlayer, T> getAllTagged(String tag) {
+    	Map<String, T> players = tags.get(tag);
+    	
+    	if (players != null) {
+    		Map<OfflinePlayer, T> map = new HashMap<OfflinePlayer, T>(players.size());
+    		
+    		for (Entry<String, T> entry : players.entrySet())
+			{
+				map.put(Bukkit.getOfflinePlayer(entry.getKey()), entry.getValue());
+			}
+    		
+    		return map;
+    	}
+    	
+    	return null;
     }
 
     public T getTagValue(OfflinePlayer player, String tag) {

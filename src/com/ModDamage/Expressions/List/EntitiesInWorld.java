@@ -62,7 +62,7 @@ public class EntitiesInWorld extends ListExp {
 
     public static void register()
     {
-        DataProvider.register(List.class, Pattern.compile("(?:all\\s+)?(\\w+) in "), new BaseDataParser<List>() {
+        DataProvider.register(List.class, Pattern.compile("(?:all\\s+)?(\\w+) in ", Pattern.CASE_INSENSITIVE), new BaseDataParser<List>() {
             public EntitiesInWorld parse(EventInfo info, Matcher m, StringMatcher sm) {
                 EntityType entityType = EntityType.getElementNamed(m.group(1));
                 if (entityType == null) return null;

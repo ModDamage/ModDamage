@@ -1,11 +1,20 @@
 package com.ModDamage.Tags;
 
-import com.ModDamage.ModDamage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.BlockVector;
 
-import java.util.*;
+import com.ModDamage.ModDamage;
 
 public class LocationTags<T> implements ITags<T, Location> {
 
@@ -70,6 +79,26 @@ public class LocationTags<T> implements ITags<T, Location> {
                 tagsList.add(entry.getKey());
         }
         return tagsList;
+    }
+    
+    public Map<Location, T> getAllTagged(String tag) {
+    	Map<Location, T> tagged = new HashMap<Location, T>();
+    	
+    	for (Entry<String, Map<String, Map<BlockVector, T>>> worldEntry : tags.entrySet())
+		{
+    		World world = Bukkit.getWorld(worldEntry.getKey());
+    		
+			Map<BlockVector, T> locTags = worldEntry.getValue().get(tag);
+			
+			if (locTags != null) {
+				for (Entry<BlockVector, T> vectorEntry : locTags.entrySet())
+				{
+					tagged.put(vectorEntry.getKey().toLocation(world), vectorEntry.getValue());
+				}
+			}
+		}
+    	
+    	return tagged;
     }
 
     public T getTagValue(Location loc, String tag) {

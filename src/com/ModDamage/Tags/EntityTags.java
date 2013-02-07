@@ -1,10 +1,18 @@
 package com.ModDamage.Tags;
 
-import com.ModDamage.ModDamage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
+import java.util.WeakHashMap;
+
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 
-import java.util.*;
+import com.ModDamage.ModDamage;
 
 public class EntityTags<T> implements ITags<T, Entity> {
     private final Map<String, Map<Entity, T>> tags = new HashMap<String, Map<Entity, T>>();
@@ -37,10 +45,19 @@ public class EntityTags<T> implements ITags<T, Entity> {
     public List<String> getTags(Entity entity) {
         if (entity instanceof OfflinePlayer) return tagsHolder.onPlayer.getTags((OfflinePlayer) entity);
         List<String> tagsList = new ArrayList<String>();
-        for (Map.Entry<String, Map<Entity, T>> entry : tags.entrySet())
+        for (Entry<String, Map<Entity, T>> entry : tags.entrySet())
             if (entry.getValue().containsKey(entity))
                 tagsList.add(entry.getKey());
         return tagsList;
+    }
+    
+    public Map<Entity, T> getAllTagged(String tag) {
+    	Map<Entity, T> entities = tags.get(tag);
+    	
+    	if (entities != null)
+    		return new HashMap<Entity, T>(entities);
+    	
+    	return null;
     }
 
     public T getTagValue(Entity entity, String tag) {
@@ -70,12 +87,12 @@ public class EntityTags<T> implements ITags<T, Entity> {
         Map<String, Map<String, T>> entitiesMap = (Map<String, Map<String, T>>) tagMap;
         if (entitiesMap != null)
         {
-            for (Map.Entry<String, Map<String, T>> tagEntry : entitiesMap.entrySet())
+            for (Entry<String, Map<String, T>> tagEntry : entitiesMap.entrySet())
             {
                 Map<Entity, T> taggedEntities = new HashMap<Entity, T>(tagEntry.getValue().size());
                 tags.put(tagEntry.getKey(), taggedEntities);
 
-                for (Map.Entry<String, T> entry : tagEntry.getValue().entrySet())
+                for (Entry<String, T> entry : tagEntry.getValue().entrySet())
                 {
                     Entity entity = entities.get(UUID.fromString(entry.getKey()));
                     if (entity != null)
@@ -88,7 +105,7 @@ public class EntityTags<T> implements ITags<T, Entity> {
     @SuppressWarnings("rawtypes")
     public Map save(Set<Entity> entities) {
         Map<String, Map<String, T>> entityMap = new HashMap<String, Map<String, T>>();
-        for(Map.Entry<String, Map<Entity, T>> tagEntry : tags.entrySet())
+        for(Entry<String, Map<Entity, T>> tagEntry : tags.entrySet())
         {
             HashMap<String, T> savedEntities = new HashMap<String, T>();
 
@@ -96,7 +113,7 @@ public class EntityTags<T> implements ITags<T, Entity> {
 
             if (tagEntry.getValue().isEmpty()) continue;
 
-            for(Map.Entry<Entity, T> entry : tagEntry.getValue().entrySet())
+            for(Entry<Entity, T> entry : tagEntry.getValue().entrySet())
                 savedEntities.put(entry.getKey().getUniqueId().toString(), entry.getValue());
 
             if (!savedEntities.isEmpty())
