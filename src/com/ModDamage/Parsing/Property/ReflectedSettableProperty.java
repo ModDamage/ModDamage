@@ -54,7 +54,16 @@ public class ReflectedSettableProperty<T, S> extends SettableProperty<T, S>
 			return (T) getter.invoke(start);
 		}
         catch (Exception e) {
-            if (!once) { e.printStackTrace(); once = true; }
+        	if (!once) {
+            	once = true;
+            	
+            	if (e instanceof IllegalArgumentException)
+            		System.err.println("_"+ name
+            				+" tried to call "+ getter
+            				+" on a "+ (start == null? "null" : start.getClass().getSimpleName()));
+            	else
+            		e.printStackTrace();
+            }
         }
 		return null;
 	}
@@ -67,7 +76,17 @@ public class ReflectedSettableProperty<T, S> extends SettableProperty<T, S>
 			setter.invoke(start, value);
 		}
         catch (Exception e) {
-            if (!once) { e.printStackTrace(); once = true; }
+            if (!once) {
+            	once = true;
+            	
+            	if (e instanceof IllegalArgumentException)
+            		System.err.println("_"+ name
+            				+" tried to pass "+ (value == null? "null" : value.getClass().getSimpleName())
+            				+" to "+ setter
+            				+" on a "+ (start == null? "null" : start.getClass().getSimpleName()));
+            	else
+            		e.printStackTrace();
+            }
         }
 	}
 }

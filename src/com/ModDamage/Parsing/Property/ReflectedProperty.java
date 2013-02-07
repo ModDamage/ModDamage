@@ -40,7 +40,16 @@ public class ReflectedProperty<T, S> extends Property<T, S>
 			return (T) getter.invoke(start);
 		}
         catch (Exception e) {
-            if (!once) { e.printStackTrace(); once = true; }
+        	if (!once) {
+            	once = true;
+            	
+            	if (e instanceof IllegalArgumentException)
+            		System.err.println("_"+ name
+            				+" tried to call "+ getter
+            				+" on a "+ (start == null? "null" : start.getClass().getSimpleName()));
+            	else
+            		e.printStackTrace();
+            }
         }
 		return null;
 	}
