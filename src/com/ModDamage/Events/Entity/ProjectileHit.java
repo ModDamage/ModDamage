@@ -12,11 +12,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
 import com.ModDamage.MDEvent;
-import com.ModDamage.MagicStuff;
 import com.ModDamage.ModDamage;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Magic.MagicStuff;
 
 public class ProjectileHit extends MDEvent implements Listener
 {

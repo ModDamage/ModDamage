@@ -17,8 +17,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.ModDamage.MDEvent;
-import com.ModDamage.MagicStuff;
 import com.ModDamage.ModDamage;
+import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Utils;
