@@ -9,9 +9,9 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.StringMatcher;
@@ -51,7 +51,7 @@ public class ThingsTagged extends ListExp {
         	holder = manager.intTags;
     	
 		ITags<?, ?> tags;
-		if (tagClass == Player.class)
+		if (tagClass == OfflinePlayer.class)
 			tags = holder.onPlayer;
 		else if (tagClass == Entity.class)
 			tags = holder.onEntity;
@@ -64,6 +64,7 @@ public class ThingsTagged extends ListExp {
 		else return null;
         
         Map<?, ?> things = tags.getAllTagged(tagName.get(data));
+        if (things == null) return null;
 
 
         return new ArrayList(things.keySet());
@@ -94,7 +95,7 @@ public class ThingsTagged extends ListExp {
                 
                 Class<?> tagClass;
                 if (taggableType.startsWith("player"))
-                	tagClass = Player.class;
+                	tagClass = OfflinePlayer.class;
                 else if (taggableType.startsWith("entity"))
                 	tagClass = Entity.class;
                 else if (taggableType.startsWith("world"))
