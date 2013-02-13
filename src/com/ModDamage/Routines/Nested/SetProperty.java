@@ -1,20 +1,25 @@
 package com.ModDamage.Routines.Nested;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.EventInfo.*;
+import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Alias.RoutineAliaser;
+import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.EnumHelper;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Expressions.StringExp;
-import com.ModDamage.ModDamage;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Parsing.ISettableDataProvider;
 import com.ModDamage.Parsing.SettableDataProvider;
-import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
-import com.ModDamage.Backend.BailException;
 import com.ModDamage.Routines.Routines;
 
 @SuppressWarnings("rawtypes")
@@ -51,6 +56,9 @@ public final class SetProperty extends NestedRoutine
 	{
 		NestedRoutine.registerRoutine(Pattern.compile("(?:set|change)\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
+	
+	private static final Pattern truePattern = Pattern.compile("true|yes", Pattern.CASE_INSENSITIVE);
+	private static final Pattern falsePattern = Pattern.compile("false|no", Pattern.CASE_INSENSITIVE);
 
 	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
 	{	
@@ -65,7 +73,7 @@ public final class SetProperty extends NestedRoutine
 				return null;
 			}
 
-			IDataProvider valueDP;
+			IDataProvider valueDP = null;
 			EventInfo myInfo;
 
 			if (propertyDP.provides() == Integer.class) {
@@ -99,17 +107,58 @@ public final class SetProperty extends NestedRoutine
 				String v = (String) nestedContent;
 
 				myInfo = null;
-				if (v.equalsIgnoreCase("none"))
-					valueDP = new IDataProvider() {
-						public Object get(EventData data) { return null; }
+				
+				if (propertyDP.provides() == Boolean.class) {
+					if (truePattern.matcher(v).matches())
+						valueDP = new IDataProvider() {
+							public Boolean get(EventData data) { return true; }
 
-						public Class provides() { return propertyDP.provides(); }
+							public Class provides() { return Boolean.class; }
 
-						public String toString() { return "none"; }
-					};
-				else {
-					valueDP = DataProvider.parse(info, propertyDP.provides(), v);
-					if (valueDP == null) return null;
+							public String toString() { return "true"; }
+						};
+					else if (falsePattern.matcher(v).matches())
+						valueDP = new IDataProvider() {
+							public Boolean get(EventData data) { return false; }
+
+							public Class provides() { return Boolean.class; }
+
+							public String toString() { return "false"; }
+						};
+				}
+				else if (propertyDP.provides().isEnum()) {
+					Map<String, Enum<?>> stringMap = EnumHelper.getTypeMapForEnum(propertyDP.provides());
+					
+					for (Entry<String, Enum<?>> entry : stringMap.entrySet())
+					{
+						if (entry.getKey().equalsIgnoreCase(v)) {
+							final Enum<?> value = entry.getValue();
+							valueDP = new IDataProvider() {
+								public Object get(EventData data) { return value; }
+		
+								public Class provides() { return propertyDP.provides(); }
+		
+								public String toString() { return value.toString(); }
+							};
+							break;
+						}
+					}
+				}
+				
+				
+				if (valueDP == null) {
+					if (v.equalsIgnoreCase("none"))
+						valueDP = new IDataProvider() {
+							public Object get(EventData data) { return null; }
+	
+							public Class provides() { return propertyDP.provides(); }
+	
+							public String toString() { return "none"; }
+						};
+					else {
+						valueDP = DataProvider.parse(info, propertyDP.provides(), v);
+						if (valueDP == null) return null;
+					}
 				}
 
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Set "+propertyDP+" to " + valueDP);
