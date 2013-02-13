@@ -39,6 +39,7 @@ import com.ModDamage.Properties.MaterialProps;
 import com.ModDamage.Properties.MiscProps;
 import com.ModDamage.Properties.OfflinePlayerProps;
 import com.ModDamage.Properties.PlayerProps;
+import com.ModDamage.Properties.ServerProps;
 import com.ModDamage.Properties.WorldProps;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
@@ -89,6 +90,7 @@ public class ExternalPluginManager
 		MiscProps.register();
 		OfflinePlayerProps.register();
 		PlayerProps.register();
+		ServerProps.register();
 		WorldProps.register();
 
 		PlayerNamed.register();
