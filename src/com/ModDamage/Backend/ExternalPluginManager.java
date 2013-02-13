@@ -29,6 +29,7 @@ import com.ModDamage.Expressions.StringExp;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Properties.BlockProps;
 import com.ModDamage.Properties.ChunkProps;
+import com.ModDamage.Properties.CreatureProps;
 import com.ModDamage.Properties.EntityProps;
 import com.ModDamage.Properties.EquipmentProps;
 import com.ModDamage.Properties.InventoryProps;
@@ -78,6 +79,7 @@ public class ExternalPluginManager
 		
 		BlockProps.register();
 		ChunkProps.register();
+		CreatureProps.register();
 		EntityProps.register();
 		EquipmentProps.register();
 		InventoryProps.register();
