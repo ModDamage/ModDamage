@@ -20,9 +20,9 @@ public class EntityProps
 	public static void register()
 	{
         Properties.register("world", Entity.class, "getWorld");
-        Properties.register("passenger", Entity.class, "getPassenger");
+        Properties.register("passenger", Entity.class, "getPassenger", "setPassenger");
         Properties.register("vehicle", Entity.class, "getVehicle");
-        Properties.register("owner", Tameable.class, "getOwner");
+        Properties.register("owner", Tameable.class, "getOwner", "setOwner");
         Properties.register("killer", LivingEntity.class, "getKiller");
         Properties.register("target", Creature.class, "getTarget", "setTarget");
         
