@@ -21,11 +21,13 @@ import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Parsing.SettableDataProvider;
 import com.ModDamage.Parsing.Property.Properties;
+import com.ModDamage.Parsing.Property.SettableProperty;
 
 public class InventoryProps
 {
     public static void register() {
         Properties.register("invname", Inventory.class, "getName");
+        Properties.register("title", Inventory.class, "getTitle");
         Properties.register("type", Inventory.class, "getType");
         Properties.register("size", Inventory.class, "getSize");
         Properties.register("maxstacksize", Inventory.class, "getMaxStackSize", "setMaxStackSize");
@@ -38,12 +40,23 @@ public class InventoryProps
                 new FunctionParser<ItemHolder, Inventory>(Integer.class) {
                     @SuppressWarnings("rawtypes")
 					protected IDataProvider<ItemHolder> makeProvider(IDataProvider<Inventory> startDP, final IDataProvider[] arguments) {
-                        return new DataProvider<ItemHolder, Inventory>(Inventory.class, startDP) {
+                        return new SettableDataProvider<ItemHolder, Inventory>(Inventory.class, startDP) {
                             public ItemHolder get(Inventory inv, EventData data) throws BailException {
                                 Integer slot = (Integer) arguments[0].get(data);
                                 if (slot == null) return null;
                                 return new InventorySlot(inv, slot);
                             }
+
+							public void set(Inventory inv, EventData data, ItemHolder value) throws BailException {
+                                Integer slot = (Integer) arguments[0].get(data);
+                                if (slot == null) return;
+                                
+                                inv.setItem(slot, value.getItem());
+							}
+
+							public boolean isSettable() {
+								return true;
+							}
 
                             public Class<? extends ItemHolder> provides() {
                                 return InventorySlot.class;
@@ -55,6 +68,64 @@ public class InventoryProps
                         };
                     }
                 });
+        
+        Properties.register("type", InventoryView.class, "getType");
+        Properties.register("size", InventoryView.class, "countSlots");
+
+        DataProvider.register(ItemHolder.class, InventoryView.class, Pattern.compile("_slot", Pattern.CASE_INSENSITIVE),
+                new FunctionParser<ItemHolder, InventoryView>(Integer.class) {
+                    @SuppressWarnings("rawtypes")
+					protected IDataProvider<ItemHolder> makeProvider(IDataProvider<InventoryView> startDP, final IDataProvider[] arguments) {
+                        return new SettableDataProvider<ItemHolder, InventoryView>(InventoryView.class, startDP) {
+                            public ItemHolder get(final InventoryView view, EventData data) throws BailException {
+                                final Integer slot = (Integer) arguments[0].get(data);
+                                if (slot == null) return null;
+                                return new ItemHolder(view.getItem(slot)) {
+        							public void save() {
+        								view.setItem(slot, getItem());
+        							}
+        						};
+                            }
+                            
+							public void set(InventoryView view, EventData data, ItemHolder value) throws BailException {
+                                final Integer slot = (Integer) arguments[0].get(data);
+                                if (slot == null) return;
+                                
+                                view.setItem(slot, value.getItem());
+							}
+
+							public boolean isSettable() {
+								return false;
+							}
+
+                            public Class<? extends ItemHolder> provides() {
+                                return InventorySlot.class;
+                            }
+                            
+                            public String toString() {
+                            	return startDP + "_slot(" + arguments[0] + ")";
+                            }
+                        };
+                    }
+                });
+        
+        Properties.register(new SettableProperty<ItemHolder, InventoryView>("cursor", ItemHolder.class, InventoryView.class) {
+					public ItemHolder get(final InventoryView view, EventData data) {
+						return new ItemHolder(view.getCursor()) {
+							public void save() {
+								view.setCursor(getItem());
+							}
+						};
+					}
+					
+					public void set(InventoryView view, EventData data, ItemHolder value) {
+						view.setCursor(value.getItem());
+					}
+                });
+        
+
+        Properties.register("top", InventoryView.class, "getTopInventory");
+        Properties.register("bottom", InventoryView.class, "getBottomInventory");
 
         DataProvider.register(Integer.class, InventoryView.class, Pattern.compile("_("+ Utils.joinBy("|", InventoryView.Property.values()) + ")"),
                 new IDataParser<Integer, InventoryView>() {
