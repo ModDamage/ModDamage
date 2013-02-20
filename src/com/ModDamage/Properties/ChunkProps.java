@@ -14,5 +14,6 @@ public class ChunkProps {
     	Properties.register("x", Chunk.class, "getX");
     	Properties.register("z", Chunk.class, "getZ");
     	Properties.register("world", Chunk.class, "getWorld");
+    	Properties.register("isLoaded", Chunk.class, "isLoaded");
     }
 }
