@@ -46,6 +46,10 @@ import com.ModDamage.Events.Entity.Spawn;
 import com.ModDamage.Events.Entity.Tame;
 import com.ModDamage.Events.Entity.Target;
 import com.ModDamage.Events.Entity.Teleport;
+import com.ModDamage.Events.Inventory.Craft;
+import com.ModDamage.Events.Inventory.InventoryClose;
+import com.ModDamage.Events.Inventory.InventoryOpen;
+import com.ModDamage.Events.Inventory.PrepareCraft;
 import com.ModDamage.Events.Item.DropItem;
 import com.ModDamage.Events.Item.Enchant;
 import com.ModDamage.Events.Item.ItemHeld;
@@ -101,6 +105,13 @@ public class MDEvent implements Listener
 				new Tame(),
 				new Target(),
                 new Teleport(),
+				});
+
+		eventCategories.put("Inventory", new MDEvent[] {
+				new InventoryClose(),
+				new InventoryOpen(),
+				new Craft(),
+				new PrepareCraft(),
 				});
 
 		eventCategories.put("Item", new MDEvent[] {
