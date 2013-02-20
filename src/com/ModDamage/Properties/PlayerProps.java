@@ -55,7 +55,8 @@ public class PlayerProps
 				}
 			});
         
-        
+
+        Properties.register("inventory", HumanEntity.class, "getInventory");
 
         DataProvider.registerTransformer(HumanEntity.class, "getInventory");
         DataProvider.registerTransformer(PlayerInventory.class, EntityEquipment.class);
