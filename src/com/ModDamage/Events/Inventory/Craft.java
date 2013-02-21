@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -43,6 +44,6 @@ public class Craft extends MDEvent implements Listener
 		
 		runRoutines(data);
 		
-		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
+		event.setResult(data.get(Boolean.class, data.start + data.objects.length - 1) == true? Result.DENY : Result.DEFAULT);
 	}
 }
