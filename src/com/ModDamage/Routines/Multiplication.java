@@ -19,7 +19,7 @@ public class Multiplication extends ValueChange
 		super(configString, defaultDP, changeType, value);
 	}
 	@Override
-	public int getValue(Integer def, EventData data) throws BailException
+	public Integer getValue(Integer def, EventData data) throws BailException
 	{
 		return def * number.get(data);
 	}
