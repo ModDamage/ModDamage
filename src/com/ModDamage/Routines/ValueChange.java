@@ -57,11 +57,14 @@ public class ValueChange extends Routine
         int def;
         if (defI == null) def = 0;
         else def = defI;
+        Integer value = getValue(def, data);
+        if (value == null) return;
+        
 		defaultDP.set(data, changeType.changeValue(
-				def, getValue(def, data)));
+				def, value));
 	}
 	
-	protected int getValue(Integer def, EventData data) throws BailException
+	protected Integer getValue(Integer def, EventData data) throws BailException
 	{
 		return number.get(data);
 	}
