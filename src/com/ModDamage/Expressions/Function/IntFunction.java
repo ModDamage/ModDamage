@@ -25,14 +25,27 @@ public class IntFunction implements IDataProvider<Integer>
 		ROLL(1) {
 			@Override public int evaluate(int[] params)
 			{
+				if (params[0] < 0)
+					return -random.nextInt(-params[0]+1);
 				return random.nextInt(params[0]+1);
 			}
 		},
 		RANGE(2,3) {
 			@Override public int evaluate(int[] params)
 			{
-				int interval = params.length == 3? params[2] : 1;
-				return random.nextInt(params[1]+1-params[0])*interval + params[0];
+				if (params[0] > params[1]) {
+					int temp = params[0];
+					params[0] = params[1];
+					params[1] = temp;
+				}
+				
+				int size = params[1]+1 - params[0];
+				
+				if (params.length == 3) {
+					int interval = params[2];
+					return random.nextInt(size / interval)*interval + params[0];
+				}
+				return random.nextInt(size) + params[0];
 			}
 		},
 		ABS(1) {
