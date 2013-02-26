@@ -18,12 +18,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Events.Init;
+import com.ModDamage.Magic.MagicStuff;
+import com.ModDamage.Server.MDServer;
 import com.ModDamage.Tags.TagManager;
 
 /**
@@ -41,6 +42,7 @@ public class ModDamage extends JavaPlugin
 	private static final String errorString_Permissions = chatPrepend(ChatColor.RED) + "You don't have access to that command.";
 
 	private static TagManager tagger = null;
+	
 
 	// //////////////////////// INITIALIZATION
 	@Override
@@ -66,6 +68,8 @@ public class ModDamage extends JavaPlugin
 	@Override
 	public void onDisable()
 	{
+		MDServer.stopServer();
+		
 		if (tagger != null) tagger.close();
 		isEnabled = false;
 		configuration.printToLog(Level.INFO, "Disabled.");

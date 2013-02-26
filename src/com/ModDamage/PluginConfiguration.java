@@ -27,6 +27,7 @@ import org.yaml.snakeyaml.error.YAMLException;
 import com.ModDamage.Alias.AliasManager;
 import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.Backend.ExternalPluginManager.GroupsManager;
+import com.ModDamage.Server.MDServer;
 import com.ModDamage.Tags.TagManager;
 
 public class PluginConfiguration
@@ -253,6 +254,16 @@ public class PluginConfiguration
 		else
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla kick messages enabled.");
 		
+
+		Integer port = (Integer) getCaseInsensitiveValue(configMap, "server-port");
+		String username = (String) getCaseInsensitiveValue(configMap, "server-username");
+		String password = (String) getCaseInsensitiveValue(configMap, "server-password");
+		if(port != null && username != null && password != null) {
+			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Web server started on port "+ port);
+			MDServer.startServer(port, username, password);
+		} else
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Web server not started");
+		
 		// Aliasing
 		AliasManager.reload();
 
@@ -339,6 +350,13 @@ public class PluginConfiguration
 				default: break;
 			}
 		}
+		
+		outputString += newline + newline +  "# Server configuration";
+		outputString += newline + "# Port probably has to be larger than 1024";
+		outputString += newline + "#Uncomment the following to enable the server";
+		outputString += newline + "#server-port: 8765";
+		outputString += newline + "#server-username: mdadmin";
+		outputString += newline + "#server-password: nuggets";
 
 		outputString += newline + newline +  "#Miscellaneous configuration";
 		outputString += newline + "debugging: normal";
