@@ -26,6 +26,7 @@ import com.ModDamage.Expressions.IntegerExp;
 import com.ModDamage.Expressions.ListExp;
 import com.ModDamage.Expressions.NestedExp;
 import com.ModDamage.Expressions.StringExp;
+import com.ModDamage.External.Vault.VaultSupport;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Properties.BlockProps;
 import com.ModDamage.Properties.ChunkProps;
@@ -96,6 +97,11 @@ public class ExternalPluginManager
 		PlayerNamed.register();
 		WorldNamed.register();
 
+		try {
+			VaultSupport.register();
+		}
+		catch (NoClassDefFoundError e) {}
+		
 		for(ModDamageExtension plugin : registeredPlugins)
 			plugin.reloadRoutines();
 
