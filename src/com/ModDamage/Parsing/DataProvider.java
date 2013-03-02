@@ -32,7 +32,7 @@ import dk.brics.automaton.State;
 public abstract class DataProvider<T, S> implements IDataProvider<T>
 {
 	public final Class<S> wantStart;
-	public final IDataProvider<S> startDP;
+	public IDataProvider<S> startDP;
 	protected T defaultValue = null;
 	
 	protected DataProvider(Class<S> wantStart, IDataProvider<S> startDP)

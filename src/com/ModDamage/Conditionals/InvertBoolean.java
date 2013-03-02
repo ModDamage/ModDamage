@@ -53,7 +53,9 @@ public class InvertBoolean implements IDataProvider<Boolean>
 		if (bool instanceof CompoundConditional) {
 			CompoundConditional cc = (CompoundConditional) bool;
 			
-			return new CompoundConditional(invert(cc.startDP), cc.operator, cc.rightDP);
+			cc.startDP = invert(cc.startDP);
+			
+			return cc;
 		}
 		
 		return new InvertBoolean(bool);
