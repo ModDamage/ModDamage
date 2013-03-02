@@ -81,8 +81,8 @@ public class CompoundConditional extends Conditional<Boolean>
 	}
 	
 	
-	private final LogicalOperator operator;
-	private final IDataProvider<Boolean> rightDP;
+	public final LogicalOperator operator;
+	public final IDataProvider<Boolean> rightDP;
 	public CompoundConditional(IDataProvider<Boolean> left, LogicalOperator operator, IDataProvider<Boolean> right)
 	{
 		super(Boolean.class, left);

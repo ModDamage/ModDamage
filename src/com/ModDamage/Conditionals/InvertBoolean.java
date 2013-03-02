@@ -42,9 +42,21 @@ public class InvertBoolean implements IDataProvider<Boolean>
 					if (bool == null) return null;
 					
 					sm.accept();
-					return new InvertBoolean(bool);
+					return invert(bool);
 				}
 			});
+	}
+	
+	// This is a hacky way to fix ! precedence
+	public static IDataProvider<Boolean> invert(IDataProvider<Boolean> bool) {
+
+		if (bool instanceof CompoundConditional) {
+			CompoundConditional cc = (CompoundConditional) bool;
+			
+			return new CompoundConditional(invert(cc.startDP), cc.operator, cc.rightDP);
+		}
+		
+		return new InvertBoolean(bool);
 	}
 	
 	@Override
