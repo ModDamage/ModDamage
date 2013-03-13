@@ -12,6 +12,7 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Routines;
+import com.ModDamage.Routines.Nested.If;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 
 public class RoutineAliaser extends Aliaser<Object, Object>
@@ -96,15 +97,15 @@ public class RoutineAliaser extends Aliaser<Object, Object>
 	{
 		Routines routines = new Routines();
 		ModDamage.changeIndentation(true);
-		boolean returnResult = recursivelyParseRoutines(routines.routines, object, info);
+		boolean success = recursivelyParseRoutines(routines.routines, object, info);
 		ModDamage.changeIndentation(false);
-		if (!returnResult) return null;
+		if (!success) return null;
 		return routines;
 	}
 	@SuppressWarnings("unchecked")
 	private static boolean recursivelyParseRoutines(List<Routine> target, Object object, EventInfo info)
 	{
-		boolean encounteredError = false;
+		boolean success = true;
 		if(object != null)
 		{
 			if(object instanceof String)
@@ -112,11 +113,10 @@ public class RoutineAliaser extends Aliaser<Object, Object>
 				String string = (String) object;
 				
 				Routine routine = Routine.getNew(string, info);
-				if(routine != null) target.add(routine);
-				else
+				if(!elseOrAppend(target, routine))
 				{
 					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid base routine " + " \"" + string + "\"");
-					encounteredError = true;
+					success = false;
 				}
 			}
 			else if(object instanceof LinkedHashMap)
@@ -126,10 +126,9 @@ public class RoutineAliaser extends Aliaser<Object, Object>
 					for(Entry<String, Object> entry : someHashMap.entrySet())//A properly-formatted nested routine is a LinkedHashMap with only one key.
 					{
 						NestedRoutine routine = NestedRoutine.getNew(entry.getKey(), entry.getValue(), info);
-						if(routine != null) target.add(routine);
-						else
+						if(!elseOrAppend(target, routine))
 						{
-							encounteredError = true;
+							success = false;
 							break;
 						}
 					}
@@ -139,19 +138,42 @@ public class RoutineAliaser extends Aliaser<Object, Object>
 				for(Object nestedObject : (List<Object>)object)
 				{
 					if(!recursivelyParseRoutines(target, nestedObject, info))
-						encounteredError = true;
+						success = false;
 				}
 			else
 			{
 				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: did not recognize object " + object.toString() + " of type " + object.getClass().getName());
-				encounteredError = true;
+				return false;
 			}
 		}
 		else
 		{
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: null");
-			encounteredError = true;
+			success = false;
 		}
-		return !encounteredError;
+		return success;
+	}
+	
+	private static boolean elseOrAppend(List<Routine> routines, Routine newRoutine)
+	{
+		if (newRoutine == null) return false;
+		
+		if (newRoutine instanceof If && ((If) newRoutine).isElse) {
+			if (routines.isEmpty() || !(routines.get(routines.size()-1) instanceof If)) {
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: else not after if: '"+newRoutine+"'");
+				return false;
+			}
+			
+			If ifRoutine = (If) routines.get(routines.size()-1);
+			while (ifRoutine.elseRoutine != null)
+				ifRoutine = ifRoutine.elseRoutine;
+			
+			ifRoutine.elseRoutine = (If) newRoutine;
+			return true;
+		}
+		
+		routines.add(newRoutine);
+		
+		return true;
 	}
 }
