@@ -14,16 +14,16 @@ import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Expressions.NumberExp;
 import com.ModDamage.Routines.Routines;
 
 public class Explode extends NestedRoutine
 {
 	private final IDataProvider<Location> locDP;
-	private final IDataProvider<Integer> strength;
+	private final IDataProvider<Number> strength;
 	private final boolean fire;
 
-	public Explode(String configString, IDataProvider<Location> locDP, IDataProvider<Integer> strength, boolean fire)
+	public Explode(String configString, IDataProvider<Location> locDP, IDataProvider<Number> strength, boolean fire)
 	{
 		super(configString);
 		this.locDP = locDP;
@@ -31,7 +31,7 @@ public class Explode extends NestedRoutine
 		this.fire = fire;
 	}
 
-	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "strength", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(Number.class, "strength", "-default");
 
 	@Override
 	public void run(EventData data) throws BailException
@@ -40,7 +40,7 @@ public class Explode extends NestedRoutine
 		if (entity == null) return;
 
 		EventData myData = myInfo.makeChainedData(data, 0);
-		entity.getWorld().createExplosion(entity, strength.get(myData)/10.0f, fire);
+		entity.getWorld().createExplosion(entity, strength.get(myData).floatValue(), fire);
 	}
 
 	public static void register()
@@ -62,7 +62,7 @@ public class Explode extends NestedRoutine
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 			if (routines == null) return null;
 
-			IDataProvider<Integer> strength = IntegerExp.getNew(routines, einfo);
+			IDataProvider<Number> strength = NumberExp.getNew(routines, einfo);
 			if(strength == null) return null;
 
 			return new Explode(matcher.group(), locDP, strength, matcher.group(2) != null);

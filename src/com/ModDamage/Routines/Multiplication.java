@@ -14,14 +14,19 @@ import com.ModDamage.EventInfo.EventInfo;
 
 public class Multiplication extends ValueChange 
 {
-	public Multiplication(String configString, ISettableDataProvider<Integer> defaultDP, ValueChangeType changeType, IDataProvider<Integer> value)
+	public Multiplication(String configString, ISettableDataProvider<Number> defaultDP, ValueChangeType changeType, IDataProvider<Number> value)
 	{ 
 		super(configString, defaultDP, changeType, value);
 	}
 	@Override
-	public Integer getValue(Integer def, EventData data) throws BailException
+	public Number getValue(Integer def, EventData data) throws BailException
 	{
-		return def * number.get(data);
+		return def * number.get(data).intValue();
+	}
+	@Override
+	public Number getValueDouble(Double def, EventData data) throws BailException
+	{
+		return def * number.get(data).doubleValue();
 	}
 	
 	public static void register()
@@ -34,9 +39,9 @@ public class Multiplication extends ValueChange
 		@Override
 		public Multiplication getNew(Matcher matcher, ValueChangeType changeType, EventInfo info)
 		{ 
-			IDataProvider<Integer> match = DataProvider.parse(info, Integer.class, matcher.group(1));
+			IDataProvider<Number> match = DataProvider.parse(info, Number.class, matcher.group(1));
 			if (match == null) return null;
-			ISettableDataProvider<Integer> defaultDP = info.get(Integer.class, "-default");
+			ISettableDataProvider<Number> defaultDP = info.get(Number.class, "-default");
 			if (defaultDP == null) return null;
 			
 			ModDamage.addToLogRecord(OutputPreset.INFO, "Multiply" + changeType.getStringAppend() + ": " + matcher.group(1));

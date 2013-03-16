@@ -16,7 +16,7 @@ import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Expressions.NumberExp;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routines;
@@ -25,9 +25,9 @@ public class EntityHurt extends NestedRoutine
 {
 	private final IDataProvider<LivingEntity> livingDP;
 	private final IDataProvider<Entity> entityOtherDP;
-	private final IDataProvider<Integer> hurt_amount;
+	private final IDataProvider<Number> hurt_amount;
 
-	public EntityHurt(String configString, IDataProvider<LivingEntity> livingDP, IDataProvider<Entity> entityOtherDP, IDataProvider<Integer> hurt_amount)
+	public EntityHurt(String configString, IDataProvider<LivingEntity> livingDP, IDataProvider<Entity> entityOtherDP, IDataProvider<Number> hurt_amount)
 	{
 		super(configString);
 		this.livingDP = livingDP;
@@ -35,7 +35,7 @@ public class EntityHurt extends NestedRoutine
 		this.hurt_amount = hurt_amount;
 	}
 
-	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "hurt_amount", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(Number.class, "hurt_amount", "-default");
 
 	@Override
 	public void run(EventData data) throws BailException
@@ -45,7 +45,7 @@ public class EntityHurt extends NestedRoutine
 		if(from != null && target != null && target.getHealth() > 0 && !target.isDead())
 		{
 			final EventData myData = myInfo.makeChainedData(data, 0);
-			final int damage = hurt_amount.get(myData);
+			final int damage = hurt_amount.get(myData).intValue();
 			Bukkit.getScheduler().runTask(ModDamage.getPluginConfiguration().plugin, new Runnable()
 				{
 					@Override
@@ -97,7 +97,7 @@ public class EntityHurt extends NestedRoutine
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			IDataProvider<Integer> hurt_amount = IntegerExp.getNew(routines, einfo);
+			IDataProvider<Number> hurt_amount = NumberExp.getNew(routines, einfo);
 			if (hurt_amount == null) return null;
 
 			return new EntityHurt(matcher.group(), livingDP, entityOtherDP, hurt_amount);

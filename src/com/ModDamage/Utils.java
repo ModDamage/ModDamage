@@ -71,4 +71,14 @@ public final class Utils
 		else
 			return new ArrayList<T>(coll);
 	}
+
+	public static boolean isFloating(Class<?> cls)
+	{
+		return cls == Float.class || cls == Double.class;
+	}
+	
+	public static boolean isFloating(Number num)
+	{
+		return isFloating(num.getClass());
+	}
 }

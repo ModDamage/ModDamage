@@ -16,7 +16,7 @@ import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Expressions.NumberExp;
 import com.ModDamage.Routines.Routines;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 import com.gmail.nossr50.api.ExperienceAPI;
@@ -73,10 +73,10 @@ public class ModifySkill extends NestedRoutine
 	}
 	
 	private final IDataProvider<Player> playerDP;
-	private final IDataProvider<Integer> valueExp;
+	private final IDataProvider<Number> valueExp;
 	protected final ModifyType modifyType;
 	protected final SkillType skillType;
-	protected ModifySkill(String configString, IDataProvider<Player> playerDP, IDataProvider<Integer> valueExp, ModifyType modifyType, SkillType skillType)
+	protected ModifySkill(String configString, IDataProvider<Player> playerDP, IDataProvider<Number> valueExp, ModifyType modifyType, SkillType skillType)
 	{
 		super(configString);
 		this.playerDP = playerDP;
@@ -85,7 +85,7 @@ public class ModifySkill extends NestedRoutine
 		this.skillType = skillType;
 	}
 	
-	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "value", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(Number.class, "value", "-default");
 	
 	@Override
 	public void run(EventData data) throws BailException
@@ -93,7 +93,7 @@ public class ModifySkill extends NestedRoutine
 		Player player = playerDP.get(data);
 		EventData myData = myInfo.makeChainedData(data, 0);
 		
-		int value = valueExp.get(myData);
+		int value = valueExp.get(myData).intValue();
 		
 		modifyType.modify(player, skillType, value);
 	}
@@ -121,7 +121,7 @@ public class ModifySkill extends NestedRoutine
 			
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			IDataProvider<Integer> valueExp = IntegerExp.getNew(routines, einfo);
+			IDataProvider<Number> valueExp = NumberExp.getNew(routines, einfo);
 			
 			return new ModifySkill(matcher.group(), playerDP, valueExp, modifyType, skillType);
 		}

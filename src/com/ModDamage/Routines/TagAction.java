@@ -18,7 +18,7 @@ import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Expressions.NumberExp;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 
 @SuppressWarnings("rawtypes")
@@ -37,13 +37,18 @@ public class TagAction<T, D> extends NestedRoutine
 
         this.myInfo = myInfo;
 	}
+	@SuppressWarnings("unchecked")
 	@Override
 	public void run(EventData data) throws BailException
 	{
         if (valueDP == null)
             taggable.remove(tag, data);
-        else
-            taggable.set(tag, data, valueDP.get(myInfo.makeChainedData(data, taggable.get(tag, data))));
+        else {
+        	Object value = valueDP.get(myInfo.makeChainedData(data, taggable.get(tag, data)));
+        	if (value instanceof Number)
+        		value = ((Number) value).intValue();
+            taggable.set(tag, data, (D) value);
+        }
 	}
 	
 	private static final Pattern dotPattern = Pattern.compile("\\s*\\.\\s*");
@@ -121,7 +126,7 @@ public class TagAction<T, D> extends NestedRoutine
                 Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
                 if(routines == null) return null;
 
-                IDataProvider<Integer> value = IntegerExp.getNew(routines, einfo);
+                IDataProvider<Number> value = NumberExp.getNew(routines, einfo);
                 if(value == null) return null;
 
                 valueDP = value;

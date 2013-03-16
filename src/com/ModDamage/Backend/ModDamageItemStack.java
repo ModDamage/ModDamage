@@ -19,17 +19,18 @@ import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.MaterialAliaser;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.LiteralInteger;
+import com.ModDamage.Expressions.LiteralNumber;
 
 public class ModDamageItemStack
 {
 	private final Material material;
-	private final IDataProvider<Integer> data, amount;
+	private final IDataProvider<Integer> data;
+	private final IDataProvider<? extends Number> amount;
 	private Map<Enchantment, IDataProvider<Integer>> enchantments;
 	private int lastData, lastAmount;
 	private Map<Enchantment, Integer> lastEnchants;
 	
-	private ModDamageItemStack(Material material, IDataProvider<Integer> data, IDataProvider<Integer> amount)
+	private ModDamageItemStack(Material material, IDataProvider<Integer> data, IDataProvider<? extends Number> amount)
 	{
 		this.material = material;
 		this.data = data;
@@ -50,7 +51,7 @@ public class ModDamageItemStack
 	{
 		if (this.data != null)
 			lastData = this.data.get(data);
-		lastAmount = amount.get(data);
+		lastAmount = amount.get(data).intValue();
 		if (enchantments != null)
 		{
 			for (Entry<Enchantment, IDataProvider<Integer>> entry : enchantments.entrySet())
@@ -140,14 +141,14 @@ public class ModDamageItemStack
 			data = null;
 		
 
-		IDataProvider<Integer> amount;
+		IDataProvider<? extends Number> amount;
 		if (sm.matchesFront("*"))
 		{
 			amount = DataProvider.parse(info, Integer.class, sm.spawn());
 			if (amount == null) return null;
 		}
 		else
-			amount = new LiteralInteger(1);
+			amount = new LiteralNumber(1);
 		
 		return sm.acceptIf(new ModDamageItemStack(material, data, amount));
 	}

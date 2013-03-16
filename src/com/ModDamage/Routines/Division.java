@@ -14,14 +14,20 @@ import com.ModDamage.EventInfo.EventInfo;
 
 public class Division extends ValueChange 
 {
-	public Division(String configString, ISettableDataProvider<Integer> defaultDP, ValueChangeType changeType, IDataProvider<Integer> value)
+	public Division(String configString, ISettableDataProvider<Number> defaultDP, ValueChangeType changeType, IDataProvider<Number> value)
 	{ 
 		super(configString, defaultDP, changeType, value);
 	}
 	@Override
-	public Integer getValue(Integer def, EventData data) throws BailException
+	public Number getValue(Integer def, EventData data) throws BailException
 	{
-		return def / number.get(data);
+		return def / number.get(data).doubleValue();
+	}
+	
+	@Override
+	protected Number getValueDouble(Double def, EventData data) throws BailException
+	{
+		return def / number.get(data).doubleValue();
 	}
 	
 	public static void register()
@@ -34,8 +40,8 @@ public class Division extends ValueChange
 		@Override
 		public Division getNew(Matcher matcher, ValueChangeType changeType, EventInfo info)
 		{ 
-			IDataProvider<Integer> match = DataProvider.parse(info, Integer.class, matcher.group(1));
-			ISettableDataProvider<Integer> defaultDP = info.get(Integer.class, "-default");
+			IDataProvider<Number> match = DataProvider.parse(info, Number.class, matcher.group(1));
+			ISettableDataProvider<Number> defaultDP = info.get(Number.class, "-default");
 			if(match != null && defaultDP != null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Divide" + changeType.getStringAppend() + ": " + matcher.group(1));

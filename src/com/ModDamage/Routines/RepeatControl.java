@@ -17,18 +17,18 @@ import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Events.Repeat;
-import com.ModDamage.Expressions.LiteralInteger;
+import com.ModDamage.Expressions.LiteralNumber;
 
 public class RepeatControl extends Routine
 {
 	@SuppressWarnings("rawtypes")
 	private final IDataProvider itDP;
 	private final String repeatName;
-	private final IDataProvider<Integer> delay, count;
+	private final IDataProvider<? extends Number> delay, count;
 	
 	@SuppressWarnings("rawtypes")
 	protected RepeatControl(String configString, IDataProvider itDP, String repeatName,
-			IDataProvider<Integer> delay, IDataProvider<Integer> count)
+			IDataProvider<? extends Number> delay, IDataProvider<? extends Number> count)
 	{
 		super(configString);
 		this.itDP = itDP;
@@ -49,7 +49,7 @@ public class RepeatControl extends Routine
 			return;
 		}
 		
-		Repeat.start(repeatName, it, delay.get(data), count.get(data));
+		Repeat.start(repeatName, it, delay.get(data).intValue(), count.get(data).intValue());
 	}
 
 	public static void register()
@@ -76,7 +76,7 @@ public class RepeatControl extends Routine
 				itDP = DataProvider.parse(info, World.class, matcher.group(1), true, false);
 			if (itDP == null) return null;
 			
-			IDataProvider<Integer> delay, count;
+			IDataProvider<? extends Number> delay, count;
 			
 			
 			String repeatName = matcher.group(2);
@@ -101,7 +101,7 @@ public class RepeatControl extends Routine
 					count = DataProvider.parse(info, Integer.class, sm.spawn()); if (count == null) return null;
 				}
 				else
-					count = new LiteralInteger(-1);
+					count = new LiteralNumber(-1);
 				if (!sm.isEmpty()) return null;
 			}
 			

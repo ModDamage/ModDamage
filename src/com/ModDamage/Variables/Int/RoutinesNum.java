@@ -7,19 +7,19 @@ import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Parsing.ISettableDataProvider;
 import com.ModDamage.Routines.Routines;
 
-public class RoutinesInt implements IDataProvider<Integer>
+public class RoutinesNum implements IDataProvider<Number>
 {
 	private final Routines routines;
-	private final ISettableDataProvider<Integer> defaultDP;
+	private final ISettableDataProvider<Number> defaultDP;
 	
-	public RoutinesInt(Routines routines, EventInfo info)
+	public RoutinesNum(Routines routines, EventInfo info)
 	{
 		this.routines = routines;
-		this.defaultDP = info.get(Integer.class, "-default");
+		this.defaultDP = info.get(Number.class, "-default");
 	}
 	
 	@Override
-	public Integer get(EventData data) throws BailException
+	public Number get(EventData data) throws BailException
 	{
 		routines.run(data);
 		
@@ -27,7 +27,7 @@ public class RoutinesInt implements IDataProvider<Integer>
 	}
 
 	@Override
-	public Class<Integer> provides() { return Integer.class; }
+	public Class<Number> provides() { return Number.class; }
 	
 	@Override
 	public String toString()

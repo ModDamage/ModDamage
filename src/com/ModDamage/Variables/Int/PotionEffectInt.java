@@ -17,9 +17,9 @@ import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Expressions.NumberExp;
 
-public class PotionEffectInt extends IntegerExp<LivingEntity>
+public class PotionEffectInt extends NumberExp<LivingEntity>
 {	
 	public enum PotionEffectProperty
 	{
@@ -43,12 +43,12 @@ public class PotionEffectInt extends IntegerExp<LivingEntity>
 	
 	public static void register()
 	{
-		DataProvider.register(Integer.class, LivingEntity.class,
+		DataProvider.register(Number.class, LivingEntity.class,
 				Pattern.compile("_potioneffect_(\\w+?)_("+PotionEffectProperty.regexString+")", Pattern.CASE_INSENSITIVE),
-				new IDataParser<Integer, LivingEntity>()
+				new IDataParser<Number, LivingEntity>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Number> parse(EventInfo info, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
 					{
 						PotionEffectType type = PotionEffectType.getByName(m.group(1).toUpperCase());
 						if (type == null)

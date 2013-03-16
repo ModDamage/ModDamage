@@ -16,20 +16,20 @@ import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Expressions.NumberExp;
 import com.gmail.nossr50.api.ExperienceAPI;
 import com.gmail.nossr50.datatypes.SkillType;
 
-public class PlayerSkillInt extends IntegerExp<Player>
+public class PlayerSkillInt extends NumberExp<Player>
 {
 	public static void register()
 	{
-		DataProvider.register(Integer.class, Player.class, 
+		DataProvider.register(Number.class, Player.class, 
 				Pattern.compile("_SKILL(|"+Utils.joinBy("|", SkillProperty.values())+")_(\\w+)", Pattern.CASE_INSENSITIVE),
-				new IDataParser<Integer, Player>()
+				new IDataParser<Number, Player>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Number> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 					{
 						String skillPropStr = m.group(1).toUpperCase();
 						String skillTypeStr = m.group(2).toUpperCase();

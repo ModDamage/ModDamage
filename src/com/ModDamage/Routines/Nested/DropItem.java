@@ -16,7 +16,7 @@ import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.LiteralInteger;
+import com.ModDamage.Expressions.LiteralNumber;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routine;
@@ -29,8 +29,8 @@ public class DropItem extends NestedRoutine
 	protected final Collection<ModDamageItemStack> items;
 	protected final IDataProvider<Location> locationDP;
 	protected final Routines routines;
-	protected final IDataProvider<Integer> quantity;
-	public DropItem(String configString, IDataProvider<Location> locationDP, Collection<ModDamageItemStack> items, IDataProvider<Integer> quantity, Routines routines)
+	protected final IDataProvider<? extends Number> quantity;
+	public DropItem(String configString, IDataProvider<Location> locationDP, Collection<ModDamageItemStack> items, IDataProvider<? extends Number> quantity, Routines routines)
 	{
 		super(configString);
 		this.locationDP = locationDP;
@@ -47,7 +47,7 @@ public class DropItem extends NestedRoutine
         for(ModDamageItemStack item : items)
             item.update(data);
 
-        int quantity = this.quantity.get(data);
+        int quantity = this.quantity.get(data).intValue();
 
         for (int i = 0; i < quantity; i++)
         {
@@ -101,11 +101,11 @@ public class DropItem extends NestedRoutine
 					routines = RoutineAliaser.parseRoutines(nestedContent, info.chain(myInfo));
 
 				
-				IDataProvider<Integer> quantity;
+				IDataProvider<? extends Number> quantity;
 				if (matcher.group(3) != null)
 					quantity = DataProvider.parse(info, Integer.class, matcher.group(3));
 				else
-					quantity = new LiteralInteger(1);
+					quantity = new LiteralNumber(1);
 
                 if (quantity == null) return null;
 

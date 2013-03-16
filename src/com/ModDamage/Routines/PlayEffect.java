@@ -13,7 +13,7 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.LiteralInteger;
+import com.ModDamage.Expressions.LiteralNumber;
 
 public class PlayEffect extends Routine
 {
@@ -44,15 +44,15 @@ public class PlayEffect extends Routine
 	
 	private final IDataProvider<Location> locDP;
 	private final EffectType effectType;
-	private final IDataProvider<Integer> effectData;
+	private final IDataProvider<? extends Number> effectData;
 	private final IDataProvider<Integer> radius;
 	
-	protected PlayEffect(String configString, IDataProvider<Location> locDP, EffectType effectType, IDataProvider<Integer> effectData, IDataProvider<Integer> radius)
+	protected PlayEffect(String configString, IDataProvider<Location> locDP, EffectType effectType, IDataProvider<? extends Number> data, IDataProvider<Integer> radius)
 	{
 		super(configString);
 		this.locDP = locDP;
 		this.effectType = effectType;
-		this.effectData = effectData;
+		this.effectData = data;
 		this.radius = radius;
 	}
 
@@ -91,9 +91,9 @@ public class PlayEffect extends Routine
 				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad effect type: \""+matcher.group(2)+"\"");
 				return null;
 			}
-			IDataProvider<Integer> data;
+			IDataProvider<? extends Number> data;
 			if (matcher.group(3) == null)
-				data = new LiteralInteger(0);
+				data = new LiteralNumber(0);
 			else {
 				Integer ndata = effectType.dataForExtra(matcher.group(3));
 				if (ndata == null)
@@ -107,7 +107,7 @@ public class PlayEffect extends Routine
 					}
 				}
 				else
-					data = new LiteralInteger(ndata);
+					data = new LiteralNumber(ndata);
 			}
 			
 			IDataProvider<Integer> radius = null;

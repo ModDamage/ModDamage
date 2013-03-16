@@ -22,7 +22,7 @@ import org.bukkit.plugin.Plugin;
 import ru.tehkode.permissions.PermissionManager;
 
 import com.ModDamage.ModDamage.ModDamageExtension;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Expressions.NumberExp;
 import com.ModDamage.Expressions.ListExp;
 import com.ModDamage.Expressions.NestedExp;
 import com.ModDamage.Expressions.StringExp;
@@ -70,7 +70,7 @@ public class ExternalPluginManager
 		Routine.registerVanillaRoutines();
 		NestedRoutine.registerVanillaRoutines();
 
-		IntegerExp.registerAllIntegers();
+		NumberExp.registerAllNumbers();
 		StringExp.register();
 		NestedExp.register();
 		TagValue.register();

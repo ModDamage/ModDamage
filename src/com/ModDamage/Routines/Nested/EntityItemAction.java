@@ -17,7 +17,7 @@ import com.ModDamage.Backend.ModDamageItemStack;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.LiteralInteger;
+import com.ModDamage.Expressions.LiteralNumber;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routine;
@@ -53,9 +53,9 @@ public class EntityItemAction extends NestedRoutine
 	protected final Collection<ModDamageItemStack> items;
 	protected final IDataProvider<HumanEntity> humanDP;
 	protected final Routines routines;
-	protected final IDataProvider<Integer> quantity;
+	protected final IDataProvider<? extends Number> quantity;
 
-	public EntityItemAction(String configString, IDataProvider<HumanEntity> humanDP, ItemAction action, Collection<ModDamageItemStack> items, IDataProvider<Integer> quantity, Routines routines)
+	public EntityItemAction(String configString, IDataProvider<HumanEntity> humanDP, ItemAction action, Collection<ModDamageItemStack> items, IDataProvider<? extends Number> quantity, Routines routines)
 	{
 		super(configString);
 		this.humanDP = humanDP;
@@ -73,7 +73,7 @@ public class EntityItemAction extends NestedRoutine
         for(ModDamageItemStack item : items)
             item.update(data);
 
-        int quantity = this.quantity.get(data);
+        int quantity = this.quantity.get(data).intValue();
 
         for (int i = 0; i < quantity; i++)
         {
@@ -129,11 +129,11 @@ public class EntityItemAction extends NestedRoutine
 					routines = RoutineAliaser.parseRoutines(nestedContent, info.chain(myInfo));
 
 				
-				IDataProvider<Integer> quantity;
+				IDataProvider<? extends Number> quantity;
 				if (matcher.group(4) != null)
 					quantity = DataProvider.parse(info, Integer.class, matcher.group(4));
 				else
-					quantity = new LiteralInteger(1);
+					quantity = new LiteralNumber(1);
 
                 if (quantity == null) return null;
 

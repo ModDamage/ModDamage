@@ -14,22 +14,22 @@ import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Expressions.NumberExp;
 import com.ModDamage.Routines.Routines;
 
 public class EntityHeal extends NestedRoutine
 {
 	private final IDataProvider<LivingEntity> livingDP;
-	private final IDataProvider<Integer> heal_amount;
+	private final IDataProvider<Number> heal_amount;
 	
-	public EntityHeal(String configString, IDataProvider<LivingEntity> livingDP, IDataProvider<Integer> heal_amount)
+	public EntityHeal(String configString, IDataProvider<LivingEntity> livingDP, IDataProvider<Number> heal_amount)
 	{
 		super(configString);
 		this.livingDP = livingDP;
 		this.heal_amount = heal_amount;
 	}
 
-	static final EventInfo myInfo = new SimpleEventInfo(Integer.class, "heal_amount", "-default");
+	static final EventInfo myInfo = new SimpleEventInfo(Number.class, "heal_amount", "-default");
 	
 	@Override
 	public void run(EventData data) throws BailException
@@ -37,7 +37,7 @@ public class EntityHeal extends NestedRoutine
 		EventData myData = myInfo.makeChainedData(data, 0);
 			
 		LivingEntity entity = (LivingEntity)livingDP.get(data);
-		entity.setHealth(Math.min(entity.getHealth() + heal_amount.get(myData), entity.getMaxHealth()));
+		entity.setHealth(Math.min(entity.getHealth() + heal_amount.get(myData).intValue(), entity.getMaxHealth()));
 	}
 
 	public static void register()
@@ -58,7 +58,7 @@ public class EntityHeal extends NestedRoutine
 
 			EventInfo einfo = info.chain(myInfo);
 			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			IDataProvider<Integer> heal_amount = IntegerExp.getNew(routines, einfo);
+			IDataProvider<Number> heal_amount = NumberExp.getNew(routines, einfo);
             if (heal_amount == null) return null;
 
 			return new EntityHeal(matcher.group(), livingDP, heal_amount);

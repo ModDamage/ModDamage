@@ -15,15 +15,15 @@ import com.ModDamage.Variables.Int.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class IntegerExp<From> extends DataProvider<Integer, From>
+public abstract class NumberExp<From> extends DataProvider<Number, From>
 {
-	protected IntegerExp(Class<From> wantStart, IDataProvider<From> startDP)
+	protected NumberExp(Class<From> wantStart, IDataProvider<From> startDP)
 	{
 		super(wantStart, startDP);
 		defaultValue = 0;
 	}
 	
-	public final Integer get(From from, EventData data) throws BailException
+	public final Number get(From from, EventData data) throws BailException
 	{
 		try
 		{
@@ -34,53 +34,56 @@ public abstract class IntegerExp<From> extends DataProvider<Integer, From>
 			throw new BailException(this, t);
 		}
 	}
-	protected abstract Integer myGet(From from, EventData data) throws BailException;
+	protected abstract Number myGet(From from, EventData data) throws BailException;
 
-    public static final Pattern literalInteger = Pattern.compile("[0-9]+");
+    public static final Pattern literalNumber = Pattern.compile("[0-9]+(\\.[0-9]+)?");
 
     /**
-     * This parses either a literal number (123) or %{integer}
+     * This parses either a literal number (123) or %{number}
      * @param sm sm.spawn()
      * @param info The current EventInfo
-     * @return The new Integer IDataProvider or null if parsing failed
+     * @return The new Number IDataProvider or null if parsing failed
      */
-    public static IDataProvider<Integer> parse(StringMatcher sm, EventInfo info) {
+    public static IDataProvider<Number> parse(StringMatcher sm, EventInfo info) {
         Matcher m = sm.matchFront(InterpolatedString.interpolationStartPattern);
         if (m != null) {
-            IDataProvider<Integer> integerDP = DataProvider.parse(info, Integer.class, sm.spawn(), false, true, InterpolatedString.interpolationEndPattern);
-            if (integerDP == null) return null;
+            IDataProvider<Number> numberDP = DataProvider.parse(info, Number.class, sm.spawn(), false, true, InterpolatedString.interpolationEndPattern);
+            if (numberDP == null) return null;
             if (!sm.matchesFront(InterpolatedString.interpolationEndPattern)) return null;
-            return integerDP;
+            return numberDP;
         }
 
-        m = sm.matchFront(literalInteger);
+        m = sm.matchFront(literalNumber);
         if (m != null) {
-            return new LiteralInteger(Integer.parseInt(m.group()));
+        	if (m.group(1) != null)
+                return new LiteralNumber(Double.parseDouble(m.group()));
+        	else
+        		return new LiteralNumber(Integer.parseInt(m.group()));
         }
 
         return null;
     }
 	
 	@Override
-	public Class<Integer> provides() { return Integer.class; }
+	public Class<? extends Number> provides() { return Number.class; }
 	
-	public static IDataProvider<Integer> getNew(Routines routines, EventInfo info) 
+	public static IDataProvider<Number> getNew(Routines routines, EventInfo info) 
 	{
 		if(routines != null && !routines.isEmpty())
-			return new RoutinesInt(routines, info);
+			return new RoutinesNum(routines, info);
 		return null;
 	}
 	
-	public static void registerAllIntegers()
+	public static void registerAllNumbers()
 	{
 		IntFunction.register();
 		BlockLocFunction.register();
 		DistanceFunction.register();
 		
-		LiteralInteger.register();
+		LiteralNumber.register();
 		LocalInt.register();
 		EnchantmentInt.register();
-		IntegerOpInt.register();
+		NumberOp.register();
 		ItemEnchantmentInt.register();
 		NegativeInt.register();
 		PotionEffectInt.register();

@@ -14,7 +14,7 @@ import com.ModDamage.Backend.EnumHelper;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.IntegerExp;
+import com.ModDamage.Expressions.NumberExp;
 import com.ModDamage.Expressions.StringExp;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
@@ -76,15 +76,15 @@ public final class SetProperty extends NestedRoutine
 			IDataProvider valueDP = null;
 			EventInfo myInfo;
 
-			if (propertyDP.provides() == Integer.class) {
-				myInfo = new SimpleEventInfo(Integer.class, "value", "-default");
+			if (Number.class.isAssignableFrom(propertyDP.provides())) {
+				myInfo = new SimpleEventInfo(propertyDP.provides(), "value", "-default");
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Set "+propertyDP+":");
 
 				EventInfo einfo = info.chain(myInfo);
 				Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 				if(routines == null) return null;
 
-				valueDP = IntegerExp.getNew(routines, einfo);
+				valueDP = NumberExp.getNew(routines, einfo);
 			}
 			else if (propertyDP.provides() == String.class) {
 				List<IDataProvider<String>> messages = StringExp.getStrings(nestedContent, info);
