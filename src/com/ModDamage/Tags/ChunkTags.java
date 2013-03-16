@@ -31,13 +31,11 @@ public class ChunkTags<T> implements ITags<T, Chunk> {
 
         return worldTags;
     }
-
-    public Map<String, T> getChunkTags(Chunk chunk, boolean create)
+    
+    public Map<String, T> getChunkTags(World world, String chunkKey, boolean create)
     {
-        Map<String, Map<String, T>> worldTags = getWorldChunkTags(chunk.getWorld(), create);
+        Map<String, Map<String, T>> worldTags = getWorldChunkTags(world, create);
         if (worldTags == null) return null;
-        
-        String chunkKey = chunk.getX() + ":" + chunk.getZ();
 
         Map<String, T> tags = worldTags.get(chunkKey);
 
@@ -47,6 +45,13 @@ public class ChunkTags<T> implements ITags<T, Chunk> {
         }
 
         return tags;
+    }
+
+    public Map<String, T> getChunkTags(Chunk chunk, boolean create)
+    {
+        String chunkKey = chunk.getX() + ":" + chunk.getZ();
+
+        return getChunkTags(chunk.getWorld(), chunkKey, create);
     }
 
     public void addTag(Chunk chunk, String tag, T tagValue) {
@@ -126,16 +131,7 @@ public class ChunkTags<T> implements ITags<T, Chunk> {
 
             for (Map.Entry<String, Map<String, T>> chunkEntry : worldEntry.getValue().entrySet())
             {
-                String[] parts = chunkEntry.getKey().split(":");
-                if (parts.length != 2) continue;
-
-                int x = Integer.parseInt(parts[0]);
-                int z = Integer.parseInt(parts[1]);
-
-                Chunk chunk = world.getChunkAt(x, z);
-                if (chunk == null) continue;
-
-                Map<String, T> chunkTags = getChunkTags(chunk, true);
+                Map<String, T> chunkTags = getChunkTags(world, chunkEntry.getKey(), true);
 
                 for (Map.Entry<String, T> tagEntry : chunkEntry.getValue().entrySet())
                     chunkTags.put(tagEntry.getKey(), tagEntry.getValue());
