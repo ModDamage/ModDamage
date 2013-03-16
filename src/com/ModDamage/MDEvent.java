@@ -62,6 +62,7 @@ import com.ModDamage.Events.Player.InteractEntity;
 import com.ModDamage.Events.Player.Join;
 import com.ModDamage.Events.Player.Kick;
 import com.ModDamage.Events.Player.LevelChange;
+import com.ModDamage.Events.Player.Login;
 import com.ModDamage.Events.Player.PickupExp;
 import com.ModDamage.Events.Player.Quit;
 import com.ModDamage.Events.Player.ToggleFlight;
@@ -129,6 +130,7 @@ public class MDEvent implements Listener
 				new Join(),
 				new Kick(),
 				new LevelChange(),
+				new Login(),
 				new PickupExp(),
 				new Quit(),
 				new ToggleFlight(),
