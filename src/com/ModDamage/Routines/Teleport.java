@@ -19,8 +19,8 @@ public class Teleport extends Routine
 {
 	private final IDataProvider<Entity> entityDP;
     private final IDataProvider<Location> locDP;
-	private final IDataProvider<Integer> yawDP, pitchDP;
-	protected Teleport(String configString, IDataProvider<Entity> entityDP, IDataProvider<Location> locDP, IDataProvider<Integer> yawDP, IDataProvider<Integer> pitchDP)
+	private final IDataProvider<Number> yawDP, pitchDP;
+	protected Teleport(String configString, IDataProvider<Entity> entityDP, IDataProvider<Location> locDP, IDataProvider<Number> yawDP, IDataProvider<Number> pitchDP)
 	{
 		super(configString);
 		this.entityDP = entityDP;
@@ -39,8 +39,8 @@ public class Teleport extends Routine
         if (loc == null) return;
         float yaw, pitch;
 		if (yawDP != null && pitchDP != null) {
-			yaw = yawDP.get(data);
-            pitch = pitchDP.get(data);
+			yaw = yawDP.get(data).floatValue();
+            pitch = pitchDP.get(data).floatValue();
         }
         else {
             yaw = entity.getLocation().getYaw();
@@ -73,13 +73,13 @@ public class Teleport extends Routine
 			IDataProvider<Location> locDP;
             locDP = DataProvider.parse(info, Location.class, sm.spawn()); if (locDP == null) return null;
 			
-			IDataProvider<Integer> yaw = null, pitch = null;
+			IDataProvider<Number> yaw = null, pitch = null;
 			String yaw_pitch = "";
 			if (!sm.isEmpty()) {
 				if (!sm.matchesFront(dotPattern)) return null;
-				yaw = DataProvider.parse(info, Integer.class, sm.spawn()); if (yaw == null) return null;
+				yaw = DataProvider.parse(info, Number.class, sm.spawn()); if (yaw == null) return null;
 				if (!sm.matchesFront(dotPattern)) return null;
-				pitch = DataProvider.parse(info, Integer.class, sm.spawn()); if (pitch == null) return null;
+				pitch = DataProvider.parse(info, Number.class, sm.spawn()); if (pitch == null) return null;
 				
 				if (!sm.isEmpty()) return null;
 				
