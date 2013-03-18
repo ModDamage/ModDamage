@@ -34,8 +34,8 @@ public class Knockback extends NestedRoutine
 	}
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Integer.class, "x", "horiz", "-default",
-			Integer.class, "y", "vertical");
+			Number.class, "x", "horiz", "-default",
+			Number.class, "y", "vertical");
 	
 	@Override
 	public void run(EventData data) throws BailException
@@ -50,8 +50,8 @@ public class Knockback extends NestedRoutine
 		
 		routines.run(myData);
 		
-		int xRef = myData.get(Integer.class, myData.start + 0);
-		int yRef = myData.get(Integer.class, myData.start + 1);
+		double xRef = myData.get(Number.class, myData.start + 0).doubleValue();
+		double yRef = myData.get(Number.class, myData.start + 1).doubleValue();
 	
 		double hLength = Math.sqrt(Math.pow(vector.getX(), 2) + Math.pow(vector.getZ(), 2));
 		
