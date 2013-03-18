@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
@@ -14,7 +15,7 @@ import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
 
-public class Comparison extends Conditional<Integer>
+public class Comparison extends Conditional<Number>
 {
 	private enum ComparisonType
 	{ 
@@ -22,21 +23,29 @@ public class Comparison extends Conditional<Integer>
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 < operand2; }
+			@Override
+			public boolean compareDouble(double operand1, double operand2){ return operand1 < operand2; }
 		},
 		LESSTHANEQUALS("<=", "<=")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 <= operand2; }
+			@Override
+			public boolean compareDouble(double operand1, double operand2){ return operand1 <= operand2; }
 		},
 		GREATERTHAN(">", ">")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 > operand2; }
+			@Override
+			public boolean compareDouble(double operand1, double operand2){ return operand1 > operand2; }
 		},
 		GREATERTHANEQUALS(">=", ">=")
 		{
 			@Override
 			public boolean compare(int operand1, int operand2){ return operand1 >= operand2; }
+			@Override
+			public boolean compareDouble(double operand1, double operand2){ return operand1 >= operand2; }
 		};
 		
 		//public final String opRegex;
@@ -49,6 +58,7 @@ public class Comparison extends Conditional<Integer>
 		}
 		
 		abstract public boolean compare(int operand1, int operand2);
+		abstract public boolean compareDouble(double operand1, double operand2);
 		
 		//protected static String operatorPart;
 		protected static Map<String, ComparisonType> nameMap;
@@ -72,20 +82,26 @@ public class Comparison extends Conditional<Integer>
 	}
 	
 	public static final Pattern operatorPattern = Pattern.compile("\\s*(>=?|<=?|==?|!=)\\s*"); // doing it like above won't match >= correctly
-	protected final IDataProvider<Integer> rightDP;
+	protected final IDataProvider<Number> rightDP;
 	protected final ComparisonType comparisonType;
 	
-	protected Comparison(IDataProvider<Integer> left, ComparisonType comparisonType, IDataProvider<Integer> right)
+	protected Comparison(IDataProvider<Number> left, ComparisonType comparisonType, IDataProvider<Number> right)
 	{
-		super(Integer.class, left);
+		super(Number.class, left);
 		this.comparisonType = comparisonType;
 		this.rightDP = right;
 	}
 
 	@Override
-	public Boolean get(Integer left, EventData data) throws BailException
+	public Boolean get(Number left, EventData data) throws BailException
 	{
-		return comparisonType.compare(left, rightDP.get(data));
+		Number right = rightDP.get(data);
+		if (left == null || right == null) return false;
+		
+		if (Utils.isFloating(left) || Utils.isFloating(right))
+			return comparisonType.compareDouble(left.doubleValue(), right.doubleValue());
+		else
+			return comparisonType.compare(left.intValue(), right.intValue());
 	}
 
 	@Override
@@ -100,14 +116,14 @@ public class Comparison extends Conditional<Integer>
 	
 	public static void register()
 	{
-		DataProvider.register(Boolean.class, Integer.class, operatorPattern, new IDataParser<Boolean, Integer>()
+		DataProvider.register(Boolean.class, Number.class, operatorPattern, new IDataParser<Boolean, Number>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Integer> leftDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Number> leftDP, Matcher m, StringMatcher sm)
 				{
 					ComparisonType comparisonType = ComparisonType.nameMap.get(m.group(1));
 					
-					IDataProvider<Integer> right = DataProvider.parse(info, Integer.class, sm.spawn());
+					IDataProvider<Number> right = DataProvider.parse(info, Number.class, sm.spawn());
 					
 					if(comparisonType == null)
 						return null;
