@@ -44,11 +44,11 @@ public class AddPotionEffect extends Routine
 	public static void register()
 	{
 		Routine.registerRoutine(
-				Pattern.compile("(.+?)(?:effect)?\\.addpotioneffect\\.(\\w+)\\.(.+)", Pattern.CASE_INSENSITIVE),
+				Pattern.compile("(.+?)(?:effect)?\\.addpotioneffect\\.(\\w+)[\\., ](.+)", Pattern.CASE_INSENSITIVE),
 				new RoutineBuilder());
 	}
 	
-	private static Pattern dotPattern = Pattern.compile("\\s*\\.\\s*");
+	private static Pattern dotPattern = Pattern.compile("\\s*[\\.,]\\s*");
 
 	protected static class RoutineBuilder extends Routine.RoutineBuilder
 	{
