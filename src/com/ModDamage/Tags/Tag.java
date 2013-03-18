@@ -18,10 +18,10 @@ public abstract class Tag<T> {
 
     public static Tag<?> get(IDataProvider<String> name, String typeString) {
         if (typeString.isEmpty())
-            return new Tag<Integer>(name, Integer.class, 0) {
+            return new Tag<Number>(name, Number.class, 0) {
                 @Override
-                public TagsHolder<Integer> getHolder(TagManager tagManager) {
-                    return tagManager.intTags;
+                public TagsHolder<Number> getHolder(TagManager tagManager) {
+                    return tagManager.numTags;
                 }
             };
         else if (typeString.equalsIgnoreCase("s"))

@@ -48,7 +48,7 @@ public class ThingsTagged extends ListExp {
         if (isString)
         	holder = manager.stringTags;
         else
-        	holder = manager.intTags;
+        	holder = manager.numTags;
     	
 		ITags<?, ?> tags;
 		if (tagClass == OfflinePlayer.class)

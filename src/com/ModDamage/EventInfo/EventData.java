@@ -8,7 +8,7 @@ public class EventData implements Cloneable
 	public final EventData parent;
 	public final int start;
 	public final Object[] objects;
-	public final int[] locals;
+	public final Number[] locals;
 	
 //	EventData(int numLocals, Object... objects) {
 //		this.parent = null;
@@ -22,7 +22,7 @@ public class EventData implements Cloneable
 		this.start = parent == null? 0 : parent.start + parent.objects.length;
 		this.objects = objects;
 		if (parent != null) locals = null;
-		else locals = new int[numLocals];
+		else locals = new Number[numLocals];
 	}
 	
 	EventData(EventData other) // copy constructor
@@ -85,12 +85,12 @@ public class EventData implements Cloneable
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Setting bad index "+i+" to "+obj+" type "+cls.getSimpleName());
 	}
 	
-	public int getLocal(int localIndex) {
+	public Number getLocal(int localIndex) {
 		if (locals == null) return parent.getLocal(localIndex);
 		return locals[localIndex];
 	}
 	
-	public void setLocal(int localIndex, Integer value) {
+	public void setLocal(int localIndex, Number value) {
 		if (locals == null) parent.setLocal(localIndex, value);
 		else if (value == null) locals[localIndex] = 0;
 		else locals[localIndex] = value;

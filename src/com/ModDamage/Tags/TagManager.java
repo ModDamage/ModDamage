@@ -29,7 +29,7 @@ public class TagManager
 	public static final String configString_clean = "interval-clean";
 	public static final int defaultInterval = 10 * 20;
 
-    public final TagsHolder<Integer> intTags = new TagsHolder<Integer>();
+    public final TagsHolder<Number> numTags = new TagsHolder<Number>();
 	public final TagsHolder<String> stringTags = new TagsHolder<String>();
 	
 	
@@ -117,12 +117,12 @@ public class TagManager
 			
 			if (!tagMap.containsKey("int")) // Old style tags.yml
 			{
-				intTags.loadTags(tagMap, entities);
+				numTags.loadTags(tagMap, entities);
 				save(); // upgrade the file
 			}
 			else // New way
 			{
-				intTags.loadTags((Map<String, Object>) tagMap.get("int"), entities);
+				numTags.loadTags((Map<String, Object>) tagMap.get("int"), entities);
 				stringTags.loadTags((Map<String, Object>) tagMap.get("string"), entities);
 			}
 		}
@@ -145,7 +145,7 @@ public class TagManager
 			Map<String, Object> saveMap = new HashMap<String, Object>();
 			
 			saveMap.put("tagsVersion", 2);
-			saveMap.put("int", intTags.saveTags(entities));
+			saveMap.put("int", numTags.saveTags(entities));
 			saveMap.put("string", stringTags.saveTags(entities));
 			
 			try
@@ -181,7 +181,7 @@ public class TagManager
 
 	public void clear()
 	{
-		intTags.clear();
+		numTags.clear();
 		stringTags.clear();
 	}
 }

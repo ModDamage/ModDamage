@@ -81,11 +81,11 @@ public abstract class NumberExp<From> extends DataProvider<Number, From>
 		DistanceFunction.register();
 		
 		LiteralNumber.register();
-		LocalInt.register();
+		LocalNum.register();
 		EnchantmentInt.register();
 		NumberOp.register();
 		ItemEnchantmentInt.register();
-		NegativeInt.register();
+		NegativeNum.register();
 		PotionEffectInt.register();
 
 		com.ModDamage.External.mcMMO.PlayerInt.register();

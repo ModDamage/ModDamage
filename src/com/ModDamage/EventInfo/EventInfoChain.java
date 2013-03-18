@@ -65,7 +65,7 @@ public class EventInfoChain extends EventInfo
 	}
 	
 	@Override
-	public IDataProvider<Integer> getLocal(String name)
+	public IDataProvider<Number> getLocal(String name)
 	{
 		return first.getLocal(name);
 	}

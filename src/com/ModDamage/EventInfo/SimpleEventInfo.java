@@ -157,7 +157,7 @@ public class SimpleEventInfo extends EventInfo
 	}
 	
 	@Override
-	public IDataProvider<Integer> getLocal(final String name)
+	public IDataProvider<Number> getLocal(final String name)
 	{
 		Integer i = localMap.get(name);
 		if (i == null) {
@@ -166,11 +166,11 @@ public class SimpleEventInfo extends EventInfo
 		}
 		final int localIndex = i;
 		
-		return new ISettableDataProvider<Integer>() {
-				public Integer get(EventData data) { return data.getLocal(localIndex); }
-				public void set(EventData data, Integer value) { data.setLocal(localIndex, value); }
+		return new ISettableDataProvider<Number>() {
+				public Number get(EventData data) { return data.getLocal(localIndex); }
+				public void set(EventData data, Number value) { data.setLocal(localIndex, value); }
 				
-				public Class<Integer> provides() { return Integer.class; }
+				public Class<Number> provides() { return Number.class; }
 				public boolean isSettable() { return true; }
 				
 				public String toString() { return "$" + name; }

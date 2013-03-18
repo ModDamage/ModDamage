@@ -56,7 +56,7 @@ public abstract class EventInfo
 		return index;
 	}
 	
-	public abstract IDataProvider<Integer> getLocal(String name);
+	public abstract IDataProvider<Number> getLocal(String name);
 	public abstract int getNumLocals();
 	
 	

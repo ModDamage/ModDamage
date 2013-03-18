@@ -9,14 +9,14 @@ import com.ModDamage.Parsing.BaseDataParser;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 
-public class LocalInt
+public class LocalNum
 {	
 	public static void register()
 	{
-		DataProvider.register(Integer.class, null, Pattern.compile("\\$(\\w+)", Pattern.CASE_INSENSITIVE), new BaseDataParser<Integer>()
+		DataProvider.register(Number.class, null, Pattern.compile("\\$(\\w+)", Pattern.CASE_INSENSITIVE), new BaseDataParser<Number>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
+					public IDataProvider<Number> parse(EventInfo info, Matcher m, StringMatcher sm)
 					{
 						return info.getLocal(m.group(1).toLowerCase());
 					}

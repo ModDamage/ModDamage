@@ -120,7 +120,7 @@ public class TagAction<T, D> extends NestedRoutine
 
             EventInfo myInfo = new SimpleEventInfo(tag.type, "value", "-default");
 
-            if (tag.type == Integer.class)
+            if (tag.type == Number.class)
             {
                 EventInfo einfo = info.chain(myInfo);
                 Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
