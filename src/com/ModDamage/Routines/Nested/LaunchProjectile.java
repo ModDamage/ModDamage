@@ -40,12 +40,12 @@ public class LaunchProjectile extends NestedRoutine
 	static EventInfo myInfo = new SimpleEventInfo(
 			Projectile.class, "projectile",
 			EntityType.class, "projectile",
-			Integer.class, "yaw",
-			Integer.class, "pitch",
-			Integer.class, "speed");
+			Number.class, "yaw",
+			Number.class, "pitch",
+			Number.class, "speed");
 	static EventInfo explosiveInfo = new SimpleEventInfo(
-			Integer.class, "yield",
-			Integer.class, "incendiary");
+			Number.class, "yield",
+			Number.class, "incendiary");
 
 	@Override
 	public void run(EventData data) throws BailException 
@@ -81,19 +81,19 @@ public class LaunchProjectile extends NestedRoutine
 		
 		//Location loc = entity.getEyeLocation();
 		
-		int yaw = Math.round(loc.getYaw());
-		int pitch = Math.round(loc.getPitch());
-		int speed = (int) (projectile.getVelocity().length() * 10);
+		double yaw = loc.getYaw();
+		double pitch = loc.getPitch();
+		double speed = projectile.getVelocity().length() * 10;
 		
 		EventData baseData = myInfo.makeChainedData(data, 
 				projectile, EntityType.get(projectile), yaw, pitch, speed);
 		EventData newData = baseData;
 		
 
-		int yield = 0, incendiary = 0;
+		double yield = 0, incendiary = 0;
 		if (explosive != null)
 		{
-			yield = (int)(explosive.getYield() * 10);
+			yield = explosive.getYield() * 10;
 			incendiary = explosive.isIncendiary()? 1 : 0;
 			
 			newData = explosiveInfo.makeChainedData(baseData, yield, incendiary);
@@ -101,17 +101,17 @@ public class LaunchProjectile extends NestedRoutine
 		
 		routines.run(newData);
 		
-		yaw = baseData.get(Integer.class, baseData.start + 2);
-		pitch = baseData.get(Integer.class, baseData.start + 3);
-		speed = baseData.get(Integer.class, baseData.start + 4);
+		yaw = baseData.get(Number.class, baseData.start + 2).doubleValue();
+		pitch = baseData.get(Number.class, baseData.start + 3).doubleValue();
+		speed = baseData.get(Number.class, baseData.start + 4).doubleValue();
 		if (explosive != null)
 		{
-			yield = newData.get(Integer.class, newData.start + 0);
-			incendiary = newData.get(Integer.class, newData.start + 1);
+			yield = newData.get(Number.class, newData.start + 0).doubleValue();
+			incendiary = newData.get(Number.class, newData.start + 1).doubleValue();
 		}
 		
-		loc.setYaw(yaw);
-		loc.setPitch(pitch);
+		loc.setYaw((float) yaw);
+		loc.setPitch((float) pitch);
 		projectile.teleport(loc);
 		Vector direction = loc.getDirection().multiply(speed / 10.0);
 		
@@ -124,7 +124,7 @@ public class LaunchProjectile extends NestedRoutine
 		
 		if (explosive != null)
 		{
-			explosive.setYield(yield / 10.0f);
+			explosive.setYield((float) (yield / 10.0f));
 			explosive.setIsIncendiary(incendiary != 0);
 		}
 	}
