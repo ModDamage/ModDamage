@@ -162,6 +162,9 @@ public class NumberOp extends NumberExp<Number>
 	public Number myGet(Number left, EventData data) throws BailException
 	{
 		Number right = rightDP.get(data);
+		if (left == null) left = 0;
+		if (right == null) right = 0;
+		
 		if (Utils.isFloating(left) || Utils.isFloating(right))
 			return operator.operateDouble(left.doubleValue(), right.doubleValue());
 		else

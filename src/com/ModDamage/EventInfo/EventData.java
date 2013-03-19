@@ -87,7 +87,10 @@ public class EventData implements Cloneable
 	
 	public Number getLocal(int localIndex) {
 		if (locals == null) return parent.getLocal(localIndex);
-		return locals[localIndex];
+		Number num = locals[localIndex];
+		if (num == null)
+			num = 0;
+		return num;
 	}
 	
 	public void setLocal(int localIndex, Number value) {
