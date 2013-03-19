@@ -115,14 +115,17 @@ public class TagManager
 			
 			Map<String, Object> tagMap = (Map<String, Object>)tagFileObject;
 			
-			if (!tagMap.containsKey("int")) // Old style tags.yml
+			if (!tagMap.containsKey("string")) // Old style tags.yml
 			{
 				numTags.loadTags(tagMap, entities);
 				save(); // upgrade the file
 			}
 			else // New way
 			{
-				numTags.loadTags((Map<String, Object>) tagMap.get("int"), entities);
+				if (tagMap.containsKey("int"))
+					numTags.loadTags((Map<String, Object>) tagMap.get("int"), entities);
+				else
+					numTags.loadTags((Map<String, Object>) tagMap.get("num"), entities);
 				stringTags.loadTags((Map<String, Object>) tagMap.get("string"), entities);
 			}
 		}
@@ -145,7 +148,7 @@ public class TagManager
 			Map<String, Object> saveMap = new HashMap<String, Object>();
 			
 			saveMap.put("tagsVersion", 2);
-			saveMap.put("int", numTags.saveTags(entities));
+			saveMap.put("num", numTags.saveTags(entities));
 			saveMap.put("string", stringTags.saveTags(entities));
 			
 			try

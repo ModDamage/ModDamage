@@ -37,17 +37,13 @@ public class TagAction<T, D> extends NestedRoutine
 
         this.myInfo = myInfo;
 	}
-	@SuppressWarnings("unchecked")
 	@Override
 	public void run(EventData data) throws BailException
 	{
         if (valueDP == null)
             taggable.remove(tag, data);
         else {
-        	Object value = valueDP.get(myInfo.makeChainedData(data, taggable.get(tag, data)));
-        	if (value instanceof Number)
-        		value = ((Number) value).intValue();
-            taggable.set(tag, data, (D) value);
+            taggable.set(tag, data, valueDP.get(myInfo.makeChainedData(data, taggable.get(tag, data))));
         }
 	}
 	
