@@ -62,43 +62,25 @@ public class ValueChange extends Routine
 	@Override
 	public final void run(final EventData data) throws BailException{
 		Number defN = defaultDP.get(data);
-		if (Utils.isFloating(defaultDP.provides()) || Utils.isFloating(number.provides())) {
-	        double def;
-	        if (defN == null) def = 0;
-	        else def = defN.doubleValue();
-	        Double value = getValueDouble(def, data).doubleValue();
-	        if (value == null) return;
-	        
+        if (defN == null)
+        	defN = Utils.isFloating(defaultDP.provides())? (Number) 0 : (Number) 0.0;
+        
+		Number value = getValue(defN, data);
+		if (value == null) return;
+		
+		if (Utils.isFloating(defN) || Utils.isFloating(value)) {
 			defaultDP.set(data, changeType.changeValueDouble(
-					def, value));
+					defN.doubleValue(), value.doubleValue()));
 		}
 		else {
-	        int def;
-	        if (defN == null) def = 0;
-	        else def = defN.intValue();
-	        Integer value = getValue(def, data).intValue();
-	        if (value == null) return;
-	        
 			defaultDP.set(data, changeType.changeValue(
-					def, value));
+					defN.intValue(), value.intValue()));
 		}
 	}
 	
-	protected Number getValue(Integer def, EventData data) throws BailException
+	protected Number getValue(Number def, EventData data) throws BailException
 	{
-		Number num = number.get(data);
-		if (num == null) return null;
-		
-		return num.intValue();
-	}
-	
-
-	protected Number getValueDouble(Double def, EventData data) throws BailException
-	{
-		Number num = number.get(data);
-		if (num == null) return null;
-		
-		return num.doubleValue();
+		return number.get(data);
 	}
 	
 	public static void register()

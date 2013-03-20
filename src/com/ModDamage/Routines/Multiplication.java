@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Utils;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Parsing.ISettableDataProvider;
@@ -19,20 +20,15 @@ public class Multiplication extends ValueChange
 		super(configString, defaultDP, changeType, value);
 	}
 	@Override
-	public Number getValue(Integer def, EventData data) throws BailException
+	public Number getValue(Number def, EventData data) throws BailException
 	{
 		Number num = number.get(data);
 		if (num == null) return null;
 		
-		return def * num.intValue();
-	}
-	@Override
-	public Number getValueDouble(Double def, EventData data) throws BailException
-	{
-		Number num = number.get(data);
-		if (num == null) return null;
-		
-		return def * num.doubleValue();
+		if (Utils.isFloating(def) || Utils.isFloating(num))
+			return def.doubleValue() * num.doubleValue();
+		else
+			return def.intValue() * num.intValue();
 	}
 	
 	public static void register()
