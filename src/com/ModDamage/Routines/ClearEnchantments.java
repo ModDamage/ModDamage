@@ -26,7 +26,10 @@ public class ClearEnchantments extends Routine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		enchantmentsDP.get(data).map.clear();
+		EnchantmentsRef ench = enchantmentsDP.get(data);
+		if (ench == null) return;
+		
+		ench.map.clear();
 	}
 	
 	public static void register()

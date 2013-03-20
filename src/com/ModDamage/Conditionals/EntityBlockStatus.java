@@ -146,6 +146,7 @@ public class EntityBlockStatus extends Conditional<Entity>
 					if(statusType == null) return null;
 					
 					Collection<Material> materials = MaterialAliaser.match(m.group(2));
+					if (materials == null || materials.isEmpty()) return null;
 					
 					return new EntityBlockStatus(entityDP, statusType, materials);
 				}

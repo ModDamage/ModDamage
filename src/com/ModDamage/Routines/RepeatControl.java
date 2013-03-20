@@ -49,7 +49,11 @@ public class RepeatControl extends Routine
 			return;
 		}
 		
-		Repeat.start(repeatName, it, delay.get(data).intValue(), count.get(data).intValue());
+		Number del = delay.get(data);
+		Number c = count.get(data);
+		if (del == null || c == null) return;
+		
+		Repeat.start(repeatName, it, del.intValue(), c.intValue());
 	}
 
 	public static void register()

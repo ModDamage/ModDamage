@@ -31,9 +31,15 @@ public class If extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		if(conditional.get(data))
-			routines.run(data);
-		else if (elseRoutine != null)
+		Boolean result = conditional.get(data);
+		if(result != null) {
+			if (result) {
+				routines.run(data);
+				return;
+			}
+		}
+		
+		if (elseRoutine != null)
 			elseRoutine.run(data);
 	}
 	

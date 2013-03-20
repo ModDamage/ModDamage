@@ -22,42 +22,58 @@ public class CompoundConditional extends Conditional<Boolean>
 		{
 			public boolean operate(EventData data, boolean left, IDataProvider<Boolean> right) throws BailException
 			{
-				return left && right.get(data);
+				if (!left) return false;
+				Boolean b = right.get(data);
+				if (b == null) return false;
+				return b;
 			}
 		},
 		OR
 		{
 			public boolean operate(EventData data, boolean left, IDataProvider<Boolean> right) throws BailException
 			{
-				return left || right.get(data);
+				if (left) return true;
+				Boolean b = right.get(data);
+				if (b == null) return false;
+				return b;
 			}
 		},
 		XOR
 		{
 			public boolean operate(EventData data, boolean left, IDataProvider<Boolean> right) throws BailException
 			{
-				return left ^ right.get(data);
+				Boolean b = right.get(data);
+				if (b == null) return false;
+				return left ^ b;
 			}
 		},
 		NAND
 		{
 			public boolean operate(EventData data, boolean left, IDataProvider<Boolean> right) throws BailException
 			{
-				return !(left && right.get(data));
+				if (!left) return true;
+				Boolean b = right.get(data);
+				if (b == null) return true;
+				return !b;
 			}
 		},
 		NOR
 		{
 			public boolean operate(EventData data, boolean left, IDataProvider<Boolean> right) throws BailException
 			{
-				return !(left && right.get(data));
+				if (left) return false;
+				Boolean b = right.get(data);
+				if (b == null) return true;
+				return b;
 			}
 		},
 		XNOR
 		{
 			public boolean operate(EventData data, boolean left, IDataProvider<Boolean> right) throws BailException
 			{
-				return !(left ^ right.get(data));
+				Boolean b = right.get(data);
+				if (b == null) return true;
+				return !(left ^ b);
 			}
 		};
 

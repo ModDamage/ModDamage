@@ -112,8 +112,13 @@ public class IntFunction implements IDataProvider<Integer>
 	{
 		int[] argValues = new int[args.size()];
 		
-		for (int i = 0; i < argValues.length; i++)
-			argValues[i] = args.get(i).get(data);
+		for (int i = 0; i < argValues.length; i++) {
+			Integer value = args.get(i).get(data);
+			if (value == null)
+				return null;
+			
+			argValues[i] = value;
+		}
 		
 		return funcType.evaluate(argValues);
 	}

@@ -66,7 +66,10 @@ public class SwitchRoutine extends NestedRoutine
 		for(int i = 0; i < switchCases.size(); i++)
 		{
 			IDataProvider<Boolean> condition = switchCases.get(i);
-			if(condition.get(data))
+			Boolean result = condition.get(data);
+			if (result == null) continue;
+			
+			if(result)
 			{
 				try
 				{

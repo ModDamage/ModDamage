@@ -86,13 +86,19 @@ public class ValueChange extends Routine
 	
 	protected Number getValue(Integer def, EventData data) throws BailException
 	{
-		return number.get(data).intValue();
+		Number num = number.get(data);
+		if (num == null) return null;
+		
+		return num.intValue();
 	}
 	
 
 	protected Number getValueDouble(Double def, EventData data) throws BailException
 	{
-		return number.get(data).doubleValue();
+		Number num = number.get(data);
+		if (num == null) return null;
+		
+		return num.doubleValue();
 	}
 	
 	public static void register()

@@ -93,7 +93,11 @@ public class ModifySkill extends NestedRoutine
 		Player player = playerDP.get(data);
 		EventData myData = myInfo.makeChainedData(data, 0);
 		
-		int value = valueExp.get(myData).intValue();
+		Number v = valueExp.get(myData);
+		if (v == null)
+			return;
+		
+		int value = v.intValue();
 		
 		modifyType.modify(player, skillType, value);
 	}

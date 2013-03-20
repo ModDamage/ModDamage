@@ -87,7 +87,10 @@ public class Message extends NestedRoutine
 							@Override
 							public void sendMessages(String[] msgs, EventData data) throws BailException
 							{
-								List<Player> players = worldDP.get(data).getPlayers();
+								World world = worldDP.get(data);
+								if (world == null) return;
+								
+								List<Player> players = world.getPlayers();
 								for(Player player : players)
 									for(String msg : msgs)
 										player.sendMessage(msg);

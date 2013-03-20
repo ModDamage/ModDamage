@@ -32,8 +32,13 @@ public class BlockLocFunction extends DataProvider<Block, World>
 	{
 		int[] argValues = new int[args.length];
 
-		for (int i = 0; i < argValues.length; i++)
-			argValues[i] = args[i].get(data);
+		for (int i = 0; i < argValues.length; i++) {
+			Integer value = args[i].get(data);
+			if (value == null)
+				return null;
+			
+			argValues[i] = value;
+		}
 
 		return world.getBlockAt(argValues[0], argValues[1], argValues[2]);
 	}

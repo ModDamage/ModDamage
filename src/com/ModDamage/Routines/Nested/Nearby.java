@@ -48,7 +48,8 @@ public class Nearby extends NestedRoutine
 		LivingEntity entity = (LivingEntity) entityDP.get(data);
         if (entity == null) return;
 
-		int r = radius.get(data);
+		Integer r = radius.get(data);
+		if (r == null) return;
 		List<Entity> entities = entity.getNearbyEntities(r, r, r);
 		if (entities.isEmpty()) return;
 

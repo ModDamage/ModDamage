@@ -73,7 +73,10 @@ public class EntityItemAction extends NestedRoutine
         for(ModDamageItemStack item : items)
             item.update(data);
 
-        int quantity = this.quantity.get(data).intValue();
+        Number quant = this.quantity.get(data);
+        if (quant == null) return;
+        
+        int quantity = quant.intValue();
 
         for (int i = 0; i < quantity; i++)
         {

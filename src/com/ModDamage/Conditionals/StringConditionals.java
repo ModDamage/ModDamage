@@ -70,6 +70,8 @@ public class StringConditionals extends Conditional<String>
 	public Boolean get(String str, EventData data) throws BailException
 	{
 		String otherStr = otherString.get(data);
+		if (otherStr == null) return null;
+		
 		if (caseInsensitive) {
 			str = str.toLowerCase();
 			otherStr = otherStr.toLowerCase();

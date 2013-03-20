@@ -39,8 +39,12 @@ public class Teleport extends Routine
         if (loc == null) return;
         float yaw, pitch;
 		if (yawDP != null && pitchDP != null) {
-			yaw = yawDP.get(data).floatValue();
-            pitch = pitchDP.get(data).floatValue();
+			Number y = yawDP.get(data); 
+			Number p = pitchDP.get(data);
+			if (y == null || p == null) return;
+			
+			yaw = y.floatValue();
+            pitch = p.floatValue();
         }
         else {
             yaw = entity.getLocation().getYaw();

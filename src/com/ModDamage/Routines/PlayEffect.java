@@ -62,10 +62,17 @@ public class PlayEffect extends Routine
 		Location loc = locDP.get(data);
 		if (loc == null) return;
 		
+		Number eData = effectData.get(data);
+		if (eData == null) return;
+		
 		if (radius == null)
-			loc.getWorld().playEffect(loc, effectType.effect, effectData.get(data).intValue());
-		else
-			loc.getWorld().playEffect(loc, effectType.effect, effectData.get(data).intValue(), radius.get(data).intValue());
+			loc.getWorld().playEffect(loc, effectType.effect, eData.intValue());
+		else {
+			Number rad = radius.get(data);
+			if (rad == null) return;
+			
+			loc.getWorld().playEffect(loc, effectType.effect, eData.intValue(), rad.intValue());
+		}
 	}
 
 	public static void register()

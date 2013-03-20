@@ -37,9 +37,11 @@ public class PlaySound extends Routine
 	{
         Player player = playerDP.get(data);
 		Location loc = locDP.get(data);
-		if (player == null || loc == null) return;
+		Integer volume = volumeDP.get(data);
+		Integer pitch = pitchDP.get(data);
+		if (player == null || loc == null || volume == null || pitch == null) return;
 
-        player.playSound(loc, sound, volumeDP.get(data) / 100.0f,  pitchDP.get(data) / 100.0f);
+        player.playSound(loc, sound, volume / 100.0f,  pitch / 100.0f);
 	}
 
 	public static void register()

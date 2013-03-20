@@ -35,9 +35,14 @@ public class EntityHeal extends NestedRoutine
 	public void run(EventData data) throws BailException
 	{
 		EventData myData = myInfo.makeChainedData(data, 0);
-			
-		LivingEntity entity = (LivingEntity)livingDP.get(data);
-		entity.setHealth(Math.min(entity.getHealth() + heal_amount.get(myData).intValue(), entity.getMaxHealth()));
+		
+		Number ha = heal_amount.get(myData);
+		if (ha == null) return;
+		
+		LivingEntity entity = livingDP.get(data);
+		if (entity == null) return;
+		
+		entity.setHealth(Math.min(entity.getHealth() + ha.intValue(), entity.getMaxHealth()));
 	}
 
 	public static void register()

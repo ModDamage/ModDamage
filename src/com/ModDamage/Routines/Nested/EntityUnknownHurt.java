@@ -36,8 +36,12 @@ public class EntityUnknownHurt extends NestedRoutine
 	{
 		EventData myData = myInfo.makeChainedData(data, 0);
 		LivingEntity entity = livingDP.get(data);
-		if(entity != null)
-			entity.damage(hurt_amount.get(myData).intValue());
+		if(entity == null) return;
+		
+		Number ha = hurt_amount.get(myData);
+		if (ha == null) return;
+		
+		entity.damage(ha.intValue());
 	}
 
 	public static void register()

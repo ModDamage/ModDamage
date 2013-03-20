@@ -45,7 +45,11 @@ public class EntityHurt extends NestedRoutine
 		if(from != null && target != null && target.getHealth() > 0 && !target.isDead())
 		{
 			final EventData myData = myInfo.makeChainedData(data, 0);
-			final int damage = hurt_amount.get(myData).intValue();
+			
+			Number ha = hurt_amount.get(myData);
+			if (ha == null) return;
+			
+			final int damage = ha.intValue();
 			Bukkit.getScheduler().runTask(ModDamage.getPluginConfiguration().plugin, new Runnable()
 				{
 					@Override

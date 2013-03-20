@@ -348,6 +348,8 @@ public class NanoHTTPD
 				decodeHeader(hin, pre, parms, header);
 				String method = pre.getProperty("method");
 				String uri = pre.getProperty("uri");
+				
+				if (method == null || uri == null) return;
 
 				long size = 0x7FFFFFFFFFFFFFFFl;
 				String contentLength = header.getProperty("content-length");

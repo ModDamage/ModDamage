@@ -37,8 +37,12 @@ public class AddPotionEffect extends Routine
 	{
 		LivingEntity entity = livingDP.get(data);
 		if (entity == null) return;
+		
+		Integer dur = duration.get(data);
+		Integer amp = amplifier.get(data);
+		if (dur == null || amp == null) return;
 
-		entity.addPotionEffect(new PotionEffect(type, duration.get(data), amplifier.get(data)), true);
+		entity.addPotionEffect(new PotionEffect(type, dur, amp), true);
 	}
 
 	public static void register()

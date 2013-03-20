@@ -21,13 +21,19 @@ public class Division extends ValueChange
 	@Override
 	public Number getValue(Integer def, EventData data) throws BailException
 	{
-		return def / number.get(data).doubleValue();
+		Number num = number.get(data);
+		if (num == null) return null;
+		
+		return def / num.doubleValue();
 	}
 	
 	@Override
 	protected Number getValueDouble(Double def, EventData data) throws BailException
 	{
-		return def / number.get(data).doubleValue();
+		Number num = number.get(data);
+		if (num == null) return null;
+		
+		return def / num.doubleValue();
 	}
 	
 	public static void register()

@@ -36,7 +36,9 @@ public abstract class Tag<T> {
     }
 
     public String getName(EventData data) throws BailException {
-        return name.get(data).toLowerCase();
+    	String n = name.get(data);
+    	if (n == null) return null;
+        return n.toLowerCase();
     }
 
     public abstract TagsHolder<T> getHolder(TagManager tagManager);

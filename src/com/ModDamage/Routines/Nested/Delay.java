@@ -29,8 +29,11 @@ public class Delay extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
+		Integer del = delay.get(data);
+		if (del == null) return;
+		
 		DelayedRunnable dr = new DelayedRunnable(data.clone());
-		Bukkit.getScheduler().scheduleSyncDelayedTask(ModDamage.getPluginConfiguration().plugin, dr, delay.get(data));
+		Bukkit.getScheduler().scheduleSyncDelayedTask(ModDamage.getPluginConfiguration().plugin, dr, del);
 	}
 		
 	public static void register(){ NestedRoutine.registerRoutine(delayPattern, new RoutineBuilder()); }

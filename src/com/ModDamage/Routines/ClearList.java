@@ -26,7 +26,10 @@ public class ClearList extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		listDP.get(data).clear();
+		List list = listDP.get(data);
+		if (list == null) return;
+		
+		list.clear();
 	}
 
 	public static void register()

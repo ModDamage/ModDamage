@@ -26,8 +26,13 @@ public class While extends NestedRoutine
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		while(conditional.get(data))
+		do {
+			Boolean result = conditional.get(data);
+			if (result == null) return;
+			if (!result) return;
+		
 			routines.run(data);
+		} while (true);
 	}
 
 

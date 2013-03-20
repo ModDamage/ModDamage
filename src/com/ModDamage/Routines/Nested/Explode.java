@@ -40,7 +40,11 @@ public class Explode extends NestedRoutine
 		if (entity == null) return;
 
 		EventData myData = myInfo.makeChainedData(data, 0);
-		entity.getWorld().createExplosion(entity, strength.get(myData).floatValue(), fire);
+		
+		Number str = strength.get(myData);
+		if (str == null) return;
+		
+		entity.getWorld().createExplosion(entity, str.floatValue(), fire);
 	}
 
 	public static void register()

@@ -49,9 +49,20 @@ public class ModDamageItemStack
 	
 	public void update(EventData data) throws BailException
 	{
-		if (this.data != null)
-			lastData = this.data.get(data);
-		lastAmount = amount.get(data).intValue();
+		if (this.data != null) {
+			Integer d = this.data.get(data);
+			if (d != null)
+				lastData = d;
+			else
+				lastData = 0;
+		}
+		
+		Number am = amount.get(data);
+		if (am != null)
+			lastAmount = am.intValue();
+		else
+			lastAmount = 0;
+		
 		if (enchantments != null)
 		{
 			for (Entry<Enchantment, IDataProvider<Integer>> entry : enchantments.entrySet())
