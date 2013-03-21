@@ -1,19 +1,26 @@
 package com.ModDamage.Expressions;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.Function.BlockLocFunction;
+import com.ModDamage.Expressions.Function.BlockFunction;
 import com.ModDamage.Expressions.Function.DistanceFunction;
 import com.ModDamage.Expressions.Function.IntFunction;
+import com.ModDamage.Expressions.Function.LocFunction;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routines;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Variables.Int.*;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.ModDamage.Variables.Int.EnchantmentInt;
+import com.ModDamage.Variables.Int.ItemEnchantmentInt;
+import com.ModDamage.Variables.Int.LocalNum;
+import com.ModDamage.Variables.Int.NegativeNum;
+import com.ModDamage.Variables.Int.NumberOp;
+import com.ModDamage.Variables.Int.PotionEffectInt;
+import com.ModDamage.Variables.Int.RoutinesNum;
 
 public abstract class NumberExp<From> extends DataProvider<Number, From>
 {
@@ -77,7 +84,8 @@ public abstract class NumberExp<From> extends DataProvider<Number, From>
 	public static void registerAllNumbers()
 	{
 		IntFunction.register();
-		BlockLocFunction.register();
+		LocFunction.register();
+		BlockFunction.register();
 		DistanceFunction.register();
 		
 		LiteralNumber.register();
