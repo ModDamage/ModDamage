@@ -26,7 +26,7 @@ public class InvertBoolean implements IDataProvider<Boolean>
 	public Boolean get(EventData data) throws BailException
 	{
 		Boolean b = bool.get(data);
-		if (b == null) return null;
+		if (b == null) return true;
 		return !b;
 	}
 
