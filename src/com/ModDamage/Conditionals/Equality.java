@@ -30,7 +30,9 @@ public class Equality extends Conditional<Object>
 	@Override
 	public Boolean get(Object left, EventData data) throws BailException
 	{
-		return left.equals(rightDP.get(data)) == equalTo;
+		Object right = rightDP.get(data);
+		
+		return left.equals(right) == equalTo;
 	}
 
 	@Override
@@ -53,7 +55,7 @@ public class Equality extends Conditional<Object>
 				{
 					boolean equalTo = !m.group(1).equals("!");
 					
-					IDataProvider<Object> right = DataProvider.parse(info, Object.class, sm.spawn());
+					IDataProvider<Object> right = DataProvider.parse(info, null, sm.spawn());
 					if (right == null) return null;
 					
 					IDataProvider<? extends Object> transformed = DataProvider.transform(leftDP.provides(), right, info, false);
