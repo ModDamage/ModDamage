@@ -15,25 +15,32 @@ import com.ModDamage.Parsing.IDataProvider;
 
 public class ToIntFunction implements IDataProvider<Integer>
 {
-	private final IDataProvider<String> stringDP;
+	private final IDataProvider<?> valDP;
 
-	private ToIntFunction(IDataProvider<String> stringDP)
+	private ToIntFunction(IDataProvider<?> stringDP)
 	{
-		this.stringDP = stringDP;
+		this.valDP = stringDP;
 	}
 
 	@Override
 	public Integer get(EventData data) throws BailException
 	{
-		String str = stringDP.get(data);
-		if (str == null) return null;
+		Object val = valDP.get(data);
+		if (val == null) return null;
 		
-		try {
-			return Integer.parseInt(str);
+		if (val instanceof String) {
+			try {
+				return Integer.parseInt((String) val);
+			}
+			catch (NumberFormatException e) {
+				return null;
+			}
 		}
-		catch (NumberFormatException e) {
-			return null;
+		else if (val instanceof Number) {
+			return ((Number) val).intValue();
 		}
+		else
+			return null; // shouldn't happen
 	}
 
 	@Override
@@ -47,8 +54,22 @@ public class ToIntFunction implements IDataProvider<Integer>
 				@Override
 				public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
 				{
-					IDataProvider<String> stringDP = DataProvider.parse(info, String.class, sm.spawn());
-					if (stringDP == null) return null;
+					IDataProvider<?> valDP = DataProvider.parse(info, null, sm.spawn());
+					if (valDP == null) return null;
+					
+					
+					IDataProvider<String> strDP = DataProvider.transform(String.class, valDP, info);
+					if (strDP != null)
+						valDP = strDP;
+					else {
+						IDataProvider<Number> doubleDP = DataProvider.transform(Number.class, valDP, info);
+						if (doubleDP != null)
+							valDP = doubleDP;
+						else
+							return null;
+					}
+						
+					
 
 					Matcher endMatcher = sm.matchFront(endPattern);
 					if (endMatcher == null)
@@ -57,7 +78,7 @@ public class ToIntFunction implements IDataProvider<Integer>
 						return null;
 					}
 
-					return sm.acceptIf(new ToIntFunction(stringDP));
+					return sm.acceptIf(new ToIntFunction(valDP));
 				}
 			});
 	}
@@ -65,6 +86,6 @@ public class ToIntFunction implements IDataProvider<Integer>
 	@Override
 	public String toString()
 	{
-		return "toInt(" + stringDP + ")";
+		return "toInt(" + valDP + ")";
 	}
 }
