@@ -22,10 +22,11 @@ import org.bukkit.plugin.Plugin;
 import ru.tehkode.permissions.PermissionManager;
 
 import com.ModDamage.ModDamage.ModDamageExtension;
-import com.ModDamage.Expressions.NumberExp;
 import com.ModDamage.Expressions.ListExp;
 import com.ModDamage.Expressions.NestedExp;
+import com.ModDamage.Expressions.NumberExp;
 import com.ModDamage.Expressions.StringExp;
+import com.ModDamage.External.TabAPI.TabAPISupport;
 import com.ModDamage.External.Vault.VaultSupport;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Properties.BlockProps;
@@ -99,6 +100,11 @@ public class ExternalPluginManager
 
 		try {
 			VaultSupport.register();
+		}
+		catch (NoClassDefFoundError e) {}
+		
+		try {
+			TabAPISupport.register();
 		}
 		catch (NoClassDefFoundError e) {}
 		
