@@ -84,7 +84,7 @@ public final class SetProperty extends NestedRoutine
 				Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
 				if(routines == null) return null;
 
-				valueDP = NumberExp.getNew(routines, einfo);
+				valueDP = DataProvider.transform(propertyDP.provides(), NumberExp.getNew(routines, einfo), einfo);
 			}
 			else if (propertyDP.provides() == String.class) {
 				List<IDataProvider<String>> messages = StringExp.getStrings(nestedContent, info);
