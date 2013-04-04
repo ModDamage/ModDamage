@@ -109,8 +109,8 @@ public class ModifySkill extends NestedRoutine
 			NestedRoutine.registerRoutine(Pattern.compile("(\\w+?)(?:effect)?\\.("+Utils.joinBy("|", ModifyType.values())+")\\.("+Utils.joinBy("|", SkillType.values())+")", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 		}
 		catch (NoClassDefFoundError e) {
-			if (ExternalPluginManager.getMcMMOPlugin() != null)
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "McMMO has changed. Please notify the ModDamage developers.");
+//			if (ExternalPluginManager.getMcMMOPlugin() != null)
+//				ModDamage.addToLogRecord(OutputPreset.FAILURE, "McMMO has changed. Please notify the ModDamage developers.");
 		}
 	}
 	
