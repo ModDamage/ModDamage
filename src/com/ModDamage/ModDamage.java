@@ -290,11 +290,12 @@ public class ModDamage extends JavaPlugin
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (debug | d) [debugType] - change debug type");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (disable|enable) - disable/enable ModDamage");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (reload | r) - reload configuration");
+			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md tags (save|clear) - save/clear tags");
 		}
 		else
 		{
 			if(forError) configuration.printToLog(Level.SEVERE, "Error: invalid command syntax.");
-			configuration.printToLog(Level.INFO, "ModDamage commands:\n" + "/moddamage | /md - bring up this help message\n" + "/md check - check configuration\n" + "/md debug [debugType] - change debugging type (quiet, normal, verbose)\n" + "/md disable - disable ModDamage\n" + "/md enable - enable ModDamage\n" + "/md reload - reload configuration");
+			configuration.printToLog(Level.INFO, "ModDamage commands:\n" + "/moddamage | /md - bring up this help message\n" + "/md check - check configuration\n" + "/md debug [debugType] - change debugging type (quiet, normal, verbose)\n" + "/md disable - disable ModDamage\n" + "/md enable - enable ModDamage\n" + "/md reload - reload configuration\n"+"/md tags (save|clear) - save/clear tags.");
 		}
 	}
 
