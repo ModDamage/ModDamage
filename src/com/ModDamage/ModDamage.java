@@ -290,6 +290,7 @@ public class ModDamage extends JavaPlugin
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (debug | d) [debugType] - change debug type");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (disable|enable) - disable/enable ModDamage");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (reload | r) - reload configuration");
+			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (stags | tags) [save|clear] - save/clear tags");
 		}
 		else
 		{
