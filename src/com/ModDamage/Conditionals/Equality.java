@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
@@ -17,7 +18,7 @@ public class Equality extends Conditional<Object>
 {
 	public static final Pattern operatorPattern = Pattern.compile("\\s*([!=]?)=\\s*");
 	protected final IDataProvider<Object> rightDP;
-	protected final boolean equalTo;
+	protected final boolean equalTo, number;
 	
 	@SuppressWarnings("unchecked")
 	protected Equality(Class<?> leftCls, IDataProvider<Object> left, boolean equalTo, IDataProvider<Object> right)
@@ -25,12 +26,26 @@ public class Equality extends Conditional<Object>
 		super((Class<Object>) leftCls, left);
 		this.equalTo = equalTo;
 		this.rightDP = right;
+		
+		this.number = left.provides() == Number.class || right.provides() == Number.class;
 	}
 
 	@Override
 	public Boolean get(Object left, EventData data) throws BailException
 	{
 		Object right = rightDP.get(data);
+		
+		if (number && right != null && left instanceof Number && right instanceof Number) {
+			if (Utils.isFloating((Number) left) || Utils.isFloating((Number) right)) {
+				left = ((Number) left).doubleValue();
+				right = ((Number) right).doubleValue();
+			}
+			else
+			{
+				left = ((Number) left).intValue();
+				right = ((Number) right).intValue();
+			}
+		}
 		
 		return left.equals(right) == equalTo;
 	}
@@ -49,7 +64,7 @@ public class Equality extends Conditional<Object>
 	{
 		DataProvider.register(Boolean.class, Object.class, operatorPattern, new IDataParser<Boolean, Object>()
 			{
-				@SuppressWarnings("unchecked")
+				@SuppressWarnings({ "unchecked", "rawtypes" })
 				@Override
 				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Object> leftDP, Matcher m, StringMatcher sm)
 				{
@@ -58,16 +73,22 @@ public class Equality extends Conditional<Object>
 					IDataProvider<Object> right = DataProvider.parse(info, null, sm.spawn());
 					if (right == null) return null;
 					
-					IDataProvider<? extends Object> transformed = DataProvider.transform(leftDP.provides(), right, info, false);
-					if (transformed != null)
-						right = (IDataProvider<Object>) transformed;
+					if (Number.class.isAssignableFrom(leftDP.provides()) || Number.class.isAssignableFrom(right.provides())) {
+						leftDP = (IDataProvider<Object>) (IDataProvider) DataProvider.transform(Number.class, leftDP, info, false);
+						right = (IDataProvider<Object>) (IDataProvider) DataProvider.transform(Number.class, right, info, false);
+					}
 					else {
-						transformed = DataProvider.transform(right.provides(), leftDP, info, false);
+						IDataProvider<? extends Object> transformed = DataProvider.transform(leftDP.provides(), right, info, false);
 						if (transformed != null)
-							leftDP = (IDataProvider<Object>) transformed;
+							right = (IDataProvider<Object>) transformed;
 						else {
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Cannot compare equality of types " + leftDP.provides().getSimpleName() + " and " + right.provides().getSimpleName());
-							return null;
+							transformed = DataProvider.transform(right.provides(), leftDP, info, false);
+							if (transformed != null)
+								leftDP = (IDataProvider<Object>) transformed;
+							else {
+								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Cannot compare equality of types " + leftDP.provides().getSimpleName() + " and " + right.provides().getSimpleName());
+								return null;
+							}
 						}
 					}
 					
