@@ -126,7 +126,7 @@ public class ModDamage extends JavaPlugin
 
 	private enum PluginCommand
 	{
-//		CHECK(false, "\\sc(?:heck)?(\\s\\d+)?")
+//		CHECK(false, "\\sc(?:heck)?(\\s\\d+)?", "/md (check | c) - check configuration")
 //		{
 //			@Override
 //			protected void handleCommand(Player player, Matcher matcher)
@@ -148,7 +148,7 @@ public class ModDamage extends JavaPlugin
 //				}
 //			}
 //		},
-		DEBUG(false, "\\sd(?:ebug)?(?:\\s(\\w+))?")
+		DEBUG(false, "\\sd(?:ebug)?(?:\\s(\\w+))?", "/md (debug | d) [debugType] - change debug type")
 		{
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
@@ -166,7 +166,7 @@ public class ModDamage extends JavaPlugin
 				else configuration.toggleDebugging(player);
 			}
 		},
-		RELOAD(false, "\\sr(?:eload)?(\\sall)?")
+		RELOAD(false, "\\sr(?:eload)?(\\sall)?", "/md (reload | r) - reload configuration")
 		{
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
@@ -191,7 +191,7 @@ public class ModDamage extends JavaPlugin
 					}
 			}
 		},
-		STATUS(false, "\\s(?:en|dis)able")
+		STATUS(false, "\\s(?:en|dis)able", "/md (disable|enable) - disable/enable ModDamage")
 		{
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
@@ -199,7 +199,7 @@ public class ModDamage extends JavaPlugin
 				ModDamage.setPluginStatus(player, matcher.group().equalsIgnoreCase(" enable"));
 			}
 		},
-		TAGS(true, "\\st(?:ags)?\\s(clear|save)")
+		TAGS(true, "\\st(?:ags)?\\s(clear|save)", "/md tags (save|clear) - save/clear tags")
 		{
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
@@ -219,11 +219,13 @@ public class ModDamage extends JavaPlugin
 		
 		private final boolean needsEnable;
 		private final Pattern pattern;
+		protected final String help;
 
-		private PluginCommand(boolean needsEnable, String pattern)
+		private PluginCommand(boolean needsEnable, String pattern, String help)
 		{
 			this.needsEnable = needsEnable;
 			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+			this.help = help;
 		}
 
 		public static void handleCommand(Player player, String commandString)
@@ -280,22 +282,21 @@ public class ModDamage extends JavaPlugin
 
 	private static void sendCommandUsage(Player player, boolean forError)
 	{
-		// TODO Use the PluginCommand enum
 		if(player != null)
 		{
 			if(forError) player.sendMessage(ChatColor.RED + "Error: invalid command syntax.");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "ModDamage commands:");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/moddamage | /md - bring up this help message");
-			//player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (check | c) - check configuration");
-			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (debug | d) [debugType] - change debug type");
-			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (disable|enable) - disable/enable ModDamage");
-			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md (reload | r) - reload configuration");
-			player.sendMessage(ChatColor.LIGHT_PURPLE + "/md tags (save|clear) - save/clear tags");
+			for (PluginCommand cmd:PluginCommand.values())
+				player.sendMessage(ChatColor.LIGHT_PURPLE +cmd.help);
 		}
 		else
 		{
+			StringBuffer sb = new StringBuffer().append("ModDamage commands:\n").append("/moddamage | /md - bring up this help message");
+			for (PluginCommand cmd:PluginCommand.values())
+				sb.append("\n").append(cmd.help);
 			if(forError) configuration.printToLog(Level.SEVERE, "Error: invalid command syntax.");
-			configuration.printToLog(Level.INFO, "ModDamage commands:\n" + "/moddamage | /md - bring up this help message\n" + "/md check - check configuration\n" + "/md debug [debugType] - change debugging type (quiet, normal, verbose)\n" + "/md disable - disable ModDamage\n" + "/md enable - enable ModDamage\n" + "/md reload - reload configuration\n"+"/md tags (save|clear) - save/clear tags.");
+			configuration.printToLog(Level.INFO, sb.toString());
 		}
 	}
 
