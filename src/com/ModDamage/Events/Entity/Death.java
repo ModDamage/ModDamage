@@ -23,15 +23,21 @@ public class Death extends MDEvent implements Listener
 	
 	static final EventInfo myInfo = Damage.myInfo.chain(new SimpleEventInfo(
 			Integer.class, "experience", "-default",
-            List.class, "drops"));
+            List.class, "drops",
+			String.class, "message", "msg"));
 			
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onEntityDeath(EntityDeathEvent event)
 	{
 		if(!ModDamage.isEnabled) return;
 		
-		if(disableDeathMessages && event instanceof PlayerDeathEvent)
-			((PlayerDeathEvent)event).setDeathMessage(null);
+		String message = null;
+		
+		if (event instanceof PlayerDeathEvent) {
+			message = ((PlayerDeathEvent)event).getDeathMessage();
+			if(disableDeathMessages)
+				((PlayerDeathEvent)event).setDeathMessage(null);
+		}
 			
 		Entity entity = event.getEntity();
 		
@@ -50,10 +56,16 @@ public class Death extends MDEvent implements Listener
 		
 		EventData data = myInfo.makeChainedData(damageData,
                 event.getDroppedExp(),
-                event.getDrops());
+                event.getDrops(),
+                message);
 		
 		runRoutines(data);
 		
 		event.setDroppedExp(data.get(Integer.class, data.start));
+		
+		if (event instanceof PlayerDeathEvent) {
+			if(!disableDeathMessages)
+				((PlayerDeathEvent)event).setDeathMessage(data.get(String.class, data.start + 2));
+		}
 	}
 }
