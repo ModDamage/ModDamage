@@ -22,6 +22,7 @@ import com.ModDamage.PluginConfiguration.DebugSetting;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.Events.Init;
 import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.Server.MDServer;
@@ -36,7 +37,6 @@ import com.ModDamage.Tags.TagManager;
 public class ModDamage extends JavaPlugin
 {
 	protected static PluginConfiguration configuration;
-	protected static List<ModDamageExtension> extensions = new ArrayList<ModDamageExtension>();
 
 	public static boolean isEnabled = false;
 	private static final String errorString_Permissions = chatPrepend(ChatColor.RED) + "You don't have access to that command.";
@@ -46,10 +46,15 @@ public class ModDamage extends JavaPlugin
 
 	// //////////////////////// INITIALIZATION
 	@Override
+	public void onLoad() {
+		super.onLoad(); //Just in case bukkit loads stuff in here.
+		configuration = new PluginConfiguration(this); //Fixes NPE on registering extensions from onLoad in other plugins.
+	}
+
+	@Override
 	public void onEnable()
 	{
 		PluginCommand.setPlugin(this);
-		configuration = new PluginConfiguration(this);
 		isEnabled = true;
 		MagicStuff.init();
 		reload(true);
@@ -73,8 +78,9 @@ public class ModDamage extends JavaPlugin
 		if (tagger != null) tagger.close();
 		isEnabled = false;
 		configuration.printToLog(Level.INFO, "Disabled.");
+		PluginCommand.setPlugin(null); //Prevents possible memory leaks on /reload command
 	}
-	
+
 	public void reload(boolean reloadingAll)
 	{
 		File taggerFile = (tagger != null)? tagger.file : new File(this.getDataFolder(), "tags.yml");
@@ -101,8 +107,6 @@ public class ModDamage extends JavaPlugin
 			}
 			tagger = new TagManager(taggerFile, tagConfigIntegers[0], tagConfigIntegers[1]);
 			
-			for(ModDamageExtension extension : extensions)
-				extension.reloadRoutines();
 		}
 
         Init.initAll();
@@ -314,7 +318,7 @@ public class ModDamage extends JavaPlugin
 	public static TagManager getTagger(){ return tagger; }
 
 	public static PluginConfiguration getPluginConfiguration(){ return configuration; }
-	
+
 	public static final HashSet<Material> goThroughThese = new HashSet<Material>(Arrays.asList(
 			Material.AIR,
 			Material.GLASS,
@@ -329,16 +333,16 @@ public class ModDamage extends JavaPlugin
 			Material.LEVER));
 	
 ///////////////// EXTERNAL PLUGINS
-	
+
 	public interface ModDamageExtension
 	{
+		public PluginDescriptionFile getDescription(); // For reload data purpose
 		public void reloadRoutines();//Register routines with the Routine/NestedRoutine libraries.
 	}
-	public static void registerExtension(ModDamageExtension extension, PluginDescriptionFile description)
+	
+	public static void registerExtension(ModDamageExtension extension)
 	{
-		if(!extensions.contains(extension))
-			extensions.add(extension);
-		configuration.addToLogRecord(OutputPreset.CONSTANT, configuration.logPrepend() + "Found extension: " + description.getName() + " version " + description.getVersion() + ", by " + description.getAuthors().toString());
+		ExternalPluginManager.registerExtension(extension);
 	}
 
 	public static void reportBailException(BailException bailException)

@@ -18,9 +18,11 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
 
 import ru.tehkode.permissions.PermissionManager;
 
+import com.ModDamage.ModDamage;
 import com.ModDamage.ModDamage.ModDamageExtension;
 import com.ModDamage.Expressions.ListExp;
 import com.ModDamage.Expressions.NestedExp;
@@ -29,6 +31,7 @@ import com.ModDamage.Expressions.StringExp;
 import com.ModDamage.External.TabAPI.TabAPISupport;
 import com.ModDamage.External.Vault.VaultSupport;
 import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Properties.BlockProps;
 import com.ModDamage.Properties.ChunkProps;
 import com.ModDamage.Properties.CreatureProps;
@@ -64,6 +67,41 @@ import de.bananaco.permissions.Permissions;
 public class ExternalPluginManager
 {
 	private static List<ModDamageExtension> registeredPlugins = new ArrayList<ModDamageExtension>();
+
+	private static void reloadPluginExtensions()
+	{
+		String prefix = ModDamage.getPluginConfiguration().logPrepend();
+		if (registeredPlugins.isEmpty())
+		{
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, prefix + "Extensions: No extensions found.");
+		} else {
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, prefix + "Extensions: Loading...");
+			boolean anyFailed = false;
+			for(ModDamageExtension pluginExtension : registeredPlugins)
+			{
+				boolean currentFailed = false;
+				try {
+					pluginExtension.reloadRoutines();
+				} catch (Throwable t) {
+					anyFailed = true;
+					currentFailed = true;
+				}
+				try {
+					PluginDescriptionFile description = pluginExtension.getDescription(); //Don't waste processing time on fetching description file per call.
+					if (!currentFailed)
+						ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, prefix + "Extension '" + description.getName() + " v" + description.getVersion()+ "' has been reloaded successfully.");
+					else
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, prefix + "Extension '" + description.getName() + " v" + description.getVersion() + "' failed to reload.");
+					} catch (Throwable e) { 
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, prefix + "An extension failed to load:" + pluginExtension.toString()); 
+						e.printStackTrace();
+					}
+				}
+			if (!anyFailed)	ModDamage.addToLogRecord(OutputPreset.CONSTANT, prefix + "Extensions: Successfully loaded all extensions.");
+			else ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, prefix + "Extensions: Some extensions failed to load.");
+		}
+	}
+
 	private static void reloadModDamageRoutines()
 	{
 		DataProvider.clear();
@@ -108,9 +146,8 @@ public class ExternalPluginManager
 		}
 		catch (NoClassDefFoundError e) {}
 		
-		for(ModDamageExtension plugin : registeredPlugins)
-			plugin.reloadRoutines();
-
+		reloadPluginExtensions();
+		
 		DataProvider.compile();
 	}
 
@@ -412,5 +449,11 @@ public class ExternalPluginManager
 		regionsManagers = RegionsManager.reload();
 		mcMMOplugin = (mcMMO) Bukkit.getPluginManager().getPlugin("mcMMO");
 		reloadModDamageRoutines();
+	}
+	
+	public static void registerExtension(ModDamageExtension extension)
+	{
+		if(!registeredPlugins.contains(extension))
+			registeredPlugins.add(extension);
 	}
 }
