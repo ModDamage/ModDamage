@@ -59,7 +59,7 @@ public class RepeatControl extends Routine
 	public static void register()
 	{
 		Routine.registerRoutine(
-				Pattern.compile("(.+?)\\.(?:start(?:repeat)?\\.(\\w+)\\.(.+)|stop(?:repeat)?\\.(\\w+))", Pattern.CASE_INSENSITIVE),
+				Pattern.compile("(.+?)\\.(?:start(?:repeat)?\\.(\\w+)\\.(.+)|stop(?:repeat)?[\\.,](\\w+))", Pattern.CASE_INSENSITIVE),
 				new RoutineBuilder());
 	}
 	
