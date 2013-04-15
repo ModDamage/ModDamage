@@ -36,13 +36,6 @@ public class PlayerString extends StringExp<Player>
 				return ExternalPluginManager.getGroupsManager().getGroups(player).toString();
 			}
 		},
-		NAME
-		{
-			@Override protected String getString(Player player)
-			{
-				return player.getName();
-			}
-		},
 		WIELDING
 		{
 			@Override protected String getString(Player player)

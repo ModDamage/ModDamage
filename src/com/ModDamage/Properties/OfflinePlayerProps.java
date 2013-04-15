@@ -9,6 +9,7 @@ public class OfflinePlayerProps
 {
 	public static void register()
 	{
+		Properties.register("name", OfflinePlayer.class, "getName");
 		Properties.register("isOnline", OfflinePlayer.class, "isOnline");
 		Properties.register("isBanned", OfflinePlayer.class, "isBanned", "setBanned");
 		Properties.register("isWhitelisted", OfflinePlayer.class, "isWhitelisted", "setWhitelisted");
