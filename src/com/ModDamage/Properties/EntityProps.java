@@ -25,7 +25,9 @@ public class EntityProps
         Properties.register("owner", Tameable.class, "getOwner", "setOwner");
         Properties.register("killer", LivingEntity.class, "getKiller");
         Properties.register("target", Creature.class, "getTarget", "setTarget");
-        
+
+        Properties.register("customName", LivingEntity.class, "getCustomName", "setCustomName");
+        Properties.register("customNameVisible", LivingEntity.class, "isCustomNameVisible", "setCustomNameVisible");
         Properties.register("airticks", LivingEntity.class, "getRemainingAir", "setRemainingAir");
         Properties.register("falldistance", LivingEntity.class, "getFallDistance");
         Properties.register("fireticks", LivingEntity.class, "getFireTicks", "setFireTicks");
