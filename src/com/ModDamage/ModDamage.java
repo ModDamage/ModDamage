@@ -170,7 +170,7 @@ public class ModDamage extends JavaPlugin
 				else configuration.toggleDebugging(player);
 			}
 		},
-		RELOAD(false, "\\sr(?:eload)?(\\sall)?", "/md (reload | r) - reload configuration")
+		RELOAD(false, "\\sr(?:eload)?(\\sall)?", "/md (reload | r) [all] - reload configuration.")
 		{
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
@@ -290,6 +290,7 @@ public class ModDamage extends JavaPlugin
 		{
 			if(forError) player.sendMessage(ChatColor.RED + "Error: invalid command syntax.");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "ModDamage commands:");
+			player.sendMessage(ChatColor.LIGHT_PURPLE + "[] optional | () required");
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "/moddamage | /md - bring up this help message");
 			for (PluginCommand cmd:PluginCommand.values())
 				player.sendMessage(ChatColor.LIGHT_PURPLE +cmd.help);
