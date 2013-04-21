@@ -12,8 +12,6 @@ public class ItemProps
 {
 	public static void register()
 	{
-        Properties.register("item", Item.class, "getItemStack");
-
         Properties.register(new Property<ItemHolder, Item>("item", ItemHolder.class, Item.class) {
             public ItemHolder get(Item itemEntity, EventData data) {
                 return new ItemEntityHolder(itemEntity);
