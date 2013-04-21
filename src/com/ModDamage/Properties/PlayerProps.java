@@ -14,6 +14,7 @@ public class PlayerProps
 {
 	public static void register()
 	{
+		Properties.register("name", Player.class, "getName");
         Properties.register("exhaustion", Player.class, "getExhaustion", "setExhaustion");
         Properties.register(new SettableProperty<Integer, Player>("experience", Integer.class, Player.class) {
                 public Integer get(Player player, EventData data) { return (int) (player.getExp() * 100); }
