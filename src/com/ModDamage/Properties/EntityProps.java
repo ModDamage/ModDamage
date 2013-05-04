@@ -8,6 +8,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Wolf;
 
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.Matchables.EntityType;
@@ -25,6 +26,8 @@ public class EntityProps
         Properties.register("owner", Tameable.class, "getOwner", "setOwner");
         Properties.register("killer", LivingEntity.class, "getKiller");
         Properties.register("target", Creature.class, "getTarget", "setTarget");
+        Properties.register("angry", Wolf.class, "isAngry", "setAngry");
+        Properties.register("sitting", Wolf.class, "isSitting", "setSitting");
 
         Properties.register("customName", LivingEntity.class, "getCustomName", "setCustomName");
         Properties.register("customNameVisible", LivingEntity.class, "isCustomNameVisible", "setCustomNameVisible");
