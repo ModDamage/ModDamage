@@ -20,6 +20,7 @@ public class EntityProps
 	public static void register()
 	{
         Properties.register("world", Entity.class, "getWorld");
+        Properties.register("location", Entity.class, "getLocation");
         Properties.register("passenger", Entity.class, "getPassenger", "setPassenger");
         Properties.register("vehicle", Entity.class, "getVehicle");
         Properties.register("owner", Tameable.class, "getOwner", "setOwner");
