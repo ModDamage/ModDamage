@@ -29,6 +29,7 @@ import com.ModDamage.Events.Block.BlockGrow;
 import com.ModDamage.Events.Block.BlockIgnite;
 import com.ModDamage.Events.Block.BlockSpread;
 import com.ModDamage.Events.Block.BreakBlock;
+import com.ModDamage.Events.Block.FurnaceExtract;
 import com.ModDamage.Events.Block.LeavesDecay;
 import com.ModDamage.Events.Block.PlaceBlock;
 import com.ModDamage.Events.Chunk.ChunkLoad;
@@ -85,6 +86,7 @@ public class MDEvent implements Listener
 				new BreakBlock(),
 				new PlaceBlock(),
                 new LeavesDecay(),
+                new FurnaceExtract()
 				});
 		
 		eventCategories.put("Chunk", new MDEvent[] {
