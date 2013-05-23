@@ -22,7 +22,8 @@ public class Fish extends MDEvent implements Listener
 			Player.class,	"player",
 			World.class,	"world",
 			Entity.class,	"caught",
-            PlayerFishEvent.State.class, "state",
+			PlayerFishEvent.State.class, "state",
+			Integer.class,	"experience", "-default",
 			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -37,10 +38,12 @@ public class Fish extends MDEvent implements Listener
 				player.getWorld(),
 				caught,
                 event.getState(),
+                event.getExpToDrop(),
 				event.isCancelled());
 		
 		runRoutines(data);
 		
+		event.setExpToDrop(data.get(Integer.class, data.start + data.objects.length - 2));
 		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }
