@@ -8,6 +8,7 @@ import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.Magic.CommandMap.CBCommandMap;
@@ -16,6 +17,9 @@ import com.ModDamage.Magic.CommandMap.NoopCommandMap;
 import com.ModDamage.Magic.GroundBlock.CBGroundBlock;
 import com.ModDamage.Magic.GroundBlock.IMagicGroundBlock;
 import com.ModDamage.Magic.GroundBlock.NoopGroundBlock;
+import com.ModDamage.Magic.Handle.CBHandleClass;
+import com.ModDamage.Magic.Handle.IMagicHandleClass;
+import com.ModDamage.Magic.Handle.NoopHandleClass;
 import com.ModDamage.Magic.MaxDurability.CBMaxDurability;
 import com.ModDamage.Magic.MaxDurability.IMagicMaxDurability;
 import com.ModDamage.Magic.MaxDurability.NoopMaxDurability;
@@ -70,6 +74,7 @@ public class MagicStuff
 		initMaxDurability();
 		initGroundBlock();
 		initCommandMap();
+		initHandleClass();
 	}
 
 	
@@ -160,6 +165,35 @@ public class MagicStuff
 	
 	
 	////////////////////// end getCommandMap //////////////////////
+	
+	
+	
+	////////////////////// getHandleClass //////////////////////
+		
+	static IMagicHandleClass magicHandleClass = null;
+	static boolean handleClassLoaded = false;
+	
+	
+	private static void initHandleClass() {
+		try { magicHandleClass = new CBHandleClass(); }
+		catch (Exception e) { }
+		
+		if (magicGroundBlock == null) {
+			System.err.println("Failed to load GroundBlock magic. hitblock in ProjectileHit will be null!");
+			magicHandleClass = new NoopHandleClass();
+		}
+		else {
+			System.out.println("HandleClass magic loaded successfully");
+			handleClassLoaded = true;
+		}
+	}
+	
+	public static Class<?> getHandleClass(Entity entity)
+	{
+		return magicHandleClass.getHandleClass(entity);
+	}
+	
+	////////////////////// end getHandleClass //////////////////////
 	
 	
 	

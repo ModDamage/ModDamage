@@ -1,7 +1,6 @@
 package com.ModDamage.Properties;
 
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Damageable;
@@ -12,6 +11,7 @@ import org.bukkit.entity.Slime;
 import org.bukkit.entity.Tameable;
 
 import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.Matchables.EntityType;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.Property.Properties;
@@ -57,9 +57,9 @@ public class EntityProps
         DataProvider.registerTransformer(Player.class, AnimalTamer.class);
         
 
-        Properties.register(new Property<Class, CraftEntity>("handleClass", Class.class, CraftEntity.class) {
-                public Class<?> get(CraftEntity entity, EventData data) {
-                    return entity.getHandle().getClass();
+        Properties.register(new Property<Class, Entity>("handleClass", Class.class, Entity.class) {
+                public Class<?> get(Entity entity, EventData data) {
+                    return MagicStuff.getHandleClass(entity);
                 }
             });
 	}
