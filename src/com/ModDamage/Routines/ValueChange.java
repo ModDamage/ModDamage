@@ -49,26 +49,28 @@ public class ValueChange extends Routine
 	}
 	
 	private final ValueChangeType changeType;
-	protected final IDataProvider<Number> number;
+	protected final IDataProvider<? extends Number> newValueDP;
 	protected final ISettableDataProvider<Number> defaultDP;
-	protected ValueChange(String configString, ISettableDataProvider<Number> defaultDP, ValueChangeType changeType, IDataProvider<Number> number)
+	protected final boolean isFloating;
+	protected ValueChange(String configString, ISettableDataProvider<Number> defaultDP, ValueChangeType changeType, IDataProvider<? extends Number> newValueDP)
 	{
 		super(configString);
 		this.defaultDP = defaultDP;
 		this.changeType = changeType;
-		this.number = number;
+		this.newValueDP = newValueDP;
+		this.isFloating = (Utils.isFloating(defaultDP.provides()) || defaultDP.provides() == Number.class);
 	}
 	
 	@Override
 	public final void run(final EventData data) throws BailException{
 		Number defN = defaultDP.get(data);
-        if (defN == null)
-        	defN = Utils.isFloating(defaultDP.provides())? (Number) 0 : (Number) 0.0;
+		if (defN == null)
+			defN = isFloating? (Number) 0.0 : (Number) 0;
         
-		Number value = getValue(defN, data);
+		Number value = getNewValue(defN, data);
 		if (value == null) return;
 		
-		if (Utils.isFloating(defN) || Utils.isFloating(value)) {
+		if (isFloating) {
 			defaultDP.set(data, changeType.changeValueDouble(
 					defN.doubleValue(), value.doubleValue()));
 		}
@@ -78,9 +80,9 @@ public class ValueChange extends Routine
 		}
 	}
 	
-	protected Number getValue(Number def, EventData data) throws BailException
+	protected Number getNewValue(Number def, EventData data) throws BailException
 	{
-		return number.get(data);
+		return newValueDP.get(data);
 	}
 	
 	public static void register()
@@ -111,13 +113,14 @@ public class ValueChange extends Routine
 				if(anotherMatcher.matches())
 					return entry.getValue().getNew(anotherMatcher, changeType, info);
 			}
-			IDataProvider<Number> value = DataProvider.parse(info, Number.class, matcher.group(4));
-			if (value == null) return null;
+			
 			ISettableDataProvider<Number> defaultDP = info.get(Number.class, "-default");
 			if (defaultDP == null) return null;
+			IDataProvider<? extends Number> newValueDP = DataProvider.parse(info, defaultDP.provides(), matcher.group(4));
+			if (newValueDP == null) return null;
 			
 			ModDamage.addToLogRecord(OutputPreset.INFO, changeType.name() + ": " + matcher.group(4));
-			return new ValueChange(matcher.group(), defaultDP, changeType, value);
+			return new ValueChange(matcher.group(), defaultDP, changeType, newValueDP);
 		}
 	}
 	

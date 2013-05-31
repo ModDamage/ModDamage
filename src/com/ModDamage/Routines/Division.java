@@ -20,9 +20,9 @@ public class Division extends ValueChange
 		super(configString, defaultDP, changeType, value);
 	}
 	@Override
-	public Number getValue(Number def, EventData data) throws BailException
+	public Number getNewValue(Number def, EventData data) throws BailException
 	{
-		Number num = number.get(data);
+		Number num = newValueDP.get(data);
 		if (num == null) return null;
 		
 		if (Utils.isFloating(def) || Utils.isFloating(num))
