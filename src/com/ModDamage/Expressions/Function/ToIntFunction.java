@@ -54,23 +54,25 @@ public class ToIntFunction implements IDataProvider<Integer>
 				@Override
 				public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
 				{
-					IDataProvider<?> valDP = DataProvider.parse(info, null, sm.spawn());
-					if (valDP == null) return null;
+					IDataProvider<?> valDP;
 					
-					
-					IDataProvider<String> strDP = DataProvider.transform(String.class, valDP, info);
-					if (strDP != null)
-						valDP = strDP;
-					else {
-						IDataProvider<Number> doubleDP = DataProvider.transform(Number.class, valDP, info);
-						if (doubleDP != null)
-							valDP = doubleDP;
+					IDataProvider<Number> numberDP = DataProvider.parse(info, Number.class, sm.spawn(), false, false, null);
+					if (numberDP != null)
+						valDP = numberDP;
+					else
+					{
+						IDataProvider<String> strDP = DataProvider.parse(info, String.class, sm.spawn(), false, false, null);
+						if (strDP != null)
+							valDP = strDP;
 						else
+						{
+							IDataProvider<Object> objDP = DataProvider.parse(info, null, sm.spawn());
+							if (objDP != null)
+								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Wanted String or Number for toint(), not " + objDP.provides().getSimpleName());
 							return null;
+						}
 					}
-						
 					
-
 					Matcher endMatcher = sm.matchFront(endPattern);
 					if (endMatcher == null)
 					{
