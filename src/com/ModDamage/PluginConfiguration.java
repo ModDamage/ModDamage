@@ -182,6 +182,15 @@ public class PluginConfiguration
 				return false;
 			}
 		}
+		
+		Integer port = (Integer) getCaseInsensitiveValue(configMap, "server-port");
+		String username = (String) getCaseInsensitiveValue(configMap, "server-username");
+		String password = (String) getCaseInsensitiveValue(configMap, "server-password");
+		if(port != null && username != null && password != null) {
+			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Web server started on port "+ port);
+			MDServer.startServer(port, username, password);
+		} else
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Web server not started");
 
 		if(reloadingAll)
 		{
@@ -254,15 +263,6 @@ public class PluginConfiguration
 		else
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla kick messages enabled.");
 		
-
-		Integer port = (Integer) getCaseInsensitiveValue(configMap, "server-port");
-		String username = (String) getCaseInsensitiveValue(configMap, "server-username");
-		String password = (String) getCaseInsensitiveValue(configMap, "server-password");
-		if(port != null && username != null && password != null) {
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Web server started on port "+ port);
-			MDServer.startServer(port, username, password);
-		} else
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Web server not started");
 		
 		// Aliasing
 		AliasManager.reload();

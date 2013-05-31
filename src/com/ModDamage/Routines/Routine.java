@@ -20,7 +20,7 @@ abstract public class Routine
 {
 	protected static final Pattern anyPattern = Pattern.compile(".*");
 	//private static final RoutineBuilder builder = new RoutineBuilder();
-	private static final Map<Pattern, RoutineBuilder> registeredBaseRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
+	public static final Map<Pattern, RoutineBuilder> registeredBaseRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
 
 	private final String configString;
 
@@ -66,6 +66,8 @@ abstract public class Routine
 
 		// this must go last to avoid misleading parse errors
 		ValueChange.register();
+		
+		RoutineDocs.register();
 	}
 
 	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)

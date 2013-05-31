@@ -5,12 +5,13 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 import java.util.Properties;
+import java.util.regex.Matcher;
 
 import com.ModDamage.NanoHTTPD.Response;
 
 public abstract class WebHandler
 {
-	public abstract Response handle(Response res, String uri, String method, Properties header, Properties parms, Properties files);
+	public abstract Response handle(Response res, Matcher m, String method, Properties header, Properties parms, Properties files);
 	
 	protected final Response write(Response res, final WebWriter writer) {
 		PipedInputStream in = new PipedInputStream();

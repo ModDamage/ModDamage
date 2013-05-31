@@ -57,6 +57,8 @@ public class TagManager
 		load();
 
 		reload(false);
+		
+		TagBrowser.register();
 	}
 	
 	public void reload(){ reload(true); }

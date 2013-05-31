@@ -1,5 +1,7 @@
 package com.ModDamage.Routines.Nested;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,8 +11,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
@@ -18,7 +18,11 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Matchables.EntityType;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routines;
+import com.ModDamage.Server.MDServer;
+import com.ModDamage.Server.WebWriter;
 
 public class Nearby extends NestedRoutine
 {
@@ -93,6 +97,25 @@ public class Nearby extends NestedRoutine
 
 	public static void register()
 	{
+		MDServer.addHandler(Pattern.compile("/routine/Nearby", Pattern.CASE_INSENSITIVE), new WebWriter() {
+				public void write(Writer o) throws IOException {
+					
+					o.write("<h1>Nearby</h1>");
+					
+					o.write("<p class=\"description\">" +
+							"The Nearby routine searches for entities within a radius of a location, " +
+							"and runs the nested routines once for every entity it finds. In the nearest form, it only runs " +
+							"for the closest entity." +
+							"</p>");
+					
+					o.write("<h3>Syntax</h3>");
+					
+					o.write("<p class=\"syntax\">" +
+							"[<b>nearby</b>|<b>nearest</b>]<b>.</b><span>{entity}</span><b>.</b><span>{entity type}</span><b>.</b><span>{radius}</span>" +
+							"</p>");
+				}
+			});
+		
 		NestedRoutine.registerRoutine(Pattern.compile("near(by|est)\\.([^.]*)\\.([^.]*)\\.([^.]*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
 	}
 

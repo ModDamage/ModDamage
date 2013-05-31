@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -22,9 +24,9 @@ public class MDServer extends NanoHTTPD
 	
 	private static MDServer instance = null;
 	
-	static Executor executor = Executors.newSingleThreadExecutor();
+	static Executor executor = Executors.newCachedThreadPool();
 	
-	private Map<String, WebHandler> handlers = new HashMap<String, WebHandler>();
+	private Map<Pattern, WebHandler> handlers = new HashMap<Pattern, WebHandler>();
 	
 	private String authString;
 	
@@ -34,14 +36,16 @@ public class MDServer extends NanoHTTPD
 		String auth = header.getProperty("authorization");
 		if (auth == null || !auth.equalsIgnoreCase(authString))
 		{
-			StringBuilder sb = new StringBuilder("You are not authorized: " + auth + " " + authString + "\n");
+//			StringBuilder sb = new StringBuilder("You are not authorized: " + auth + " " + authString + "\n");
+//			
+//			for (Entry<Object, Object> entry : header.entrySet())
+//			{
+//				sb.append(entry.getKey() + ": " + entry.getValue() + "\n");
+//			}
+//			
+//			Response res = new Response("401 Not Authorized", MIME_PLAINTEXT, sb.toString());
 			
-			for (Entry<Object, Object> entry : header.entrySet())
-			{
-				sb.append(entry.getKey() + ": " + entry.getValue() + "\n");
-			}
-			
-			Response res = new Response("401 Not Authorized", MIME_PLAINTEXT, sb.toString());
+			Response res = new Response("401 Not AUthorized", MIME_PLAINTEXT, "You are not allowed to view this content");
 			Properties resHeader = res.header;
 			
 			resHeader.setProperty("WWW-Authenticate", "Basic realm=\"ModDamage\"");
@@ -49,11 +53,13 @@ public class MDServer extends NanoHTTPD
 			return res;
 		}
 		
-		for (Entry<String, WebHandler> entry : handlers.entrySet())
+		for (Entry<Pattern, WebHandler> entry : handlers.entrySet())
 		{
-			Response res = new Response();
-			if (uri.startsWith(entry.getKey())) {
-				Response r = entry.getValue().handle(res, uri, method, header, parms, files);
+			Matcher m = entry.getKey().matcher(uri);
+			
+			if (m.matches()) {
+				Response res = new Response();
+				Response r = entry.getValue().handle(res, m, method, header, parms, files);
 				if (r != null)
 					return r;
 			}
@@ -76,9 +82,9 @@ public class MDServer extends NanoHTTPD
 			return;
 		}
 		
-		addHandler("/hello", new WebHandler() {
+		addHandler(Pattern.compile("/hello", Pattern.CASE_INSENSITIVE), new WebHandler() {
 				@Override
-				public Response handle(Response res, String uri, String method, Properties header, Properties parms, Properties files)
+				public Response handle(Response res, Matcher m, String method, Properties header, Properties parms, Properties files)
 				{
 					return write(res, new WebWriter() {
 							@Override
@@ -97,9 +103,20 @@ public class MDServer extends NanoHTTPD
 		instance = null;
 	}
 	
-	public static void addHandler(String path, WebHandler handler) {
+	public static void addHandler(Pattern pathPattern, WebHandler handler) {
 		if (instance == null) return;
 		
-		instance.handlers.put(path, handler);
+		instance.handlers.put(pathPattern, handler);
+	}
+
+	public static void addHandler(Pattern pathPattern, final WebWriter writer)
+	{
+		if (instance == null) return;
+		
+		instance.handlers.put(pathPattern, new WebHandler() {
+				public Response handle(Response res, Matcher m, String method, Properties header, Properties parms, Properties files) {
+					return write(res, writer);
+				}
+			});
 	}
 }
