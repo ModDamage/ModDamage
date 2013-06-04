@@ -92,11 +92,11 @@ public class ExternalPluginManager
 						ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, prefix + "Extension '" + description.getName() + " v" + description.getVersion()+ "' has been reloaded successfully.");
 					else
 						ModDamage.addToLogRecord(OutputPreset.FAILURE, prefix + "Extension '" + description.getName() + " v" + description.getVersion() + "' failed to reload.");
-					} catch (Throwable e) { 
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, prefix + "An extension failed to load:" + pluginExtension.toString()); 
-						e.printStackTrace();
-					}
+				} catch (Throwable e) { 
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, prefix + "An extension failed to load:" + pluginExtension.toString()); 
+					e.printStackTrace();
 				}
+			}
 			if (!anyFailed)	ModDamage.addToLogRecord(OutputPreset.CONSTANT, prefix + "Extensions: Successfully loaded all extensions.");
 			else ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, prefix + "Extensions: Some extensions failed to load.");
 		}
