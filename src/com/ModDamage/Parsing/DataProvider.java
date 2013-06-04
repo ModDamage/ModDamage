@@ -418,8 +418,14 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 //            ModDamage.addToLogRecord(OutputPreset.FAILURE, "Matched group failed to match?? "+parserData.parser.getClass().getName()+" \""+parserData.pattern.pattern()+"\"");
             return null;
         }
+        
+        IDataProvider<?> newDP = dp;
+        if (parserData.wants != null && !parserData.wants.isAssignableFrom(dp.provides()))
+        	newDP = transform(parserData.wants, dp, info);
+        if (newDP == null && dp != null)
+        	return null;
 
-        IDataProvider<?> provider = parserData.parse(info, dp, m2, sm2.spawn());
+        IDataProvider<?> provider = parserData.parse(info, newDP, m2, sm2.spawn());
         if (provider != null) {
             sm2.accept();
             sm.accept();
