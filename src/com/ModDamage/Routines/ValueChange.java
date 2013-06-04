@@ -68,7 +68,7 @@ public class ValueChange extends Routine
 		
 		Class<?> provides = defaultDP.provides();
 		
-		if (provides == Double.class)
+		if (provides == Number.class || provides == Double.class)
 			defaultDP.set(data, (double) newValue);
 		else if (provides == Float.class)
 			defaultDP.set(data, (float) newValue);
