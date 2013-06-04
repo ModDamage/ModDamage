@@ -23,26 +23,19 @@ public class ValueChange extends Routine
 		Add
 		{
 			@Override
-			int changeValue(int current, int value){ return current + value; }
-			@Override
-			double changeValueDouble(double current, double value){ return current + value; }
+			double changeValue(double current, double value){ return current + value; }
 		},
 		Set
 		{
 			@Override
-			int changeValue(int current, int value){ return value; }
-			@Override
-			double changeValueDouble(double current, double value){ return value; }
+			double changeValue(double current, double value){ return value; }
 		},
 		Subtract
 		{
 			@Override
-			int changeValue(int current, int value){ return current - value; }
-			@Override
-			double changeValueDouble(double current, double value){ return current - value; }
+			double changeValue(double current, double value){ return current - value; }
 		};
-		abstract int changeValue(int current, int value);
-		abstract double changeValueDouble(double current, double value);
+		abstract double changeValue(double current, double value);
 
 		public String getStringAppend(){ return " (" + this.name().toLowerCase() + ")"; }
 
@@ -69,15 +62,26 @@ public class ValueChange extends Routine
         
 		Number value = getNewValue(defN, data);
 		if (value == null) return;
+
+		double newValue = changeType.changeValue(
+				defN.doubleValue(), value.doubleValue());
 		
-		if (isFloating) {
-			defaultDP.set(data, changeType.changeValueDouble(
-					defN.doubleValue(), value.doubleValue()));
-		}
-		else {
-			defaultDP.set(data, changeType.changeValue(
-					defN.intValue(), value.intValue()));
-		}
+		Class<?> provides = defaultDP.provides();
+		
+		if (provides == Double.class)
+			defaultDP.set(data, (double) newValue);
+		else if (provides == Float.class)
+			defaultDP.set(data, (float) newValue);
+		else if (provides == Long.class)
+			defaultDP.set(data, (long) newValue);
+		else if (provides == Integer.class)
+			defaultDP.set(data, (int) newValue);
+		else if (provides == Short.class)
+			defaultDP.set(data, (short) newValue);
+		else if (provides == Byte.class)
+			defaultDP.set(data, (byte) newValue);
+		else
+			throw new Error("Unknown Number type: "+provides.getName());
 	}
 	
 	protected Number getNewValue(Number def, EventData data) throws BailException
