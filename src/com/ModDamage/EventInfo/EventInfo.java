@@ -28,11 +28,12 @@ public abstract class EventInfo
 	
 	
 	public <T> EventDataProvider<T> get(Class<T> cls, String name) { return get(cls, name, true); }
+	@SuppressWarnings("unchecked")
 	public <T> EventDataProvider<T> get(Class<T> cls, String name, boolean complain)
 	{
 		int index = getIndex(cls, name, complain);
 		if (index == -1) return null;
-		return new EventDataProvider<T>(cls, getClass(index), name, index);
+		return new EventDataProvider<T>(cls, (Class<? extends T>) getClass(index), name, index);
 	}
 	
 	public int getIndex(Class<?> cls, String name, boolean complain) {

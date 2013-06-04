@@ -8,11 +8,11 @@ import com.ModDamage.EventInfo.EventData;
 public class EventDataProvider<T> implements ISettableDataProvider<T>
 {
 	public final Class<T> givenCls;
-	public final Class<?> infoCls;
+	public final Class<? extends T> infoCls;
 	public final String name;
 	public final int index;
 	
-	public EventDataProvider(Class<T> givenCls, Class<?> infoCls, String name, int index)
+	public EventDataProvider(Class<T> givenCls, Class<? extends T> infoCls, String name, int index)
 	{
 		this.givenCls = givenCls;
 		this.infoCls = infoCls;
@@ -35,9 +35,9 @@ public class EventDataProvider<T> implements ISettableDataProvider<T>
 	}
 
 	@Override
-	public Class<T> provides()
+	public Class<? extends T> provides()
 	{
-		return givenCls;
+		return infoCls;
 	}
 
 	@Override
