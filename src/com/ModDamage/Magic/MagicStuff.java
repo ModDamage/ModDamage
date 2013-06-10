@@ -23,7 +23,6 @@ import com.ModDamage.Magic.Handle.NoopHandleClass;
 import com.ModDamage.Magic.MaxDurability.CBMaxDurability;
 import com.ModDamage.Magic.MaxDurability.IMagicMaxDurability;
 import com.ModDamage.Magic.MaxDurability.NoopMaxDurability;
-import com.esotericsoftware.reflectasm.MethodAccess;
 
 public class MagicStuff
 {
@@ -56,9 +55,11 @@ public class MagicStuff
 		String netMinecraftServer = null;
 		
 		try {
-			MethodAccess server_m = MethodAccess.get(serverClass);
+			
+			Method server_m = serverClass.getMethod("getServer", new Class<?>[0]);
+			server_m.setAccessible(true);
 			Object console = server_m.invoke(server, "getServer");
-	
+			server_m.setAccessible(false);
 			Class<?> consoleClass = console.getClass(); // net.minecraft.server.MinecraftServer
 			netMinecraftServer = consoleClass.getPackage().getName();
 		}
