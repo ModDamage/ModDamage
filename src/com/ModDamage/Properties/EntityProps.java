@@ -9,6 +9,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Tameable;
+import org.bukkit.material.Colorable;
 
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.Magic.MagicStuff;
@@ -55,6 +56,10 @@ public class EntityProps
         
         DataProvider.registerTransformer(Tameable.class, Entity.class);
         DataProvider.registerTransformer(Player.class, AnimalTamer.class);
+        
+        
+        DataProvider.registerTransformer(Entity.class, Colorable.class);
+        Properties.register("color", Colorable.class, "getColor", "setColor");
         
 
         Properties.register(new Property<Class, Entity>("handleClass", Class.class, Entity.class) {
