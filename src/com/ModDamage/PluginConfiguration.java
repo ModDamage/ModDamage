@@ -142,6 +142,8 @@ public class PluginConfiguration
 		LoadState.pluginState = LoadState.NOT_LOADED;
 		logMessagesSoFar = 0;
 
+		resetWorstLogMessageLevel();
+		
 //		configStrings_ingame.clear();
 //		configStrings_ingameFilters.clear();
 //		configStrings_console.clear();
@@ -283,7 +285,21 @@ public class PluginConfiguration
 				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Loaded configuration with one or more errors.");
 				break;
 			case SUCCESS:
-				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Finished loading configuration.");
+				int worstValue = worstLogMessageLevel.intValue();
+				
+				if (worstValue >= Level.SEVERE.intValue()) {
+					addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Finished loading configuration with errors.");
+				}
+				else if (worstValue >= Level.WARNING.intValue()) {
+					addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Finished loading configuration with warnings.");
+				}
+				else if (worstValue >= Level.INFO.intValue()) {
+					addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Finished loading configuration.");
+				}
+				else {
+					addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Weird reload: " + worstLogMessageLevel);
+				}
+				
 				break;
 				
 			default: throw new Error("Unknown state: "+LoadState.pluginState+" $PC280");
@@ -402,6 +418,12 @@ public class PluginConfiguration
 	public static int maxLogMessagesToShow = 50;
 	public static int logMessagesSoFar = 0;
 	
+	public Level worstLogMessageLevel;
+	
+	public void resetWorstLogMessageLevel() {
+		worstLogMessageLevel = Level.INFO;
+	}
+	
 	public void addToLogRecord(OutputPreset preset, String message)
 	{
 //		if(message.length() > 50)
@@ -425,15 +447,20 @@ public class PluginConfiguration
 //		}
 //		configPages = configStrings_ingame.size() / 9 + (configStrings_ingame.size() % 9 > 0 ? 1 : 0);
 //
-		String nestIndentation = "";
-		for(int i = 0; i < indentation; i++)
-			nestIndentation += "    ";
-//		configStrings_console.add(nestIndentation + message);
-//		configStrings_consoleFilters.add(preset);
+
+		if (preset.level.intValue() > worstLogMessageLevel.intValue())
+			worstLogMessageLevel = preset.level;
 
 		if(getDebugSetting().shouldOutput(preset.debugSetting)) {
-			if (getDebugSetting() != DebugSetting.QUIET || logMessagesSoFar < maxLogMessagesToShow)
+			if (getDebugSetting() != DebugSetting.QUIET || logMessagesSoFar < maxLogMessagesToShow) {
+				String nestIndentation = "";
+				for(int i = 0; i < indentation; i++)
+					nestIndentation += "    ";
+//				configStrings_console.add(nestIndentation + message);
+//				configStrings_consoleFilters.add(preset);
+				
 				log.log(preset.level, nestIndentation + message);
+			}
 			logMessagesSoFar ++;
 		}
 	}

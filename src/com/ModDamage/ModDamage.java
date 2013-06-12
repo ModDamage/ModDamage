@@ -2,11 +2,9 @@ package com.ModDamage;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -182,7 +180,21 @@ public class ModDamage extends JavaPlugin
 					switch(LoadState.pluginState)
 					{
 						case SUCCESS:
-							player.sendMessage(chatPrepend(ChatColor.GREEN) + "Reloaded!");
+							int worstValue = configuration.worstLogMessageLevel.intValue();
+							
+							if (worstValue >= Level.SEVERE.intValue()) {
+								player.sendMessage(chatPrepend(ChatColor.YELLOW) + "Reloaded with errors.");
+							}
+							else if (worstValue >= Level.WARNING.intValue()) {
+								player.sendMessage(chatPrepend(ChatColor.YELLOW) + "Reloaded with warnings.");
+							}
+							else if (worstValue >= Level.INFO.intValue()) {
+								player.sendMessage(chatPrepend(ChatColor.GREEN) + "Reloaded!");
+							}
+							else {
+								player.sendMessage(chatPrepend(ChatColor.YELLOW) + "Weird reload: " + configuration.worstLogMessageLevel);
+							}
+							
 							break;
 						case FAILURE:
 							player.sendMessage(chatPrepend(ChatColor.YELLOW) + "Reloaded with errors.");
