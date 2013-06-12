@@ -118,7 +118,7 @@ public class ValueChange extends Routine
 					return entry.getValue().getNew(anotherMatcher, changeType, info);
 			}
 			
-			ISettableDataProvider<Number> defaultDP = info.get(Number.class, "-default");
+			ISettableDataProvider<Number> defaultDP = info.get(Number.class, "-default", false);
 			if (defaultDP == null) return null;
 			IDataProvider<? extends Number> newValueDP = DataProvider.parse(info, defaultDP.provides(), matcher.group(4));
 			if (newValueDP == null) return null;
