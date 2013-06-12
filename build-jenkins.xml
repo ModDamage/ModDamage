@@ -18,9 +18,6 @@
 	        <fileset dir="${dependencyFolder}">
 	            <include name="*.jar"/>
 	        </fileset>
-			<fileset dir="includes">
-				<include name="*.jar"/>
-			</fileset>
 	    </path>
 		<javac srcdir="${sourceFolder}" destdir="${buildFolder}" classpathref="project.classpath" source="1.6" target="1.6" debug="on" includeantruntime="false" />
 	</target>
@@ -35,7 +32,6 @@
 		<jar destfile="${env.JOB_NAME}.jar" update="no">
 			<fileset dir="${buildFolder}" includes="**/*.class"/>
 			<fileset dir="." includes="plugin.yml"/>
-			<zipgroupfileset dir="includes" includes="*.jar" />
 			<manifest>
 				<attribute name="Job" value="${env.JOB_NAME}"/>
 				<attribute name="Built-By" value="ModDamage Jenkins"/>
