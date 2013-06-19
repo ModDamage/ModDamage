@@ -58,7 +58,7 @@ public class EntityProps
         DataProvider.registerTransformer(Player.class, AnimalTamer.class);
         
         
-        DataProvider.registerTransformer(Entity.class, Colorable.class);
+        DataProvider.registerTransformer(Colorable.class, Entity.class);
         Properties.register("color", Colorable.class, "getColor", "setColor");
         
 
