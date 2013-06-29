@@ -50,7 +50,7 @@ public class SubstringFunction extends DataProvider<String, String>
 	static final Pattern endPattern = Pattern.compile("\\s*\\)");
 	public static void register()
 	{
-		DataProvider.register(String.class, String.class, Pattern.compile("_substr(?:ing)?\\("), new IDataParser<String, String>()
+		DataProvider.register(String.class, String.class, Pattern.compile("_(substr(?:ing))?\\("), new IDataParser<String, String>()
 			{
 				@Override
 				public IDataProvider<String> parse(EventInfo info, IDataProvider<String> worldDP, Matcher m, StringMatcher sm)
