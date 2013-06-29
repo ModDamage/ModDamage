@@ -58,6 +58,7 @@ public class PlayerProps
         
 
         DataProvider.registerTransformer(HumanEntity.class, "getInventory");
+        Properties.register("enderchest", HumanEntity.class, "getEnderChest");
         DataProvider.registerTransformer(PlayerInventory.class, EntityEquipment.class);
 	}
 }
