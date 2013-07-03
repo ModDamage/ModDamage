@@ -27,7 +27,7 @@ public class Equality extends Conditional<Object>
 		this.equalTo = equalTo;
 		this.rightDP = right;
 		
-		this.number = left.provides() == Number.class || right.provides() == Number.class;
+		this.number = Number.class.isAssignableFrom(left.provides()) || Number.class.isAssignableFrom(right.provides());
 	}
 
 	@Override
