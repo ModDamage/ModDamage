@@ -57,6 +57,7 @@ import com.ModDamage.Events.Item.ItemHeld;
 import com.ModDamage.Events.Item.PickupItem;
 import com.ModDamage.Events.Item.PrepareEnchant;
 import com.ModDamage.Events.Player.Chat;
+import com.ModDamage.Events.Player.Consume;
 import com.ModDamage.Events.Player.Fish;
 import com.ModDamage.Events.Player.Interact;
 import com.ModDamage.Events.Player.InteractEntity;
@@ -127,6 +128,7 @@ public class MDEvent implements Listener
 
 		eventCategories.put("Player", new MDEvent[] {
 				new Chat(),
+				new Consume(),
 				new Interact(),
 				new InteractEntity(),
 				new Join(),
