@@ -136,7 +136,9 @@ public class ItemHolder {
     
     public String getLore(int index) {
     	if (item == null) return null;
-    	List<String> lore = item.getItemMeta().getLore();
+    	ItemMeta meta = item.getItemMeta();
+    	if (meta == null) return null;
+    	List<String> lore = meta.getLore();
     	if (lore == null || index < 0 || index >= lore.size()) return null;
     	
     	return lore.get(index);
