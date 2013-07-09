@@ -122,12 +122,17 @@ public class ItemHolder {
     
     public String getName() {
     	if (item == null) return null;
-    	return item.getItemMeta().getDisplayName();
+    	ItemMeta meta = item.getItemMeta();
+    	if (meta == null) return null;
+    	
+    	return meta.getDisplayName();
     }
     
     public void setName(String name) {
     	if (item == null) item = new ItemStack(1);
     	ItemMeta meta = item.getItemMeta();
+    	if (meta == null) return;
+    	
     	meta.setDisplayName(name);
     	item.setItemMeta(meta);
     	
@@ -147,6 +152,7 @@ public class ItemHolder {
     public void setLore(int index, String text) {
     	if (item == null) item = new ItemStack(1);
     	ItemMeta meta = item.getItemMeta();
+    	if (meta == null) return;
 
     	List<String> lore = meta.getLore();
     	if (lore == null) lore = new ArrayList<String>(1);

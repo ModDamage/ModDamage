@@ -66,7 +66,7 @@ public class LogMessage extends NestedRoutine
 		PrintWriter pw = new PrintWriter(out);
 		
 		for(InterpolatedString message :  messages) {
-			pw.write("["+formatter.format(new Date()) + "] " + message.toString(data) + "\n");
+			pw.write("[" + formatter.format(new Date()) + "] " + message.toString(data) + "\n");
 		}
 		
 		pw.close();
