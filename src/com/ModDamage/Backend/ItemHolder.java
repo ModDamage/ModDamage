@@ -158,9 +158,10 @@ public class ItemHolder {
     	if (lore == null) lore = new ArrayList<String>(1);
     	if (index < 0 || index > lore.size()) return;
     	
-    	if (text == null || text.equals(""))
-    		lore.remove(index);
-    	else if (index == lore.size())
+    	if (text == null || text.equals("")) {
+    		if (index >= 0 && index < lore.size())
+    			lore.remove(index);
+    	} else if (index == lore.size())
     		lore.add(text);
     	else
     		lore.set(index, text);
