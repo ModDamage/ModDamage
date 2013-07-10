@@ -41,11 +41,9 @@ public class BlockFunction extends DataProvider<Block, World>
 	@Override
 	public Class<Block> provides() { return Block.class; }
 
-	static final Pattern commaPattern = Pattern.compile("\\s*,\\s*");
-	static final Pattern endPattern = Pattern.compile("\\s*\\)");
 	public static void register()
 	{
-		DataProvider.register(Block.class, World.class, Pattern.compile("_block\\s*"), new FunctionParser<Block, World>(Integer.class, Integer.class, Integer.class)
+		DataProvider.register(Block.class, World.class, Pattern.compile("_block"), new FunctionParser<Block, World>(Integer.class, Integer.class, Integer.class)
 			{
 				@SuppressWarnings("unchecked")
 				@Override
