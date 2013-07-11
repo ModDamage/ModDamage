@@ -23,7 +23,6 @@ import com.ModDamage.Magic.Handle.NoopHandleClass;
 import com.ModDamage.Magic.MaxDurability.CBMaxDurability;
 import com.ModDamage.Magic.MaxDurability.IMagicMaxDurability;
 import com.ModDamage.Magic.MaxDurability.NoopMaxDurability;
-import com.esotericsoftware.reflectasm.MethodAccess;
 
 public class MagicStuff
 {
@@ -35,41 +34,23 @@ public class MagicStuff
 	public static void init()
 	{
 		Server server = null;
-		Class<?> serverClass = null;
-		String orgBukkitCraftBukkit = null;
-		
 		try {
 			server = Bukkit.getServer();
 	
-			serverClass = server.getClass(); // org.bukkit.craftbukkit.CraftServer
-			orgBukkitCraftBukkit = serverClass.getPackage().getName();
+			obc =  server.getClass().getPackage().getName();
 		}
 		catch (Exception e) {
-			System.err.println("Magic load error 1");
-			e.printStackTrace();
+			System.err.println("Magic load error 1: " + e.getMessage());
 		}
-		
-		obc = orgBukkitCraftBukkit;
-		
-		
-		
-		String netMinecraftServer = null;
 		
 		try {
-			MethodAccess server_m = MethodAccess.get(serverClass);
-			Object console = server_m.invoke(server, "getServer");
+			Object console = safeInvoke(server, safeGetMethod(server.getClass(), "getServer"));
 	
-			Class<?> consoleClass = console.getClass(); // net.minecraft.server.MinecraftServer
-			netMinecraftServer = consoleClass.getPackage().getName();
+			nms = console.getClass().getPackage().getName();// net.minecraft.server.MinecraftServer
 		}
 		catch (Exception e) {
-			System.err.println("Magic load error 2");
-			e.printStackTrace();
+			System.err.println("Magic load error 2: " + e.getMessage());
 		}
-		
-		nms = netMinecraftServer;
-		
-		
 		
 		initMaxDurability();
 		initGroundBlock();
@@ -249,6 +230,17 @@ public class MagicStuff
 		catch (Exception e)
 		{
 			System.err.println("ModDamage is out of date! Error: " + e);
+		}
+		return null;
+	}
+	
+	public static Object safeInvoke(Object object, Method method, Object...args)
+	{
+		if (method == null) return null;
+		try {
+			return method.invoke(object, args);
+		} catch (Exception e) {
+			System.err.println("Magic safeInvoke error: " + e.getMessage());
 		}
 		return null;
 	}

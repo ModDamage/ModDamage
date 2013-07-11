@@ -1,30 +1,28 @@
 package com.ModDamage.Magic.CommandMap;
 
+import java.lang.reflect.Method;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.SimpleCommandMap;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
+import com.ModDamage.Magic.MagicStuff;
 
 public class CBCommandMap implements IMagicCommandMap
 {
-	final MethodAccess CraftServer_m;
-	final int CraftServer_getCommandMap;
+	final Method CraftServer_getCommandMap;
 	
 	public CBCommandMap()
 	{
-		Server server = Bukkit.getServer();
+		Server server = Bukkit.getServer(); // org.bukkit.craftbukkit.CraftServer
 
-		Class<?> serverClass = server.getClass(); // org.bukkit.craftbukkit.CraftServer
-		CraftServer_m = MethodAccess.get(serverClass);
-		CraftServer_getCommandMap = CraftServer_m.getIndex("getCommandMap");
+		CraftServer_getCommandMap = MagicStuff.safeGetMethod(server.getClass(), "getCommandMap");
 	}
 
 	@Override
 	public SimpleCommandMap getCommandMap()
 	{
 		Server server = Bukkit.getServer();
-		
-		return (SimpleCommandMap) CraftServer_m.invoke(server, CraftServer_getCommandMap);
+		return (SimpleCommandMap) MagicStuff.safeInvoke(server, CraftServer_getCommandMap);
 	}
 }
