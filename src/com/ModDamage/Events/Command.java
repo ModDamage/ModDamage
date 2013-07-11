@@ -50,6 +50,12 @@ public class Command extends MDEvent
 		SimpleCommandMap cmap = MagicStuff.getCommandMap();
 		
 		commandMap.clear();
+	    
+		if (cmap == null)
+		{
+			System.err.println("Command support failed to initialize!");
+			return;
+		}
 		
 		for (org.bukkit.command.Command cmd : bukkitCommands)
 		{
@@ -57,7 +63,6 @@ public class Command extends MDEvent
 			cmd.unregister(cmap);
 		}
 		bukkitCommands.clear();
-		
 		//LinkedHashMap<String, Object> entries = ModDamage.getPluginConfiguration().getConfigMap();
 		//Object commands = PluginConfiguration.getCaseInsensitiveValue(entries, "Command");
 		

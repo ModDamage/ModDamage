@@ -12,9 +12,6 @@
 				<fileset dir="resource">
 					<include name="*.jar"/>
 				</fileset>
-				<fileset dir="includes">
-					<include name="*.jar"/>
-				</fileset>
 			</classpath>
 		</javac>
 	</target>
@@ -23,7 +20,6 @@
 		<jar destfile="ModDamage.jar" update="no">
 			<fileset dir="bin" includes="**/*.class" />
 			<fileset dir="." includes="plugin.yml" />
-			<zipgroupfileset dir="includes" includes="*.jar" />
 		</jar>
 	</target>
 </project>
