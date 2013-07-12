@@ -13,15 +13,17 @@ import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
 
-public class ReplaceFunction extends DataProvider<String, String>
+public class RegexReplaceFunction extends DataProvider<String, String>
 {
+	private final boolean case_insensitive;
 	private final boolean first;
 	private final IDataProvider<String> findDP;
 	private final IDataProvider<String> replacementDP;
 
-	private ReplaceFunction(IDataProvider<String> stringDP, boolean first, IDataProvider<String> findDP, IDataProvider<String> replacementDP)
+	private RegexReplaceFunction(IDataProvider<String> stringDP, boolean case_insensitive, boolean first, IDataProvider<String> findDP, IDataProvider<String> replacementDP)
 	{
 		super(String.class, stringDP);
+		this.case_insensitive = case_insensitive;
 		this.first = first;
 		this.findDP = findDP;
 		this.replacementDP = replacementDP;
@@ -34,15 +36,13 @@ public class ReplaceFunction extends DataProvider<String, String>
 		String replacement = replacementDP.get(data);
 		if (find == null || replacement == null) return null;
 		
-		if (first) {
-			int index = str.indexOf(find);
-			if (index != -1)
-				return str.substring(0,  index) + str.substring(index+find.length(), str.length());
-			else
-				return str;
-		}
+		if (case_insensitive)
+			find = "(?i)" + find;
+		
+		if (first) 
+			return str.replaceFirst(find, replacement);
 		else
-			return str.replace(find, replacement);
+			return str.replaceAll(find, replacement);
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class ReplaceFunction extends DataProvider<String, String>
 	static final Pattern endPattern = Pattern.compile("\\s*\\)");
 	public static void register()
 	{
-		DataProvider.register(String.class, String.class, Pattern.compile("_replace(one|first)?\\("), new IDataParser<String, String>()
+		DataProvider.register(String.class, String.class, Pattern.compile("_(i)?r(?:e(?:gex)?)?replace(one|first)?\\("), new IDataParser<String, String>()
 			{
 				@Override
 				public IDataProvider<String> parse(EventInfo info, IDataProvider<String> worldDP, Matcher m, StringMatcher sm)
@@ -86,7 +86,7 @@ public class ReplaceFunction extends DataProvider<String, String>
 						return null;
 					}
 
-					return sm.acceptIf(new ReplaceFunction(worldDP, m.group(1) != null, args[0], args[1]));
+					return sm.acceptIf(new RegexReplaceFunction(worldDP, m.group(1) != null, m.group(2) != null, args[0], args[1]));
 				}
 			});
 	}
@@ -94,6 +94,6 @@ public class ReplaceFunction extends DataProvider<String, String>
 	@Override
 	public String toString()
 	{
-		return startDP + "_replace"+(first?"First":"")+"(" + findDP + ", " + replacementDP + ")";
+		return startDP + "_"+(case_insensitive?"i":"")+"RegexReplace"+(first?"First":"")+"(" + findDP + ", " + replacementDP + ")";
 	}
 }

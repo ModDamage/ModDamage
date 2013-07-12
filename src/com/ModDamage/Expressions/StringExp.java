@@ -6,6 +6,7 @@ import java.util.List;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.Function.IndexOfFunction;
 import com.ModDamage.Expressions.Function.LoreFunction;
+import com.ModDamage.Expressions.Function.RegexReplaceFunction;
 import com.ModDamage.Expressions.Function.ReplaceFunction;
 import com.ModDamage.Expressions.Function.SubstringFunction;
 import com.ModDamage.Expressions.Function.ToIntFunction;
@@ -39,6 +40,7 @@ public abstract class StringExp<From> extends DataProvider<String, From>
 		ToIntFunction.register();
 		LoreFunction.register();
 		ReplaceFunction.register();
+		RegexReplaceFunction.register();
 	}
 
 
