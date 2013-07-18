@@ -4,9 +4,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+
+import org.bukkit.entity.Damageable;
 import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.Alias.RoutineAliaser;
@@ -42,7 +45,7 @@ public class EntityHeal extends NestedRoutine
 		LivingEntity entity = livingDP.get(data);
 		if (entity == null) return;
 		
-		entity.setHealth(Math.min(entity.getHealth() + ha.intValue(), entity.getMaxHealth()));
+		MagicStuff.setEntityHealth((Damageable)entity, Math.min(MagicStuff.getHealth(entity).doubleValue() + ha.doubleValue(), MagicStuff.getMaxHealth(entity).doubleValue()));
 	}
 
 	public static void register()

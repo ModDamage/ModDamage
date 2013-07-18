@@ -3,6 +3,7 @@ package com.ModDamage.Events.Entity;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
 import org.bukkit.World;
@@ -20,7 +21,7 @@ public class Heal extends MDEvent implements Listener
 			Entity.class,	"entity",
 			World.class,	"world",
             EntityRegainHealthEvent.RegainReason.class,	"heal", // e.g. heal.type.EATING
-			Integer.class, 	"heal_amount", "-default",
+			Number.class, 	"heal_amount", "-default",
 			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -33,18 +34,28 @@ public class Heal extends MDEvent implements Listener
 				entity,
 				entity.getWorld(),
 				event.getRegainReason(),
-				event.getAmount(),
+				getAmount(event),
 				event.isCancelled());
 		
 		runRoutines(data);
 		
-		int newHealAmount = data.get(Integer.class, data.start + 3);
+		Number newHealAmount = data.get(Number.class, data.start + 3);
 		
 		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 		
-		if (newHealAmount <= 0)
+		if (newHealAmount.doubleValue() <= 0)
 			event.setCancelled(true);
 		else
-			event.setAmount(newHealAmount);
+			setAmount(event, newHealAmount);
+	}
+	
+	private static void setAmount(EntityRegainHealthEvent event, Number newAmount)
+	{
+		MagicStuff.setEventValue(event, newAmount);
+	}
+	
+	private final static Number getAmount(EntityRegainHealthEvent event)
+	{
+		return MagicStuff.getEventValue(event);
 	}
 }

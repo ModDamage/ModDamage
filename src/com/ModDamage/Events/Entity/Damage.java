@@ -17,6 +17,7 @@ import com.ModDamage.PluginConfiguration;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.Matchables.DamageType;
 
 public class Damage extends MDEvent implements Listener
@@ -29,7 +30,7 @@ public class Damage extends MDEvent implements Listener
 			Entity.class, 		"target", "-attacker-other",
 			World.class,		"world",
 			DamageType.class, 	"damage_type", // e.g. damage_type.type.FIRE
-			Integer.class, 		"damage", "-default",
+			Number.class, 		"damage", "-default",
 			Boolean.class,		"cancelled");
 	
 	
@@ -44,14 +45,14 @@ public class Damage extends MDEvent implements Listener
 			if(data != null)
 			{
 				runRoutines(data);
-                int newDamage = data.get(Integer.class, data.start + 5);
+                Number newDamage = data.get(Number.class, data.start + 5);
 				
 				event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 				
-				if (event.getDamage() != newDamage && newDamage <= 0)
+				if (newDamage.doubleValue() <= 0) //Removed the old oldDamage != newDamage since it old damage can be 0 due to reflection errors
 					event.setCancelled(true);
-
-                event.setDamage(newDamage);
+				else
+					setDamage(event, newDamage);
 			}
 			else PluginConfiguration.log.severe("[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + 
 					"] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
@@ -92,7 +93,18 @@ public class Damage extends MDEvent implements Listener
 	    		target,
 	    		world,
 	    		damageElement,
-	    		event.getDamage(),
+	    		getDamage(event),
 	    		event.isCancelled());
+	}
+	
+	////Helper Methods
+	private static void setDamage(EntityDamageEvent event, Number newDamage)
+	{
+		MagicStuff.setEventValue(event, newDamage);
+	}
+	
+	private final static Number getDamage(EntityDamageEvent event)
+	{
+		return MagicStuff.getEventValue(event);
 	}
 }

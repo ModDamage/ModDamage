@@ -1,5 +1,6 @@
 package com.ModDamage.Magic;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -8,12 +9,21 @@ import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.Magic.CommandMap.CBCommandMap;
 import com.ModDamage.Magic.CommandMap.IMagicCommandMap;
 import com.ModDamage.Magic.CommandMap.NoopCommandMap;
+import com.ModDamage.Magic.Damage.BaseEntityHPMagic;
+import com.ModDamage.Magic.Damage.DoubleEntityHPMagic;
+import com.ModDamage.Magic.Damage.IntEntityHPMagic;
+import com.ModDamage.Magic.Damage.NoopEntityHPMagic;
 import com.ModDamage.Magic.GroundBlock.CBGroundBlock;
 import com.ModDamage.Magic.GroundBlock.IMagicGroundBlock;
 import com.ModDamage.Magic.GroundBlock.NoopGroundBlock;
@@ -55,6 +65,7 @@ public class MagicStuff
 		initMaxDurability();
 		initGroundBlock();
 		initCommandMap();
+		initEntityHPMagic();
 		initHandleClass();
 	}
 
@@ -147,7 +158,82 @@ public class MagicStuff
 	
 	////////////////////// end getCommandMap //////////////////////
 	
+	//////////////////////Start Magic HP Handling/////////////////
+	static BaseEntityHPMagic magicHP = null;
+	static boolean hpHandlingLoaded = false;
 	
+	private static void initEntityHPMagic() {
+		try { magicHP = new DoubleEntityHPMagic(); }
+		catch (Exception e) {}
+		
+		if (magicHP == null)
+		{
+			try { magicHP = new IntEntityHPMagic();}
+			catch (Exception e) {}
+		}
+		
+		if (magicHP == null)
+		{
+			System.err.println("Failed to load Damage magic. Health manipulation from damage events and routines will not function..");
+			magicHP = new NoopEntityHPMagic();
+		} else {
+			System.out.println("EntityHP magic loaded successfully");
+			hpHandlingLoaded = true;
+		}
+	}
+	
+	public static Number getMaxHealth(Damageable entity)
+	{
+		return magicHP.getMaxHealth(entity);
+	}
+	
+	public static Number getHealth(Damageable entity)
+	{
+		return magicHP.getHealth(entity);
+	}
+	
+	public static void setEntityHealth(Damageable entity, Number health)
+	{
+		magicHP.setHealth(entity, health);
+	}
+	
+	/**
+	 * Currently unused. But usable. Placeholder for when it could be used. 
+	 */
+	public static void setEntityMaxHealth(Damageable entity, Number health)
+	{
+		magicHP.setMaxHealth(entity, health);
+	}
+	public static void damageEntity(Damageable entity, Number damage)
+	{
+		magicHP.damage(entity, damage);
+	}
+	
+	public static void damageEntity(Damageable entity, Number damage, Entity source)
+	{
+		magicHP.damage(entity, damage, source);
+	}
+	
+	public static void safeSetNumber(Class<?> cls, Object object, String name, Number number)
+	{
+		magicHP.safeSetNumber(cls, object, name, number);
+	}
+	public static Number safeGetNumber(Class<?> cls, Object object, String name)
+	{
+		return magicHP.safeGetNumber(cls, object, name);
+	}
+	
+	public static Number getEventValue(Event event)
+	{
+		return magicHP.getEventValue(event);
+	}
+	
+	public static void setEventValue(Event event, Number number)
+	{
+		magicHP.setEventValue(event, number);
+	}
+		
+//////////////////////End Magic HP hanlding///////////////////
 	
 	////////////////////// getHandleClass //////////////////////
 		
@@ -219,6 +305,7 @@ public class MagicStuff
 		}
 		return null;
 	}
+	
 	public static Method safeGetMethod(Class<?> cls, String name)
 	{
 		try
@@ -234,7 +321,22 @@ public class MagicStuff
 		return null;
 	}
 	
-	public static Object safeInvoke(Object object, Method method, Object...args)
+	public static Method safeGetMethod(Class<?> cls, String name, Class<?>... params)
+	{
+		try
+		{
+			Method method = cls.getDeclaredMethod(name, params);
+			method.setAccessible(true);
+			return method;
+		}
+		catch (Exception e)
+		{
+			System.err.println("ModDamage is out of date! Error: " + e);
+		}
+		return null;
+	}
+	
+	public static Object safeInvoke(Object object, Method method, Object... args)
 	{
 		if (method == null) return null;
 		try {
@@ -243,5 +345,36 @@ public class MagicStuff
 			System.err.println("Magic safeInvoke error: " + e.getMessage());
 		}
 		return null;
+	}
+	
+	public static <T> T safeInvokeConstructor(Constructor<T> constr, Object... params)
+	{
+		try 
+		{
+			T ret = constr.newInstance(params);
+			return ret;
+		} catch (Exception e) {
+			System.err.println("ModDamage is out of date! Error: " + e);
+		}
+		return null;
+	}
+	
+	public static <T> Constructor<T> getSafeConstructor(Class<T> cls, Class<?>... params)
+	{
+		Constructor<T> constr = null;
+		try
+		{
+			constr = cls.getConstructor(params);
+			constr.setAccessible(true);
+			return constr;
+		} catch (Exception e) {
+			System.err.println("ModDamage is out of date! Error: " + e);
+		}
+		return null;
+	}
+	
+	public static EntityDamageByEntityEvent craftEntityHurtEvent(Entity from, LivingEntity target, DamageCause entityAttack, Number damage)
+	{
+		return magicHP.craftEvent(from, target, entityAttack, damage);
 	}
 }

@@ -17,6 +17,7 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Events.Init;
+import com.ModDamage.Magic.MagicStuff;
 
 public class Spawn extends MDEvent implements Listener
 {
@@ -25,7 +26,7 @@ public class Spawn extends MDEvent implements Listener
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Entity.class,	"entity",
 			World.class,	"world",
-			Integer.class,	"health", "-default",
+			Number.class,	"health", "-default",
 			SpawnReason.class, "reason", "spawn_reason",
 			Boolean.class,	"cancelled");
 	
@@ -38,14 +39,14 @@ public class Spawn extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				player, // entity
 				player.getWorld(),
-				player.getMaxHealth(),
+				MagicStuff.getMaxHealth(player),
 				null,
 				null
 				);
 		
 		runRoutines(data);
 		
-		player.setHealth(data.get(Integer.class, data.start + 2));
+		MagicStuff.setEntityHealth(player, data.get(Number.class, data.start + 2));
 	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -57,7 +58,7 @@ public class Spawn extends MDEvent implements Listener
 		EventData data = myInfo.makeData(
 				entity,
 				entity.getWorld(),
-				entity.getHealth(),
+				MagicStuff.getMaxHealth(entity),
 				event.getSpawnReason(),
 				event.isCancelled());
 		
@@ -65,10 +66,10 @@ public class Spawn extends MDEvent implements Listener
 		
 		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 		
-		int health = data.get(Integer.class, data.start + 2);
+		Number health = data.get(Number.class, data.start + 2);
 		
-		if (health > 0)
-			entity.setHealth(Math.min(health, entity.getMaxHealth()));
+		if (health.doubleValue() > 0)
+			MagicStuff.setEntityHealth(entity, Math.min(health.doubleValue(), MagicStuff.getMaxHealth(entity).doubleValue()));
 		else
 			event.setCancelled(true);
 		

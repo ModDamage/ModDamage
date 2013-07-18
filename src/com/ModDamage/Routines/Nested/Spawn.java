@@ -16,6 +16,7 @@ import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.Matchables.EntityType;
 import com.ModDamage.Routines.Routines;
 
@@ -34,7 +35,7 @@ public class Spawn extends NestedRoutine
 	
 	static EventInfo myInfo = new SimpleEventInfo(
 			Entity.class, "spawned",
-			Integer.class, "health", "-default");
+			Number.class, "health", "-default");
 
 	@Override
 	public void run(EventData data) throws BailException 
@@ -50,7 +51,7 @@ public class Spawn extends NestedRoutine
 		
 		routines.run(newData);
 		
-		newEntity.setHealth(newData.get(Integer.class, newData.start + 1));
+		MagicStuff.setEntityHealth(newEntity, newData.get(Number.class, newData.start + 1));
 	}
 	
 	public static void register()
