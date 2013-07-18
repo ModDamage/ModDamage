@@ -87,7 +87,8 @@ public class MDEvent implements Listener
 				new BreakBlock(),
 				new PlaceBlock(),
                 new LeavesDecay(),
-                new FurnaceExtract()
+                new FurnaceExtract(),
+                new BlockPhysics()
 				});
 		
 		eventCategories.put("Chunk", new MDEvent[] {
