@@ -1,9 +1,11 @@
-package com.ModDamage;
+package com.ModDamage.Server;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -15,15 +17,12 @@ import java.net.Socket;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Vector;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
+import java.util.Vector;
 
 /**
  * A simple, tiny, nicely embeddable HTTP 1.0 (partially 1.1) server in Java
@@ -89,7 +88,7 @@ public class NanoHTTPD
 	{
 		myOut.println( method + " '" + uri + "' " );
 
-		Enumeration e = header.propertyNames();
+		Enumeration<?> e = header.propertyNames();
 		while ( e.hasMoreElements())
 		{
 			String value = (String)e.nextElement();
@@ -208,7 +207,8 @@ public class NanoHTTPD
 		MIME_PLAINTEXT = "text/plain",
 		MIME_HTML = "text/html",
 		MIME_DEFAULT_BINARY = "application/octet-stream",
-		MIME_XML = "text/xml";
+		MIME_XML = "text/xml",
+		MIME_JSON = "application/json";
 
 	// ==================================================
 	// Socket & server code
@@ -622,7 +622,7 @@ public class NanoHTTPD
 		{
 			int matchcount = 0;
 			int matchbyte = -1;
-			Vector matchbytes = new Vector();
+			Vector<Integer> matchbytes = new Vector<Integer>();
 			for (int i=0; i<b.length; i++)
 			{
 				if (b[i] == boundary[matchcount])
@@ -647,7 +647,7 @@ public class NanoHTTPD
 			int[] ret = new int[matchbytes.size()];
 			for (int i=0; i < ret.length; i++)
 			{
-				ret[i] = ((Integer)matchbytes.elementAt(i)).intValue();
+				ret[i] = matchbytes.elementAt(i).intValue();
 			}
 			return ret;
 		}
@@ -783,7 +783,7 @@ public class NanoHTTPD
 
 				if ( header != null )
 				{
-					Enumeration e = header.keys();
+					Enumeration<?> e = header.keys();
 					while ( e.hasMoreElements())
 					{
 						String key = (String)e.nextElement();
@@ -797,14 +797,14 @@ public class NanoHTTPD
 
 				if ( data != null )
 				{
-					int pending = data.available();	// This is to support partial sends, see serveFile()
+					//int pending = data.available();	// This is to support partial sends, see serveFile()
 					byte[] buff = new byte[theBufferSize];
-					while (pending>0)
+					while (true) // pending > 0
 					{
-						int read = data.read( buff, 0, ( (pending>theBufferSize) ?  theBufferSize : pending ));
+						int read = data.read(buff); // , 0, ( (pending>theBufferSize) ?  theBufferSize : pending )
 						if (read <= 0)	break;
 						out.write( buff, 0, read );
-						pending -= read;
+						//pending -= read;
 					}
 				}
 				out.flush();
@@ -839,9 +839,9 @@ public class NanoHTTPD
 				newUri += "%20";
 			else
 			{
-				newUri += URLEncoder.encode( tok );
+				// newUri += URLEncoder.encode( tok );
 				// For Java 1.4 you'll want to use this instead:
-				// try { newUri += URLEncoder.encode( tok, "UTF-8" ); } catch ( java.io.UnsupportedEncodingException uee ) {}
+				try { newUri += URLEncoder.encode( tok, "UTF-8" ); } catch ( java.io.UnsupportedEncodingException uee ) {}
 			}
 		}
 		return newUri;
@@ -975,7 +975,7 @@ public class NanoHTTPD
 				String mime = null;
 				int dot = f.getCanonicalPath().lastIndexOf( '.' );
 				if ( dot >= 0 )
-					mime = (String)theMimeTypes.get( f.getCanonicalPath().substring( dot + 1 ).toLowerCase());
+					mime = theMimeTypes.get( f.getCanonicalPath().substring( dot + 1 ).toLowerCase());
 				if ( mime == null )
 					mime = MIME_DEFAULT_BINARY;
 
@@ -1022,7 +1022,76 @@ public class NanoHTTPD
 
 						final long dataLen = newLen;
 						FileInputStream fis = new FileInputStream( f ) {
-							public int available() throws IOException { return (int)dataLen; }
+							int dataSoFar;
+							
+							@Override
+							public boolean markSupported()
+							{
+								return false;
+							}
+							
+							@Override
+							public synchronized void mark(int readlimit)
+							{
+							}
+							
+							@Override
+							public synchronized void reset() throws IOException
+							{
+								throw new IOException();
+							}
+							
+							
+							
+							public int available() throws IOException {
+								return (int) Math.min(dataLen - dataSoFar, super.available());
+							}
+							
+							@Override
+							public int read() throws IOException
+							{
+								if (dataSoFar >= dataLen) return -1;
+								
+								int b = super.read();
+								
+								dataSoFar += 1;
+								
+								return b;
+							}
+							
+							@Override
+							public int read(byte[] b) throws IOException
+							{
+								if (dataSoFar >= dataLen) return -1;
+								
+								int readLen;
+								
+								if (b.length > dataLen - dataSoFar)
+									readLen = super.read(b, 0, (int) (dataLen - dataSoFar));
+								else
+									readLen = super.read(b);
+								
+								dataSoFar += readLen;
+								
+								return readLen;
+							}
+							
+							@Override
+							public int read(byte[] b, int off, int len) throws IOException
+							{
+								if (dataSoFar >= dataLen) return -1;
+								
+								int readLen;
+								
+								if (len > dataLen - dataSoFar)
+									readLen = super.read(b, off, (int) (dataLen - dataSoFar));
+								else
+									readLen = super.read(b, off, len);
+								
+								dataSoFar += readLen;
+								
+								return readLen;
+							}
 						};
 						fis.skip( startFrom );
 
@@ -1057,7 +1126,7 @@ public class NanoHTTPD
 	/**
 	 * Hashtable mapping (String)FILENAME_EXTENSION -> (String)MIME_TYPE
 	 */
-	private static Hashtable theMimeTypes = new Hashtable();
+	protected static Hashtable<String, String> theMimeTypes = new Hashtable<String, String>();
 	static
 	{
 		StringTokenizer st = new StringTokenizer(
@@ -1084,7 +1153,8 @@ public class NanoHTTPD
 			"ogg		application/x-ogg "+
 			"zip		application/octet-stream "+
 			"exe		application/octet-stream "+
-			"class		application/octet-stream " );
+			"class		application/octet-stream "+
+			"yaml		application/x-yaml " );
 		while ( st.hasMoreTokens())
 			theMimeTypes.put( st.nextToken(), st.nextToken());
 	}

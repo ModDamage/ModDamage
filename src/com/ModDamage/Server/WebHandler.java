@@ -1,18 +1,62 @@
 package com.ModDamage.Server;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 import java.util.Properties;
+import java.util.regex.Matcher;
 
-import com.ModDamage.NanoHTTPD.Response;
+import com.ModDamage.Server.NanoHTTPD.Response;
 
 public abstract class WebHandler
 {
-	public abstract Response handle(Response res, String uri, String method, Properties header, Properties parms, Properties files);
+	public abstract Response handle(Response res, Matcher m, String uri, String method, Properties header, Properties parms, Properties files);
 	
-	protected final Response write(Response res, final WebWriter writer) {
+
+	protected Response send(Response res, String text)
+	{
+		return send(res, MDServer.HTTP_OK, MDServer.MIME_PLAINTEXT, text);
+	}
+	
+	protected Response send(Response res, String status, String mimeType, String text)
+	{
+		res.status = status;
+		res.mimeType = mimeType;
+		
+		try
+		{
+			res.data = new ByteArrayInputStream(text.getBytes("UTF-8"));
+		}
+		catch ( java.io.UnsupportedEncodingException e )
+		{
+			e.printStackTrace();
+		}
+		
+		return res;
+	}
+	
+
+	protected Response send(Response res, String status, String mimeType, InputStream data)
+	{
+		res.status = status;
+		res.mimeType = mimeType;
+		res.data = data;
+		
+		return res;
+	}
+
+	protected final Response send(Response res, String status, String mimeType, final WebWriter writer)
+	{
+		res.status = status;
+		res.mimeType = mimeType;
+		
+		return send(res, writer);
+	}
+	
+	protected final Response send(Response res, final WebWriter writer) {
 		PipedInputStream in = new PipedInputStream();
 		final PipedOutputStream out;
 		try

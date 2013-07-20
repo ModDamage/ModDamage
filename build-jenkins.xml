@@ -31,7 +31,7 @@
 	<target name="jar" depends="addJenkinsBuild" description="Pack JAR file">
 		<jar destfile="${env.JOB_NAME}.jar" update="no">
 			<fileset dir="${buildFolder}" includes="**/*.class"/>
-			<fileset dir="." includes="plugin.yml"/>
+			<fileset dir="." includes="plugin.yml,web/**"/>
 			<manifest>
 				<attribute name="Job" value="${env.JOB_NAME}"/>
 				<attribute name="Built-By" value="ModDamage Jenkins"/>

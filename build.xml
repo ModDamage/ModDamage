@@ -19,7 +19,7 @@
 	<target name="jar" depends="build">
 		<jar destfile="ModDamage.jar" update="no">
 			<fileset dir="bin" includes="**/*.class" />
-			<fileset dir="." includes="plugin.yml" />
+			<fileset dir="." includes="plugin.yml,web/**" />
 		</jar>
 	</target>
 </project>

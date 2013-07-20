@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+	<head>
+			<title>ModDamage - Editor</title>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<!-- Bootstrap -->
+			<link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+			<style type="text/css">
+				body {
+					margin: 0;
+					padding: 0;
+				}
+				
+				
+				
+				#sidebar {
+					position: absolute;
+					left: 0;
+					width: 250px;
+					top: 42px;
+					bottom: 0;
+					
+					
+					-webkit-touch-callout: none;
+					-webkit-user-select: none;
+					-khtml-user-select: none;
+					-moz-user-select: moz-none;
+					-ms-user-select: none;
+					user-select: none;
+				}
+				
+				#sidebar #toolbar {
+					position: absolute;
+					top: 0;
+					left: 0;
+					right: 0;
+					
+					padding: 5px;
+					
+					
+					background-color: #fafafa;
+					background-image: -moz-linear-gradient(top, #ffffff, #f2f2f2);
+					background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#f2f2f2));
+					background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+					background-image: -o-linear-gradient(top, #ffffff, #f2f2f2);
+					background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+					background-repeat: repeat-x;
+					/*border: 1px solid #d4d4d4;
+					-webkit-border-radius: 4px;
+					   -moz-border-radius: 4px;
+					        border-radius: 4px;*/
+					filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#fff2f2f2', GradientType=0);
+					
+					z-index: 10;
+				}
+				
+				#topfolder {
+					padding-top: 2px;
+					
+					position: absolute;
+					top: 36px;
+					left: 0;
+					right: 0;
+					bottom: 0;
+					
+					overflow: auto;
+					
+					z-index: 5;
+				}
+				
+				.filelist {
+					list-style: none outside none;
+					
+					margin: 0;
+				}
+				.filelist > li {
+					padding: 2px 0;
+					padding-left: 15px;
+					position: relative;
+				}
+				.filelist > li.active > .background {
+					background-color: #ace;
+					
+					position: absolute;
+					top: 0;
+					left: 0;
+					right: 0;
+					height: 100%;
+					z-index: -100;
+				}
+				.filelist > li > a:hover {
+					text-decoration: none;
+					cursor: pointer;
+				}
+				.filelist > li > a.file {
+					color: #000;
+				}
+				
+				#editor {
+					position: absolute;
+					left: 250px;
+					right: 0;
+					top: 41px;
+					bottom: 0;
+				}
+				
+				#message-wrapper {
+					position: absolute;
+					/*top: 30px;*/
+					top: -5px;
+					left: 200px;
+					right: 200px;
+					
+					/*z-index: -1;*/
+					z-index: 100000;
+					/*text-align: center;*/
+				}
+				
+				#message {
+					/*position: absolute;*/
+					/*top: 0;*/
+					/*left: 100px;*/
+					/*right: 100px;*/
+					/*display: inline;*/
+					margin: auto auto;
+					/*min-width: 300px;*/
+					width: 400px;
+					padding-right: 13px;
+					
+					z-index: 100000;
+					
+					padding-bottom: 3px;
+				}
+				
+				#message > div {
+					margin-left: 20px;
+				}
+				
+				#message .retry {
+					float: right;
+					top: 0;
+					right: -8px;
+				}
+				
+				#message .close {
+					top: 0;
+					right: -8px;
+				}
+			</style>
+			<!-- <link href="/static/bootstrap/css/bootstrap-responsive.css" rel="stylesheet"> -->
+	</head>
+	<body>
+		
+		<div id="message-wrapper">
+			<div id="message" class="alert alert-error">
+				<span id="content">Blarg</span>
+				<button class="close" data-dismiss="alert">&times;</button>
+				<a class="retry" href="#" onclick="myAjaxRetry(); return false;">Retry</a>
+			</div>
+		</div>
+		
+		<div class="navbar navbar-inverse navbar-static-top">
+			<div class="navbar-inner">
+				<div class="container-fluid">
+					<a class="brand" href="#">ModDamage</a>
+					<div class="nav-collapse collapse">
+						<p class="navbar-text pull-right">
+							<!-- <a href="#" class="btn btn-primary disabled">Saved</a> -->
+						</p>
+						<ul class="nav">
+							<li><a href="stats.html">Stats</a></li>
+							<li class="active"><a href="editor.html">Editor</a></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div>
+		
+		<div id="sidebar">
+			<div id="toolbar" class="">
+				<!-- <a href="#" class="btn btn-small">Refresh</a> -->
+				<a id="save" href="#" class="btn btn-small btn-primary disabled">Saved</a>
+				<!-- <a href="#" class="btn btn-small btn-primary">Save</a> -->
+			</div>
+			<ul id="topfolder" class="filelist">
+			</ul>
+		</div>
+	
+		<div id="editor"></div>
+	
+
+		<!-- Le javascript
+		================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script src="/static/js/jquery-2.0.3.min.js"></script>
+		<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+		
+		
+		<script src="/static/ace/ace.js"></script>
+		<script>
+			var editor = ace.edit("editor");
+			editor.setShowPrintMargin(false);
+			editor.setTheme("ace/theme/tomorrow_night");
+			editor.getSession().setMode("ace/mode/yaml");
+			
+			editor.getSession().on('change', function() {
+				set_changed();
+			});
+			
+			function save() {
+				var path = $("#topfolder li.active").data("path");
+				
+				return myAjax('/plugin'+path, {method: 'PUT', data: editor.getValue()})
+					.done(function(data) {
+						if (data == "Saved OK")
+							set_saved();
+					});
+			}
+			
+			$("#save").on('click', save);
+			
+			function set_saved() {
+				$("#save").text("Saved").addClass("disabled");
+			}
+			function set_changed() {
+				$("#save").text("Save").removeClass("disabled");
+			}
+			function is_saved() {
+				return !$("#save").hasClass("disabled");
+			}
+		</script>
+		
+		
+		<script>
+			if (typeof String.prototype.endsWith !== 'function') {
+					String.prototype.endsWith = function(suffix) {
+							return this.indexOf(suffix, this.length - suffix.length) !== -1;
+					};
+			}
+		
+		
+			var lastAjax = null;
+			function myAjax(url, options, desc) {
+				desc = desc || url;
+				$("#message #content").text(desc);
+				
+				
+				var p = $.ajax(url, options);
+				
+				window.lastAjax = p;
+				
+				p.done(function() {
+					$("#message").hide();
+					window.lastAjax = null;
+				});
+				
+				p.error(function(xhr, status, error) {
+					$("#message").show();
+					
+					console.log('AJAX error: ', url, xhr, status, error);
+				});
+				
+				return p;
+			}
+			function myAjaxRetry() {
+				$("#message").hide();
+				if (window.lastAjax != null) {
+					$.ajax(window.lastAjax);
+				}
+			}
+			
+			var folderId = 0;
+			
+			function loadFolder(path, el) {
+				return myAjax('/plugin' + path)
+					.done(function(data) {
+						var lines = data.split('\n');
+						
+						for (var i = 0; i < lines.length; i++) {
+							var line = lines[i];
+							if (line == "") continue;
+							
+							var li = $('<li><div class="background"></div></li>');
+							li.data('path', path + line);
+							li.attr('data-path', path + line);
+							
+							if (line.endsWith('/')) {
+								// folder
+								li.attr('id', 'folder'+folderId);
+								
+								var a = $('<a class="folder unloaded">');
+								a.text(line);
+								li.append(a);
+								
+								
+								var ul = $('<ul id="inside-folder'+folderId+'" class="filelist" style="display: none;">');
+								li.append(ul);
+								
+								window.folderId ++;
+							}
+							else {
+								// file
+								
+								var a = $('<a class="file">');
+								a.text(line);
+								
+								li.append(a);
+							}
+							
+							
+							el.append(li);
+						}
+						
+					});
+			}
+			
+			$("#topfolder").on('click', 'a.unloaded', function(event) {
+				var a = $(this);
+				var li = a.parent();
+				var path = li.data('path');
+				
+				console.log(a, path);
+				
+				//var ul = $('<ul id="inside-'+li.attr('id')+'" class="nav nav-list collapse">');
+				var ul = $('ul', li);
+				
+				loadFolder(path, ul)
+					.done(function() {
+						a.removeClass('unloaded');
+						a.addClass('collapsetoggle');
+						ul.slideToggle(200);
+					});
+			});
+			
+			$("#topfolder").on('click', 'a.collapsetoggle', function(event) {
+				var li = $(this).parent();
+				$("#inside-"+li.attr("id"), li).slideToggle(200);
+			});
+			
+			function openFile(path) {
+				return myAjax('/plugin' + path)
+					.done(function(data) {
+						editor.getSession().setValue(data, -1);
+						$("#topfolder li.active").removeClass("active");
+						$("#topfolder li[data-path='"+path+"']").addClass("active");
+						set_saved();
+					});
+			}
+			
+			$("#topfolder").on('click', 'li > a.file', function(event) {
+				var li = $(this).parent();
+				var path = li.data('path');
+				
+				openFile(path);
+			});
+			
+			
+			$(function() {
+				loadFolder("/", $("#topfolder"))
+					.done(function() {
+						$("[data-path='/config.yml'] > a").click();
+					});
+			});
+		</script>
+	</body>
+</html>

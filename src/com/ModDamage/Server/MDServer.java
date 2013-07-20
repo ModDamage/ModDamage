@@ -8,10 +8,11 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipFile;
 
 import javax.xml.bind.DatatypeConverter;
-
-import com.ModDamage.NanoHTTPD;
 
 public class MDServer extends NanoHTTPD
 {
@@ -24,7 +25,7 @@ public class MDServer extends NanoHTTPD
 	
 	static Executor executor = Executors.newSingleThreadExecutor();
 	
-	private Map<String, WebHandler> handlers = new HashMap<String, WebHandler>();
+	private Map<Pattern, WebHandler> handlers = new HashMap<Pattern, WebHandler>();
 	
 	private String authString;
 	
@@ -48,12 +49,13 @@ public class MDServer extends NanoHTTPD
 			
 			return res;
 		}
-		
-		for (Entry<String, WebHandler> entry : handlers.entrySet())
+
+		Response res = new Response();
+		for (Entry<Pattern, WebHandler> entry : handlers.entrySet())
 		{
-			Response res = new Response();
-			if (uri.startsWith(entry.getKey())) {
-				Response r = entry.getValue().handle(res, uri, method, header, parms, files);
+			Matcher m = entry.getKey().matcher(uri);
+			if (m.lookingAt()) {
+				Response r = entry.getValue().handle(res, m, uri, method, header, parms, files);
 				if (r != null)
 					return r;
 			}
@@ -76,11 +78,21 @@ public class MDServer extends NanoHTTPD
 			return;
 		}
 		
-		addHandler("/hello", new WebHandler() {
+		addHandler("/$", new WebHandler() {
+			@Override
+			public Response handle(Response res, Matcher m, String uri, String method, Properties header, Properties parms, Properties files)
+			{
+				res.addHeader("Location", "/static/stats.html");
+				
+				return send(res, HTTP_REDIRECT, MIME_HTML, "Redirecting to <a href=\"/static/stats.html\">/static/stats.html</a>");
+			}
+		});
+		
+		addHandler("/hello$", new WebHandler() {
 				@Override
-				public Response handle(Response res, String uri, String method, Properties header, Properties parms, Properties files)
+				public Response handle(Response res, Matcher m, String uri, String method, Properties header, Properties parms, Properties files)
 				{
-					return write(res, new WebWriter() {
+					return send(res, new WebWriter() {
 							@Override
 							public void write(Writer o) throws IOException
 							{
@@ -89,17 +101,39 @@ public class MDServer extends NanoHTTPD
 						});
 				}
 			});
+		
+		APIHandlers.register();
+		FileHandlers.register();
 	}
 	
 	public static void stopServer() {
+		ZipFile jar = FileHandlers.jar;
+		FileHandlers.jar = null;
+		if (jar != null) {
+			try
+			{
+				jar.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
 		if (instance != null)
 			instance.stop();
 		instance = null;
 	}
 	
-	public static void addHandler(String path, WebHandler handler) {
+	public static void addHandler(String pathPattern, WebHandler handler) {
 		if (instance == null) return;
 		
-		instance.handlers.put(path, handler);
+		instance.handlers.put(Pattern.compile(pathPattern), handler);
+	}
+	
+	public static void addHandler(Pattern pathPattern, WebHandler handler) {
+		if (instance == null) return;
+		
+		instance.handlers.put(pathPattern, handler);
 	}
 }
