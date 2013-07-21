@@ -27,7 +27,7 @@ public class MDServer extends NanoHTTPD
 	
 	private Map<Pattern, WebHandler> handlers = new HashMap<Pattern, WebHandler>();
 	
-	private String authString;
+	private String authString; //Should not be made public in forbidden access text.
 	
 	@Override
 	public Response serve(String uri, String method, Properties header, Properties parms, Properties files)
@@ -35,7 +35,7 @@ public class MDServer extends NanoHTTPD
 		String auth = header.getProperty("authorization");
 		if (auth == null || !auth.equalsIgnoreCase(authString))
 		{
-			StringBuilder sb = new StringBuilder("You are not authorized: " + auth + " " + authString + "\n");
+			StringBuilder sb = new StringBuilder("You are not authorized: " + auth + "\n");
 			
 			for (Entry<Object, Object> entry : header.entrySet())
 			{
