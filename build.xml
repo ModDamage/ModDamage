@@ -4,6 +4,10 @@
 		<delete dir="bin"/>
 	</target>
 
+	<target name="clean.test">
+		<delete dir="test"/>
+	</target>
+	
 	<target name="build" description="compile the source">
 		<mkdir dir="bin"/>
 		<javac srcdir="src" destdir="bin" includeantruntime="false" encoding="UTF-8">
@@ -21,5 +25,42 @@
 			<fileset dir="bin" includes="**/*.class" />
 			<fileset dir="." includes="plugin.yml,web/**" />
 		</jar>
+	</target>
+	
+	<target name="setup.test" depends="jar,clean.test">
+		<!-- Make all directories needed -->
+		<mkdir dir="test"/>
+		<mkdir dir="test/plugins"/>
+		<mkdir dir="test/disabled-plugins"/>
+		<!-- 
+			Copy all plugins to a seperate plugins folder.
+			This is so we can enable one at a time.
+		-->
+		<copy todir="test/disabled-plugins">
+			<fileset dir="resource">
+				<exclude name="minecraft*.jar"/>
+				<exclude name="*bukkit*.jar"/>
+				<exclude name="Automatonlexer.jar"/>
+			</fileset>
+		</copy>
+
+		<copy file="ModDamage.jar" tofile="test/plugins/ModDamage.jar"/>
+		<!-- Copy same version server we compiled againsted into the test environment-->		
+		<copy todir="test">
+			<fileset dir="resource">
+				<include name="craftbukkit*.jar"/>
+			</fileset>
+		</copy>
+		
+		<move tofile="test/craftbukkit.jar">
+			<fileset dir="test">
+				<include name="craftbukkit*.jar"/>
+			</fileset>
+		</move>
+		<echo>	<!-- TODO: Setup a .sh file for bash and other operating systems! -->
+<!--		-->The test server will have two batch files to run. One with a debugger set to port 1000 other with none.
+<!--		-->Make sure to setup a remote debugger on eclipse (Or other IDE) to connect to this. 
+<!--		-->Server will not launch without it if you decide to run debugging file.
+		</echo>
 	</target>
 </project>
