@@ -111,7 +111,7 @@ public class Command extends MDEvent
 				Argument arg = Argument.get(commandSpec[i]);
 				if (arg == null) {
 					ModDamage.addToLogRecord(OutputPreset.FAILURE, 
-							"Please prefix command arguments with # for number or & for player, or [a-z] for raw, not "
+							"Please prefix command arguments with # for number, & for player, % for any word, or [a-z] for a specific word, not "
 							+commandSpec[i].substring(0, 1));
 					failed = true;
 					continue entryLoop;
