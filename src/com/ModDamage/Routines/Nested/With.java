@@ -81,11 +81,14 @@ public class With extends NestedRoutine
 
 			do {
 
-				IDataProvider<?> dp = DataProvider.parse(info, null, sm.spawn());
+				IDataProvider<?> dp = DataProvider.parse(info, null, sm.spawn(), false, true, asPattern);
 				if (dp == null) return null;
 
 				Matcher m = sm.matchFront(asPattern);
-				if (m == null) return null;
+				if (m == null) {
+					NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Expected \"as\" found \"" + sm.string + "\"");
+					return null;
+				}
 
 				infos.add(dp.provides()); // type of object
 				infos.add(m.group(1)); // name of object
