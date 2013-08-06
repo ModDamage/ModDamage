@@ -68,7 +68,7 @@ public class Spawn extends MDEvent implements Listener
 		int health = data.get(Integer.class, data.start + 2);
 		
 		if (health > 0)
-			entity.setHealth(health);
+			entity.setHealth(Math.min(health, entity.getMaxHealth()));
 		else
 			event.setCancelled(true);
 		
