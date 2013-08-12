@@ -228,7 +228,7 @@ public class MDEvent implements Listener
 				switch(event.loadState)
 				{
 					case NOT_LOADED:
-						ModDamage.addToLogRecord(OutputPreset.WARNING, event.name() + " configuration not found.");
+						ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, event.name() + " configuration not found.");
 						break;
 					case FAILURE:
 						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error in " + event.name() + " configuration.");

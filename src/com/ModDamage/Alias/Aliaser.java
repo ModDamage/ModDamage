@@ -82,7 +82,7 @@ abstract public class Aliaser<Type, StoredInfoClass>
 					if(!this.completeAlias("_" + entry.getKey(), entry.getValue()))
 						this.loadState = LoadState.FAILURE;
 				}
-				else ModDamage.addToLogRecord(OutputPreset.WARNING, "Found empty " + this.name.toLowerCase() + " alias \"" + entry.getKey() + "\", ignoring...");
+				else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Found empty " + this.name.toLowerCase() + " alias \"" + entry.getKey() + "\", ignoring...");
 			}
 			for(String alias : thisMap.keySet())
 				if(thisMap.get(alias) == null)

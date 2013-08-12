@@ -73,7 +73,7 @@ public enum AliasManager
 			switch(state)
 			{
 				case NOT_LOADED:
-					ModDamage.addToLogRecord(OutputPreset.WARNING, "No aliases loaded! Are any aliases defined?");
+					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "No aliases loaded! Are any aliases defined?");
 					break;
 				case FAILURE:
 					ModDamage.addToLogRecord(OutputPreset.FAILURE, "One or more errors occurred while loading aliases.");
@@ -89,7 +89,7 @@ public enum AliasManager
 		else
 		{
 			ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-			ModDamage.addToLogRecord(OutputPreset.WARNING, "No Aliases node found.");
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "No Aliases node found.");
 		}
 	}
 	
