@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import com.ModDamage.ModDamage;
@@ -17,6 +18,7 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.NumberExp;
+import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routines;
@@ -46,19 +48,21 @@ public class EntityHurt extends NestedRoutine
 		{
 			final EventData myData = myInfo.makeChainedData(data, 0);
 			
-			Number ha = hurt_amount.get(myData);
-			if (ha == null) return;
+			final Number damage = hurt_amount.get(myData);
+			if (damage == null) return;
 			
-			final int damage = ha.intValue();
 			Bukkit.getScheduler().runTask(ModDamage.getPluginConfiguration().plugin, new Runnable()
 				{
 					@Override
 					public void run()
 					{
-						EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(from, target, DamageCause.ENTITY_ATTACK, damage);
+						EntityDamageByEntityEvent event = MagicStuff.craftEntityHurtEvent(from, target, DamageCause.ENTITY_ATTACK, damage);
+						if (event == null)
+							return;
+						
 						Bukkit.getPluginManager().callEvent(event);
 						if (!event.isCancelled())
-							target.damage(event.getDamage(), from);
+							MagicStuff.damageEntity(target, getDamage(event), from);
 					}
 				});
 		}
@@ -106,5 +110,11 @@ public class EntityHurt extends NestedRoutine
 
 			return new EntityHurt(matcher.group(), livingDP, entityOtherDP, hurt_amount);
 		}
+	}
+	
+	////Helper Methods
+	private final static Number getDamage(EntityDamageEvent event)
+	{
+		return MagicStuff.getEventValue(event);
 	}
 }

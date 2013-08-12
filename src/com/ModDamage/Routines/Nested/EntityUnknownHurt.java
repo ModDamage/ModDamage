@@ -13,6 +13,7 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.NumberExp;
+import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routines;
@@ -41,7 +42,7 @@ public class EntityUnknownHurt extends NestedRoutine
 		Number ha = hurt_amount.get(myData);
 		if (ha == null) return;
 		
-		entity.damage(ha.intValue());
+		MagicStuff.damageEntity(entity, ha);
 	}
 
 	public static void register()
