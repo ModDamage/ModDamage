@@ -1,9 +1,11 @@
 package com.ModDamage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
@@ -75,9 +77,21 @@ import com.ModDamage.Routines.Routines;
 
 public class MDEvent implements Listener
 {
-	public static Map<String, MDEvent[]> eventCategories = new HashMap<String, MDEvent[]>();
-	static {
-		eventCategories.put("Block", new MDEvent[] {
+	public static Map<String, List<MDEvent>> eventCategories = new HashMap<String, List<MDEvent>>();
+	
+	public static void registerVanillaEvents()
+	{
+		if (!eventCategories.isEmpty())
+		{
+			for(Entry<String, List<MDEvent>> entries: eventCategories.entrySet())
+				if (entries.getValue() != null && entries.getValue().size() > 0)
+					for(MDEvent event: entries.getValue())
+						HandlerList.unregisterAll(event);
+			
+			eventCategories.clear();
+		}
+		
+		addEvents("Block",
                 new BlockBurn(),
                 new BlockFade(),
                 new BlockFlow(),
@@ -90,15 +104,15 @@ public class MDEvent implements Listener
                 new LeavesDecay(),
                 new FurnaceExtract(),
                 new BlockPhysics()
-				});
+				);
 		
-		eventCategories.put("Chunk", new MDEvent[] {
+		addEvents("Chunk",
                 new ChunkLoad(),
                 new ChunkPopulate(),
-                new ChunkUnload(),
-				});
+                new ChunkUnload()
+				);
 		
-		eventCategories.put("Entity", new MDEvent[] {
+		addEvents("Entity",
 				new Combust(),
 				new Damage(),
 				new Death(),
@@ -110,25 +124,25 @@ public class MDEvent implements Listener
 				new Spawn(),
 				new Tame(),
 				new Target(),
-                new Teleport(),
-				});
+                new Teleport()
+				);
 
-		eventCategories.put("Inventory", new MDEvent[] {
+		addEvents("Inventory",
 				new InventoryClose(),
 				new InventoryOpen(),
 				new Craft(),
-				new PrepareCraft(),
-				});
+				new PrepareCraft()
+				);
 
-		eventCategories.put("Item", new MDEvent[] {
+		addEvents("Item",
 				new DropItem(),
 				new PickupItem(),
 				new ItemHeld(),
 				new Enchant(),
-				new PrepareEnchant(),
-				});
+				new PrepareEnchant()
+				);
 
-		eventCategories.put("Player", new MDEvent[] {
+		addEvents("Player",
 				new Chat(),
 				new Consume(),
 				new Interact(),
@@ -142,21 +156,41 @@ public class MDEvent implements Listener
 				new ToggleFlight(),
 				new ToggleSneak(),
 				new ToggleSprint(),
-                new Fish(),
-				});
+                new Fish()
+				);
 
-		eventCategories.put("Misc", new MDEvent[] {
+		addEvents("Misc",
 				Init.instance,
 				Command.instance,
-				Repeat.instance,
-				});
+				Repeat.instance
+				);
 	}
-
+	
 	public static boolean disableDeathMessages = false;
 	public static boolean disableJoinMessages = false;
 	public static boolean disableQuitMessages = false;
 	public static boolean disableKickMessages = false;
 	
+	public static void addEvents(String category, MDEvent... eventsArray)
+	{
+		addEvents(category, Arrays.asList(eventsArray));
+	}
+	
+	public static void addEvents(String category, List<MDEvent> newEvents)
+	{
+		if (eventCategories.containsKey(category) && eventCategories.get(category) != null) 
+		{
+			List<MDEvent> oldEvents = eventCategories.get(category);
+			newEvents.addAll(0, oldEvents);
+		}
+
+		eventCategories.put(category, newEvents);
+	}
+	
+	public static void addEvent(String category, MDEvent event)
+	{
+		addEvents(category, event);
+	}
 	
 	protected EventInfo myInfo;
 	protected MDEvent(EventInfo myInfo)
@@ -206,7 +240,7 @@ public class MDEvent implements Listener
 		PluginManager pluginManager = Bukkit.getPluginManager();
 		Plugin plugin = ModDamage.getPluginConfiguration().plugin;
 		
-		for (MDEvent[] events : eventCategories.values())
+		for (List<MDEvent> events : eventCategories.values())
 		{
 			for (MDEvent event : events)
 			{
