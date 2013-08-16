@@ -49,7 +49,7 @@ public class EntityHurt extends NestedRoutine
 			Number ha = hurt_amount.get(myData);
 			if (ha == null) return;
 			
-			final int damage = ha.intValue();
+			final double damage = ha.doubleValue();
 			Bukkit.getScheduler().runTask(ModDamage.getPluginConfiguration().plugin, new Runnable()
 				{
 					@Override

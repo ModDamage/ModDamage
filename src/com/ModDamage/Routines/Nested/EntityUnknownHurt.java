@@ -41,7 +41,7 @@ public class EntityUnknownHurt extends NestedRoutine
 		Number ha = hurt_amount.get(myData);
 		if (ha == null) return;
 		
-		entity.damage(ha.intValue());
+		entity.damage(ha.doubleValue());
 	}
 
 	public static void register()

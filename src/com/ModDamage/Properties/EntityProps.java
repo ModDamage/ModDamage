@@ -43,12 +43,12 @@ public class EntityProps
         Properties.register("maxnodamageticks", LivingEntity.class, "getMaximumNoDamageTicks");
         Properties.register("size", Slime.class, "getSize", "setSize");
 
-        Properties.register(new SettableProperty<Integer, Damageable>("health", Integer.class, Damageable.class) {
-                public Integer get(Damageable entity, EventData data) {
+        Properties.register(new SettableProperty<Double, Damageable>("health", Double.class, Damageable.class) {
+                public Double get(Damageable entity, EventData data) {
                     return entity.getHealth();
                 }
 
-				public void set(Damageable entity, EventData data, Integer value) throws BailException
+				public void set(Damageable entity, EventData data, Double value) throws BailException
 				{
 					if (value != null) entity.setHealth(Math.min(value, entity.getMaxHealth()));
 				}

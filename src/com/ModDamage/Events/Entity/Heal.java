@@ -20,7 +20,7 @@ public class Heal extends MDEvent implements Listener
 			Entity.class,	"entity",
 			World.class,	"world",
             EntityRegainHealthEvent.RegainReason.class,	"heal", // e.g. heal.type.EATING
-			Integer.class, 	"heal_amount", "-default",
+			Double.class, 	"heal_amount", "-default",
 			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -38,7 +38,7 @@ public class Heal extends MDEvent implements Listener
 		
 		runRoutines(data);
 		
-		int newHealAmount = data.get(Integer.class, data.start + 3);
+		double newHealAmount = data.get(Double.class, data.start + 3);
 		
 		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 		
