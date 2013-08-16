@@ -34,7 +34,7 @@ public class Spawn extends NestedRoutine
 	
 	static EventInfo myInfo = new SimpleEventInfo(
 			Entity.class, "spawned",
-			Integer.class, "health", "-default");
+			Double.class, "health", "-default");
 
 	@Override
 	public void run(EventData data) throws BailException 
@@ -50,7 +50,7 @@ public class Spawn extends NestedRoutine
 		
 		routines.run(newData);
 		
-		newEntity.setHealth(newData.get(Integer.class, newData.start + 1));
+		newEntity.setHealth(newData.get(Double.class, newData.start + 1));
 	}
 	
 	public static void register()

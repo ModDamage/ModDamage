@@ -29,7 +29,7 @@ public class Damage extends MDEvent implements Listener
 			Entity.class, 		"target", "-attacker-other",
 			World.class,		"world",
 			DamageType.class, 	"damage_type", // e.g. damage_type.type.FIRE
-			Integer.class, 		"damage", "-default",
+			Double.class, 		"damage", "-default",
 			Boolean.class,		"cancelled");
 	
 	
@@ -44,7 +44,7 @@ public class Damage extends MDEvent implements Listener
 			if(data != null)
 			{
 				runRoutines(data);
-                int newDamage = data.get(Integer.class, data.start + 5);
+                double newDamage = data.get(Double.class, data.start + 5);
 				
 				event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 				

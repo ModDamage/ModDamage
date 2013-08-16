@@ -42,7 +42,7 @@ public class EntityHeal extends NestedRoutine
 		LivingEntity entity = livingDP.get(data);
 		if (entity == null) return;
 		
-		entity.setHealth(Math.min(entity.getHealth() + ha.intValue(), entity.getMaxHealth()));
+		entity.setHealth(Math.min(entity.getHealth() + ha.doubleValue(), entity.getMaxHealth()));
 	}
 
 	public static void register()

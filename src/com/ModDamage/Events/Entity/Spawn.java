@@ -25,7 +25,7 @@ public class Spawn extends MDEvent implements Listener
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Entity.class,	"entity",
 			World.class,	"world",
-			Integer.class,	"health", "-default",
+			Double.class,	"health", "-default",
 			SpawnReason.class, "reason", "spawn_reason",
 			Boolean.class,	"cancelled");
 	
@@ -45,7 +45,7 @@ public class Spawn extends MDEvent implements Listener
 		
 		runRoutines(data);
 		
-		player.setHealth(data.get(Integer.class, data.start + 2));
+		player.setHealth(data.get(Double.class, data.start + 2));
 	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -65,7 +65,7 @@ public class Spawn extends MDEvent implements Listener
 		
 		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 		
-		int health = data.get(Integer.class, data.start + 2);
+		double health = data.get(Double.class, data.start + 2);
 		
 		if (health > 0)
 			entity.setHealth(Math.min(health, entity.getMaxHealth()));
