@@ -3,6 +3,7 @@ package com.ModDamage.Properties;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Horse;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Villager;
@@ -67,6 +68,14 @@ public class CreatureProps
         
         Properties.register("sitting", Wolf.class, "isSitting", "setSitting");
         Properties.register("collarcolor", Wolf.class, "getCollarColor", "setCollarColor");
+        
+        Properties.register("horsecolor", Horse.class, "getColor", "setColor"); //Color already used so horsecolor is only name.
+        Properties.register("variant", Horse.class, "getVariant", "setVariant");
+        Properties.register("style", Horse.class, "getStyle", "setStyle");
+        Properties.register("domestication", Horse.class, "getDomestication", "setDomestication");
+        Properties.register("maxdomestication", Horse.class, "getMaxDomestication", "setMaxDomestication");
+        Properties.register("jumpstrength", Horse.class, "getJumpStrength", "setJumpStrength");
+        Properties.register("haschest", Horse.class, "isCarryingChest", "setCarryingChest");
         
         Properties.register("anger", PigZombie.class, "getAnger", "setAnger");
         
