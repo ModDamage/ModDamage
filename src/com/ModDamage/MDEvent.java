@@ -41,6 +41,7 @@ import com.ModDamage.Events.Entity.Damage;
 import com.ModDamage.Events.Entity.Death;
 import com.ModDamage.Events.Entity.Explode;
 import com.ModDamage.Events.Entity.Heal;
+import com.ModDamage.Events.Entity.HorseJump;
 import com.ModDamage.Events.Entity.ProjectileHit;
 import com.ModDamage.Events.Entity.ProjectileLaunch;
 import com.ModDamage.Events.Entity.ShootBow;
@@ -104,6 +105,7 @@ public class MDEvent implements Listener
 				new Death(),
 				new Explode(),
 				new Heal(),
+				new HorseJump(),
 				new ProjectileHit(),
 				new ProjectileLaunch(),
 				new ShootBow(),

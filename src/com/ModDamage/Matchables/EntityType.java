@@ -28,6 +28,7 @@ public enum EntityType implements Matchable<EntityType>
 				PIG(ANIMAL, org.bukkit.entity.EntityType.PIG, Pig.class),
 				SHEEP(ANIMAL, org.bukkit.entity.EntityType.SHEEP, Sheep.class),
 				SQUID(ANIMAL, org.bukkit.entity.EntityType.SQUID, Squid.class),
+				HORSE(ANIMAL, org.bukkit.entity.EntityType.HORSE, Horse.class),
 				WOLF(ANIMAL, org.bukkit.entity.EntityType.WOLF, Wolf.class)
 				{
 					@Override
