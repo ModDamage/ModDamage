@@ -11,12 +11,14 @@ import org.bukkit.entity.Slime;
 import org.bukkit.entity.Tameable;
 import org.bukkit.material.Colorable;
 
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.Matchables.EntityType;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.Property.Properties;
 import com.ModDamage.Parsing.Property.Property;
+import com.ModDamage.Parsing.Property.SettableProperty;
 
 public class EntityProps
 {
@@ -34,13 +36,23 @@ public class EntityProps
         Properties.register("airticks", LivingEntity.class, "getRemainingAir", "setRemainingAir");
         Properties.register("falldistance", LivingEntity.class, "getFallDistance");
         Properties.register("fireticks", LivingEntity.class, "getFireTicks", "setFireTicks");
-        Properties.register("health", Damageable.class, "getHealth", "setHealth");
         Properties.register("id", Entity.class, "getEntityId");
         Properties.register("lastdamage", LivingEntity.class, "getLastDamage", "setLastDamage");
         Properties.register("maxhealth", Damageable.class, "getMaxHealth", "setMaxHealth");
         Properties.register("nodamageticks", LivingEntity.class, "getNoDamageTicks");
         Properties.register("maxnodamageticks", LivingEntity.class, "getMaximumNoDamageTicks");
         Properties.register("size", Slime.class, "getSize", "setSize");
+
+        Properties.register(new SettableProperty<Integer, Damageable>("health", Integer.class, Damageable.class) {
+                public Integer get(Damageable entity, EventData data) {
+                    return entity.getHealth();
+                }
+
+				public void set(Damageable entity, EventData data, Integer value) throws BailException
+				{
+					if (value != null) entity.setHealth(Math.min(value, entity.getMaxHealth()));
+				}
+            });
 
         Properties.register(new Property<EntityType, Entity>("type", EntityType.class, Entity.class) {
                 public EntityType get(Entity entity, EventData data) {
