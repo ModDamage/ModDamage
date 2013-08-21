@@ -187,9 +187,15 @@ public class FileHandlers
 					return send(res, MDServer.HTTP_OK, mime, in);
 				}
 				else if (method.equals("PUT")) {
+					String contentpath = files.getProperty("content");
+					if (contentpath == null) {
+						return send( res, MDServer.HTTP_INTERNALERROR, MDServer.MIME_PLAINTEXT,
+								"Did not receive full file");
+					}
+					
 					try
 					{
-						FileUtils.copyFile(new File(files.getProperty("content")), f);
+						FileUtils.copyFile(new File(contentpath), f);
 					}
 					catch (IOException e)
 					{

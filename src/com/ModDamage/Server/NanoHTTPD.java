@@ -671,6 +671,7 @@ public class NanoHTTPD
 					path = temp.getAbsolutePath();
 				} catch (Exception e) { // Catch exception if any
 					myErr.println("Error: " + e.getMessage());
+					return null;
 				}
 			}
 			return path;
