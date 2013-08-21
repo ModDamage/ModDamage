@@ -34,16 +34,16 @@ public class LocationRegion extends Conditional<Location>
 	public Boolean get(Location loc, EventData data)
 	{
 		Collection<String> entityRegions = getRegions(loc);
-		for(String region : entityRegions)
-			if(exact) {
-                if (entityRegions.size() == regions.size() && regions.containsAll(entityRegions))
-                    return true;
-			}
-			else
-			{
-                if (regions.contains(region))
-                    return true;
-			}
+		if(exact) {
+            if (entityRegions.size() == regions.size() && regions.containsAll(entityRegions))
+                return true;
+		}
+		else
+		{
+			for(String region : entityRegions)
+	            if (regions.contains(region))
+	                return true;
+		}
 		return false;
 	}
 	
