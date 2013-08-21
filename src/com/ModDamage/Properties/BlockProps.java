@@ -36,7 +36,7 @@ public class BlockProps
         DataProvider.register(String.class, Sign.class, Pattern.compile("_line", Pattern.CASE_INSENSITIVE),
                 new FunctionParser<String, Sign>(Integer.class) {
                     @SuppressWarnings("rawtypes")
-					protected ISettableDataProvider<String> makeProvider(IDataProvider<Sign> startDP, final IDataProvider[] arguments) {
+					protected ISettableDataProvider<String> makeProvider(EventInfo info, IDataProvider<Sign> startDP, final IDataProvider[] arguments) {
                         return new SettableDataProvider<String, Sign>(Sign.class, startDP) {
                             public String get(Sign sign, EventData data) throws BailException {
                                 Integer line = (Integer) arguments[0].get(data);

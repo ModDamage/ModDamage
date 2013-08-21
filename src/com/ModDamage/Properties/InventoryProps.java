@@ -39,7 +39,7 @@ public class InventoryProps
         DataProvider.register(ItemHolder.class, Inventory.class, Pattern.compile("_item", Pattern.CASE_INSENSITIVE),
                 new FunctionParser<ItemHolder, Inventory>(Integer.class) {
                     @SuppressWarnings("rawtypes")
-					protected IDataProvider<ItemHolder> makeProvider(IDataProvider<Inventory> startDP, final IDataProvider[] arguments) {
+					protected IDataProvider<ItemHolder> makeProvider(EventInfo info, IDataProvider<Inventory> startDP, final IDataProvider[] arguments) {
                         return new SettableDataProvider<ItemHolder, Inventory>(Inventory.class, startDP) {
                             public ItemHolder get(Inventory inv, EventData data) throws BailException {
                                 Integer slot = (Integer) arguments[0].get(data);
@@ -75,7 +75,7 @@ public class InventoryProps
         DataProvider.register(ItemHolder.class, InventoryView.class, Pattern.compile("_slot", Pattern.CASE_INSENSITIVE),
                 new FunctionParser<ItemHolder, InventoryView>(Integer.class) {
                     @SuppressWarnings("rawtypes")
-					protected IDataProvider<ItemHolder> makeProvider(IDataProvider<InventoryView> startDP, final IDataProvider[] arguments) {
+					protected IDataProvider<ItemHolder> makeProvider(EventInfo info, IDataProvider<InventoryView> startDP, final IDataProvider[] arguments) {
                         return new SettableDataProvider<ItemHolder, InventoryView>(InventoryView.class, startDP) {
                             public ItemHolder get(final InventoryView view, EventData data) throws BailException {
                                 final Integer slot = (Integer) arguments[0].get(data);

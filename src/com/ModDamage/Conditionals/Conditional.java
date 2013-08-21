@@ -1,6 +1,8 @@
 package com.ModDamage.Conditionals;
 
 import com.ModDamage.Expressions.Function.PlayerCanSeeFunction;
+import com.ModDamage.Expressions.Function.PlayerNamedFunction;
+import com.ModDamage.Expressions.Function.WorldNamedFunction;
 import com.ModDamage.External.mcMMO.AbilityConditional;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
@@ -34,12 +36,14 @@ public abstract class Conditional<S> extends DataProvider<Boolean, S>
         PlayerGameMode.register();
         PlayerCanSee.register();
         PlayerCanSeeFunction.register();
+		PlayerNamedFunction.register();
 		//Server
 		ServerOnlineMode.register();
 		//World
 		WorldEnvironment.register();
 		WorldNamed.register();
 		WorldStatus.register();
+		WorldNamedFunction.register();
 		//Other
 		EnumEquals.register();
 		ItemMatches.register();

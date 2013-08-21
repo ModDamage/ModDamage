@@ -33,8 +33,8 @@ public abstract class FunctionParser<T, S> implements IDataParser<T, S> {
         }
         if (!sm.matchesFront(endParenPattern)) return null;
 
-        return sm.acceptIf(makeProvider(startDP, args));
+        return sm.acceptIf(makeProvider(info, startDP, args));
     }
 
-	protected abstract IDataProvider<T> makeProvider(IDataProvider<S> startDP, IDataProvider[] arguments);
+	protected abstract IDataProvider<T> makeProvider(EventInfo info, IDataProvider<S> startDP, IDataProvider[] arguments);
 }
