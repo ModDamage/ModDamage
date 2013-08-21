@@ -35,7 +35,7 @@ public class WorldNamedFunction implements IDataProvider<World>
 
 	public static void register()
 	{
-		DataProvider.register(World.class, null, Pattern.compile("worldnamed\\(", Pattern.CASE_INSENSITIVE), new FunctionParser<World, Object>(String.class)
+		DataProvider.register(World.class, null, Pattern.compile("worldnamed", Pattern.CASE_INSENSITIVE), new FunctionParser<World, Object>(String.class)
 			{
 				@SuppressWarnings("unchecked")
 				@Override

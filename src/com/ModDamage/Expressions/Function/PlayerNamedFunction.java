@@ -35,7 +35,7 @@ public class PlayerNamedFunction implements IDataProvider<OfflinePlayer>
 
 	public static void register()
 	{
-		DataProvider.register(OfflinePlayer.class, null, Pattern.compile("playernamed\\(", Pattern.CASE_INSENSITIVE), new FunctionParser<OfflinePlayer, Object>(String.class)
+		DataProvider.register(OfflinePlayer.class, null, Pattern.compile("playernamed", Pattern.CASE_INSENSITIVE), new FunctionParser<OfflinePlayer, Object>(String.class)
 			{
 				@SuppressWarnings("unchecked")
 				@Override
