@@ -54,7 +54,7 @@ public class VaultSupport
 		
 		DataProvider.register(String.class, Economy.class, Pattern.compile("_format", Pattern.CASE_INSENSITIVE), new FunctionParser<String, Economy>(Double.class) {
 			@SuppressWarnings("rawtypes")
-			protected IDataProvider<String> makeProvider(IDataProvider<Economy> economyDP, IDataProvider[] arguments) {
+			protected IDataProvider<String> makeProvider(EventInfo info, IDataProvider<Economy> economyDP, IDataProvider[] arguments) {
 				@SuppressWarnings("unchecked")
 				final IDataProvider<Double> balanceDP = (IDataProvider<Double>) arguments[0];
 				
@@ -76,7 +76,7 @@ public class VaultSupport
 
 		DataProvider.register(Bank.class, Object.class, Pattern.compile("bank"), new FunctionParser<Bank, Object>(String.class) {
 			@SuppressWarnings("rawtypes")
-			protected IDataProvider<Bank> makeProvider(IDataProvider<Object> startDP, IDataProvider[] arguments) {
+			protected IDataProvider<Bank> makeProvider(EventInfo info, IDataProvider<Object> startDP, IDataProvider[] arguments) {
 				@SuppressWarnings("unchecked")
 				final IDataProvider<String> nameDP = (IDataProvider<String>) arguments[0];
 				

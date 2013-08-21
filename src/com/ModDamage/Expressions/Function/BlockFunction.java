@@ -8,6 +8,7 @@ import org.bukkit.block.Block;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.FunctionParser;
 import com.ModDamage.Parsing.IDataProvider;
@@ -47,7 +48,7 @@ public class BlockFunction extends DataProvider<Block, World>
 			{
 				@SuppressWarnings("unchecked")
 				@Override
-				protected IDataProvider<Block> makeProvider(IDataProvider<World> worldDP, @SuppressWarnings("rawtypes") IDataProvider[] arguments)
+				protected IDataProvider<Block> makeProvider(EventInfo info, IDataProvider<World> worldDP, @SuppressWarnings("rawtypes") IDataProvider[] arguments)
 				{
 					return new BlockFunction(worldDP, arguments);
 				}

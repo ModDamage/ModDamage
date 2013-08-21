@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.FunctionParser;
 import com.ModDamage.Parsing.IDataProvider;
@@ -60,7 +61,7 @@ public class PlayerCanSeeFunction extends SettableDataProvider<Boolean, Player>
 			{
 				@SuppressWarnings("unchecked")
 				@Override
-				protected IDataProvider<Boolean> makeProvider(IDataProvider<Player> worldDP, @SuppressWarnings("rawtypes") IDataProvider[] arguments)
+				protected IDataProvider<Boolean> makeProvider(EventInfo info, IDataProvider<Player> worldDP, @SuppressWarnings("rawtypes") IDataProvider[] arguments)
 				{
 					return new PlayerCanSeeFunction(worldDP, arguments[0]);
 				}

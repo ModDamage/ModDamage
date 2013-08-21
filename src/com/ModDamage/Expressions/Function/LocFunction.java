@@ -8,6 +8,7 @@ import org.bukkit.World;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.FunctionParser;
 import com.ModDamage.Parsing.IDataProvider;
@@ -49,7 +50,7 @@ public class LocFunction extends DataProvider<Location, World>
 				{
 			@SuppressWarnings("unchecked")
 			@Override
-			protected IDataProvider<Location> makeProvider(IDataProvider<World> worldDP, @SuppressWarnings("rawtypes") IDataProvider[] arguments)
+			protected IDataProvider<Location> makeProvider(EventInfo info, IDataProvider<World> worldDP, @SuppressWarnings("rawtypes") IDataProvider[] arguments)
 			{
 				return new LocFunction(worldDP, arguments);
 			}
