@@ -41,6 +41,7 @@ public class MagicStuff
 		}
 		catch (Exception e) {
 			System.err.println("Magic load error 1: " + e.getMessage());
+			return;
 		}
 		
 		try {
