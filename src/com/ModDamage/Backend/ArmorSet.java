@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.MDLogger.OutputPreset;
 
 public class ArmorSet 
 {

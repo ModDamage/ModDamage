@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import org.bukkit.Location;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Alias.ItemAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ItemHolder;

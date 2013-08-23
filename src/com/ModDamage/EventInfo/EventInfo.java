@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+
 import com.ModDamage.Parsing.EventDataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.misc.Multimap;

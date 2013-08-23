@@ -12,8 +12,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.MessageAliaser;
 import com.ModDamage.Backend.BailException;
@@ -61,7 +60,7 @@ public class Message extends Routine
 						@Override
 						public void sendMessages(String[] msgs, EventData data)
 						{
-							Logger log = PluginConfiguration.log;
+							Logger log = ModDamage.getPluginConfiguration().getLog().log;
 							for(String msg : msgs)
 								log.info(msg);
 						}

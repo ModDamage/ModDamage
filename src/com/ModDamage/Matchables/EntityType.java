@@ -277,7 +277,7 @@ public enum EntityType implements Matchable<EntityType>
 		{
 			if (element.myClass == null) continue;
 			if (byClass.containsKey(element.myClass))
-				ModDamage.getPluginConfiguration().printToLog(Level.SEVERE, "Duplicate " + element.myClass + ": " + byClass.get(element.myClass) + ", " + element);
+				ModDamage.printToLog(Level.SEVERE, "Duplicate " + element.myClass + ": " + byClass.get(element.myClass) + ", " + element);
 			byClass.put(element.myClass, element);
 		}
 	}
@@ -350,7 +350,7 @@ public enum EntityType implements Matchable<EntityType>
 		}
 		if (mde != null) return mde.getMostSpecificType(obj);
 		
-		ModDamage.getPluginConfiguration().printToLog(Level.WARNING, "Uncaught mob type " + obj.getClass().getName() + "!");
+		ModDamage.printToLog(Level.WARNING, "Uncaught mob type " + obj.getClass().getName() + "!");
 		byClass.put(cls, UNKNOWN);
 		return UNKNOWN;
 	}

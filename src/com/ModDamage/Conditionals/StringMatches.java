@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
@@ -12,7 +13,6 @@ import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 
 public class StringMatches extends Conditional<String> 
 {

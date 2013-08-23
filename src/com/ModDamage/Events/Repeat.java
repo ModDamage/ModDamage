@@ -13,8 +13,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.MDEvent;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Backend.ScriptLineHandler;

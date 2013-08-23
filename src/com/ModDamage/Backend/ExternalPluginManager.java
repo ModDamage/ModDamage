@@ -23,9 +23,10 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import ru.tehkode.permissions.PermissionManager;
 
 import com.ModDamage.MDEvent;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.ModDamage;
 import com.ModDamage.ModDamage.ModDamageExtension;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+
 import com.ModDamage.Expressions.ListExp;
 import com.ModDamage.Expressions.NestedExp;
 import com.ModDamage.Expressions.NumberExp;
@@ -74,7 +75,7 @@ public class ExternalPluginManager
 
 	private static void reloadPluginExtensions()
 	{
-		String prefix = ModDamage.getPluginConfiguration().logPrepend();
+		String prefix = ModDamage.getPluginConfiguration().getLog().logPrepend();
 		if (registeredPlugins.isEmpty())
 		{
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, prefix + "Extensions: No extensions found.");

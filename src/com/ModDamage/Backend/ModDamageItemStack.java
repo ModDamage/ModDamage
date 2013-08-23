@@ -11,10 +11,10 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.ModDamage;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.MaterialAliaser;
 import com.ModDamage.EventInfo.EventData;

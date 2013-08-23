@@ -3,9 +3,9 @@ package com.ModDamage.Alias;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.LoadState;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Backend.ScriptLineHandler;

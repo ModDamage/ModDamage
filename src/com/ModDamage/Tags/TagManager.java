@@ -5,14 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.logging.Level;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -21,7 +17,7 @@ import org.bukkit.plugin.Plugin;
 import org.yaml.snakeyaml.Yaml;
 
 import com.ModDamage.PluginConfiguration.LoadState;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.MDLogger.OutputPreset;
 
 public class TagManager
 {
@@ -155,7 +151,7 @@ public class TagManager
 				writer.close();
 			}
 			catch (IOException e){
-				PluginConfiguration.log.warning("Error saving tags at " + newFile.getAbsolutePath() + "!");
+				ModDamage.printToLog(Level.WARNING, "Error saving tags at " + newFile.getAbsolutePath() + "!");
 				return;
 			}
 			

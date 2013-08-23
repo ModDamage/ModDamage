@@ -12,7 +12,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
 import com.ModDamage.PluginConfiguration.LoadState;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EventFinishedListener;
 import com.ModDamage.Backend.ScriptLineHandler;

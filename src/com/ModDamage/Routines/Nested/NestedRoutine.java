@@ -1,7 +1,7 @@
 package com.ModDamage.Routines.Nested;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Backend.ScriptLineHandler;
 import com.ModDamage.EventInfo.EventInfo;

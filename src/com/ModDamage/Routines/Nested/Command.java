@@ -11,7 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Alias.CommandAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;

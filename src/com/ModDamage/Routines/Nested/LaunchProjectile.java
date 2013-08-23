@@ -10,7 +10,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.util.Vector;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;

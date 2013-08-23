@@ -15,9 +15,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.ModDamage.PluginConfiguration.DebugSetting;
+import com.ModDamage.MDLogger.DebugSetting;
 import com.ModDamage.PluginConfiguration.LoadState;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.Backend.ScriptLine;
@@ -80,6 +80,7 @@ public class ModDamage extends JavaPlugin
 		
 		if (tagger != null) { tagger.close(); tagger = null; }
 		isEnabled = false;
+		configuration.log.setLogFile(null); //Cleanup locks.
 		configuration.printToLog(Level.INFO, "Disabled.");
 		PluginCommand.setPlugin(null); //Prevents possible memory leaks on /reload command
 	}
@@ -184,7 +185,7 @@ public class ModDamage extends JavaPlugin
 					switch(LoadState.pluginState)
 					{
 						case SUCCESS:
-							int worstValue = configuration.worstLogMessageLevel.intValue();
+							int worstValue = configuration.getWorstLogMessageLevel().intValue();
 							
 							if (worstValue >= Level.SEVERE.intValue()) {
 								player.sendMessage(chatPrepend(ChatColor.YELLOW) + "Reloaded with errors.");
@@ -196,7 +197,7 @@ public class ModDamage extends JavaPlugin
 								player.sendMessage(chatPrepend(ChatColor.GREEN) + "Reloaded!");
 							}
 							else {
-								player.sendMessage(chatPrepend(ChatColor.YELLOW) + "Weird reload: " + configuration.worstLogMessageLevel);
+								player.sendMessage(chatPrepend(ChatColor.YELLOW) + "Weird reload: " + configuration.getWorstLogMessageLevel());
 							}
 							
 							break;
@@ -327,10 +328,14 @@ public class ModDamage extends JavaPlugin
 	
 	public static void changeIndentation(boolean forward)
 	{
-		PluginConfiguration.changeIndentation(forward);
+		getPluginConfiguration().changeIndentation(forward);
+	}
+	
+	public static void printToLog(Level level, String message) {
+		getPluginConfiguration().printToLog(level, message);
 	}
 
-	public static DebugSetting getDebugSetting(){ return configuration.currentSetting; }
+	public static DebugSetting getDebugSetting(){ return configuration.getDebugSetting(); }
 
 	public static TagManager getTagger(){ return tagger; }
 
@@ -370,4 +375,5 @@ public class ModDamage extends JavaPlugin
 			System.err.println("Please report this error.");
 		}
 	}
+
 }

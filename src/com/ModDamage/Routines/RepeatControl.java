@@ -9,7 +9,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;

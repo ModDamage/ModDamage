@@ -15,8 +15,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.ModDamage.MDEvent;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;

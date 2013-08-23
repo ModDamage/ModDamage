@@ -8,11 +8,12 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 

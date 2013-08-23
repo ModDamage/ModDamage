@@ -3,10 +3,11 @@ package com.ModDamage.Routines;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.MDLogger.OutputPreset;
 import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;

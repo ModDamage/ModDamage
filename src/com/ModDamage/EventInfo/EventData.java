@@ -1,7 +1,7 @@
 package com.ModDamage.EventInfo;
 
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 
 public class EventData implements Cloneable
 {

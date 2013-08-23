@@ -7,11 +7,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Utils;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;

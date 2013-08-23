@@ -3,8 +3,8 @@ package com.ModDamage.Routines;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Backend.ScriptLineHandler;

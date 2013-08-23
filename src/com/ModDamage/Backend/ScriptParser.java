@@ -7,7 +7,7 @@ import java.io.LineNumberReader;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.MDLogger.OutputPreset;
 
 public class ScriptParser
 {
