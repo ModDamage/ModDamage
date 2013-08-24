@@ -9,6 +9,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Tameable;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.material.Colorable;
 
 import com.ModDamage.Backend.BailException;
@@ -75,6 +76,7 @@ public class EntityProps
         DataProvider.registerTransformer(Colorable.class, Entity.class);
         Properties.register("color", Colorable.class, "getColor", "setColor");
         
+        DataProvider.registerTransformer(InventoryHolder.class, Entity.class);
 
         Properties.register(new Property<Class, Entity>("handleClass", Class.class, Entity.class) {
                 public Class<?> get(Entity entity, EventData data) {
