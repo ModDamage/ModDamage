@@ -39,7 +39,6 @@ public class LaunchProjectile extends NestedRoutine
 	
 	static EventInfo myInfo = new SimpleEventInfo(
 			Projectile.class, "projectile",
-			EntityType.class, "projectile",
 			Number.class, "yaw",
 			Number.class, "pitch",
 			Number.class, "speed");
@@ -86,7 +85,7 @@ public class LaunchProjectile extends NestedRoutine
 		double speed = projectile.getVelocity().length() * 10;
 		
 		EventData baseData = myInfo.makeChainedData(data, 
-				projectile, EntityType.get(projectile), yaw, pitch, speed);
+				projectile, yaw, pitch, speed);
 		EventData newData = baseData;
 		
 
@@ -101,9 +100,9 @@ public class LaunchProjectile extends NestedRoutine
 		
 		routines.run(newData);
 		
-		yaw = baseData.get(Number.class, baseData.start + 2).doubleValue();
-		pitch = baseData.get(Number.class, baseData.start + 3).doubleValue();
-		speed = baseData.get(Number.class, baseData.start + 4).doubleValue();
+		yaw = baseData.get(Number.class, baseData.start + 1).doubleValue();
+		pitch = baseData.get(Number.class, baseData.start + 2).doubleValue();
+		speed = baseData.get(Number.class, baseData.start + 3).doubleValue();
 		if (explosive != null)
 		{
 			yield = newData.get(Number.class, newData.start + 0).doubleValue();
