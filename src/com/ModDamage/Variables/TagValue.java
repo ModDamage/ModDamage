@@ -30,7 +30,8 @@ public class TagValue<T, S> extends SettableDataProvider<T, S>
                         if (tag == null) return null;
 
                         Taggable<?> taggable = Taggable.get(objDP, info);
-
+                        if (taggable == null) return null;
+                        
 						return sm.acceptIf(new TagValue(tag, taggable, tag.defaultValue));
 					}
 				});
