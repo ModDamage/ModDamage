@@ -41,6 +41,8 @@ public class PlayerTags<T> implements ITags<T, OfflinePlayer> {
     	Map<String, T> players = tags.get(tag);
     	
     	if (players != null) {
+    		Bukkit.getOfflinePlayers(); // This should fill bukkit's offline player cache allowing the following loop to be fast
+
     		Map<OfflinePlayer, T> map = new HashMap<OfflinePlayer, T>(players.size());
     		
     		for (Entry<String, T> entry : players.entrySet())
