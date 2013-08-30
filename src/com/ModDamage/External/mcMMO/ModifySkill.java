@@ -5,22 +5,19 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Utils;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.NumberExp;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routines;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 import com.gmail.nossr50.api.ExperienceAPI;
-import com.gmail.nossr50.datatypes.SkillType;
+import com.gmail.nossr50.datatypes.skills.SkillType;
 
 public class ModifySkill extends NestedRoutine
 {	
@@ -30,42 +27,42 @@ public class ModifySkill extends NestedRoutine
 				@Override
 				public void modify(Player player, SkillType skillType, int value)
 				{
-					ExperienceAPI.addRawXP(player, skillType, value);
+					ExperienceAPI.addRawXP(player, skillType.name(), value);
 				}
 			},
 		ADDSKILLMULTIPLIEDXP {
 				@Override
 				public void modify(Player player, SkillType skillType, int value)
 				{
-					ExperienceAPI.addMultipliedXP(player, skillType, value);
+					ExperienceAPI.addMultipliedXP(player, skillType.name(), value);
 				}
 			},
 		ADDSKILLXP {
 				@Override
 				public void modify(Player player, SkillType skillType, int value)
 				{
-					ExperienceAPI.addXP(player, skillType, value);
+					ExperienceAPI.addXP(player, skillType.name(), value);
 				}
 			},
 		ADDSKILLLEVEL {
 				@Override
 				public void modify(Player player, SkillType skillType, int value)
 				{
-					ExperienceAPI.addLevel(player, skillType, value, false);
+					ExperienceAPI.addLevel(player, skillType.name(), value);
 				}
 			},
 		SETSKILLLEVEL {
 				@Override
 				public void modify(Player player, SkillType skillType, int value)
 				{
-					ExperienceAPI.setLevel(player, skillType, value);
+					ExperienceAPI.setLevel(player, skillType.name(), value);
 				}
 			},
 		REMOVESKILLXP {
 				@Override
 				public void modify(Player player, SkillType skillType, int value)
 				{
-					ExperienceAPI.removeXP(player, skillType, value);
+					ExperienceAPI.removeXP(player, skillType.name(), value);
 				}
 			};
 

@@ -18,7 +18,7 @@ import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.NumberExp;
 import com.gmail.nossr50.api.ExperienceAPI;
-import com.gmail.nossr50.datatypes.SkillType;
+import com.gmail.nossr50.datatypes.skills.SkillType;
 
 public class PlayerSkillInt extends NumberExp<Player>
 {
@@ -83,21 +83,21 @@ public class PlayerSkillInt extends NumberExp<Player>
 				@Override
 				int getProperty(Player player, SkillType skillType)
 				{
-					return ExperienceAPI.getLevel(player, skillType);
+					return ExperienceAPI.getLevel(player, skillType.name());
 				}
 			},
 		XP {
 				@Override
 				int getProperty(Player player, SkillType skillType)
 				{
-					return ExperienceAPI.getXP(player, skillType);
+					return ExperienceAPI.getXP(player, skillType.name());
 				}
 			},
 		XPNEEDED {
 				@Override
 				int getProperty(Player player, SkillType skillType)
 				{
-					return ExperienceAPI.getXPToNextLevel(player, skillType);
+					return ExperienceAPI.getXPToNextLevel(player, skillType.name());
 				}
 			};
 		
