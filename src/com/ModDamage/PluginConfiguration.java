@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -151,6 +152,26 @@ public class PluginConfiguration
 
 		addToLogRecord(OutputPreset.CONSTANT, "[" + plugin.getDescription().getName() + "] v" + plugin.getDescription().getVersion() + " loading...");
 
+		if(reloadingAll)
+		{
+			MDEvent.registerVanillaEvents();
+			ExternalPluginManager.reload();
+			if(ExternalPluginManager.getGroupsManager() == GroupsManager.None)
+				addToLogRecord(OutputPreset.INFO_VERBOSE, "Permissions: No permissions plugin found.");
+			else
+				addToLogRecord(OutputPreset.CONSTANT, "Permissions: " + ExternalPluginManager.getGroupsManager().name() + " v" + GroupsManager.getVersion());
+			
+			if(ExternalPluginManager.regionsManagers.isEmpty())
+				addToLogRecord(OutputPreset.INFO_VERBOSE, "Region Plugins: No regional plugins found.");
+			else
+				addToLogRecord(OutputPreset.CONSTANT, "Region Plugins: " + Utils.joinBy(", ", ExternalPluginManager.regionsManagers));
+			
+			if(ExternalPluginManager.getMcMMOPlugin() == null)
+				addToLogRecord(OutputPreset.INFO_VERBOSE, "mcMMO: Plugin not found.");
+			else
+				addToLogRecord(OutputPreset.CONSTANT, "mcMMO: Using version " + ExternalPluginManager.getMcMMOPlugin().getDescription().getVersion());
+		}
+		
 		// scope this...because it looks nicer?
 		{
 			Object configObject = null;
@@ -185,24 +206,7 @@ public class PluginConfiguration
 			}
 		}
 
-		if(reloadingAll)
-		{
-			ExternalPluginManager.reload();
-			if(ExternalPluginManager.getGroupsManager() == GroupsManager.None)
-				addToLogRecord(OutputPreset.INFO_VERBOSE, "Permissions: No permissions plugin found.");
-			else
-				addToLogRecord(OutputPreset.CONSTANT, "Permissions: " + ExternalPluginManager.getGroupsManager().name() + " v" + GroupsManager.getVersion());
-			
-			if(ExternalPluginManager.regionsManagers.isEmpty())
-				addToLogRecord(OutputPreset.INFO_VERBOSE, "Region Plugins: No regional plugins found.");
-			else
-				addToLogRecord(OutputPreset.CONSTANT, "Region Plugins: " + Utils.joinBy(", ", ExternalPluginManager.regionsManagers));
-			
-			if(ExternalPluginManager.getMcMMOPlugin() == null)
-				addToLogRecord(OutputPreset.INFO_VERBOSE, "mcMMO: Plugin not found.");
-			else
-				addToLogRecord(OutputPreset.CONSTANT, "mcMMO: Using version " + ExternalPluginManager.getMcMMOPlugin().getDescription().getVersion());
-		}
+		
 
 	// load debug settings
 		Object debugObject = getCaseInsensitiveValue(configMap, "debugging");
@@ -336,7 +340,7 @@ public class PluginConfiguration
 
 
 		outputString += newline + "# Events";
-		for (Entry<String, MDEvent[]> category : MDEvent.eventCategories.entrySet())
+		for (Entry<String, List<MDEvent>> category : MDEvent.eventCategories.entrySet())
 		{
 			outputString += newline + "## "+category.getKey()+" Events";
 			for (MDEvent event : category.getValue())
