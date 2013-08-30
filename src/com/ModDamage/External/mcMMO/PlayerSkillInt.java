@@ -25,16 +25,19 @@ public class PlayerSkillInt extends NumberExp<Player>
 	public static void register()
 	{
 		DataProvider.register(Number.class, Player.class, 
-				Pattern.compile("_SKILL(|"+Utils.joinBy("|", SkillProperty.values())+")_(\\w+)", Pattern.CASE_INSENSITIVE),
+				Pattern.compile("_SKILL("+Utils.joinBy("|", SkillProperty.values())+")?_(\\w+)", Pattern.CASE_INSENSITIVE),
 				new IDataParser<Number, Player>()
 				{
 					@Override
 					public IDataProvider<Number> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 					{
-						String skillPropStr = m.group(1).toUpperCase();
+						String skillPropStr = m.group(1);
 						String skillTypeStr = m.group(2).toUpperCase();
 
-						if (skillPropStr == "") skillPropStr = "LEVEL";
+						if (skillPropStr == null)
+							skillPropStr = "LEVEL";
+						else
+							skillPropStr = skillPropStr.toUpperCase();
 
 						SkillProperty skillProp;
 						SkillType skillType;
