@@ -8,4 +8,4 @@ commands:
   moddamage:
     aliases: [md]
     description: "Basic ModDamage control"
-softdepend: [Multiverse-Core, elRegions, WorldGuard, bPermissions, PermissionsBukkit, PermissionsEx, mcMMO, Vault]
+softdepend: [Multiverse-Core, elRegions, WorldGuard, bPermissions, PermissionsBukkit, PermissionsEx, mcMMO, Vault, Votifier]
