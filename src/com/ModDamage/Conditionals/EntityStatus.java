@@ -47,7 +47,7 @@ public class EntityStatus extends Conditional<Entity>
 		Falling
 		{
 			@Override
-			public boolean isTrue(Entity entity){ return entity.getVelocity().getY() > magic_MinFallSpeed; }
+			public boolean isTrue(Entity entity){ return ((entity.getVelocity().getY() > magic_MinFallSpeed) || (entity.getVelocity().getY() < (magic_MinFallSpeed * -1))); }
 		},
 		OnFire
 		{
