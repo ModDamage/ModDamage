@@ -21,6 +21,7 @@ import com.ModDamage.Server.NanoHTTPD.Response;
 
 public class FileHandlers
 {
+	public static File jarFile = null;
 	public static ZipFile jar = null;
 	
 	private static InputStream getResourceStream(String path)
@@ -31,7 +32,7 @@ public class FileHandlers
 	private static InputStream getZipStream(String path)
 	{
 		if (jar == null) {
-			File jarFile = new File(ModDamage.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+			jarFile = new File(ModDamage.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 			
 			try
 			{
@@ -47,6 +48,8 @@ public class FileHandlers
 			}
 		}
 		if (jar != null) {
+			if (path.startsWith("/")) path = path.substring(1);
+			
 			ZipEntry entry = jar.getEntry(path);
 			if (entry != null) {
 				try
@@ -58,6 +61,13 @@ public class FileHandlers
 					e.printStackTrace();
 				}
 			}
+			/*else {
+				System.out.println();
+				System.out.println("No entry for "+path);
+				for (Enumeration<? extends ZipEntry> e = jar.entries(); e.hasMoreElements();)
+				       System.out.println(e.nextElement());
+				System.out.println();
+			}*/
 		}
 		return null;
 	}
@@ -79,22 +89,40 @@ public class FileHandlers
 		return null;
 	}
 	
+	public static InputStream getStream(String path)
+	{
+		InputStream in = getResourceStream(path);
+		
+		if (in == null)
+			in = getZipStream(path);
+		
+		if (in == null)
+			in = getPluginStream(path);
+		
+		return in;
+	}
+	
 	
 	public static void register()
 	{
+		MDServer.addOnShutdown(new Runnable() {
+			@Override
+			public void run()
+			{
+				if (jar != null)
+					try { jar.close(); } catch (IOException e) { e.printStackTrace(); }
+				jar = null;
+				jarFile = null;
+			}
+		});
+		
 		MDServer.addHandler("/static/(.+)$", new WebHandler() {
 			@Override
 			public Response handle(Response res, Matcher m, String uri, String method, Properties header, Properties parms, Properties files)
 			{
 				String path = "/web/"+m.group(1);
 				
-				InputStream in = getResourceStream(path);
-				
-				if (in == null)
-					in = getZipStream(path);
-				
-				if (in == null)
-					in = getPluginStream(path);
+				InputStream in = getStream(path);
 				
 				if (in == null)
 					// not found

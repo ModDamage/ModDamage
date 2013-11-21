@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -12,7 +14,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipFile;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -30,6 +31,8 @@ public class MDServer extends NanoHTTPD
 	private Map<Pattern, WebHandler> handlers = new HashMap<Pattern, WebHandler>();
 	
 	private String authString; //Should not be made public in forbidden access text.
+
+	private List<Runnable> onShutdown = new ArrayList<Runnable>();
 	
 	@Override
 	public Response serve(String uri, String method, Properties header, Properties parms, Properties files)
@@ -109,22 +112,14 @@ public class MDServer extends NanoHTTPD
 	}
 	
 	public static void stopServer() {
-		ZipFile jar = FileHandlers.jar;
-		FileHandlers.jar = null;
-		if (jar != null) {
-			try
-			{
-				jar.close();
+		if (instance != null) {
+			for (Runnable r : instance.onShutdown) {
+				r.run();
 			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
 		
-		if (instance != null)
 			instance.stop();
-		instance = null;
+			instance = null;
+		}
 	}
 	
 	public static void addHandler(String pathPattern, WebHandler handler) {
@@ -137,5 +132,10 @@ public class MDServer extends NanoHTTPD
 		if (instance == null) return;
 		
 		instance.handlers.put(pathPattern, handler);
+	}
+
+	public static void addOnShutdown(Runnable runnable)
+	{
+		instance.onShutdown .add(runnable);
 	}
 }

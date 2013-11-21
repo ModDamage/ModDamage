@@ -815,13 +815,15 @@ public class NanoHTTPD
 				}
 				out.flush();
 				out.close();
-				if ( data != null )
-					data.close();
 			}
 			catch( IOException ioe )
 			{
 				// Couldn't write? No can do.
 				try { mySocket.close(); } catch( Throwable t ) {}
+			}
+			finally {
+				if ( data != null )
+					try { data.close(); } catch (IOException e) { }
 			}
 		}
 
