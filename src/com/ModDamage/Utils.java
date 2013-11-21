@@ -1,9 +1,13 @@
 package com.ModDamage;
 
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class Utils
 {
@@ -80,5 +84,38 @@ public final class Utils
 	public static boolean isFloating(Number num)
 	{
 		return isFloating(num.getClass());
+	}
+	
+
+	private static Map<Class<?>, Map<String, Enum<?>>> enumMap = new HashMap<Class<?>, Map<String, Enum<?>>>();
+
+	@SuppressWarnings("unchecked")
+	public static <T extends Enum<T>> Map<String, T> getTypeMapForEnum(Class<T> cls, boolean uppercase)
+	{
+		if (enumMap.containsKey(cls)) return (Map<String, T>) enumMap.get(cls);
+		
+		Map<String, T> map = new HashMap<String, T>();
+		
+		Method valuesMethod;
+		@SuppressWarnings("rawtypes")
+		Enum[] values;
+		
+		try
+		{
+			valuesMethod = cls.getMethod("values");
+			values = (Enum[]) valuesMethod.invoke(null);
+			
+			for (Enum<?> value : values)
+				map.put(uppercase? value.name().toUpperCase() : value.name(), (T) value);
+		}
+		catch (SecurityException e) { e.printStackTrace(); }
+		catch (NoSuchMethodException e) { e.printStackTrace(); }
+		catch (IllegalArgumentException e) { e.printStackTrace(); }
+		catch (IllegalAccessException e) { e.printStackTrace(); }
+		catch (InvocationTargetException e) { e.printStackTrace(); }
+		
+		
+		enumMap.put(cls, (Map<String, Enum<?>>) map);
+		return map;
 	}
 }

@@ -8,16 +8,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataParser;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
-import com.ModDamage.Backend.EnumHelper;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Matchables.Matchable;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataParser;
+import com.ModDamage.Parsing.IDataProvider;
 
 @SuppressWarnings("rawtypes")
 public class EnumEquals extends Conditional<Enum>
@@ -66,7 +65,8 @@ public class EnumEquals extends Conditional<Enum>
 				@Override
 				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Enum> enumDP, Matcher m, StringMatcher sm)
 				{
-					Map<String, Enum<?>> possibleTypes = EnumHelper.getTypeMapForEnum(enumDP.provides());
+					@SuppressWarnings("unchecked")
+					Map<String, Enum<?>> possibleTypes = Utils.getTypeMapForEnum(enumDP.provides(), true);
 					
 					List<Enum> types = new ArrayList<Enum>();
 					

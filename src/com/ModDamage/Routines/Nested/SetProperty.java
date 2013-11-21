@@ -8,9 +8,9 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Utils;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.EnumHelper;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
@@ -127,7 +127,7 @@ public final class SetProperty extends NestedRoutine
 						};
 				}
 				else if (propertyDP.provides().isEnum()) {
-					Map<String, Enum<?>> stringMap = EnumHelper.getTypeMapForEnum(propertyDP.provides());
+					Map<String, Enum<?>> stringMap = Utils.getTypeMapForEnum(propertyDP.provides(), true);
 					
 					for (Entry<String, Enum<?>> entry : stringMap.entrySet())
 					{
