@@ -92,7 +92,7 @@ public final class Utils
 	@SuppressWarnings("unchecked")
 	public static <T extends Enum<T>> Map<String, T> getTypeMapForEnum(Class<T> cls, boolean uppercase)
 	{
-		if (enumMap.containsKey(cls)) return (Map<String, T>) enumMap.get(cls);
+		if (enumMap.containsKey(cls)) return (Map<String, T>) (Object) enumMap.get(cls);
 		
 		Map<String, T> map = new HashMap<String, T>();
 		
