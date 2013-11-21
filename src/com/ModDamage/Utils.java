@@ -115,7 +115,7 @@ public final class Utils
 		catch (InvocationTargetException e) { e.printStackTrace(); }
 		
 		
-		enumMap.put(cls, (Map<String, Enum<?>>) map);
+		enumMap.put(cls, (Map<String, Enum<?>>) (Object) map);
 		return map;
 	}
 }
