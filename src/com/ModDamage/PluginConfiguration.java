@@ -261,12 +261,14 @@ public class PluginConfiguration
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla kick messages enabled.");
 		
 
+		String bindaddr = (String) getCaseInsensitiveValue(configMap, "server-bindaddr");
 		Integer port = (Integer) getCaseInsensitiveValue(configMap, "server-port");
 		String username = (String) getCaseInsensitiveValue(configMap, "server-username");
 		String password = (String) getCaseInsensitiveValue(configMap, "server-password");
+		if (bindaddr == null || bindaddr.isEmpty() || bindaddr.equals("*")) bindaddr = null;
 		if(port != null && username != null && password != null) {
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Web server started on port "+ port);
-			MDServer.startServer(port, username, password);
+			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Web server starting on "+ (bindaddr != null? bindaddr : "*") +":"+ port);
+			MDServer.startServer(bindaddr, port, username, password);
 		} else
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Web server not started");
 		
@@ -371,9 +373,11 @@ public class PluginConfiguration
 			}
 		}
 		
-		outputString += newline + newline +  "# Server configuration";
-		outputString += newline + "# Port probably has to be larger than 1024";
-		outputString += newline + "#Uncomment the following to enable the server";
+		outputString += newline + newline +  "## Server configuration";
+		outputString += newline + "## Port probably has to be larger than 1024";
+		outputString += newline + "## Uncomment the following to enable the server";
+		outputString += newline + "## bindaddr should be left empty if you want the server to be accessable from anywhere";
+		outputString += newline + "#server-bindaddr: ";
 		outputString += newline + "#server-port: 8765";
 		outputString += newline + "#server-username: mdadmin";
 		outputString += newline + "#server-password: nuggets";

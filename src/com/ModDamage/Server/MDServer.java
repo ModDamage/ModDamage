@@ -2,6 +2,8 @@ package com.ModDamage.Server;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,8 +18,8 @@ import javax.xml.bind.DatatypeConverter;
 
 public class MDServer extends NanoHTTPD
 {
-	private MDServer(int port, String username, String password) throws IOException {
-		super(port, null);
+	private MDServer(String bindaddr, int port, String username, String password) throws IOException {
+		super(new ServerSocket(port, 0, InetAddress.getByName(bindaddr)), null);
 		authString = "Basic "+ DatatypeConverter.printBase64Binary((username + ":" + password).getBytes());
 	}
 	
@@ -64,12 +66,12 @@ public class MDServer extends NanoHTTPD
 		return new Response(HTTP_NOTFOUND, MIME_PLAINTEXT, "Not found: "+uri);
 	}
 	
-	public static void startServer(int port, String username, String password) {
+	public static void startServer(String bindaddr, int port, String username, String password) {
 		stopServer();
 		
 		try
 		{
-			instance = new MDServer(port, username, password);
+			instance = new MDServer(bindaddr, port, username, password);
 		}
 		catch (IOException e)
 		{

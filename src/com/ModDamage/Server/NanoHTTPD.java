@@ -220,9 +220,14 @@ public class NanoHTTPD
 	 */
 	public NanoHTTPD( int port, File wwwroot ) throws IOException
 	{
-		myTcpPort = port;
+		this( new ServerSocket( port ), wwwroot );
+	}
+	
+	public NanoHTTPD( ServerSocket socket, File wwwroot ) throws IOException
+	{
+		myTcpPort = socket.getLocalPort();
 		this.myRootDir = wwwroot;
-		myServerSocket = new ServerSocket( myTcpPort );
+		myServerSocket = socket;
 		myThread = new Thread( new Runnable()
 			{
 				public void run()
