@@ -279,6 +279,7 @@ public class PluginConfiguration implements ScriptLineHandler
 
 		resetWorstLogMessageLevel();
 		resetDefaultSettings();
+		MDEvent.unregisterEvents();
 		
 //		configStrings_ingame.clear();
 //		configStrings_ingameFilters.clear();
@@ -338,6 +339,8 @@ public class PluginConfiguration implements ScriptLineHandler
 				catch (IOException e) { }
 			}
 		}
+		
+		MDEvent.registerEvents();
 
 
 	// load debug settings

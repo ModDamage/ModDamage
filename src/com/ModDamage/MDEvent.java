@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
@@ -252,6 +253,21 @@ public class MDEvent implements Listener
 	public static MDEvent getEvent(String name)
 	{
 		return allEvents.get(name);
+	}
+	
+	public static void registerEvents()
+	{
+		for (Entry<String, MDEvent> entry : allEvents.entrySet()) {
+			if (entry.getValue().routines != null && !entry.getValue().routines.isEmpty())
+				Bukkit.getPluginManager().registerEvents(entry.getValue(), ModDamage.configuration.plugin);
+		}
+	}
+	
+	public static void unregisterEvents()
+	{
+		for (Entry<String, MDEvent> entry : allEvents.entrySet()) {
+			HandlerList.unregisterAll(entry.getValue());
+		}
 	}
 
 
