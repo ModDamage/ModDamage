@@ -1,6 +1,5 @@
 package com.ModDamage.External.TabAPI;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,25 +7,25 @@ import org.bukkit.entity.Player;
 import org.mcsg.double0negative.tabapi.TabAPI;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.InterpolatedString;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Routines.Nested.NestedRoutine;
+import com.ModDamage.Routines.Routine;
 
-public class SetTabString extends NestedRoutine 
+public class SetTabString extends Routine 
 {
 	private final IDataProvider<Player> playerDP;
 	IDataProvider<Integer> xDP, yDP, pingDP;
-	private final InterpolatedString string;
+	private final IDataProvider<String> string;
 	
-	private SetTabString(String configString, IDataProvider<Player> playerDP, IDataProvider<Integer> xDP, IDataProvider<Integer> yDP, IDataProvider<Integer> pingDP, InterpolatedString string)
+	private SetTabString(ScriptLine scriptLine, IDataProvider<Player> playerDP, IDataProvider<Integer> xDP, IDataProvider<Integer> yDP, IDataProvider<Integer> pingDP, IDataProvider<String> string)
 	{
-		super(configString);
+		super(scriptLine);
 		this.playerDP = playerDP;
 		this.xDP = xDP;
 		this.yDP = yDP;
@@ -46,7 +45,7 @@ public class SetTabString extends NestedRoutine
 			ping = pingDP.get(data);   if (ping == null) return;
 		}
 		
-		String str = string.toString(data); if (str == null) return;
+		String str = string.get(data); if (str == null) return;
 		
 		if (ping == null)
 			TabAPI.setTabString(ModDamage.getPluginConfiguration().plugin, player, x, y, str);
@@ -56,16 +55,15 @@ public class SetTabString extends NestedRoutine
 	
 	public static void registerNested()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("([^\\.]+)\\.settabstring\\.(.+)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("([^\\.]+)\\.settabstring\\.(.+?): (.+)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 	
 	private static Pattern seperatorPattern = Pattern.compile("\\s*[\\.,]\\s*");
 	
-	protected static class NestedRoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static class RoutineFactory extends Routine.RoutineFactory
 	{
-		@SuppressWarnings("unchecked")
 		@Override
-		public SetTabString getNew(Matcher m, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher m, ScriptLine scriptLine, EventInfo info)
 		{
 			IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, m.group(1));
 			if(playerDP == null) return null;
@@ -85,20 +83,12 @@ public class SetTabString extends NestedRoutine
 				if (!sm.isEmpty()) return null;
 			}
 
-			String str;
-			if (nestedContent instanceof String)
-				str = (String)nestedContent;
-			else if(nestedContent instanceof List && ((List<String>) nestedContent).size() == 1)
-				str = ((List<String>) nestedContent).get(0);
-			else
-				return null;
-			
-			InterpolatedString istr = new InterpolatedString(str, info, true);
+			IDataProvider<String> istr = DataProvider.parse(info, String.class, m.group(3));
 			
 
 			ModDamage.addToLogRecord(OutputPreset.INFO, "SetTabString: " + playerDP + " " + xDP + ", " + yDP + (pingDP == null? "" : (", " + pingDP)) + ": " + istr);
 			
-			return new SetTabString(m.group(), playerDP, xDP, yDP, pingDP, istr);
+			return new RoutineBuilder(new SetTabString(scriptLine, playerDP, xDP, yDP, pingDP, istr));
 		}
 	}
 }

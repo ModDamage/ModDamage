@@ -10,10 +10,10 @@ import org.bukkit.inventory.ItemStack;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.ItemAliaser;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ItemHolder;
 import com.ModDamage.Backend.ModDamageItemStack;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
@@ -21,7 +21,6 @@ import com.ModDamage.Expressions.LiteralNumber;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routine;
-import com.ModDamage.Routines.Routines;
 
 public class EntityItemAction extends NestedRoutine
 {
@@ -52,17 +51,15 @@ public class EntityItemAction extends NestedRoutine
 	protected final ItemAction action;
 	protected final Collection<ModDamageItemStack> items;
 	protected final IDataProvider<HumanEntity> humanDP;
-	protected final Routines routines;
 	protected final IDataProvider<? extends Number> quantity;
 
-	public EntityItemAction(String configString, IDataProvider<HumanEntity> humanDP, ItemAction action, Collection<ModDamageItemStack> items, IDataProvider<? extends Number> quantity, Routines routines)
+	public EntityItemAction(ScriptLine scriptLine, IDataProvider<HumanEntity> humanDP, ItemAction action, Collection<ModDamageItemStack> items, IDataProvider<? extends Number> quantity)
 	{
-		super(configString);
+		super(scriptLine);
 		this.humanDP = humanDP;
 		this.action = action;
 		this.items = items;
 		this.quantity = quantity;
-		this.routines = routines;
 	}
 	
 	@Override
@@ -95,12 +92,12 @@ public class EntityItemAction extends NestedRoutine
         }
 	}
 	
-	private static final NestedRoutineBuilder nrb = new NestedRoutineBuilder();
+	private static final NestedRoutineFactory nrb = new NestedRoutineFactory();
 	public static void registerRoutine()
 	{
-		Routine.registerRoutine(pattern, new Routine.RoutineBuilder()
+		Routine.registerRoutine(pattern, new Routine.RoutineFactory()
 			{
-				@Override public Routine getNew(Matcher matcher, EventInfo info)
+				@Override public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 				{
 					return nrb.getNew(matcher, null, info);
 				}
@@ -115,37 +112,32 @@ public class EntityItemAction extends NestedRoutine
 	private static final EventInfo myInfo = new SimpleEventInfo(
 			ItemHolder.class, 		"item");
 	
-	protected static class NestedRoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static class NestedRoutineFactory extends NestedRoutine.RoutineFactory
 	{
 		@Override
-		public EntityItemAction getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
             String action = matcher.group(2).toUpperCase();
 
 			IDataProvider<HumanEntity> humanDP = DataProvider.parse(info, HumanEntity.class, name); if (humanDP == null) return null;
 			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
-			if(items != null && !items.isEmpty())
-			{
-				Routines routines = null;
-				if (nestedContent != null)
-					routines = RoutineAliaser.parseRoutines(nestedContent, info.chain(myInfo));
+			if(items == null || items.isEmpty()) return null;
+			
+			
+			IDataProvider<? extends Number> quantity;
+			if (matcher.group(4) != null)
+				quantity = DataProvider.parse(info, Integer.class, matcher.group(4));
+			else
+				quantity = new LiteralNumber(1);
 
-				
-				IDataProvider<? extends Number> quantity;
-				if (matcher.group(4) != null)
-					quantity = DataProvider.parse(info, Integer.class, matcher.group(4));
-				else
-					quantity = new LiteralNumber(1);
-
-                if (quantity == null) return null;
+            if (quantity == null) return null;
 
 
-                ModDamage.addToLogRecord(OutputPreset.INFO, action.charAt(0) + action.substring(1).toLowerCase() + " at/to " + humanDP + ": " + items);
-				
-				return new EntityItemAction(matcher.group(), humanDP, ItemAction.valueOf(action), items, quantity, routines);
-			}
-			return null;
+            ModDamage.addToLogRecord(OutputPreset.INFO, action.charAt(0) + action.substring(1).toLowerCase() + " at/to " + humanDP + ": " + items);
+			
+			EntityItemAction routine = new EntityItemAction(scriptLine, humanDP, ItemAction.valueOf(action), items, quantity);
+			return new NestedRoutineBuilder(routine, routine.routines, info.chain(myInfo));
 		}
 	}
 }

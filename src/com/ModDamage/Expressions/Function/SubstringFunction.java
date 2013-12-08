@@ -53,7 +53,7 @@ public class SubstringFunction extends DataProvider<String, String>
 		DataProvider.register(String.class, String.class, Pattern.compile("_(substr(?:ing))?\\("), new IDataParser<String, String>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, IDataProvider<String> worldDP, Matcher m, StringMatcher sm)
+				public IDataProvider<String> parse(EventInfo info, IDataProvider<String> stringDP, Matcher m, StringMatcher sm)
 				{
 					@SuppressWarnings("unchecked")
 					IDataProvider<Integer>[] args = new IDataProvider[2];
@@ -84,7 +84,7 @@ public class SubstringFunction extends DataProvider<String, String>
 						return null;
 					}
 
-					return sm.acceptIf(new SubstringFunction(worldDP, args[0], args[1]));
+					return sm.acceptIf(new SubstringFunction(stringDP, args[0], args[1]));
 				}
 			});
 	}

@@ -9,15 +9,16 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Events.Repeat;
 import com.ModDamage.Expressions.LiteralNumber;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class RepeatControl extends Routine
 {
@@ -27,10 +28,10 @@ public class RepeatControl extends Routine
 	private final IDataProvider<? extends Number> delay, count;
 	
 	@SuppressWarnings("rawtypes")
-	protected RepeatControl(String configString, IDataProvider itDP, String repeatName,
+	protected RepeatControl(ScriptLine scriptLine, IDataProvider itDP, String repeatName,
 			IDataProvider<? extends Number> delay, IDataProvider<? extends Number> count)
 	{
-		super(configString);
+		super(scriptLine);
 		this.itDP = itDP;
 		this.repeatName = repeatName;
 		this.delay = delay;
@@ -60,15 +61,15 @@ public class RepeatControl extends Routine
 	{
 		Routine.registerRoutine(
 				Pattern.compile("(.+?)\\.(?:start(?:repeat)?\\.(\\w+)\\.(.+)|stop(?:repeat)?[\\.,](\\w+))", Pattern.CASE_INSENSITIVE),
-				new RoutineBuilder());
+				new RoutineFactory());
 	}
 	
 	private static Pattern dotPattern = Pattern.compile("\\s*\\.\\s*");
 
-	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	protected static class RoutineFactory extends Routine.RoutineFactory
 	{
 		@Override
-		public RepeatControl getNew(Matcher matcher, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			@SuppressWarnings("rawtypes")
 			IDataProvider itDP = DataProvider.parse(info, Entity.class, matcher.group(1), true, false);
@@ -113,7 +114,7 @@ public class RepeatControl extends Routine
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Start Repeat: on " + itDP + " named \""+repeatName+"\" delay " + delay + " count " + count);
 			else
 				ModDamage.addToLogRecord(OutputPreset.INFO, "Stop Repeat: on " + itDP + " named \""+repeatName+"\"");
-			return new RepeatControl(matcher.group(), itDP, repeatName, delay, count);
+			return new RoutineBuilder(new RepeatControl(scriptLine, itDP, repeatName, delay, count));
 		}
 	}
 }

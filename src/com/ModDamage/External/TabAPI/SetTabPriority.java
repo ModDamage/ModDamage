@@ -1,6 +1,5 @@
 package com.ModDamage.External.TabAPI;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,20 +9,22 @@ import org.mcsg.double0negative.tabapi.TabAPI;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
+import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 
-public class SetTabPriority extends NestedRoutine 
+public class SetTabPriority extends Routine 
 {
 	private final IDataProvider<Player> playerDP;
 	IDataProvider<Integer> priorityDP;
 	
-	private SetTabPriority(String configString, IDataProvider<Player> playerDP, IDataProvider<Integer> priorityDP)
+	private SetTabPriority(ScriptLine scriptLine, IDataProvider<Player> playerDP, IDataProvider<Integer> priorityDP)
 	{
-		super(configString);
+		super(scriptLine);
 		this.playerDP = playerDP;
 		this.priorityDP = priorityDP;
 	}
@@ -40,33 +41,24 @@ public class SetTabPriority extends NestedRoutine
 	
 	public static void registerNested()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("([^\\.]+)\\.settabpriority", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(.+?)\\.settabpriority: (.+)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 	
-	protected static class NestedRoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static class RoutineFactory extends Routine.RoutineFactory
 	{
-		@SuppressWarnings("unchecked")
 		@Override
-		public SetTabPriority getNew(Matcher m, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher m, ScriptLine scriptLine, EventInfo info)
 		{
 			IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, m.group(1));
 			if(playerDP == null) return null;
 			
 			
-			String str;
-			if (nestedContent instanceof String)
-				str = (String)nestedContent;
-			else if(nestedContent instanceof List && ((List<String>) nestedContent).size() == 1)
-				str = ((List<String>) nestedContent).get(0);
-			else
-				return null;
-
-			IDataProvider<Integer> priorityDP = DataProvider.parse(info, Integer.class, str); if (priorityDP == null) return null;
+			IDataProvider<Integer> priorityDP = DataProvider.parse(info, Integer.class, m.group(2)); if (priorityDP == null) return null;
 			
 
 			ModDamage.addToLogRecord(OutputPreset.INFO, "SetTabPriority: " + playerDP + ": " + priorityDP);
 			
-			return new SetTabPriority(m.group(), playerDP, priorityDP);
+			return new RoutineBuilder(new SetTabPriority(scriptLine, playerDP, priorityDP));
 		}
 	}
 }

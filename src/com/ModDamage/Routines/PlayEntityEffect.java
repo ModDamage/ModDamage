@@ -7,20 +7,21 @@ import org.bukkit.EntityEffect;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class PlayEntityEffect extends Routine
 {
 	private final IDataProvider<Entity> entityDP;
 	private final EntityEffect entityEffect;
-	protected PlayEntityEffect(String configString, IDataProvider<Entity> entityDP, EntityEffect entityEffect)
+	protected PlayEntityEffect(ScriptLine scriptLine, IDataProvider<Entity> entityDP, EntityEffect entityEffect)
 	{
-		super(configString);
+		super(scriptLine);
 		this.entityDP = entityDP;
 		this.entityEffect = entityEffect;
 	}
@@ -36,13 +37,13 @@ public class PlayEntityEffect extends Routine
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("([a-z]+)\\.playentityeffect\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("([a-z]+)\\.playentityeffect\\.(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 
-	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	protected static class RoutineFactory extends Routine.RoutineFactory
 	{
 		@Override
-		public PlayEntityEffect getNew(Matcher matcher, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
 			if (entityDP == null) return null;
@@ -59,7 +60,7 @@ public class PlayEntityEffect extends Routine
 			}
 			
 			ModDamage.addToLogRecord(OutputPreset.INFO, "PlayEntityEffect: " + entityDP + " " + effectType);
-			return new PlayEntityEffect(matcher.group(), entityDP, effectType);
+			return new RoutineBuilder(new PlayEntityEffect(scriptLine, entityDP, effectType));
 		}
 	}
 }

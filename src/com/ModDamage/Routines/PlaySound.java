@@ -1,18 +1,20 @@
 package com.ModDamage.Routines;
 
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
+import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class PlaySound extends Routine
 {
@@ -22,9 +24,9 @@ public class PlaySound extends Routine
 	private final IDataProvider<Integer> volumeDP;
 	private final IDataProvider<Integer> pitchDP;
 
-	protected PlaySound(String configString, IDataProvider<Player> playerDP, IDataProvider<Location> locDP, Sound sound, IDataProvider<Integer> volumeDP, IDataProvider<Integer> pitchDP)
+	protected PlaySound(ScriptLine scriptLine, IDataProvider<Player> playerDP, IDataProvider<Location> locDP, Sound sound, IDataProvider<Integer> volumeDP, IDataProvider<Integer> pitchDP)
 	{
-		super(configString);
+		super(scriptLine);
         this.playerDP = playerDP;
 		this.locDP = locDP;
         this.sound = sound;
@@ -46,13 +48,13 @@ public class PlaySound extends Routine
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("(.+?)\\.playsound\\.(\\w+)(?:\\.at\\.([^\\.]+))?\\.([^\\.]+)\\.([^\\.]+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(.+?)\\.playsound\\.(\\w+)(?:\\.at\\.([^\\.]+))?\\.([^\\.]+)\\.([^\\.]+)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 
-	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	protected static class RoutineFactory extends Routine.RoutineFactory
 	{
 		@Override
-		public PlaySound getNew(Matcher matcher, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
             IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, matcher.group(1));
             if (playerDP == null) return null;
@@ -78,7 +80,7 @@ public class PlaySound extends Routine
             if (volumeDP == null || pitchDP == null) return null;
 			
 			ModDamage.addToLogRecord(OutputPreset.INFO, "PlaySound: " + sound + " for:" + playerDP + " at:" + locDP + " volume:" + volumeDP + " pitch:" + pitchDP);
-			return new PlaySound(matcher.group(), playerDP, locDP, sound, volumeDP, pitchDP);
+			return new RoutineBuilder(new PlaySound(scriptLine, playerDP, locDP, sound, volumeDP, pitchDP));
 		}
 	}
 }

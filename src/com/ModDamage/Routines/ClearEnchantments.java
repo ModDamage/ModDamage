@@ -4,21 +4,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnchantmentsRef;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class ClearEnchantments extends Routine
 {
 	private final IDataProvider<EnchantmentsRef> enchantmentsDP;
 	
-	protected ClearEnchantments(String configString, IDataProvider<EnchantmentsRef> enchantmentsDP)
+	protected ClearEnchantments(ScriptLine scriptLine, IDataProvider<EnchantmentsRef> enchantmentsDP)
 	{
-		super(configString);
+		super(scriptLine);
 		this.enchantmentsDP = enchantmentsDP;
 	}
 
@@ -34,19 +35,19 @@ public class ClearEnchantments extends Routine
 	
 	public static void register()
 	{
-		ValueChange.registerRoutine(Pattern.compile("clearenchant(?:ment)?s", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("clearenchant(?:ment)?s", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 	
-	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	protected static class RoutineFactory extends Routine.RoutineFactory
 	{
 		@Override
-		public ClearEnchantments getNew(Matcher matcher, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			IDataProvider<EnchantmentsRef> enchantmentsDP = DataProvider.parse(info, EnchantmentsRef.class, "enchantments");
 			if(enchantmentsDP == null) return null;
 			
 			ModDamage.addToLogRecord(OutputPreset.INFO, "Clear Enchantments");
-			return new ClearEnchantments(matcher.group(), enchantmentsDP);
+			return new RoutineBuilder(new ClearEnchantments(scriptLine, enchantmentsDP));
 		}
 	}
 }

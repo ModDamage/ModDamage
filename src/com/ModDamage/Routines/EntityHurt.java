@@ -1,4 +1,4 @@
-package com.ModDamage.Routines.Nested;
+package com.ModDamage.Routines;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,31 +11,26 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.NumberExp;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Routines.Routines;
 
-public class EntityHurt extends NestedRoutine
+public class EntityHurt extends Routine
 {
 	private final IDataProvider<LivingEntity> livingDP;
 	private final IDataProvider<Entity> entityOtherDP;
 	private final IDataProvider<Number> hurt_amount;
 
-	public EntityHurt(String configString, IDataProvider<LivingEntity> livingDP, IDataProvider<Entity> entityOtherDP, IDataProvider<Number> hurt_amount)
+	public EntityHurt(ScriptLine scriptLine, IDataProvider<LivingEntity> livingDP, IDataProvider<Entity> entityOtherDP, IDataProvider<Number> hurt_amount)
 	{
-		super(configString);
+		super(scriptLine);
 		this.livingDP = livingDP;
 		this.entityOtherDP = entityOtherDP;
 		this.hurt_amount = hurt_amount;
 	}
-
-	static final EventInfo myInfo = new SimpleEventInfo(Number.class, "hurt_amount", "-default");
 
 	@Override
 	public void run(EventData data) throws BailException
@@ -44,9 +39,7 @@ public class EntityHurt extends NestedRoutine
 		final Entity from = entityOtherDP.get(data);
 		if(from != null && target != null && target.getHealth() > 0 && !target.isDead())
 		{
-			final EventData myData = myInfo.makeChainedData(data, 0);
-			
-			Number ha = hurt_amount.get(myData);
+			Number ha = hurt_amount.get(data);
 			if (ha == null) return;
 			
 			final double damage = ha.doubleValue();
@@ -66,13 +59,13 @@ public class EntityHurt extends NestedRoutine
 
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(.+?)(?:effect)?\\.hurt(?:\\.from\\.(.+))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(.+?)(?:effect)?\\.hurt(?:\\.from\\.(.+))?(?::|\\s+by\\s|\\s)\\s*(.+)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 
-	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
-	{	
+	protected static class RoutineFactory extends Routine.RoutineFactory
+	{
 		@Override
-		public EntityHurt getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
 			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, name);
@@ -97,14 +90,14 @@ public class EntityHurt extends NestedRoutine
                 }
             }
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Hurt "+livingDP+":");
 
-			EventInfo einfo = info.chain(myInfo);
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			IDataProvider<Number> hurt_amount = NumberExp.getNew(routines, einfo);
+			IDataProvider<Number> hurt_amount = DataProvider.parse(info, Number.class, matcher.group(3));
 			if (hurt_amount == null) return null;
+			
+			
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Hurt "+livingDP + (matcher.group(2) != null? " from " + entityOtherDP : "") + " by " + hurt_amount);
 
-			return new EntityHurt(matcher.group(), livingDP, entityOtherDP, hurt_amount);
+			return new RoutineBuilder(new EntityHurt(scriptLine, livingDP, entityOtherDP, hurt_amount));
 		}
 	}
 }

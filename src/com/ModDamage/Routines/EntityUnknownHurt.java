@@ -1,4 +1,4 @@
-package com.ModDamage.Routines.Nested;
+package com.ModDamage.Routines;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -7,24 +7,22 @@ import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Expressions.NumberExp;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Routines.Routines;
 
-public class EntityUnknownHurt extends NestedRoutine
+public class EntityUnknownHurt extends Routine
 {
 	private final IDataProvider<LivingEntity> livingDP;
 	private final IDataProvider<Number> hurt_amount;
 	
-	public EntityUnknownHurt(String configString, IDataProvider<LivingEntity> livingDP, IDataProvider<Number> hurt_amount)
+	public EntityUnknownHurt(ScriptLine scriptLine, IDataProvider<LivingEntity> livingDP, IDataProvider<Number> hurt_amount)
 	{
-		super(configString);
+		super(scriptLine);
 		this.livingDP = livingDP;
 		this.hurt_amount = hurt_amount;
 	}
@@ -46,26 +44,25 @@ public class EntityUnknownHurt extends NestedRoutine
 
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(.*?)(?:effect)?\\.unknownhurt", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(.*?)(?:effect)?\\.unknownhurt(?::|\\s+by\\s|\\s)\\s*(.+)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 	
-	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
-	{	
+	protected static class RoutineFactory extends Routine.RoutineFactory
+	{
 		@Override
-		public EntityUnknownHurt getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
 			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, name);
             if(livingDP == null) return null;
 
-            ModDamage.addToLogRecord(OutputPreset.INFO, "UnknownHurt "+livingDP+":");
 
-			EventInfo einfo = info.chain(myInfo);
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			IDataProvider<Number> hurt_amount = NumberExp.getNew(routines, einfo);
+			IDataProvider<Number> hurt_amount = DataProvider.parse(info, Number.class, matcher.group(2));
             if (hurt_amount == null) return null;
+            
+            ModDamage.addToLogRecord(OutputPreset.INFO, "UnknownHurt " + livingDP + " by " + hurt_amount);
 
-			return new EntityUnknownHurt(matcher.group(), livingDP, hurt_amount);
+			return new RoutineBuilder(new EntityUnknownHurt(scriptLine, livingDP, hurt_amount));
 		}
 	}
 }

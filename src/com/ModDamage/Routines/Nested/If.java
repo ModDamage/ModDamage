@@ -3,29 +3,28 @@ package com.ModDamage.Routines.Nested;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Conditionals.Conditional;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Routines.Routines;
+import com.ModDamage.Routines.Routine;
 
 public class If extends NestedRoutine
 {
 	protected final IDataProvider<Boolean> conditional;
-	protected final Routines routines;
 	public final boolean isElse;
 	public If elseRoutine = null;
 	
-	private If(String configString, boolean isElse, IDataProvider<Boolean> conditional, Routines routines)
+	private If(ScriptLine scriptLine, boolean isElse, IDataProvider<Boolean> conditional)
 	{
-		super(configString);
+		super(scriptLine);
 		this.isElse = isElse;
 		this.conditional = conditional;
-		this.routines = routines;
 	}
 	
 	@Override
@@ -46,18 +45,15 @@ public class If extends NestedRoutine
 	
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(?:(else\\s*|el)?if\\s+(.*)|(else))", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(?:(else\\s*|el)?if\\s+(.*)|(else))", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 		Conditional.register();
 	}
 
-	protected final static class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static class RoutineFactory extends NestedRoutine.RoutineFactory
 	{
 		@Override
-		public If getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			if(matcher == null || nestedContent == null)
-				return null;
-			
 			boolean isElse = matcher.group(1) != null || matcher.group(3) != null;
 			
 			IDataProvider<Boolean> conditional;
@@ -74,17 +70,11 @@ public class If extends NestedRoutine
 					};
 			}
 			
-			NestedRoutine.paddedLogRecord(OutputPreset.INFO, (isElse? "Else " : "") + (matcher.group(3) != null? "" : ("If: " + conditional)));
+			ModDamage.addToLogRecord(OutputPreset.INFO, (isElse? "Else " : "") + (matcher.group(3) != null? "" : ("If: " + conditional)));
 			
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent, info);
-			if(routines == null)
-			{
-				NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid content in If");
-				return null;
-			}
 			
-			NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End If");
-			return new If(matcher.group(), isElse, conditional, routines);
+			If routine = new If(scriptLine, isElse, conditional);
+			return new NestedRoutineBuilder(routine, routine.routines, info);
 		}
 	}
 }

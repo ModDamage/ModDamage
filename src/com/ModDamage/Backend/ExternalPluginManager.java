@@ -139,12 +139,16 @@ public class ExternalPluginManager
 		try {
 			VaultSupport.register();
 		}
-		catch (NoClassDefFoundError e) {}
+		catch (NoClassDefFoundError e) {
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Vault not found: "+e.getMessage());
+		}
 		
 		try {
 			TabAPISupport.register();
 		}
-		catch (NoClassDefFoundError e) {}
+		catch (NoClassDefFoundError e) {
+			ModDamage.addToLogRecord(OutputPreset.INFO, "TabAPI not found: "+e.getMessage());
+			}
 		
 		reloadPluginExtensions();
 		

@@ -10,31 +10,28 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.util.Vector;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Matchables.EntityType;
-import com.ModDamage.Routines.Routines;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class LaunchProjectile extends NestedRoutine
 {
 	private final IDataProvider<Location> locDP;
 	private final IDataProvider<LivingEntity> livingDP;
 	private final Class<? extends Projectile> launchType;
-	private final Routines routines;
 	
-	public LaunchProjectile(String configString, IDataProvider<Location> locDP, IDataProvider<LivingEntity> livingDP, Class<? extends Projectile> launchType, Routines routines)
+	public LaunchProjectile(ScriptLine scriptLine, IDataProvider<Location> locDP, IDataProvider<LivingEntity> livingDP, Class<? extends Projectile> launchType)
 	{
-		super(configString);
+		super(scriptLine);
 		this.locDP = locDP;
 		this.livingDP = livingDP;
 		this.launchType = launchType;
-		this.routines = routines;
 	}
 	
 	static EventInfo myInfo = new SimpleEventInfo(
@@ -130,14 +127,13 @@ public class LaunchProjectile extends NestedRoutine
 	
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(?:(.*?)(?:effect)?\\.)?launch\\.(.*?)(?:\\.at\\.(.*?))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(?:(.*?)(?:effect)?\\.)?launch\\.(.*?)(?:\\.at\\.(.*?))?", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 	
-	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static class RoutineFactory extends NestedRoutine.RoutineFactory
 	{
-		@SuppressWarnings("unchecked")
 		@Override
-		public LaunchProjectile getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			EntityType launchType = EntityType.getElementNamed(matcher.group(2));
 			if (launchType == null) return null;
@@ -168,12 +164,12 @@ public class LaunchProjectile extends NestedRoutine
 			EventInfo einfo = info.chain(myInfo);
 			boolean isExplosive = Explosive.class.isAssignableFrom(launchType.myClass);
 			if (isExplosive) einfo = einfo.chain(explosiveInfo);
-			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "Projectile Launch: \"" + matcher.group(1) + "\", \"" + matcher.group(2) + "\"" + (isExplosive?" explosive":""));
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			if(routines == null) return null;
 			
-			NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End Projectile Launch");
-			return new LaunchProjectile(matcher.group(), locDP, livingDP, (Class<? extends Projectile>)launchType.myClass, routines);
+			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "Projectile Launch: \"" + matcher.group(1) + "\", \"" + matcher.group(2) + "\"" + (isExplosive?" explosive":""));
+			
+			@SuppressWarnings("unchecked")
+			LaunchProjectile routine = new LaunchProjectile(scriptLine, locDP, livingDP, (Class<? extends Projectile>)launchType.myClass);
+			return new NestedRoutineBuilder(routine, routine.routines, einfo);
 		}
 	}
 }

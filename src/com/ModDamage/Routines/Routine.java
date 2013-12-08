@@ -9,44 +9,48 @@ import java.util.regex.Pattern;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.NonNull;
+import com.ModDamage.Backend.ScriptLine;
+import com.ModDamage.Backend.ScriptLineHandler;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Routines.Nested.Command;
 import com.ModDamage.Routines.Nested.DropItem;
 import com.ModDamage.Routines.Nested.EntityItemAction;
 import com.ModDamage.Routines.Nested.Message;
+import com.ModDamage.Routines.Nested.NestedRoutine;
 
 abstract public class Routine
 {
 	protected static final Pattern anyPattern = Pattern.compile(".*");
 	//private static final RoutineBuilder builder = new RoutineBuilder();
-	private static final Map<Pattern, RoutineBuilder> registeredBaseRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
+	private static final Map<Pattern, RoutineFactory> registeredRoutines = new LinkedHashMap<Pattern, RoutineFactory>();
 
-	private final String configString;
+	private final ScriptLine scriptLine;
 
-	protected Routine(String configString)
+	protected Routine(ScriptLine scriptLine)
 	{
-		this.configString = configString;
+		this.scriptLine = scriptLine;
 	}
 
-	public final String getConfigString()
+	public final ScriptLine getScriptLine()
 	{
-		return configString;
+		return scriptLine;
 	}
 
 	@Override
 	public String toString()
 	{
-		return configString;
+		return scriptLine.line;
 	}
 
 	abstract public void run(final EventData data) throws BailException;
 
 	public static void registerVanillaRoutines()
 	{
-		registeredBaseRoutines.clear();
+		registeredRoutines.clear();
 		AliasedRoutine.register();
-		TagAction.registerRoutine();
+		Untag.registerRoutine();
 		PlayEffect.register();
 		PlayEntityEffect.register();
 		PlaySound.register();
@@ -63,34 +67,62 @@ abstract public class Routine
 		Despawn.register();
 		ClearList.register();
 		Lightning.register();
-
-		// this must go last to avoid misleading parse errors
-		ValueChange.register();
+		EntityHurt.register();
+		EntityUnknownHurt.register();
+		EntityHeal.register();
+		SetProperty.register();
+		
+		NestedRoutine.registerVanillaRoutines();
 	}
 
-	protected static void registerRoutine(Pattern pattern, RoutineBuilder builder)
+	protected static void registerRoutine(Pattern pattern, RoutineFactory factory)
 	{
-		registeredBaseRoutines.put(pattern, builder);
+		registeredRoutines.put(pattern, factory);
 	}
 
-	public static Routine getNew(String string, EventInfo info)
+	public static IRoutineBuilder getNew(ScriptLine line, EventInfo info)
 	{
-		for(Entry<Pattern, RoutineBuilder> entry : registeredBaseRoutines.entrySet())
+		for(Entry<Pattern, RoutineFactory> entry : registeredRoutines.entrySet())
 		{
-			Matcher anotherMatcher = entry.getKey().matcher(string);
+			Matcher anotherMatcher = entry.getKey().matcher(line.line);
 			if(anotherMatcher.matches())
 			{
-				Routine routine = entry.getValue().getNew(anotherMatcher, info);
-				if(routine != null)
-					return routine;
+				IRoutineBuilder builder = entry.getValue().getNew(anotherMatcher, line, info);
+				if(builder != null)
+					return builder;
 			}
 		}
-		ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for base routine \"" + string + "\"");
+		ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for routine \"" + line.line + "\"");
 		return null;
 	}
 
-	protected abstract static class RoutineBuilder
+	protected abstract static class RoutineFactory
 	{
-		public abstract Routine getNew(Matcher matcher, EventInfo info);
+		public abstract IRoutineBuilder getNew(@NonNull Matcher matcher, ScriptLine scriptLine, EventInfo info);
+	}
+	
+	public interface IRoutineBuilder
+	{
+		public ScriptLineHandler getScriptLineHandler();
+		public Routine buildRoutine();
+	}
+	
+	protected static class RoutineBuilder implements IRoutineBuilder
+	{
+		Routine routine;
+		public RoutineBuilder(Routine routine) {
+			this.routine = routine;
+		}
+		@Override
+		public ScriptLineHandler getScriptLineHandler()
+		{
+			return null;
+		}
+		
+		@Override
+		public Routine buildRoutine()
+		{
+			return routine;
+		}
 	}
 }

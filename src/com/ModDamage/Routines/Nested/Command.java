@@ -11,25 +11,25 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.AliasManager;
 import com.ModDamage.Alias.CommandAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
+import com.ModDamage.Backend.ScriptLineHandler;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.InterpolatedString;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routine;
 
 public class Command extends NestedRoutine 
 {
-	private final Collection<InterpolatedString> commands;
+	private final Collection<IDataProvider<String>> commands;
 	private final CommandTarget commandTarget;
 	
-	private Command(String configString, CommandTarget commandTarget, Collection<InterpolatedString> commands)
+	private Command(ScriptLine scriptLine, CommandTarget commandTarget, Collection<IDataProvider<String>> commands)
 	{
-		super(configString);
+		super(scriptLine);
 		this.commandTarget = commandTarget;
 		this.commands = commands;
 	}
@@ -38,9 +38,9 @@ public class Command extends NestedRoutine
 	public void run(EventData data) throws BailException
 	{
 		CommandSender cmdsender = commandTarget.getCommandSender(data);
-		for(InterpolatedString command : commands)
+		for(IDataProvider<String> command : commands)
 		{				
-			Bukkit.dispatchCommand(cmdsender, command.toString(data));
+			Bukkit.dispatchCommand(cmdsender, command.get(data));
 		}
 	}
 	
@@ -89,17 +89,17 @@ public class Command extends NestedRoutine
 	
 	public static void registerRoutine()
 	{
-		Routine.registerRoutine(Pattern.compile("command\\.(\\w+)\\.(.+)", Pattern.CASE_INSENSITIVE), new BaseRoutineBuilder());//"debug\\.(server|(?:world(\\.[a-z0-9]+))|(?:player\\.[a-z0-9]+))\\.(_[a-z0-9]+)"
+		Routine.registerRoutine(Pattern.compile("command\\.(\\w+)\\.(.+)", Pattern.CASE_INSENSITIVE), new CommandAliasRoutineFactory());
 	}
 	public static void registerNested()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("command.(\\w+)", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("command.(\\w+)(?::?\\s+(.+))?", Pattern.CASE_INSENSITIVE), new NestedRoutineFactory());
 	}
 	
-	protected static class BaseRoutineBuilder extends Routine.RoutineBuilder
+	protected static class CommandAliasRoutineFactory extends Routine.RoutineFactory
 	{
 		@Override
-		public Command getNew(Matcher matcher, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			CommandTarget commandTarget = CommandTarget.match(matcher.group(1), info);
 			if(commandTarget == null)
@@ -108,7 +108,7 @@ public class Command extends NestedRoutine
 				return null;
 			}
 			
-			Collection<InterpolatedString> commands = CommandAliaser.match(matcher.group(2), info);
+			Collection<IDataProvider<String>> commands = CommandAliaser.match(matcher.group(2), info);
 			if (commands == null)
 			{
 				ModDamage.addToLogRecord(OutputPreset.FAILURE, "This command form can only be used for command aliases. Please use the following instead.");
@@ -117,74 +117,87 @@ public class Command extends NestedRoutine
 			}
 			
 			
-			Command routine = new Command(matcher.group(), commandTarget, commands);
-			routine.reportContents();
-			return routine;
+			Command routine = new Command(scriptLine, commandTarget, commands);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Command (" + commandTarget + "):" );
+			ModDamage.changeIndentation(true);
+			for (IDataProvider<String> cmd : commands)
+			{
+				ModDamage.addToLogRecord(OutputPreset.INFO, cmd.toString());
+			}
+			ModDamage.changeIndentation(false);
+			return new RoutineBuilder(routine);
 		}
 	}
 	
-	protected static class NestedRoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static class NestedRoutineFactory extends Routine.RoutineFactory
 	{
-		@SuppressWarnings("unchecked")
 		@Override
-		public Command getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			if(matcher == null || nestedContent == null)
-				return null;
-			
-			List<String> strings = new ArrayList<String>();
 			CommandTarget commandTarget = CommandTarget.match(matcher.group(1), info);
 			if(commandTarget == null) return null;
 			
-			if (nestedContent instanceof String)
-				strings.add((String)nestedContent);
-			else if(nestedContent instanceof List)
-				strings.addAll((List<String>) nestedContent);
-			else
-				return null;
-			
 
-			List<InterpolatedString> commands = new ArrayList<InterpolatedString>();
-			for(String string : strings)
-			{
-				if (AliasManager.aliasPattern.matcher(string).matches())
-				{
-					Collection<InterpolatedString> istrs = CommandAliaser.match(string, info);
-					if (istrs != null) 
-					{
-						commands.addAll(istrs);
-						continue;
-					}
-					
-					ModDamage.addToLogRecord(OutputPreset.WARNING, "Unknown command alias: "+string);
-				}
-				
-				commands.add(new InterpolatedString(string, info, false));
-			}
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Command (" + commandTarget + "):" );
+			ModDamage.changeIndentation(true);
 			
+			CommandRoutineBuilder builder = new CommandRoutineBuilder(scriptLine, commandTarget, info);
 			
-			Command routine = new Command(matcher.group(), commandTarget, commands);
-			routine.reportContents();
-			return routine;
+			if (matcher.group(2) != null)
+				builder.addString(matcher.group(2));
+			
+			return builder;
 		}
 	}
 	
-	private void reportContents()
+	private static class CommandRoutineBuilder implements IRoutineBuilder, ScriptLineHandler
 	{
-		if(commands instanceof List)
+		ScriptLine scriptLine;
+		CommandTarget commandTarget;
+		EventInfo info;
+		
+		List<IDataProvider<String>> commands = new ArrayList<IDataProvider<String>>();
+		
+		public CommandRoutineBuilder(ScriptLine scriptLine, CommandTarget commandTarget, EventInfo info)
 		{
-			String routineString = "Command (" + commandTarget + ")";
-			List<InterpolatedString> commandList = (List<InterpolatedString>)commands;
-			if(commands.size() > 1)
-			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, routineString + ":" );
-				ModDamage.changeIndentation(true);
-				for(int i = 0; i < commands.size(); i++)
-					ModDamage.addToLogRecord(OutputPreset.INFO, "- \"" + commandList.get(i).toString() + "\"" );
-				ModDamage.changeIndentation(false);
-			}
-			else ModDamage.addToLogRecord(OutputPreset.INFO, routineString + ": \"" + commandList.get(0).toString() + "\"" );
+			this.scriptLine = scriptLine;
+			this.commandTarget = commandTarget;
+			this.info = info;
 		}
-		else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Fatal: commands are not in a linked data structure!");//shouldn't happen
+
+		public void addString(String str)
+		{
+			IDataProvider<String> cmdDP = DataProvider.parse(info, String.class, str);
+			if (cmdDP != null) {
+				commands.add(cmdDP);
+				ModDamage.addToLogRecord(OutputPreset.INFO, cmdDP.toString());
+			}
+		}
+
+		@Override
+		public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
+		{
+			addString(line.line);
+			return null;
+		}
+		
+		@Override
+		public void done()
+		{
+			ModDamage.changeIndentation(false);
+		}
+		
+		@Override
+		public ScriptLineHandler getScriptLineHandler()
+		{
+			return this;
+		}
+		
+		@Override
+		public Routine buildRoutine()
+		{
+			return new Command(scriptLine, commandTarget, commands);
+		}
 	}
+	
 }

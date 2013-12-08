@@ -3,24 +3,21 @@ package com.ModDamage.Routines.Nested;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Routines.Routines;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class While extends NestedRoutine
 {
 	protected final IDataProvider<Boolean> conditional;
-	protected final Routines routines;
-	private While(String configString, IDataProvider<Boolean> conditional, Routines routines)
+	private While(ScriptLine scriptLine, IDataProvider<Boolean> conditional)
 	{
-		super(configString);
+		super(scriptLine);
 		this.conditional = conditional;
-		this.routines = routines;
 	}
 
 	@Override
@@ -38,32 +35,21 @@ public class While extends NestedRoutine
 
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("while\\s+(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("while\\s+(.*)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 
-	protected final static class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static class RoutineFactory extends NestedRoutine.RoutineFactory
 	{
 		@Override
-		public While getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			if(matcher == null || nestedContent == null)
-				return null;
-
-
 			IDataProvider<Boolean> conditional = DataProvider.parse(info, Boolean.class, matcher.group(1));
 			if (conditional == null) return null;
 
 			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "While: " + conditional);
 
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent, info);
-			if(routines == null)
-			{
-				NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid content in While");
-				return null;
-			}
-
-			NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End While");
-			return new While(matcher.group(), conditional, routines);
+			While routine = new While(scriptLine, conditional);
+			return new NestedRoutineBuilder(routine, routine.routines, info);
 		}
 	}
 }

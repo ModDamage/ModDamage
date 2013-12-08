@@ -1,5 +1,6 @@
 package com.ModDamage.Routines.Nested;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -7,22 +8,24 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
+import com.ModDamage.Backend.ScriptLineHandler;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.StringExp;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
+import com.ModDamage.Routines.Routine;
 
-public class PlayerChat extends NestedRoutine
+public class PlayerChat extends Routine
 {
 	private final List<IDataProvider<String>> messages;
 	private final IDataProvider<Player> playerDP;
 
-	private PlayerChat(String configString, IDataProvider<Player> playerDP, List<IDataProvider<String>> messages)
+	private PlayerChat(ScriptLine scriptLine, IDataProvider<Player> playerDP, List<IDataProvider<String>> messages)
 	{
-		super(configString);
+		super(scriptLine);
 		this.playerDP = playerDP;
 		this.messages = messages;
 	}
@@ -38,47 +41,81 @@ public class PlayerChat extends NestedRoutine
 		}
 	}
 
+	public static final Pattern targetEndPattern = Pattern.compile("\\.(_\\w+)|:?\\s+|(?:$)");
+	
 	public static void registerNested()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(.*)\\.chat", Pattern.CASE_INSENSITIVE), new NestedRoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(.*?)\\.chat(?::?\\s+(.+))?", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 
-	protected static class NestedRoutineBuilder extends RoutineBuilder
+	protected static class RoutineFactory extends Routine.RoutineFactory
 	{
 		@Override
-		public PlayerChat getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			if(matcher == null || nestedContent == null)
-				return null;
-
 			IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, matcher.group(1));
 			if(playerDP == null) return null;
 
-			List<IDataProvider<String>> messages = StringExp.getStrings(nestedContent, info);
-			if (messages == null) return null;
 
-
-			PlayerChat routine = new PlayerChat(matcher.group(), playerDP, messages);
-			routine.reportContents();
-			return routine;
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Chat (" + playerDP + "):" );
+			ModDamage.changeIndentation(true);
+			
+			ChatRoutineBuilder builder = new ChatRoutineBuilder(scriptLine, playerDP, info);
+			
+			if (matcher.group(2) != null)
+				builder.addString(matcher.group(2));
+			
+			return builder;
 		}
 	}
-
-	private void reportContents()
+	
+	private static class ChatRoutineBuilder implements IRoutineBuilder, ScriptLineHandler
 	{
-		if(messages instanceof List)
+		ScriptLine scriptLine;
+		IDataProvider<Player> playerDP;
+		EventInfo info;
+		
+		List<IDataProvider<String>> messages = new ArrayList<IDataProvider<String>>();
+		
+		public ChatRoutineBuilder(ScriptLine scriptLine, IDataProvider<Player> playerDP, EventInfo info)
 		{
-			String routineString = "Chat (" + playerDP + ")";
-			if(messages.size() > 1)
-			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, routineString + ":" );
-				ModDamage.changeIndentation(true);
-				for(IDataProvider<String> message : messages)
-					ModDamage.addToLogRecord(OutputPreset.INFO, "- \"" + message.toString() + "\"" );
-				ModDamage.changeIndentation(false);
-			}
-			else ModDamage.addToLogRecord(OutputPreset.INFO, routineString + ": \"" + messages.get(0).toString() + "\"" );
+			this.scriptLine = scriptLine;
+			this.playerDP = playerDP;
+			this.info = info;
 		}
-		else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Fatal: messages are not in a linked data structure!");//shouldn't happen
+		
+		public void addString(String str)
+		{
+			IDataProvider<String> msgDP = DataProvider.parse(info, String.class, str);
+			if (msgDP != null) {
+				messages.add(msgDP);
+				ModDamage.addToLogRecord(OutputPreset.INFO, msgDP.toString());
+			}
+		}
+
+		@Override
+		public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
+		{
+			addString(line.line);
+			return null;
+		}
+		
+		@Override
+		public void done()
+		{
+			ModDamage.changeIndentation(false);
+		}
+		
+		@Override
+		public ScriptLineHandler getScriptLineHandler()
+		{
+			return this;
+		}
+		
+		@Override
+		public Routine buildRoutine()
+		{
+			return new PlayerChat(scriptLine, playerDP, messages);
+		}
 	}
 }

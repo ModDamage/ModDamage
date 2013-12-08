@@ -9,16 +9,15 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Matchables.EntityType;
-import com.ModDamage.Routines.Routines;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class Nearby extends NestedRoutine
 {
@@ -26,16 +25,14 @@ public class Nearby extends NestedRoutine
 	private final IDataProvider<Entity> entityDP;
 	private final EntityType filterElement;
 	private final IDataProvider<Integer> radius;
-	private final Routines routines;
 
-	protected Nearby(String configString, boolean nearest, IDataProvider<Entity> entityDP, EntityType filterElement, IDataProvider<Integer> radius, Routines routines)
+	protected Nearby(ScriptLine scriptLine, boolean nearest, IDataProvider<Entity> entityDP, EntityType filterElement, IDataProvider<Integer> radius)
 	{
-		super(configString);
+		super(scriptLine);
 		this.nearest = nearest;
 		this.entityDP = entityDP;
 		this.filterElement = filterElement;
 		this.radius = radius;
-		this.routines = routines;
 	}
 
 	static EventInfo myInfo = new SimpleEventInfo(
@@ -93,13 +90,13 @@ public class Nearby extends NestedRoutine
 
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("near(by|est)\\.([^.]*)\\.([^.]*)\\.([^.]*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("near(by|est)\\.([^.]*)\\.([^.]*)\\.([^.]*)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 
-	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static class RoutineFactory extends NestedRoutine.RoutineFactory
 	{
 		@Override
-		public Nearby getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			boolean nearest = matcher.group(1).equalsIgnoreCase("est");
 			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(2)); if (entityDP == null) return null;
@@ -109,10 +106,9 @@ public class Nearby extends NestedRoutine
 			ModDamage.addToLogRecord(OutputPreset.INFO, "Near" + (nearest? "est" : "by") + ": " + entityDP + ", " + element + ", " + radius);
 
 			EventInfo einfo = info.chain(myInfo);
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			if(routines != null)
-				return new Nearby(matcher.group(), nearest, entityDP, element, radius, routines);
-			return null;
+			
+			Nearby routine = new Nearby(scriptLine, nearest, entityDP, element, radius);
+			return new NestedRoutineBuilder(routine, routine.routines, einfo);
 		}
 	}
 }

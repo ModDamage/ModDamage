@@ -2,45 +2,91 @@ package com.ModDamage.Alias;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Alias.RoutineAliaser.ScriptCapturedLines;
+import com.ModDamage.Backend.ScriptLine;
+import com.ModDamage.Backend.ScriptLineHandler;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Routines.Routine;
 import com.ModDamage.Routines.Routines;
-import com.ModDamage.Routines.Nested.If;
-import com.ModDamage.Routines.Nested.NestedRoutine;
 
-public class RoutineAliaser extends Aliaser<Object, Object>
+public class RoutineAliaser extends Aliaser<ScriptCapturedLines, ScriptCapturedLines>
 {
 	public static RoutineAliaser aliaser = new RoutineAliaser();
 	public static Routines match(String string, EventInfo info) { return aliaser.matchAlias(string, info); }
 	
 	public RoutineAliaser() { super("Routine"); }
 	
-	public boolean completeAlias(String key, Object values)
+	
+	public static class ScriptCapturedLines implements ScriptLineHandler
 	{
-		if(values instanceof List)
+		public List<ScriptCapturedLine> children;
+
+		@Override
+		public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
 		{
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding Routine alias \"" + key + "\"");
-			/*if(values.toString().contains(key))
-			{
-				ModDamage.changeIndentation(true);
-				ModDamage.addToLogRecord(OutputPreset.WARNING, "Warning: \"" + key + "\" is self-referential!");
-				ModDamage.changeIndentation(false);
-			}*/
-			
-			putAlias(key, values);
-			return true;
+			if (children == null)
+				children = new ArrayList<RoutineAliaser.ScriptCapturedLine>();
+			ScriptCapturedLine child = new ScriptCapturedLine(line);
+			children.add(child);
+			return child.children;
 		}
-		ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error adding alias \"" + key + "\" - unrecognized value \"" + values.toString() + "\"");
-		return false;
+
+		@Override
+		public void done() { }
+		
+		public void parse(ScriptLineHandler lineHandler)
+		{
+			for (ScriptCapturedLine child : children)
+			{
+				ScriptLineHandler nestedLineHandler = lineHandler.handleLine(child.scriptLine, child.children != null);
+				if (child.children != null) {
+					child.children.parse(nestedLineHandler);
+				}
+				nestedLineHandler.done();
+			}
+		}
 	}
 	
+	public static class ScriptCapturedLine
+	{
+		public ScriptLine scriptLine;
+		public ScriptCapturedLines children = new ScriptCapturedLines();
+		
+		public ScriptCapturedLine(ScriptLine scriptLine)
+		{
+			this.scriptLine = scriptLine;
+		}
+	}
+	
+	@Override
+	public ScriptLineHandler handleLine(final ScriptLine nameLine, boolean hasChildren)
+	{
+		return new ScriptLineHandler() {
+			ScriptCapturedLines lines = new ScriptCapturedLines();
+			boolean hasValue;
+			
+			@Override
+			public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
+			{
+				hasValue = true;
+				return lines.handleLine(nameLine, hasChildren);
+			}
+			
+			@Override
+			public void done()
+			{
+				if (!hasValue) {
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, nameLine, name+" alias _"+nameLine.line+" has no routines.");
+					return;
+				}
+				putAlias("_"+nameLine.line, lines);
+			}
+		};
+	}
 	
 	private static boolean isParsingAlias = false;
 	public static boolean isParsingAlias() { return isParsingAlias; }
@@ -58,23 +104,25 @@ public class RoutineAliaser extends Aliaser<Object, Object>
 		if (aliasedRoutines.containsKey(infoPair)) return aliasedRoutines.get(infoPair);
 		
 		
-		Object values = getAlias(alias);
-		if (values == null)
+		ScriptCapturedLines lines = getAlias(alias);
+		if (lines == null)
 		{
 			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown alias: \"" + alias + "\"");
 			return null;
 		}
 		ModDamage.addToLogRecord(OutputPreset.INFO, "Routines in " + alias);
+		
 		isParsingAlias = true;
-		Routines routines = parseRoutines(values, info);
+		
+		Routines routines = new Routines();
+		ScriptLineHandler routinesLineHandler = routines.getLineHandler(info);
+		lines.parse(routinesLineHandler);
+		routinesLineHandler.done();
+		
 		isParsingAlias = false;
+		
 		aliasedRoutines.put(infoPair, routines);
-		if(routines == null)
-		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error parsing routines in alias" + alias);
-			runWhenDone.clear();
-			return null;
-		}
+
 		if (!runWhenDone.isEmpty())
 		{
 			List<Runnable> toRun = runWhenDone;
@@ -93,87 +141,87 @@ public class RoutineAliaser extends Aliaser<Object, Object>
 	}
 	
 	//Parse routine strings recursively
-	public static Routines parseRoutines(Object object, EventInfo info)
-	{
-		Routines routines = new Routines();
-		ModDamage.changeIndentation(true);
-		boolean success = recursivelyParseRoutines(routines.routines, object, info);
-		ModDamage.changeIndentation(false);
-		if (!success) return null;
-		return routines;
-	}
-	@SuppressWarnings("unchecked")
-	private static boolean recursivelyParseRoutines(List<Routine> target, Object object, EventInfo info)
-	{
-		boolean success = true;
-		if(object != null)
-		{
-			if(object instanceof String)
-			{
-				String string = (String) object;
-				
-				Routine routine = Routine.getNew(string, info);
-				if(!elseOrAppend(target, routine))
-				{
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid base routine " + " \"" + string + "\"");
-					success = false;
-				}
-			}
-			else if(object instanceof LinkedHashMap)
-			{
-				LinkedHashMap<String, Object> someHashMap = (LinkedHashMap<String, Object>)object;
-				if(someHashMap.keySet().size() == 1)
-					for(Entry<String, Object> entry : someHashMap.entrySet())//A properly-formatted nested routine is a LinkedHashMap with only one key.
-					{
-						NestedRoutine routine = NestedRoutine.getNew(entry.getKey(), entry.getValue(), info);
-						if(!elseOrAppend(target, routine))
-						{
-							success = false;
-							break;
-						}
-					}
-				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: invalid nested routine \"" + someHashMap.toString() + "\"");
-			}
-			else if(object instanceof List)
-				for(Object nestedObject : (List<Object>)object)
-				{
-					if(!recursivelyParseRoutines(target, nestedObject, info))
-						success = false;
-				}
-			else
-			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: did not recognize object " + object.toString() + " of type " + object.getClass().getName());
-				return false;
-			}
-		}
-		else
-		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: null");
-			success = false;
-		}
-		return success;
-	}
+//	public static Routines parseRoutines(Object object, EventInfo info)
+//	{
+//		Routines routines = new Routines();
+//		ModDamage.changeIndentation(true);
+//		boolean success = recursivelyParseRoutines(routines.routines, object, info);
+//		ModDamage.changeIndentation(false);
+//		if (!success) return null;
+//		return routines;
+//	}
+//	@SuppressWarnings("unchecked")
+//	private static boolean recursivelyParseRoutines(List<Routine> target, Object object, EventInfo info)
+//	{
+//		boolean success = true;
+//		if(object != null)
+//		{
+//			if(object instanceof String)
+//			{
+//				String string = (String) object;
+//				
+//				Routine routine = Routine.getNew(string, info);
+//				if(!elseOrAppend(target, routine))
+//				{
+//					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid base routine " + " \"" + string + "\"");
+//					success = false;
+//				}
+//			}
+//			else if(object instanceof LinkedHashMap)
+//			{
+//				LinkedHashMap<String, Object> someHashMap = (LinkedHashMap<String, Object>)object;
+//				if(someHashMap.keySet().size() == 1)
+//					for(Entry<String, Object> entry : someHashMap.entrySet())//A properly-formatted nested routine is a LinkedHashMap with only one key.
+//					{
+//						NestedRoutine routine = NestedRoutine.getNew(entry.getKey(), entry.getValue(), info);
+//						if(!elseOrAppend(target, routine))
+//						{
+//							success = false;
+//							break;
+//						}
+//					}
+//				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: invalid nested routine \"" + someHashMap.toString() + "\"");
+//			}
+//			else if(object instanceof List)
+//				for(Object nestedObject : (List<Object>)object)
+//				{
+//					if(!recursivelyParseRoutines(target, nestedObject, info))
+//						success = false;
+//				}
+//			else
+//			{
+//				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: did not recognize object " + object.toString() + " of type " + object.getClass().getName());
+//				return false;
+//			}
+//		}
+//		else
+//		{
+//			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: null");
+//			success = false;
+//		}
+//		return success;
+//	}
 	
-	private static boolean elseOrAppend(List<Routine> routines, Routine newRoutine)
-	{
-		if (newRoutine == null) return false;
-		
-		if (newRoutine instanceof If && ((If) newRoutine).isElse) {
-			if (routines.isEmpty() || !(routines.get(routines.size()-1) instanceof If)) {
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: else not after if: '"+newRoutine+"'");
-				return false;
-			}
-			
-			If ifRoutine = (If) routines.get(routines.size()-1);
-			while (ifRoutine.elseRoutine != null)
-				ifRoutine = ifRoutine.elseRoutine;
-			
-			ifRoutine.elseRoutine = (If) newRoutine;
-			return true;
-		}
-		
-		routines.add(newRoutine);
-		
-		return true;
-	}
+//	private static boolean elseOrAppend(List<Routine> routines, Routine newRoutine)
+//	{
+//		if (newRoutine == null) return false;
+//		
+//		if (newRoutine instanceof If && ((If) newRoutine).isElse) {
+//			if (routines.isEmpty() || !(routines.get(routines.size()-1) instanceof If)) {
+//				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: else not after if: '"+newRoutine+"'");
+//				return false;
+//			}
+//			
+//			If ifRoutine = (If) routines.get(routines.size()-1);
+//			while (ifRoutine.elseRoutine != null)
+//				ifRoutine = ifRoutine.elseRoutine;
+//			
+//			ifRoutine.elseRoutine = (If) newRoutine;
+//			return true;
+//		}
+//		
+//		routines.add(newRoutine);
+//		
+//		return true;
+//	}
 }

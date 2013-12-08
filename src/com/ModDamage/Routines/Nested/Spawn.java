@@ -8,28 +8,25 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Matchables.EntityType;
-import com.ModDamage.Routines.Routines;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class Spawn extends NestedRoutine
 {
 	private final IDataProvider<Location> locDP;
 	private final EntityType spawnType;
-	private final Routines routines;
-	public Spawn(String configString, IDataProvider<Location> locDP, EntityType spawnType, Routines routines)
+	public Spawn(ScriptLine scriptLine, IDataProvider<Location> locDP, EntityType spawnType)
 	{
-		super(configString);
+		super(scriptLine);
 		this.locDP = locDP;
 		this.spawnType = spawnType;
-		this.routines = routines;
 	}
 	
 	static EventInfo myInfo = new SimpleEventInfo(
@@ -55,13 +52,13 @@ public class Spawn extends NestedRoutine
 	
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(.*)effect\\.spawn\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(.*)effect\\.spawn\\.(.*)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 	
-	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static class RoutineFactory extends NestedRoutine.RoutineFactory
 	{
 		@Override
-		public Spawn getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			EntityType spawnType = EntityType.getElementNamed(matcher.group(2));
 			if (spawnType == null) return null;
@@ -76,10 +73,9 @@ public class Spawn extends NestedRoutine
             ModDamage.addToLogRecord(OutputPreset.INFO, "Spawn "+spawnType+" at "+locDP);
 
 			EventInfo einfo = info.chain(myInfo);
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent, einfo);
-			if(routines == null) return null;
 
-            return new Spawn(matcher.group(), locDP, spawnType, routines);
+			Spawn routine = new Spawn(scriptLine, locDP, spawnType);
+            return new NestedRoutineBuilder(routine, routine.routines, einfo);
 		}
 	}
 }

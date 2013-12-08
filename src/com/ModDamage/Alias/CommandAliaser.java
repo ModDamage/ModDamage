@@ -8,23 +8,24 @@ import java.util.Map;
 
 import com.ModDamage.Alias.Aliaser.CollectionAliaser;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.InterpolatedString;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class CommandAliaser extends CollectionAliaser<String> 
 {
 	public static CommandAliaser aliaser = new CommandAliaser();
-	private final Map<InfoOtherPair<String>, Collection<InterpolatedString>> aliasedCommands = new HashMap<InfoOtherPair<String>, Collection<InterpolatedString>>();
+	private final Map<InfoOtherPair<String>, Collection<IDataProvider<String>>> aliasedCommands = new HashMap<InfoOtherPair<String>, Collection<IDataProvider<String>>>();
 	
-	public static Collection<InterpolatedString> match(String string, EventInfo info) {
+	public static Collection<IDataProvider<String>> match(String string, EventInfo info) {
 		InfoOtherPair<String> infoPair = new InfoOtherPair<String>(string, info);
 		if (aliaser.aliasedCommands.containsKey(infoPair)) return aliaser.aliasedCommands.get(infoPair);
 		
 		Collection<String> strings = aliaser.matchAlias(string);
 		if (strings == null) return null;
-		Collection<InterpolatedString> istrings = new ArrayList<InterpolatedString>();
+		Collection<IDataProvider<String>> istrings = new ArrayList<IDataProvider<String>>();
 		
 		for (String str : strings)
-			istrings.add(new InterpolatedString(str, info, false));
+			istrings.add(DataProvider.parse(info, String.class, str));
 		
 		aliaser.aliasedCommands.put(infoPair, istrings);
 		

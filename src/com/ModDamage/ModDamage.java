@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,6 +20,7 @@ import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ExternalPluginManager;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Events.Init;
 import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.Server.MDServer;
@@ -73,7 +73,7 @@ public class ModDamage extends JavaPlugin
 	{
 		MDServer.stopServer();
 		
-		if (tagger != null) tagger.close();
+		if (tagger != null) { tagger.close(); tagger = null; }
 		isEnabled = false;
 		configuration.printToLog(Level.INFO, "Disabled.");
 		PluginCommand.setPlugin(null); //Prevents possible memory leaks on /reload command
@@ -85,26 +85,25 @@ public class ModDamage extends JavaPlugin
 		
 		if((configuration.reload(reloadingAll) && reloadingAll) || !taggerFile.exists())
 		{
-			if(tagger != null) tagger.close();
+			if(tagger != null) { tagger.close(); tagger = null; }
 
-			long[] tagConfigIntegers = { TagManager.defaultInterval, TagManager.defaultInterval * 4 };
-			LinkedHashMap<String, Object> tagConfigurationTree = configuration.castToStringMap("Tagging", configuration.getConfigMap().get("Tagging"));
-			if(tagConfigurationTree != null)
-			{
-				String[] tagConfigStrings = { TagManager.configString_save, TagManager.configString_clean };
-				Object[] tagConfigObjects =	{PluginConfiguration.getCaseInsensitiveValue(tagConfigurationTree, tagConfigStrings[0]), PluginConfiguration.getCaseInsensitiveValue(tagConfigurationTree, tagConfigStrings[1]) };
-				for(int i = 0; i < tagConfigObjects.length; i++)
-				{
-					if(tagConfigObjects[i] != null)
-					{
-						if(tagConfigObjects[i] instanceof Integer)
-							tagConfigIntegers[i] = (Integer)tagConfigObjects[i];
-						else configuration.addToLogRecord(OutputPreset.FAILURE, "Error: Could not read value for Tagging setting \"" + tagConfigStrings[i] + "\"");
-					}
-				}
-			}
-			tagger = new TagManager(taggerFile, tagConfigIntegers[0], tagConfigIntegers[1]);
-			
+//			long[] tagConfigIntegers = { TagManager.defaultInterval, TagManager.defaultInterval * 4 };
+//			LinkedHashMap<String, Object> tagConfigurationTree = configuration.castToStringMap("Tagging", configuration.getConfigMap().get("Tagging"));
+//			if(tagConfigurationTree != null)
+//			{
+//				String[] tagConfigStrings = { TagManager.configString_save, TagManager.configString_clean };
+//				Object[] tagConfigObjects =	{PluginConfiguration.getCaseInsensitiveValue(tagConfigurationTree, tagConfigStrings[0]), PluginConfiguration.getCaseInsensitiveValue(tagConfigurationTree, tagConfigStrings[1]) };
+//				for(int i = 0; i < tagConfigObjects.length; i++)
+//				{
+//					if(tagConfigObjects[i] != null)
+//					{
+//						if(tagConfigObjects[i] instanceof Integer)
+//							tagConfigIntegers[i] = (Integer)tagConfigObjects[i];
+//						else configuration.addToLogRecord(OutputPreset.FAILURE, "Error: Could not read value for Tagging setting \"" + tagConfigStrings[i] + "\"");
+//					}
+//				}
+//			}
+			tagger = new TagManager(taggerFile, configuration.tags_save_interval);
 		}
 
         Init.initAll();
@@ -319,6 +318,7 @@ public class ModDamage extends JavaPlugin
 
 ///////////////// HELPER FUNCTIONS
 	public static void addToLogRecord(OutputPreset preset, String message){ configuration.addToLogRecord(preset, message); }
+	public static void addToLogRecord(OutputPreset preset, ScriptLine line, String message){ configuration.addToLogRecord(preset, line, message); }
 	
 	public static void changeIndentation(boolean forward)
 	{
