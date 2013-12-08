@@ -74,6 +74,7 @@ import com.ModDamage.Events.Player.Quit;
 import com.ModDamage.Events.Player.ToggleFlight;
 import com.ModDamage.Events.Player.ToggleSneak;
 import com.ModDamage.Events.Player.ToggleSprint;
+import com.ModDamage.Events.World.StructureGrow;
 import com.ModDamage.Routines.Routines;
 
 public class MDEvent implements Listener
@@ -159,6 +160,10 @@ public class MDEvent implements Listener
 				new ToggleSneak(),
 				new ToggleSprint(),
                 new Fish()
+				);
+
+		addEvents("World",
+				new StructureGrow()
 				);
 
 		addEvents("Misc",
