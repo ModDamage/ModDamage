@@ -107,6 +107,8 @@ public class MDServer extends NanoHTTPD
 				}
 			});
 		
+		addHandler("/events$", new Events());
+		
 		APIHandlers.register();
 		FileHandlers.register();
 	}

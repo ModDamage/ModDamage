@@ -17,7 +17,7 @@
 					position: absolute;
 					left: 0;
 					width: 250px;
-					top: 42px;
+					top: 50px;
 					bottom: 0;
 					
 					
@@ -58,7 +58,7 @@
 					padding-top: 2px;
 					
 					position: absolute;
-					top: 36px;
+					top: 44px;
 					left: 0;
 					right: 0;
 					bottom: 0;
@@ -72,6 +72,7 @@
 					list-style: none outside none;
 					
 					margin: 0;
+					padding-left: 0px;
 				}
 				.filelist > li {
 					padding: 2px 0;
@@ -100,7 +101,7 @@
 					position: absolute;
 					left: 250px;
 					right: 0;
-					top: 41px;
+					top: 50px;
 					bottom: 0;
 				}
 				
@@ -159,22 +160,25 @@
 			</div>
 		</div>
 		
-		<div class="navbar navbar-inverse navbar-static-top">
+		<nav class="navbar navbar-inverse navbar-fixed-top">
 			<div class="navbar-inner">
-				<div class="container-fluid">
-					<a class="brand" href="#">ModDamage</a>
-					<div class="nav-collapse collapse">
-						<p class="navbar-text pull-right">
-							<!-- <a href="#" class="btn btn-primary disabled">Saved</a> -->
-						</p>
-						<ul class="nav">
-							<li><a href="stats.html">Stats</a></li>
-							<li class="active"><a href="editor.html">Editor</a></li>
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#">ModDamage</a>
+					
+				</div>
+				<div class="navbar-collapse collapse">
+						<!-- <p class="navbar-text pull-right">
+							Logged in as <a href="#" class="navbar-link">Username</a>
+						</p> -->
+						<ul class="nav navbar-nav">
+							<li><a href="/static/stats.html">Stats</a></li>
+							<li class="active"><a href="/static/editor.html">Editor</a></li>
+							<li><a href="/events">Events</a></li>
+							<li><a href="/properties">Properties</a></li>
 						</ul>
 					</div><!--/.nav-collapse -->
-				</div>
 			</div>
-		</div>
+		</nav>
 		
 		<div id="sidebar">
 			<div id="toolbar" class="">

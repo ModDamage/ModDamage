@@ -51,6 +51,7 @@ public class FileHandlers
 			if (path.startsWith("/")) path = path.substring(1);
 			
 			ZipEntry entry = jar.getEntry(path);
+			
 			if (entry != null) {
 				try
 				{

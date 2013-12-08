@@ -200,6 +200,8 @@ public class MDEvent implements Listener
 	}
 	
 	protected EventInfo myInfo;
+	public EventInfo getInfo() { return myInfo; }
+	
 	protected MDEvent(EventInfo myInfo)
 	{
 		this.myInfo = myInfo;
@@ -227,7 +229,7 @@ public class MDEvent implements Listener
 	
 	protected LoadState getState(){ return loadState; }
 	
-	protected String name() { return this.getClass().getSimpleName(); }
+	public String name() { return this.getClass().getSimpleName(); }
 	
 	protected void load(Object nestedContent)
 	{

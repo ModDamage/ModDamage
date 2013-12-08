@@ -1,6 +1,7 @@
 package com.ModDamage.EventInfo;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.ModDamage.Parsing.IDataProvider;
@@ -62,6 +63,13 @@ public class EventInfoChain extends EventInfo
 		names = second.getAllNames(cls, name);
 		if (names != null) return new HashSet<String>(names);
 		return null;
+	}
+	
+	@Override
+	protected void fillNamesLists(List<List<String>> namesLists, int offset)
+	{
+		first.fillNamesLists(namesLists, offset);
+		second.fillNamesLists(namesLists, offset + first.getSize());
 	}
 	
 	@Override

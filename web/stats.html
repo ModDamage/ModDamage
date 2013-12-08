@@ -7,7 +7,7 @@
 			<link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
 			<style type="text/css">
 				.navbar {
-					padding-bottom: 20px;
+					margin-bottom: 20px;
 				}
 				
 				@media (max-width: 980px) {
@@ -29,23 +29,26 @@
 			</style>
 			<!-- <link href="/static/bootstrap/css/bootstrap-responsive.css" rel="stylesheet"> -->
 	</head>
-	<body>
-		<div class="navbar navbar-inverse navbar-static-top">
+	<body style="padding-top: 70px;">
+		<nav class="navbar navbar-inverse navbar-fixed-top">
 			<div class="navbar-inner">
-				<div class="container-fluid">
-					<a class="brand" href="#">ModDamage</a>
-					<div class="nav-collapse collapse">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#">ModDamage</a>
+					
+				</div>
+				<div class="navbar-collapse collapse">
 						<!-- <p class="navbar-text pull-right">
 							Logged in as <a href="#" class="navbar-link">Username</a>
 						</p> -->
-						<ul class="nav">
-							<li class="active" class="active"><a href="stats.html">Stats</a></li>
-							<li><a href="editor.html">Editor</a></li>
+						<ul class="nav navbar-nav">
+							<li class="active"><a href="/static/stats.html">Stats</a></li>
+							<li><a href="/static/editor.html">Editor</a></li>
+							<li><a href="/events">Events</a></li>
+							<li><a href="/properties">Properties</a></li>
 						</ul>
 					</div><!--/.nav-collapse -->
-				</div>
 			</div>
-		</div>
+		</nav>
 		
 		<div id="stats" class="container">
 			<h1>Server Stats</h1>

@@ -1,11 +1,13 @@
 package com.ModDamage.EventInfo;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import com.ModDamage.ModDamage;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Parsing.EventDataProvider;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.misc.Multimap;
 
 public abstract class EventInfo
@@ -14,7 +16,7 @@ public abstract class EventInfo
 	
 	
 	protected abstract int myGetIndex(Class<?> cls, String name);
-	protected abstract Class<?> getClass(int index);
+	public abstract Class<?> getClass(int index);
 
 	public abstract Multimap<String, Class<?>> getAllNames();
 	public abstract Set<String> getAllNames(Class<?> cls);
@@ -24,6 +26,18 @@ public abstract class EventInfo
 	
 	public abstract int hashCode();
 	public abstract boolean equals(Object other);
+	
+
+	public List<List<String>> getNamesLists()
+	{
+		List<List<String>> namesLists = new ArrayList<List<String>>(getSize());
+		for (int i = 0; i < getSize(); i++)
+			namesLists.add(new ArrayList<String>());
+		
+		fillNamesLists(namesLists, 0);
+		return namesLists;
+	}
+	protected abstract void fillNamesLists(List<List<String>> namesLists, int offset);
 	
 	
 	

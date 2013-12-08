@@ -107,7 +107,7 @@ public class SimpleEventInfo extends EventInfo
 	}
 	
 	@Override
-	protected Class<?> getClass(int index)
+	public Class<?> getClass(int index)
 	{
 		if (index > classes.size()) return null;
 		return classes.get(index);
@@ -124,6 +124,17 @@ public class SimpleEventInfo extends EventInfo
 					allNames.put(name, entry.getKey());
 		}
 		return allNames;
+	}
+	
+	@Override
+	protected void fillNamesLists(List<List<String>> namesLists, int offset)
+	{
+		for (Entry<Class<?>, Map<String, Integer>> entry : map.entrySet())
+		{
+			for (Entry<String, Integer> mapEntry : entry.getValue().entrySet())
+				if (!mapEntry.getKey().startsWith("-"))
+					namesLists.get(mapEntry.getValue()).add(mapEntry.getKey());
+		}
 	}
 
 	@Override
