@@ -30,9 +30,12 @@ public class LiteralString implements IDataProvider<String>
 						
 						if (c == '\\') {
 							c = v.charAt(i++);
-							if (c == '&') {
-								sb.append("\u00a7");
-								continue;
+							if (c != '"') {
+								if (c == '&') {
+									sb.append("\u00a7");
+									continue;
+								}
+								sb.append('\\');
 							}
 						}
 						
