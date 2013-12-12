@@ -25,6 +25,7 @@ public class ItemProps
         Properties.register("maxamount", ItemHolder.class, "getMaxStackSize");
         Properties.register("type", ItemHolder.class, "getType", "setType");
         Properties.register("typeid", ItemHolder.class, "getTypeId", "setTypeId");
+        Properties.register("isenchanted", ItemHolder.class, "isEnchanted");
         
         // Meta
         Properties.register("name", ItemHolder.class, "getName", "setName");

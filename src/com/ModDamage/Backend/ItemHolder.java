@@ -97,6 +97,10 @@ public class ItemHolder {
     	if (item == null) return 0;
         return item.getMaxStackSize();
     }
+    
+    public boolean isEnchanted() {
+    	return !item.getEnchantments().isEmpty();
+    }
 
     public int getEnchantmentLevel(Enchantment enchantment) {
         return item.getEnchantmentLevel(enchantment);
