@@ -1,0 +1,32 @@
+<style>
+	.panel-title > a {
+		cursor: pointer;
+	}
+</style>
+
+<div class="container">
+
+	<div id="accordion" class="panel-group">
+
+		<div class="panel panel-default" ng-repeat="category in categories">
+			<div class="panel-heading">
+				<h2 class="panel-title" ng-click="select(category.name)"><a ng-bind="category.name"></a></h2>
+			</div>
+			<div id="collapseItem" class="panel-collapse" ng-class="{collapse: selected.category!=category.name}">
+				<div class="panel-body">
+					<div class="event" ng-repeat="event in category.events">
+						<h3 ng-bind="event.name"></h3>
+						<ul>
+							<li ng-repeat="item in event.info">
+								<span md-class="item.class"></span>: 
+								<span ng-repeat="name in item.names"><span ng-if="$index!=0">, </span><span ng-bind="name"></span></span>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+</div>

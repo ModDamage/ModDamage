@@ -1,0 +1,8 @@
+
+<div class="container">
+
+	<ul>
+		<li ng-repeat="prop in properties"><span md-class="prop.wants"></span><code class="pattern" ng-bind="prop.pattern"></code> => <span md-class="prop.provides"></span> &nbsp; <span ng-if="verbose">(<span md-class="prop.class"></span>)</span> <span ng-if="prop.settable" style="color: #888;">settable</span></li>
+	</ul>
+
+</div>

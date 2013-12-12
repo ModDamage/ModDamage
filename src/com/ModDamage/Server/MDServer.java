@@ -1,6 +1,7 @@
 package com.ModDamage.Server;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -16,6 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.bind.DatatypeConverter;
+
+import org.apache.commons.io.IOUtils;
 
 public class MDServer extends NanoHTTPD
 {
@@ -87,9 +90,20 @@ public class MDServer extends NanoHTTPD
 			@Override
 			public Response handle(Response res, Matcher m, String uri, String method, Properties header, Properties parms, Properties files)
 			{
-				res.addHeader("Location", "/static/stats.html");
-				
-				return send(res, HTTP_REDIRECT, MIME_HTML, "Redirecting to <a href=\"/static/stats.html\">/static/stats.html</a>");
+				final InputStream in = FileHandlers.getStream("/web/app.html");
+
+				if (in == null)
+					return send( res, MDServer.HTTP_NOTFOUND, MDServer.MIME_PLAINTEXT,
+							"Error 404, file not found: " + "/web/app.html");
+					
+				return send(res, new WebWriter() {
+					@Override
+					public void write(Writer o) throws IOException
+					{
+						IOUtils.copy(in, o);
+						in.close();
+					}
+				});
 			}
 		});
 		
@@ -107,7 +121,6 @@ public class MDServer extends NanoHTTPD
 				}
 			});
 		
-		addHandler("/events$", new Events());
 		
 		APIHandlers.register();
 		FileHandlers.register();

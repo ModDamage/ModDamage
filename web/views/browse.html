@@ -1,0 +1,37 @@
+
+
+<style type="text/css">
+</style>
+
+<div class="container">
+	<div ng-if="o.count != o.countNeeded">
+		<div class="progress"><div class="progress-bar" ng-style="{width: o.count / o.countNeeded * 100 + '%'}">
+			<span ng-bind-template="{{o.count}} / {{o.countNeeded}}"></span>
+		</div></div>
+	</div>
+
+	<pre ng-if="classInfo.error" ng-bind="classInfo.error"></pre>
+	<!-- <pre ng-bind="propertiesByWant|json"></pre> -->
+	<!-- <pre ng-bind="transformersByWant|json"></pre> -->
+
+	<div ng-if="classInfo &amp;&amp; !classInfo.error">
+		<h1><small ng-bind="classInfo.superclass?'class':'interface'"></small> <span ng-bind="classInfo.simpleName"></span></h1>
+
+		<h3>Properties</h3>
+
+		<div ng-repeat="set in propertySets">
+			<h4>
+				<span ng-if="set.downcast !== undefined"><span class="glyphicon glyphicon-circle-arrow-down" tooltip="This is a downcast, which means the following properties may return null. For example, if you have an Entity and are using a Wolf property, the property may fail because the entity is not a Wolf."></span> <span md-class="set.downcast"></span></span>
+				<span ng-if="set.cast !== undefined"> <span class="glyphicon glyphicon-circle-arrow-up"></span> <span md-class="set.cast"></span></span>
+				<span ng-if="set.transform !== undefined"> <span class="glyphicon glyphicon-circle-arrow-right"></span> <span md-class="set.transform.provides"></span></span>
+			</h4>
+
+
+			<ul>
+				<li ng-repeat="prop in set.properties"><code class="pattern" ng-bind="prop.pattern"></code> => <span md-class="prop.provides"></span> &nbsp; <span ng-if="verbose">(<span md-class="prop.class"></span>)</span> <span ng-if="prop.settable" style="color: #888;">settable</span></li>
+			</ul>
+		</div>
+
+		<pre ng-bind="classInfo|json" style="display: none;"></pre>
+	</div>
+</div>

@@ -20,7 +20,7 @@ abstract public class Routine
 {
 	protected static final Pattern anyPattern = Pattern.compile(".*");
 	//private static final RoutineBuilder builder = new RoutineBuilder();
-	private static final Map<Pattern, RoutineBuilder> registeredBaseRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
+	public static final Map<Pattern, RoutineBuilder> registeredBaseRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
 
 	private final String configString;
 
@@ -89,7 +89,7 @@ abstract public class Routine
 		return null;
 	}
 
-	protected abstract static class RoutineBuilder
+	public abstract static class RoutineBuilder
 	{
 		public abstract Routine getNew(Matcher matcher, EventInfo info);
 	}

@@ -1,0 +1,182 @@
+
+<style type="text/css">
+	body {
+		margin: 0;
+		padding: 0;
+	}
+	
+	
+	
+	#sidebar {
+		position: absolute;
+		left: 0;
+		width: 250px;
+		top: 50px;
+		bottom: 0;
+		
+		
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: moz-none;
+		-ms-user-select: none;
+		user-select: none;
+	}
+	
+	#sidebar #toolbar {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		
+		padding: 5px;
+		
+		
+		background-color: #fafafa;
+		background-image: -moz-linear-gradient(top, #ffffff, #f2f2f2);
+		background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#f2f2f2));
+		background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+		background-image: -o-linear-gradient(top, #ffffff, #f2f2f2);
+		background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+		background-repeat: repeat-x;
+		/*border: 1px solid #d4d4d4;
+		-webkit-border-radius: 4px;
+		   -moz-border-radius: 4px;
+		        border-radius: 4px;*/
+		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#fff2f2f2', GradientType=0);
+		
+		z-index: 10;
+	}
+	
+	#filelist {
+		padding-top: 2px;
+		
+		position: absolute;
+		top: 44px;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		
+		overflow: auto;
+		
+		z-index: 5;
+	}
+	
+	.filelist {
+		list-style: none outside none;
+		
+		margin: 0;
+		padding-left: 0px;
+	}
+	.filelist > li {
+		padding: 2px 0;
+		padding-left: 15px;
+		position: relative;
+	}
+	.filelist > li.active > .background {
+		background-color: #ace;
+		
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 100%;
+		z-index: -100;
+	}
+	.filelist > li > div > a:hover {
+		text-decoration: none;
+		cursor: pointer;
+	}
+	.filelist > li > div > a.file {
+		color: #000;
+	}
+	
+	.ace_editor {
+		position: absolute;
+		left: 250px;
+		right: 0;
+		top: 50px;
+		bottom: 0;
+	}
+	
+	#message-wrapper {
+		position: absolute;
+		/*top: 30px;*/
+		top: -5px;
+		left: 200px;
+		right: 200px;
+		
+		/*z-index: -1;*/
+		z-index: 100000;
+		/*text-align: center;*/
+		display: none;
+	}
+	
+	#message {
+		/*position: absolute;*/
+		/*top: 0;*/
+		/*left: 100px;*/
+		/*right: 100px;*/
+		/*display: inline;*/
+		margin: auto auto;
+		/*min-width: 300px;*/
+		width: 400px;
+		padding-right: 13px;
+		
+		z-index: 100000;
+		
+		padding-bottom: 3px;
+	}
+	
+	#message > div {
+		margin-left: 20px;
+	}
+	
+	#message .retry {
+		float: right;
+		top: 0;
+		right: -8px;
+	}
+	
+	#message .close {
+		top: 0;
+		right: -8px;
+	}
+</style>
+
+<script type="text/ng-template" id="filelist.html">
+	<ul class="filelist" ng-show="open">
+		<li ng-repeat="name in nameList" ng-controller="FileCtrl" ng-class="{active: selectedPath == path}">
+			<div class="background"></div>
+			<div ng-if="isFolder()">
+				<a class="folder" ng-bind="name" ng-click="toggle()"></a>
+				<div ng-include="'filelist.html'"></div>
+			</div>
+			<div ng-if="!isFolder()">
+				<a class="file" ng-bind="name" ng-click="openFile(path)"></a>
+			</div>
+		</li>
+	</ul>
+</script>
+
+<div id="message-wrapper">
+	<div id="message" class="alert alert-danger">
+		<span id="content">Blarg</span>
+		<button class="close" data-dismiss="alert">&times;</button>
+		<a class="retry" href="#" onclick="myAjaxRetry(); return false;">Retry</a>
+	</div>
+</div>
+
+<div id="sidebar">
+	<div id="toolbar" class="">
+		<!-- <a href="#" class="btn btn-small">Refresh</a> -->
+		<button type="button" ng-click="save()" class="btn btn-small btn-primary" ng-disabled="!changed" ng-bind="changed? 'Save' : 'Saved'">Saved</button>
+		<!-- <a href="#" class="btn btn-small btn-primary">Save</a> -->
+	</div>
+	<div id="filelist">
+		<div ng-include="'filelist.html'" ng-controller="FileCtrl"></div>
+	</div>
+</div>
+
+<div ui-ace="{showGutter: true, theme: 'tomorrow_night', mode: 'yaml', onLoad: onLoad, onChange: onChange}"></div>
+	

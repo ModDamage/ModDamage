@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html ng-app="app">
+	<head>
+		<title>ModDamage - Editor</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!-- Bootstrap -->
+		<link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="/static/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" media="screen">
+
+		<link href="/static/style.css" rel="stylesheet" media="screen">
+
+		<!--<script src="/static/js/jquery-2.0.3.js"></script>-->
+		<!--<script src="/static/bootstrap/js/bootstrap.min.js"></script>-->
+		<script src="/static/bower_components/angular/angular.min.js"></script>
+		<script src="/static/bower_components/angular-route/angular-route.min.js"></script>
+		<script src="/static/bower_components/angular-resource/angular-resource.min.js"></script>
+		<script src="/static/bower_components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.min.js"></script>
+		<script src="/static/bower_components/lodash/dist/lodash.compat.min.js"></script>
+		
+
+		<script src="/static/bower_components/ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/static/js/ui-ace.js"></script>
+
+		<script src="/static/app.js"></script>
+		<script src="/static/editor.js"></script>
+	</head>
+	<body style="padding-top: 70px;">
+		<nav class="navbar navbar-inverse navbar-fixed-top" ng-controller="NavCtrl">
+			<div class="navbar-inner">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#">ModDamage</a>
+				</div>
+				<div class="navbar-collapse collapse">
+						<ul class="nav navbar-nav">
+							<li ng-class="{active: isActive('/stats')}"><a href="#/stats">Stats</a></li>
+							<li ng-class="{active: isActive('/editor')}"><a href="#/editor">Editor</a></li>
+							<li ng-class="{active: isActive('/events')}"><a href="#/events">Events</a></li>
+							<li ng-class="{active: isActive('/routines')}"><a href="#/routines">Routines</a></li>
+							<li ng-class="{active: isActive('/properties')}"><a href="#/properties">Properties</a></li>
+							<li ng-class="{active: isActive('/transformers')}"><a href="#/transformers">Transformers</a></li>
+						</ul>
+						<ul class="nav navbar-nav pull-right">
+							<li><input type="checkbox" ng-model="$root.verbose" /></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+			</div>
+		</nav>
+	
+		<div ng-view></div>
+
+	</body>
+</html>

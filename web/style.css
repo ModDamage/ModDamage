@@ -1,0 +1,13 @@
+
+.md-class > a {
+	color: black;
+}
+
+.md-class > .simple {
+    font-weight: bold;
+}
+
+.md-class > .classicon {
+    font-size: 9pt;
+    color: #888;
+}

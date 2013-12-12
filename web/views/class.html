@@ -1,0 +1,25 @@
+
+
+<style type="text/css">
+</style>
+
+<div class="container">
+	<pre ng-if="classInfo.error" ng-bind="classInfo.error"></pre>
+
+	<div ng-if="classInfo &amp;&amp; !classInfo.error">
+		<h1><small ng-bind="classInfo.superclass?'class':'interface'"></small> <span ng-bind="classInfo.simpleName"></span></h1>
+
+		
+		<div><b>Canonical Name:</b>&nbsp;<code ng-bind="classInfo.canonicalName"></code></div>
+		<div><b>Name:</b>&nbsp;<code ng-bind="classInfo.name"></code></div>
+		<div ng-if="classInfo.componentType"><b>Component Type:</b>&nbsp;<span md-class="classInfo.componentType"></span></div>
+		<div ng-if="classInfo.enclosingClass"><b>Enclosing Class:</b>&nbsp;<span md-class="classInfo.enclosingClass"></span></div>
+		<div ng-if="classInfo.superclass"><b>Super Class:</b>&nbsp;<span md-class="classInfo.superclass"></span></div>
+		<div ng-if="classInfo.enumConstants.length"><b>Enum Values:</b>&nbsp;<span ng-repeat="cnst in classInfo.enumConstants"><span ng-bind="cnst.name"></span>, </span></div>
+		<div ng-if="classInfo.interfaces.length"><b>Interfaces:</b>&nbsp;<span ng-repeat="iface in classInfo.interfaces"><span md-class="iface"></span> </span></div>
+		<div ng-if="classInfo.classes.length"><b>Enclosed Classes:</b>&nbsp;<span ng-repeat="cls in classInfo.classes"><span md-class="cls"></span> </span></div>
+		
+		
+		<pre ng-bind="classInfo|json" style="display: none;"></pre>
+	</div>
+</div>

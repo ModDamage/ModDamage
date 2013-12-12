@@ -24,29 +24,56 @@ public class FileHandlers
 	public static File jarFile = null;
 	public static ZipFile jar = null;
 	
-	private static InputStream getResourceStream(String path)
+	public static void openJar()
 	{
-		return MDServer.class.getResourceAsStream(path);  // this fails a lot, such as after reload
+		if (jar != null) closeJar();
+		
+		jarFile = new File(ModDamage.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		
+		try
+		{
+			jar = new ZipFile(jarFile);
+		}
+		catch (ZipException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
-	private static InputStream getZipStream(String path)
+	public static void closeJar()
 	{
-		if (jar == null) {
-			jarFile = new File(ModDamage.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-			
+		if (jar != null) {
 			try
 			{
-				jar = new ZipFile(jarFile);
-			}
-			catch (ZipException e)
-			{
-				e.printStackTrace();
+				jar.close();
 			}
 			catch (IOException e)
 			{
 				e.printStackTrace();
 			}
 		}
+		jar = null;
+		jarFile = null;
+	}
+	
+	private static InputStream getResourceStream(String path)
+	{
+		return MDServer.class.getResourceAsStream(path);  // this fails a lot, such as after reload
+	}
+
+	private static InputStream getZipStream(String path)
+	{
+		return getZipStream(path, false);
+	}
+	private static InputStream getZipStream(String path, boolean triedAgain)
+	{
+		if (jar == null)
+			openJar();
+		
 		if (jar != null) {
 			if (path.startsWith("/")) path = path.substring(1);
 			
@@ -69,6 +96,11 @@ public class FileHandlers
 				       System.out.println(e.nextElement());
 				System.out.println();
 			}*/
+		}
+		if (!triedAgain) {
+			closeJar();
+			
+			return getZipStream(path, true);
 		}
 		return null;
 	}
@@ -99,6 +131,10 @@ public class FileHandlers
 		
 		if (in == null)
 			in = getPluginStream(path);
+		
+//		InputStream in = getPluginStream(path);
+//		if (in == null)
+//			in = getPluginStream(path);
 		
 		return in;
 	}

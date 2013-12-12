@@ -74,13 +74,13 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
         casemap = map;
     }
 
-	static class ParserData<T, S>
+	public static class ParserData<T, S>
 	{
-		final Class<T> provides;
-		final Class<S> wants;
-		final Pattern pattern;
-        final Automaton automaton;
-		final IDataParser<T, S> parser;
+		public final Class<T> provides;
+		public final Class<S> wants;
+		public final Pattern pattern;
+		public final Automaton automaton;
+		public final IDataParser<T, S> parser;
 //        final String regex;
 
         
@@ -120,25 +120,25 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 	
 	@SuppressWarnings("serial")
-	static class Parsers extends ArrayList<ParserData<?, ?>>
+	public static class Parsers extends ArrayList<ParserData<?, ?>>
 	{
         TokenAutomaton automaton;
 	}
 	
 	
 	
-	static Parsers parsers = new Parsers();
+	public static Parsers parsers = new Parsers();
 	
 	
 	public interface IDataTransformer<T, S>
 	{
 		IDataProvider<T> transform(EventInfo info, IDataProvider<S> dp);
 	}
-	static class TransformerData<T, S>
+	public static class TransformerData<T, S>
 	{
-		final Class<T> provides;
-		final Class<S> wants;
-		final IDataTransformer<T, S> transformer;
+		public final Class<T> provides;
+		public final Class<S> wants;
+		public final IDataTransformer<T, S> transformer;
 		
 		public TransformerData(Class<T> provides, Class<S> wants, IDataTransformer<T, S> transformer)
 		{
@@ -155,7 +155,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	}
 	
 	
-	static Map<Class<?>, ArrayList<TransformerData<?, ?>>> transformersByStart = new LinkedHashMap<Class<?>, ArrayList<TransformerData<?, ?>>>();
+	public static Map<Class<?>, ArrayList<TransformerData<?, ?>>> transformersByStart = new LinkedHashMap<Class<?>, ArrayList<TransformerData<?, ?>>>();
 	
 	public static <T, S> void register(Class<T> provides, Class<S> wants, Pattern pattern, IDataParser<T, S> parser)
 	{

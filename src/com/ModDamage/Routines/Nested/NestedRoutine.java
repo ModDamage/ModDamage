@@ -14,7 +14,7 @@ import com.ModDamage.Routines.Routine;
 
 public abstract class NestedRoutine extends Routine
 {
-	private static LinkedHashMap<Pattern, RoutineBuilder> registeredNestedRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
+	public static LinkedHashMap<Pattern, RoutineBuilder> registeredNestedRoutines = new LinkedHashMap<Pattern, RoutineBuilder>();
 
 	protected NestedRoutine(String configString){ super(configString); }
 
@@ -67,7 +67,7 @@ public abstract class NestedRoutine extends Routine
 		return null;
 	}
 
-	protected static abstract class RoutineBuilder
+	public static abstract class RoutineBuilder
 	{
 		public abstract NestedRoutine getNew(Matcher anyMatcher, Object nestedContent, EventInfo info);
 	}

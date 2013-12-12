@@ -1,0 +1,27 @@
+{
+  "name": "MD-web",
+  "homepage": "https://github.com/ModDamage/ModDamage",
+  "authors": [
+    "Matt Peterson <ricochet1k@gmail.com>"
+  ],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-resource": "~1.2.5",
+    "angular-route": "~1.2.5",
+    "angular-ui-ace": "master",
+    "angular-ui-bootstrap": "bootstrap3",
+    "angular": "~1.2.5",
+    "bootstrap": "~3.0.3",
+    "lodash": "~2.4.1"
+  },
+  "resolutions": {
+    "angular": "~1.2.5"
+  }
+}
