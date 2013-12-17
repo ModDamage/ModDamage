@@ -16,6 +16,6 @@ public class OfflinePlayerProps
 		Properties.register("isOp", OfflinePlayer.class, "isOp", "setOp");
 		Properties.register("hasPlayedBefore", OfflinePlayer.class, "hasPlayedBefore");
 
-        DataProvider.registerTransformer(OfflinePlayer.class,"getPlayer");
+        DataProvider.registerTransformer(OfflinePlayer.class, "getPlayer");
 	}
 }

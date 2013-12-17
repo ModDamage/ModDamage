@@ -1,5 +1,6 @@
 package com.ModDamage.Properties;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
@@ -59,5 +60,6 @@ public class PlayerProps
         DataProvider.registerTransformer(HumanEntity.class, "getInventory");
         Properties.register("enderchest", HumanEntity.class, "getEnderChest");
         DataProvider.registerTransformer(PlayerInventory.class, EntityEquipment.class);
+        DataProvider.registerTransformer(OfflinePlayer.class, Player.class);
 	}
 }
