@@ -99,10 +99,12 @@ public class ItemHolder {
     }
     
     public boolean isEnchanted() {
+    	if (item == null) return false;
     	return !item.getEnchantments().isEmpty();
     }
 
     public int getEnchantmentLevel(Enchantment enchantment) {
+    	if (item == null) return 0;
         return item.getEnchantmentLevel(enchantment);
     }
 
