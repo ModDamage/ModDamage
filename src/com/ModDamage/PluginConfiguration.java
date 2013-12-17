@@ -456,10 +456,10 @@ public class PluginConfiguration
 //		configPages = configStrings_ingame.size() / 9 + (configStrings_ingame.size() % 9 > 0 ? 1 : 0);
 //
 
-		if (preset.level.intValue() > worstLogMessageLevel.intValue())
-			worstLogMessageLevel = preset.level;
 
 		if(getDebugSetting().shouldOutput(preset.debugSetting)) {
+			if (preset.level.intValue() > worstLogMessageLevel.intValue())
+				worstLogMessageLevel = preset.level;
 			if (getDebugSetting() != DebugSetting.QUIET || logMessagesSoFar < maxLogMessagesToShow) {
 				String nestIndentation = "";
 				for(int i = 0; i < indentation; i++)
