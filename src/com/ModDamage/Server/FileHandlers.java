@@ -257,10 +257,16 @@ public class FileHandlers
 						return send( res, MDServer.HTTP_INTERNALERROR, MDServer.MIME_PLAINTEXT,
 								"Did not receive full file");
 					}
+					File file = new File(contentpath);
+					Long paramLength = Long.parseLong(parms.getProperty("length"));
+					if (file.length() != paramLength) {
+						return send( res, MDServer.HTTP_INTERNALERROR, MDServer.MIME_PLAINTEXT,
+								"Did not receive full file: " + file.length() + " | " + paramLength);
+					}
 					
 					try
 					{
-						FileUtils.copyFile(new File(contentpath), f);
+						FileUtils.copyFile(file, f);
 					}
 					catch (IOException e)
 					{
