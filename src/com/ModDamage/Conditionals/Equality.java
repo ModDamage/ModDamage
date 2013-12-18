@@ -68,6 +68,8 @@ public class Equality extends Conditional<Object>
 				@Override
 				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Object> leftDP, Matcher m, StringMatcher sm)
 				{
+					if (leftDP == null) return null;
+					
 					boolean equalTo = !m.group(1).equals("!");
 					
 					IDataProvider<Object> right = DataProvider.parse(info, null, sm.spawn());
