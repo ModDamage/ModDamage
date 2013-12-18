@@ -19,7 +19,7 @@ public class Heal extends MDEvent implements Listener
 	static final EventInfo myInfo = new SimpleEventInfo(
 			Entity.class,	"entity",
 			World.class,	"world",
-            EntityRegainHealthEvent.RegainReason.class,	"heal", // e.g. heal.type.EATING
+            EntityRegainHealthEvent.RegainReason.class,	"heal", "reason", "heal_reason", // e.g. heal.type.EATING
 			Double.class, 	"heal_amount", "-default",
 			Boolean.class,	"cancelled");
 	
