@@ -13,8 +13,9 @@ function EditorCtrl($scope, $http) {
 	
 	$scope.save = function save() {
 		var value = $scope.editor.getValue();
+		var length = utf8ByteCount(value);
 		
-		return $http({url: '/plugin'+$scope.selectedPath, method: 'PUT', params: {length: value.length}, data: value})
+		return $http({url: '/plugin'+$scope.selectedPath, method: 'PUT', params: {length: length}, data: value})
 			.success(function(data) {
 				if (data == "Saved OK")
 					$scope.changed = false;
