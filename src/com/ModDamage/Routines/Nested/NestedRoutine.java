@@ -25,6 +25,7 @@ public abstract class NestedRoutine extends Routine
 		While.register();
 		With.register();
 		Foreach.register();
+		For.register();
 		Delay.register();
 		Knockback.register();
 		SwitchRoutine.register();
