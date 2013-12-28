@@ -34,7 +34,7 @@ public class InventoryProps
 
         Properties.register("firstempty", Inventory.class, "firstEmpty");
         
-        Properties.register("held_slot", PlayerInventory.class, "getHeldItemSlot");
+        Properties.register("held_slot", PlayerInventory.class, "getHeldItemSlot", "setHeldItemSlot");
 
         DataProvider.register(ItemHolder.class, Inventory.class, Pattern.compile("_item", Pattern.CASE_INSENSITIVE),
                 new FunctionParser<ItemHolder, Inventory>(Integer.class) {
