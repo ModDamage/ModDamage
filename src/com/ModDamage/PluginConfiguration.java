@@ -11,7 +11,6 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -22,32 +21,29 @@ import java.util.regex.Pattern;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.error.YAMLException;
 
 import com.ModDamage.Alias.AliasManager;
 import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.Backend.ExternalPluginManager.GroupsManager;
+import com.ModDamage.Backend.ScriptLine;
+import com.ModDamage.Backend.ScriptLineHandler;
+import com.ModDamage.Backend.ScriptParser;
+import com.ModDamage.Events.Command;
+import com.ModDamage.Events.Repeat;
 import com.ModDamage.Server.MDServer;
-import com.ModDamage.Tags.TagManager;
 
-public class PluginConfiguration
+public class PluginConfiguration implements ScriptLineHandler
 {
 	public final static Logger log = Logger.getLogger("Minecraft");
-	protected static final String configString_defaultConfigPath = "config.yml";
+	protected static final String configString_defaultConfigPath = "config.mdscript";
 
 	public final Plugin plugin;
 	private final File configFile;
-//	private int configPages = 0;
-	private LinkedHashMap<String, Object> configMap;
 	public static String newline = System.getProperty("line.separator");
-//	private List<String> configStrings_ingame = new ArrayList<String>();
-//	private List<OutputPreset> configStrings_consoleFilters = new ArrayList<OutputPreset>();
-//	private List<String> configStrings_console = new ArrayList<String>();
-//	private List<OutputPreset> configStrings_ingameFilters = new ArrayList<OutputPreset>();
 	public static int indentation = 0;
 
-	DebugSetting currentSetting = DebugSetting.VERBOSE;
+	
+	
 	public static enum DebugSetting
 	{
 		QUIET, NORMAL, CONSOLE, VERBOSE;
@@ -102,39 +98,145 @@ public class PluginConfiguration
 		}
 	}
 	
-	public static boolean hasCaseInsensitiveValue(LinkedHashMap<String, Object> map, String key)
-	{
-		for(String mapKey : map.keySet())
-			if(mapKey.equalsIgnoreCase(key))
-				return true;
-		return false;
-	}
-	
-	public static Object getCaseInsensitiveValue(LinkedHashMap<String, Object> map, String key)
-	{
-		for(Entry<String, Object> entry : map.entrySet())
-			if(entry.getKey().equalsIgnoreCase(key))
-				return entry.getValue();
-		return null;
-	}
-	
-	public static boolean getBooleanValue(LinkedHashMap<String, Object> map, String key, boolean default_)
-	{
-		Object debugObject = getCaseInsensitiveValue(map, key);
-		if(debugObject != null)
-		{
-			if(debugObject instanceof Boolean)
-				return (Boolean)debugObject;
-			else
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: expected boolean value for "+key+", but got an " + debugObject.getClass().getName());
-		}
-		return default_;
-	}
 
 	public PluginConfiguration(Plugin plugin)
 	{
 		this.plugin = plugin;
 		this.configFile = new File(plugin.getDataFolder(), configString_defaultConfigPath);
+	}
+	
+
+	// Settings
+	DebugSetting currentSetting = DebugSetting.VERBOSE;
+	
+	int tags_save_interval;
+	
+	String serverBindaddr;
+	int serverPort;
+	String serverUsername;
+	String serverPassword;
+	
+	private void resetDefaultSettings()
+	{
+		currentSetting = DebugSetting.VERBOSE;
+		
+		tags_save_interval = 200;
+		
+		serverBindaddr = null;
+		serverPort = 8765;
+		serverUsername = null;
+		serverPassword = null;
+		
+		
+	}
+	
+	private class SettingsLineHandler implements ScriptLineHandler
+	{
+		private Pattern settingPattern = Pattern.compile("\\s*([^=]+?)\\s*=\\s*(.*?)\\s*");
+		
+		@Override
+		public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
+		{
+			Matcher m = settingPattern.matcher(line.line);
+			if (!m.matches()) {
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid setting: \"" + line.line + "\"");
+				return null;
+			}
+			
+			String name = m.group(1).trim().toLowerCase().replaceAll("\\s+", "-");
+			String value = m.group(2).trim();
+
+			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "setting: '"+name+"' = '"+value+"'");
+			
+			
+			if (name.equals("debugging")) {
+				try {
+					currentSetting = DebugSetting.valueOf(value.toUpperCase());
+				}
+				catch (IllegalArgumentException e) {
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad debug level: " + value);
+				}
+			}
+			else if (name.equals("disable-death-messages")) {
+				MDEvent.disableDeathMessages = Boolean.parseBoolean(value);
+			}
+			else if (name.equals("disable-join-messages")) {
+				MDEvent.disableJoinMessages = Boolean.parseBoolean(value);
+			}
+			else if (name.equals("disable-quit-messages")) {
+				MDEvent.disableQuitMessages = Boolean.parseBoolean(value);
+			}
+			else if (name.equals("disable-kick-messages")) {
+				MDEvent.disableKickMessages = Boolean.parseBoolean(value);
+			}
+			else if (name.equals("tags-save-interval")) {
+				try {
+					tags_save_interval = Integer.parseInt(value);
+				}
+				catch (NumberFormatException e) {
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad tags save interval: " + value);
+				}
+			}
+			else if (name.equals("server-bindaddr")) {
+				serverBindaddr = value;
+			}
+			else if (name.equals("server-port")) {
+				try {
+					serverPort = Integer.parseInt(value);
+				}
+				catch (NumberFormatException e) {
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad server port: " + value);
+				}
+			}
+			else if (name.equals("server-username")) {
+				serverUsername = value;
+			}
+			else if (name.equals("server-password")) {
+				serverPassword = value;
+			}
+			else {
+				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown setting: " + m.group(1));
+			}
+			
+			return null;
+		}
+
+		@Override
+		public void done()
+		{
+		}
+	}
+
+	@Override
+	public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
+	{
+		String[] words = line.line.split("\\s+");
+		if (words.length == 0) return null;
+		
+		String word0 = words[0].toLowerCase();
+		if (words.length == 1)
+		{
+			if (word0.equals("aliases")) {
+				return AliasManager.getLineHandler();
+			}
+			else if (word0.equals("settings")) {
+				return new SettingsLineHandler();
+			}
+		}
+		else
+		{
+			if (word0.equals("on") && words.length == 2) {
+				if (hasChildren)
+					return MDEvent.getEvent(words[1]).getLineHandler();
+				return null;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public void done()
+	{
 	}
 
 	public boolean reload(boolean reloadingAll)
@@ -144,11 +246,12 @@ public class PluginConfiguration
 		logMessagesSoFar = 0;
 
 		resetWorstLogMessageLevel();
+		resetDefaultSettings();
+		Command.instance.reset();
+		Repeat.instance.reset();
+		MDEvent.unregisterEvents();
+		MDEvent.clearEvents();
 		
-//		configStrings_ingame.clear();
-//		configStrings_ingameFilters.clear();
-//		configStrings_console.clear();
-//		configStrings_consoleFilters.clear();
 
 		addToLogRecord(OutputPreset.CONSTANT, "[" + plugin.getDescription().getName() + "] v" + plugin.getDescription().getVersion() + " loading...");
 
@@ -171,113 +274,63 @@ public class PluginConfiguration
 			else
 				addToLogRecord(OutputPreset.CONSTANT, "mcMMO: Using version " + ExternalPluginManager.getMcMMOPlugin().getDescription().getVersion());
 		}
+
 		
-		// scope this...because it looks nicer?
+
+		FileInputStream stream = null;
+		try
 		{
-			Object configObject = null;
-			FileInputStream stream;
-			try
-			{
-				Yaml yaml = new Yaml();
-				stream = new FileInputStream(configFile);
-				configObject = yaml.load(stream);
-				stream.close();
-				if(configObject == null)
-				{
-					if(!writeDefaults())
-						return false;
-				}
-				else configMap = castToStringMap(configString_defaultConfigPath, configObject);
-			}
-			catch (FileNotFoundException e)
-			{
-				if(!writeDefaults())
-					return false;
-			}
-			catch (IOException e){ printToLog(Level.SEVERE, "Fatal: could not close " + configString_defaultConfigPath + "!"); }
-			catch (YAMLException e)
-			{
-				// TODO 0.9.7 - Any way to catch this without firing off the stacktrace? Request for Bukkit to not
-				// auto-load config.
-				addToLogRecord(OutputPreset.FAILURE, logPrepend() + "Error in YAML configuration. Please use valid YAML in " + configString_defaultConfigPath + ".");
-				addToLogRecord(OutputPreset.FAILURE, e.toString());
-				LoadState.pluginState = LoadState.FAILURE;
+			stream = new FileInputStream(configFile);
+			ScriptParser parser = new ScriptParser(stream);
+			parser.parseScript(this);
+		}
+		catch (FileNotFoundException e)
+		{
+			if(!writeDefaults())
 				return false;
+		}
+		catch (IOException e){ printToLog(Level.SEVERE, "Fatal: could not close " + configString_defaultConfigPath + "!"); }
+		finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				}
+				catch (IOException e) { }
 			}
 		}
-
 		
+		MDEvent.registerEvents();
 
-	// load debug settings
-		Object debugObject = getCaseInsensitiveValue(configMap, "debugging");
-		if(debugObject != null)
-		{
-			String configuration_debug = debugObject.toString().toUpperCase();
-			this.currentSetting = null;
-			for(DebugSetting setting : DebugSetting.values())
-				if(configuration_debug.equalsIgnoreCase(setting.name()))
-					this.currentSetting = setting;
-			switch(getDebugSetting())
-			{
-				case QUIET:
-					addToLogRecord(OutputPreset.INFO, "\"Quiet\" mode active - suppressing noncritical debug messages and warnings.");
-					break;
-				case NORMAL:
-					addToLogRecord(OutputPreset.INFO, "Debugging active.");
-					break;
-				case VERBOSE:
-					addToLogRecord(OutputPreset.INFO, "Verbose debugging active.");
-					break;
-				default:
-					addToLogRecord(OutputPreset.WARNING_STRONG, "Debug string \"" + debugObject.toString() + "\" not recognized - defaulting to \"normal\".");
-					this.currentSetting = DebugSetting.NORMAL;
-					break;
-			}
-		}
 		
 		// Default message settings
-		MDEvent.disableDeathMessages = getBooleanValue(configMap, "disable-deathmessages", false);
 		if(MDEvent.disableDeathMessages)
 			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla death messages disabled.");
 		else
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla death messages enabled.");
 		
-		MDEvent.disableJoinMessages = getBooleanValue(configMap, "disable-joinmessages", false);
 		if(MDEvent.disableJoinMessages)
 			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla join messages disabled.");
 		else
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla join messages enabled.");
 		
-		MDEvent.disableQuitMessages = getBooleanValue(configMap, "disable-quitmessages", false);
 		if(MDEvent.disableQuitMessages)
 			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla quit messages disabled.");
 		else
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla quit messages enabled.");
 		
-		MDEvent.disableKickMessages = getBooleanValue(configMap, "disable-kickmessages", false);
 		if(MDEvent.disableKickMessages)
 			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla kick messages disabled.");
 		else
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla kick messages enabled.");
 		
 
-		String bindaddr = (String) getCaseInsensitiveValue(configMap, "server-bindaddr");
-		Integer port = (Integer) getCaseInsensitiveValue(configMap, "server-port");
-		String username = (String) getCaseInsensitiveValue(configMap, "server-username");
-		String password = (String) getCaseInsensitiveValue(configMap, "server-password");
-		if (bindaddr == null || bindaddr.isEmpty() || bindaddr.equals("*")) bindaddr = null;
-		if(port != null && username != null && password != null) {
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Web server starting on "+ (bindaddr != null? bindaddr : "*") +":"+ port);
-			MDServer.startServer(bindaddr, port, username, password);
+		if(serverUsername != null && serverPassword != null) {
+			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Web server starting on port "+ (serverBindaddr != null? serverBindaddr : "*") +":"+ serverPort);
+			MDServer.startServer(serverBindaddr, serverPort, serverUsername, serverPassword);
 		} else
 			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Web server not started");
 		
-		// Aliasing
-		AliasManager.reload();
-
-		// Routines
-		MDEvent.reload();
-
+		
 		LoadState.pluginState = LoadState.combineStates(MDEvent.combinedLoadState, AliasManager.getState());
 		
 		String timer = "(" + (System.nanoTime() - reloadStartTime)/1000 + " \u00b5s) ";
@@ -341,20 +394,29 @@ public class PluginConfiguration
 		String outputString = "#Auto-generated config at " + (new Date()).toString() + "." + newline + "#See the wiki at https://github.com/ModDamage/ModDamage/wiki for more information." + newline;
 
 
-		outputString += newline + "# Events";
-		for (Entry<String, List<MDEvent>> category : MDEvent.eventCategories.entrySet())
-		{
-			outputString += newline + "## "+category.getKey()+" Events";
-			for (MDEvent event : category.getValue())
-				outputString += newline + event.name() + ":";
-			outputString += newline;
-		}
+		outputString += newline + newline +  "Settings";
+		outputString += newline + "\t## Port probably has to be larger than 1024";
+		outputString += newline + "\t## Uncomment the following to enable the server";
+		outputString += newline + "\t## bindaddr should be left empty if you want the server to be accessable from anywhere";
+		outputString += newline + "\t#server-bindaddr = ";
+		outputString += newline + "\t#server port = 8765";
+		outputString += newline + "\t#server username = mdadmin";
+		outputString += newline + "\t#server password = nuggets";
+
+		outputString += newline;
+		outputString += newline + "\tdebugging = normal";
+		outputString += newline + "\tdisable death messages = no";
+		outputString += newline + "\tdisable join messages = no";
+		outputString += newline + "\tdisable quit messages = no";
+		outputString += newline + "\tdisable kick messages = no";
+		outputString += newline + "\t#This interval should be tinkered with ONLY if you understand the implications.";
+		outputString += newline + "\ttags save interval = " + tags_save_interval;
+
 		
-		
-		outputString += newline + newline + "Aliases:";
+		outputString += newline + newline + "Aliases";
 		for(AliasManager aliasType : AliasManager.values())
 		{
-			outputString += newline + "    " + aliasType.name() + ":";
+			outputString += newline + "\t" + aliasType.name() + "";
 			switch(aliasType)
 			{
 				case Material:
@@ -363,9 +425,9 @@ public class PluginConfiguration
 							{ "WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_" } };
 					for(String toolType : toolAliases[0])
 					{
-						outputString += newline + "        " + toolType + ":";
+						outputString += newline + "\t\t" + toolType + "";
 						for(String toolMaterial : toolAliases[1])
-							outputString += newline + "            - '" + toolMaterial + toolType.toUpperCase() + "'";
+							outputString += newline + "\t\t\t" + toolMaterial + toolType.toUpperCase();
 					}
 					break;
 					
@@ -373,24 +435,17 @@ public class PluginConfiguration
 			}
 		}
 		
-		outputString += newline + newline +  "## Server configuration";
-		outputString += newline + "## Port probably has to be larger than 1024";
-		outputString += newline + "## Uncomment the following to enable the server";
-		outputString += newline + "## bindaddr should be left empty if you want the server to be accessable from anywhere";
-		outputString += newline + "#server-bindaddr: ";
-		outputString += newline + "#server-port: 8765";
-		outputString += newline + "#server-username: mdadmin";
-		outputString += newline + "#server-password: nuggets";
 
-		outputString += newline + newline +  "#Miscellaneous configuration";
-		outputString += newline + "debugging: normal";
-		outputString += newline + "disable-deathMessages: false";
-		outputString += newline + "disable-joinMessages: false";
-		outputString += newline + "disable-quitMessages: false";
-		outputString += newline + "disable-kickMessages: false";
-		outputString += newline + "Tagging: #These intervals should be tinkered with ONLY if you understand the implications.";
-		outputString += newline + "    interval-save: " + TagManager.defaultInterval;
-		outputString += newline + "    interval-clean: " + TagManager.defaultInterval;
+		outputString += newline + "# Events";
+		for (Entry<String, List<MDEvent>> category : MDEvent.eventCategories.entrySet())
+		{
+			outputString += newline + "## "+category.getKey()+" Events";
+			for (MDEvent event : category.getValue())
+				outputString += newline + "on " + event.name();
+			outputString += newline;
+		}
+		
+		
 		printToLog(Level.INFO, "Completed auto-generation of " + configString_defaultConfigPath + ".");
 
 		try
@@ -400,7 +455,8 @@ public class PluginConfiguration
 			writer.close();
 
 			FileInputStream stream = new FileInputStream(configFile);
-			configMap = castToStringMap("" + configString_defaultConfigPath + "", (new Yaml()).load(stream));
+			ScriptParser parser = new ScriptParser(stream);
+			parser.parseScript(this);
 			stream.close();
 		}
 		catch (IOException e)
@@ -410,18 +466,6 @@ public class PluginConfiguration
 		return true;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public LinkedHashMap<String, Object> castToStringMap(String targetName, Object object)
-	{
-		if(object != null)
-		{
-			if(object instanceof LinkedHashMap)
-				return (LinkedHashMap<String, Object>)object;
-			addToLogRecord(OutputPreset.FAILURE, "Error: expected map of values for \"" + targetName + "\": "+object.getClass().getCanonicalName()+" :: "+object.toString());
-		}
-		else addToLogRecord(OutputPreset.WARNING, "No configuration values found for \"" + targetName + "\"");
-		return null;
-	}
 	
 	public static int maxLogMessagesToShow = 50;
 	public static int logMessagesSoFar = 0;
@@ -432,29 +476,13 @@ public class PluginConfiguration
 		worstLogMessageLevel = Level.INFO;
 	}
 	
+	public void addToLogRecord(OutputPreset preset, ScriptLine line, String message)
+	{
+		addToLogRecord(preset, line.lineNumber + ": " + message);
+	}
+	
 	public void addToLogRecord(OutputPreset preset, String message)
 	{
-//		if(message.length() > 50)
-//		{
-//			configStrings_ingame.add(preset.color + "" +  indentation + "] " + message.substring(0, 49));
-//			configStrings_ingameFilters.add(preset);
-//			String ingameString = message.substring(49);
-//			while (ingameString.length() > 50)
-//			{
-//				configStrings_ingame.add("     " + preset.color + ingameString.substring(0, 49));
-//				configStrings_ingameFilters.add(preset);
-//				ingameString = ingameString.substring(49);
-//			}
-//			configStrings_ingame.add("     " + preset.color + ingameString);
-//			configStrings_ingameFilters.add(preset);
-//		}
-//		else
-//		{
-//			configStrings_ingame.add(preset.color + "" + indentation + "] " + message);
-//			configStrings_ingameFilters.add(preset);
-//		}
-//		configPages = configStrings_ingame.size() / 9 + (configStrings_ingame.size() % 9 > 0 ? 1 : 0);
-//
 
 
 		if(getDebugSetting().shouldOutput(preset.debugSetting)) {
@@ -464,67 +492,12 @@ public class PluginConfiguration
 				String nestIndentation = "";
 				for(int i = 0; i < indentation; i++)
 					nestIndentation += "    ";
-//				configStrings_console.add(nestIndentation + message);
-//				configStrings_consoleFilters.add(preset);
 				
 				log.log(preset.level, nestIndentation + message);
 			}
 			logMessagesSoFar ++;
 		}
 	}
-
-	// Spout GUI?
-//	public boolean sendLogRecord(Player player, int pageNumber)
-//	{
-//		if(player == null)
-//		{
-//			for(int i = 0; i < configStrings_console.size(); i++)
-//				if(getDebugSetting().shouldOutput(configStrings_consoleFilters.get(i).debugSetting))
-//					log.log(configStrings_consoleFilters.get(i).level, configStrings_console.get(i));
-//			return true;
-//		}
-//		else if(pageNumber > 0)
-//		{
-//			if(pageNumber <= configPages)
-//			{
-//				player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Log Record: (" + pageNumber + "/" + configPages + ")");
-//				for(int i = (9 * (pageNumber - 1)); i < (configStrings_ingame.size() < (9 * pageNumber) ? configStrings_ingame.size() : (9 * pageNumber)); i++)
-//					if(!configStrings_ingameFilters.get(i).equals(OutputPreset.CONSOLE_ONLY) && getDebugSetting().shouldOutput(configStrings_ingameFilters.get(i).debugSetting))
-//						player.sendMessage(configStrings_ingame.get(i));
-//				return true;
-//			}
-//		}
-//		else
-//		{
-//			player.sendMessage(ModDamage.chatPrepend(ChatColor.GOLD) + "Config Overview: " + LoadState.pluginState.statusString() + ChatColor.GOLD + " (Total pages: " + configPages + ")");
-//			player.sendMessage(ChatColor.AQUA + "Aliases:    " + AliasManager.getState().statusString() + "        " + ChatColor.DARK_GRAY + "Routines: " + MDEvent.state.statusString());
-////			player.sendMessage(ChatColor.DARK_AQUA + " Armor: " + AliasManager.Armor.getSpecificLoadState().statusString() + " " + ChatColor.DARK_GREEN + "Damage: " + ModDamageEventHandler.Damage.specificLoadState.statusString());
-////			player.sendMessage(ChatColor.DARK_AQUA + " Element: " + AliasManager.Type.getSpecificLoadState().statusString() + " " + ChatColor.DARK_GREEN + "Death: " + ModDamageEventHandler.Death.specificLoadState.statusString());
-////			player.sendMessage(ChatColor.DARK_AQUA + " Group: " + AliasManager.Group.getSpecificLoadState().statusString() + " " + ChatColor.DARK_GREEN + "Heal: " + ModDamageEventHandler.Heal.specificLoadState.statusString());
-////			player.sendMessage(ChatColor.DARK_AQUA + " Material: " + AliasManager.Material.getSpecificLoadState().statusString() + " " + ChatColor.DARK_GREEN + "ProjectileHit: " + ModDamageEventHandler.ProjectileHit.specificLoadState.statusString());
-////			player.sendMessage(ChatColor.DARK_AQUA + " Message: " + AliasManager.Message.getSpecificLoadState().statusString() + " " + ChatColor.DARK_GREEN + "Spawn: " + ModDamageEventHandler.Spawn.specificLoadState.statusString());
-////			player.sendMessage(ChatColor.DARK_AQUA + " Region: " + AliasManager.Region.getSpecificLoadState().statusString() + " " + ChatColor.DARK_GREEN + "Tame: " + ModDamageEventHandler.Tame.specificLoadState.statusString());
-////			player.sendMessage(ChatColor.DARK_AQUA + " Routine: " + AliasManager.Routine.getSpecificLoadState().statusString());
-//			player.sendMessage(ChatColor.DARK_AQUA + "   Routine:    " + AliasManager.Routine.getSpecificLoadState().statusString());
-//			String bottomString = null;
-//			switch(LoadState.pluginState)
-//			{
-//				case NOT_LOADED:
-//					bottomString = ChatColor.GRAY + "No configuration found.";
-//					break;
-//				case FAILURE:
-//					bottomString = ChatColor.DARK_RED + "There were one or more read errors in config.";
-//					break;
-//				case SUCCESS:
-//					bottomString = ChatColor.GREEN + "No errors loading configuration!";
-//					break;
-//					
-//				default: throw new Error("Unknown state: "+LoadState.pluginState+" $PC466");
-//			}
-//			player.sendMessage(bottomString);
-//		}
-//		return false;
-//	}
 
 	public void toggleDebugging(Player player)
 	{
@@ -570,7 +543,7 @@ public class PluginConfiguration
 		{
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			Matcher matcher;
-			StringBuffer contents = new StringBuffer();
+			StringBuffer contents = new StringBuffer((int) file.length());
 			String line;
 			boolean changedFlag = false;
 			while (reader.ready())
@@ -605,8 +578,6 @@ public class PluginConfiguration
 	
 	public String logPrepend(){ return "[" + plugin.getDescription().getName() + "] "; }
 	public void printToLog(Level level, String message){ log.log(level, "[" + plugin.getDescription().getName() + "] " + message); }
-
-	public LinkedHashMap<String, Object> getConfigMap(){ return configMap; }
 
 	public DebugSetting getDebugSetting()
 	{

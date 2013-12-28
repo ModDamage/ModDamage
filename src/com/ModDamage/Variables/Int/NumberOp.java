@@ -151,7 +151,7 @@ public class NumberOp extends NumberExp<Number>
 	
 	private final Operator operator;
 	private final IDataProvider<Number> rightDP;
-	protected NumberOp(IDataProvider<Number> leftDP, Operator operator, IDataProvider<Number> rightDP)
+	public NumberOp(IDataProvider<Number> leftDP, Operator operator, IDataProvider<Number> rightDP)
 	{
 		super(Number.class, leftDP);
 		this.operator = operator;

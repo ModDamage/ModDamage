@@ -56,6 +56,8 @@ public class PlayerProps
 				}
 			});
         
+        Properties.register("ishealthscaled", Player.class, "isHealthScaled", "setHealthScaled");
+        Properties.register("healthscale", Player.class, "getHealthScale", "setHealthScale");
 
         DataProvider.registerTransformer(HumanEntity.class, "getInventory");
         Properties.register("enderchest", HumanEntity.class, "getEnderChest");

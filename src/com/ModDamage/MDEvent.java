@@ -10,14 +10,12 @@ import java.util.Map.Entry;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
 
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EventFinishedListener;
+import com.ModDamage.Backend.ScriptLineHandler;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Events.Command;
@@ -79,6 +77,7 @@ import com.ModDamage.Routines.Routines;
 
 public class MDEvent implements Listener
 {
+	public static Map<String, MDEvent> allEvents = new HashMap<String, MDEvent>();
 	public static Map<String, List<MDEvent>> eventCategories = new HashMap<String, List<MDEvent>>();
 	
 	public static void registerVanillaEvents()
@@ -192,6 +191,11 @@ public class MDEvent implements Listener
 		}
 
 		eventCategories.put(category, newEvents);
+		
+		for (MDEvent event : newEvents)
+		{
+			allEvents.put(event.name(), event);
+		}
 	}
 	
 	public static void addEvent(String category, MDEvent event)
@@ -227,82 +231,49 @@ public class MDEvent implements Listener
 	protected LoadState loadState = LoadState.NOT_LOADED;
 	protected static LoadState combinedLoadState = LoadState.NOT_LOADED;
 	
-	protected LoadState getState(){ return loadState; }
+	public LoadState getState(){ return loadState; }
 	
 	public String name() { return this.getClass().getSimpleName(); }
 	
-	protected void load(Object nestedContent)
+
+	public ScriptLineHandler getLineHandler()
 	{
-		routines = RoutineAliaser.parseRoutines(nestedContent, myInfo);
-		loadState = routines != null? LoadState.SUCCESS : LoadState.FAILURE;
-		if (loadState != LoadState.SUCCESS)
-			this.routines = null;
+		if (routines == null)
+			routines = new Routines();
+
+		ModDamage.addToLogRecord(OutputPreset.INFO, "on " + name());
+		
+		loadState = LoadState.SUCCESS;
+		combinedLoadState = LoadState.combineStates(combinedLoadState, loadState);
+		
+		return routines.getLineHandler(myInfo);
 	}
 	
-	protected static void reload()
+	
+	public static MDEvent getEvent(String name)
 	{
-		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading routines...");
-		combinedLoadState = LoadState.NOT_LOADED;
-		ModDamage.changeIndentation(true);
-		
-		PluginManager pluginManager = Bukkit.getPluginManager();
-		Plugin plugin = ModDamage.getPluginConfiguration().plugin;
-		
-		for (List<MDEvent> events : eventCategories.values())
-		{
-			for (MDEvent event : events)
-			{
-				HandlerList.unregisterAll(event);
-				
-				Object nestedContent = PluginConfiguration.getCaseInsensitiveValue(ModDamage.getPluginConfiguration().getConfigMap(), event.name());
-				if(nestedContent != null)
-				{
-					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-					ModDamage.addToLogRecord(OutputPreset.INFO, event.name() + " configuration:");
-					event.load(nestedContent);
-				}
-				else
-				{
-					event.loadState = LoadState.NOT_LOADED;
-					event.routines = new Routines();
-				}
-				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-				switch(event.loadState)
-				{
-					case NOT_LOADED:
-						ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, event.name() + " configuration not found.");
-						break;
-					case FAILURE:
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error in " + event.name() + " configuration.");
-						break;
-					case SUCCESS:
-						ModDamage.addToLogRecord(OutputPreset.INFO, "End " + event.name() + " configuration.");
-						break;
-						
-					default: throw new Error("Unknown state: "+event.loadState+" $MDE125");
-				}
-				combinedLoadState = LoadState.combineStates(combinedLoadState, event.loadState);
-				
-				if (event.loadState == LoadState.SUCCESS)
-					pluginManager.registerEvents(event, plugin);
-			}
+		return allEvents.get(name);
+	}
+	
+	public static void registerEvents()
+	{
+		for (Entry<String, MDEvent> entry : allEvents.entrySet()) {
+			if (entry.getValue().routines != null && !entry.getValue().routines.isEmpty())
+				Bukkit.getPluginManager().registerEvents(entry.getValue(), ModDamage.configuration.plugin);
 		}
-		ModDamage.changeIndentation(false);
-		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-		switch(combinedLoadState)
-		{
-			case NOT_LOADED:
-				ModDamage.addToLogRecord(OutputPreset.WARNING, "No routines loaded! Are any routines defined?");
-				break;
-			case FAILURE:
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "One or more errors occurred while loading routines.");
-				break;
-			case SUCCESS:
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Routines loaded!");
-				break;
-				
-			default: throw new Error("Unknown state: "+combinedLoadState+" $MDE143");
+	}
+	
+	public static void unregisterEvents()
+	{
+		for (Entry<String, MDEvent> entry : allEvents.entrySet()) {
+			HandlerList.unregisterAll(entry.getValue());
+		}
+	}
+	
+	public static void clearEvents()
+	{
+		for (Entry<String, MDEvent> entry : allEvents.entrySet()) {
+			entry.getValue().routines = null;
 		}
 	}
 

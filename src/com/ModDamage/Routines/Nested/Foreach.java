@@ -4,15 +4,16 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
+import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
 import com.ModDamage.Expressions.ListExp;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routines;
 
 @SuppressWarnings("rawtypes")
@@ -20,14 +21,13 @@ public class Foreach extends NestedRoutine
 {
 	protected final IDataProvider<List> listDP;
 	protected final EventInfo myInfo;
-	protected final Routines routines;
+	protected final Routines routines = new Routines();
 
-	private Foreach(String configString, IDataProvider<List> listDP, EventInfo myInfo, Routines routines)
+	private Foreach(ScriptLine scriptLine, IDataProvider<List> listDP, EventInfo myInfo)
 	{
-		super(configString);
+		super(scriptLine);
 		this.listDP = listDP;
 		this.myInfo = myInfo;
-		this.routines = routines;
 	}
 
 	@Override
@@ -45,18 +45,15 @@ public class Foreach extends NestedRoutine
 
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("for(?:\\s*each)?\\s+(.+?)\\s+as\\s+(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("for(?:\\s*each)?\\s+(.+?)\\s+as\\s+(\\w+)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 
 	}
 
-	protected final static class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static class RoutineFactory extends NestedRoutine.RoutineFactory
 	{
 		@Override
-		public Foreach getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			if(matcher == null || nestedContent == null)
-				return null;
-
 			String name = matcher.group(2);
 			IDataProvider<List> listDP = DataProvider.parse(info, List.class, matcher.group(1));
 			if (listDP == null) return null;
@@ -65,17 +62,10 @@ public class Foreach extends NestedRoutine
 
 			EventInfo myInfo = info.chain(new SimpleEventInfo(alistDP.providesElement(), name));
 
-			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "Foreach " + listDP + " as " + name);
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Foreach " + listDP + " as " + name);
 
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent, myInfo);
-			if(routines == null)
-			{
-				NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid content in Foreach");
-				return null;
-			}
-
-			NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End Foreach");
-			return new Foreach(matcher.group(), listDP, myInfo, routines);
+			Foreach routine = new Foreach(scriptLine, listDP, myInfo);
+			return new NestedRoutineBuilder(routine, routine.routines, myInfo);
 		}
 	}
 }

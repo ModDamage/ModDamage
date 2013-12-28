@@ -7,22 +7,23 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class Teleport extends Routine
 {
 	private final IDataProvider<Entity> entityDP;
     private final IDataProvider<Location> locDP;
 	private final IDataProvider<Number> yawDP, pitchDP;
-	protected Teleport(String configString, IDataProvider<Entity> entityDP, IDataProvider<Location> locDP, IDataProvider<Number> yawDP, IDataProvider<Number> pitchDP)
+	protected Teleport(ScriptLine scriptLine, IDataProvider<Entity> entityDP, IDataProvider<Location> locDP, IDataProvider<Number> yawDP, IDataProvider<Number> pitchDP)
 	{
-		super(configString);
+		super(scriptLine);
 		this.entityDP = entityDP;
 		this.locDP = locDP;
 		this.yawDP = yawDP;
@@ -59,15 +60,15 @@ public class Teleport extends Routine
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("(.+?)(?:effect)?\\.teleport\\.(.+)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(.+?)(?:effect)?\\.teleport\\.(.+)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 	
 	private static Pattern dotPattern = Pattern.compile("\\s*\\.\\s*");
 
-	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	protected static class RoutineFactory extends Routine.RoutineFactory
 	{
 		@Override
-		public Teleport getNew(Matcher matcher, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{ 
 			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
 			if (entityDP == null) return null;
@@ -91,7 +92,7 @@ public class Teleport extends Routine
 			}
 			
 			ModDamage.addToLogRecord(OutputPreset.INFO, "Teleport: " + entityDP + " to " + locDP + yaw_pitch);
-			return new Teleport(matcher.group(), entityDP, locDP, yaw, pitch);
+			return new RoutineBuilder(new Teleport(scriptLine, entityDP, locDP, yaw, pitch));
 		}
 	}
 }

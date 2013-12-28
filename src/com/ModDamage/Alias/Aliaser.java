@@ -3,17 +3,16 @@ package com.ModDamage.Alias;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.ScriptLine;
+import com.ModDamage.Backend.ScriptLineHandler;
 
-abstract public class Aliaser<Type, StoredInfoClass>
+abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandler
 {
 	private Map<String, StoredInfoClass> thisMap = new HashMap<String, StoredInfoClass>();
 	protected final String name;
@@ -33,7 +32,7 @@ abstract public class Aliaser<Type, StoredInfoClass>
 		return getDefaultValue();* /
 	}*/
 
-	abstract public boolean completeAlias(String key, Object nestedContent);
+//	abstract public boolean completeAlias(String key, Object nestedContent);
 
 	//abstract protected Type matchNonAlias(String key);
 	
@@ -64,31 +63,37 @@ abstract public class Aliaser<Type, StoredInfoClass>
 		loadState = LoadState.NOT_LOADED;
 	}
 	
-	public void load(LinkedHashMap<String, Object> rawAliases)
+
+	@Override
+	public void done()
 	{
-		clear();
-		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-		if(rawAliases != null && !rawAliases.isEmpty())
-		{
-			loadState = LoadState.SUCCESS;
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, this.name + " aliases found, parsing...");
-			for(String alias : rawAliases.keySet())
-				thisMap.put("_" + alias, getDefaultValue());
-			for(Entry<String, Object> entry : rawAliases.entrySet())
-			{
-				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-				if(entry.getValue() != null)
-				{
-					if(!this.completeAlias("_" + entry.getKey(), entry.getValue()))
-						this.loadState = LoadState.FAILURE;
-				}
-				else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Found empty " + this.name.toLowerCase() + " alias \"" + entry.getKey() + "\", ignoring...");
-			}
-			for(String alias : thisMap.keySet())
-				if(thisMap.get(alias) == null)
-					thisMap.remove(alias);
-		}
 	}
+	
+//	public void load(LinkedHashMap<String, Object> rawAliases)
+//	{
+//		clear();
+//		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+//		if(rawAliases != null && !rawAliases.isEmpty())
+//		{
+//			loadState = LoadState.SUCCESS;
+//			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, this.name + " aliases found, parsing...");
+//			for(String alias : rawAliases.keySet())
+//				thisMap.put("_" + alias, getDefaultValue());
+//			for(Entry<String, Object> entry : rawAliases.entrySet())
+//			{
+//				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+//				if(entry.getValue() != null)
+//				{
+//					if(!this.completeAlias("_" + entry.getKey(), entry.getValue()))
+//						this.loadState = LoadState.FAILURE;
+//				}
+//				else ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Found empty " + this.name.toLowerCase() + " alias \"" + entry.getKey() + "\", ignoring...");
+//			}
+//			for(String alias : thisMap.keySet())
+//				if(thisMap.get(alias) == null)
+//					thisMap.remove(alias);
+//		}
+//	}
 	
 	//abstract protected StoredInfoClass getNewStorageClass(Type value);
 	protected StoredInfoClass getDefaultValue(){ return null; }
@@ -96,23 +101,54 @@ abstract public class Aliaser<Type, StoredInfoClass>
 	abstract public static class SingleValueAliaser<Type> extends Aliaser<Type, Type>
 	{
 		SingleValueAliaser(String name){ super(name); }
-
+		
 		@Override
-		public boolean completeAlias(String key, Object nestedContent)
+		public ScriptLineHandler handleLine(final ScriptLine nameLine, boolean hasChildren)
 		{
-			if(nestedContent instanceof String)
-			{
-				Type matchedItem = matchAlias((String)nestedContent);
-				if(matchedItem != null)
+			return new ScriptLineHandler() {
+				Type value;
+				boolean hasValue;
+				
+				@Override
+				public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
 				{
-					//ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding value \"" + getObjectName(matchedItem) + "\"");
-					putAlias(key, matchedItem);
-					return true;
+					if (hasValue) {
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, line, name+" alias _"+nameLine.line+" cannot have multiple values.");
+						return null;
+					}
+					value = matchAlias(line.line);
+					hasValue = true;
+					return null;
 				}
-			}
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error adding alias \"" + key + "\" - unrecognized value \"" + nestedContent.toString() + "\"");
-			return false;
+				
+				@Override
+				public void done()
+				{
+					if (!hasValue) {
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, nameLine, name+" alias _"+nameLine.line+" has no value.");
+						return;
+					}
+					putAlias("_"+nameLine.line, value);
+				}
+			};
 		}
+
+//		@Override
+//		public boolean completeAlias(String key, Object nestedContent)
+//		{
+//			if(nestedContent instanceof String)
+//			{
+//				Type matchedItem = matchAlias((String)nestedContent);
+//				if(matchedItem != null)
+//				{
+//					//ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding value \"" + getObjectName(matchedItem) + "\"");
+//					putAlias(key, matchedItem);
+//					return true;
+//				}
+//			}
+//			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error adding alias \"" + key + "\" - unrecognized value \"" + nestedContent.toString() + "\"");
+//			return false;
+//		}
 		
 		public Type matchAlias(String key)
 		{
@@ -146,66 +182,101 @@ abstract public class Aliaser<Type, StoredInfoClass>
 			
 			aliases.addAll(items);
 		}
+		
 
 		@Override
-		public boolean completeAlias(String key, Object nestedContent)
+		public ScriptLineHandler handleLine(final ScriptLine nameLine, boolean hasChildren)
 		{
-			boolean failFlag = false;
-			HashSet<InfoType> matchedItems = new HashSet<InfoType>();
-			List<String> foundValues = new ArrayList<String>();
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Adding " + name + " alias \"" + key + "\"");
-			ModDamage.changeIndentation(true);
-			if(nestedContent instanceof String)
-			{
-				foundValues.add(((String)nestedContent));
-			}
-			else if(nestedContent instanceof List)
-			{
-				for(Object object : ((List<?>)nestedContent))
+			return new ScriptLineHandler() {
+				Collection<InfoType> values = new ArrayList<InfoType>();
+				boolean hasValue;
+				
+				@Override
+				public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
 				{
-					if(object instanceof String)
-						foundValues.add(((String)object));
-					else
-					{
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized object " + nestedContent.toString());
-						failFlag = true;
+					Collection<InfoType> subvalues = matchAlias(line.line);
+					if (subvalues != null)
+						values.addAll(subvalues);
+					else {
+						InfoType value = matchNonAlias(line.line);
+						values.add(value);
 					}
+					hasValue = true;
+					return null;
 				}
-			}
-			else
-			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized object " + nestedContent.toString());
-				failFlag = true;
-			}
-			
-			for(Object listedValue : foundValues)
-			{
-				Collection<InfoType> matchedList = matchAlias((String)listedValue);
-				if(!matchedList.isEmpty())
+				
+				@Override
+				public void done()
 				{
-					for(InfoType value : matchedList)
-					{
-						if(!matchedItems.contains(value))
-						{
-							//ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding value \"" + getObjectName(value) + "\"");
-							matchedItems.add(value);
-						}
-						//else
-						//	ModDamage.addToLogRecord(OutputPreset.WARNING, "Duplicate value \"" + getObjectName(value) + "\" - ignoring.");
+					if (!hasValue) {
+						ModDamage.addToLogRecord(OutputPreset.FAILURE, nameLine, name+" alias _"+nameLine.line+" has no value.");
+						return;
 					}
+					putAlias("_"+nameLine.line, values);
 				}
-				else if(key.equalsIgnoreCase((String)listedValue))
-					ModDamage.addToLogRecord(OutputPreset.WARNING, "Self-referential value \"" + key + "\" - ignoring.");
-				else
-				{
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: invalid value \"" + (String)listedValue + "\" - ignoring.");
-					failFlag = true;//debug output already handled in failed matchAlias
-				}
-			}
-			ModDamage.changeIndentation(false);
-			if(!failFlag) putAllAliases(key, matchedItems);
-			return !failFlag;
+			};
 		}
+		
+
+//		@Override
+//		public boolean completeAlias(String key, Object nestedContent)
+//		{
+//			boolean failFlag = false;
+//			HashSet<InfoType> matchedItems = new HashSet<InfoType>();
+//			List<String> foundValues = new ArrayList<String>();
+//			ModDamage.addToLogRecord(OutputPreset.INFO, "Adding " + name + " alias \"" + key + "\"");
+//			ModDamage.changeIndentation(true);
+//			if(nestedContent instanceof String)
+//			{
+//				foundValues.add(((String)nestedContent));
+//			}
+//			else if(nestedContent instanceof List)
+//			{
+//				for(Object object : ((List<?>)nestedContent))
+//				{
+//					if(object instanceof String)
+//						foundValues.add(((String)object));
+//					else
+//					{
+//						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized object " + nestedContent.toString());
+//						failFlag = true;
+//					}
+//				}
+//			}
+//			else
+//			{
+//				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized object " + nestedContent.toString());
+//				failFlag = true;
+//			}
+//			
+//			for(Object listedValue : foundValues)
+//			{
+//				Collection<InfoType> matchedList = matchAlias((String)listedValue);
+//				if(!matchedList.isEmpty())
+//				{
+//					for(InfoType value : matchedList)
+//					{
+//						if(!matchedItems.contains(value))
+//						{
+//							//ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Adding value \"" + getObjectName(value) + "\"");
+//							matchedItems.add(value);
+//						}
+//						//else
+//						//	ModDamage.addToLogRecord(OutputPreset.WARNING, "Duplicate value \"" + getObjectName(value) + "\" - ignoring.");
+//					}
+//				}
+//				else if(key.equalsIgnoreCase((String)listedValue))
+//					ModDamage.addToLogRecord(OutputPreset.WARNING, "Self-referential value \"" + key + "\" - ignoring.");
+//				else
+//				{
+//					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: invalid value \"" + (String)listedValue + "\" - ignoring.");
+//					failFlag = true;//debug output already handled in failed matchAlias
+//				}
+//			}
+//			ModDamage.changeIndentation(false);
+//			if(!failFlag) putAllAliases(key, matchedItems);
+//			return !failFlag;
+//		}
 		
 		//@Override
 		public Collection<InfoType> matchAlias(String key)
@@ -234,8 +305,5 @@ abstract public class Aliaser<Type, StoredInfoClass>
 
 		@Override
 		protected Collection<InfoType> getDefaultValue(){ return new ArrayList<InfoType>(); }
-		
-		//@Override @SuppressWarnings("unchecked")
-		//protected Collection<InfoType> getNewStorageClass(InfoType value){ return Arrays.asList(value); }
 	}
 }

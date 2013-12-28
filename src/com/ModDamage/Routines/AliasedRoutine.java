@@ -7,6 +7,7 @@ import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 
@@ -14,9 +15,9 @@ public class AliasedRoutine extends Routine
 {
 	private Routines routines;
 	
-	public AliasedRoutine(String configString, final EventInfo info, final String alias)
+	public AliasedRoutine(ScriptLine scriptLine, final EventInfo info, final String alias)
 	{
-		super(configString);
+		super(scriptLine);
 		
 		// fetch after, to avoid infinite recursion
 		RoutineAliaser.whenDoneParsingAlias(new Runnable() {
@@ -35,13 +36,13 @@ public class AliasedRoutine extends Routine
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("_\\w+", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("_\\w+", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 	
-	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	protected static class RoutineFactory extends Routine.RoutineFactory
 	{
 		@Override
-		public AliasedRoutine getNew(Matcher matcher, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			String alias = matcher.group();
 			/*Routines aliasedRoutines = RoutineAliaser.match(alias, info);
@@ -55,7 +56,7 @@ public class AliasedRoutine extends Routine
 				return null;
 			}*/
 			ModDamage.addToLogRecord(OutputPreset.INFO, "Routine Alias: \"" + alias + "\"");
-			return new AliasedRoutine(matcher.group(), info, alias);
+			return new RoutineBuilder(new AliasedRoutine(scriptLine, info, alias));
 		}
 	}
 

@@ -8,29 +8,25 @@ import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Routines.Routines;
-//FIXME Do I work?
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
+
 public class Knockback extends NestedRoutine
 {	
 	protected final IDataProvider<Entity> entityDP;
 	protected final IDataProvider<Location> fromDP;
-	
-	protected final Routines routines;
 
-	protected Knockback(String configString, IDataProvider<Entity> entityDP, IDataProvider<Location> fromDP, Routines routines)
+	protected Knockback(ScriptLine scriptLine, IDataProvider<Entity> entityDP, IDataProvider<Location> fromDP)
 	{
-		super(configString);
+		super(scriptLine);
 		this.entityDP = entityDP;
 		this.fromDP = fromDP;
-		this.routines = routines;
 	}
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
@@ -69,13 +65,13 @@ public class Knockback extends NestedRoutine
 	
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("(.+?)(?:effect)?\\.knockback(?:\\.from\\.(.+))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("(.+?)(?:effect)?\\.knockback(?:\\.from\\.(.+))?", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 	
-	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static class RoutineFactory extends NestedRoutine.RoutineFactory
 	{
 		@Override
-		public Knockback getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
 			if (entityDP == null) return null;
@@ -99,11 +95,8 @@ public class Knockback extends NestedRoutine
 
             ModDamage.addToLogRecord(OutputPreset.INFO, "KnockBack " + entityDP + " from " + fromDP);
 
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent, info.chain(myInfo));
-			if (routines == null) return null;
-
-			return new Knockback(matcher.group(), entityDP, fromDP, routines);
-
+			Knockback routine = new Knockback(scriptLine, entityDP, fromDP);
+			return new NestedRoutineBuilder(routine, routine.routines, info.chain(myInfo));
 		}
 	}
 

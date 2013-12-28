@@ -5,8 +5,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -21,8 +21,7 @@ import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.DataProvider.ParserData;
 import com.ModDamage.Parsing.DataProvider.TransformerData;
 import com.ModDamage.Routines.Routine;
-import com.ModDamage.Routines.Routine.RoutineBuilder;
-import com.ModDamage.Routines.Nested.NestedRoutine;
+import com.ModDamage.Routines.Routine.RoutineFactory;
 import com.ModDamage.Server.NanoHTTPD.Response;
 
 public class APIHandlers
@@ -276,20 +275,7 @@ public class APIHandlers
 	{
 		jw.array();
 		
-		for (Entry<Pattern, RoutineBuilder> entry : Routine.registeredBaseRoutines.entrySet()) {
-			
-			jw.object();
-		
-			jw.key("pattern").value(entry.getKey().pattern());
-			
-			jw.key("builder"); writeClass(jw, entry.getValue().getClass().getEnclosingClass());
-			
-			jw.key("toString").value(entry.getValue().toString());
-			
-			jw.endObject();
-		}
-		
-		for (Entry<Pattern, com.ModDamage.Routines.Nested.NestedRoutine.RoutineBuilder> entry : NestedRoutine.registeredNestedRoutines.entrySet()) {
+		for (Entry<Pattern, RoutineFactory> entry : Routine.registeredRoutines.entrySet()) {
 			
 			jw.object();
 		

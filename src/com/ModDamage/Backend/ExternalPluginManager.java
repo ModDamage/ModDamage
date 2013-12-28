@@ -24,6 +24,7 @@ import ru.tehkode.permissions.PermissionManager;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.ModDamage.ModDamageExtension;
+import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Expressions.ListExp;
 import com.ModDamage.Expressions.NestedExp;
 import com.ModDamage.Expressions.NumberExp;
@@ -31,7 +32,6 @@ import com.ModDamage.Expressions.StringExp;
 import com.ModDamage.External.TabAPI.TabAPISupport;
 import com.ModDamage.External.Vault.VaultSupport;
 import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Properties.BlockProps;
 import com.ModDamage.Properties.ChunkProps;
 import com.ModDamage.Properties.CreatureProps;
@@ -44,6 +44,7 @@ import com.ModDamage.Properties.MaterialProps;
 import com.ModDamage.Properties.MiscProps;
 import com.ModDamage.Properties.OfflinePlayerProps;
 import com.ModDamage.Properties.PlayerProps;
+import com.ModDamage.Properties.ScoreboardProps;
 import com.ModDamage.Properties.ServerProps;
 import com.ModDamage.Properties.WorldProps;
 import com.ModDamage.Routines.Routine;
@@ -130,6 +131,7 @@ public class ExternalPluginManager
 		MiscProps.register();
 		OfflinePlayerProps.register();
 		PlayerProps.register();
+		ScoreboardProps.register();
 		ServerProps.register();
 		WorldProps.register();
 
@@ -139,12 +141,16 @@ public class ExternalPluginManager
 		try {
 			VaultSupport.register();
 		}
-		catch (NoClassDefFoundError e) {}
+		catch (NoClassDefFoundError e) {
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Vault not found: "+e.getMessage());
+		}
 		
 		try {
 			TabAPISupport.register();
 		}
-		catch (NoClassDefFoundError e) {}
+		catch (NoClassDefFoundError e) {
+			ModDamage.addToLogRecord(OutputPreset.INFO, "TabAPI not found: "+e.getMessage());
+			}
 		
 		reloadPluginExtensions();
 		

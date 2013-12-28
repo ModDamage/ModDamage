@@ -7,13 +7,14 @@ import org.bukkit.Effect;
 import org.bukkit.Location;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.LiteralNumber;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class PlayEffect extends Routine
 {
@@ -47,9 +48,9 @@ public class PlayEffect extends Routine
 	private final IDataProvider<? extends Number> effectData;
 	private final IDataProvider<Integer> radius;
 	
-	protected PlayEffect(String configString, IDataProvider<Location> locDP, EffectType effectType, IDataProvider<? extends Number> data, IDataProvider<Integer> radius)
+	protected PlayEffect(ScriptLine scriptLine, IDataProvider<Location> locDP, EffectType effectType, IDataProvider<? extends Number> data, IDataProvider<Integer> radius)
 	{
-		super(configString);
+		super(scriptLine);
 		this.locDP = locDP;
 		this.effectType = effectType;
 		this.effectData = data;
@@ -77,13 +78,13 @@ public class PlayEffect extends Routine
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("(.+?)\\.playeffect\\.(\\w+)(?:\\.([^.]+))?(?:\\.radius\\.(.+))?", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		Routine.registerRoutine(Pattern.compile("(.+?)\\.playeffect\\.(\\w+)(?:\\.([^.]+))?(?:\\.radius\\.(.+))?", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 
-	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	protected static class RoutineFactory extends Routine.RoutineFactory
 	{
 		@Override
-		public PlayEffect getNew(Matcher matcher, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{ 
 			IDataProvider<Location> locDP = DataProvider.parse(info, Location.class, matcher.group(1));
 			if (locDP == null) return null;
@@ -129,7 +130,7 @@ public class PlayEffect extends Routine
 			}
 			
 			ModDamage.addToLogRecord(OutputPreset.INFO, "PlayEffect: " + locDP + " " + effectType + " " + data + (radius != null? " " + radius : ""));
-			return new PlayEffect(matcher.group(), locDP, effectType, data, radius);
+			return new RoutineBuilder(new PlayEffect(scriptLine, locDP, effectType, data, radius));
 		}
 	}
 }

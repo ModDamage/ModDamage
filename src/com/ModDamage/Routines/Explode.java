@@ -14,47 +14,50 @@ import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 
-public class Lightning extends Routine
+public class Explode extends Routine
 {
 	private final IDataProvider<Location> locDP;
-    private final boolean effect;
+	private final IDataProvider<Number> strength;
+	private final boolean fire;
 
-	protected Lightning(ScriptLine scriptLine, IDataProvider<Location> locDP, boolean effect)
+	public Explode(ScriptLine scriptLine, IDataProvider<Location> locDP, IDataProvider<Number> strength, boolean fire)
 	{
 		super(scriptLine);
 		this.locDP = locDP;
-        this.effect = effect;
-    }
-
+		this.strength = strength;
+		this.fire = fire;
+	}
 	@Override
 	public void run(EventData data) throws BailException
 	{
-		Location loc = locDP.get(data);
-        if (loc == null) return;
-
-        if (effect)
-            loc.getWorld().strikeLightningEffect(loc);
-        else
-            loc.getWorld().strikeLightning(loc);
+		Location entity = locDP.get(data);
+		if (entity == null) return;
+		
+		Number str = strength.get(data);
+		if (str == null) return;
+		
+		entity.getWorld().createExplosion(entity, str.floatValue(), fire);
 	}
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("(.+?)\\.lightning(effect)?", Pattern.CASE_INSENSITIVE), new RoutineFactory());
+		Routine.registerRoutine(Pattern.compile("(.*?)(?:effect)?\\.explode(\\.withfire)?(?::|\\s+by\\s|\\s)\\s*(.+)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 
 	protected static class RoutineFactory extends Routine.RoutineFactory
 	{
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
-		{ 
+		{
 			IDataProvider<Location> locDP = DataProvider.parse(info, Location.class, matcher.group(1));
 			if (locDP == null) return null;
 
-            boolean effect = matcher.group(2) != null;
-			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Lightning"+(effect?" effect":"")+" at " + locDP);
-			return new RoutineBuilder(new Lightning(scriptLine, locDP, effect));
+			IDataProvider<Number> strength = DataProvider.parse(info, Number.class, matcher.group(2));
+			if(strength == null) return null;
+
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Explode at " + locDP + " with strength " + strength);
+
+			return new RoutineBuilder(new Explode(scriptLine, locDP, strength, matcher.group(2) != null));
 		}
 	}
 }

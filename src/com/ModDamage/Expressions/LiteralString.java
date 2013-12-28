@@ -15,12 +15,13 @@ public class LiteralString implements IDataProvider<String>
 {
 	public static void register()
 	{
-		DataProvider.register(String.class, Pattern.compile("\"((:?[^\\\\\"]+|\\\\.)+)\""), new BaseDataParser<String>()
+		DataProvider.register(String.class, Pattern.compile("\"((?:[^\\\\\"]+|\\\\.)*)\"|'((?:[^\\\\\']+|\\\\.)*)'"), new BaseDataParser<String>()
 			{
 				@Override
 				public IDataProvider<String> parse(EventInfo info, Matcher m, StringMatcher sm)
 				{
 					String v = m.group(1);
+					if (v == null) v = m.group(2);
 					StringBuilder sb = new StringBuilder(v.length());
 					int i = 0;
 					int len = v.length();

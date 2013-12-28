@@ -8,13 +8,14 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class AddPotionEffect extends Routine
 {
@@ -22,10 +23,10 @@ public class AddPotionEffect extends Routine
 	private final PotionEffectType type;
 	private final IDataProvider<Integer> duration, amplifier;
 	
-	protected AddPotionEffect(String configString, IDataProvider<LivingEntity> livingDP, PotionEffectType type,
+	protected AddPotionEffect(ScriptLine scriptLine, IDataProvider<LivingEntity> livingDP, PotionEffectType type,
 			IDataProvider<Integer> duration, IDataProvider<Integer> amplifier)
 	{
-		super(configString);
+		super(scriptLine);
 		this.livingDP = livingDP;
 		this.type = type;
 		this.duration = duration;
@@ -49,15 +50,15 @@ public class AddPotionEffect extends Routine
 	{
 		Routine.registerRoutine(
 				Pattern.compile("(.+?)(?:effect)?\\.addpotioneffect\\.(\\w+)[\\., ](.+)", Pattern.CASE_INSENSITIVE),
-				new RoutineBuilder());
+				new RoutineFactory());
 	}
 	
 	private static Pattern dotPattern = Pattern.compile("\\s*[\\.,]\\s*");
 
-	protected static class RoutineBuilder extends Routine.RoutineBuilder
+	protected static class RoutineFactory extends Routine.RoutineFactory
 	{
 		@Override
-		public AddPotionEffect getNew(Matcher matcher, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{ 
 			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, matcher.group(1));
 			if (livingDP == null) return null; 
@@ -76,7 +77,7 @@ public class AddPotionEffect extends Routine
 			if (!sm.isEmpty()) return null;
 			
 			ModDamage.addToLogRecord(OutputPreset.INFO, "AddPotionEffect: to " + livingDP + ", " + type.getName() + ", " + duration + ", " + amplifier);
-			return new AddPotionEffect(matcher.group(), livingDP, type, duration, amplifier);
+			return new RoutineBuilder(new AddPotionEffect(scriptLine, livingDP, type, duration, amplifier));
 		}
 	}
 }

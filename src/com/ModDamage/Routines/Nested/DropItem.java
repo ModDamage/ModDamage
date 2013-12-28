@@ -9,10 +9,10 @@ import org.bukkit.Location;
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.ItemAliaser;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ItemHolder;
 import com.ModDamage.Backend.ModDamageItemStack;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
@@ -20,7 +20,6 @@ import com.ModDamage.Expressions.LiteralNumber;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routine;
-import com.ModDamage.Routines.Routines;
 
 public class DropItem extends NestedRoutine
 {
@@ -28,15 +27,13 @@ public class DropItem extends NestedRoutine
 
 	protected final Collection<ModDamageItemStack> items;
 	protected final IDataProvider<Location> locationDP;
-	protected final Routines routines;
 	protected final IDataProvider<? extends Number> quantity;
-	public DropItem(String configString, IDataProvider<Location> locationDP, Collection<ModDamageItemStack> items, IDataProvider<? extends Number> quantity, Routines routines)
+	public DropItem(ScriptLine scriptLine, IDataProvider<Location> locationDP, Collection<ModDamageItemStack> items, IDataProvider<? extends Number> quantity)
 	{
-		super(configString);
+		super(scriptLine);
 		this.locationDP = locationDP;
 		this.items = items;
 		this.quantity = quantity;
-		this.routines = routines;
 	}
 
 	@Override
@@ -71,12 +68,12 @@ public class DropItem extends NestedRoutine
         }
 	}
 
-	private static final NestedRoutineBuilder nrb = new NestedRoutineBuilder();
+	private static final NestedRoutineFactory nrb = new NestedRoutineFactory();
 	public static void registerRoutine()
 	{
-		Routine.registerRoutine(pattern, new Routine.RoutineBuilder()
+		Routine.registerRoutine(pattern, new Routine.RoutineFactory()
 			{
-				@Override public Routine getNew(Matcher matcher, EventInfo info)
+				@Override public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 				{
 					return nrb.getNew(matcher, null, info);
 				}
@@ -91,34 +88,29 @@ public class DropItem extends NestedRoutine
 	private static final EventInfo myInfo = new SimpleEventInfo(
 			ItemHolder.class, 		"item");
 
-	protected static class NestedRoutineBuilder extends RoutineBuilder
+	protected static class NestedRoutineFactory extends NestedRoutine.RoutineFactory
 	{
 		@Override
-		public DropItem getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
-			IDataProvider<Location> locationDP = DataProvider.parse(info, Location.class, name); if (locationDP == null) return null;
+			IDataProvider<Location> locationDP = DataProvider.parse(info, Location.class, name);
+			if (locationDP == null) return null;
 			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(2), info);
-			if(items != null && !items.isEmpty())
-			{
-				Routines routines = null;
-				if (nestedContent != null)
-					routines = RoutineAliaser.parseRoutines(nestedContent, info.chain(myInfo));
+			if(items == null || items.isEmpty()) return null;
+			
+			IDataProvider<? extends Number> quantity;
+			if (matcher.group(3) != null)
+				quantity = DataProvider.parse(info, Integer.class, matcher.group(3));
+			else
+				quantity = new LiteralNumber(1);
 
-				
-				IDataProvider<? extends Number> quantity;
-				if (matcher.group(3) != null)
-					quantity = DataProvider.parse(info, Integer.class, matcher.group(3));
-				else
-					quantity = new LiteralNumber(1);
+            if (quantity == null) return null;
 
-                if (quantity == null) return null;
-
-                ModDamage.addToLogRecord(OutputPreset.INFO, "Drop item at " + locationDP + ": " + items);
-				
-				return new DropItem(matcher.group(), locationDP, items, quantity, routines);
-			}
-			return null;
+            ModDamage.addToLogRecord(OutputPreset.INFO, "Drop item at " + locationDP + ": " + items);
+			
+			DropItem routine = new DropItem(scriptLine, locationDP, items, quantity);
+			return new NestedRoutineBuilder(routine, routine.routines, info.chain(myInfo));
 		}
 	}
 }

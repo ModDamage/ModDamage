@@ -5,30 +5,28 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Parsing.ISettableDataProvider;
+import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.StringMatcher;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Routines.Routines;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
+import com.ModDamage.Parsing.ISettableDataProvider;
 
 public class With extends NestedRoutine
 {
 	protected final List<IDataProvider<?>> dps;
 	protected final EventInfo myInfo;
-	protected final Routines routines;
 
-	private With(String configString, List<IDataProvider<?>> dps, EventInfo myInfo, Routines routines)
+	private With(ScriptLine scriptLine, List<IDataProvider<?>> dps, EventInfo myInfo)
 	{
-		super(configString);
+		super(scriptLine);
 		this.dps = dps;
 		this.myInfo = myInfo;
-		this.routines = routines;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -60,19 +58,14 @@ public class With extends NestedRoutine
 	private static Pattern commaPattern = Pattern.compile("\\s*,\\s*");
 	public static void register()
 	{
-		NestedRoutine.registerRoutine(Pattern.compile("with\\s+(.*)", Pattern.CASE_INSENSITIVE), new RoutineBuilder());
+		NestedRoutine.registerRoutine(Pattern.compile("with\\s+(.*)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 
-	protected final static class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	protected static class RoutineFactory extends NestedRoutine.RoutineFactory
 	{
 		@Override
-		public With getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			if(matcher == null || nestedContent == null)
-				return null;
-
-
-
 			List<Object> infos = new ArrayList<Object>();
 			List<IDataProvider<?>> dps = new ArrayList<IDataProvider<?>>();
 			StringBuilder logSb = new StringBuilder();
@@ -102,17 +95,10 @@ public class With extends NestedRoutine
 
 			EventInfo myInfo = info.chain(new SimpleEventInfo(infos.toArray(), true));
 
-			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "With: " + logSb.toString());
+			ModDamage.addToLogRecord(OutputPreset.INFO, "With: " + logSb.toString());
 
-			Routines routines = RoutineAliaser.parseRoutines(nestedContent, myInfo);
-			if(routines == null)
-			{
-				NestedRoutine.paddedLogRecord(OutputPreset.FAILURE, "Invalid content in With");
-				return null;
-			}
-
-			NestedRoutine.paddedLogRecord(OutputPreset.INFO_VERBOSE, "End With");
-			return new With(matcher.group(), dps, myInfo, routines);
+			With routine = new With(scriptLine, dps, myInfo);
+			return new NestedRoutineBuilder(routine, routine.routines, myInfo);
 		}
 	}
 }

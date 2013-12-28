@@ -78,6 +78,12 @@ public class EntityProps
         
         DataProvider.registerTransformer(InventoryHolder.class, Entity.class);
 
+        registerRawTypes();
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private static void registerRawTypes()
+	{
         Properties.register(new Property<Class, Entity>("handleClass", Class.class, Entity.class) {
                 public Class<?> get(Entity entity, EventData data) {
                     return MagicStuff.getHandleClass(entity);

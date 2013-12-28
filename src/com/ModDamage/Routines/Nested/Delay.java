@@ -6,25 +6,22 @@ import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 
 import com.ModDamage.ModDamage;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Routines.Routines;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.IDataProvider;
 
 public class Delay extends NestedRoutine
 {	
 	protected final IDataProvider<Integer> delay;
-	protected final Routines routines;
-	protected static final Pattern delayPattern = Pattern.compile("delay\\.(.*)", Pattern.CASE_INSENSITIVE);
-	public Delay(String configString, IDataProvider<Integer> delayValue, Routines routines)
+	protected static final Pattern delayPattern = Pattern.compile("delay(?:\\.|\\s+)(.*)", Pattern.CASE_INSENSITIVE);
+	public Delay(ScriptLine scriptLine, IDataProvider<Integer> delayValue)
 	{
-		super(configString);
+		super(scriptLine);
 		this.delay = delayValue;
-		this.routines = routines;
 	}
 	@Override
 	public void run(EventData data) throws BailException
@@ -36,32 +33,21 @@ public class Delay extends NestedRoutine
 		Bukkit.getScheduler().scheduleSyncDelayedTask(ModDamage.getPluginConfiguration().plugin, dr, del);
 	}
 		
-	public static void register(){ NestedRoutine.registerRoutine(delayPattern, new RoutineBuilder()); }
-	protected static class RoutineBuilder extends NestedRoutine.RoutineBuilder
+	public static void register(){ NestedRoutine.registerRoutine(delayPattern, new RoutineFactory()); }
+	protected static class RoutineFactory extends NestedRoutine.RoutineFactory
 	{
 		@Override
-		public Delay getNew(Matcher matcher, Object nestedContent, EventInfo info)
+		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			if(matcher != null && nestedContent != null)
-			{
-				if(matcher.matches())
-				{
-					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-					ModDamage.addToLogRecord(OutputPreset.INFO, "Delay: \"" + matcher.group() + "\"");
-					Routines routines = RoutineAliaser.parseRoutines(nestedContent, info);
-					if(routines != null)
-					{
-						IDataProvider<Integer> numberMatch = DataProvider.parse(info, Integer.class, matcher.group(1));
-						if(numberMatch != null)
-						{
-							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "End Delay \"" + matcher.group() + "\"\n");
-							return new Delay(matcher.group(), numberMatch, routines);
-						}
-						else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid Delay \"" + matcher.group() + "\"");
-					}
-				}
-			}
-			return null;
+			if(!matcher.matches()) return null;
+
+			IDataProvider<Integer> numberMatch = DataProvider.parse(info, Integer.class, matcher.group(1));
+			
+			ModDamage.addToLogRecord(OutputPreset.INFO, "Delay: \"" + numberMatch + "\"");
+			if (numberMatch == null) return null;
+
+			Delay routine = new Delay(scriptLine, numberMatch);
+			return new NestedRoutineBuilder(routine, routine.routines, info);
 		}
 	}
 	
@@ -74,7 +60,7 @@ public class Delay extends NestedRoutine
 		}
 		
 		@Override
-		public void run()//Runnable
+		public void run()
 		{
 			try
 			{

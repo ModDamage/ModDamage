@@ -2,14 +2,14 @@ package com.ModDamage.Alias;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Random;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.Backend.ScriptLine;
+import com.ModDamage.Backend.ScriptLineHandler;
 import com.ModDamage.Matchables.EntityType;
 
 public class TypeNameAliaser extends Aliaser<EntityType, List<String>> 
@@ -27,67 +27,97 @@ public class TypeNameAliaser extends Aliaser<EntityType, List<String>>
 		for(EntityType element : EntityType.values())
 			thisMap.put(element, new ArrayList<String>());
 	}
-	
+
 	@Override
-	public void load(LinkedHashMap<String, Object> rawAliases)
+	public ScriptLineHandler handleLine(final ScriptLine nameLine, boolean hasChildren)
 	{
-		clear();
+		final EntityType entityType = EntityType.getElementNamed(nameLine.line);
 		
-		for(Entry<String, Object> entry : rawAliases.entrySet())
-		{
-			loadState = LoadState.SUCCESS;
+		return new ScriptLineHandler() {
+			List<String> names = new ArrayList<String>();
+			boolean hasValue;
 			
-			EntityType type = EntityType.getElementNamed(entry.getKey());
-			if(type == null)
+			@Override
+			public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
 			{
-				ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Unknown type \"" + entry.getKey() + "\"");//Only a warning because some users may preempt updated mob types
-				continue;
+				String name = line.line;
+				names.add(name);
+				hasValue = true;
+				return null;
 			}
 			
-			List<String> names = matchAlias(type);
-			
-			Object value = entry.getValue();
-			
-			if(value instanceof List)
+			@Override
+			public void done()
 			{
-				List<?> someList = (List<?>)value;
-				if (someList.size() == 1)
-				{
-					value = someList.get(0);
+				if (!hasValue) {
+					ModDamage.addToLogRecord(OutputPreset.FAILURE, nameLine, name+" alias "+nameLine.line+" has no names.");
+					return;
 				}
-				else
-				{
-					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing type " + type.name());
-					
-					ModDamage.changeIndentation(true);
-					for(Object object : someList)
-					{
-						if(object instanceof String)
-						{
-							names.add((String)object);
-							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "as \"" + value + "\"");
-						}
-						else 
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown item: "+object.toString());
-					}
-					ModDamage.changeIndentation(false);
-					continue;
-				}
+				thisMap.put(entityType, names);
 			}
-			
-			if(value instanceof String)
-			{
-				names.add((String)value);
-				ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing type " + type.name() +  " as \"" + value + "\"");
-				continue;
-			}
-			
-			loadState = LoadState.FAILURE;
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid content in alias for type " + type.name() + ": " + entry.getValue().toString());
-		}
-		if(loadState == LoadState.SUCCESS)
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing names for one or more Types");
+		};
 	}
+	
+//	@Override
+//	public void load(LinkedHashMap<String, Object> rawAliases)
+//	{
+//		clear();
+//		
+//		for(Entry<String, Object> entry : rawAliases.entrySet())
+//		{
+//			loadState = LoadState.SUCCESS;
+//			
+//			EntityType type = EntityType.getElementNamed(entry.getKey());
+//			if(type == null)
+//			{
+//				ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Unknown type \"" + entry.getKey() + "\"");//Only a warning because some users may preempt updated mob types
+//				continue;
+//			}
+//			
+//			List<String> names = matchAlias(type);
+//			
+//			Object value = entry.getValue();
+//			
+//			if(value instanceof List)
+//			{
+//				List<?> someList = (List<?>)value;
+//				if (someList.size() == 1)
+//				{
+//					value = someList.get(0);
+//				}
+//				else
+//				{
+//					ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing type " + type.name());
+//					
+//					ModDamage.changeIndentation(true);
+//					for(Object object : someList)
+//					{
+//						if(object instanceof String)
+//						{
+//							names.add((String)object);
+//							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "as \"" + value + "\"");
+//						}
+//						else 
+//							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown item: "+object.toString());
+//					}
+//					ModDamage.changeIndentation(false);
+//					continue;
+//				}
+//			}
+//			
+//			if(value instanceof String)
+//			{
+//				names.add((String)value);
+//				ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing type " + type.name() +  " as \"" + value + "\"");
+//				continue;
+//			}
+//			
+//			loadState = LoadState.FAILURE;
+//			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid content in alias for type " + type.name() + ": " + entry.getValue().toString());
+//		}
+//		if(loadState == LoadState.SUCCESS)
+//			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing names for one or more Types");
+//	}
 
 	@Override
 	public void clear()
@@ -124,6 +154,4 @@ public class TypeNameAliaser extends Aliaser<EntityType, List<String>>
 	protected EntityType matchNonAlias(String key){ return null; }
 	@Deprecated
 	protected String getObjectName(EntityType object){ return null; }
-	@Deprecated
-	protected List<String> getNewStorageClass(EntityType value){ return null; }
 }

@@ -25,8 +25,7 @@ import com.ModDamage.PluginConfiguration.OutputPreset;
 
 public class TagManager
 {
-	public static final String configString_save = "interval-save";
-	public static final String configString_clean = "interval-clean";
+//	public static final String configString_save = "interval-save";
 	public static final int defaultInterval = 10 * 20;
 
     public final TagsHolder<Number> numTags = new TagsHolder<Number>();
@@ -36,7 +35,7 @@ public class TagManager
 	private long saveInterval;
 	//private long cleanInterval;
 	private int saveTaskID;
-	private int cleanTaskID;
+//	private int cleanTaskID;
 
 	public final File file;
 	public final File newFile;
@@ -45,7 +44,7 @@ public class TagManager
 	private FileWriter writer = null;
 	private Yaml yaml = new Yaml();
 
-	public TagManager(File file, long saveInterval, long cleanInterval)
+	public TagManager(File file, long saveInterval)
 	{
 		this.saveInterval = saveInterval;
 		//this.cleanInterval = cleanInterval;
@@ -63,14 +62,12 @@ public class TagManager
 	
 	private void reload(boolean initialized)
 	{
-		//cleanUp();
 		save();
 		if(initialized)
 		{
 			if(file != null)
 			{
 				if(saveTaskID != 0) Bukkit.getScheduler().cancelTask(saveTaskID);
-				if(cleanTaskID != 0) Bukkit.getScheduler().cancelTask(cleanTaskID);
 			}
 		}
 		Plugin modDamage = Bukkit.getPluginManager().getPlugin("ModDamage");

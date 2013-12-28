@@ -2,10 +2,8 @@ package com.ModDamage.Events;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -16,10 +14,10 @@ import org.bukkit.entity.Entity;
 
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.PluginConfiguration.OutputPreset;
-import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
+import com.ModDamage.Backend.ScriptLineHandler;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
@@ -27,7 +25,7 @@ import com.ModDamage.Events.Repeat.RepeatInfo.RepeatData;
 import com.ModDamage.Routines.Routines;
 
 
-public class Repeat extends MDEvent
+public class Repeat extends MDEvent implements ScriptLineHandler
 {
 	public static final Repeat instance = new Repeat();
 
@@ -42,14 +40,9 @@ public class Repeat extends MDEvent
 
 	Map<Class<?>, Map<String, RepeatInfo<?>>> repeatMap = new HashMap<Class<?>, Map<String, RepeatInfo<?>>>();
 
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void load(Object repeats)
+	
+	public void reset()
 	{
-		loadState = LoadState.FAILURE;
-		boolean failed = false;
-
 		for (Map<String, RepeatInfo<?>> specificMap : repeatMap.values())
 		{
 			for (RepeatInfo<?> info : specificMap.values())
@@ -57,65 +50,127 @@ public class Repeat extends MDEvent
 			
 			specificMap.clear();
 		}
-
-		// LinkedHashMap<String, Object> entries = ModDamage.getPluginConfiguration().getConfigMap();
-		// Object commands = PluginConfiguration.getCaseInsensitiveValue(entries, "Repeat");
-
-		if(repeats == null)
-			return;
-
-		if (!(repeats instanceof List))
-		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Expected List, got "+repeats.getClass().getSimpleName()+"for Repeat event");
-			return;
-		}
-
-		List<LinkedHashMap<String, Object>> repeatConfigMaps = (List<LinkedHashMap<String, Object>>) repeats;
-		if(repeatConfigMaps == null || repeatConfigMaps.size() == 0)
-			return;
-
-		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading repeats...");
-
-		ModDamage.changeIndentation(true);
-
-
-		for (LinkedHashMap<String, Object> repeatConfigMap : repeatConfigMaps)
-		for (Entry<String, Object> entry : repeatConfigMap.entrySet())
-		{
-			String[] parts = entry.getKey().split("\\s+");
-			String name = parts[0];
-			Class<?> type;
-			if (parts.length == 1 || parts[1].equalsIgnoreCase("entity"))
-				type = Entity.class;
-			else if (parts[1].equalsIgnoreCase("loc") || parts[1].equalsIgnoreCase("location") || parts[1].equalsIgnoreCase("block"))
-				type = Location.class;
-			else if (parts[1].equalsIgnoreCase("world"))
-				type = World.class;
-			else if (parts[1].equalsIgnoreCase("chunk"))
-				type = Chunk.class;
-			else {
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Illegal repeat type: "+parts[1]);
-				continue;
-			}
-
-			@SuppressWarnings("rawtypes")
-			RepeatInfo<?> repeat = new RepeatInfo(name, type);
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Repeat ["+repeat.name+" "+repeat.repeatType.getSimpleName()+"]");
-			repeat.routines = RoutineAliaser.parseRoutines(entry.getValue(), repeat.myInfo);
-			if (repeat.routines == null)
-			{
-				failed = true;
-				continue;
-			}
-
-			repeatMap.get(repeat.repeatType).put(repeat.name, repeat);
-		}
-
-		ModDamage.changeIndentation(false);
-
-		if (!failed) loadState = LoadState.SUCCESS;
 	}
+
+	@Override
+	public ScriptLineHandler getLineHandler()
+	{
+		ModDamage.addToLogRecord(OutputPreset.INFO, "on " + name());
+		
+		return this;
+	}
+	
+	@Override
+	public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
+	{
+		String[] parts = line.line.split("\\s+");
+		String name = parts[0];
+		Class<?> type;
+		if (parts.length == 1 || parts[1].equalsIgnoreCase("entity"))
+			type = Entity.class;
+		else if (parts[1].equalsIgnoreCase("loc") || parts[1].equalsIgnoreCase("location") || parts[1].equalsIgnoreCase("block"))
+			type = Location.class;
+		else if (parts[1].equalsIgnoreCase("world"))
+			type = World.class;
+		else if (parts[1].equalsIgnoreCase("chunk"))
+			type = Chunk.class;
+		else {
+			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Illegal repeat type: "+parts[1]);
+			return null;
+		}
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		RepeatInfo<?> repeat = new RepeatInfo(name, type);
+		repeatMap.get(repeat.repeatType).put(repeat.name, repeat);
+		
+		ModDamage.addToLogRecord(OutputPreset.INFO, "Repeat ["+repeat.name+" "+repeat.repeatType.getSimpleName()+"]");
+//		repeat.routines = RoutineAliaser.parseRoutines(entry.getValue(), repeat.myInfo);
+//		if (repeat.routines == null)
+//		{
+//			failed = true;
+//			continue;
+//		}
+
+		return repeat.routines.getLineHandler(repeat.myInfo);
+	}
+	@Override
+	public void done()
+	{
+	}
+	
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	public void load(Object repeats)
+//	{
+//		loadState = LoadState.FAILURE;
+//		boolean failed = false;
+//
+//		for (Map<String, RepeatInfo<?>> specificMap : repeatMap.values())
+//		{
+//			for (RepeatInfo<?> info : specificMap.values())
+//				info.stopAll();
+//			
+//			specificMap.clear();
+//		}
+//
+//		// LinkedHashMap<String, Object> entries = ModDamage.getPluginConfiguration().getConfigMap();
+//		// Object commands = PluginConfiguration.getCaseInsensitiveValue(entries, "Repeat");
+//
+//		if(repeats == null)
+//			return;
+//
+//		if (!(repeats instanceof List))
+//		{
+//			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Expected List, got "+repeats.getClass().getSimpleName()+"for Repeat event");
+//			return;
+//		}
+//
+//		List<LinkedHashMap<String, Object>> repeatConfigMaps = (List<LinkedHashMap<String, Object>>) repeats;
+//		if(repeatConfigMaps == null || repeatConfigMaps.size() == 0)
+//			return;
+//
+//		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+//		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading repeats...");
+//
+//		ModDamage.changeIndentation(true);
+//
+//
+//		for (LinkedHashMap<String, Object> repeatConfigMap : repeatConfigMaps)
+//		for (Entry<String, Object> entry : repeatConfigMap.entrySet())
+//		{
+//			String[] parts = entry.getKey().split("\\s+");
+//			String name = parts[0];
+//			Class<?> type;
+//			if (parts.length == 1 || parts[1].equalsIgnoreCase("entity"))
+//				type = Entity.class;
+//			else if (parts[1].equalsIgnoreCase("loc") || parts[1].equalsIgnoreCase("location") || parts[1].equalsIgnoreCase("block"))
+//				type = Location.class;
+//			else if (parts[1].equalsIgnoreCase("world"))
+//				type = World.class;
+//			else if (parts[1].equalsIgnoreCase("chunk"))
+//				type = Chunk.class;
+//			else {
+//				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Illegal repeat type: "+parts[1]);
+//				continue;
+//			}
+//
+//			@SuppressWarnings("rawtypes")
+//			RepeatInfo<?> repeat = new RepeatInfo(name, type);
+//			ModDamage.addToLogRecord(OutputPreset.INFO, "Repeat ["+repeat.name+" "+repeat.repeatType.getSimpleName()+"]");
+//			repeat.routines = RoutineAliaser.parseRoutines(entry.getValue(), repeat.myInfo);
+//			if (repeat.routines == null)
+//			{
+//				failed = true;
+//				continue;
+//			}
+//
+//			repeatMap.get(repeat.repeatType).put(repeat.name, repeat);
+//		}
+//
+//		ModDamage.changeIndentation(false);
+//
+//		if (!failed) loadState = LoadState.SUCCESS;
+//	}
 
 
 	static class RepeatInfo<T>
@@ -124,7 +179,7 @@ public class Repeat extends MDEvent
 		Class<T> repeatType;
 		EventInfo myInfo;
 
-		Routines routines;
+		Routines routines = new Routines();
 		
 
 		Map<T, RepeatData> datas = new HashMap<T, RepeatData>();
