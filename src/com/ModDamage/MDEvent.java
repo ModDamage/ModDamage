@@ -50,6 +50,7 @@ import com.ModDamage.Events.Entity.Tame;
 import com.ModDamage.Events.Entity.Target;
 import com.ModDamage.Events.Entity.Teleport;
 import com.ModDamage.Events.Inventory.Craft;
+import com.ModDamage.Events.Inventory.InventoryClick;
 import com.ModDamage.Events.Inventory.InventoryClose;
 import com.ModDamage.Events.Inventory.InventoryOpen;
 import com.ModDamage.Events.Inventory.PrepareCraft;
@@ -130,8 +131,9 @@ public class MDEvent implements Listener
 				);
 
 		addEvents("Inventory",
-				new InventoryClose(),
 				new InventoryOpen(),
+				new InventoryClose(),
+				new InventoryClick(),
 				new Craft(),
 				new PrepareCraft()
 				);
