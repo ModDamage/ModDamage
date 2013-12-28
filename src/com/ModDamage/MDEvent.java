@@ -59,6 +59,7 @@ import com.ModDamage.Events.Item.Enchant;
 import com.ModDamage.Events.Item.ItemHeld;
 import com.ModDamage.Events.Item.PickupItem;
 import com.ModDamage.Events.Item.PrepareEnchant;
+import com.ModDamage.Events.Player.AsyncChat;
 import com.ModDamage.Events.Player.Chat;
 import com.ModDamage.Events.Player.Consume;
 import com.ModDamage.Events.Player.Fish;
@@ -147,6 +148,7 @@ public class MDEvent implements Listener
 				);
 
 		addEvents("Player",
+				new AsyncChat(),
 				new Chat(),
 				new Consume(),
 				new Interact(),
