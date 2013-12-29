@@ -9,7 +9,9 @@ import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
+import org.bukkit.inventory.HorseInventory;
 
+import com.ModDamage.Backend.ItemHolder;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.Parsing.Property.Properties;
 import com.ModDamage.Parsing.Property.SettableProperty;
@@ -76,6 +78,33 @@ public class CreatureProps
         Properties.register("maxdomestication", Horse.class, "getMaxDomestication", "setMaxDomestication");
         Properties.register("jumpstrength", Horse.class, "getJumpStrength", "setJumpStrength");
         Properties.register("haschest", Horse.class, "isCarryingChest", "setCarryingChest");
+        
+        Properties.register(new SettableProperty<ItemHolder, HorseInventory>("saddle", ItemHolder.class, HorseInventory.class) {
+					public ItemHolder get(final HorseInventory hinv, EventData data) {
+						return new ItemHolder(hinv.getSaddle()) {
+							public void save() {
+								hinv.setSaddle(getItem());
+							}
+						};
+					}
+					
+					public void set(HorseInventory hinv, EventData data, ItemHolder value) {
+						hinv.setSaddle(value == null? null : value.getItem());
+					}
+                });
+        Properties.register(new SettableProperty<ItemHolder, HorseInventory>("armor", ItemHolder.class, HorseInventory.class) {
+					public ItemHolder get(final HorseInventory hinv, EventData data) {
+						return new ItemHolder(hinv.getArmor()) {
+							public void save() {
+								hinv.setSaddle(getItem());
+							}
+						};
+					}
+					
+					public void set(HorseInventory hinv, EventData data, ItemHolder value) {
+						hinv.setArmor(value == null? null : value.getItem());
+					}
+                });
         
         Properties.register("anger", PigZombie.class, "getAnger", "setAnger");
         
