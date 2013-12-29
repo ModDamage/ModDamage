@@ -2,6 +2,7 @@ package com.ModDamage.Parsing.Property;
 
 
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.Nullable;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Parsing.ISettableDataProvider;
@@ -13,7 +14,7 @@ public abstract class SettableProperty<T, S> extends Property<T, S>
     }
 
 
-    public abstract void set(S start, EventData data, T value) throws BailException;
+    public abstract void set(S start, EventData data, @Nullable T value) throws BailException;
 
     @Override
     public ISettableDataProvider<T> provider(IDataProvider<S> startDP)

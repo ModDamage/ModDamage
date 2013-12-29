@@ -51,7 +51,7 @@ public class InventoryProps
                                 Integer slot = (Integer) arguments[0].get(data);
                                 if (slot == null) return;
                                 
-                                inv.setItem(slot, value.getItem());
+                                inv.setItem(slot, value == null? null : value.getItem());
 							}
 
 							public boolean isSettable() {
@@ -91,7 +91,7 @@ public class InventoryProps
                                 final Integer slot = (Integer) arguments[0].get(data);
                                 if (slot == null) return;
                                 
-                                view.setItem(slot, value.getItem());
+                                view.setItem(slot, value == null? null : value.getItem());
 							}
 
 							public boolean isSettable() {
@@ -119,7 +119,7 @@ public class InventoryProps
 					}
 					
 					public void set(InventoryView view, EventData data, ItemHolder value) {
-						view.setCursor(value.getItem());
+						view.setCursor(value == null? null : value.getItem());
 					}
                 });
         
