@@ -38,7 +38,7 @@ public class EntityString extends StringExp<Entity>
 				return ModDamage.getTagger().numTags.onEntity.getTags(entity).toString();
 			}
 		},
-		TYPE
+		TYPENAME
 		{
 			@Override protected String getString(Entity entity)
 			{
