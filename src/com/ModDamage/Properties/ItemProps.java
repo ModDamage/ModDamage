@@ -29,6 +29,7 @@ public class ItemProps
         
         // Meta
         Properties.register("name", ItemHolder.class, "getName", "setName");
+        Properties.register("owner", ItemHolder.class, "getOwner", "setOwner");
 	}
 
 }

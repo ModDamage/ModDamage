@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import com.ModDamage.Magic.MagicStuff;
 
@@ -177,6 +178,31 @@ public class ItemHolder {
     	
     	save();
     }
+    
+    
+    public String getOwner() {
+    	if (item == null) return null;
+    	ItemMeta meta = item.getItemMeta();
+    	if (meta == null || !(meta instanceof SkullMeta)) return null;
+    	
+    	SkullMeta smeta = (SkullMeta) meta;
+    	
+    	return smeta.getOwner();
+    }
+    
+    public void setOwner(String name) {
+    	if (item == null) return;
+    	ItemMeta meta = item.getItemMeta();
+    	if (meta == null || !(meta instanceof SkullMeta)) return;
+    	
+    	SkullMeta smeta = (SkullMeta) meta;
+    	
+    	smeta.setOwner(name);
+    	item.setItemMeta(smeta);
+    	
+    	save();
+    }
+    
 
     public void save() {}
     
