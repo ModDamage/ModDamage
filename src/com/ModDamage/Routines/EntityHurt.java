@@ -59,7 +59,7 @@ public class EntityHurt extends Routine
 
 	public static void register()
 	{
-		Routine.registerRoutine(Pattern.compile("(.+?)(?:effect)?\\.hurt(?:\\.from\\.(.+))?(?::|\\s+by\\s|\\s)\\s*(.+)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
+		Routine.registerRoutine(Pattern.compile("(.+?)(?:effect)?\\.hurt(?:\\.from\\.(.+))?(?::|\\s+by\\s)\\s*(.+)", Pattern.CASE_INSENSITIVE), new RoutineFactory());
 	}
 
 	protected static class RoutineFactory extends Routine.RoutineFactory
