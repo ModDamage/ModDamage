@@ -34,6 +34,12 @@ import com.ModDamage.Server.MDServer;
 
 public class PluginConfiguration implements ScriptLineHandler
 {
+	
+	private static final String TM_MAINLOAD = "Entire Reload";
+	private static final String TM_EXT_PL_MAN = "External Plugin Manager";
+	private static final String TM_SCRIPTLOAD = "Script Loading";
+	private static final String TM_MDEvent = "ModDamage Event";
+	
 	public final static Logger log = Logger.getLogger("Minecraft");
 	protected static final String configString_defaultConfigPath = "config.mdscript";
 
@@ -241,7 +247,8 @@ public class PluginConfiguration implements ScriptLineHandler
 
 	public boolean reload(boolean reloadingAll)
 	{
-		long reloadStartTime = System.nanoTime();
+		StopWatch sw = new StopWatch();
+		sw.start(TM_MAINLOAD);
 		LoadState.pluginState = LoadState.NOT_LOADED;
 		logMessagesSoFar = 0;
 
@@ -257,6 +264,7 @@ public class PluginConfiguration implements ScriptLineHandler
 
 		if(reloadingAll)
 		{
+			sw.start(TM_EXT_PL_MAN);
 			MDEvent.registerVanillaEvents();
 			ExternalPluginManager.reload();
 			if(ExternalPluginManager.getGroupsManager() == GroupsManager.None)
@@ -273,10 +281,12 @@ public class PluginConfiguration implements ScriptLineHandler
 				addToLogRecord(OutputPreset.INFO_VERBOSE, "mcMMO: Plugin not found.");
 			else
 				addToLogRecord(OutputPreset.CONSTANT, "mcMMO: Using version " + ExternalPluginManager.getMcMMOPlugin().getDescription().getVersion());
+			
+			sw.stop(TM_EXT_PL_MAN);
 		}
 
 		
-
+		sw.start(TM_SCRIPTLOAD);
 		FileInputStream stream = null;
 		try
 		{
@@ -298,9 +308,11 @@ public class PluginConfiguration implements ScriptLineHandler
 				catch (IOException e) { }
 			}
 		}
+		sw.stop(TM_SCRIPTLOAD);
 		
+		sw.start(TM_MDEvent);
 		MDEvent.registerEvents();
-
+		sw.stop(TM_MDEvent);
 		
 		// Default message settings
 		if(MDEvent.disableDeathMessages)
@@ -333,7 +345,18 @@ public class PluginConfiguration implements ScriptLineHandler
 		
 		LoadState.pluginState = LoadState.combineStates(MDEvent.combinedLoadState, AliasManager.getState());
 		
-		String timer = "(" + (System.nanoTime() - reloadStartTime)/1000 + " \u00b5s) ";
+		double time = sw.stop(TM_MAINLOAD);
+		String timer = "(" + time + " \u00b5s) ";
+		
+		addToLogRecord(OutputPreset.INFO_VERBOSE, "Timings:");
+		
+		changeIndentation(true);
+		
+		addToLogRecord(OutputPreset.INFO_VERBOSE, "Event Loading: " + (sw.time(TM_MDEvent)/1000) + " \u00b5s) ");
+		addToLogRecord(OutputPreset.INFO_VERBOSE, "External Event Manager: "+ (sw.time(TM_EXT_PL_MAN)/1000) + " \u00b5s");
+		addToLogRecord(OutputPreset.INFO_VERBOSE, "Script Loading: " + (sw.time(TM_SCRIPTLOAD)/1000) + " \u00b5s) ");
+		
+		changeIndentation(false);
 		
 		switch(LoadState.pluginState)
 		{
@@ -582,5 +605,11 @@ public class PluginConfiguration implements ScriptLineHandler
 	public DebugSetting getDebugSetting()
 	{
 		return currentSetting;
+	}
+	
+	public static void changeIndentation(boolean forward)
+	{
+		if (forward) indentation++;
+		else indentation--;
 	}
 }
