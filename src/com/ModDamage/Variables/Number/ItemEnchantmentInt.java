@@ -1,4 +1,4 @@
-package com.ModDamage.Variables.Int;
+package com.ModDamage.Variables.Number;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

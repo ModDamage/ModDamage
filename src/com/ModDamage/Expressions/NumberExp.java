@@ -14,13 +14,13 @@ import com.ModDamage.Expressions.Function.LocFunction;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routines;
-import com.ModDamage.Variables.Int.EnchantmentInt;
-import com.ModDamage.Variables.Int.ItemEnchantmentInt;
-import com.ModDamage.Variables.Int.LocalNum;
-import com.ModDamage.Variables.Int.NegativeNum;
-import com.ModDamage.Variables.Int.NumberOp;
-import com.ModDamage.Variables.Int.PotionEffectInt;
-import com.ModDamage.Variables.Int.RoutinesNum;
+import com.ModDamage.Variables.Number.EnchantmentInt;
+import com.ModDamage.Variables.Number.ItemEnchantmentInt;
+import com.ModDamage.Variables.Number.LocalNum;
+import com.ModDamage.Variables.Number.NegativeNum;
+import com.ModDamage.Variables.Number.NumberOp;
+import com.ModDamage.Variables.Number.PotionEffectInt;
+import com.ModDamage.Variables.Number.RoutinesNum;
 
 public abstract class NumberExp<From> extends DataProvider<Number, From>
 {

@@ -15,8 +15,8 @@ import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Parsing.ISettableDataProvider;
 import com.ModDamage.Parsing.SettableDataProvider;
-import com.ModDamage.Variables.Int.NumberOp;
-import com.ModDamage.Variables.Int.NumberOp.Operator;
+import com.ModDamage.Variables.Number.NumberOp;
+import com.ModDamage.Variables.Number.NumberOp.Operator;
 
 @SuppressWarnings("rawtypes")
 public class SetProperty extends Routine
