@@ -14,6 +14,7 @@ import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Backend.ScriptLineHandler;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Expressions.LiteralString;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Routines.Routine;
@@ -88,6 +89,9 @@ public class PlayerChat extends Routine
 		{
 			IDataProvider<String> msgDP = DataProvider.parse(info, String.class, str);
 			if (msgDP != null) {
+				if (msgDP instanceof LiteralString) {
+					((LiteralString) msgDP).colorize();
+				}
 				messages.add(msgDP);
 				ModDamage.addToLogRecord(OutputPreset.INFO, msgDP.toString());
 			}

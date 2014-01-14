@@ -65,6 +65,11 @@ public class LiteralString implements IDataProvider<String>
 	@Override
 	public Class<String> provides() { return String.class; }
 	
+	public void colorize()
+	{
+		value.colorize();
+	}
+	
 	@Override
 	public String toString()
 	{

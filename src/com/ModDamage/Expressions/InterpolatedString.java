@@ -121,7 +121,7 @@ public class InterpolatedString implements IDataProvider<String>
         return iss;
     }
 	
-	private String colorReplace(String str)
+	private static String colorReplace(String str)
 	{
 		return colorReplacePattern.matcher(str).replaceAll("\u00a7$1");
 	}
@@ -160,6 +160,7 @@ public class InterpolatedString implements IDataProvider<String>
 	}
 	
 	interface InterpolatedPart {
+		public void colorize();
 		public String toString(EventData data) throws BailException;
 		public String toString();
 	}
@@ -167,12 +168,14 @@ public class InterpolatedString implements IDataProvider<String>
 	private static class StringPart implements InterpolatedPart {
 		private String string;
 		public StringPart(String str) { string = str; }
+		public void colorize(){string = colorReplace(string);}
 		public String toString(EventData data) { return string; }
 		public String toString() { return string; }
 	}
 	
 	private static class DynamicStringPart implements InterpolatedPart {
 		private IDataProvider<String> dstring;
+		public void colorize(){}
 		public DynamicStringPart(IDataProvider<String> str) { dstring = str; }
 		public String toString(EventData data) throws BailException {
 			String str = dstring.get(data);
@@ -180,6 +183,11 @@ public class InterpolatedString implements IDataProvider<String>
 			return str;
 		}
 		public String toString() { return "%{" + dstring + "}"; }
+	}
+	
+	public void colorize() {
+		for (InterpolatedPart part : parts)
+			part.colorize();
 	}
 
 	@Override
