@@ -15,7 +15,9 @@ public class OfflinePlayerProps
 		Properties.register("isWhitelisted", OfflinePlayer.class, "isWhitelisted", "setWhitelisted");
 		Properties.register("isOp", OfflinePlayer.class, "isOp", "setOp");
 		Properties.register("hasPlayedBefore", OfflinePlayer.class, "hasPlayedBefore");
-
+		Properties.register("firstPlayed", OfflinePlayer.class, "getFirstPlayed");
+		Properties.register("lastPlayed", OfflinePlayer.class, "getLastPlayed");
+		
         DataProvider.registerTransformer(OfflinePlayer.class, "getPlayer");
 	}
 }
