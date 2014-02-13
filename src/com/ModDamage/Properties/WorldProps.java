@@ -1,9 +1,18 @@
 package com.ModDamage.Properties;
 
+import java.util.regex.Pattern;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
+import com.ModDamage.EventInfo.EventInfo;
+import com.ModDamage.Parsing.DataProvider;
+import com.ModDamage.Parsing.FunctionParser;
+import com.ModDamage.Parsing.IDataProvider;
+import com.ModDamage.Parsing.ISettableDataProvider;
+import com.ModDamage.Parsing.SettableDataProvider;
 import com.ModDamage.Parsing.Property.Properties;
 import com.ModDamage.Parsing.Property.Property;
 import com.ModDamage.Parsing.Property.SettableProperty;
@@ -65,5 +74,63 @@ public class WorldProps
         Properties.register("animalSpawnLimit", World.class, "getAnimalSpawnLimit", "setAnimalSpawnLimit");
         Properties.register("waterAnimalSpawnLimit", World.class, "getWaterAnimalSpawnLimit", "setWaterAnimalSpawnLimit");
         Properties.register("ambientSpawnLimit", World.class, "getAmbientSpawnLimit", "setAmbientSpawnLimit");
+
+        DataProvider.register(Boolean.class, World.class, Pattern.compile("_isGameRule"), new FunctionParser<Boolean, World>(String.class) {
+
+			@Override
+			protected IDataProvider<Boolean> makeProvider(EventInfo info, IDataProvider<World> startDP, final IDataProvider[] arguments) {
+				return new DataProvider<Boolean, World>(World.class, startDP) {
+						@Override
+						public Class<? extends Boolean> provides() {
+							return Boolean.class;
+						}
+						
+						@Override
+						public Boolean get(World start, EventData data) throws BailException {
+							return start.isGameRule((String)arguments[0].get(data));
+						}
+						
+						public String toString() {
+							return startDP.toString() + "_isGameRule";
+						};
+					};
+				};
+			}
+        	
+		);
+        
+        DataProvider.register(String.class, World.class, Pattern.compile("_gameRule"), new FunctionParser<String, World>(String.class) {
+        	@Override
+        	protected ISettableDataProvider<String> makeProvider(EventInfo info, IDataProvider<World> startDP, final IDataProvider[] arguments) {
+        		return new SettableDataProvider<String, World>(World.class, startDP) {
+
+					@Override
+					public boolean isSettable() {
+						return true;
+					}
+
+					@Override
+					public void set(World start, EventData data, String value) throws BailException {
+						start.setGameRuleValue((String)arguments[0].get(data), value);
+					}
+
+					@Override
+					public String get(World start, EventData data) throws BailException {
+						return start.getGameRuleValue((String)arguments[0].get(data));
+					}
+
+					@Override
+					public Class<? extends String> provides() {
+						return String.class;
+					}
+        			
+					@Override
+					public String toString() {
+						return startDP.toString() + "_gameRule";
+					}
+				};
+        	}
+        });
 	}
+	
 }
