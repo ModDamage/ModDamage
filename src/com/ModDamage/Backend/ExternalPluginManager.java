@@ -22,6 +22,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 
 import ru.tehkode.permissions.PermissionManager;
 
+import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
 import com.ModDamage.ModDamage.ModDamageExtension;
 import com.ModDamage.PluginConfiguration.OutputPreset;
@@ -31,6 +32,8 @@ import com.ModDamage.Expressions.NumberExp;
 import com.ModDamage.Expressions.StringExp;
 import com.ModDamage.External.TabAPI.TabAPISupport;
 import com.ModDamage.External.Vault.VaultSupport;
+import com.ModDamage.External.Votifier.Vote;
+import com.ModDamage.Magic.MagicStuff;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Properties.BlockProps;
 import com.ModDamage.Properties.ChunkProps;
@@ -455,6 +458,10 @@ public class ExternalPluginManager
 		regionsManagers = RegionsManager.reload();
 		mcMMOplugin = (mcMMO) Bukkit.getPluginManager().getPlugin("mcMMO");
 		reloadModDamageRoutines();
+		
+		if (Bukkit.getServer().getPluginManager().getPlugin("Votifier") != null)// Check if loaded.
+			if (MagicStuff.safeClassForName("com.vexsoftware.votifier.model.VotifierEvent") != null) //See if the event class still exists (In case an update breaks)
+				MDEvent.addEvent("Votifier", new Vote());
 	}
 	
 	public static void registerExtension(ModDamageExtension extension)
