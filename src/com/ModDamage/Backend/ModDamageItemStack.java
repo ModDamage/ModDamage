@@ -11,8 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
-import com.ModDamage.MDLogger.OutputPreset;
-import com.ModDamage.ModDamage;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.StringMatcher;
@@ -108,7 +107,7 @@ public class ModDamageItemStack
 			}
 			catch (IllegalArgumentException e)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, e.getMessage());
+				LogUtil.error(e.getMessage());
 			}
 		}
 		
@@ -130,13 +129,13 @@ public class ModDamageItemStack
 			
 		if (first == null)
 		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unable to match material \"" + m.group() + "\"");
+			LogUtil.error("Error: unable to match material \"" + m.group() + "\"");
 			return null;
 		}
 		
 		if (materials == null || materials.size() > 1)
 		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: matched "+(materials == null? 0:materials.size())+" materials, wanted only one: \"" + m.group() + "\"");
+			LogUtil.error("Error: matched "+(materials == null? 0:materials.size())+" materials, wanted only one: \"" + m.group() + "\"");
 			return null;
 		}
 		

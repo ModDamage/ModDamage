@@ -7,8 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -88,12 +87,12 @@ public class Knockback extends NestedRoutine
                     fromDP = DataProvider.transform(Location.class, otherEntityDP, info, false);
 				if (fromDP == null)
 				{
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "The entity '"+entityDP+"' doesn't have a natural opposite, so you need to specify one using '"+matcher.group()+".from.{entity}'");
+					LogUtil.error("The entity '"+entityDP+"' doesn't have a natural opposite, so you need to specify one using '"+matcher.group()+".from.{entity}'");
 					return null;
 				}
 			}
 
-            ModDamage.addToLogRecord(OutputPreset.INFO, "KnockBack " + entityDP + " from " + fromDP);
+            LogUtil.info("KnockBack " + entityDP + " from " + fromDP);
 
 			Knockback routine = new Knockback(scriptLine, entityDP, fromDP);
 			return new NestedRoutineBuilder(routine, routine.routines, info.chain(myInfo));

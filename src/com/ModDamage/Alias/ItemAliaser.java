@@ -6,8 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.Aliaser.CollectionAliaser;
 import com.ModDamage.Backend.ModDamageItemStack;
@@ -37,7 +36,7 @@ public class ItemAliaser extends CollectionAliaser<String>
 			if (key.startsWith("_")) {
 				if (hasAlias(key))
 					return Arrays.<ModDamageItemStack>asList(); // hmm, not ready yet?
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown alias: \"" + key + "\"");
+				LogUtil.error("Unknown alias: \"" + key + "\"");
 				return null;
 			}
 			values = new ArrayList<String>();
@@ -59,7 +58,7 @@ public class ItemAliaser extends CollectionAliaser<String>
 				if (sm.isEmpty())
 					break;
 				
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unidentified Yucky Stuff: \""+ sm.string +"\"");
+				LogUtil.error("Unidentified Yucky Stuff: \""+ sm.string +"\"");
 				return null;
 			}
 		}

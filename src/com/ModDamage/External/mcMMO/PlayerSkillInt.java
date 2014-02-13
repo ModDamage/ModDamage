@@ -5,11 +5,10 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 
-import com.ModDamage.ModDamage;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
@@ -50,7 +49,7 @@ public class PlayerSkillInt extends NumberExp<Player>
 							}
 							catch (IllegalArgumentException e) {
 								// SkillProperty.valueOf failed to find a match
-								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown skill property \""+skillPropStr+"\", valid values are: "+Utils.joinBy(", ", SkillProperty.values()));
+								LogUtil.error("Unknown skill property \""+skillPropStr+"\", valid values are: "+Utils.joinBy(", ", SkillProperty.values()));
 								return null;
 							}
 
@@ -60,7 +59,7 @@ public class PlayerSkillInt extends NumberExp<Player>
 							}
 							catch (IllegalArgumentException e) {
 								// SkillType.valueOf failed to find a match
-								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown skill type \""+skillTypeStr+"\", valid values are: "+Utils.joinBy(", ", SkillType.values()));
+								LogUtil.error("Unknown skill type \""+skillTypeStr+"\", valid values are: "+Utils.joinBy(", ", SkillType.values()));
 								return null;
 							}
 
@@ -71,9 +70,9 @@ public class PlayerSkillInt extends NumberExp<Player>
 						}
 						catch (NoClassDefFoundError e) {
 							if (ExternalPluginManager.getMcMMOPlugin() == null)
-								ModDamage.addToLogRecord(OutputPreset.FAILURE, "You need mcMMO to use the skill variables.");
+								LogUtil.error("You need mcMMO to use the skill variables.");
 							else
-								ModDamage.addToLogRecord(OutputPreset.FAILURE, "McMMO has changed. Please notify the ModDamage developers.");
+								LogUtil.error("McMMO has changed. Please notify the ModDamage developers.");
 						}
 						return null;
 					}
@@ -126,7 +125,7 @@ public class PlayerSkillInt extends NumberExp<Player>
 		}
 		catch (Exception e)
 		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "mcMMO threw an exception: "+e);
+			LogUtil.error("mcMMO threw an exception: "+e);
 			return 0;
 		}
 	}

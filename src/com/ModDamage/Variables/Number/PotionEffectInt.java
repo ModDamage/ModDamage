@@ -7,11 +7,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import com.ModDamage.ModDamage;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
@@ -53,7 +52,7 @@ public class PotionEffectInt extends NumberExp<LivingEntity>
 						PotionEffectType type = PotionEffectType.getByName(m.group(1).toUpperCase());
 						if (type == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown potion effect type '"+m.group(1)+"'");
+							LogUtil.error("Unknown potion effect type '"+m.group(1)+"'");
 							return null;
 						}
 						

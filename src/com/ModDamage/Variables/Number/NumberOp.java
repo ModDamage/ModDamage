@@ -5,11 +5,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
@@ -125,7 +124,7 @@ public class NumberOp extends NumberExp<Number>
 						IDataProvider<Number> rightDP = DataProvider.parse(info, Number.class, sm.spawn());
 						if (rightDP == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+sm.string+"\"");
+							LogUtil.error("Unable to match expression: \""+sm.string+"\"");
 							return null;
 						}
 						

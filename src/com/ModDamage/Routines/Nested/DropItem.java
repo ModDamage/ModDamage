@@ -6,8 +6,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Location;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Alias.ItemAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ItemHolder;
@@ -107,7 +106,7 @@ public class DropItem extends NestedRoutine
 
             if (quantity == null) return null;
 
-            ModDamage.addToLogRecord(OutputPreset.INFO, "Drop item at " + locationDP + ": " + items);
+            LogUtil.info("Drop item at " + locationDP + ": " + items);
 			
 			DropItem routine = new DropItem(scriptLine, locationDP, items, quantity);
 			return new NestedRoutineBuilder(routine, routine.routines, info.chain(myInfo));

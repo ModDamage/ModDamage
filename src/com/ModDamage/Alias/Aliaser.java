@@ -6,9 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.ModDamage.ModDamage;
+import com.ModDamage.LogUtil;
 import com.ModDamage.PluginConfiguration.LoadState;
-import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Backend.ScriptLineHandler;
 
@@ -28,7 +27,7 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 		/*
 		Type value = matchNonAlias(key);
 		if(value != null) return getNewStorageClass(value);
-		ModDamage.addToLogRecord(OutputPreset.FAILURE, "No matching " + name + " alias or value \"" + key + "\"");
+		LogUtil.error("No matching " + name + " alias or value \"" + key + "\"");
 		return getDefaultValue();* /
 	}*/
 
@@ -72,7 +71,7 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 //	public void load(LinkedHashMap<String, Object> rawAliases)
 //	{
 //		clear();
-//		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+//		LogUtil.console_only("");
 //		if(rawAliases != null && !rawAliases.isEmpty())
 //		{
 //			loadState = LoadState.SUCCESS;
@@ -81,7 +80,7 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 //				thisMap.put("_" + alias, getDefaultValue());
 //			for(Entry<String, Object> entry : rawAliases.entrySet())
 //			{
-//				ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+//				LogUtil.console_only("");
 //				if(entry.getValue() != null)
 //				{
 //					if(!this.completeAlias("_" + entry.getKey(), entry.getValue()))
@@ -113,7 +112,7 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 				public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
 				{
 					if (hasValue) {
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, line, name+" alias _"+nameLine.line+" cannot have multiple values.");
+						LogUtil.error(line, name+" alias _"+nameLine.line+" cannot have multiple values.");
 						return null;
 					}
 					value = matchAlias(line.line);
@@ -125,7 +124,7 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 				public void done()
 				{
 					if (!hasValue) {
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, nameLine, name+" alias _"+nameLine.line+" has no value.");
+						LogUtil.error(nameLine, name+" alias _"+nameLine.line+" has no value.");
 						return;
 					}
 					putAlias("_"+nameLine.line, value);
@@ -146,7 +145,7 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 //					return true;
 //				}
 //			}
-//			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error adding alias \"" + key + "\" - unrecognized value \"" + nestedContent.toString() + "\"");
+//			LogUtil.error("Error adding alias \"" + key + "\" - unrecognized value \"" + nestedContent.toString() + "\"");
 //			return false;
 //		}
 		
@@ -157,7 +156,7 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 			
 			
 			Type value = matchNonAlias(key);
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "No matching " + name + " alias or value \"" + key + "\"");
+			LogUtil.error("No matching " + name + " alias or value \"" + key + "\"");
 			return value;
 		}
 		
@@ -209,7 +208,7 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 				public void done()
 				{
 					if (!hasValue) {
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, nameLine, name+" alias _"+nameLine.line+" has no value.");
+						LogUtil.error(nameLine, name+" alias _"+nameLine.line+" has no value.");
 						return;
 					}
 					putAlias("_"+nameLine.line, values);
@@ -224,7 +223,7 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 //			boolean failFlag = false;
 //			HashSet<InfoType> matchedItems = new HashSet<InfoType>();
 //			List<String> foundValues = new ArrayList<String>();
-//			ModDamage.addToLogRecord(OutputPreset.INFO, "Adding " + name + " alias \"" + key + "\"");
+//			LogUtil.info("Adding " + name + " alias \"" + key + "\"");
 //			ModDamage.changeIndentation(true);
 //			if(nestedContent instanceof String)
 //			{
@@ -238,14 +237,14 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 //						foundValues.add(((String)object));
 //					else
 //					{
-//						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized object " + nestedContent.toString());
+//						LogUtil.error("Unrecognized object " + nestedContent.toString());
 //						failFlag = true;
 //					}
 //				}
 //			}
 //			else
 //			{
-//				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unrecognized object " + nestedContent.toString());
+//				LogUtil.error("Unrecognized object " + nestedContent.toString());
 //				failFlag = true;
 //			}
 //			
@@ -269,7 +268,7 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 //					ModDamage.addToLogRecord(OutputPreset.WARNING, "Self-referential value \"" + key + "\" - ignoring.");
 //				else
 //				{
-//					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: invalid value \"" + (String)listedValue + "\" - ignoring.");
+//					LogUtil.error("Error: invalid value \"" + (String)listedValue + "\" - ignoring.");
 //					failFlag = true;//debug output already handled in failed matchAlias
 //				}
 //			}
@@ -297,7 +296,7 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 				}
 			}
 			if(!failFlag && !values.isEmpty()) return values;
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "No matching " + name + " alias or value \"" + key + "\"");
+			LogUtil.error("No matching " + name + " alias or value \"" + key + "\"");
 			return getDefaultValue();
 		}
 

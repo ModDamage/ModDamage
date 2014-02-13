@@ -5,11 +5,10 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 
-import com.ModDamage.ModDamage;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Conditionals.Conditional;
 import com.ModDamage.EventInfo.EventData;
@@ -109,7 +108,7 @@ public class AbilityConditional extends Conditional<Player>
 							mcMMOability = ability;
 					if(mcMMOability == null)
 					{
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid McMMO ability \"" + m.group(3) + "\"");
+						LogUtil.error("Invalid McMMO ability \"" + m.group(3) + "\"");
 						return null;
 					}
 					

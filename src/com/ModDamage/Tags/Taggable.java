@@ -7,7 +7,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.ModDamage;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
@@ -86,7 +86,7 @@ public abstract class Taggable<T> {
             }
         }
 
-        ModDamage.addToLogRecord(OutputPreset.FAILURE, dp.provides().getSimpleName() + " is not a taggable type: "+dp);
+        LogUtil.error(dp.provides().getSimpleName() + " is not a taggable type: "+dp);
         return null;
     }
     

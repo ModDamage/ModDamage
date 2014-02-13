@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ModDamage.LogUtil;
 import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
@@ -90,7 +90,7 @@ public class LogMessage extends NestedRoutine
 			if (logNameDP == null) return null;
 
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Log (" + logNameDP + "):" );
+			LogUtil.info("Log (" + logNameDP + "):" );
 			ModDamage.changeIndentation(true);
 			
 			MessageRoutineBuilder builder = new MessageRoutineBuilder(scriptLine, logNameDP, info);
@@ -124,7 +124,7 @@ public class LogMessage extends NestedRoutine
 			IDataProvider<String> msgDP = DataProvider.parse(info, String.class, str);
 			if (msgDP != null) {
 				messages.add(msgDP);
-				ModDamage.addToLogRecord(OutputPreset.INFO, msgDP.toString());
+				LogUtil.info(msgDP.toString());
 			}
 		}
 

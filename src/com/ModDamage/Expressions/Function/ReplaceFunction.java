@@ -3,8 +3,7 @@ package com.ModDamage.Expressions.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
@@ -65,7 +64,7 @@ public class ReplaceFunction extends DataProvider<String, String>
 						IDataProvider<String> arg = DataProvider.parse(info, String.class, sm.spawn());
 						if (arg == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \"" + sm.string + "\"");
+							LogUtil.error("Unable to match expression: \"" + sm.string + "\"");
 							return null;
 						}
 
@@ -73,7 +72,7 @@ public class ReplaceFunction extends DataProvider<String, String>
 
 						if (sm.matchesFront(commaPattern) != (i != 1))
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Wrong number of parameters for replace" + (m.group(1) != null?m.group(1):"") + " function: "+i);
+							LogUtil.error("Wrong number of parameters for replace" + (m.group(1) != null?m.group(1):"") + " function: "+i);
 							return null;
 						}
 					}
@@ -82,7 +81,7 @@ public class ReplaceFunction extends DataProvider<String, String>
 					Matcher endMatcher = sm.matchFront(endPattern);
 					if (endMatcher == null)
 					{
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Missing end paren: \"" + sm.string + "\"");
+						LogUtil.error("Missing end paren: \"" + sm.string + "\"");
 						return null;
 					}
 

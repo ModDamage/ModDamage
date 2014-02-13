@@ -6,8 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Utils;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataParser;
@@ -60,7 +59,7 @@ public class EntityHasPotionEffect extends Conditional<LivingEntity>
 						effectTypes[i] = PotionEffectType.getByName(effectTypeStrs[i].toUpperCase());
 						if (effectTypes[i] == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown potion effect type '"+effectTypeStrs[i]+"'");
+							LogUtil.error("Unknown potion effect type '"+effectTypeStrs[i]+"'");
 							return null;
 						}
 					}

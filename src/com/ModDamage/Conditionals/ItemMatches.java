@@ -4,8 +4,7 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Alias.ItemAliaser;
@@ -59,7 +58,7 @@ public class ItemMatches extends Conditional<ItemHolder>
 					if(matchedItems == null || matchedItems.isEmpty()) return null;
 						
 					if (m.group(1).equalsIgnoreCase("material"))
-						ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Using the material version is deprecated. Please use '"+ itemDP +".matches."+ m.group(2) +"' instead.");
+						LogUtil.warning_strong("Using the material version is deprecated. Please use '"+ itemDP +".matches."+ m.group(2) +"' instead.");
 					
 					return new ItemMatches(itemDP, matchedItems);
 				}

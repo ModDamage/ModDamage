@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 import org.mcsg.double0negative.tabapi.TabAPI;
 
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.ModDamage;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
@@ -86,7 +86,7 @@ public class SetTabString extends Routine
 			IDataProvider<String> istr = DataProvider.parse(info, String.class, m.group(3));
 			
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "SetTabString: " + playerDP + " " + xDP + ", " + yDP + (pingDP == null? "" : (", " + pingDP)) + ": " + istr);
+			LogUtil.info("SetTabString: " + playerDP + " " + xDP + ", " + yDP + (pingDP == null? "" : (", " + pingDP)) + ": " + istr);
 			
 			return new RoutineBuilder(new SetTabString(scriptLine, playerDP, xDP, yDP, pingDP, istr));
 		}

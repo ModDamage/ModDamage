@@ -5,8 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Location;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -53,7 +52,7 @@ public class Lightning extends Routine
 
             boolean effect = matcher.group(2) != null;
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Lightning"+(effect?" effect":"")+" at " + locDP);
+            LogUtil.info("Lightning"+(effect?" effect":"")+" at " + locDP);
 			return new RoutineBuilder(new Lightning(scriptLine, locDP, effect));
 		}
 	}

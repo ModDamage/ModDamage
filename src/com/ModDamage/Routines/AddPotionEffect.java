@@ -7,8 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
@@ -66,7 +65,7 @@ public class AddPotionEffect extends Routine
 			PotionEffectType type = PotionEffectType.getByName(matcher.group(2).toUpperCase());
 			if (type == null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown potion effect type '"+matcher.group(2)+"'");
+				LogUtil.error("Unknown potion effect type '"+matcher.group(2)+"'");
 				return null;
 			}
 			
@@ -76,7 +75,7 @@ public class AddPotionEffect extends Routine
 			IDataProvider<Integer> amplifier = DataProvider.parse(info, Integer.class, sm.spawn()); if (amplifier == null) return null;
 			if (!sm.isEmpty()) return null;
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "AddPotionEffect: to " + livingDP + ", " + type.getName() + ", " + duration + ", " + amplifier);
+			LogUtil.info("AddPotionEffect: to " + livingDP + ", " + type.getName() + ", " + duration + ", " + amplifier);
 			return new RoutineBuilder(new AddPotionEffect(scriptLine, livingDP, type, duration, amplifier));
 		}
 	}

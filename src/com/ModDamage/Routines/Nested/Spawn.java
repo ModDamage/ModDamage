@@ -7,8 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -64,13 +63,13 @@ public class Spawn extends NestedRoutine
 			if (spawnType == null) return null;
 			if (!spawnType.canSpawn())
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Cannot spawn "+matcher.group(2));
+				LogUtil.error("Cannot spawn "+matcher.group(2));
 				return null;
 			}
 			IDataProvider<Location> locDP = DataProvider.parse(info, Location.class, matcher.group(1));
             if (locDP == null) return null;
 
-            ModDamage.addToLogRecord(OutputPreset.INFO, "Spawn "+spawnType+" at "+locDP);
+            LogUtil.info("Spawn "+spawnType+" at "+locDP);
 
 			EventInfo einfo = info.chain(myInfo);
 

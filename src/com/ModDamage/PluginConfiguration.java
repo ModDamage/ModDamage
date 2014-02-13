@@ -112,14 +112,14 @@ public class PluginConfiguration implements ScriptLineHandler
 		{
 			Matcher m = settingPattern.matcher(line.line);
 			if (!m.matches()) {
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid setting: \"" + line.line + "\"");
+				LogUtil.error("Invalid setting: \"" + line.line + "\"");
 				return null;
 			}
 			
 			String name = m.group(1).trim().toLowerCase().replaceAll("\\s+", "-");
 			String value = m.group(2).trim();
 
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "setting: '"+name+"' = '"+value+"'");
+			LogUtil.info_verbose("setting: '"+name+"' = '"+value+"'");
 			
 			
 			if (name.equals("debugging")) {
@@ -127,7 +127,7 @@ public class PluginConfiguration implements ScriptLineHandler
 					log.currentSetting = DebugSetting.valueOf(value.toUpperCase());
 				}
 				catch (IllegalArgumentException e) {
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad debug level: " + value);
+					LogUtil.error("Bad debug level: " + value);
 				}
 			}
 			else if (name.equals("log-file")) {
@@ -153,7 +153,7 @@ public class PluginConfiguration implements ScriptLineHandler
 					tags_save_interval = Integer.parseInt(value);
 				}
 				catch (NumberFormatException e) {
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad tags save interval: " + value);
+					LogUtil.error("Bad tags save interval: " + value);
 				}
 			}
 			else if (name.equals("server-bindaddr")) {
@@ -164,7 +164,7 @@ public class PluginConfiguration implements ScriptLineHandler
 					serverPort = Integer.parseInt(value);
 				}
 				catch (NumberFormatException e) {
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad server port: " + value);
+					LogUtil.error("Bad server port: " + value);
 				}
 			}
 			else if (name.equals("server-username")) {
@@ -174,7 +174,7 @@ public class PluginConfiguration implements ScriptLineHandler
 				serverPassword = value;
 			}
 			else {
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown setting: " + m.group(1));
+				LogUtil.error("Unknown setting: " + m.group(1));
 			}
 			
 			return null;
@@ -309,31 +309,31 @@ public class PluginConfiguration implements ScriptLineHandler
 		
 		// Default message settings
 		if(MDEvent.disableDeathMessages)
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla death messages disabled.");
+			LogUtil.constant("Vanilla death messages disabled.");
 		else
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla death messages enabled.");
+			LogUtil.info_verbose("Vanilla death messages enabled.");
 		
 		if(MDEvent.disableJoinMessages)
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla join messages disabled.");
+			LogUtil.constant("Vanilla join messages disabled.");
 		else
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla join messages enabled.");
+			LogUtil.info_verbose("Vanilla join messages enabled.");
 		
 		if(MDEvent.disableQuitMessages)
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla quit messages disabled.");
+			LogUtil.constant("Vanilla quit messages disabled.");
 		else
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla quit messages enabled.");
+			LogUtil.info_verbose("Vanilla quit messages enabled.");
 		
 		if(MDEvent.disableKickMessages)
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla kick messages disabled.");
+			LogUtil.constant("Vanilla kick messages disabled.");
 		else
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla kick messages enabled.");
+			LogUtil.info_verbose("Vanilla kick messages enabled.");
 		
 
 		if(serverUsername != null && serverPassword != null) {
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Web server starting on port "+ (serverBindaddr != null? serverBindaddr : "*") +":"+ serverPort);
+			LogUtil.constant("Web server starting on port "+ (serverBindaddr != null? serverBindaddr : "*") +":"+ serverPort);
 			MDServer.startServer(serverBindaddr, serverPort, serverUsername, serverPassword);
 		} else
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Web server not started");
+			LogUtil.info_verbose("Web server not started");
 		
 		
 		LoadState.pluginState = LoadState.combineStates(MDEvent.combinedLoadState, AliasManager.getState());
@@ -354,25 +354,25 @@ public class PluginConfiguration implements ScriptLineHandler
 		switch(LoadState.pluginState)
 		{
 			case NOT_LOADED:
-				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "No configuration loaded.");
+				addToLogRecord(OutputPreset.CONSTANT, log.logPrepend() + timer + "No configuration loaded.");
 				break;
 			case FAILURE:
-				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Loaded configuration with one or more errors.");
+				addToLogRecord(OutputPreset.CONSTANT, log.logPrepend() + timer + "Loaded configuration with one or more errors.");
 				break;
 			case SUCCESS:
 				int worstValue = log.worstLogMessageLevel.intValue();
 				
 				if (worstValue >= Level.SEVERE.intValue()) {
-					addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Finished loading configuration with errors.");
+					addToLogRecord(OutputPreset.CONSTANT, log.logPrepend() + timer + "Finished loading configuration with errors.");
 				}
 				else if (worstValue >= Level.WARNING.intValue()) {
-					addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Finished loading configuration with warnings.");
+					addToLogRecord(OutputPreset.CONSTANT, log.logPrepend() + timer + "Finished loading configuration with warnings.");
 				}
 				else if (worstValue >= Level.INFO.intValue()) {
-					addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Finished loading configuration.");
+					addToLogRecord(OutputPreset.CONSTANT, log.logPrepend() + timer + "Finished loading configuration.");
 				}
 				else {
-					addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Weird reload: " + log.worstLogMessageLevel);
+					addToLogRecord(OutputPreset.CONSTANT, log.logPrepend() + timer + "Weird reload: " + log.worstLogMessageLevel);
 				}
 				
 				break;
@@ -392,7 +392,7 @@ public class PluginConfiguration implements ScriptLineHandler
 	
 	private boolean writeDefaults()
 	{
-		addToLogRecord(OutputPreset.INFO, logPrepend() + "No configuration file found! Writing a blank config in " + configString_defaultConfigPath + "...");
+		addToLogRecord(OutputPreset.INFO, log.logPrepend() + "No configuration file found! Writing a blank config in " + configString_defaultConfigPath + "...");
 		if(!configFile.exists())
 		{
 			try
@@ -496,10 +496,7 @@ public class PluginConfiguration implements ScriptLineHandler
 	}
 	
 
-	public void addToLogRecord(OutputPreset preset, ScriptLine line, String message)
-	{
-		addToLogRecord(preset, line.lineNumber + ": " + message);
-	}
+	
 	
 	private static boolean replaceOrAppendInFile(File file, String targetRegex, String replaceString)
 	{
@@ -577,6 +574,9 @@ public class PluginConfiguration implements ScriptLineHandler
 	}
 	
 	// Helper Methods
+	
+	public void addToLogRecord(OutputPreset preset, ScriptLine line, String message) { log.addToLogRecord(preset, line.lineNumber + ": " + message); }
+
 	public void addToLogRecord(OutputPreset preset, String message) { log.addToLogRecord(preset, message); }
 	
 	public DebugSetting getDebugSetting() { return log.getDebugSetting(); }
@@ -588,4 +588,8 @@ public class PluginConfiguration implements ScriptLineHandler
 	public void printToLog(Level level, String message){ log.printToLog(level, message); }
 	
 	public void changeIndentation(boolean forward) { log.changeIndentation(forward); }
+
+	public Level getWorstLogMessageLevel() {
+		return log.worstLogMessageLevel;
+	}
 }

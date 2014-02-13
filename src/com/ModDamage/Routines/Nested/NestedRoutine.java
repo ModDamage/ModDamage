@@ -1,5 +1,6 @@
 package com.ModDamage.Routines.Nested;
 
+import com.ModDamage.LogUtil;
 import com.ModDamage.ModDamage;
 import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Backend.ScriptLine;
@@ -58,7 +59,7 @@ public abstract class NestedRoutine extends Routine
 //					return routine;
 //			}
 //		}
-//		ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for nested routine \"" + string + "\"");		
+//		LogUtil.error(" No match found for nested routine \"" + string + "\"");		
 //		return null;
 //	}
 
@@ -80,8 +81,8 @@ public abstract class NestedRoutine extends Routine
 
 	public static void paddedLogRecord(OutputPreset preset, String message)
 	{		
-		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+		LogUtil.console_only("");
 		ModDamage.addToLogRecord(preset, message);
-		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+		LogUtil.console_only("");
 	}
 }

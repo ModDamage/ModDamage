@@ -5,8 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Alias.RoutineAliaser.ScriptCapturedLines;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Backend.ScriptLineHandler;
@@ -82,7 +81,7 @@ public class RoutineAliaser extends Aliaser<ScriptCapturedLines, ScriptCapturedL
 			public void done()
 			{
 				if (!hasValue) {
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, nameLine, name+" alias _"+nameLine.line+" has no routines.");
+					LogUtil.error(nameLine, name+" alias _"+nameLine.line+" has no routines.");
 					return;
 				}
 				putAlias("_"+nameLine.line, lines);
@@ -109,10 +108,10 @@ public class RoutineAliaser extends Aliaser<ScriptCapturedLines, ScriptCapturedL
 		ScriptCapturedLines lines = getAlias(alias);
 		if (lines == null)
 		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown alias: \"" + alias + "\"");
+			LogUtil.error("Unknown alias: \"" + alias + "\"");
 			return null;
 		}
-		ModDamage.addToLogRecord(OutputPreset.INFO, "Routines in " + alias);
+		LogUtil.info("Routines in " + alias);
 		
 		isParsingAlias = true;
 		
@@ -165,7 +164,7 @@ public class RoutineAliaser extends Aliaser<ScriptCapturedLines, ScriptCapturedL
 //				Routine routine = Routine.getNew(string, info);
 //				if(!elseOrAppend(target, routine))
 //				{
-//					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid base routine " + " \"" + string + "\"");
+//					LogUtil.error("Invalid base routine " + " \"" + string + "\"");
 //					success = false;
 //				}
 //			}
@@ -182,7 +181,7 @@ public class RoutineAliaser extends Aliaser<ScriptCapturedLines, ScriptCapturedL
 //							break;
 //						}
 //					}
-//				else ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: invalid nested routine \"" + someHashMap.toString() + "\"");
+//				else LogUtil.error("Parse error: invalid nested routine \"" + someHashMap.toString() + "\"");
 //			}
 //			else if(object instanceof List)
 //				for(Object nestedObject : (List<Object>)object)
@@ -192,13 +191,13 @@ public class RoutineAliaser extends Aliaser<ScriptCapturedLines, ScriptCapturedL
 //				}
 //			else
 //			{
-//				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: did not recognize object " + object.toString() + " of type " + object.getClass().getName());
+//				LogUtil.error("Parse error: did not recognize object " + object.toString() + " of type " + object.getClass().getName());
 //				return false;
 //			}
 //		}
 //		else
 //		{
-//			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Parse error: null");
+//			LogUtil.error("Parse error: null");
 //			success = false;
 //		}
 //		return success;
@@ -210,7 +209,7 @@ public class RoutineAliaser extends Aliaser<ScriptCapturedLines, ScriptCapturedL
 //		
 //		if (newRoutine instanceof If && ((If) newRoutine).isElse) {
 //			if (routines.isEmpty() || !(routines.get(routines.size()-1) instanceof If)) {
-//				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: else not after if: '"+newRoutine+"'");
+//				LogUtil.error("Error: else not after if: '"+newRoutine+"'");
 //				return false;
 //			}
 //			

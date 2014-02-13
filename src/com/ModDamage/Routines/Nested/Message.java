@@ -11,8 +11,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import com.ModDamage.LogUtil;
 import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Alias.MessageAliaser;
 import com.ModDamage.Backend.BailException;
@@ -151,7 +151,7 @@ public class Message extends Routine
 			MessageTarget messageTarget = MessageTarget.match(sm, info);
 			if(messageTarget == null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad message target: "+matcher.group(1));
+				LogUtil.error("Bad message target: "+matcher.group(1));
 				return null;
 			}
 			
@@ -161,25 +161,25 @@ public class Message extends Routine
 				Collection<IDataProvider<String>> messages = MessageAliaser.match(targetEnd.group(1), info);
 				if (messages == null)
 				{
-//					ModDamage.addToLogRecord(OutputPreset.FAILURE, "This message form can only be used for message aliases. Please use the following instead.");
-//					ModDamage.addToLogRecord(OutputPreset.FAILURE, "    message."+matcher.group(1)+": '" + matcher.group(2) + "'");
+//					LogUtil.error("This message form can only be used for message aliases. Please use the following instead.");
+//					LogUtil.error("    message."+matcher.group(1)+": '" + matcher.group(2) + "'");
 					return null;
 				}
 				
 				
 				Message routine = new Message(scriptLine, messageTarget, messages);
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Message (" + messageTarget + "):" );
+				LogUtil.info("Message (" + messageTarget + "):" );
 				ModDamage.changeIndentation(true);
 				for (IDataProvider<String> msg : messages)
 				{
-					ModDamage.addToLogRecord(OutputPreset.INFO, msg.toString());
+					LogUtil.info(msg.toString());
 				}
 				ModDamage.changeIndentation(false);
 				return new RoutineBuilder(routine);
 			}
 			
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Message (" + messageTarget + "):" );
+			LogUtil.info("Message (" + messageTarget + "):" );
 			ModDamage.changeIndentation(true);
 			
 			MessageRoutineBuilder builder = new MessageRoutineBuilder(scriptLine, messageTarget, info);
@@ -215,7 +215,7 @@ public class Message extends Routine
 					((LiteralString) msgDP).colorize();
 				}
 				messages.add(msgDP);
-				ModDamage.addToLogRecord(OutputPreset.INFO, msgDP.toString());
+				LogUtil.info(msgDP.toString());
 			}
 		}
 

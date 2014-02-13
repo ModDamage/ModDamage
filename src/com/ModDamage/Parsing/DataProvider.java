@@ -14,8 +14,7 @@ import java.util.regex.Pattern;
 import krum.automaton.TokenAutomaton;
 import krum.automaton.TokenResult;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
@@ -308,7 +307,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			else
 				error += " at "+provName+" \""+soFar+"\" for \""+simpleName+"\"";
 			
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, error);
+			LogUtil.error(error);
 		}
 		
 		return null;
@@ -415,7 +414,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
         StringMatcher sm2 = sm.spawn();
         Matcher m2 = sm2.matchFront(parserData.pattern);
         if (m2 == null) {
-//            ModDamage.addToLogRecord(OutputPreset.FAILURE, "Matched group failed to match?? "+parserData.parser.getClass().getName()+" \""+parserData.pattern.pattern()+"\"");
+//            LogUtil.error("Matched group failed to match?? "+parserData.parser.getClass().getName()+" \""+parserData.pattern.pattern()+"\"");
             return null;
         }
         

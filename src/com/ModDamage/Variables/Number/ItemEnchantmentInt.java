@@ -5,8 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.enchantments.Enchantment;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ItemHolder;
@@ -29,7 +28,7 @@ public class ItemEnchantmentInt extends SettableIntegerExp<ItemHolder>
 						Enchantment enchantment = Enchantment.getByName(m.group(1).toUpperCase());
 						if (enchantment == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown enchantment named \"" + m.group(1) + "\"");
+							LogUtil.error("Unknown enchantment named \"" + m.group(1) + "\"");
 							return null;
 						}
 						return sm.acceptIf(new ItemEnchantmentInt(

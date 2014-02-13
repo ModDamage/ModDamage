@@ -7,8 +7,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Alias.ItemAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ItemHolder;
@@ -134,7 +133,7 @@ public class EntityItemAction extends NestedRoutine
             if (quantity == null) return null;
 
 
-            ModDamage.addToLogRecord(OutputPreset.INFO, action.charAt(0) + action.substring(1).toLowerCase() + " at/to " + humanDP + ": " + items);
+            LogUtil.info(action.charAt(0) + action.substring(1).toLowerCase() + " at/to " + humanDP + ": " + items);
 			
 			EntityItemAction routine = new EntityItemAction(scriptLine, humanDP, ItemAction.valueOf(action), items, quantity);
 			return new NestedRoutineBuilder(routine, routine.routines, info.chain(myInfo));

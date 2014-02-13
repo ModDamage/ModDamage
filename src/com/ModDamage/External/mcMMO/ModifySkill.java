@@ -100,7 +100,7 @@ public class ModifySkill extends NestedRoutine
 		}
 		catch (NoClassDefFoundError e) {
 //			if (ExternalPluginManager.getMcMMOPlugin() != null)
-//				ModDamage.addToLogRecord(OutputPreset.FAILURE, "McMMO has changed. Please notify the ModDamage developers.");
+//				LogUtil.error("McMMO has changed. Please notify the ModDamage developers.");
 		}
 	}
 	

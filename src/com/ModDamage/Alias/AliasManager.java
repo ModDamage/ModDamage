@@ -3,8 +3,7 @@ package com.ModDamage.Alias;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.ModDamage.MDLogger.OutputPreset;
-import com.ModDamage.ModDamage;
+import com.ModDamage.LogUtil;
 import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.ScriptLine;
@@ -57,7 +56,7 @@ public enum AliasManager
 				{
 					AliasManager a = typeMap.get(line.line.toUpperCase());
 					if (a == null) {
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, line, "Illegal alias name: \""+line.line+"\"");
+						LogUtil.error(line, "Illegal alias name: \""+line.line+"\"");
 						return null;
 					}
 					return a.getAliaser();

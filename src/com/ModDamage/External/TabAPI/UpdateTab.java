@@ -6,8 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 import org.mcsg.double0negative.tabapi.TabAPI;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -48,7 +47,7 @@ public class UpdateTab extends NestedRoutine
 			IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, m.group(1));
 			if(playerDP == null) return null;
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "UpdateTab: " + playerDP);
+			LogUtil.info("UpdateTab: " + playerDP);
 			
 			return new RoutineBuilder(new UpdateTab(scriptLine, playerDP));
 		}

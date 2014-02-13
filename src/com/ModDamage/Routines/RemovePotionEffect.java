@@ -6,8 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -52,11 +51,11 @@ public class RemovePotionEffect extends Routine
 			PotionEffectType type = PotionEffectType.getByName(matcher.group(2).toUpperCase());
 			if (type == null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown potion effect type '"+matcher.group(2)+"'");
+				LogUtil.error("Unknown potion effect type '"+matcher.group(2)+"'");
 				return null;
 			}
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "RemovePotionEffect: from " + livingDP + ", " + type.getName());
+			LogUtil.info("RemovePotionEffect: from " + livingDP + ", " + type.getName());
 			return new RoutineBuilder(new RemovePotionEffect(scriptLine, livingDP, type));
 		}
 	}

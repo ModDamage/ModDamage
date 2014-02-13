@@ -4,13 +4,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Parsing.ISettableDataProvider;
 import com.ModDamage.Routines.Nested.NestedRoutine;
 
@@ -47,7 +45,7 @@ public class ClearList extends NestedRoutine
 			ISettableDataProvider<List> listDP = info.get(List.class, matcher.group(1));
 			if(listDP == null) return null;
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Clear " + listDP);
+			LogUtil.info("Clear " + listDP);
 			return new RoutineBuilder(new ClearList(scriptLine, listDP));
 		}
 	}

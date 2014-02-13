@@ -1,7 +1,6 @@
 package com.ModDamage.EventInfo;
 
-import com.ModDamage.MDLogger.OutputPreset;
-import com.ModDamage.ModDamage;
+import com.ModDamage.LogUtil;
 
 public class EventData implements Cloneable
 {
@@ -44,7 +43,7 @@ public class EventData implements Cloneable
 	public Object get(int i)
 	{
 		if (i - start >= objects.length) {
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad index of "+i+" / "+start+"+"+objects.length);
+			LogUtil.error("Bad index of "+i+" / "+start+"+"+objects.length);
 			return null;
 		}
 		if (i >= start) return objects[i - start];
@@ -57,7 +56,7 @@ public class EventData implements Cloneable
 		Object o = get(i);
 		if (o == null) return null;
 		if (cls.isInstance(o)) return (T) o;
-		ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad cast of "+o+" to "+cls.getSimpleName());
+		LogUtil.error("Bad cast of "+o+" to "+cls.getSimpleName());
 		return null;
 	}
 	
@@ -82,7 +81,7 @@ public class EventData implements Cloneable
 		else if (parent != null)
 			parent.set(i, obj);
 		else
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Setting bad index "+i+" to "+obj+" type "+cls.getSimpleName());
+			LogUtil.error("Setting bad index "+i+" to "+obj+" type "+cls.getSimpleName());
 	}
 	
 	public Number getLocal(int localIndex) {

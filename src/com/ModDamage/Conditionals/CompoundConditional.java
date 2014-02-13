@@ -3,11 +3,10 @@ package com.ModDamage.Conditionals;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
@@ -89,7 +88,7 @@ public class CompoundConditional extends Conditional<Boolean>
 			catch (IllegalArgumentException e) {}
 			catch (NullPointerException e) {}
 			
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid comparison operator \"" + key + "\"");
+			LogUtil.error("Invalid comparison operator \"" + key + "\"");
 			return null;
 		}
 		

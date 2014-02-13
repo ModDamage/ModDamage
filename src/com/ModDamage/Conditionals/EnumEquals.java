@@ -7,8 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
@@ -80,7 +79,7 @@ public class EnumEquals extends Conditional<Enum>
 								types.add(null);
 								continue;
 							}
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: \"" + typeStr + "\" is not a valid " + enumDP.provides().getSimpleName());
+							LogUtil.error("Error: \"" + typeStr + "\" is not a valid " + enumDP.provides().getSimpleName());
 							return null;
 						}
 						types.add(type);

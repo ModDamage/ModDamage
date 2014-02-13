@@ -7,13 +7,11 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import com.ModDamage.ModDamage;
-
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 
@@ -71,7 +69,7 @@ public class PlaySound extends Routine
 			}
 			catch (IllegalArgumentException e)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad sound: \""+matcher.group(2)+"\"");
+				LogUtil.error("Bad sound: \""+matcher.group(2)+"\"");
 				return null;
 			}
 
@@ -80,7 +78,7 @@ public class PlaySound extends Routine
             IDataProvider<Integer> pitchDP = DataProvider.parse(info, Integer.class, matcher.group(5));
             if (volumeDP == null || pitchDP == null) return null;
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "PlaySound: " + sound + " for:" + playerDP + " at:" + locDP + " volume:" + volumeDP + " pitch:" + pitchDP);
+            LogUtil.info("PlaySound: " + sound + " for:" + playerDP + " at:" + locDP + " volume:" + volumeDP + " pitch:" + pitchDP);
 			return new RoutineBuilder(new PlaySound(scriptLine, playerDP, locDP, sound, volumeDP, pitchDP));
 		}
 	}

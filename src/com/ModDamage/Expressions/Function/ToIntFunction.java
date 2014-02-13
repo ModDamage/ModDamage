@@ -3,8 +3,7 @@ package com.ModDamage.Expressions.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
@@ -68,7 +67,7 @@ public class ToIntFunction implements IDataProvider<Integer>
 						{
 							IDataProvider<Object> objDP = DataProvider.parse(info, null, sm.spawn());
 							if (objDP != null)
-								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Wanted String or Number for toint(), not " + objDP.provides().getSimpleName());
+								LogUtil.error("Wanted String or Number for toint(), not " + objDP.provides().getSimpleName());
 							return null;
 						}
 					}
@@ -76,7 +75,7 @@ public class ToIntFunction implements IDataProvider<Integer>
 					Matcher endMatcher = sm.matchFront(endPattern);
 					if (endMatcher == null)
 					{
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Missing end paren: \"" + sm.string + "\"");
+						LogUtil.error("Missing end paren: \"" + sm.string + "\"");
 						return null;
 					}
 

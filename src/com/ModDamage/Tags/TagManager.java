@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 import com.ModDamage.ModDamage;
+
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -16,8 +17,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 import org.yaml.snakeyaml.Yaml;
 
+import com.ModDamage.LogUtil;
 import com.ModDamage.PluginConfiguration.LoadState;
-import com.ModDamage.MDLogger.OutputPreset;
 
 public class TagManager
 {
@@ -86,10 +87,10 @@ public class TagManager
 		{
 			if(!file.exists())
 			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, "No tags file found at " + file.getAbsolutePath() + ", generating a new one...");
+				LogUtil.info("No tags file found at " + file.getAbsolutePath() + ", generating a new one...");
 				if(!file.createNewFile())
 				{
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Couldn't make new tags file! Tags will not have persistence between reloads.");
+					LogUtil.error("Couldn't make new tags file! Tags will not have persistence between reloads.");
 					return;
 				}
 			}
@@ -122,7 +123,7 @@ public class TagManager
 				stringTags.loadTags((Map<String, Object>) tagMap.get("string"), entities);
 			}
 		}
-		catch(Exception e){ ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error loading tags: "+e.toString()); }
+		catch(Exception e){ LogUtil.error("Error loading tags: "+e.toString()); }
 	}
 	
 	

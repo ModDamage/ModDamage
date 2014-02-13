@@ -5,11 +5,10 @@ import java.util.regex.Pattern;
 
 import org.bukkit.enchantments.Enchantment;
 
-import com.ModDamage.ModDamage;
 import com.ModDamage.Parsing.BaseDataParser;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnchantmentsRef;
@@ -29,14 +28,14 @@ public class EnchantmentInt extends SettableIntegerExp<EnchantmentsRef>
 						IDataProvider<EnchantmentsRef> enchantmentsDP = info.get(EnchantmentsRef.class, "enchantments", false);
 						if (enchantmentsDP == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "You can only use '"+m.group()+"' inside of an Enchant or PrepareEnchant event");
+							LogUtil.error("You can only use '"+m.group()+"' inside of an Enchant or PrepareEnchant event");
 							return null;
 						}
 						
 						Enchantment enchantment = Enchantment.getByName(m.group(1).toUpperCase());
 						if (enchantment == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown enchantment named \"" + m.group(1) + "\"");
+							LogUtil.error("Unknown enchantment named \"" + m.group(1) + "\"");
 							return null;
 						}
 						return sm.acceptIf(new EnchantmentInt(

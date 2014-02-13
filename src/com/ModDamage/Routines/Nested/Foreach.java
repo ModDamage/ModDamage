@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -62,7 +61,7 @@ public class Foreach extends NestedRoutine
 
 			EventInfo myInfo = info.chain(new SimpleEventInfo(alistDP.providesElement(), name));
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Foreach " + listDP + " as " + name);
+			LogUtil.info("Foreach " + listDP + " as " + name);
 
 			Foreach routine = new Foreach(scriptLine, listDP, myInfo);
 			return new NestedRoutineBuilder(routine, routine.routines, myInfo);

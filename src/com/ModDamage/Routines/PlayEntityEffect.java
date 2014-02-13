@@ -6,8 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.EntityEffect;
 import org.bukkit.entity.Entity;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -55,11 +54,11 @@ public class PlayEntityEffect extends Routine
 			}
 			catch (IllegalArgumentException e)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad effect type: \""+matcher.group(2)+"\"");
+				LogUtil.error("Bad effect type: \""+matcher.group(2)+"\"");
 				return null;
 			}
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "PlayEntityEffect: " + entityDP + " " + effectType);
+			LogUtil.info("PlayEntityEffect: " + entityDP + " " + effectType);
 			return new RoutineBuilder(new PlayEntityEffect(scriptLine, entityDP, effectType));
 		}
 	}

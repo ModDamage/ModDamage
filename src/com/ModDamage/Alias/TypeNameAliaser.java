@@ -5,9 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import com.ModDamage.ModDamage;
+import com.ModDamage.LogUtil;
 import com.ModDamage.PluginConfiguration.LoadState;
-import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Backend.ScriptLineHandler;
 import com.ModDamage.Matchables.EntityType;
@@ -50,7 +49,7 @@ public class TypeNameAliaser extends Aliaser<EntityType, List<String>>
 			public void done()
 			{
 				if (!hasValue) {
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, nameLine, name+" alias "+nameLine.line+" has no names.");
+					LogUtil.error(nameLine, name+" alias "+nameLine.line+" has no names.");
 					return;
 				}
 				thisMap.put(entityType, names);
@@ -98,7 +97,7 @@ public class TypeNameAliaser extends Aliaser<EntityType, List<String>>
 //							ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "as \"" + value + "\"");
 //						}
 //						else 
-//							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown item: "+object.toString());
+//							LogUtil.error("Unknown item: "+object.toString());
 //					}
 //					ModDamage.changeIndentation(false);
 //					continue;
@@ -113,7 +112,7 @@ public class TypeNameAliaser extends Aliaser<EntityType, List<String>>
 //			}
 //			
 //			loadState = LoadState.FAILURE;
-//			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid content in alias for type " + type.name() + ": " + entry.getValue().toString());
+//			LogUtil.error("Invalid content in alias for type " + type.name() + ": " + entry.getValue().toString());
 //		}
 //		if(loadState == LoadState.SUCCESS)
 //			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Aliasing names for one or more Types");

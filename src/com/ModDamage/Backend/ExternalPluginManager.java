@@ -23,10 +23,9 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import ru.tehkode.permissions.PermissionManager;
 
 import com.ModDamage.MDEvent;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.ModDamage;
 import com.ModDamage.ModDamage.ModDamageExtension;
-
 import com.ModDamage.Expressions.ListExp;
 import com.ModDamage.Expressions.NestedExp;
 import com.ModDamage.Expressions.NumberExp;
@@ -78,9 +77,9 @@ public class ExternalPluginManager
 		String prefix = ModDamage.getPluginConfiguration().getLog().logPrepend();
 		if (registeredPlugins.isEmpty())
 		{
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, prefix + "Extensions: No extensions found.");
+			LogUtil.info_verbose(prefix + "Extensions: No extensions found.");
 		} else {
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, prefix + "Extensions: Loading...");
+			LogUtil.info_verbose(prefix + "Extensions: Loading...");
 			boolean anyFailed = false;
 			for(ModDamageExtension pluginExtension : registeredPlugins)
 			{
@@ -94,16 +93,16 @@ public class ExternalPluginManager
 				try {
 					PluginDescriptionFile description = pluginExtension.getDescription(); //Don't waste processing time on fetching description file per call.
 					if (!currentFailed)
-						ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, prefix + "Extension '" + description.getName() + " v" + description.getVersion()+ "' has been reloaded successfully.");
+						LogUtil.info_verbose(prefix + "Extension '" + description.getName() + " v" + description.getVersion()+ "' has been reloaded successfully.");
 					else
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, prefix + "Extension '" + description.getName() + " v" + description.getVersion() + "' failed to reload.");
+						LogUtil.error(prefix + "Extension '" + description.getName() + " v" + description.getVersion() + "' failed to reload.");
 				} catch (Throwable e) { 
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, prefix + "An extension failed to load:" + pluginExtension.toString()); 
+					LogUtil.error(prefix + "An extension failed to load:" + pluginExtension.toString()); 
 					e.printStackTrace();
 				}
 			}
-			if (!anyFailed)	ModDamage.addToLogRecord(OutputPreset.CONSTANT, prefix + "Extensions: Successfully loaded all extensions.");
-			else ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, prefix + "Extensions: Some extensions failed to load.");
+			if (!anyFailed)	LogUtil.constant(prefix + "Extensions: Successfully loaded all extensions.");
+			else LogUtil.warning_strong(prefix + "Extensions: Some extensions failed to load.");
 		}
 	}
 
@@ -146,14 +145,14 @@ public class ExternalPluginManager
 			VaultSupport.register();
 		}
 		catch (NoClassDefFoundError e) {
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Vault not found: "+e.getMessage());
+			LogUtil.info("Vault not found: "+e.getMessage());
 		}
 		
 		try {
 			TabAPISupport.register();
 		}
 		catch (NoClassDefFoundError e) {
-			ModDamage.addToLogRecord(OutputPreset.INFO, "TabAPI not found: "+e.getMessage());
+			LogUtil.info("TabAPI not found: "+e.getMessage());
 			}
 		
 		reloadPluginExtensions();

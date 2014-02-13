@@ -5,8 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Location;
 
-import com.ModDamage.MDLogger.OutputPreset;
-import com.ModDamage.ModDamage;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -55,7 +54,7 @@ public class Explode extends Routine
 			IDataProvider<Number> strength = DataProvider.parse(info, Number.class, matcher.group(2));
 			if(strength == null) return null;
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Explode at " + locDP + " with strength " + strength);
+			LogUtil.info("Explode at " + locDP + " with strength " + strength);
 
 			return new RoutineBuilder(new Explode(scriptLine, locDP, strength, matcher.group(2) != null));
 		}

@@ -4,8 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
@@ -58,7 +57,7 @@ public class StringMatches extends Conditional<String>
 					}
 					catch (PatternSyntaxException ps)
 					{
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid regex: " + ps.getDescription());
+						LogUtil.error("Invalid regex: " + ps.getDescription());
 						return null;
 					}
 					

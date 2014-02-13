@@ -12,8 +12,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 
+import com.ModDamage.LogUtil;
 import com.ModDamage.MDEvent;
-import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.ModDamage;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
@@ -55,7 +55,7 @@ public class Repeat extends MDEvent implements ScriptLineHandler
 	@Override
 	public ScriptLineHandler getLineHandler()
 	{
-		ModDamage.addToLogRecord(OutputPreset.INFO, "on " + name());
+		LogUtil.info("on " + name());
 		
 		return this;
 	}
@@ -75,7 +75,7 @@ public class Repeat extends MDEvent implements ScriptLineHandler
 		else if (parts[1].equalsIgnoreCase("chunk"))
 			type = Chunk.class;
 		else {
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Illegal repeat type: "+parts[1]);
+			LogUtil.error("Illegal repeat type: "+parts[1]);
 			return null;
 		}
 
@@ -83,7 +83,7 @@ public class Repeat extends MDEvent implements ScriptLineHandler
 		RepeatInfo<?> repeat = new RepeatInfo(name, type);
 		repeatMap.get(repeat.repeatType).put(repeat.name, repeat);
 		
-		ModDamage.addToLogRecord(OutputPreset.INFO, "Repeat ["+repeat.name+" "+repeat.repeatType.getSimpleName()+"]");
+		LogUtil.info("Repeat ["+repeat.name+" "+repeat.repeatType.getSimpleName()+"]");
 //		repeat.routines = RoutineAliaser.parseRoutines(entry.getValue(), repeat.myInfo);
 //		if (repeat.routines == null)
 //		{
@@ -121,7 +121,7 @@ public class Repeat extends MDEvent implements ScriptLineHandler
 //
 //		if (!(repeats instanceof List))
 //		{
-//			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Expected List, got "+repeats.getClass().getSimpleName()+"for Repeat event");
+//			LogUtil.error("Expected List, got "+repeats.getClass().getSimpleName()+"for Repeat event");
 //			return;
 //		}
 //
@@ -129,7 +129,7 @@ public class Repeat extends MDEvent implements ScriptLineHandler
 //		if(repeatConfigMaps == null || repeatConfigMaps.size() == 0)
 //			return;
 //
-//		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+//		LogUtil.console_only("");
 //		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading repeats...");
 //
 //		ModDamage.changeIndentation(true);
@@ -150,13 +150,13 @@ public class Repeat extends MDEvent implements ScriptLineHandler
 //			else if (parts[1].equalsIgnoreCase("chunk"))
 //				type = Chunk.class;
 //			else {
-//				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Illegal repeat type: "+parts[1]);
+//				LogUtil.error("Illegal repeat type: "+parts[1]);
 //				continue;
 //			}
 //
 //			@SuppressWarnings("rawtypes")
 //			RepeatInfo<?> repeat = new RepeatInfo(name, type);
-//			ModDamage.addToLogRecord(OutputPreset.INFO, "Repeat ["+repeat.name+" "+repeat.repeatType.getSimpleName()+"]");
+//			LogUtil.info("Repeat ["+repeat.name+" "+repeat.repeatType.getSimpleName()+"]");
 //			repeat.routines = RoutineAliaser.parseRoutines(entry.getValue(), repeat.myInfo);
 //			if (repeat.routines == null)
 //			{
@@ -277,7 +277,7 @@ public class Repeat extends MDEvent implements ScriptLineHandler
 				taskId = Bukkit.getScheduler().scheduleSyncDelayedTask(ModDamage.getPluginConfiguration().plugin, this, delay);
 
 				if (taskId != -1) datas.put(it, this);
-				else ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Unable to start repeat task!");
+				else LogUtil.warning_strong("Unable to start repeat task!");
 			}
 
 			private void stop()
@@ -312,7 +312,7 @@ public class Repeat extends MDEvent implements ScriptLineHandler
 		RepeatInfo info = instance.repeatMap.get(type).get(name);
 		if (info == null) 
 		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, "No Repeat named "+name);
+			LogUtil.error("No Repeat named "+name);
 			return;
 		}
 

@@ -2,8 +2,7 @@ package com.ModDamage.Parsing;
 
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
@@ -48,7 +47,7 @@ public abstract class SettableDataProvider<T, S> extends DataProvider<T, S> impl
 		
 		if (!(dp instanceof ISettableDataProvider) || !((ISettableDataProvider<?>)dp).isSettable())
 		{
-			ModDamage.addToLogRecord(OutputPreset.FAILURE, dp+" is not settable");
+			LogUtil.error(dp+" is not settable");
 			return null;
 		}
 		return (ISettableDataProvider<T>) dp;
