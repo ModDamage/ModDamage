@@ -1,4 +1,4 @@
-package com.ModDamage.Variables.Int;
+package com.ModDamage.Variables.Number;
 
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;

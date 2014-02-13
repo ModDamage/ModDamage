@@ -327,8 +327,7 @@ public class ModDamage extends JavaPlugin
 	
 	public static void changeIndentation(boolean forward)
 	{
-		if(forward) PluginConfiguration.indentation++;
-		else PluginConfiguration.indentation--;
+		PluginConfiguration.changeIndentation(forward);
 	}
 
 	public static DebugSetting getDebugSetting(){ return configuration.currentSetting; }
