@@ -41,6 +41,7 @@ public class Command extends MDEvent implements ScriptLineHandler
 	public void reset()
 	{
 		SimpleCommandMap cmap = MagicStuff.getCommandMap();
+		Map<String, org.bukkit.command.Command> rcmap = MagicStuff.getKnownCommandsRawMap();
 		
 		commandMap.clear();
 	    
@@ -52,7 +53,7 @@ public class Command extends MDEvent implements ScriptLineHandler
 		
 		for (org.bukkit.command.Command cmd : bukkitCommands)
 		{
-			cmap.getCommands().remove(cmd);
+			rcmap.remove(cmd.getName());
 			cmd.unregister(cmap);
 		}
 		bukkitCommands.clear();

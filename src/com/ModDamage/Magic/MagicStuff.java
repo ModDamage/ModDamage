@@ -2,10 +2,12 @@ package com.ModDamage.Magic;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
+import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
@@ -138,6 +140,10 @@ public class MagicStuff
 			System.out.println("CommandMap magic loaded successfully");
 			commandMapLoaded = true;
 		}
+	}
+	
+	public static Map<String, Command> getKnownCommandsRawMap() {
+		return magicCommandMap.getKnownCommandsRawMap();
 	}
 	
 	public static SimpleCommandMap getCommandMap()
