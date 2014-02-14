@@ -10,8 +10,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 
+import com.ModDamage.LogUtil;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Alias.CommandAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
@@ -104,25 +104,25 @@ public class Command extends NestedRoutine
 			CommandTarget commandTarget = CommandTarget.match(matcher.group(1), info);
 			if(commandTarget == null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad command target: "+matcher.group(1));
+				LogUtil.error("Bad command target: "+matcher.group(1));
 				return null;
 			}
 			
 			Collection<IDataProvider<String>> commands = CommandAliaser.match(matcher.group(2), info);
 			if (commands == null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "This command form can only be used for command aliases. Please use the following instead.");
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "    - 'command."+matcher.group(1)+"': '" + matcher.group(2) + "'");
+				LogUtil.error("This command form can only be used for command aliases. Please use the following instead.");
+				LogUtil.error("    - 'command."+matcher.group(1)+"': '" + matcher.group(2) + "'");
 				return null;
 			}
 			
 			
 			Command routine = new Command(scriptLine, commandTarget, commands);
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Command (" + commandTarget + "):" );
+			LogUtil.info("Command (" + commandTarget + "):" );
 			ModDamage.changeIndentation(true);
 			for (IDataProvider<String> cmd : commands)
 			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, cmd.toString());
+				LogUtil.info(cmd.toString());
 			}
 			ModDamage.changeIndentation(false);
 			return new RoutineBuilder(routine);
@@ -138,7 +138,7 @@ public class Command extends NestedRoutine
 			if(commandTarget == null) return null;
 			
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Command (" + commandTarget + "):" );
+			LogUtil.info("Command (" + commandTarget + "):" );
 			ModDamage.changeIndentation(true);
 			
 			CommandRoutineBuilder builder = new CommandRoutineBuilder(scriptLine, commandTarget, info);
@@ -170,7 +170,7 @@ public class Command extends NestedRoutine
 			IDataProvider<String> cmdDP = DataProvider.parse(info, String.class, str);
 			if (cmdDP != null) {
 				commands.add(cmdDP);
-				ModDamage.addToLogRecord(OutputPreset.INFO, cmdDP.toString());
+				LogUtil.info(cmdDP.toString());
 			}
 		}
 

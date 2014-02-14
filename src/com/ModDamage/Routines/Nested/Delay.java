@@ -5,8 +5,8 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 
+import com.ModDamage.LogUtil;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -43,7 +43,7 @@ public class Delay extends NestedRoutine
 
 			IDataProvider<Integer> numberMatch = DataProvider.parse(info, Integer.class, matcher.group(1));
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Delay: \"" + numberMatch + "\"");
+			LogUtil.info("Delay: \"" + numberMatch + "\"");
 			if (numberMatch == null) return null;
 
 			Delay routine = new Delay(scriptLine, numberMatch);

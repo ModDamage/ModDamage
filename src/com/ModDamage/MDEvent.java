@@ -12,7 +12,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
 import com.ModDamage.PluginConfiguration.LoadState;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EventFinishedListener;
 import com.ModDamage.Backend.ScriptLineHandler;
@@ -245,7 +244,7 @@ public class MDEvent implements Listener
 		if (routines == null)
 			routines = new Routines();
 
-		ModDamage.addToLogRecord(OutputPreset.INFO, "on " + name());
+		LogUtil.info("on " + name());
 		
 		loadState = LoadState.SUCCESS;
 		combinedLoadState = LoadState.combineStates(combinedLoadState, loadState);

@@ -3,8 +3,8 @@ package com.ModDamage.Routines;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ModDamage.LogUtil;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Backend.ScriptLineHandler;
@@ -74,9 +74,9 @@ public class Routines
 							prev = routines.get(routines.size()-1);
 						
 						if (prev == null || !(prev instanceof If))
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Else not after If");
+							LogUtil.error("Else not after If");
 						else if (((If) prev).conditional == null)
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Illegal Else after Else");
+							LogUtil.error("Illegal Else after Else");
 						else {
 							If prevIf = (If) prev;
 							

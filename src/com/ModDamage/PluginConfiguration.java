@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +21,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import com.ModDamage.MDLogger.DebugSetting;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Alias.AliasManager;
 import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.Backend.ExternalPluginManager.GroupsManager;
@@ -35,31 +36,17 @@ import com.ModDamage.Server.MDServer;
 public class PluginConfiguration implements ScriptLineHandler
 {
 	
+	protected MDLogger log;
 	private static final String TM_MAINLOAD = "Entire Reload";
 	private static final String TM_EXT_PL_MAN = "External Plugin Manager";
 	private static final String TM_SCRIPTLOAD = "Script Loading";
 	private static final String TM_MDEvent = "ModDamage Event";
 	
-	public final static Logger log = Logger.getLogger("Minecraft");
 	protected static final String configString_defaultConfigPath = "config.mdscript";
 
 	public final Plugin plugin;
 	private final File configFile;
-	public static String newline = System.getProperty("line.separator");
-	public static int indentation = 0;
-
-	
-	
-	public static enum DebugSetting
-	{
-		QUIET, NORMAL, CONSOLE, VERBOSE;
-		public boolean shouldOutput(DebugSetting setting)
-		{
-			if(setting.ordinal() <= this.ordinal())
-				return true;
-			return false;
-		}
-	}
+	public static final String newline = System.getProperty("line.separator");
 
 	public enum LoadState
 	{
@@ -83,37 +70,12 @@ public class PluginConfiguration implements ScriptLineHandler
 		protected static LoadState pluginState = LoadState.NOT_LOADED;
 	}
 	
-	public static enum OutputPreset
-	{
-		CONSOLE_ONLY(DebugSetting.CONSOLE, null, Level.INFO),
-		CONSTANT(DebugSetting.QUIET, ChatColor.LIGHT_PURPLE, Level.INFO),
-		FAILURE(DebugSetting.QUIET, ChatColor.RED, Level.SEVERE),
-		INFO(DebugSetting.NORMAL, ChatColor.GREEN, Level.INFO),
-		INFO_VERBOSE(DebugSetting.VERBOSE, ChatColor.AQUA, Level.INFO),
-		WARNING(DebugSetting.VERBOSE, ChatColor.YELLOW, Level.WARNING),
-		WARNING_STRONG(DebugSetting.NORMAL, ChatColor.YELLOW, Level.WARNING);
-		
-		protected final DebugSetting debugSetting;
-		protected final ChatColor color;
-		protected final Level level;
-		private OutputPreset(DebugSetting debugSetting, ChatColor color, Level level)
-		{
-			this.debugSetting = debugSetting;
-			this.color = color;
-			this.level = level;
-		}
-	}
-	
 
 	public PluginConfiguration(Plugin plugin)
 	{
 		this.plugin = plugin;
 		this.configFile = new File(plugin.getDataFolder(), configString_defaultConfigPath);
 	}
-	
-
-	// Settings
-	DebugSetting currentSetting = DebugSetting.VERBOSE;
 	
 	int tags_save_interval;
 	
@@ -122,9 +84,14 @@ public class PluginConfiguration implements ScriptLineHandler
 	String serverUsername;
 	String serverPassword;
 	
+	boolean appendLog;
+	File logFile;
+	
 	private void resetDefaultSettings()
 	{
-		currentSetting = DebugSetting.VERBOSE;
+		log.currentSetting = DebugSetting.NORMAL;
+		logFile = null;
+		log.setLogFile(logFile);
 		
 		tags_save_interval = 200;
 		
@@ -145,23 +112,29 @@ public class PluginConfiguration implements ScriptLineHandler
 		{
 			Matcher m = settingPattern.matcher(line.line);
 			if (!m.matches()) {
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid setting: \"" + line.line + "\"");
+				LogUtil.error("Invalid setting: \"" + line.line + "\"");
 				return null;
 			}
 			
 			String name = m.group(1).trim().toLowerCase().replaceAll("\\s+", "-");
 			String value = m.group(2).trim();
 
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "setting: '"+name+"' = '"+value+"'");
+			LogUtil.info_verbose("setting: '"+name+"' = '"+value+"'");
 			
 			
 			if (name.equals("debugging")) {
 				try {
-					currentSetting = DebugSetting.valueOf(value.toUpperCase());
+					log.currentSetting = DebugSetting.valueOf(value.toUpperCase());
 				}
 				catch (IllegalArgumentException e) {
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad debug level: " + value);
+					LogUtil.error("Bad debug level: " + value);
 				}
+			}
+			else if (name.equals("log-file")) {
+				logFile = new File(plugin.getDataFolder(), value);
+			}
+			else if (name.equals("append-logs")) {
+				appendLog = Boolean.parseBoolean(value);
 			}
 			else if (name.equals("disable-death-messages")) {
 				MDEvent.disableDeathMessages = Boolean.parseBoolean(value);
@@ -180,7 +153,7 @@ public class PluginConfiguration implements ScriptLineHandler
 					tags_save_interval = Integer.parseInt(value);
 				}
 				catch (NumberFormatException e) {
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad tags save interval: " + value);
+					LogUtil.error("Bad tags save interval: " + value);
 				}
 			}
 			else if (name.equals("server-bindaddr")) {
@@ -191,7 +164,7 @@ public class PluginConfiguration implements ScriptLineHandler
 					serverPort = Integer.parseInt(value);
 				}
 				catch (NumberFormatException e) {
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad server port: " + value);
+					LogUtil.error("Bad server port: " + value);
 				}
 			}
 			else if (name.equals("server-username")) {
@@ -201,7 +174,7 @@ public class PluginConfiguration implements ScriptLineHandler
 				serverPassword = value;
 			}
 			else {
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unknown setting: " + m.group(1));
+				LogUtil.error("Unknown setting: " + m.group(1));
 			}
 			
 			return null;
@@ -243,15 +216,17 @@ public class PluginConfiguration implements ScriptLineHandler
 	@Override
 	public void done()
 	{
+		log = new MDLogger(this);
 	}
 
+	public MDLogger getLog() { return log; }
+	
 	public boolean reload(boolean reloadingAll)
 	{
 		StopWatch sw = new StopWatch();
 		sw.start(TM_MAINLOAD);
 		LoadState.pluginState = LoadState.NOT_LOADED;
-		logMessagesSoFar = 0;
-
+		resetLoggedMessages();
 		resetWorstLogMessageLevel();
 		resetDefaultSettings();
 		Command.instance.reset();
@@ -314,33 +289,51 @@ public class PluginConfiguration implements ScriptLineHandler
 		MDEvent.registerEvents();
 		sw.stop(TM_MDEvent);
 		
+		boolean loggingEnabled = false;
+			if (logFile != null)
+			{
+				loggingEnabled = true;
+				log.setLogFile(null);
+			}
+			log.setLogFile(logFile, appendLog);
+		
+		if (loggingEnabled)
+		{
+			if (log.log.getHandlers().length > 0)
+				log.addToLogRecord(OutputPreset.INFO, "File Logging for 'config.yml' is enabled.");
+			else
+				log.addToLogRecord(OutputPreset.FAILURE, "File logging failed to load for '" + "config.yml" + "'.");
+		}
+		else
+			log.addToLogRecord(OutputPreset.INFO, "File logging for '" + "config.yml" + "' is disabled.");
+		
 		// Default message settings
 		if(MDEvent.disableDeathMessages)
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla death messages disabled.");
+			LogUtil.constant("Vanilla death messages disabled.");
 		else
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla death messages enabled.");
+			LogUtil.info_verbose("Vanilla death messages enabled.");
 		
 		if(MDEvent.disableJoinMessages)
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla join messages disabled.");
+			LogUtil.constant("Vanilla join messages disabled.");
 		else
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla join messages enabled.");
+			LogUtil.info_verbose("Vanilla join messages enabled.");
 		
 		if(MDEvent.disableQuitMessages)
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla quit messages disabled.");
+			LogUtil.constant("Vanilla quit messages disabled.");
 		else
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla quit messages enabled.");
+			LogUtil.info_verbose("Vanilla quit messages enabled.");
 		
 		if(MDEvent.disableKickMessages)
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Vanilla kick messages disabled.");
+			LogUtil.constant("Vanilla kick messages disabled.");
 		else
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Vanilla kick messages enabled.");
+			LogUtil.info_verbose("Vanilla kick messages enabled.");
 		
 
 		if(serverUsername != null && serverPassword != null) {
-			ModDamage.addToLogRecord(OutputPreset.CONSTANT, "Web server starting on port "+ (serverBindaddr != null? serverBindaddr : "*") +":"+ serverPort);
+			LogUtil.constant("Web server starting on port "+ (serverBindaddr != null? serverBindaddr : "*") +":"+ serverPort);
 			MDServer.startServer(serverBindaddr, serverPort, serverUsername, serverPassword);
 		} else
-			ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Web server not started");
+			LogUtil.info_verbose("Web server not started");
 		
 		
 		LoadState.pluginState = LoadState.combineStates(MDEvent.combinedLoadState, AliasManager.getState());
@@ -361,25 +354,25 @@ public class PluginConfiguration implements ScriptLineHandler
 		switch(LoadState.pluginState)
 		{
 			case NOT_LOADED:
-				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "No configuration loaded.");
+				addToLogRecord(OutputPreset.CONSTANT, log.logPrepend() + timer + "No configuration loaded.");
 				break;
 			case FAILURE:
-				addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Loaded configuration with one or more errors.");
+				addToLogRecord(OutputPreset.CONSTANT, log.logPrepend() + timer + "Loaded configuration with one or more errors.");
 				break;
 			case SUCCESS:
-				int worstValue = worstLogMessageLevel.intValue();
+				int worstValue = log.worstLogMessageLevel.intValue();
 				
 				if (worstValue >= Level.SEVERE.intValue()) {
-					addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Finished loading configuration with errors.");
+					addToLogRecord(OutputPreset.CONSTANT, log.logPrepend() + timer + "Finished loading configuration with errors.");
 				}
 				else if (worstValue >= Level.WARNING.intValue()) {
-					addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Finished loading configuration with warnings.");
+					addToLogRecord(OutputPreset.CONSTANT, log.logPrepend() + timer + "Finished loading configuration with warnings.");
 				}
 				else if (worstValue >= Level.INFO.intValue()) {
-					addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Finished loading configuration.");
+					addToLogRecord(OutputPreset.CONSTANT, log.logPrepend() + timer + "Finished loading configuration.");
 				}
 				else {
-					addToLogRecord(OutputPreset.CONSTANT, logPrepend() + timer + "Weird reload: " + worstLogMessageLevel);
+					addToLogRecord(OutputPreset.CONSTANT, log.logPrepend() + timer + "Weird reload: " + log.worstLogMessageLevel);
 				}
 				
 				break;
@@ -387,15 +380,19 @@ public class PluginConfiguration implements ScriptLineHandler
 			default: throw new Error("Unknown state: "+LoadState.pluginState+" $PC280");
 		}
 		
-		if (getDebugSetting() == DebugSetting.QUIET && logMessagesSoFar >= maxLogMessagesToShow)
-			log.log(Level.INFO, "Suppressed "+(logMessagesSoFar-maxLogMessagesToShow)+" error messages");
+		if (getDebugSetting() == DebugSetting.QUIET && log.logMessagesSoFar >= log.maxLogMessagesToShow)
+			printToLog(Level.INFO, "Suppressed "+(log.logMessagesSoFar-log.maxLogMessagesToShow)+" error messages");
 		
 		return true;
 	}
 
+	public String name() {
+		return "config.yml";
+	}
+	
 	private boolean writeDefaults()
 	{
-		addToLogRecord(OutputPreset.INFO, logPrepend() + "No configuration file found! Writing a blank config in " + configString_defaultConfigPath + "...");
+		addToLogRecord(OutputPreset.INFO, log.logPrepend() + "No configuration file found! Writing a blank config in " + configString_defaultConfigPath + "...");
 		if(!configFile.exists())
 		{
 			try
@@ -413,9 +410,8 @@ public class PluginConfiguration implements ScriptLineHandler
 				return false;
 			}
 		}
-
 		String outputString = "#Auto-generated config at " + (new Date()).toString() + "." + newline + "#See the wiki at https://github.com/ModDamage/ModDamage/wiki for more information." + newline;
-
+		
 
 		outputString += newline + newline +  "Settings";
 		outputString += newline + "\t## Port probably has to be larger than 1024";
@@ -434,7 +430,17 @@ public class PluginConfiguration implements ScriptLineHandler
 		outputString += newline + "\tdisable kick messages = no";
 		outputString += newline + "\t#This interval should be tinkered with ONLY if you understand the implications.";
 		outputString += newline + "\ttags save interval = " + tags_save_interval;
-
+		
+		outputString += newline + "\t## File Logging settings.";
+		outputString += newline + "\t## To Enable File Logging. Uncomment both lines below.";
+		outputString += newline + "\t##log file = config.log";
+		outputString += newline + "\t##append logs = yes";
+		
+//		outputString += newline + newline + "#Debug File Logging";
+//		outputString += newline + "#Uncomment the following to enable file logging";
+//		outputString += newline + "#Logging:";
+//		outputString += newline + "#    " + "file: " + "config" + ".log";
+//		outputString += newline + "#    " + "append: true";
 		
 		outputString += newline + newline + "Aliases";
 		for(AliasManager aliasType : AliasManager.values())
@@ -489,76 +495,9 @@ public class PluginConfiguration implements ScriptLineHandler
 		return true;
 	}
 	
-	
-	public static int maxLogMessagesToShow = 50;
-	public static int logMessagesSoFar = 0;
-	
-	public Level worstLogMessageLevel;
-	
-	public void resetWorstLogMessageLevel() {
-		worstLogMessageLevel = Level.INFO;
-	}
-	
-	public void addToLogRecord(OutputPreset preset, ScriptLine line, String message)
-	{
-		addToLogRecord(preset, line.lineNumber + ": " + message);
-	}
-	
-	public void addToLogRecord(OutputPreset preset, String message)
-	{
 
-
-		if(getDebugSetting().shouldOutput(preset.debugSetting)) {
-			if (preset.level.intValue() > worstLogMessageLevel.intValue())
-				worstLogMessageLevel = preset.level;
-			if (getDebugSetting() != DebugSetting.QUIET || logMessagesSoFar < maxLogMessagesToShow) {
-				String nestIndentation = "";
-				for(int i = 0; i < indentation; i++)
-					nestIndentation += "    ";
-				
-				log.log(preset.level, nestIndentation + message);
-			}
-			logMessagesSoFar ++;
-		}
-	}
-
-	public void toggleDebugging(Player player)
-	{
-		switch(getDebugSetting())
-		{
-			case QUIET:
-				setDebugging(player, DebugSetting.NORMAL);
-				break;
-			case NORMAL:
-				setDebugging(player, DebugSetting.VERBOSE);
-				break;
-			case VERBOSE:
-				setDebugging(player, DebugSetting.QUIET);
-				break;
-				
-			default: break;
-		}
-	}
 	
-	public void setDebugging(Player player, DebugSetting setting)
-	{
-		if(setting != null)
-		{
-			if(!getDebugSetting().equals(setting))
-			{
-				if(replaceOrAppendInFile(configFile, "debugging:.*", "debugging: " + setting.name().toLowerCase()))
-				{
-					ModDamage.sendMessage(player, "Changed debug from " + getDebugSetting().name().toLowerCase() + " to " + setting.name().toLowerCase(), ChatColor.GREEN);
-					this.currentSetting = setting;
-				}
-				else if(player != null)
-					player.sendMessage(ModDamage.chatPrepend(ChatColor.RED) + "Couldn't save changes to " + configString_defaultConfigPath + ".");
-			}
-			else ModDamage.sendMessage(player, "Debug already set to " + setting.name().toLowerCase() + "!", ChatColor.RED);
-		}
-		else printToLog(Level.SEVERE, "Error: bad debug setting sent. Valid settings: normal, quiet, verbose");// shouldn't																								// happen
-	}
-
+	
 	private static boolean replaceOrAppendInFile(File file, String targetRegex, String replaceString)
 	{
 		Pattern targetPattern = Pattern.compile(targetRegex, Pattern.CASE_INSENSITIVE);
@@ -598,18 +537,59 @@ public class PluginConfiguration implements ScriptLineHandler
 		}
 		return true;
 	}
-	
-	public String logPrepend(){ return "[" + plugin.getDescription().getName() + "] "; }
-	public void printToLog(Level level, String message){ log.log(level, "[" + plugin.getDescription().getName() + "] " + message); }
 
-	public DebugSetting getDebugSetting()
+	public void toggleDebugging(Player player)
 	{
-		return currentSetting;
+		switch(getDebugSetting())
+		{
+			case QUIET:
+				setDebugging(player, DebugSetting.NORMAL);
+				break;
+			case NORMAL:
+				setDebugging(player, DebugSetting.VERBOSE);
+				break;
+			case VERBOSE:
+				setDebugging(player, DebugSetting.QUIET);
+				break;
+		}
 	}
 	
-	public static void changeIndentation(boolean forward)
+	public void setDebugging(Player player, DebugSetting setting)
 	{
-		if (forward) indentation++;
-		else indentation--;
+		if(setting != null)
+		{
+			if(!getDebugSetting().equals(setting))
+			{
+				if(replaceOrAppendInFile(configFile, "debugging:.*", "debugging: " + setting.name().toLowerCase()))
+				{
+					ModDamage.sendMessage(player, "Changed debug from " + getDebugSetting().name().toLowerCase() + " to " + setting.name().toLowerCase(), ChatColor.GREEN);
+					log.setDebugSetting(setting);
+				}
+				else if(player != null)
+					player.sendMessage(ModDamage.chatPrepend(ChatColor.RED) + "Couldn't save changes to " + configString_defaultConfigPath + ".");
+			}
+			else ModDamage.sendMessage(player, "Debug already set to " + setting.name().toLowerCase() + "!", ChatColor.RED);
+		}
+		else printToLog(Level.SEVERE, "Error: bad debug setting sent. Valid settings: normal, quiet, verbose");// shouldn't																								// happen
+	}
+	
+	// Helper Methods
+	
+	public void addToLogRecord(OutputPreset preset, ScriptLine line, String message) { log.addToLogRecord(preset, line.lineNumber + ": " + message); }
+
+	public void addToLogRecord(OutputPreset preset, String message) { log.addToLogRecord(preset, message); }
+	
+	public DebugSetting getDebugSetting() { return log.getDebugSetting(); }
+
+	public void resetWorstLogMessageLevel() { log.resetWorstLogMessageLevel(); }
+	
+	public void resetLoggedMessages() { log.resetLogCount(); }
+	
+	public void printToLog(Level level, String message){ log.printToLog(level, message); }
+	
+	public void changeIndentation(boolean forward) { log.changeIndentation(forward); }
+
+	public Level getWorstLogMessageLevel() {
+		return log.worstLogMessageLevel;
 	}
 }

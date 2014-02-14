@@ -6,8 +6,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.NonNull;
 import com.ModDamage.Backend.ScriptLine;
@@ -92,7 +91,7 @@ abstract public class Routine
 					return builder;
 			}
 		}
-		ModDamage.addToLogRecord(OutputPreset.FAILURE, " No match found for routine \"" + line.line + "\"");
+		LogUtil.error(" No match found for routine \"" + line.line + "\"");
 		return null;
 	}
 

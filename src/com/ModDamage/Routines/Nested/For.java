@@ -3,8 +3,7 @@ package com.ModDamage.Routines.Nested;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
@@ -114,7 +113,7 @@ public class For extends NestedRoutine
 
 			EventInfo myInfo = info.chain(new SimpleEventInfo(Number.class, name));
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "For " + name + " from " + fromDP + " to " + toDP + " by " + byDP);
+			LogUtil.info("For " + name + " from " + fromDP + " to " + toDP + " by " + byDP);
 
 			For routine = new For(scriptLine, fromDP, toDP, byDP, myInfo);
 			return new NestedRoutineBuilder(routine, routine.routines, myInfo);

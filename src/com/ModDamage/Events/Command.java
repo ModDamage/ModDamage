@@ -14,9 +14,9 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import com.ModDamage.LogUtil;
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
@@ -93,7 +93,7 @@ public class Command extends MDEvent implements ScriptLineHandler
 		{				
 			Argument arg = Argument.get(commandSpec[i]);
 			if (arg == null) {
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, 
+				LogUtil.error(
 						"Please prefix command arguments with # for number, & for player, % for any word, or [a-z] for a specific word, not "
 						+commandSpec[i].substring(0, 1));
 //				failed = true;
@@ -110,7 +110,7 @@ public class Command extends MDEvent implements ScriptLineHandler
         }
 		
 		CommandInfo command = new CommandInfo(name, args, catchAll, catchAllName);
-		ModDamage.addToLogRecord(OutputPreset.INFO, "Command ["+command.name+"]: "+logSB.toString());
+		LogUtil.info("Command ["+command.name+"]: "+logSB.toString());
 //		command.routines = RoutineAliaser.parseRoutines(commandEntry.getValue(), command.eventInfo);
 //		if (command.routines == null)
 //		{
@@ -172,7 +172,7 @@ public class Command extends MDEvent implements ScriptLineHandler
 //	
 //		if (!(commands instanceof List))
 //		{
-//			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Expected List, got "+commands.getClass().getSimpleName()+"for Command event");
+//			LogUtil.error("Expected List, got "+commands.getClass().getSimpleName()+"for Command event");
 //			return;
 //		}
 //		
@@ -180,7 +180,7 @@ public class Command extends MDEvent implements ScriptLineHandler
 //		if(commandConfigMaps == null || commandConfigMaps.size() == 0)
 //			return;
 //		
-//		ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+//		LogUtil.console_only("");
 //		ModDamage.addToLogRecord(OutputPreset.INFO_VERBOSE, "Loading commands...");
 //		
 //		ModDamage.changeIndentation(true);
@@ -211,7 +211,7 @@ public class Command extends MDEvent implements ScriptLineHandler
 //			{				
 //				Argument arg = Argument.get(commandSpec[i]);
 //				if (arg == null) {
-//					ModDamage.addToLogRecord(OutputPreset.FAILURE, 
+//					LogUtil.error(
 //							"Please prefix command arguments with # for number, & for player, % for any word, or [a-z] for a specific word, not "
 //							+commandSpec[i].substring(0, 1));
 //					failed = true;
@@ -227,7 +227,7 @@ public class Command extends MDEvent implements ScriptLineHandler
 //            }
 //			
 //			CommandInfo command = new CommandInfo(name, args, catchAll, catchAllName);
-//			ModDamage.addToLogRecord(OutputPreset.INFO, "Command ["+command.name+"]: "+logSB.toString());
+//			LogUtil.info("Command ["+command.name+"]: "+logSB.toString());
 //			command.routines = RoutineAliaser.parseRoutines(commandEntry.getValue(), command.eventInfo);
 //			if (command.routines == null)
 //			{

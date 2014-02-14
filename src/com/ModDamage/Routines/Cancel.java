@@ -3,8 +3,7 @@ package com.ModDamage.Routines;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -41,11 +40,11 @@ public class Cancel extends NestedRoutine
 			ISettableDataProvider<Boolean> cancelDP = info.get(Boolean.class, "cancelled", false);
 			if(cancelDP == null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "This event cannot be cancelled.");
+				LogUtil.error("This event cannot be cancelled.");
 				return null;
 			}
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Cancel");
+			LogUtil.info("Cancel");
 			return new RoutineBuilder(new Cancel(scriptLine, cancelDP));
 		}
 	}

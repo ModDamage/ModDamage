@@ -2,8 +2,7 @@ package com.ModDamage.Alias;
 
 import java.util.Collection;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Alias.Aliaser.CollectionAliaser;
 import com.ModDamage.Backend.ExternalPluginManager;
 
@@ -18,7 +17,7 @@ public class RegionAliaser extends CollectionAliaser<String>
 	protected String matchNonAlias(String key)
 	{
 		if(!ExternalPluginManager.getAllRegions().contains(key))
-			ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Warning: region \"" + key + "\" does not currently exist.");
+			LogUtil.warning_strong("Warning: region \"" + key + "\" does not currently exist.");
 		return key;
 	}
 

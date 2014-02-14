@@ -3,8 +3,7 @@ package com.ModDamage.Routines;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
@@ -62,7 +61,7 @@ public class Untag<T, D> extends Routine
             Tag<?> tag = Tag.get(tagNameDP, matcher.group(1));
             if (tag == null) return null;
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Un"+matcher.group(1)+"tag: \"" + tag + "\" on " + taggable);
+			LogUtil.info("Un"+matcher.group(1)+"tag: \"" + tag + "\" on " + taggable);
 			return new RoutineBuilder(new Untag(scriptLine, tag, taggable));
 		}
 	}

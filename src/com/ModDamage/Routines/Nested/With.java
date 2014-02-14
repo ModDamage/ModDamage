@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
@@ -95,7 +95,7 @@ public class With extends NestedRoutine
 
 			EventInfo myInfo = info.chain(new SimpleEventInfo(infos.toArray(), true));
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "With: " + logSb.toString());
+			LogUtil.info("With: " + logSb.toString());
 
 			With routine = new With(scriptLine, dps, myInfo);
 			return new NestedRoutineBuilder(routine, routine.routines, myInfo);

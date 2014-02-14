@@ -9,8 +9,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.util.Vector;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -139,13 +139,13 @@ public class LaunchProjectile extends NestedRoutine
 			if (launchType == null) return null;
 			if (!Projectile.class.isAssignableFrom(launchType.myClass) || launchType == EntityType.POTION)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Not a launchable projectile: "+matcher.group(2));
+				LogUtil.error("Not a launchable projectile: "+matcher.group(2));
 				return null;
 			}
 			
 			if (matcher.group(1) == null && matcher.group(3) == null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Either a shooter or a launch location must be specified!");
+				LogUtil.error("Either a shooter or a launch location must be specified!");
 				return null;
 			}
 			

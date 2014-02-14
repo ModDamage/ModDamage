@@ -5,11 +5,10 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Location;
 
-import com.ModDamage.ModDamage;
 import com.ModDamage.Parsing.BaseDataParser;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
@@ -58,7 +57,7 @@ public class DistanceFunction implements IDataProvider<Integer>
 						IDataProvider<Location> arg = DataProvider.parse(info, Location.class, sm.spawn());
 						if (arg == null)
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \"" + sm.string + "\"");
+							LogUtil.error("Unable to match expression: \"" + sm.string + "\"");
 							return null;
 						}
 						
@@ -66,7 +65,7 @@ public class DistanceFunction implements IDataProvider<Integer>
 						
 						if ((sm.matchFront(commaPattern) == null) != (i == 1))
 						{
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Wrong number of parameters for " + m.group(1) + " function: "+i);
+							LogUtil.error("Wrong number of parameters for " + m.group(1) + " function: "+i);
 							return null;
 						}
 					}
@@ -75,7 +74,7 @@ public class DistanceFunction implements IDataProvider<Integer>
 					Matcher endMatcher = sm.matchFront(endPattern);
 					if (endMatcher == null)
 					{
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Missing end paren: \"" + sm.string + "\"");
+						LogUtil.error("Missing end paren: \"" + sm.string + "\"");
 						return null;
 					}
 					

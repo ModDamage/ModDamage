@@ -3,8 +3,7 @@ package com.ModDamage.Routines;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Alias.RoutineAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
@@ -48,14 +47,14 @@ public class AliasedRoutine extends Routine
 			/*Routines aliasedRoutines = RoutineAliaser.match(alias, info);
 			if(aliasedRoutines != null)
 			{
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Routine Alias: \"" + alias + "\"");
+				LogUtil.info("Routine Alias: \"" + alias + "\"");
 			}
 			else
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid routine alias: \"" + alias + "\"");
+				LogUtil.error("Invalid routine alias: \"" + alias + "\"");
 				return null;
 			}*/
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Routine Alias: \"" + alias + "\"");
+			LogUtil.info("Routine Alias: \"" + alias + "\"");
 			return new RoutineBuilder(new AliasedRoutine(scriptLine, info, alias));
 		}
 	}

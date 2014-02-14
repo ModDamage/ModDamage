@@ -5,8 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Entity;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -45,7 +44,7 @@ public class Despawn extends Routine
 			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
 			if (entityDP == null) return null;
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Despawn: " + entityDP);
+			LogUtil.info("Despawn: " + entityDP);
 			return new RoutineBuilder(new Despawn(scriptLine, entityDP));
 		}
 	}

@@ -6,8 +6,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 
 public class ScriptParser
 {
@@ -59,7 +58,7 @@ public class ScriptParser
 			
 			if (hasChildren) {
 				if (nexth == null && h != null) {
-					ModDamage.addToLogRecord(OutputPreset.WARNING, currentLine, "Unhandled child");
+					LogUtil.warning(currentLine, "Unhandled child");
 				}
 				
 				parseHelper(nexth);

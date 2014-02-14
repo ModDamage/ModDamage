@@ -5,8 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
@@ -63,7 +62,7 @@ public class FormatFunction implements IDataProvider<String>
 					{
 						Matcher em = sm.matchFront(endPattern);
 						if (em == null) {
-							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Expected , or ) at \"" + sm.string + "\"");
+							LogUtil.error("Expected , or ) at \"" + sm.string + "\"");
 							return null;
 						}
 						

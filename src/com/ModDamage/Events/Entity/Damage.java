@@ -1,5 +1,7 @@
 package com.ModDamage.Events.Entity;
 
+import java.util.logging.Level;
+
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -13,7 +15,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 import com.ModDamage.ModDamage;
 import com.ModDamage.MDEvent;
-import com.ModDamage.PluginConfiguration;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.EventInfo.SimpleEventInfo;
@@ -53,7 +54,7 @@ public class Damage extends MDEvent implements Listener
 
                 event.setDamage(newDamage);
 			}
-			else PluginConfiguration.log.severe("[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + 
+			else ModDamage.printToLog(Level.SEVERE, "[" + Bukkit.getPluginManager().getPlugin("ModDamage").getDescription().getName() + 
 					"] Error! Unhandled damage event. Is Bukkit and ModDamage up-to-date?");
 		}
 	}

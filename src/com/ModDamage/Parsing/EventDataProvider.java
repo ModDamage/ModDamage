@@ -1,7 +1,6 @@
 package com.ModDamage.Parsing;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 
@@ -46,7 +45,7 @@ public class EventDataProvider<T> implements ISettableDataProvider<T>
 		if (value != null && infoCls.isInstance(value))
 			data.set(index, infoCls.cast(value));
 		else
-			ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG,
+			LogUtil.warning_strong(
 					"Could not set \"" + name + "\" of type " + infoCls.getSimpleName() + " to " + value + " of type "
 							+ givenCls.getSimpleName());
 	}

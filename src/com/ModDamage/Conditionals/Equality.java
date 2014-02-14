@@ -3,8 +3,7 @@ package com.ModDamage.Conditionals;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
@@ -88,7 +87,7 @@ public class Equality extends Conditional<Object>
 							if (transformed != null)
 								leftDP = (IDataProvider<Object>) transformed;
 							else {
-								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Cannot compare equality of types " + leftDP.provides().getSimpleName() + " and " + right.provides().getSimpleName());
+								LogUtil.error("Cannot compare equality of types " + leftDP.provides().getSimpleName() + " and " + right.provides().getSimpleName());
 								return null;
 							}
 						}

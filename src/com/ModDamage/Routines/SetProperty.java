@@ -4,8 +4,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
@@ -54,7 +53,7 @@ public class SetProperty extends Routine
 			final ISettableDataProvider propertyDP = SettableDataProvider.parse(info, null, matcher.group(1));
 			if (propertyDP == null) return null;
 			if (!propertyDP.isSettable()) {
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: Variable \"" + propertyDP + "\" is read-only.");
+				LogUtil.error("Error: Variable \"" + propertyDP + "\" is read-only.");
 				return null;
 			}
 
@@ -119,7 +118,7 @@ public class SetProperty extends Routine
 				}
 			}
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Set "+propertyDP+" to " + valueDP);
+			LogUtil.info("Set "+propertyDP+" to " + valueDP);
 			
 
 			return new RoutineBuilder(new SetProperty(scriptLine, propertyDP, valueDP));

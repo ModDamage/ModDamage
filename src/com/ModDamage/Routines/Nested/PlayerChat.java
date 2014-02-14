@@ -7,8 +7,8 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 
+import com.ModDamage.LogUtil;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Backend.ScriptLineHandler;
@@ -58,7 +58,7 @@ public class PlayerChat extends Routine
 			if(playerDP == null) return null;
 
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Chat (" + playerDP + "):" );
+			LogUtil.info("Chat (" + playerDP + "):" );
 			ModDamage.changeIndentation(true);
 			
 			ChatRoutineBuilder builder = new ChatRoutineBuilder(scriptLine, playerDP, info);
@@ -93,7 +93,7 @@ public class PlayerChat extends Routine
 					((LiteralString) msgDP).colorize();
 				}
 				messages.add(msgDP);
-				ModDamage.addToLogRecord(OutputPreset.INFO, msgDP.toString());
+				LogUtil.info(msgDP.toString());
 			}
 		}
 

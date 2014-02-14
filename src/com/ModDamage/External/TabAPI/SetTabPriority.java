@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 import org.mcsg.double0negative.tabapi.TabAPI;
 
+import com.ModDamage.LogUtil;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -56,7 +56,7 @@ public class SetTabPriority extends Routine
 			IDataProvider<Integer> priorityDP = DataProvider.parse(info, Integer.class, m.group(2)); if (priorityDP == null) return null;
 			
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "SetTabPriority: " + playerDP + ": " + priorityDP);
+			LogUtil.info("SetTabPriority: " + playerDP + ": " + priorityDP);
 			
 			return new RoutineBuilder(new SetTabPriority(scriptLine, playerDP, priorityDP));
 		}

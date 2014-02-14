@@ -3,8 +3,7 @@ package com.ModDamage.Expressions.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ItemHolder;
@@ -66,7 +65,7 @@ public class LoreFunction extends SettableDataProvider<String, ItemHolder>
 					Matcher endMatcher = sm.matchFront(endPattern);
 					if (endMatcher == null)
 					{
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Missing end paren: \"" + sm.string + "\"");
+						LogUtil.error("Missing end paren: \"" + sm.string + "\"");
 						return null;
 					}
 

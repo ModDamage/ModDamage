@@ -6,10 +6,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
@@ -39,7 +38,7 @@ public class InterpolatedString implements IDataProvider<String>
 			
 			IDataProvider<String> match = DataProvider.parse(info, String.class, sm.spawn(), false, true, interpolationEndPattern);
 			if(match == null) {
-                ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "String expression not matched!");
+               LogUtil.warning_strong("String expression not matched!");
                 addPart(start.group());
                 continue;
             }

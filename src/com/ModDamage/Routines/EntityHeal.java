@@ -5,8 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -56,7 +55,7 @@ public class EntityHeal extends Routine
 			IDataProvider<Number> heal_amount = DataProvider.parse(info, Number.class, matcher.group(2));
             if (heal_amount == null) return null;
 
-            ModDamage.addToLogRecord(OutputPreset.INFO, "Heal "+livingDP+" by "+heal_amount);
+            LogUtil.info("Heal "+livingDP+" by "+heal_amount);
 
 			return new RoutineBuilder(new EntityHeal(scriptLine, livingDP, heal_amount));
 		}

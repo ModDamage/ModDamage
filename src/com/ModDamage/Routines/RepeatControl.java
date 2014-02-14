@@ -8,8 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
@@ -90,7 +89,7 @@ public class RepeatControl extends Routine
 				repeatName = matcher.group(4);
 				if (repeatName == null)
 				{
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "No repeat name?");
+					LogUtil.error("No repeat name?");
 					return null;
 				}
 				
@@ -111,9 +110,9 @@ public class RepeatControl extends Routine
 			}
 			
 			if (delay != null)
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Start Repeat: on " + itDP + " named \""+repeatName+"\" delay " + delay + " count " + count);
+				LogUtil.info("Start Repeat: on " + itDP + " named \""+repeatName+"\" delay " + delay + " count " + count);
 			else
-				ModDamage.addToLogRecord(OutputPreset.INFO, "Stop Repeat: on " + itDP + " named \""+repeatName+"\"");
+				LogUtil.info("Stop Repeat: on " + itDP + " named \""+repeatName+"\"");
 			return new RoutineBuilder(new RepeatControl(scriptLine, itDP, repeatName, delay, count));
 		}
 	}

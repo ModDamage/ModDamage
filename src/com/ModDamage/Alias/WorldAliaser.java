@@ -5,8 +5,7 @@ import java.util.HashSet;
 
 import org.bukkit.Bukkit;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Alias.Aliaser.CollectionAliaser;
 
 public class WorldAliaser extends CollectionAliaser<String> 
@@ -21,7 +20,7 @@ public class WorldAliaser extends CollectionAliaser<String>
 	{
 		if(Bukkit.getWorld(key) == null)
 		{
-			ModDamage.addToLogRecord(OutputPreset.WARNING_STRONG, "Warning: world \"" + key + "\" does not currently exist.");
+			LogUtil.warning_strong("Warning: world \"" + key + "\" does not currently exist.");
 			return key;
 		}
 		return Bukkit.getWorld(key).getName();

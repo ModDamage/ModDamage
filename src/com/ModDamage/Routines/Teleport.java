@@ -6,8 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
@@ -91,7 +90,7 @@ public class Teleport extends Routine
 				yaw_pitch = ", "+yaw+", "+pitch;
 			}
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Teleport: " + entityDP + " to " + locDP + yaw_pitch);
+			LogUtil.info("Teleport: " + entityDP + " to " + locDP + yaw_pitch);
 			return new RoutineBuilder(new Teleport(scriptLine, entityDP, locDP, yaw, pitch));
 		}
 	}

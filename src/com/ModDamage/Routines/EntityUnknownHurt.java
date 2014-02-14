@@ -5,8 +5,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.LivingEntity;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -60,7 +59,7 @@ public class EntityUnknownHurt extends Routine
 			IDataProvider<Number> hurt_amount = DataProvider.parse(info, Number.class, matcher.group(2));
             if (hurt_amount == null) return null;
             
-            ModDamage.addToLogRecord(OutputPreset.INFO, "UnknownHurt " + livingDP + " by " + hurt_amount);
+            LogUtil.info("UnknownHurt " + livingDP + " by " + hurt_amount);
 
 			return new RoutineBuilder(new EntityUnknownHurt(scriptLine, livingDP, hurt_amount));
 		}

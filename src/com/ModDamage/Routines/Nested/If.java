@@ -3,8 +3,7 @@ package com.ModDamage.Routines.Nested;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Conditionals.Conditional;
@@ -72,7 +71,7 @@ public class If extends NestedRoutine
 				conditional = null;
 			}
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, (isElse? "Else " : "") + (matcher.group(3) != null? "" : ("If: " + conditional)));
+			LogUtil.info((isElse? "Else " : "") + (matcher.group(3) != null? "" : ("If: " + conditional)));
 			
 			
 			If routine = new If(scriptLine, isElse, conditional);

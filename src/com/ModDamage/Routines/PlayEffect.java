@@ -6,8 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -96,7 +95,7 @@ public class PlayEffect extends Routine
 			}
 			catch (IllegalArgumentException e)
 			{
-				ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad effect type: \""+matcher.group(2)+"\"");
+				LogUtil.error("Bad effect type: \""+matcher.group(2)+"\"");
 				return null;
 			}
 			IDataProvider<? extends Number> data;
@@ -110,7 +109,7 @@ public class PlayEffect extends Routine
 					
 					if (data == null)
 					{
-						ModDamage.addToLogRecord(OutputPreset.FAILURE, "Bad extra data: \""+matcher.group(3)+"\" for " + effectType + " effect.");
+						LogUtil.error("Bad extra data: \""+matcher.group(3)+"\" for " + effectType + " effect.");
 						return null;
 					}
 				}
@@ -124,12 +123,12 @@ public class PlayEffect extends Routine
 				radius = DataProvider.parse(info, Integer.class, matcher.group(4));
 				if (radius == null)
 				{
-					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Unable to match expression: \""+matcher.group(4)+"\"");
+					LogUtil.error("Unable to match expression: \""+matcher.group(4)+"\"");
 					return null;
 				}
 			}
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "PlayEffect: " + locDP + " " + effectType + " " + data + (radius != null? " " + radius : ""));
+			LogUtil.info("PlayEffect: " + locDP + " " + effectType + " " + data + (radius != null? " " + radius : ""));
 			return new RoutineBuilder(new PlayEffect(scriptLine, locDP, effectType, data, radius));
 		}
 	}

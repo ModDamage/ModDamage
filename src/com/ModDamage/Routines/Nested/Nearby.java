@@ -8,8 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -103,7 +102,7 @@ public class Nearby extends NestedRoutine
 			EntityType element = EntityType.getElementNamed(matcher.group(3)); if (element == null) return null;
 			IDataProvider<Integer> radius = DataProvider.parse(info, Integer.class, matcher.group(4)); if (radius == null) return null;
 
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Near" + (nearest? "est" : "by") + ": " + entityDP + ", " + element + ", " + radius);
+			LogUtil.info("Near" + (nearest? "est" : "by") + ": " + entityDP + ", " + element + ", " + radius);
 
 			EventInfo einfo = info.chain(myInfo);
 			

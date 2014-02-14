@@ -3,8 +3,7 @@ package com.ModDamage.Routines;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnchantmentsRef;
 import com.ModDamage.Backend.ScriptLine;
@@ -46,7 +45,7 @@ public class ClearEnchantments extends Routine
 			IDataProvider<EnchantmentsRef> enchantmentsDP = DataProvider.parse(info, EnchantmentsRef.class, "enchantments");
 			if(enchantmentsDP == null) return null;
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Clear Enchantments");
+			LogUtil.info("Clear Enchantments");
 			return new RoutineBuilder(new ClearEnchantments(scriptLine, enchantmentsDP));
 		}
 	}

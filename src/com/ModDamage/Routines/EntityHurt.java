@@ -9,8 +9,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
+import com.ModDamage.LogUtil;
 import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
@@ -85,7 +85,7 @@ public class EntityHurt extends Routine
                 entityOtherDP = info.get(Entity.class, otherName);
                 if (entityOtherDP == null)
                 {
-                    ModDamage.addToLogRecord(OutputPreset.FAILURE, "The entity '"+livingDP+"' doesn't have a natural opposite. Use .hurt.from.{entity}");
+                	LogUtil.error("The entity '"+livingDP+"' doesn't have a natural opposite. Use .hurt.from.{entity}");
                     return null;
                 }
             }
@@ -95,7 +95,7 @@ public class EntityHurt extends Routine
 			if (hurt_amount == null) return null;
 			
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, "Hurt "+livingDP + (matcher.group(2) != null? " from " + entityOtherDP : "") + " by " + hurt_amount);
+			LogUtil.info("Hurt "+livingDP + (matcher.group(2) != null? " from " + entityOtherDP : "") + " by " + hurt_amount);
 
 			return new RoutineBuilder(new EntityHurt(scriptLine, livingDP, entityOtherDP, hurt_amount));
 		}

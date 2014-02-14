@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.PluginConfiguration.OutputPreset;
+import com.ModDamage.LogUtil;
+import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ScriptLine;
@@ -136,7 +136,7 @@ public class SwitchRoutine extends NestedRoutine
 			switchCases.add(matchedCase);
 			switchRoutines.add(routines);
 			
-			ModDamage.addToLogRecord(OutputPreset.INFO, " case " + matchedCase + ":");
+			LogUtil.info(" case " + matchedCase + ":");
 			
 			return routines.getLineHandler(info);
 		}
@@ -191,22 +191,22 @@ public class SwitchRoutine extends NestedRoutine
 //						}
 //						else 
 //						{
-//							ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
-//							ModDamage.addToLogRecord(OutputPreset.FAILURE, "Invalid content in switch \"" + matcher.group() + "\"");
+//							LogUtil.console_only("");
+//							LogUtil.error("Invalid content in switch \"" + matcher.group() + "\"");
 //							for(String caseName : routine.failedCases)
-//								ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: invalid case \"" + caseName + "\"");
-//							ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+//								LogUtil.error("Error: invalid case \"" + caseName + "\"");
+//							LogUtil.console_only("");
 //						}
 //					}
 //				}
 //				else
 //				{
-//					ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: unexpected content " + nestedContent.toString() + " nested in switch \"" + matcher + "\"");
-//					ModDamage.addToLogRecord(OutputPreset.CONSOLE_ONLY, "");
+//					LogUtil.error("Error: unexpected content " + nestedContent.toString() + " nested in switch \"" + matcher + "\"");
+//					LogUtil.console_only("");
 //				}
 //			}
 //			
-//			ModDamage.addToLogRecord(OutputPreset.FAILURE, "Error: invalid switch \"" + matcher.group() + "\"" + (ModDamage.getDebugSetting().equals(DebugSetting.VERBOSE)?"\n":""));
+//			LogUtil.error("Error: invalid switch \"" + matcher.group() + "\"" + (ModDamage.getDebugSetting().equals(DebugSetting.VERBOSE)?"\n":""));
 //			
 //			return null;
 		}
