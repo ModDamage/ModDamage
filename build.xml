@@ -57,8 +57,17 @@
 				<include name="craftbukkit*.jar"/>
 			</fileset>
 		</move>
-		<echo>	<!-- TODO: Setup a .sh file for bash and other operating systems! -->
-<!--		-->The test server will have two batch files to run. One with a debugger set to port 1000 other with none.
+		<echo append="false" file="test/startDebug.bat" level="debug">@ECHO OFF
+<!--		-->ECHO starting server.
+<!--		-->MODE con:cols=150 lines=5000
+<!--		-->java -Xmx2G -Xms1G -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000  -jar craftbukkit.jar
+		</echo>
+		<echo append="false" file="test/start.bat" level="debug">@ECHO OFF
+<!--		-->ECHO starting server.
+<!--		-->MODE con:cols=150 lines=5000
+<!--		-->java -Xmx2G -Xms1G -jar craftbukkit.jar
+		</echo>
+		<echo>The test server will have two batch files to run. One with a debugger set to port 8000 other with none.	<!-- TODO: Setup a .sh file for bash and other operating systems! -->
 <!--		-->Make sure to setup a remote debugger on eclipse (Or other IDE) to connect to this. 
 <!--		-->Server will not launch without it if you decide to run debugging file.
 		</echo>
