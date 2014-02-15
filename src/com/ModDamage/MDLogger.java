@@ -49,7 +49,7 @@ public class MDLogger {
 //	private BaseConfig config;
 	private Plugin plugin;
 	
-	public Level worstLogMessageLevel;
+	public Level worstLogMessageLevel = Level.INFO;
 	
 	protected DebugSetting currentSetting = DebugSetting.VERBOSE;
 	
@@ -113,8 +113,7 @@ public class MDLogger {
 //		}
 //		configPages = configStrings_ingame.size() / 9 + (configStrings_ingame.size() % 9 > 0 ? 1 : 0);
 //
-
-		if (preset.level.intValue() > worstLogMessageLevel.intValue())
+		if (worstLogMessageLevel == null || preset.level.intValue() > worstLogMessageLevel.intValue())
 			worstLogMessageLevel = preset.level;
 
 		if(getDebugSetting().shouldOutput(preset.debugSetting)) {

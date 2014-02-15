@@ -75,6 +75,7 @@ public class PluginConfiguration implements ScriptLineHandler
 	{
 		this.plugin = plugin;
 		this.configFile = new File(plugin.getDataFolder(), configString_defaultConfigPath);
+		log = new MDLogger(this);
 	}
 	
 	int tags_save_interval;
