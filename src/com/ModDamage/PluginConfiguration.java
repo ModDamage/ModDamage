@@ -206,8 +206,15 @@ public class PluginConfiguration implements ScriptLineHandler
 		else
 		{
 			if (word0.equals("on") && words.length == 2) {
-				if (hasChildren)
-					return MDEvent.getEvent(words[1]).getLineHandler();
+				if (hasChildren) {
+					MDEvent e = MDEvent.getEvent(words[1]);
+					if (e == null) {
+						LogUtil.warning(line, word0 + " " + words[1] + "is not valid. Possible that the event is not loaded!");
+						return null;
+					}
+					
+					return e.getLineHandler();
+				}
 				return null;
 			}
 		}
@@ -235,7 +242,6 @@ public class PluginConfiguration implements ScriptLineHandler
 		MDEvent.unregisterEvents();
 		MDEvent.clearEvents();
 		
-
 		addToLogRecord(OutputPreset.CONSTANT, "[" + plugin.getDescription().getName() + "] v" + plugin.getDescription().getVersion() + " loading...");
 
 		if(reloadingAll)
