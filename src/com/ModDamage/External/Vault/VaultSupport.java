@@ -3,10 +3,13 @@ package com.ModDamage.External.Vault;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
+import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import com.ModDamage.StringMatcher;
@@ -17,15 +20,50 @@ import com.ModDamage.Parsing.BaseDataParser;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.FunctionParser;
 import com.ModDamage.Parsing.IDataProvider;
+import com.ModDamage.Parsing.Property.Properties;
+import com.ModDamage.Parsing.Property.SettableProperty;
 
 public class VaultSupport
 {
+	public static Chat chat;
 	public static Economy economy;
 	public static EconomyResponse lastResponse;
 	
+	public static void setupPermission() {
+		RegisteredServiceProvider<Chat> chatProvider = Bukkit.getServer().getServicesManager().getRegistration(net.milkbowl.vault.chat.Chat.class);
+		if (chatProvider == null) {
+			return;
+		}
+		chat = chatProvider.getProvider();
+		
+		Properties.register(new SettableProperty<String, Player>("prefix", String.class, Player.class) {
+			
+			@Override
+			public String get(Player start, EventData data) throws BailException {
+				return chat.getPlayerPrefix(start);
+			}
+			
+			@Override
+			public void set(Player start, EventData data, String value) throws BailException {
+				chat.setPlayerPrefix(start, value);
+			}
+		});
+		
+		Properties.register(new SettableProperty<String, Player>("suffix", String.class, Player.class) {
+			
+			@Override
+			public String get(Player start, EventData data) throws BailException {
+				return chat.getPlayerSuffix(start);
+			}
+			
+			@Override
+			public void set(Player start, EventData data, String value) throws BailException {
+				chat.setPlayerSuffix(start, value);
+			}
+		});
+	}
 	
-	public static void register()
-	{
+	public static void setupEcon() {
 		RegisteredServiceProvider<Economy> economyProvider = Bukkit.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
         if (economyProvider == null) {
         	return;
@@ -97,5 +135,11 @@ public class VaultSupport
 		
 		VaultProperties.register();
 		VaultConditionals.register();
+	}
+	
+	public static void register()
+	{
+		setupEcon();
+		setupPermission();
 	}
 }
