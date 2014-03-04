@@ -129,6 +129,18 @@ app.config(function($routeProvider, $locationProvider) {
 });
 
 function NavCtrl($scope, $location) {
+	$scope.isAnyActive = function () {
+		var i = 0;
+		while (i < arguments.length) {
+			if ($scope.isActive(arguments[i]) )
+			{
+				return true;
+			} else {
+				i++;
+			}
+		}
+	}
+		
 	$scope.isActive = function(path) {
 		return $location.path() == path;
 	}
