@@ -16,7 +16,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.ModDamage.MDLogger.DebugSetting;
-import com.ModDamage.PluginConfiguration.LoadState;
 import com.ModDamage.MDLogger.OutputPreset;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ExternalPluginManager;
@@ -36,28 +35,31 @@ import com.ModDamage.Tags.TagManager;
  */
 public class ModDamage extends JavaPlugin
 {
-	protected static PluginConfiguration configuration;
-
 	public static boolean isEnabled = false;
 	private static final String errorString_Permissions = chatPrepend(ChatColor.RED) + "You don't have access to that command.";
 
 	private static TagManager tagger = null;
+
+	private ScriptManager scriptManager;
+
+	private static ModDamage instance;
 	
 
 	// //////////////////////// INITIALIZATION
 	@Override
 	public void onLoad() {
 		super.onLoad(); //Just in case bukkit loads stuff in here.
-		configuration = new PluginConfiguration(this); //Fixes NPE on registering extensions from onLoad in other plugins.
+		scriptManager = new ScriptManager();
 	}
 
 	@Override
 	public void onEnable()
 	{
-		PluginCommand.setPlugin(this);
+		ModDamage.instance = this;
+		
 		isEnabled = true;
 		MagicStuff.init();
-		reload(true);
+		reload(getPluginConfiguration(), true);
 		
 		try
 		{
@@ -80,16 +82,18 @@ public class ModDamage extends JavaPlugin
 		
 		if (tagger != null) { tagger.close(); tagger = null; }
 		isEnabled = false;
-		configuration.log.setLogFile(null); //Cleanup locks.
-		configuration.printToLog(Level.INFO, "Disabled.");
-		PluginCommand.setPlugin(null); //Prevents possible memory leaks on /reload command
+		
+		getPluginConfiguration().log.setLogFile(null); //Cleanup locks.
+		getPluginConfiguration().printToLog(Level.INFO, "Disabled.");
+		
+		ModDamage.instance = null;
 	}
 
-	public void reload(boolean reloadingAll)
+	public void reload(BaseConfig config, boolean reloadingAll)
 	{
 		File taggerFile = (tagger != null)? tagger.file : new File(this.getDataFolder(), "tags.yml");
 		
-		if((configuration.reload(reloadingAll) && reloadingAll) || !taggerFile.exists())
+		if((config.reload(reloadingAll) && reloadingAll) || !taggerFile.exists())
 		{
 			if(tagger != null) { tagger.close(); tagger = null; }
 
@@ -109,7 +113,7 @@ public class ModDamage extends JavaPlugin
 //					}
 //				}
 //			}
-			tagger = new TagManager(taggerFile, configuration.tags_save_interval);
+			tagger = new TagManager(taggerFile, getPluginConfiguration().tags_save_interval);
 		}
 
         Init.initAll();
@@ -165,27 +169,41 @@ public class ModDamage extends JavaPlugin
 					for(DebugSetting setting : DebugSetting.values())
 						if(matcher.group(1).equalsIgnoreCase(setting.name()))
 						{
-							configuration.setDebugging(player, setting);
+							getPluginConfiguration().setDebugging(player, setting);
 							return;
 						}
 					sendMessage(player, "Invalid debugging mode \"" + matcher.group(1).substring(1) + "\" - modes are \"quiet\", \"normal\", and \"verbose\".", ChatColor.RED);
 				}
-				else configuration.toggleDebugging(player);
+				else getPluginConfiguration().toggleDebugging(player);
 			}
 		},
-		RELOAD(false, "\\sr(?:eload)?(\\sall)?", "/md (reload | r) [all] - reload configuration.")
+		RELOAD(false, "\\sr(?:eload)?(\\sall)?(\\s.+)?", "/md (reload | r) [all] [name] - reload configuration.")
 		{
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
 			{
 				boolean reloadingAll = matcher.group(1) != null;
-				if(player != null) configuration.printToLog(Level.INFO, "Reload initiated by user " + player.getName() + "...");
-				plugin.reload(reloadingAll);
+				if(player != null) getPluginConfiguration().printToLog(Level.INFO, "Reload initiated by user " + player.getName() + "...");
+
+				BaseConfig config = null;
+				
+				if (matcher.group(2) != null)
+					config = getConfig(matcher.group(2));
+				else
+					config = getPluginConfiguration();
+				
+				if (config == null) {
+					if(player != null) player.sendMessage(chatPrepend(ChatColor.YELLOW) + "The script named \"" + matcher.group(2) + "\" does not exist.");
+					else printToLog(Level.WARNING, "The script named \"" + matcher.group(2) + "\" does not exist.");
+					return;
+				}
+					
+				config.reload(reloadingAll);
 				if(player != null)
-					switch(LoadState.pluginState)
+					switch(config.getLoadState())
 					{
 						case SUCCESS:
-							int worstValue = configuration.getWorstLogMessageLevel().intValue();
+							int worstValue = getPluginConfiguration().getWorstLogMessageLevel().intValue();
 							
 							if (worstValue >= Level.SEVERE.intValue()) {
 								player.sendMessage(chatPrepend(ChatColor.YELLOW) + "Reloaded with errors.");
@@ -197,7 +215,7 @@ public class ModDamage extends JavaPlugin
 								player.sendMessage(chatPrepend(ChatColor.GREEN) + "Reloaded!");
 							}
 							else {
-								player.sendMessage(chatPrepend(ChatColor.YELLOW) + "Weird reload: " + configuration.getWorstLogMessageLevel());
+								player.sendMessage(chatPrepend(ChatColor.YELLOW) + "Weird reload: " + getPluginConfiguration().getWorstLogMessageLevel());
 							}
 							
 							break;
@@ -208,7 +226,7 @@ public class ModDamage extends JavaPlugin
 							player.sendMessage(chatPrepend(ChatColor.GRAY) + "No configuration loaded! Are any routines defined?");
 							break;
 							
-						default: throw new Error("Unknown state: "+LoadState.pluginState+" $MD176");
+						default: throw new Error("Unknown state: "+config.getLoadState()+" $MD176");
 					}
 			}
 		},
@@ -266,9 +284,6 @@ public class ModDamage extends JavaPlugin
 		}
 
 		abstract protected void handleCommand(Player player, Matcher matcher);
-
-		private static ModDamage plugin;
-		protected static void setPlugin(ModDamage plugin){ PluginCommand.plugin = plugin; }
 	}
 
 	private static boolean hasPermission(Player player, String permission)
@@ -284,7 +299,7 @@ public class ModDamage extends JavaPlugin
 	{
 		if(player != null)
 			player.sendMessage(chatPrepend(color) + message);
-		else configuration.printToLog(Level.INFO, message);
+		else getPluginConfiguration().printToLog(Level.INFO, message);
 	}
 
 	static String chatPrepend(ChatColor color){ return color + "[" + ChatColor.DARK_RED + "Mod" + ChatColor.DARK_BLUE + "Damage" + color + "] "; }
@@ -294,7 +309,7 @@ public class ModDamage extends JavaPlugin
 		if(status != isEnabled)
 		{
 			isEnabled = status;
-			configuration.printToLog(Level.INFO, "Plugin " + (isEnabled ? "en" : "dis") + "abled.");
+			getPluginConfiguration().printToLog(Level.INFO, "Plugin " + (isEnabled ? "en" : "dis") + "abled.");
 			if(player != null)
 				player.sendMessage(chatPrepend(ChatColor.GREEN) + "Plugin " + (isEnabled ? "en" : "dis") + "abled.");
 		}
@@ -317,29 +332,36 @@ public class ModDamage extends JavaPlugin
 			StringBuffer sb = new StringBuffer().append("ModDamage commands:\n").append("/moddamage | /md - bring up this help message");
 			for (PluginCommand cmd:PluginCommand.values())
 				sb.append("\n").append(cmd.help);
-			if(forError) configuration.printToLog(Level.SEVERE, "Error: invalid command syntax.");
-			configuration.printToLog(Level.INFO, sb.toString());
+			if(forError) getPluginConfiguration().printToLog(Level.SEVERE, "Error: invalid command syntax.");
+			getPluginConfiguration().printToLog(Level.INFO, sb.toString());
 		}
 	}
 
 ///////////////// HELPER FUNCTIONS
-	public static void addToLogRecord(OutputPreset preset, String message){ configuration.addToLogRecord(preset, message); }
-	public static void addToLogRecord(OutputPreset preset, ScriptLine line, String message){ configuration.addToLogRecord(preset, line, message); }
-	
-	public static void changeIndentation(boolean forward)
-	{
-		getPluginConfiguration().changeIndentation(forward);
+	public static BaseConfig getConfig(String name) {
+		return getInstance().scriptManager.get(name);
 	}
 	
-	public static void printToLog(Level level, String message) {
-		getPluginConfiguration().printToLog(level, message);
-	}
+	public static void addToLogRecord(OutputPreset preset, String message){ getPluginConfiguration().addToLogRecord(preset, message); }
+	public static void addToLogRecord(OutputPreset preset, ScriptLine line, String message){ getPluginConfiguration().addToLogRecord(preset, line, message); }
+	
+	public static void addToLogRecord(BaseConfig config, OutputPreset preset, String message) { config.addToLogRecord(preset, message); }
+	public static void addToLogRecord(BaseConfig config, OutputPreset preset, ScriptLine line, String message) { config.addToLogRecord(preset, line, message); }
+	
+	
+	public static void changeIndentation(boolean forward) { getPluginConfiguration().changeIndentation(forward); }
+	public static void changeIndentation(BaseConfig config, boolean forward) { config.changeIndentation(forward); }
+	
+	public static void printToLog(Level level, String message) { getPluginConfiguration().printToLog(level, message); }
+	
+	public static void printToLog(BaseConfig config, Level level, String message) { config.printToLog(level, message); }
 
-	public static DebugSetting getDebugSetting(){ return configuration.getDebugSetting(); }
+	@Deprecated
+	public static DebugSetting getDebugSetting(){ return getPluginConfiguration().getDebugSetting(); }
 
 	public static TagManager getTagger(){ return tagger; }
 
-	public static PluginConfiguration getPluginConfiguration(){ return configuration; }
+	public static PluginConfiguration getPluginConfiguration(){ return getScriptManager().getMasterConfig(); }
 
 	public static final HashSet<Material> goThroughThese = new HashSet<Material>(Arrays.asList(
 			Material.AIR,
@@ -376,4 +398,11 @@ public class ModDamage extends JavaPlugin
 		}
 	}
 
+	public static ModDamage getInstance() {
+		return instance;
+	}
+	
+	public static ScriptManager getScriptManager() {
+		return instance.scriptManager;
+	}
 }

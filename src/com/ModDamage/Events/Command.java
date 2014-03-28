@@ -14,6 +14,7 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import com.ModDamage.BaseConfig;
 import com.ModDamage.LogUtil;
 import com.ModDamage.MDEvent;
 import com.ModDamage.ModDamage;
@@ -59,7 +60,6 @@ public class Command extends MDEvent implements ScriptLineHandler
 		bukkitCommands.clear();
 	}
 	
-	@Override
 	public ScriptLineHandler getLineHandler()
 	{
 		return this;
@@ -109,7 +109,7 @@ public class Command extends MDEvent implements ScriptLineHandler
                 logSB.append(catchAllName);
         }
 		
-		CommandInfo command = new CommandInfo(name, args, catchAll, catchAllName);
+		CommandInfo command = new CommandInfo(line.origin, name, args, catchAll, catchAllName);
 		LogUtil.info("Command ["+command.name+"]: "+logSB.toString());
 //		command.routines = RoutineAliaser.parseRoutines(commandEntry.getValue(), command.eventInfo);
 //		if (command.routines == null)
@@ -265,7 +265,7 @@ public class Command extends MDEvent implements ScriptLineHandler
 		@Override
 		public Plugin getPlugin()
 		{
-			return ModDamage.getPluginConfiguration().plugin;
+			return ModDamage.getInstance();
 		}
 
 		@Override
@@ -290,17 +290,18 @@ public class Command extends MDEvent implements ScriptLineHandler
 		Argument[] args;
 		
 		EventInfo eventInfo;
-		Routines routines = new Routines();
+		Routines routines;
 		
 		boolean catchAll;
         String catchAllName;
 		
-		public CommandInfo(String name, Argument[] args, boolean catchAll, String catchAllName)
+		public CommandInfo(BaseConfig config, String name, Argument[] args, boolean catchAll, String catchAllName)
 		{
 			this.name = name;
 			this.args = args;
 			this.catchAll = catchAll;
             this.catchAllName = catchAllName;
+            this.routines = new Routines(config);
 			
 			// build info list for my eventInfo object
 			List<Object> infoList = new ArrayList<Object>(2*args.length + 4);

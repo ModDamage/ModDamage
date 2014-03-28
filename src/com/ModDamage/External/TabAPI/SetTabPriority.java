@@ -36,7 +36,7 @@ public class SetTabPriority extends Routine
 		
 		Integer priority = priorityDP.get(data);   if (priority == null) return;
 		
-		TabAPI.setPriority(ModDamage.getPluginConfiguration().plugin, player, priority);
+		TabAPI.setPriority(ModDamage.getInstance(), player, priority);
 	}
 	
 	public static void registerNested()

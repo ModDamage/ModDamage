@@ -1,0 +1,1 @@
+define('ace/mode/mdscript', ['require', 'exports', 'module' , 'ace/lib/oop', 'ace/mode/text', 'ace/tokenizer', 'ace/mode/yaml_highlight_rules', 'ace/mode/matching_brace_outdent', 'ace/mode/folding/coffee'], function(require, exports, module) {

@@ -20,11 +20,12 @@ public class Foreach extends NestedRoutine
 {
 	protected final IDataProvider<List> listDP;
 	protected final EventInfo myInfo;
-	protected final Routines routines = new Routines();
+	protected final Routines routines;
 
 	private Foreach(ScriptLine scriptLine, IDataProvider<List> listDP, EventInfo myInfo)
 	{
 		super(scriptLine);
+		this.routines = new Routines(scriptLine.origin);
 		this.listDP = listDP;
 		this.myInfo = myInfo;
 	}

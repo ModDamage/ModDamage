@@ -3,8 +3,8 @@ var app = angular.module('app', ['ngRoute', 'ngResource', 'ui.bootstrap', 'ui.ac
 app.filter('log', function() {
 	return function(value, prefix) {
 		console.log('log', prefix, value);
-	}
-})
+	};
+});
 
 app.factory('MDStats', function($resource) {
 	return $resource('/api/stats', {}, {
@@ -14,7 +14,7 @@ app.factory('MDStats', function($resource) {
 			responseType: 'json',
 		}
 	});
-})
+});
 
 app.factory('MDClass', function($resource) {
 	return $resource('/api/class/:className', {}, {
@@ -24,7 +24,7 @@ app.factory('MDClass', function($resource) {
 			responseType: 'json',
 		}
 	});
-})
+});
 
 app.factory('MDEvents', function($resource) {
 	return $resource('/api/events', {}, {
@@ -35,7 +35,7 @@ app.factory('MDEvents', function($resource) {
 			responseType: 'json',
 		}
 	});
-})
+});
 
 app.factory('MDRoutines', function($resource) {
 	return $resource('/api/routines', {}, {
@@ -46,7 +46,7 @@ app.factory('MDRoutines', function($resource) {
 			responseType: 'json',
 		}
 	});
-})
+});
 
 app.factory('MDProperties', function($resource) {
 	return $resource('/api/properties', {}, {
@@ -57,7 +57,7 @@ app.factory('MDProperties', function($resource) {
 			responseType: 'json',
 		}
 	});
-})
+});
 
 app.factory('MDTransformers', function($resource) {
 	return $resource('/api/transformers', {}, {
@@ -68,7 +68,7 @@ app.factory('MDTransformers', function($resource) {
 			responseType: 'json',
 		}
 	});
-})
+});
 
 
 app.directive('mdClass', function() {
@@ -118,7 +118,7 @@ app.config(function($routeProvider, $locationProvider) {
 		})
 		.otherwise({
 			redirectTo: '/stats',
-		})
+		});
 	// $routeProvider.when('/Book/:bookId/ch/:chapterId', {
 	//   templateUrl: 'chapter.html',
 	//   controller: ChapterCntl
@@ -131,7 +131,7 @@ app.config(function($routeProvider, $locationProvider) {
 function NavCtrl($scope, $location) {
 	$scope.isActive = function(path) {
 		return $location.path() == path;
-	}
+	};
 }
 
 
@@ -148,7 +148,7 @@ function EventsCtrl($scope, MDEvents) {
 			$scope.selected.category = '';
 		else
 			$scope.selected.category = categoryName;
-	}
+	};
 }
 
 

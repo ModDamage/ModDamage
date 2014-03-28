@@ -5,11 +5,11 @@ function EditorCtrl($scope, $http) {
 		$scope.editor = editor;
 
 		editor.setShowPrintMargin(false);
-	}
+	};
 
 	$scope.onChange = function (editor) {
 		$scope.changed = true;
-	}
+	};
 	
 	$scope.save = function save() {
 		var value = $scope.editor.getValue();
@@ -22,7 +22,7 @@ function EditorCtrl($scope, $http) {
 				else
 					console.log('not saved', data);
 			});
-	}
+	};
 	
 
 	if (typeof String.prototype.endsWith !== 'function') {
@@ -67,7 +67,7 @@ function FileCtrl($scope, $http) {
 		}
 
 		$scope.open = !$scope.open;
-	}
+	};
 
 	$scope.open = false;
 	$scope.nameList = null;

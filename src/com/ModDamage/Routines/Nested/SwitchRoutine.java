@@ -131,7 +131,7 @@ public class SwitchRoutine extends NestedRoutine
 			IDataProvider<Boolean> matchedCase = DataProvider.parse(info, Boolean.class, switchType + "." + line.line);
 			if(matchedCase == null) return null;
 			
-			Routines routines = new Routines();
+			Routines routines = new Routines(scriptLine.origin);
 			
 			switchCases.add(matchedCase);
 			switchRoutines.add(routines);

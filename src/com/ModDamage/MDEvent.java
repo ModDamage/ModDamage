@@ -1,8 +1,11 @@
 package com.ModDamage;
 
+import java.lang.ref.Reference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,7 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
-import com.ModDamage.PluginConfiguration.LoadState;
+import com.ModDamage.BaseConfig.LoadState;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EventFinishedListener;
 import com.ModDamage.Backend.ScriptLineHandler;
@@ -75,6 +78,7 @@ import com.ModDamage.Events.Player.ToggleSneak;
 import com.ModDamage.Events.Player.ToggleSprint;
 import com.ModDamage.Events.World.StructureGrow;
 import com.ModDamage.Routines.Routines;
+import com.google.common.collect.MapMaker;
 
 public class MDEvent implements Listener
 {
@@ -185,8 +189,9 @@ public class MDEvent implements Listener
 		addEvents(category, Arrays.asList(eventsArray));
 	}
 	
-	public static void addEvents(String category, List<MDEvent> newEvents)
+	public static void addEvents(String category, Collection<MDEvent> events)
 	{
+		List<MDEvent> newEvents = new ArrayList<MDEvent>(events);
 		if (eventCategories.containsKey(category) && eventCategories.get(category) != null) 
 		{
 			List<MDEvent> oldEvents = eventCategories.get(category);
@@ -196,9 +201,7 @@ public class MDEvent implements Listener
 		eventCategories.put(category, newEvents);
 		
 		for (MDEvent event : newEvents)
-		{
 			allEvents.put(event.name(), event);
-		}
 	}
 	
 	public static void addEvent(String category, MDEvent event)
@@ -218,11 +221,12 @@ public class MDEvent implements Listener
 	{
 		try
 		{
-			if (routines != null) {
-                routines.run(data);
-                eventFinished(true);
-                return;
-            }
+			for (Reference<Routines> routines : routines_cached)
+				if (routines != null && routines.get() != null) {
+	                routines.get().run(data); //FIXME: Variable bleeds through scripts...
+	                return;
+	            }
+			eventFinished(true);
 		}
 		catch (BailException e)
 		{
@@ -230,26 +234,47 @@ public class MDEvent implements Listener
 		}
         eventFinished(false);
 	}
-	protected Routines routines = null;
-	protected LoadState loadState = LoadState.NOT_LOADED;
-	protected static LoadState combinedLoadState = LoadState.NOT_LOADED;
+	protected Map<String, Routines> routines = new MapMaker().weakValues().makeMap();
+	protected List<Reference<Routines>> routines_cached = new LinkedList<Reference<Routines>>();
 	
-	public LoadState getState(){ return loadState; }
+	protected Map<String, LoadState> loadStates = new HashMap<String, LoadState>();
+	private static Map<String, LoadState> combinedLoadStates = new HashMap<String, LoadState>();
+	
+	public static LoadState getCombinedLoadStates(BaseConfig config) {
+		return combinedLoadStates.containsKey(config.getName())? combinedLoadStates.get(config.getName()) : LoadState.NOT_LOADED;
+	}
+	
+	protected static void setCombinedLoadState(BaseConfig config, LoadState state) {
+		combinedLoadStates.put(config.getName(), state);
+	}
+	
+	public LoadState getState(BaseConfig config){ 
+			return (loadStates.containsKey(config.getName())) ? loadStates.get(config.getName()) : LoadState.NOT_LOADED;
+	}
 	
 	public String name() { return this.getClass().getSimpleName(); }
 	
 
-	public ScriptLineHandler getLineHandler()
+	public ScriptLineHandler getLineHandler(BaseConfig config)
 	{
 		if (routines == null)
-			routines = new Routines();
-
+			routines = new MapMaker().weakValues().makeMap();
+		
+		String name = config.getName();
+		
+		if (!routines.containsKey(name))
+			routines.put(name, new Routines(config));
+			
+		
 		LogUtil.info("on " + name());
 		
-		loadState = LoadState.SUCCESS;
-		combinedLoadState = LoadState.combineStates(combinedLoadState, loadState);
+		loadStates.put(name, LoadState.SUCCESS);
+		if (combinedLoadStates.containsKey(name))
+			combinedLoadStates.put(name, LoadState.combineStates(combinedLoadStates.get(name), loadStates.get(name)));
+		else
+			combinedLoadStates.put(name, loadStates.get(name));	
 		
-		return routines.getLineHandler(myInfo);
+		return routines.get(name).getLineHandler(myInfo);
 	}
 	
 	
@@ -258,11 +283,23 @@ public class MDEvent implements Listener
 		return allEvents.get(name);
 	}
 	
+	//FIXME: Not really working with multiconfig (MUST IMPLEMENT More iterators)
 	public static void registerEvents()
 	{
-		for (Entry<String, MDEvent> entry : allEvents.entrySet()) {
-			if (entry.getValue().routines != null && !entry.getValue().routines.isEmpty())
-				Bukkit.getPluginManager().registerEvents(entry.getValue(), ModDamage.configuration.plugin);
+		master: 
+			for (Entry<String, MDEvent> entry : allEvents.entrySet()) {
+				if (entry.getValue().routines != null && !entry.getValue().routines.isEmpty()) {
+					boolean found = false;
+					for (Routines r : entry.getValue().routines.values()) //Must iterate to make sure routines exist.
+						if (!r.isEmpty()) {
+							found = true;
+							break master;
+						}
+					if (found)
+						Bukkit.getPluginManager().registerEvents(entry.getValue(), ModDamage.getInstance());
+					else //Remove unused stuff
+						HandlerList.unregisterAll(entry.getValue());
+				}
 		}
 	}
 	

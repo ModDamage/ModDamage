@@ -22,11 +22,12 @@ public class For extends NestedRoutine
 	protected final IDataProvider<Number> toDP;
 	protected final IDataProvider<Number> byDP;
 	protected final EventInfo myInfo;
-	protected final Routines routines = new Routines();
+	protected final Routines routines;
 
 	private For(ScriptLine scriptLine, IDataProvider<Number> fromDP, IDataProvider<Number> toDP, IDataProvider<Number> byDP, EventInfo myInfo)
 	{
 		super(scriptLine);
+		this.routines = new Routines(scriptLine.origin);
 		this.fromDP = fromDP;
 		this.toDP = toDP;
 		this.byDP = byDP;

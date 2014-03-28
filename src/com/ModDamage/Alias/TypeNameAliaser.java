@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.ModDamage.LogUtil;
-import com.ModDamage.PluginConfiguration.LoadState;
+import com.ModDamage.BaseConfig.LoadState;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Backend.ScriptLineHandler;
 import com.ModDamage.Matchables.EntityType;

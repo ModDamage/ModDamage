@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ModDamage.LogUtil;
-import com.ModDamage.PluginConfiguration.LoadState;
+import com.ModDamage.BaseConfig.LoadState;
 import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Backend.ScriptLineHandler;
 

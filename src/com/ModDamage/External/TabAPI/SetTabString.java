@@ -48,9 +48,9 @@ public class SetTabString extends Routine
 		String str = string.get(data); if (str == null) return;
 		
 		if (ping == null)
-			TabAPI.setTabString(ModDamage.getPluginConfiguration().plugin, player, x, y, str);
+			TabAPI.setTabString(ModDamage.getInstance(), player, x, y, str);
 		else
-			TabAPI.setTabString(ModDamage.getPluginConfiguration().plugin, player, x, y, str, ping);
+			TabAPI.setTabString(ModDamage.getInstance(), player, x, y, str, ping);
 	}
 	
 	public static void registerNested()

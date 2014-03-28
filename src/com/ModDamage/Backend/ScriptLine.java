@@ -1,16 +1,20 @@
 package com.ModDamage.Backend;
 
+import com.ModDamage.BaseConfig;
+
 public class ScriptLine
 {
+	public final BaseConfig origin;
 	public final String fullLine;
 	public final String line;
 	public final int lineNumber;
 	public final int indentLevel;
 	
-	public ScriptLine(String fullLine, int lineNumber)
+	public ScriptLine(BaseConfig config, String fullLine, int lineNumber)
 	{
 		this.fullLine = fullLine;
 		this.lineNumber = lineNumber;
+		this.origin = config;
 		
 		int ilevel = 0;
 		

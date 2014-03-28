@@ -6,14 +6,17 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.regex.Pattern;
 
+import com.ModDamage.BaseConfig;
 import com.ModDamage.LogUtil;
 
 public class ScriptParser
 {
 	private LineNumberReader r;
+	private BaseConfig config;
 	
-	public ScriptParser(InputStream in)
+	public ScriptParser(BaseConfig config, InputStream in)
 	{
+		this.config = config;
 		r = new LineNumberReader(new InputStreamReader(in));
 	}
 	
@@ -82,7 +85,7 @@ public class ScriptParser
 	{
 		String line = r.readLine();
 		if (line == null) return null;
-		return new ScriptLine(line, r.getLineNumber());
+		return new ScriptLine(config, line, r.getLineNumber());
 	}
 	
 	Pattern indentPattern = Pattern.compile("^[ \t]*");

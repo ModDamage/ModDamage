@@ -3,6 +3,7 @@ package com.ModDamage.Routines;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ModDamage.BaseConfig;
 import com.ModDamage.LogUtil;
 import com.ModDamage.ModDamage;
 import com.ModDamage.Backend.BailException;
@@ -16,15 +17,21 @@ import com.ModDamage.Routines.Nested.If;
 public class Routines
 {
 	public List<Routine> routines;
+	private BaseConfig config;
 	
-	public Routines()
+	public Routines(BaseConfig config)
 	{
-		this(new ArrayList<Routine>());
+		this(new ArrayList<Routine>(), config);
 	}
 	
-	public Routines(List<Routine> routines)
+	public Routines(List<Routine> routines, BaseConfig config)
 	{
 		this.routines = routines;
+		this.config = config;
+	}
+	
+	public BaseConfig getConfig() {
+		return config;
 	}
 	
 	public void run(EventData data) throws BailException

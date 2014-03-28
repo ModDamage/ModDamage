@@ -14,14 +14,14 @@ public class AliasedRoutine extends Routine
 {
 	private Routines routines;
 	
-	public AliasedRoutine(ScriptLine scriptLine, final EventInfo info, final String alias)
+	public AliasedRoutine(final ScriptLine scriptLine, final EventInfo info, final String alias)
 	{
 		super(scriptLine);
 		
 		// fetch after, to avoid infinite recursion
 		RoutineAliaser.whenDoneParsingAlias(new Runnable() {
 				@Override public void run() {
-					routines = RoutineAliaser.match(alias, info);
+					routines = RoutineAliaser.match(scriptLine, alias, info);
 				}
 			});
 	}

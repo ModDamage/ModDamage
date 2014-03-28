@@ -47,7 +47,7 @@ public class LogMessage extends NestedRoutine
 		String logName = logNameDP.get(data);
 		if (logName == null) return;
 		
-		File logDir = new File(ModDamage.getPluginConfiguration().plugin.getDataFolder(), "logs");
+		File logDir = new File(ModDamage.getInstance().getDataFolder(), "logs");
 		if (!logDir.exists()) {
 			logDir.mkdirs();
 		}

@@ -1,15 +1,9 @@
 package com.ModDamage;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
@@ -17,12 +11,11 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import com.ModDamage.MDLogger.DebugSetting;
 import com.ModDamage.MDLogger.OutputPreset;
+import com.ModDamage.ScriptManager.LoadMethod;
 import com.ModDamage.Alias.AliasManager;
 import com.ModDamage.Backend.ExternalPluginManager;
 import com.ModDamage.Backend.ExternalPluginManager.GroupsManager;
@@ -33,81 +26,17 @@ import com.ModDamage.Events.Command;
 import com.ModDamage.Events.Repeat;
 import com.ModDamage.Server.MDServer;
 
-public class PluginConfiguration implements ScriptLineHandler
+public class PluginConfiguration extends BaseConfig implements ScriptLineHandler
 {
-	
-	protected MDLogger log;
-	private static final String TM_MAINLOAD = "Entire Reload";
-	private static final String TM_EXT_PL_MAN = "External Plugin Manager";
-	private static final String TM_SCRIPTLOAD = "Script Loading";
-	private static final String TM_MDEvent = "ModDamage Event";
-	
-	protected static final String configString_defaultConfigPath = "config.mdscript";
-
-	public final Plugin plugin;
-	private final File configFile;
-	public static final String newline = System.getProperty("line.separator");
-
-	public enum LoadState
-	{
-		NOT_LOADED(ChatColor.GRAY + "NO  "), FAILURE(ChatColor.RED + "FAIL"), SUCCESS(ChatColor.GREEN + "YES ");
-
-		private String string;
-		private LoadState(String string){ this.string = string; }
-
-		public String statusString(){ return string; }
-
-		public static LoadState combineStates(LoadState... states)
-		{
-			return combineStates(Arrays.asList(states));
-		}
-
-		public static LoadState combineStates(Collection<LoadState> loadStates)
-		{
-			return loadStates.contains(FAILURE) ? LoadState.FAILURE : (loadStates.contains(SUCCESS) ? LoadState.SUCCESS : LoadState.NOT_LOADED);
-		}
-
-		protected static LoadState pluginState = LoadState.NOT_LOADED;
-	}
-	
-
-	public PluginConfiguration(Plugin plugin)
-	{
-		this.plugin = plugin;
-		this.configFile = new File(plugin.getDataFolder(), configString_defaultConfigPath);
-		log = new MDLogger(this);
-	}
-	
-	int tags_save_interval;
-	
-	String serverBindaddr;
-	int serverPort;
-	String serverUsername;
-	String serverPassword;
-	
-	boolean appendLog;
-	File logFile;
-	
-	private void resetDefaultSettings()
-	{
-		log.currentSetting = DebugSetting.NORMAL;
-		logFile = null;
-		log.setLogFile(logFile);
-		
-		tags_save_interval = 200;
-		
-		serverBindaddr = null;
-		serverPort = 8765;
-		serverUsername = null;
-		serverPassword = null;
-		
-		
-	}
-	
 	private class SettingsLineHandler implements ScriptLineHandler
 	{
 		private Pattern settingPattern = Pattern.compile("\\s*([^=]+?)\\s*=\\s*(.*?)\\s*");
-		
+
+		@Override
+		public void done()
+		{
+		}
+
 		@Override
 		public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
 		{
@@ -120,9 +49,9 @@ public class PluginConfiguration implements ScriptLineHandler
 			String name = m.group(1).trim().toLowerCase().replaceAll("\\s+", "-");
 			String value = m.group(2).trim();
 
-			LogUtil.info_verbose("setting: '"+name+"' = '"+value+"'");
+//			LogUtil.info_verbose("setting: '"+name+"' = '"+value+"'");
 			
-			
+			/*
 			if (name.equals("debugging")) {
 				try {
 					log.currentSetting = DebugSetting.valueOf(value.toUpperCase());
@@ -137,7 +66,7 @@ public class PluginConfiguration implements ScriptLineHandler
 			else if (name.equals("append-logs")) {
 				appendLog = Boolean.parseBoolean(value);
 			}
-			else if (name.equals("disable-death-messages")) {
+			else*/ if (name.equals("disable-death-messages")) {
 				MDEvent.disableDeathMessages = Boolean.parseBoolean(value);
 			}
 			else if (name.equals("disable-join-messages")) {
@@ -174,19 +103,143 @@ public class PluginConfiguration implements ScriptLineHandler
 			else if (name.equals("server-password")) {
 				serverPassword = value;
 			}
+			else if (name.equals("load-method")) {
+				setLoadMethod(ScriptManager.LoadMethod.valueOf(value.replace(" ", "_").toUpperCase()));
+			}
 			else {
 				LogUtil.error("Unknown setting: " + m.group(1));
 			}
 			
 			return null;
 		}
+	}
+	protected static final String configString_defaultConfigPath = "config.mdscript";
+	public static final String newline = System.getProperty("line.separator");
+	private static final String TM_EXT_PL_MAN = "External Plugin Manager";
+	
+	private static final String TM_MAINLOAD = "Entire Reload";
 
-		@Override
-		public void done()
+	private static final String TM_MDEvent = "ModDamage Event";
+
+	private static final String TM_SCRIPTLOAD = "Script Loading";
+	
+	boolean appendLog;
+	
+	private LoadMethod loadMethod;
+	File logFile;
+	String serverBindaddr;
+	String serverPassword;
+	
+	int serverPort;
+	String serverUsername;
+	
+	int tags_save_interval;
+	
+	public PluginConfiguration(Plugin plugin)
+	{
+		super(plugin, "global", new File(plugin.getDataFolder(), configString_defaultConfigPath));
+	}
+	
+	@Override
+	public void done()
+	{
+	}
+	
+	@Override
+	protected String getDefaultContents() {
+		StringBuilder outputString = new StringBuilder().append("#Auto-generated config at " ).append( (new Date()).toString() ).append( "." ).append( newline ).append( "#See the wiki at https://github.com/ModDamage/ModDamage/wiki for more information." ).append( newline);
+
+		outputString.append( newline ).append( newline ).append(  "Settings");
+		outputString.append( newline ).append( "\t## This defines the type of loading style.");
+		outputString.append( newline ).append( "\t## Valid options are: PRIORITY_PARSE, ENABLED_SETTING, MASTER_LIST ");
+		outputString.append( newline ).append( "\t## MASTER_LIST: uses priorities for execution order and then this file has a list of scripts to load.");
+		outputString.append( newline ).append( "\t## ENABLED_SETTING: Each script has a setting called enabled. If true it will load this file.");
+		outputString.append( newline ).append( "\t## PRIORITY_PARSE: Same as enabled setting but uses the priority number. If the number is 0 or less it will be considered disabled.");
+		outputString.append( newline ).append( "load-method = MASTER_LIST" );
+		
+		
+		outputString.append( newline ).append( "\t## Port probably has to be larger than 1024");
+		outputString.append( newline ).append( "\t## Uncomment the following to enable the server");
+		outputString.append( newline ).append( "\t## bindaddr should be left empty if you want the server to be accessable from anywhere");
+		outputString.append( newline ).append( "\t#server-bindaddr = ");
+		outputString.append( newline ).append( "\t#server port = 8765");
+		outputString.append( newline ).append( "\t#server username = mdadmin");
+		outputString.append( newline ).append( "\t#server password = nuggets");
+
+		outputString.append( newline);
+		outputString.append( newline ).append( "\tdebugging = normal");
+		outputString.append( newline ).append( "\tdisable death messages = no");
+		outputString.append( newline ).append( "\tdisable join messages = no");
+		outputString.append( newline ).append( "\tdisable quit messages = no");
+		outputString.append( newline ).append( "\tdisable kick messages = no");
+		outputString.append( newline ).append( "\t#This interval should be tinkered with ONLY if you understand the implications.");
+		outputString.append( newline ).append( "\ttags save interval = " ).append( tags_save_interval);
+		
+		outputString.append( newline ).append( "\t## File Logging settings.");
+		outputString.append( newline ).append( "\t## To Enable File Logging. Uncomment both lines below.");
+		outputString.append( newline ).append( "\t##log file = config.log");
+		outputString.append( newline ).append( "\t##append logs = yes");
+		
+//		outputString.append( newline ).append( newline ).append( "#Debug File Logging");
+//		outputString.append( newline ).append( "#Uncomment the following to enable file logging");
+//		outputString.append( newline ).append( "#Logging:");
+//		outputString.append( newline ).append( "#    " ).append( "file: " ).append( "config" ).append( ".log");
+//		outputString.append( newline ).append( "#    " ).append( "append: true");
+		
+		outputString.append( newline ).append( newline ).append( "Aliases");
+		for(AliasManager aliasType : AliasManager.values())
 		{
+			outputString.append( newline ).append( "\t" ).append( aliasType.name() ).append( "");
+			switch(aliasType)
+			{
+				case Material:
+					String[][] toolAliases = {
+							{ "axe", "hoe", "pickaxe", "spade", "sword" },
+							{ "WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_" } };
+					for(String toolType : toolAliases[0])
+					{
+						outputString.append( newline ).append( "\t\t" ).append( toolType ).append( "");
+						for(String toolMaterial : toolAliases[1])
+							outputString.append( newline ).append( "\t\t\t" ).append( toolMaterial ).append( toolType.toUpperCase());
+					}
+					break;
+					
+				default: break;
+			}
 		}
+		
+
+		outputString.append( newline ).append( "# Events");
+		for (Entry<String, List<MDEvent>> category : MDEvent.eventCategories.entrySet())
+		{
+			outputString.append( newline ).append( "## ").append(category.getKey()).append(" Events");
+			for (MDEvent event : category.getValue())
+				outputString.append( newline ).append( "on " ).append( event.name());
+			outputString.append( newline);
+		}
+		return outputString.toString();
 	}
 
+	public LoadMethod getLoadMethod() {
+		return loadMethod;
+	}
+	
+	public MDLogger getLog() { return log; }
+
+	public String getName() {
+		return "config.yml";
+	}
+
+	@Override
+	public int getPriority() {
+		return Integer.MAX_VALUE;
+	}
+
+	@Override
+	protected ScriptLineHandler getSubSettingLineHandler() {
+		return new SettingsLineHandler();
+	}
+	
 	@Override
 	public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
 	{
@@ -213,7 +266,7 @@ public class PluginConfiguration implements ScriptLineHandler
 						return null;
 					}
 					
-					return e.getLineHandler();
+					return e.getLineHandler(this);
 				}
 				return null;
 			}
@@ -221,19 +274,11 @@ public class PluginConfiguration implements ScriptLineHandler
 		return null;
 	}
 
-	@Override
-	public void done()
-	{
-		log = new MDLogger(this);
-	}
-
-	public MDLogger getLog() { return log; }
-	
 	public boolean reload(boolean reloadingAll)
 	{
 		StopWatch sw = new StopWatch();
 		sw.start(TM_MAINLOAD);
-		LoadState.pluginState = LoadState.NOT_LOADED;
+		loadState = LoadState.NOT_LOADED;
 		resetLoggedMessages();
 		resetWorstLogMessageLevel();
 		resetDefaultSettings();
@@ -273,7 +318,7 @@ public class PluginConfiguration implements ScriptLineHandler
 		try
 		{
 			stream = new FileInputStream(configFile);
-			ScriptParser parser = new ScriptParser(stream);
+			ScriptParser parser = new ScriptParser(this, stream);
 			parser.parseScript(this);
 		}
 		catch (FileNotFoundException e)
@@ -343,7 +388,7 @@ public class PluginConfiguration implements ScriptLineHandler
 			LogUtil.info_verbose("Web server not started");
 		
 		
-		LoadState.pluginState = LoadState.combineStates(MDEvent.combinedLoadState, AliasManager.getState());
+		loadState = LoadState.combineStates(MDEvent.getCombinedLoadStates(this), AliasManager.getState());
 		
 		double time = sw.stop(TM_MAINLOAD);
 		String timer = "(" + time + " \u00b5s) ";
@@ -358,7 +403,7 @@ public class PluginConfiguration implements ScriptLineHandler
 		
 		changeIndentation(false);
 		
-		switch(LoadState.pluginState)
+		switch(loadState)
 		{
 			case NOT_LOADED:
 				addToLogRecord(OutputPreset.CONSTANT, log.logPrepend() + timer + "No configuration loaded.");
@@ -384,7 +429,7 @@ public class PluginConfiguration implements ScriptLineHandler
 				
 				break;
 				
-			default: throw new Error("Unknown state: "+LoadState.pluginState+" $PC280");
+			default: throw new Error("Unknown state: "+loadState+" $PC280");
 		}
 		
 		if (getDebugSetting() == DebugSetting.QUIET && log.logMessagesSoFar >= log.maxLogMessagesToShow)
@@ -392,211 +437,36 @@ public class PluginConfiguration implements ScriptLineHandler
 		
 		return true;
 	}
-
-	public String name() {
-		return "config.yml";
-	}
 	
-	private boolean writeDefaults()
-	{
-		addToLogRecord(OutputPreset.INFO, log.logPrepend() + "No configuration file found! Writing a blank config in " + configString_defaultConfigPath + "...");
-		if(!configFile.exists())
-		{
-			try
-			{
-				if(!(configFile.getParentFile().exists() || configFile.getParentFile().mkdirs()) || !configFile.createNewFile())
-				{
-					printToLog(Level.SEVERE, "Fatal error: could not create " + configString_defaultConfigPath + ".");
-					return false;
-				}
-			}
-			catch (IOException e)
-			{
-				printToLog(Level.SEVERE, "Error: could not create new " + configString_defaultConfigPath + ".");
-				e.printStackTrace();
-				return false;
-			}
-		}
-		String outputString = "#Auto-generated config at " + (new Date()).toString() + "." + newline + "#See the wiki at https://github.com/ModDamage/ModDamage/wiki for more information." + newline;
-		
-
-		outputString += newline + newline +  "Settings";
-		outputString += newline + "\t## Port probably has to be larger than 1024";
-		outputString += newline + "\t## Uncomment the following to enable the server";
-		outputString += newline + "\t## bindaddr should be left empty if you want the server to be accessable from anywhere";
-		outputString += newline + "\t#server-bindaddr = ";
-		outputString += newline + "\t#server port = 8765";
-		outputString += newline + "\t#server username = mdadmin";
-		outputString += newline + "\t#server password = nuggets";
-
-		outputString += newline;
-		outputString += newline + "\tdebugging = normal";
-		outputString += newline + "\tdisable death messages = no";
-		outputString += newline + "\tdisable join messages = no";
-		outputString += newline + "\tdisable quit messages = no";
-		outputString += newline + "\tdisable kick messages = no";
-		outputString += newline + "\t#This interval should be tinkered with ONLY if you understand the implications.";
-		outputString += newline + "\ttags save interval = " + tags_save_interval;
-		
-		outputString += newline + "\t## File Logging settings.";
-		outputString += newline + "\t## To Enable File Logging. Uncomment both lines below.";
-		outputString += newline + "\t##log file = config.log";
-		outputString += newline + "\t##append logs = yes";
-		
-//		outputString += newline + newline + "#Debug File Logging";
-//		outputString += newline + "#Uncomment the following to enable file logging";
-//		outputString += newline + "#Logging:";
-//		outputString += newline + "#    " + "file: " + "config" + ".log";
-//		outputString += newline + "#    " + "append: true";
-		
-		outputString += newline + newline + "Aliases";
-		for(AliasManager aliasType : AliasManager.values())
-		{
-			outputString += newline + "\t" + aliasType.name() + "";
-			switch(aliasType)
-			{
-				case Material:
-					String[][] toolAliases = {
-							{ "axe", "hoe", "pickaxe", "spade", "sword" },
-							{ "WOOD_", "STONE_", "IRON_", "GOLD_", "DIAMOND_" } };
-					for(String toolType : toolAliases[0])
-					{
-						outputString += newline + "\t\t" + toolType + "";
-						for(String toolMaterial : toolAliases[1])
-							outputString += newline + "\t\t\t" + toolMaterial + toolType.toUpperCase();
-					}
-					break;
-					
-				default: break;
-			}
-		}
-		
-
-		outputString += newline + "# Events";
-		for (Entry<String, List<MDEvent>> category : MDEvent.eventCategories.entrySet())
-		{
-			outputString += newline + "## "+category.getKey()+" Events";
-			for (MDEvent event : category.getValue())
-				outputString += newline + "on " + event.name();
-			outputString += newline;
-		}
-		
-		
-		printToLog(Level.INFO, "Completed auto-generation of " + configString_defaultConfigPath + ".");
-
-		try
-		{
-			Writer writer = new FileWriter(configFile);
-			writer.write(outputString);
-			writer.close();
-
-			FileInputStream stream = new FileInputStream(configFile);
-			ScriptParser parser = new ScriptParser(stream);
-			parser.parseScript(this);
-			stream.close();
-		}
-		catch (IOException e)
-		{
-			printToLog(Level.SEVERE, "Error writing to " + configString_defaultConfigPath + ".");
-		}
-		return true;
-	}
 	
 
 	
 	
-	private static boolean replaceOrAppendInFile(File file, String targetRegex, String replaceString)
-	{
-		Pattern targetPattern = Pattern.compile(targetRegex, Pattern.CASE_INSENSITIVE);
-		try
-		{
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			Matcher matcher;
-			StringBuffer contents = new StringBuffer((int) file.length());
-			String line;
-			boolean changedFlag = false;
-			while (reader.ready())
-			{
-				line = reader.readLine();
-				matcher = targetPattern.matcher(line);
-				if(matcher.matches())
-				{
-					changedFlag = true;
-					contents.append(matcher.replaceAll(replaceString));
-				}
-				else contents.append(line);
-				contents.append(newline);
-			}
-			reader.close();
-			if(!changedFlag)
-				contents.append(replaceString + newline);
-
-			FileWriter writer = new FileWriter(file);
-			writer.write(String.valueOf(contents));
-			writer.close();
-		}
-		catch (FileNotFoundException e)
-		{
-
-		}
-		catch (IOException e)
-		{
-		}
-		return true;
-	}
-
-	public void toggleDebugging(Player player)
-	{
-		switch(getDebugSetting())
-		{
-			case QUIET:
-				setDebugging(player, DebugSetting.NORMAL);
-				break;
-			case NORMAL:
-				setDebugging(player, DebugSetting.VERBOSE);
-				break;
-			case VERBOSE:
-				setDebugging(player, DebugSetting.QUIET);
-				break;
-		}
-	}
 	
-	public void setDebugging(Player player, DebugSetting setting)
-	{
-		if(setting != null)
-		{
-			if(!getDebugSetting().equals(setting))
-			{
-				if(replaceOrAppendInFile(configFile, "debugging:.*", "debugging: " + setting.name().toLowerCase()))
-				{
-					ModDamage.sendMessage(player, "Changed debug from " + getDebugSetting().name().toLowerCase() + " to " + setting.name().toLowerCase(), ChatColor.GREEN);
-					log.setDebugSetting(setting);
-				}
-				else if(player != null)
-					player.sendMessage(ModDamage.chatPrepend(ChatColor.RED) + "Couldn't save changes to " + configString_defaultConfigPath + ".");
-			}
-			else ModDamage.sendMessage(player, "Debug already set to " + setting.name().toLowerCase() + "!", ChatColor.RED);
-		}
-		else printToLog(Level.SEVERE, "Error: bad debug setting sent. Valid settings: normal, quiet, verbose");// shouldn't																								// happen
-	}
 	
 	// Helper Methods
 	
-	public void addToLogRecord(OutputPreset preset, ScriptLine line, String message) { log.addToLogRecord(preset, line.lineNumber + ": " + message); }
-
-	public void addToLogRecord(OutputPreset preset, String message) { log.addToLogRecord(preset, message); }
+	protected void resetDefaultSettings()
+	{
+		/*log.currentSetting = DebugSetting.NORMAL;
+		 * logFile = null;
+		 * log.setLogFile(logFile);
+		 *  
+		 * This above commented out code is in the BaseConfig class.
+		 * Please call the super method to implement.
+		 */
+		super.resetDefaultSettings();
+		tags_save_interval = 200;
+		
+		serverBindaddr = null;
+		serverPort = 8765;
+		serverUsername = null;
+		serverPassword = null;
+		
+		
+	}
 	
-	public DebugSetting getDebugSetting() { return log.getDebugSetting(); }
-
-	public void resetWorstLogMessageLevel() { log.resetWorstLogMessageLevel(); }
-	
-	public void resetLoggedMessages() { log.resetLogCount(); }
-	
-	public void printToLog(Level level, String message){ log.printToLog(level, message); }
-	
-	public void changeIndentation(boolean forward) { log.changeIndentation(forward); }
-
-	public Level getWorstLogMessageLevel() {
-		return log.worstLogMessageLevel;
+	public void setLoadMethod(LoadMethod loadMethod) {
+		this.loadMethod = loadMethod;
 	}
 }

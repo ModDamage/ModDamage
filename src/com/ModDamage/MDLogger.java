@@ -65,7 +65,7 @@ public class MDLogger {
 	
 	private Formatter formatter;
 	
-	public MDLogger(final PluginConfiguration config)
+	public MDLogger(final BaseConfig config)
 	{
 //		this.config = config;
 		this.plugin = config.plugin;
@@ -73,7 +73,7 @@ public class MDLogger {
 		formatter = new Formatter() {
 			@Override
 			public String format(LogRecord record) {
-				StringBuilder b = new StringBuilder().append('[').append(config.name()).append("] [").append(String.format("%1$-10s", record.getLevel().toString())).append("] ");
+				StringBuilder b = new StringBuilder().append('[').append(config.getName()).append("] [").append(String.format("%1$-10s", record.getLevel().toString())).append("] ");
 				String name = plugin.getDescription().getPrefix();
 				if (name == null)
 					name = plugin.getName();

@@ -105,7 +105,7 @@ angular.module('ui.ace', [])
 
         scope.$on('$destroy', function() {
           acee.destroy();
-        })
+        });
 
       }
     };

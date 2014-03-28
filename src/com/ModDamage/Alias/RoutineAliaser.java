@@ -15,7 +15,7 @@ import com.ModDamage.Routines.Routines;
 public class RoutineAliaser extends Aliaser<ScriptCapturedLines, ScriptCapturedLines>
 {
 	public static RoutineAliaser aliaser = new RoutineAliaser();
-	public static Routines match(String string, EventInfo info) { return aliaser.matchAlias(string, info); }
+	public static Routines match(ScriptLine scriptLine, String string, EventInfo info) { return aliaser.matchAlias(scriptLine, string, info); }
 	
 	public RoutineAliaser() { super("Routine"); }
 	
@@ -99,7 +99,7 @@ public class RoutineAliaser extends Aliaser<ScriptCapturedLines, ScriptCapturedL
 	}
 	
 	public final Map<InfoOtherPair<String>, Routines> aliasedRoutines = new HashMap<InfoOtherPair<String>, Routines>();
-	public Routines matchAlias(String alias, EventInfo info)
+	public Routines matchAlias(ScriptLine scriptLine, String alias, EventInfo info)
 	{
 		InfoOtherPair<String> infoPair = new InfoOtherPair<String>(alias, info);
 		if (aliasedRoutines.containsKey(infoPair)) return aliasedRoutines.get(infoPair);
@@ -115,7 +115,7 @@ public class RoutineAliaser extends Aliaser<ScriptCapturedLines, ScriptCapturedL
 		
 		isParsingAlias = true;
 		
-		Routines routines = new Routines();
+		Routines routines = new Routines(scriptLine.origin);
 		ScriptLineHandler routinesLineHandler = routines.getLineHandler(info);
 		lines.parse(routinesLineHandler);
 		routinesLineHandler.done();

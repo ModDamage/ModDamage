@@ -43,7 +43,7 @@ public class EntityHurt extends Routine
 			if (ha == null) return;
 			
 			final double damage = ha.doubleValue();
-			Bukkit.getScheduler().runTask(ModDamage.getPluginConfiguration().plugin, new Runnable()
+			Bukkit.getScheduler().runTask(ModDamage.getInstance(), new Runnable()
 				{
 					@Override
 					public void run()

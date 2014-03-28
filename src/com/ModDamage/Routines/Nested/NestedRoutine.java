@@ -15,9 +15,12 @@ public abstract class NestedRoutine extends Routine
 {
 //	public static LinkedHashMap<Pattern, RoutineFactory> registeredNestedRoutines = new LinkedHashMap<Pattern, RoutineFactory>();
 	
-	public final Routines routines = new Routines();
+	public final Routines routines;
 
-	protected NestedRoutine(ScriptLine scriptLine){ super(scriptLine); }
+	protected NestedRoutine(ScriptLine scriptLine){
+		super(scriptLine);
+		this.routines = new Routines(scriptLine.origin);
+	}
 
 	public static void registerVanillaRoutines()
 	{

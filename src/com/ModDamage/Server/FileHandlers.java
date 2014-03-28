@@ -107,7 +107,7 @@ public class FileHandlers
 	
 	private static InputStream getPluginStream(String path)
 	{
-		File f = new File(ModDamage.getPluginConfiguration().plugin.getDataFolder(), path);
+		File f = new File(ModDamage.getInstance().getDataFolder(), path);
 		if (f.exists()) {
 			try
 			{
@@ -187,9 +187,9 @@ public class FileHandlers
 				String path = m.group(1);
 				final File f;
 				if (path.length() == 0)
-					f = ModDamage.getPluginConfiguration().plugin.getDataFolder();
+					f = ModDamage.getInstance().getDataFolder();
 				else
-					f = new File(ModDamage.getPluginConfiguration().plugin.getDataFolder(), path);
+					f = new File(ModDamage.getInstance().getDataFolder(), path);
 				
 				if (!f.exists()) {
 					// not found

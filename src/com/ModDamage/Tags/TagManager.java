@@ -18,7 +18,7 @@ import org.bukkit.plugin.Plugin;
 import org.yaml.snakeyaml.Yaml;
 
 import com.ModDamage.LogUtil;
-import com.ModDamage.PluginConfiguration.LoadState;
+import com.ModDamage.BaseConfig.LoadState;
 
 public class TagManager
 {

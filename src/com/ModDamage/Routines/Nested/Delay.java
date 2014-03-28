@@ -30,7 +30,7 @@ public class Delay extends NestedRoutine
 		if (del == null) return;
 		
 		DelayedRunnable dr = new DelayedRunnable(data.clone());
-		Bukkit.getScheduler().scheduleSyncDelayedTask(ModDamage.getPluginConfiguration().plugin, dr, del);
+		Bukkit.getScheduler().scheduleSyncDelayedTask(ModDamage.getInstance(), dr, del);
 	}
 		
 	public static void register(){ NestedRoutine.registerRoutine(delayPattern, new RoutineFactory()); }
