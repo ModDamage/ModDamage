@@ -1,5 +1,7 @@
 package com.ModDamage.Variables;
 
+import java.util.UUID;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -22,6 +24,13 @@ public class Transformers
 				new Property<EntityType, Entity>("@transformer", EntityType.class, Entity.class) {
 					public EntityType get(Entity entity, EventData data) {
 						return EntityType.get(entity);
+					}
+				}));
+		
+		DataProvider.registerTransformer(UUID.class, String.class, new PropertyTransformer<UUID, String>(
+				new Property<UUID, String>("@transformer", UUID.class, String.class) {
+					public UUID get(String start, EventData data) {
+						return UUID.fromString(start);
 					}
 				}));
 		

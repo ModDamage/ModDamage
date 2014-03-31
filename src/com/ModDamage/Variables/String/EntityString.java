@@ -44,6 +44,13 @@ public class EntityString extends StringExp<Entity>
 			{
 				return TypeNameAliaser.aliaser.toString(EntityType.get(entity));
 			}
+		},
+		UID
+		{
+			@Override
+			protected String getString(Entity entity) {
+				return entity.getUniqueId().toString();
+			}
 		};
 		
 		abstract protected String getString(Entity entity);
