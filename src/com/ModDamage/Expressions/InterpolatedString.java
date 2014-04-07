@@ -10,6 +10,7 @@ import com.ModDamage.LogUtil;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.StringMatcher;
@@ -24,7 +25,7 @@ public class InterpolatedString implements IDataProvider<String>
 	private final List<InterpolatedPart> parts = new ArrayList<InterpolatedPart>();
 	private int minSize;
 	
-	public InterpolatedString(String message, EventInfo info, boolean colorize)
+	public InterpolatedString(ScriptLine scriptLine, String message, EventInfo info, boolean colorize)
 	{
 		StringMatcher sm = new StringMatcher(message);
         String part;
@@ -36,7 +37,7 @@ public class InterpolatedString implements IDataProvider<String>
 
             Matcher start = sm.matchFront(interpolationStartPattern); // already know this is true because of the while condition
 			
-			IDataProvider<String> match = DataProvider.parse(info, String.class, sm.spawn(), false, true, interpolationEndPattern);
+			IDataProvider<String> match = DataProvider.parse(scriptLine, info, String.class, sm.spawn(), false, true, interpolationEndPattern);
 			if(match == null) {
                LogUtil.warning_strong("String expression not matched!");
                 addPart(start.group());
@@ -66,7 +67,7 @@ public class InterpolatedString implements IDataProvider<String>
      * @param info The current EventInfo
      * @return The new InterpolatedString or null if parsing failed
      */
-    public static IDataProvider<String> parseWord(Pattern wordPattern, StringMatcher sm, EventInfo info) {
+    public static IDataProvider<String> parseWord(ScriptLine scriptLine, Pattern wordPattern, StringMatcher sm, EventInfo info) {
         InterpolatedString is = new InterpolatedString();
 
         Matcher m;
@@ -74,7 +75,7 @@ public class InterpolatedString implements IDataProvider<String>
         while (true) {
             m = sm.matchFront(interpolationStartPattern);
             if (m != null) {
-                IDataProvider<String> stringDP = DataProvider.parse(info, String.class, sm.spawn(), false, true, interpolationEndPattern);
+                IDataProvider<String> stringDP = DataProvider.parse(scriptLine, info, String.class, sm.spawn(), false, true, interpolationEndPattern);
                 if (stringDP == null) return null;
                 if (!sm.matchesFront(interpolationEndPattern)) return null;
                 is.addPart(stringDP);
@@ -105,11 +106,11 @@ public class InterpolatedString implements IDataProvider<String>
      * @param info The current EventInfo
      * @return The new InterpolatedString or null if parsing failed
      */
-    public static Collection<IDataProvider<String>> parseWordList(Pattern wordPattern, Pattern seperatorPattern, StringMatcher sm, EventInfo info) {
+    public static Collection<IDataProvider<String>> parseWordList(ScriptLine scriptLine, Pattern wordPattern, Pattern seperatorPattern, StringMatcher sm, EventInfo info) {
         List<IDataProvider<String>> iss = new ArrayList<IDataProvider<String>>(1);
 
         while (true) {
-            IDataProvider<String> is = parseWord(wordPattern, sm.spawn(), info);
+            IDataProvider<String> is = parseWord(scriptLine, wordPattern, sm.spawn(), info);
             if (is == null) return null;
             iss.add(is);
 

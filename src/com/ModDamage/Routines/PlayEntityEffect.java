@@ -44,7 +44,7 @@ public class PlayEntityEffect extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
+			IDataProvider<Entity> entityDP = DataProvider.parse(scriptLine, info, Entity.class, matcher.group(1));
 			if (entityDP == null) return null;
 			
 			EntityEffect effectType;
@@ -54,7 +54,7 @@ public class PlayEntityEffect extends Routine
 			}
 			catch (IllegalArgumentException e)
 			{
-				LogUtil.error("Bad effect type: \""+matcher.group(2)+"\"");
+				LogUtil.error(scriptLine, "Bad effect type: \""+matcher.group(2)+"\"");
 				return null;
 			}
 			

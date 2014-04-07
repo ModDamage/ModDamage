@@ -68,14 +68,14 @@ public class EntityHurt extends Routine
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
-			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, name);
+			IDataProvider<LivingEntity> livingDP = DataProvider.parse(scriptLine, info, LivingEntity.class, name);
 			if (livingDP == null) return null;
 
 
             IDataProvider<Entity> entityOtherDP;
             if (matcher.group(2) != null)
             {
-                entityOtherDP = DataProvider.parse(info, Entity.class, matcher.group(2));
+                entityOtherDP = DataProvider.parse(scriptLine, info, Entity.class, matcher.group(2));
 
                 if (entityOtherDP == null) return null;
             }
@@ -85,13 +85,13 @@ public class EntityHurt extends Routine
                 entityOtherDP = info.get(Entity.class, otherName);
                 if (entityOtherDP == null)
                 {
-                	LogUtil.error("The entity '"+livingDP+"' doesn't have a natural opposite. Use .hurt.from.{entity}");
+                	LogUtil.error(scriptLine, "The entity '"+livingDP+"' doesn't have a natural opposite. Use .hurt.from.{entity}");
                     return null;
                 }
             }
 
 
-			IDataProvider<Number> hurt_amount = DataProvider.parse(info, Number.class, matcher.group(3));
+			IDataProvider<Number> hurt_amount = DataProvider.parse(scriptLine, info, Number.class, matcher.group(3));
 			if (hurt_amount == null) return null;
 			
 			

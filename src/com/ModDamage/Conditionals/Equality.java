@@ -7,6 +7,7 @@ import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
@@ -65,13 +66,13 @@ public class Equality extends Conditional<Object>
 			{
 				@SuppressWarnings({ "unchecked", "rawtypes" })
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Object> leftDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<Object> leftDP, Matcher m, StringMatcher sm)
 				{
 					if (leftDP == null) return null;
 					
 					boolean equalTo = !m.group(1).equals("!");
 					
-					IDataProvider<Object> right = DataProvider.parse(info, null, sm.spawn());
+					IDataProvider<Object> right = DataProvider.parse(scriptLine, info, null, sm.spawn());
 					if (right == null) return null;
 					
 					if (Number.class.isAssignableFrom(leftDP.provides()) || Number.class.isAssignableFrom(right.provides())) {
@@ -87,7 +88,7 @@ public class Equality extends Conditional<Object>
 							if (transformed != null)
 								leftDP = (IDataProvider<Object>) transformed;
 							else {
-								LogUtil.error("Cannot compare equality of types " + leftDP.provides().getSimpleName() + " and " + right.provides().getSimpleName());
+								LogUtil.error(scriptLine, "Cannot compare equality of types " + leftDP.provides().getSimpleName() + " and " + right.provides().getSimpleName());
 								return null;
 							}
 						}

@@ -42,7 +42,7 @@ public class ClearEnchantments extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			IDataProvider<EnchantmentsRef> enchantmentsDP = DataProvider.parse(info, EnchantmentsRef.class, "enchantments");
+			IDataProvider<EnchantmentsRef> enchantmentsDP = DataProvider.parse(scriptLine, info, EnchantmentsRef.class, "enchantments");
 			if(enchantmentsDP == null) return null;
 			
 			LogUtil.info("Clear Enchantments");

@@ -54,7 +54,7 @@ public class PlayerChat extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, matcher.group(1));
+			IDataProvider<Player> playerDP = DataProvider.parse(scriptLine, info, Player.class, matcher.group(1));
 			if(playerDP == null) return null;
 
 
@@ -87,7 +87,7 @@ public class PlayerChat extends Routine
 		
 		public void addString(String str)
 		{
-			IDataProvider<String> msgDP = DataProvider.parse(info, String.class, str);
+			IDataProvider<String> msgDP = DataProvider.parse(scriptLine, info, String.class, str);
 			if (msgDP != null) {
 				if (msgDP instanceof LiteralString) {
 					((LiteralString) msgDP).colorize();

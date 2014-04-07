@@ -139,25 +139,25 @@ public class LaunchProjectile extends NestedRoutine
 			if (launchType == null) return null;
 			if (!Projectile.class.isAssignableFrom(launchType.myClass) || launchType == EntityType.POTION)
 			{
-				LogUtil.error("Not a launchable projectile: "+matcher.group(2));
+				LogUtil.error(scriptLine, "Not a launchable projectile: "+matcher.group(2));
 				return null;
 			}
 			
 			if (matcher.group(1) == null && matcher.group(3) == null)
 			{
-				LogUtil.error("Either a shooter or a launch location must be specified!");
+				LogUtil.error(scriptLine, "Either a shooter or a launch location must be specified!");
 				return null;
 			}
 			
 			IDataProvider<LivingEntity> livingDP = null;
 			if (matcher.group(1) != null) {
-				livingDP = DataProvider.parse(info, LivingEntity.class, matcher.group(1));
+				livingDP = DataProvider.parse(scriptLine, info, LivingEntity.class, matcher.group(1));
 				if (livingDP == null) return null;
 			}
 
 			IDataProvider<Location> locDP = null;
 			if (matcher.group(3) != null) {
-				locDP = DataProvider.parse(info, Location.class, matcher.group(3));
+				locDP = DataProvider.parse(scriptLine, info, Location.class, matcher.group(3));
 				if (locDP == null) return null;
 			}
 

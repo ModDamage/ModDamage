@@ -48,10 +48,10 @@ public class Explode extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			IDataProvider<Location> locDP = DataProvider.parse(info, Location.class, matcher.group(1));
+			IDataProvider<Location> locDP = DataProvider.parse(scriptLine, info, Location.class, matcher.group(1));
 			if (locDP == null) return null;
 
-			IDataProvider<Number> strength = DataProvider.parse(info, Number.class, matcher.group(2));
+			IDataProvider<Number> strength = DataProvider.parse(scriptLine, info, Number.class, matcher.group(2));
 			if(strength == null) return null;
 
 			LogUtil.info("Explode at " + locDP + " with strength " + strength);

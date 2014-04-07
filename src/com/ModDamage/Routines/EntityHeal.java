@@ -49,10 +49,10 @@ public class EntityHeal extends Routine
 		{
 			String name = matcher.group(1).toLowerCase();
 			
-			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, name);
+			IDataProvider<LivingEntity> livingDP = DataProvider.parse(scriptLine, info, LivingEntity.class, name);
             if (livingDP == null) return null;
             
-			IDataProvider<Number> heal_amount = DataProvider.parse(info, Number.class, matcher.group(2));
+			IDataProvider<Number> heal_amount = DataProvider.parse(scriptLine, info, Number.class, matcher.group(2));
             if (heal_amount == null) return null;
 
             LogUtil.info("Heal "+livingDP+" by "+heal_amount);

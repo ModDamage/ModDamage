@@ -65,25 +65,25 @@ public class SetTabString extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher m, ScriptLine scriptLine, EventInfo info)
 		{
-			IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, m.group(1));
+			IDataProvider<Player> playerDP = DataProvider.parse(scriptLine, info, Player.class, m.group(1));
 			if(playerDP == null) return null;
 			
 
 			StringMatcher sm = new StringMatcher(m.group(2));
 			
-			IDataProvider<Integer> xDP = DataProvider.parse(info, Integer.class, sm.spawn()); if (xDP == null) return null;
+			IDataProvider<Integer> xDP = DataProvider.parse(scriptLine, info, Integer.class, sm.spawn()); if (xDP == null) return null;
 			if (!sm.matchesFront(seperatorPattern)) return null;
-			IDataProvider<Integer> yDP = DataProvider.parse(info, Integer.class, sm.spawn()); if (yDP == null) return null;
+			IDataProvider<Integer> yDP = DataProvider.parse(scriptLine, info, Integer.class, sm.spawn()); if (yDP == null) return null;
 			
 			IDataProvider<Integer> pingDP = null;
 			if (!sm.isEmpty()) {
 				if (!sm.matchesFront(seperatorPattern)) return null;
-				pingDP = DataProvider.parse(info, Integer.class, sm.spawn()); if (pingDP == null) return null;
+				pingDP = DataProvider.parse(scriptLine, info, Integer.class, sm.spawn()); if (pingDP == null) return null;
 				
 				if (!sm.isEmpty()) return null;
 			}
 
-			IDataProvider<String> istr = DataProvider.parse(info, String.class, m.group(3));
+			IDataProvider<String> istr = DataProvider.parse(scriptLine, info, String.class, m.group(3));
 			
 
 			LogUtil.info("SetTabString: " + playerDP + " " + xDP + ", " + yDP + (pingDP == null? "" : (", " + pingDP)) + ": " + istr);

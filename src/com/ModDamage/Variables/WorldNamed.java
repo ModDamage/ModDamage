@@ -8,6 +8,7 @@ import org.bukkit.World;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.InterpolatedString;
@@ -24,9 +25,9 @@ public class WorldNamed implements IDataProvider<World>
 				new BaseDataParser<World>()
 				{
 					@Override
-					public IDataProvider<World> parse(EventInfo info, Matcher m, StringMatcher sm)
+					public IDataProvider<World> parse(ScriptLine scriptLine, EventInfo info, Matcher m, StringMatcher sm)
 					{
-                        IDataProvider<String> name = InterpolatedString.parseWord(InterpolatedString.word, sm.spawn(), info);
+                        IDataProvider<String> name = InterpolatedString.parseWord(scriptLine, InterpolatedString.word, sm.spawn(), info);
                         if (name == null) return null;
 
                         sm.accept();

@@ -41,7 +41,7 @@ public class Despawn extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{ 
-			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
+			IDataProvider<Entity> entityDP = DataProvider.parse(scriptLine, info, Entity.class, matcher.group(1));
 			if (entityDP == null) return null;
 			
 			LogUtil.info("Despawn: " + entityDP);

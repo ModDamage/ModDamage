@@ -98,9 +98,9 @@ public class Nearby extends NestedRoutine
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			boolean nearest = matcher.group(1).equalsIgnoreCase("est");
-			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(2)); if (entityDP == null) return null;
+			IDataProvider<Entity> entityDP = DataProvider.parse(scriptLine, info, Entity.class, matcher.group(2)); if (entityDP == null) return null;
 			EntityType element = EntityType.getElementNamed(matcher.group(3)); if (element == null) return null;
-			IDataProvider<Integer> radius = DataProvider.parse(info, Integer.class, matcher.group(4)); if (radius == null) return null;
+			IDataProvider<Integer> radius = DataProvider.parse(scriptLine, info, Integer.class, matcher.group(4)); if (radius == null) return null;
 
 			LogUtil.info("Near" + (nearest? "est" : "by") + ": " + entityDP + ", " + element + ", " + radius);
 

@@ -7,6 +7,7 @@ import java.util.regex.PatternSyntaxException;
 import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
@@ -42,7 +43,7 @@ public class StringMatches extends Conditional<String>
 		DataProvider.register(Boolean.class, String.class, pattern, new IDataParser<Boolean, String>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<String> stringDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<String> stringDP, Matcher m, StringMatcher sm)
 				{
 					String p = m.group(2);
 					if (p == null)
@@ -57,7 +58,7 @@ public class StringMatches extends Conditional<String>
 					}
 					catch (PatternSyntaxException ps)
 					{
-						LogUtil.error("Invalid regex: " + ps.getDescription());
+						LogUtil.error(scriptLine, "Invalid regex: " + ps.getDescription());
 						return null;
 					}
 					

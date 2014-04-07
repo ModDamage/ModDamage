@@ -74,7 +74,7 @@ public class With extends NestedRoutine
 
 			do {
 
-				IDataProvider<?> dp = DataProvider.parse(info, null, sm.spawn(), false, true, asPattern);
+				IDataProvider<?> dp = DataProvider.parse(scriptLine, info, null, sm.spawn(), false, true, asPattern);
 				if (dp == null) return null;
 
 				Matcher m = sm.matchFront(asPattern);

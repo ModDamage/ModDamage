@@ -12,6 +12,7 @@ import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.EnchantmentsRef;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.SettableIntegerExp;
@@ -23,19 +24,19 @@ public class EnchantmentInt extends SettableIntegerExp<EnchantmentsRef>
 		DataProvider.register(Integer.class, Pattern.compile("enchant(?:ment)?_?level_(\\w+)", Pattern.CASE_INSENSITIVE), new BaseDataParser<Integer>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(ScriptLine scriptLine, EventInfo info, Matcher m, StringMatcher sm)
 					{
 						IDataProvider<EnchantmentsRef> enchantmentsDP = info.get(EnchantmentsRef.class, "enchantments", false);
 						if (enchantmentsDP == null)
 						{
-							LogUtil.error("You can only use '"+m.group()+"' inside of an Enchant or PrepareEnchant event");
+							LogUtil.error(scriptLine, "You can only use '"+m.group()+"' inside of an Enchant or PrepareEnchant event");
 							return null;
 						}
 						
 						Enchantment enchantment = Enchantment.getByName(m.group(1).toUpperCase());
 						if (enchantment == null)
 						{
-							LogUtil.error("Unknown enchantment named \"" + m.group(1) + "\"");
+							LogUtil.error(scriptLine, "Unknown enchantment named \"" + m.group(1) + "\"");
 							return null;
 						}
 						return sm.acceptIf(new EnchantmentInt(

@@ -5,11 +5,13 @@ import java.util.Collection;
 import com.ModDamage.LogUtil;
 import com.ModDamage.Alias.Aliaser.CollectionAliaser;
 import com.ModDamage.Backend.ExternalPluginManager;
+import com.ModDamage.Backend.ScriptLine;
 
 public class RegionAliaser extends CollectionAliaser<String> 
 {
 	public static RegionAliaser aliaser = new RegionAliaser();
-	public static Collection<String> match(String string) { return aliaser.matchAlias(string); }
+	public static Collection<String> match(ScriptLine scriptLine) { return aliaser.matchAlias(scriptLine); }
+	public static Collection<String> match(ScriptLine scriptLine, String string) { return aliaser.matchAlias(scriptLine, string); }
 	
 	public RegionAliaser() { super(AliasManager.Region.name()); }
 

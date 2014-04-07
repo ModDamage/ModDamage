@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.BaseDataParser;
@@ -41,9 +42,9 @@ public class Chance implements IDataProvider<Boolean>
 		DataProvider.register(Boolean.class, pattern, new BaseDataParser<Boolean>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine line, EventInfo info, Matcher m, StringMatcher sm)
 				{
-					IDataProvider<Integer> probability = DataProvider.parse(info, Integer.class, sm.spawn());
+					IDataProvider<Integer> probability = DataProvider.parse(line, info, Integer.class, sm.spawn());
 					if (probability == null) return null;
 					
 					sm.accept();

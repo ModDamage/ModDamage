@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.BaseDataParser;
@@ -30,7 +31,7 @@ public class ServerOnlineMode implements IDataProvider<Boolean>
 		DataProvider.register(Boolean.class, pattern, new BaseDataParser<Boolean>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, Matcher m, StringMatcher sm)
 				{
 					return new ServerOnlineMode();
 				}

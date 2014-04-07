@@ -2,6 +2,7 @@ package com.ModDamage.Parsing.Property;
 
 
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.IDataParser;
@@ -83,7 +84,7 @@ public abstract class Property<T, S> {
     public class Parser implements IDataParser<T, S>
     {
         @Override
-        public IDataProvider<T> parse(EventInfo info, IDataProvider<S> startDP, Matcher m, StringMatcher sm) {
+        public IDataProvider<T> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<S> startDP, Matcher m, StringMatcher sm) {
             return provider(startDP);
         }
     }

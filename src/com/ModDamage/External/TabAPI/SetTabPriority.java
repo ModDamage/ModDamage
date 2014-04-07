@@ -49,11 +49,11 @@ public class SetTabPriority extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher m, ScriptLine scriptLine, EventInfo info)
 		{
-			IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, m.group(1));
+			IDataProvider<Player> playerDP = DataProvider.parse(scriptLine, info, Player.class, m.group(1));
 			if(playerDP == null) return null;
 			
 			
-			IDataProvider<Integer> priorityDP = DataProvider.parse(info, Integer.class, m.group(2)); if (priorityDP == null) return null;
+			IDataProvider<Integer> priorityDP = DataProvider.parse(scriptLine, info, Integer.class, m.group(2)); if (priorityDP == null) return null;
 			
 
 			LogUtil.info("SetTabPriority: " + playerDP + ": " + priorityDP);

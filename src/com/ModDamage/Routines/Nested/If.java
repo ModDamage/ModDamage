@@ -63,7 +63,7 @@ public class If extends NestedRoutine
 			IDataProvider<Boolean> conditional;
 			if (matcher.group(3) == null)
 			{
-				conditional = DataProvider.parse(info, Boolean.class, matcher.group(2));
+				conditional = DataProvider.parse(scriptLine, info, Boolean.class, matcher.group(2));
 				if (conditional == null) return null;
 			}
 			else

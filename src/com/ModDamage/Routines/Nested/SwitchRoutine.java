@@ -128,7 +128,7 @@ public class SwitchRoutine extends NestedRoutine
 		@Override
 		public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
 		{
-			IDataProvider<Boolean> matchedCase = DataProvider.parse(info, Boolean.class, switchType + "." + line.line);
+			IDataProvider<Boolean> matchedCase = DataProvider.parse(scriptLine, info, Boolean.class, switchType + "." + line.line);
 			if(matchedCase == null) return null;
 			
 			Routines routines = new Routines();

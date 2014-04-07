@@ -59,20 +59,20 @@ public class AddPotionEffect extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{ 
-			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, matcher.group(1));
+			IDataProvider<LivingEntity> livingDP = DataProvider.parse(scriptLine, info, LivingEntity.class, matcher.group(1));
 			if (livingDP == null) return null; 
 			
 			PotionEffectType type = PotionEffectType.getByName(matcher.group(2).toUpperCase());
 			if (type == null)
 			{
-				LogUtil.error("Unknown potion effect type '"+matcher.group(2)+"'");
+				LogUtil.error(scriptLine, "Unknown potion effect type '"+matcher.group(2)+"'");
 				return null;
 			}
 			
 			StringMatcher sm = new StringMatcher(matcher.group(3));
-			IDataProvider<Integer> duration = DataProvider.parse(info, Integer.class, sm.spawn()); if (duration == null) return null;
+			IDataProvider<Integer> duration = DataProvider.parse(scriptLine, info, Integer.class, sm.spawn()); if (duration == null) return null;
 			if (!sm.matchesFront(dotPattern)) return null;
-			IDataProvider<Integer> amplifier = DataProvider.parse(info, Integer.class, sm.spawn()); if (amplifier == null) return null;
+			IDataProvider<Integer> amplifier = DataProvider.parse(scriptLine, info, Integer.class, sm.spawn()); if (amplifier == null) return null;
 			if (!sm.isEmpty()) return null;
 			
 			LogUtil.info("AddPotionEffect: to " + livingDP + ", " + type.getName() + ", " + duration + ", " + amplifier);

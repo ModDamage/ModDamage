@@ -69,21 +69,21 @@ public class Teleport extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{ 
-			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
+			IDataProvider<Entity> entityDP = DataProvider.parse(scriptLine, info, Entity.class, matcher.group(1));
 			if (entityDP == null) return null;
 			
 			StringMatcher sm = new StringMatcher(matcher.group(2));
 			
 			IDataProvider<Location> locDP;
-            locDP = DataProvider.parse(info, Location.class, sm.spawn()); if (locDP == null) return null;
+            locDP = DataProvider.parse(scriptLine, info, Location.class, sm.spawn()); if (locDP == null) return null;
 			
 			IDataProvider<Number> yaw = null, pitch = null;
 			String yaw_pitch = "";
 			if (!sm.isEmpty()) {
 				if (!sm.matchesFront(dotPattern)) return null;
-				yaw = DataProvider.parse(info, Number.class, sm.spawn()); if (yaw == null) return null;
+				yaw = DataProvider.parse(scriptLine, info, Number.class, sm.spawn()); if (yaw == null) return null;
 				if (!sm.matchesFront(dotPattern)) return null;
-				pitch = DataProvider.parse(info, Number.class, sm.spawn()); if (pitch == null) return null;
+				pitch = DataProvider.parse(scriptLine, info, Number.class, sm.spawn()); if (pitch == null) return null;
 				
 				if (!sm.isEmpty()) return null;
 				

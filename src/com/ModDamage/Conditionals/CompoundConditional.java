@@ -10,6 +10,7 @@ import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 
@@ -123,11 +124,11 @@ public class CompoundConditional extends Conditional<Boolean>
 		DataProvider.register(Boolean.class, Boolean.class, LogicalOperator.pattern, new IDataParser<Boolean, Boolean>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Boolean> leftDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine line, EventInfo info, IDataProvider<Boolean> leftDP, Matcher m, StringMatcher sm)
 				{
 					LogicalOperator operator = LogicalOperator.match(m.group(1));
 					
-					IDataProvider<Boolean> rightDP = DataProvider.parse(info, Boolean.class, sm.spawn());
+					IDataProvider<Boolean> rightDP = DataProvider.parse(line, info, Boolean.class, sm.spawn());
 					if (rightDP == null) return null;
 					
 					sm.accept();

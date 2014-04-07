@@ -40,7 +40,7 @@ public class Cancel extends NestedRoutine
 			ISettableDataProvider<Boolean> cancelDP = info.get(Boolean.class, "cancelled", false);
 			if(cancelDP == null)
 			{
-				LogUtil.error("This event cannot be cancelled.");
+				LogUtil.error(scriptLine, "This event cannot be cancelled.");
 				return null;
 			}
 			

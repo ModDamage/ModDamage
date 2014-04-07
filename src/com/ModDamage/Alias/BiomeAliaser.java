@@ -5,11 +5,13 @@ import java.util.Collection;
 import org.bukkit.block.Biome;
 
 import com.ModDamage.Alias.Aliaser.CollectionAliaser;
+import com.ModDamage.Backend.ScriptLine;
 
 public class BiomeAliaser extends CollectionAliaser<Biome> 
 {
 	public static BiomeAliaser aliaser = new BiomeAliaser();
-	public static Collection<Biome> match(String string) { return aliaser.matchAlias(string); }
+	public static Collection<Biome> match(ScriptLine scriptLine) { return aliaser.matchAlias(scriptLine); }
+	public static Collection<Biome> match(ScriptLine scriptLine, String key) { return aliaser.matchAlias(scriptLine, key); }
 	
 	public BiomeAliaser(){ super(AliasManager.Biome.name()); }
 	@Override

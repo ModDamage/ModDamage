@@ -44,7 +44,7 @@ public class UpdateTab extends NestedRoutine
 		@Override
 		public IRoutineBuilder getNew(Matcher m, ScriptLine scriptLine, EventInfo info)
 		{
-			IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, m.group(1));
+			IDataProvider<Player> playerDP = DataProvider.parse(scriptLine, info, Player.class, m.group(1));
 			if(playerDP == null) return null;
 			
 			LogUtil.info("UpdateTab: " + playerDP);

@@ -54,7 +54,7 @@ public class Foreach extends NestedRoutine
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			String name = matcher.group(2);
-			IDataProvider<List> listDP = DataProvider.parse(info, List.class, matcher.group(1));
+			IDataProvider<List> listDP = DataProvider.parse(scriptLine, info, List.class, matcher.group(1));
 			if (listDP == null) return null;
 
 			ListExp alistDP = (ListExp) listDP;

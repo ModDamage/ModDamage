@@ -10,6 +10,7 @@ import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Alias.ArmorAliaser;
 import com.ModDamage.Backend.ArmorSet;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
@@ -52,9 +53,9 @@ public class PlayerWearing extends Conditional<Player>
 		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
-					Collection<ArmorSet> armorSet = ArmorAliaser.match(m.group(2));
+					Collection<ArmorSet> armorSet = ArmorAliaser.match(scriptLine, m.group(2));
 					if(armorSet.isEmpty()) return null;
 					
 					return new PlayerWearing(playerDP, m.group(1) != null, armorSet);

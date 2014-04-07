@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.BaseDataParser;
@@ -18,7 +19,7 @@ public class LiteralString implements IDataProvider<String>
 		DataProvider.register(String.class, Pattern.compile("\"((?:[^\\\\\"]+|\\\\.)*)\"|'((?:[^\\\\\']+|\\\\.)*)'"), new BaseDataParser<String>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, Matcher m, StringMatcher sm)
+				public IDataProvider<String> parse(ScriptLine scriptLine, EventInfo info, Matcher m, StringMatcher sm)
 				{
 					String v = m.group(1);
 					if (v == null) v = m.group(2);
@@ -44,7 +45,7 @@ public class LiteralString implements IDataProvider<String>
 					}
 					
 					
-					return sm.acceptIf(new LiteralString(new InterpolatedString(sb.toString(), info, false)));
+					return sm.acceptIf(new LiteralString(new InterpolatedString(scriptLine, sb.toString(), info, false)));
 				}
 			});
 	}

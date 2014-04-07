@@ -13,6 +13,7 @@ import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 
@@ -132,22 +133,22 @@ public class IntFunction implements IDataProvider<Integer>
 		DataProvider.register(Integer.class, Pattern.compile("("+Utils.joinBy("|", FunctionType.values())+")\\s*\\(", Pattern.CASE_INSENSITIVE), new BaseDataParser<Integer>()
 			{
 				@Override
-				public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
+				public IDataProvider<Integer> parse(ScriptLine scriptLine, EventInfo info, Matcher m, StringMatcher sm)
 				{
 					FunctionType ftype = FunctionType.match(m.group(1));
 					if (ftype == null)
 					{
-						LogUtil.error("Unknown function named: \"" + m.group(1) + "\"");
+						LogUtil.error(scriptLine, "Unknown function named: \"" + m.group(1) + "\"");
 						return null;
 					}
 					
 					List<IDataProvider<Integer>> args = new ArrayList<IDataProvider<Integer>>();
 					while (true)
 					{
-						IDataProvider<Integer> arg = DataProvider.parse(info, Integer.class, sm.spawn());
+						IDataProvider<Integer> arg = DataProvider.parse(scriptLine, info, Integer.class, sm.spawn());
 						if (arg == null)
 						{
-							LogUtil.error("Unable to match expression: \"" + sm.string + "\"");
+							LogUtil.error(scriptLine, "Unable to match expression: \"" + sm.string + "\"");
 							return null;
 						}
 						
@@ -161,13 +162,13 @@ public class IntFunction implements IDataProvider<Integer>
 					Matcher endMatcher = sm.matchFront(endPattern);
 					if (endMatcher == null)
 					{
-						LogUtil.error("Missing end paren: \"" + sm.string + "\"");
+						LogUtil.error(scriptLine, "Missing end paren: \"" + sm.string + "\"");
 						return null;
 					}
 					
 					if (args.size() < ftype.minParams || args.size() > ftype.maxParams)
 					{
-						LogUtil.error("Wrong number of parameters for " + m.group(1) + " function");
+						LogUtil.error(scriptLine, "Wrong number of parameters for " + m.group(1) + " function");
 						return null;
 					}
 					

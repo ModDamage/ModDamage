@@ -13,6 +13,7 @@ import com.ModDamage.Utils;
 import com.ModDamage.Alias.ItemAliaser;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ModDamageItemStack;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
@@ -88,9 +89,9 @@ public class PlayerHasItem extends Conditional<Player>
 		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
-					List<ModDamageItemStack> items = ItemAliaser.match(m.group(2), info);
+					List<ModDamageItemStack> items = ItemAliaser.match(scriptLine, m.group(2), info);
 					if(items == null || items.isEmpty()) return null;
 					
 					return new PlayerHasItem(playerDP, m.group(1) != null, items);

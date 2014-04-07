@@ -48,12 +48,12 @@ public class Untag<T, D> extends Routine
 		{
             StringMatcher sm = new StringMatcher(matcher.group(2));
             
-            Taggable<?> taggable = Taggable.get(DataProvider.parse(info, null, sm.spawn()), info);
+            Taggable<?> taggable = Taggable.get(DataProvider.parse(scriptLine, info, null, sm.spawn()), info);
             if (taggable == null) return null;
             
             if (!sm.matchesFront(dotPattern)) return null;
             
-            IDataProvider<String> tagNameDP = InterpolatedString.parseWord(InterpolatedString.word, sm.spawn(), info);
+            IDataProvider<String> tagNameDP = InterpolatedString.parseWord(scriptLine, InterpolatedString.word, sm.spawn(), info);
             if (tagNameDP == null) return null;
             
             if (!sm.isEmpty()) return null;

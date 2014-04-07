@@ -10,6 +10,7 @@ import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Alias.GroupAliaser;
 import com.ModDamage.Backend.ExternalPluginManager;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
@@ -48,9 +49,9 @@ public class PlayerInGroup extends Conditional<Player>
 		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
-					Collection<String> matchedGroups = GroupAliaser.match(m.group(1));
+					Collection<String> matchedGroups = GroupAliaser.match(scriptLine, m.group(1));
 					if(!matchedGroups.isEmpty())
 						return new PlayerInGroup(playerDP, matchedGroups);
 					return null;

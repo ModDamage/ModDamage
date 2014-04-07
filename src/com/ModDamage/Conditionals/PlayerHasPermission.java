@@ -4,7 +4,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Expressions.InterpolatedString;
+
 import org.bukkit.entity.Player;
 
 import com.ModDamage.StringMatcher;
@@ -45,9 +47,9 @@ public class PlayerHasPermission extends Conditional<Player>
 		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
-                    IDataProvider<String> permissionDP = InterpolatedString.parseWord(wordPattern, sm.spawn(), info);
+                    IDataProvider<String> permissionDP = InterpolatedString.parseWord(scriptLine, wordPattern, sm.spawn(), info);
                     if (permissionDP == null) return null;
 
                     sm.accept();

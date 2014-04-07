@@ -47,7 +47,7 @@ public class Lightning extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{ 
-			IDataProvider<Location> locDP = DataProvider.parse(info, Location.class, matcher.group(1));
+			IDataProvider<Location> locDP = DataProvider.parse(scriptLine, info, Location.class, matcher.group(1));
 			if (locDP == null) return null;
 
             boolean effect = matcher.group(2) != null;

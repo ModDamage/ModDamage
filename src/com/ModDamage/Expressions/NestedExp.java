@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.BaseDataParser;
@@ -22,10 +23,10 @@ public class NestedExp<T> implements IDataProvider<T>
 			{
 				@Override
 				@SuppressWarnings({ "rawtypes", "unchecked" })
-				public IDataProvider<Object> parse(EventInfo info, Matcher m, StringMatcher sm)
+				public IDataProvider<Object> parse(ScriptLine scriptLine, EventInfo info, Matcher m, StringMatcher sm)
 				{
 					IDataProvider<?> nestedDP;
-					nestedDP = DataProvider.parse(info, null, sm.spawn(), false, true, closeParen);
+					nestedDP = DataProvider.parse(scriptLine, info, null, sm.spawn(), false, true, closeParen);
 					
 					if (nestedDP == null || !sm.matchesFront(closeParen)) return null;
 					

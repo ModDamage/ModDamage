@@ -109,11 +109,11 @@ public class ModifySkill extends NestedRoutine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, matcher.group(1)); if (playerDP == null) return null;
+			IDataProvider<Player> playerDP = DataProvider.parse(scriptLine, info, Player.class, matcher.group(1)); if (playerDP == null) return null;
 			ModifyType modifyType = ModifyType.valueOf(matcher.group(2).toUpperCase());
 			SkillType skillType = SkillType.valueOf(matcher.group(3).toUpperCase());
 			
-			IDataProvider<Number> valueExp = DataProvider.parse(info, Number.class, matcher.group(4));
+			IDataProvider<Number> valueExp = DataProvider.parse(scriptLine, info, Number.class, matcher.group(4));
 			
 			return new RoutineBuilder(new ModifySkill(scriptLine, playerDP, valueExp, modifyType, skillType));
 		}

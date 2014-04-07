@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
@@ -119,11 +120,11 @@ public class Comparison extends Conditional<Number>
 		DataProvider.register(Boolean.class, Number.class, operatorPattern, new IDataParser<Boolean, Number>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Number> leftDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine line, EventInfo info, IDataProvider<Number> leftDP, Matcher m, StringMatcher sm)
 				{
 					ComparisonType comparisonType = ComparisonType.nameMap.get(m.group(1));
 					
-					IDataProvider<Number> right = DataProvider.parse(info, Number.class, sm.spawn());
+					IDataProvider<Number> right = DataProvider.parse(line, info, Number.class, sm.spawn());
 					
 					if(comparisonType == null)
 						return null;

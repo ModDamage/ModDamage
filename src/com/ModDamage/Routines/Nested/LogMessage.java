@@ -86,7 +86,7 @@ public class LogMessage extends NestedRoutine
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			StringMatcher sm = new StringMatcher(matcher.group(1));
-			IDataProvider<String> logNameDP = InterpolatedString.parseWord(InterpolatedString.word, sm, info);
+			IDataProvider<String> logNameDP = InterpolatedString.parseWord(scriptLine, InterpolatedString.word, sm, info);
 			if (logNameDP == null) return null;
 
 			
@@ -121,7 +121,7 @@ public class LogMessage extends NestedRoutine
 		
 		public void addString(String str)
 		{
-			IDataProvider<String> msgDP = DataProvider.parse(info, String.class, str);
+			IDataProvider<String> msgDP = DataProvider.parse(scriptLine, info, String.class, str);
 			if (msgDP != null) {
 				messages.add(msgDP);
 				LogUtil.info(msgDP.toString());

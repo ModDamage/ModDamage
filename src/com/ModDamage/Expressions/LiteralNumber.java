@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.BaseDataParser;
@@ -17,7 +18,7 @@ public class LiteralNumber implements IDataProvider<Number>
 		DataProvider.register(Number.class, Pattern.compile("[0-9]+(\\.[0-9]+)?"), new BaseDataParser<Number>()
 			{
 				@Override
-				public IDataProvider<Number> parse(EventInfo info, Matcher m, StringMatcher sm)
+				public IDataProvider<Number> parse(ScriptLine scriptLine, EventInfo info, Matcher m, StringMatcher sm)
 				{
 					if (m.group(1) != null)
 						return sm.acceptIf(new LiteralNumber(Double.parseDouble(m.group(0))));

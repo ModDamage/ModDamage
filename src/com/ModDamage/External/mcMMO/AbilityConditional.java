@@ -10,6 +10,7 @@ import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Conditionals.Conditional;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
@@ -100,7 +101,7 @@ public class AbilityConditional extends Conditional<Player>
 		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
 					Ability mcMMOability = null;
 					for(Ability ability : Ability.values())
@@ -108,7 +109,7 @@ public class AbilityConditional extends Conditional<Player>
 							mcMMOability = ability;
 					if(mcMMOability == null)
 					{
-						LogUtil.error("Invalid McMMO ability \"" + m.group(3) + "\"");
+						LogUtil.error(scriptLine, "Invalid McMMO ability \"" + m.group(3) + "\"");
 						return null;
 					}
 					

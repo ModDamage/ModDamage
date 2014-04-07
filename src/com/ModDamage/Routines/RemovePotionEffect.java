@@ -45,7 +45,7 @@ public class RemovePotionEffect extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{ 
-			IDataProvider<LivingEntity> livingDP = DataProvider.parse(info, LivingEntity.class, matcher.group(1));
+			IDataProvider<LivingEntity> livingDP = DataProvider.parse(scriptLine, info, LivingEntity.class, matcher.group(1));
 			if (livingDP == null) return null;
 			
 			PotionEffectType type = PotionEffectType.getByName(matcher.group(2).toUpperCase());

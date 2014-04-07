@@ -5,11 +5,13 @@ import java.util.Collection;
 import org.bukkit.enchantments.Enchantment;
 
 import com.ModDamage.Alias.Aliaser.CollectionAliaser;
+import com.ModDamage.Backend.ScriptLine;
 
 public class EnchantmentAliaser extends CollectionAliaser<Enchantment> 
 {
 	public static EnchantmentAliaser aliaser = new EnchantmentAliaser();
-	public static Collection<Enchantment> match(String string) { return aliaser.matchAlias(string); }
+	public static Collection<Enchantment> match(ScriptLine scriptLine) { return aliaser.matchAlias(scriptLine); }
+	public static Collection<Enchantment> match(ScriptLine scriptLine, String string) { return aliaser.matchAlias(scriptLine, string); }
 	
 	public EnchantmentAliaser(){ super(AliasManager.Enchantment.name()); }
 
