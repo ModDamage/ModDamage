@@ -21,6 +21,7 @@ import com.ModDamage.Events.Command;
 import com.ModDamage.Events.Init;
 import com.ModDamage.Events.Repeat;
 import com.ModDamage.Events.Block.BlockBurn;
+import com.ModDamage.Events.Block.BlockDispense;
 import com.ModDamage.Events.Block.BlockFade;
 import com.ModDamage.Events.Block.BlockFlow;
 import com.ModDamage.Events.Block.BlockForm;
@@ -32,6 +33,7 @@ import com.ModDamage.Events.Block.BreakBlock;
 import com.ModDamage.Events.Block.FurnaceExtract;
 import com.ModDamage.Events.Block.LeavesDecay;
 import com.ModDamage.Events.Block.PlaceBlock;
+import com.ModDamage.Events.Block.SignChange;
 import com.ModDamage.Events.Chunk.ChunkLoad;
 import com.ModDamage.Events.Chunk.ChunkPopulate;
 import com.ModDamage.Events.Chunk.ChunkUnload;
@@ -73,6 +75,9 @@ import com.ModDamage.Events.Player.Quit;
 import com.ModDamage.Events.Player.ToggleFlight;
 import com.ModDamage.Events.Player.ToggleSneak;
 import com.ModDamage.Events.Player.ToggleSprint;
+import com.ModDamage.Events.Weather.LightingStrike;
+import com.ModDamage.Events.Weather.ThunderChange;
+import com.ModDamage.Events.Weather.WeatherChange;
 import com.ModDamage.Events.World.StructureGrow;
 import com.ModDamage.Routines.Routines;
 
@@ -99,8 +104,10 @@ public class MDEvent implements Listener
                 new BlockFlow(),
                 new BlockForm(),
                 new BlockGrow(),
+                new BlockDispense(),
                 new BlockIgnite(),
                 new BlockSpread(),
+                new SignChange(),
 				new BreakBlock(),
 				new PlaceBlock(),
                 new LeavesDecay(),
@@ -167,6 +174,11 @@ public class MDEvent implements Listener
 		addEvents("World",
 				new StructureGrow()
 				);
+		
+		addEvents("Weather",
+				new LightingStrike(),
+				new ThunderChange(),
+				new WeatherChange());
 
 		addEvents("Misc",
 				Init.instance,

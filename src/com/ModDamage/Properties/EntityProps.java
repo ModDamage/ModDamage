@@ -43,6 +43,7 @@ public class EntityProps
         Properties.register("nodamageticks", LivingEntity.class, "getNoDamageTicks");
         Properties.register("maxnodamageticks", LivingEntity.class, "getMaximumNoDamageTicks");
         Properties.register("size", Slime.class, "getSize", "setSize");
+        Properties.register("velocity", Entity.class, "getVelocity", "setVelocity");
 
         Properties.register(new SettableProperty<Double, Damageable>("health", Double.class, Damageable.class) {
                 public Double get(Damageable entity, EventData data) {

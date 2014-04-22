@@ -30,6 +30,7 @@ import com.ModDamage.Expressions.ListExp;
 import com.ModDamage.Expressions.NestedExp;
 import com.ModDamage.Expressions.NumberExp;
 import com.ModDamage.Expressions.StringExp;
+import com.ModDamage.Expressions.Function.NewVectorFunction;
 import com.ModDamage.External.TabAPI.TabAPISupport;
 import com.ModDamage.External.Vault.VaultSupport;
 import com.ModDamage.External.Votifier.Vote;
@@ -130,6 +131,8 @@ public class ExternalPluginManager
 		InventoryProps.register();
 		ItemProps.register();
 		LocationProps.register();
+		NewVectorFunction.register();
+		
 		MaterialProps.register();
 		MiscProps.register();
 		OfflinePlayerProps.register();
