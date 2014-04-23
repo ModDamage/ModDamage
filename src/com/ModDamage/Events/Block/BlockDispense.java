@@ -22,7 +22,6 @@ public class BlockDispense extends MDEvent {
 			Vector.class, "velocity",
 			World.class,	"world",
 			Block.class,	"block",
-			Integer.class,	"experience", "-default",
 			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
