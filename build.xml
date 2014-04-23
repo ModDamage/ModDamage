@@ -14,12 +14,24 @@
 				</fileset>
 			</classpath>
 		</javac>
+		<copy todir="bin" overwrite="true" >
+			<fileset dir="web" includes="**/*.*"/>
+		</copy>
+		
+		<replaceregexp flags="gm" match='(&lt;(?:link|script) (?:href|src)=")\.?(.*&gt;)' replace="\1/static\2">
+			<fileset dir="bin" includes="**/*.html"/>
+		</replaceregexp>
+		
+		<replaceregexp flags="gm" match="(templateUrl: ')\.?(.*)'" replace="\1/static\2">
+			<fileset dir="bin" includes="**/app.js"/>
+		</replaceregexp>
+		
 	</target>
 
 	<target name="jar" depends="build">
 		<jar destfile="ModDamage.jar" update="no">
-			<fileset dir="bin" includes="**/*.class" />
-			<fileset dir="." includes="plugin.yml,web/**" />
+			<fileset dir="bin" />
+			<fileset dir="." includes="plugin.yml" />
 		</jar>
 	</target>
 </project>

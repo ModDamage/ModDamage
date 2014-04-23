@@ -20,6 +20,17 @@
 	        </fileset>
 	    </path>
 		<javac srcdir="${sourceFolder}" destdir="${buildFolder}" classpathref="project.classpath" source="1.6" target="1.6" debug="on" includeantruntime="false" />
+		<copy todir="bin" overwrite="true">
+			<fileset dir="web" includes="**/*.*"/>
+		</copy>
+		
+		<replaceregexp flags="gm" match='(&lt;(?:link|script) (?:href|src)=")\.?(.*&gt;)' replace="\1/static\2">
+			<fileset dir="bin" includes="**/*.html"/>
+		</replaceregexp>
+				
+		<replaceregexp flags="gm" match="(templateUrl: ')\.?(.*)'" replace="\1/static\2">
+			<fileset dir="bin" includes="**/app.js"/>
+		</replaceregexp>
 	</target>
 
 	<!-- Append Jenkins build number. -->
@@ -30,8 +41,8 @@
 	<!-- Slap the JAR together. -->
 	<target name="jar" depends="addJenkinsBuild" description="Pack JAR file">
 		<jar destfile="${env.JOB_NAME}.jar" update="no">
-			<fileset dir="${buildFolder}" includes="**/*.class"/>
-			<fileset dir="." includes="plugin.yml,web/**"/>
+			<fileset dir="${buildFolder}" />
+			<fileset dir="." includes="plugin.yml"/>
 			<manifest>
 				<attribute name="Job" value="${env.JOB_NAME}"/>
 				<attribute name="Built-By" value="ModDamage Jenkins"/>

@@ -85,35 +85,35 @@ app.directive('mdClass', function() {
 app.config(function($routeProvider, $locationProvider) {
 	$routeProvider
 		.when('/stats', {
-			templateUrl: '/static/views/stats.html',
+			templateUrl: './views/stats.html',
 			controller: StatsCtrl
 		})
 		.when('/editor', {
-			templateUrl: '/static/views/editor.html',
+			templateUrl: './views/editor.html',
 			controller: EditorCtrl
 		})
 		.when('/events', {
-			templateUrl: '/static/views/events.html',
+			templateUrl: './views/events.html',
 			controller: EventsCtrl
 		})
 		.when('/routines', {
-			templateUrl: '/static/views/routines.html',
+			templateUrl: './views/routines.html',
 			controller: RoutinesCtrl
 		})
 		.when('/properties', {
-			templateUrl: '/static/views/properties.html',
+			templateUrl: './views/properties.html',
 			controller: PropertiesCtrl
 		})
 		.when('/transformers', {
-			templateUrl: '/static/views/transformers.html',
+			templateUrl: './views/transformers.html',
 			controller: TransformersCtrl
 		})
 		.when('/class/:className', {
-			templateUrl: '/static/views/class.html',
+			templateUrl: './views/class.html',
 			controller: ClassCtrl
 		})
 		.when('/browse/:className', {
-			templateUrl: '/static/views/browse.html',
+			templateUrl: './views/browse.html',
 			controller: BrowseCtrl
 		})
 		.otherwise({
