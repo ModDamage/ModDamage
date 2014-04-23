@@ -26,27 +26,34 @@
 		<script src="./editor.js"></script>
 	</head>
 	<body style="padding-top: 70px;">
-		<nav class="navbar navbar-inverse navbar-fixed-top" ng-controller="NavCtrl">
-			<div class="navbar-inner">
-				<div class="navbar-header">
-					<a class="navbar-brand" href="#">ModDamage</a>
-				</div>
-				<div class="navbar-collapse collapse">
-						<ul class="nav navbar-nav">
-							<li ng-class="{active: isActive('/stats')}"><a href="#/stats">Stats</a></li>
-							<li ng-class="{active: isActive('/editor')}"><a href="#/editor">Editor</a></li>
-							<li ng-class="{active: isActive('/events')}"><a href="#/events">Events</a></li>
-							<li ng-class="{active: isActive('/routines')}"><a href="#/routines">Routines</a></li>
-							<li ng-class="{active: isActive('/properties')}"><a href="#/properties">Properties</a></li>
-							<li ng-class="{active: isActive('/transformers')}"><a href="#/transformers">Transformers</a></li>
-						</ul>
-						<ul class="nav navbar-nav pull-right">
-							<li><input type="checkbox" ng-model="$root.verbose" /></li>
-						</ul>
-					</div><!--/.nav-collapse -->
+		<header class="navbar navbar-inverse navbar-fixed-top" role="banner">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">ModDamage</a>
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-main">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"> </span>
+					<span class="icon-bar"> </span>
+					<span class="icon-bar"> </span>
+				</button>
 			</div>
-		</nav>
-	
+			<nav class="navbar-collapse collapse" ng-controller="NavCtrl" id="navbar-main">
+				<ul class="nav navbar-nav">
+					<li ng-class="{active: isActive('/stats')}"><a href="#/stats">Stats</a></li>
+					<li ng-class="{active: isActive('/editor')}"><a href="#/editor">Editor</a></li>
+					<li class="dropdown" ng-class="{active: isAnyActive('/events', '/routines', '/properties', '/transformers')}"s><a href="#" class="dropdown-toggle" data-toggle="dropdown">API<b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li ng-class="{active: isActive('/events')}"><a href="#/events">Events</a></li>
+						<li ng-class="{active: isActive('/routines')}"><a href="#/routines">Routines</a></li>
+						<li ng-class="{active: isActive('/properties')}"><a href="#/properties">Properties</a></li>
+						<li ng-class="{active: isActive('/transformers')}"><a href="#/transformers">Transformers</a></li>
+					</ul>
+					<li ng-class="{active: isActive('/support')}"><a href="#/support">Live Support</a></li>
+				</ul>
+				<ul class="nav navbar-nav pull-right">
+					<li><input type="checkbox" ng-model="$root.verbose" /></li>
+				</ul>
+			</nav>
+		</header>
 		<div ng-view></div>
 
 	</body>
