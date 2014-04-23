@@ -1,5 +1,4 @@
 var app = angular.module('app', ['ngRoute', 'ngResource', 'ui.bootstrap', 'ui.ace']);
-
 app.filter('log', function() {
 	return function(value, prefix) {
 		console.log('log', prefix, value);
@@ -116,6 +115,10 @@ app.config(function($routeProvider, $locationProvider) {
 			templateUrl: './views/browse.html',
 			controller: BrowseCtrl
 		})
+		.when('/support', {
+		  templateUrl: './views/support.html',
+		  controller: null
+	    })
 		.otherwise({
 			redirectTo: '/stats',
 		})
