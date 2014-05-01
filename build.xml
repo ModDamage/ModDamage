@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ModDamage" default="jar" basedir=".">
-	<target name="clean">
-		<delete dir="bin"/>
+	<target name="clean-web">
+			<delete dir="bin/web"/>
 	</target>
 
-	<target name="build" description="compile the source">
+	<target name="clean" depends="clean-web">
+			<delete dir="bin"/>
+	</target>
+
+	<target name="build" description="compile the source" depends="clean-web">
 		<mkdir dir="bin"/>
 		<javac srcdir="src" destdir="bin" includeantruntime="false" encoding="UTF-8">
 			<compilerarg value="-Xlint"/>
@@ -14,12 +18,52 @@
 				</fileset>
 			</classpath>
 		</javac>
+		
+		<echo>Copying webserver files.</echo>
+		<copy todir="bin/web" overwrite="true" >
+			<fileset dir="web" casesensitive="false">
+				<include name="bootstrap/**/*.*" />
+				<include name="js/*.js" />
+				<include name="views/*.*" />
+				<include name="*.*" />
+				<include name="bower_components/ace-builds/src-*noconflict/ace.js" />
+				<include name="bower_components/angular*/angular*.min.js" />
+				<include name="bower_components/angular*/*.css" />
+				<include name="**/bower.json" />
+				<include name="bower_components/angular*/angular*.min.js" />
+				<include name="bower_components/jquery/jquery*.*" />
+				<include name="bower_components/angular-ui-bootstrap/src/**/*.js" />
+				<include name="bower_components/angular-ui*/*.js" />
+				<include name="bower_components/lodash/dist/*.js" />
+				<include name="bower_components/bootstrap/dist/**/*.*" />
+				
+				<!-- 
+					Don't include readmes or demos. We know what the api we use does.
+					Also Don't include grunt files (Api builders)
+					Just include licenses just in case some require a license to be copied over.
+				-->
+				<exclude name="**/Gruntfile.js" />
+				<exclude name="**/*README*" />
+				<exclude name="**/*demo*.*" />
+				<exclude name="**/*TEST*" />
+				<include name="**/*LICENSE*" />
+			</fileset>
+		</copy>
+
+		<replaceregexp flags="gm" match='(&lt;(?:link|script) (?:href|src)=")\.?(.*&gt;)' replace="\1/static\2">
+			<fileset dir="bin/web" includes="**/*.html"/>
+		</replaceregexp>
+		
+		<replaceregexp flags="gm" match="(templateUrl: ')\.?(.*)'" replace="\1/static\2">
+			<fileset dir="bin/web" includes="**/app.js"/>
+		</replaceregexp>
+		
 	</target>
 
 	<target name="jar" depends="build">
 		<jar destfile="ModDamage.jar" update="no">
-			<fileset dir="bin" includes="**/*.class" />
-			<fileset dir="." includes="plugin.yml,web/**" />
+			<fileset dir="bin" />
+			<fileset dir="." includes="plugin.yml" />
 		</jar>
 	</target>
 </project>
