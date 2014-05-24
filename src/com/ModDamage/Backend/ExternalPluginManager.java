@@ -57,17 +57,12 @@ import com.ModDamage.Variables.PlayerNamed;
 import com.ModDamage.Variables.TagValue;
 import com.ModDamage.Variables.Transformers;
 import com.ModDamage.Variables.WorldNamed;
-import com.elbukkit.api.elregions.elRegionsPlugin;
-import com.elbukkit.api.elregions.region.Region;
-import com.elbukkit.api.elregions.region.RegionManager;
 import com.gmail.nossr50.mcMMO;
 import com.palmergames.bukkit.towny.db.TownyDataSource;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-
-import de.bananaco.permissions.Permissions;
 
 public class ExternalPluginManager
 {
@@ -200,8 +195,11 @@ public class ExternalPluginManager
 			@Override
 			public List<String> getGroups(Player player)
 			{
-				if(player != null)
-					return Permissions.getWorldPermissionsManager().getPermissionSet(player.getWorld()).getGroups(player);
+				if(player != null){
+					ArrayList<String> list = new ArrayList<String>();
+					list.addAll(de.bananaco.bpermissions.api.WorldManager.getInstance().getWorld(player.getWorld().getName()).getUser(player.getName()).getGroupsAsString());
+					return list;
+				}
 				return Arrays.asList();
 			}
 
@@ -337,44 +335,6 @@ public class ExternalPluginManager
 	}
 	public enum RegionsManager
 	{
-		elRegions
-		{
-			elRegionsPlugin regionsPlugin = null;
-
-			@Override
-			public List<String> getRegions(Location location)
-			{
-				RegionManager erManager = regionsPlugin.getRegionManager(location.getWorld());
-				if(erManager != null)
-				{
-					List<String> regionNames = new ArrayList<String>();
-					for(Region region : erManager.getRegions(location))
-						regionNames.add(region.getName());
-					return regionNames;
-				}
-				return Arrays.asList();
-			}
-
-			@Override
-			public List<String> getAllRegions()
-			{
-				List<String> regions = new ArrayList<String>();
-				for(World world : Bukkit.getWorlds())
-				{
-					RegionManager erManager = regionsPlugin.getRegionManager(world);
-					if(erManager != null)
-						for(Region region : erManager.getRegions())
-							regions.add(region.getName());
-				}
-				return regions;
-			}
-
-			@Override
-			protected void reload(Plugin plugin)
-			{
-				regionsPlugin = ((elRegionsPlugin)plugin);
-			}
-		},
 		WorldGuard
 		{
 			private WorldGuardPlugin worldGuardPlugin = null;
