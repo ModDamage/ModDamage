@@ -53,7 +53,9 @@ public class Command extends MDEvent implements ScriptLineHandler
 		
 		for (org.bukkit.command.Command cmd : bukkitCommands)
 		{
-			rcmap.remove(cmd.getName());
+			if(rcmap != null){
+				rcmap.remove(cmd.getName());
+			}
 			cmd.unregister(cmap);
 		}
 		bukkitCommands.clear();
