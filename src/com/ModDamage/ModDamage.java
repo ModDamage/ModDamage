@@ -163,7 +163,7 @@ public class ModDamage extends JavaPlugin
 				if(matcher.group(1) != null)
 				{
 					for(DebugSetting setting : DebugSetting.values())
-						if(matcher.group(1).equalsIgnoreCase(setting.name()))
+						if(matcher != null ? matcher.group(1).equalsIgnoreCase(setting.name()) : false)
 						{
 							configuration.setDebugging(player, setting);
 							return;
