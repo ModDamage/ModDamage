@@ -6,7 +6,6 @@
 bin
 ModDamage.jar
 commons-io-2.4-src
-web-bin*
 .idea
 .iml
 *.iml
