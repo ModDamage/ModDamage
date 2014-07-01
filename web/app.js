@@ -117,7 +117,6 @@ app.config(function($routeProvider, $locationProvider) {
 		})
 		.when('/support', {
 		  templateUrl: '/static/views/support.html',
-		  controller: function($scope, $data) {}
 	    })
 		.otherwise({
 			redirectTo: '/stats',
