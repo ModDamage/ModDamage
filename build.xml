@@ -8,8 +8,9 @@
 			<delete dir="bin"/>
 	</target>
 
-	<target name="build" description="compile the source">
+	<target name="build" depends="clean-web" description="compile the source">
 		<mkdir dir="bin"/>
+        <mkdir dir="bin/web"/>
 		<javac srcdir="src" destdir="bin" includeantruntime="false" encoding="UTF-8">
 			<compilerarg value="-Xlint"/>
 			<classpath>
@@ -22,6 +23,56 @@
 		<echo>Copying webserver files.</echo>
 		<copy todir="bin/web" overwrite="true" >
 			<fileset dir="web" casesensitive="false">
+
+                <!--Include main application-->
+                <include name="app.html"/>
+                <include name="app.js"/>
+                <include name="editor.js"/>
+                <include name="style.css"/>
+                <include name="views/**"/>
+
+                <exclude name="api/**"/>
+
+                <include name="js/**"/>
+
+                <!--Include Minimized Bootstrap Libraries.-->
+                <include name="bootstrap/**/*.min.*"/>
+
+                <!--Include Fonts-->
+                <include name="bootstrap/fonts/*"/>
+
+                <include name="**/*.min.js"/>
+                <include name="**/*.min.js.map"/>
+
+                <!--<include name="bower_components/ace-builds/src-min/**"/>-->
+                <include name="bower_components/ace-builds/src-noconflict/**"/>
+
+                <include name="bower_components/angular-ui-ace/ui-ace.js"/>
+                <!--Bootstrap-->
+                <exclude name="bower_components/angular-ui-bootstrap/**"/>
+                <exclude name="bower_components/bootstrap/**"/>
+                <include name="bower_components/bootstrap/dist/*.min.*"/>
+
+
+                <include name="bower_components/angular/*.js"/>
+                <include name="bower_components/angular/*.js.map"/>
+                <include name="bower_components/angular/*.css"/>
+                <include name="bower_components/angular-ui-bootstrap-bower/*.js"/>
+                <include name="bower_components/angular-ui-ace/*.js"/>
+
+                <!--Include all minified versions of files-->
+                <include name="bower_components/jquery/*.min.*"/>
+
+                <!--
+                    Don't include readmes or demos. We know what the api we use does.
+                    Also Don't include grunt files (Api builders)
+                    Just include licenses just in case some require a license to be copied over.
+                -->
+                <exclude name="**/Gruntfile.js" />
+                <exclude name="**/*README*" />
+                <exclude name="**/*demo*.*" />
+                <exclude name="**/*TEST*" />
+                <include name="**/*LICENSE*" />
 			</fileset>
 		</copy>
 		
