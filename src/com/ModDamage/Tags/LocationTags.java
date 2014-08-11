@@ -47,6 +47,17 @@ public class LocationTags<T> implements ITags<T, Location> {
         return new BlockVector(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
 
+	private BlockVector toBlockVector(String vecString) {
+		if (vecString == null) return null;
+		String[] sVals = vecString.split(",");
+		int[] iVals = new int[sVals.length];
+
+		for (int i = 0; i < iVals.length; i++)
+			iVals[i] = Integer.valueOf(sVals[i]);
+
+		return new BlockVector(iVals[0], iVals[1], iVals[2]);
+	}
+
     /**
      * Tag the thing. A new tag is made if it doesn't already exist.
      */
@@ -75,7 +86,7 @@ public class LocationTags<T> implements ITags<T, Location> {
             Map<BlockVector, T> worldBlockTags = entry.getValue().get(worldName);
             if (worldBlockTags == null) continue;
 
-            if (worldBlockTags.containsKey(loc))
+            if (worldBlockTags.containsKey(toBlockVector(loc)))
                 tagsList.add(entry.getKey());
         }
         return tagsList;
@@ -137,8 +148,8 @@ public class LocationTags<T> implements ITags<T, Location> {
                 {
                     Map<BlockVector, T> locMap = new HashMap<BlockVector, T>(worldEntry.getValue().size());
 
-                    for (Map.Entry<BlockVector, T> locEntry : locMap.entrySet())
-                        locMap.put(locEntry.getKey(), locEntry.getValue());
+                    for (Map.Entry<String, T> locEntry : worldEntry.getValue().entrySet())
+                        locMap.put(toBlockVector(locEntry.getKey()), locEntry.getValue());
 
                     worldMap.put(worldEntry.getKey(), locMap);
                 }
