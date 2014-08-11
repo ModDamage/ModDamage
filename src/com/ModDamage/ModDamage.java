@@ -220,7 +220,7 @@ public class ModDamage extends JavaPlugin
 				ModDamage.setPluginStatus(player, matcher.group().equalsIgnoreCase(" enable"));
 			}
 		},
-		TAGS(true, "\\st(?:ags)?\\s(clear|save)", "/md tags (save|clear) - save/clear tags")
+		TAGS(true, "\\st(?:ags)?\\s(clear|save|load)", "/md tags (save|clear|load) - save/clear/reloads tags")
 		{
 			@Override
 			protected void handleCommand(Player player, Matcher matcher)
@@ -229,6 +229,10 @@ public class ModDamage extends JavaPlugin
 				{
 					tagger.clear();
 					sendMessage(player, "Tags cleared.", ChatColor.GREEN);
+				}
+				else if (matcher.group(1).equalsIgnoreCase("load")) {
+					tagger.load();
+					sendMessage(player, "Tags reloaded.", ChatColor.GREEN);
 				}
 				else
 				{
