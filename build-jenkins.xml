@@ -26,7 +26,16 @@
 		
 		<copy todir="${webBuildFolder}" overwrite="true">
 			<fileset dir="web">
+                <!--Include main application-->
+                <include name="app.html"/>
+                <include name="app.js"/>
+                <include name="editor.js"/>
+                <include name="style.css"/>
+                <include name="views/**"/>
+
                 <exclude name="api/**"/>
+
+                <include name="js/**"/>
 
                 <!--Include Minimized Bootstrap Libraries.-->
                 <include name="bootstrap/**/*.min.*"/>
@@ -37,13 +46,20 @@
                 <include name="**/*.min.js"/>
                 <include name="**/*.min.js.map"/>
 
+                <!--<include name="bower_components/ace-builds/src-min/**"/>-->
+                <include name="bower_components/ace-builds/src-noconflict/**"/>
+
                 <include name="bower_components/angular-ui-ace/ui-ace.js"/>
                 <!--Bootstrap-->
                 <exclude name="bower_components/angular-ui-bootstrap/**"/>
                 <exclude name="bower_components/bootstrap/**"/>
                 <include name="bower_components/bootstrap/dist/*.min.*"/>
 
-                <include name="bower_components/angular-ui-bootstrap-bower/*.min.*"/>
+
+                <include name="bower_components/angular/*.js"/>
+                <include name="bower_components/angular/*.js.map"/>
+                <include name="bower_components/angular/*.css"/>
+                <include name="bower_components/angular-ui-bootstrap-bower/*.js"/>
                 <include name="bower_components/angular-ui-ace/*.js"/>
 
                 <!--Include all minified versions of files-->
