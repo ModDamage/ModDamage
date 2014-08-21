@@ -38,8 +38,12 @@ function EditorCtrl($scope, $http) {
 
 		$http({url: '/plugin' + path, method: 'GET'})
 				.success(function(data) {
-					$scope.editor.getSession().setValue(data, -1);
-					$scope.changed = false;
+				    if (typeof(data) == "object") {
+				        $scope.editor.getSession().setValue(angular.toJson(data, true), -1);
+				    } else {
+					    $scope.editor.getSession().setValue(data, -1);
+				    }
+                    $scope.changed = false;
 				});
 	};
 }

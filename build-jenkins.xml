@@ -1,12 +1,12 @@
 <project name="Jenkins-BukkitPlugin" default="clean">
 	
-<!-- START PREDEFINED -->
-	<property environment="env"/>
+    <!-- START PREDEFINED -->
+    <property environment="env"/>
 	<property name="sourceFolder" location="src"/>
 	<property name="buildFolder" location="bin"/>
 	<property name="webBuildFolder" location="bin/web"/>
 	<property name="dependencyFolder" location="resource"/>
-<!-- END PREDEFINED -->	
+    <!-- END PREDEFINED -->
 	
 	<target name="init">
 		<tstamp/>
@@ -21,50 +21,48 @@
 	            <include name="*.jar"/>
 	        </fileset>
 	    </path>
-		<javac srcdir="${sourceFolder}" destdir="${buildFolder}" verbose="true" listfiles="true" classpathref="project.classpath" source="1.6" target="1.6" debug="on" includeantruntime="false" />
+		<javac srcdir="${sourceFolder}" destdir="${buildFolder}" classpathref="project.classpath" source="1.6" target="1.6" debug="on" includeantruntime="false" />
+		<echo>Copying webserver files for filtering...</echo>
 		
-
-		<echo>Copying webserver files for compiling...</echo>
-		
-		<copy todir="${webBuildFolder}" overwrite="true" verbose="true">
+		<copy todir="${webBuildFolder}" overwrite="true">
 			<fileset dir="web">
-				<include name="bootstrap/**/*.*" />
-				<include name="js/*.js" />
-				<include name="views/*.*" />
-				<include name="*.*" />
-				<include name="bower_components/ace-builds/src-*noconflict/ace.js" />
-				<include name="bower_components/angular*/angular*.min.js" />
-				<include name="bower_components/angular*/*.css" />
-				<include name="**/bower.json" />
-				<include name="bower_components/angular*/angular*.min.js" />
-				<include name="bower_components/jquery/jquery*.*" />
-				<include name="bower_components/angular-ui-bootstrap/src/**/*.js" />
-				<include name="bower_components/angular-ui*/*.js" />
-				<include name="bower_components/lodash/dist/*.js" />
-				<include name="bower_components/bootstrap/dist/**/*.*" />
-				
-				<!-- 
-					Don't include readmes or demos. We know what the api we use does.
-					Also Don't include grunt files (Api builders)
-					Just include licenses just in case some require a license to be copied over.
-				-->
-				<exclude name="**/Gruntfile.js" />
-				<exclude name="**/*README*" />
-				<exclude name="**/*demo*.*" />
-				<exclude name="**/*TEST*" />
-				<include name="**/*LICENSE*" />
+                <exclude name="api/**"/>
+
+                <!--Include Minimized Bootstrap Libraries.-->
+                <include name="bootstrap/**/*.min.*"/>
+
+                <!--Include Fonts-->
+                <include name="bootstrap/fonts/*"/>
+
+                <include name="**/*.min.js"/>
+                <include name="**/*.min.js.map"/>
+
+                <include name="bower_components/angular-ui-ace/ui-ace.js"/>
+                <!--Bootstrap-->
+                <exclude name="bower_components/angular-ui-bootstrap/**"/>
+                <exclude name="bower_components/bootstrap/**"/>
+                <include name="bower_components/bootstrap/dist/*.min.*"/>
+
+                <include name="bower_components/angular-ui-bootstrap-bower/*.min.*"/>
+                <include name="bower_components/angular-ui-ace/*.js"/>
+
+                <!--Include all minified versions of files-->
+                <include name="bower_components/jquery/*.min.*"/>
+
+                <!--
+                    Don't include readmes or demos. We know what the api we use does.
+                    Also Don't include grunt files (Api builders)
+                    Just include licenses just in case some require a license to be copied over.
+                -->
+                <exclude name="**/Gruntfile.js" />
+                <exclude name="**/*README*" />
+                <exclude name="**/*demo*.*" />
+                <exclude name="**/*TEST*" />
+                <include name="**/*LICENSE*" />
 			</fileset>
 		</copy>
 		
-		<replaceregexp flags="gm" match='(&lt;(?:link|script) (?:href|src)=")\.?(.*&gt;)' replace="\1/static\2">
-			<fileset dir="${webBuildFolder}" includes="**/*.html"/>
-		</replaceregexp>
-				
-		<replaceregexp flags="gm" match="(templateUrl: ')\.?(.*)'" replace="\1/static\2">
-			<fileset dir="${webBuildFolder}" includes="**/app.js"/>
-		</replaceregexp>
-		
-		<echo message="Web files compilation complete..."/>
+		<echo message="Web files filtering complete..."/>
 	</target>
 
 	<!-- Append Jenkins build number. -->
@@ -90,7 +88,7 @@
 	<target name="clean" depends="jar">
 		<echo message="Deleting .class files..."/>
 		<delete dir="${buildFolder}"/>
-		<echo message="Deleting compiled files..."/>
+		<echo message="Deleting compiled web files..."/>
 		<delete dir="${webBuildFolder}"/>
 	</target>
 	

@@ -1,0 +1,13 @@
+{
+  "name": "TestName",
+  "id": "TestID",
+  "ip": "N/A",
+  "port": "8000",
+  "implementation": {
+    "name": "Python WebServer",
+    "version": "N/A",
+    "bukkitVersion": "N/A"
+  },
+  "numPlayers": 0,
+  "maxPlayers": 0
+}

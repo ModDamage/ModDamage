@@ -84,40 +84,39 @@ app.directive('mdClass', function() {
 app.config(function($routeProvider, $locationProvider) {
 	$routeProvider
 		.when('/stats', {
-			templateUrl: './views/stats.html',
+			templateUrl: '/static/views/stats.html',
 			controller: StatsCtrl
 		})
 		.when('/editor', {
-			templateUrl: './views/editor.html',
+			templateUrl: '/static/views/editor.html',
 			controller: EditorCtrl
 		})
 		.when('/events', {
-			templateUrl: './views/events.html',
+			templateUrl: '/static/views/events.html',
 			controller: EventsCtrl
 		})
 		.when('/routines', {
-			templateUrl: './views/routines.html',
+			templateUrl: '/static/views/routines.html',
 			controller: RoutinesCtrl
 		})
 		.when('/properties', {
-			templateUrl: './views/properties.html',
+			templateUrl: '/static/views/properties.html',
 			controller: PropertiesCtrl
 		})
 		.when('/transformers', {
-			templateUrl: './views/transformers.html',
+			templateUrl: '/static/views/transformers.html',
 			controller: TransformersCtrl
 		})
 		.when('/class/:className', {
-			templateUrl: './views/class.html',
+			templateUrl: '/static/views/class.html',
 			controller: ClassCtrl
 		})
 		.when('/browse/:className', {
-			templateUrl: './views/browse.html',
+			templateUrl: '/static/views/browse.html',
 			controller: BrowseCtrl
 		})
 		.when('/support', {
-		  templateUrl: './views/support.html',
-		  controller: null
+		  templateUrl: '/static/views/support.html',
 	    })
 		.otherwise({
 			redirectTo: '/stats',
