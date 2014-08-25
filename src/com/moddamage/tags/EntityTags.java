@@ -1,4 +1,4 @@
-package com.ModDamage.Tags;
+package com.moddamage.tags;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +12,7 @@ import java.util.WeakHashMap;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 
-import com.ModDamage.ModDamage;
+import com.moddamage.ModDamage;
 
 public class EntityTags<T> implements ITags<T, Entity> {
     private final Map<String, Map<Entity, T>> tags = new HashMap<String, Map<Entity, T>>();

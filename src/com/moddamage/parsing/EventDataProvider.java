@@ -1,8 +1,8 @@
-package com.ModDamage.Parsing;
+package com.moddamage.parsing;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
+import com.moddamage.LogUtil;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
 
 public class EventDataProvider<T> implements ISettableDataProvider<T>
 {

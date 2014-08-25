@@ -1,4 +1,4 @@
-package com.ModDamage.Alias;
+package com.moddamage.alias;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.PluginConfiguration.LoadState;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.Backend.ScriptLineHandler;
+import com.moddamage.LogUtil;
+import com.moddamage.PluginConfiguration.LoadState;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.backend.ScriptLineHandler;
 
 abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandler
 {

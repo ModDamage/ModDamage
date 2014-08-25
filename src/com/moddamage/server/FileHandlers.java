@@ -1,4 +1,4 @@
-package com.ModDamage.Server;
+package com.moddamage.server;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,8 +16,8 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.Server.NanoHTTPD.Response;
+import com.moddamage.ModDamage;
+import com.moddamage.server.NanoHTTPD.Response;
 
 public class FileHandlers
 {

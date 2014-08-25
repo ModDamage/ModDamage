@@ -1,4 +1,4 @@
-package com.ModDamage.Expressions;
+package com.moddamage.expressions;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.StringMatcher;
+import com.moddamage.LogUtil;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.StringMatcher;
 
 public class InterpolatedString implements IDataProvider<String>
 {

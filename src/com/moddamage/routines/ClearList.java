@@ -1,16 +1,16 @@
-package com.ModDamage.Routines;
+package com.moddamage.routines;
 
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.ISettableDataProvider;
-import com.ModDamage.Routines.Nested.NestedRoutine;
+import com.moddamage.LogUtil;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.ISettableDataProvider;
+import com.moddamage.routines.nested.NestedRoutine;
 
 @SuppressWarnings("rawtypes")
 public class ClearList extends NestedRoutine

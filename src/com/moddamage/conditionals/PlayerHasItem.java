@@ -1,4 +1,4 @@
-package com.ModDamage.Conditionals;
+package com.moddamage.conditionals;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -8,16 +8,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Utils;
-import com.ModDamage.Alias.ItemAliaser;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.ModDamageItemStack;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataParser;
-import com.ModDamage.Parsing.IDataProvider;
+import com.moddamage.StringMatcher;
+import com.moddamage.Utils;
+import com.moddamage.alias.ItemAliaser;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.ModDamageItemStack;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataParser;
+import com.moddamage.parsing.IDataProvider;
 
 public class PlayerHasItem extends Conditional<Player>
 {

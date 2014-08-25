@@ -1,4 +1,4 @@
-package com.ModDamage.Matchables;
+package com.moddamage.matchables;
 
 public interface Matchable<T extends Enum<T> & Matchable<T>>
 {

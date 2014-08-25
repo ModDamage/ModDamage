@@ -1,16 +1,16 @@
-package com.ModDamage.Events.Weather;
+package com.moddamage.events.weather;
 
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.weather.LightningStrikeEvent;
 
-import com.ModDamage.MDEvent;
-import com.ModDamage.ModDamage;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Routines.Lightning;
+import com.moddamage.MDEvent;
+import com.moddamage.ModDamage;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.eventinfo.SimpleEventInfo;
+import com.moddamage.routines.Lightning;
 
 public class LightingStrike extends MDEvent {
 	public LightingStrike() { super(myInfo); }

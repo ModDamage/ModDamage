@@ -1,10 +1,10 @@
-package com.ModDamage.Magic.Handle;
+package com.moddamage.magic.handle;
 
 import java.lang.reflect.Method;
 
 import org.bukkit.entity.Entity;
 
-import com.ModDamage.Magic.MagicStuff;
+import com.moddamage.magic.MagicStuff;
 
 public class CBHandleClass implements IMagicHandleClass
 {

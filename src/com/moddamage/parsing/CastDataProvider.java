@@ -1,7 +1,7 @@
-package com.ModDamage.Parsing;
+package com.moddamage.parsing;
 
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
 
 public class CastDataProvider<T> implements IDataProvider<T>
 {

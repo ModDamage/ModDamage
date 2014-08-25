@@ -1,4 +1,4 @@
-package com.ModDamage.Routines.Nested;
+package com.moddamage.routines.nested;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,19 +11,19 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.ModDamage;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Alias.MessageAliaser;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.Backend.ScriptLineHandler;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.LiteralString;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Routines.Routine;
+import com.moddamage.LogUtil;
+import com.moddamage.ModDamage;
+import com.moddamage.StringMatcher;
+import com.moddamage.alias.MessageAliaser;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.backend.ScriptLineHandler;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.expressions.LiteralString;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.routines.Routine;
 
 public class Message extends Routine 
 {

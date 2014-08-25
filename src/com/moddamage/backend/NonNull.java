@@ -1,4 +1,4 @@
-package com.ModDamage.Backend;
+package com.moddamage.backend;
 
 public @interface NonNull
 {

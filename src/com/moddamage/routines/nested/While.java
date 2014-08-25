@@ -1,15 +1,15 @@
-package com.ModDamage.Routines.Nested;
+package com.moddamage.routines.nested;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.MDLogger.OutputPreset;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
+import com.moddamage.MDLogger.OutputPreset;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
 
 public class While extends NestedRoutine
 {

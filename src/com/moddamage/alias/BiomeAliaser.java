@@ -1,10 +1,10 @@
-package com.ModDamage.Alias;
+package com.moddamage.alias;
 
 import java.util.Collection;
 
 import org.bukkit.block.Biome;
 
-import com.ModDamage.Alias.Aliaser.CollectionAliaser;
+import com.moddamage.alias.Aliaser.CollectionAliaser;
 
 public class BiomeAliaser extends CollectionAliaser<Biome> 
 {

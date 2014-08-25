@@ -1,14 +1,38 @@
-package com.ModDamage.Backend;
+package com.moddamage.backend;
 
-import static com.sk89q.worldguard.bukkit.BukkitUtil.toVector;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import com.elbukkit.api.elregions.elRegionsPlugin;
+import com.elbukkit.api.elregions.region.Region;
+import com.elbukkit.api.elregions.region.RegionManager;
+import com.gmail.nossr50.mcMMO;
+import com.moddamage.LogUtil;
+import com.moddamage.MDEvent;
+import com.moddamage.ModDamage;
+import com.moddamage.ModDamage.ModDamageExtension;
+import com.moddamage.expressions.ListExp;
+import com.moddamage.expressions.NestedExp;
+import com.moddamage.expressions.NumberExp;
+import com.moddamage.expressions.StringExp;
+import com.moddamage.expressions.function.NewVectorFunction;
+import com.moddamage.external.tabAPI.TabAPISupport;
+import com.moddamage.external.vault.VaultSupport;
+import com.moddamage.external.votifier.Vote;
+import com.moddamage.magic.MagicStuff;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.properties.*;
+import com.moddamage.routines.Routine;
+import com.moddamage.routines.nested.NestedRoutine;
+import com.moddamage.variables.PlayerNamed;
+import com.moddamage.variables.TagValue;
+import com.moddamage.variables.Transformers;
+import com.moddamage.variables.WorldNamed;
+import com.palmergames.bukkit.towny.db.TownyDataSource;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownyUniverse;
+import com.platymuus.bukkit.permissions.PermissionsPlugin;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import de.bananaco.permissions.Permissions;
 import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
 import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
-
 import org.anjocaido.groupmanager.GroupManager;
 import org.anjocaido.groupmanager.data.User;
 import org.anjocaido.groupmanager.dataholder.OverloadedWorldHolder;
@@ -19,55 +43,13 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
-
 import ru.tehkode.permissions.PermissionManager;
 
-import com.ModDamage.MDEvent;
-import com.ModDamage.LogUtil;
-import com.ModDamage.ModDamage;
-import com.ModDamage.ModDamage.ModDamageExtension;
-import com.ModDamage.Expressions.ListExp;
-import com.ModDamage.Expressions.NestedExp;
-import com.ModDamage.Expressions.NumberExp;
-import com.ModDamage.Expressions.StringExp;
-import com.ModDamage.Expressions.Function.NewVectorFunction;
-import com.ModDamage.External.TabAPI.TabAPISupport;
-import com.ModDamage.External.Vault.VaultSupport;
-import com.ModDamage.External.Votifier.Vote;
-import com.ModDamage.Magic.MagicStuff;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Properties.BlockProps;
-import com.ModDamage.Properties.ChunkProps;
-import com.ModDamage.Properties.CreatureProps;
-import com.ModDamage.Properties.EntityProps;
-import com.ModDamage.Properties.EquipmentProps;
-import com.ModDamage.Properties.InventoryProps;
-import com.ModDamage.Properties.ItemProps;
-import com.ModDamage.Properties.LocationProps;
-import com.ModDamage.Properties.MaterialProps;
-import com.ModDamage.Properties.MiscProps;
-import com.ModDamage.Properties.OfflinePlayerProps;
-import com.ModDamage.Properties.PlayerProps;
-import com.ModDamage.Properties.ScoreboardProps;
-import com.ModDamage.Properties.ServerProps;
-import com.ModDamage.Properties.WorldProps;
-import com.ModDamage.Routines.Routine;
-import com.ModDamage.Routines.Nested.NestedRoutine;
-import com.ModDamage.Variables.PlayerNamed;
-import com.ModDamage.Variables.TagValue;
-import com.ModDamage.Variables.Transformers;
-import com.ModDamage.Variables.WorldNamed;
-import com.elbukkit.api.elregions.elRegionsPlugin;
-import com.elbukkit.api.elregions.region.Region;
-import com.elbukkit.api.elregions.region.RegionManager;
-import com.gmail.nossr50.mcMMO;
-import com.palmergames.bukkit.towny.db.TownyDataSource;
-import com.palmergames.bukkit.towny.object.Town;
-import com.palmergames.bukkit.towny.object.TownyUniverse;
-import com.platymuus.bukkit.permissions.PermissionsPlugin;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import de.bananaco.permissions.Permissions;
+import static com.sk89q.worldguard.bukkit.BukkitUtil.toVector;
 
 public class ExternalPluginManager
 {

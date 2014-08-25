@@ -1,7 +1,7 @@
-package com.ModDamage.Parsing;
+package com.moddamage.parsing;
 
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.DataProvider.IDataTransformer;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.DataProvider.IDataTransformer;
 
 public class CastTransformer<T, S> implements IDataTransformer<T, S>
 {

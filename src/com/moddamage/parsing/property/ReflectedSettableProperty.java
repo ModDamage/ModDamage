@@ -1,8 +1,8 @@
-package com.ModDamage.Parsing.Property;
+package com.moddamage.parsing.property;
 
 import java.lang.reflect.Method;
 
-import com.ModDamage.EventInfo.EventData;
+import com.moddamage.eventinfo.EventData;
 
 public class ReflectedSettableProperty<T, S> extends SettableProperty<T, S>
 {

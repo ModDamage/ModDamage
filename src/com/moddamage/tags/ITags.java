@@ -1,4 +1,4 @@
-package com.ModDamage.Tags;
+package com.moddamage.tags;
 
 
 import java.util.List;

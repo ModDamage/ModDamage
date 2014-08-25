@@ -1,4 +1,4 @@
-package com.ModDamage.Events.Block;
+package com.moddamage.events.block;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -7,11 +7,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
 
-import com.ModDamage.MDEvent;
-import com.ModDamage.ModDamage;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.moddamage.MDEvent;
+import com.moddamage.ModDamage;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.eventinfo.SimpleEventInfo;
 
 public class FurnaceExtract extends MDEvent {
 	public FurnaceExtract() { super(myInfo);}

@@ -1,9 +1,9 @@
-package com.ModDamage.Parsing;
+package com.moddamage.parsing;
 
 import java.util.regex.Matcher;
 
-import com.ModDamage.StringMatcher;
-import com.ModDamage.EventInfo.EventInfo;
+import com.moddamage.StringMatcher;
+import com.moddamage.eventinfo.EventInfo;
 
 public abstract class BaseDataParser<T> implements IDataParser<T, Object>
 {

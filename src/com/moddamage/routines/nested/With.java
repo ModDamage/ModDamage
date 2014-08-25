@@ -1,21 +1,21 @@
-package com.ModDamage.Routines.Nested;
+package com.moddamage.routines.nested;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.MDLogger.OutputPreset;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Parsing.ISettableDataProvider;
+import com.moddamage.LogUtil;
+import com.moddamage.MDLogger.OutputPreset;
+import com.moddamage.StringMatcher;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.eventinfo.SimpleEventInfo;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.parsing.ISettableDataProvider;
 
 public class With extends NestedRoutine
 {

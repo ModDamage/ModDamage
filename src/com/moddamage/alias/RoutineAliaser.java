@@ -1,16 +1,16 @@
-package com.ModDamage.Alias;
+package com.moddamage.alias;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.Alias.RoutineAliaser.ScriptCapturedLines;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.Backend.ScriptLineHandler;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Routines.Routines;
+import com.moddamage.LogUtil;
+import com.moddamage.alias.RoutineAliaser.ScriptCapturedLines;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.backend.ScriptLineHandler;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.routines.Routines;
 
 public class RoutineAliaser extends Aliaser<ScriptCapturedLines, ScriptCapturedLines>
 {

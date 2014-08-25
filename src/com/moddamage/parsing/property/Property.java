@@ -1,12 +1,12 @@
-package com.ModDamage.Parsing.Property;
+package com.moddamage.parsing.property;
 
 
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.IDataParser;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.StringMatcher;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.IDataParser;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.StringMatcher;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

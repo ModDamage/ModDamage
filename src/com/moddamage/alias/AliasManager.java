@@ -1,13 +1,13 @@
-package com.ModDamage.Alias;
+package com.moddamage.alias;
 
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.PluginConfiguration.LoadState;
-import com.ModDamage.Utils;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.Backend.ScriptLineHandler;
+import com.moddamage.LogUtil;
+import com.moddamage.PluginConfiguration.LoadState;
+import com.moddamage.Utils;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.backend.ScriptLineHandler;
 
 public enum AliasManager
 {

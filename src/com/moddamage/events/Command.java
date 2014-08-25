@@ -1,4 +1,4 @@
-package com.ModDamage.Events;
+package com.moddamage.events;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,18 +14,18 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.MDEvent;
-import com.ModDamage.ModDamage;
-import com.ModDamage.Utils;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.Backend.ScriptLineHandler;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Magic.MagicStuff;
-import com.ModDamage.Routines.Routines;
+import com.moddamage.LogUtil;
+import com.moddamage.MDEvent;
+import com.moddamage.ModDamage;
+import com.moddamage.Utils;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.backend.ScriptLineHandler;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.eventinfo.SimpleEventInfo;
+import com.moddamage.magic.MagicStuff;
+import com.moddamage.routines.Routines;
 
 
 public class Command extends MDEvent implements ScriptLineHandler

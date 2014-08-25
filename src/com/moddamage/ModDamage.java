@@ -1,4 +1,4 @@
-package com.ModDamage;
+package com.moddamage;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,18 +15,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.ModDamage.MDLogger.DebugSetting;
-import com.ModDamage.PluginConfiguration.LoadState;
-import com.ModDamage.MDLogger.OutputPreset;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.ExternalPluginManager;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.Events.Command;
-import com.ModDamage.Events.Init;
-import com.ModDamage.Events.Repeat;
-import com.ModDamage.Magic.MagicStuff;
-import com.ModDamage.Server.MDServer;
-import com.ModDamage.Tags.TagManager;
+import com.moddamage.MDLogger.DebugSetting;
+import com.moddamage.PluginConfiguration.LoadState;
+import com.moddamage.MDLogger.OutputPreset;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.ExternalPluginManager;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.events.Command;
+import com.moddamage.events.Init;
+import com.moddamage.events.Repeat;
+import com.moddamage.magic.MagicStuff;
+import com.moddamage.server.MDServer;
+import com.moddamage.tags.TagManager;
 
 /**
  * "ModDamage" for Bukkit

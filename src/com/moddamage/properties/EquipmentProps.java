@@ -1,11 +1,11 @@
-package com.ModDamage.Properties;
+package com.moddamage.properties;
 
 import org.bukkit.inventory.EntityEquipment;
 
-import com.ModDamage.Backend.ItemHolder;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.Parsing.Property.Properties;
-import com.ModDamage.Parsing.Property.SettableProperty;
+import com.moddamage.backend.ItemHolder;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.parsing.property.Properties;
+import com.moddamage.parsing.property.SettableProperty;
 
 public class EquipmentProps
 {

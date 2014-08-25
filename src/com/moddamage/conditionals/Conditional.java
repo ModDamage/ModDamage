@@ -1,11 +1,11 @@
-package com.ModDamage.Conditionals;
+package com.moddamage.conditionals;
 
-import com.ModDamage.Expressions.Function.PlayerCanSeeFunction;
-import com.ModDamage.Expressions.Function.PlayerNamedFunction;
-import com.ModDamage.Expressions.Function.WorldNamedFunction;
-import com.ModDamage.External.mcMMO.AbilityConditional;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
+import com.moddamage.expressions.function.PlayerCanSeeFunction;
+import com.moddamage.expressions.function.PlayerNamedFunction;
+import com.moddamage.expressions.function.WorldNamedFunction;
+import com.moddamage.external.mcMMO.AbilityConditional;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
 
 
 public abstract class Conditional<S> extends DataProvider<Boolean, S>

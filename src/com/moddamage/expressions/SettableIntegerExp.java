@@ -1,9 +1,9 @@
-package com.ModDamage.Expressions;
+package com.moddamage.expressions;
 
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Parsing.SettableDataProvider;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.parsing.SettableDataProvider;
 
 public abstract class SettableIntegerExp<From> extends SettableDataProvider<Integer, From>
 {

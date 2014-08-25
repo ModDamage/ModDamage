@@ -1,10 +1,10 @@
-package com.ModDamage.Backend;
+package com.moddamage.backend;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.ModDamage.LogUtil;
+import com.moddamage.LogUtil;
 
 public class ArmorSet 
 {

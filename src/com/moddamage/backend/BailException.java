@@ -1,4 +1,4 @@
-package com.ModDamage.Backend;
+package com.moddamage.backend;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -6,7 +6,7 @@ import java.io.Writer;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.ModDamage.Utils;
+import com.moddamage.Utils;
 
 public class BailException extends Exception
 {

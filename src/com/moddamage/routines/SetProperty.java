@@ -1,21 +1,21 @@
-package com.ModDamage.Routines;
+package com.moddamage.routines;
 
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.Utils;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Parsing.ISettableDataProvider;
-import com.ModDamage.Parsing.SettableDataProvider;
-import com.ModDamage.Variables.Number.NumberOp;
-import com.ModDamage.Variables.Number.NumberOp.Operator;
+import com.moddamage.LogUtil;
+import com.moddamage.Utils;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.parsing.ISettableDataProvider;
+import com.moddamage.parsing.SettableDataProvider;
+import com.moddamage.variables.number.NumberOp;
+import com.moddamage.variables.number.NumberOp.Operator;
 
 @SuppressWarnings("rawtypes")
 public class SetProperty extends Routine

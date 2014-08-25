@@ -1,4 +1,4 @@
-package com.ModDamage.Parsing;
+package com.moddamage.parsing;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,15 +14,15 @@ import java.util.regex.Pattern;
 import krum.automaton.TokenAutomaton;
 import krum.automaton.TokenResult;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.Property.Property;
-import com.ModDamage.Parsing.Property.PropertyTransformer;
-import com.ModDamage.Parsing.Property.ReflectedProperty;
-import com.ModDamage.misc.Multimap;
+import com.moddamage.LogUtil;
+import com.moddamage.StringMatcher;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.property.Property;
+import com.moddamage.parsing.property.PropertyTransformer;
+import com.moddamage.parsing.property.ReflectedProperty;
+import com.moddamage.misc.Multimap;
 
 import dk.brics.automaton.Automaton;
 import dk.brics.automaton.RegExp;

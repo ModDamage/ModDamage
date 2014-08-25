@@ -1,6 +1,6 @@
-package com.ModDamage.Alias;
+package com.moddamage.alias;
 
-import com.ModDamage.EventInfo.EventInfo;
+import com.moddamage.eventinfo.EventInfo;
 
 class InfoOtherPair<T> {
 	private final T alias;

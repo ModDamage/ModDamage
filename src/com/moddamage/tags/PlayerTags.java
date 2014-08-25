@@ -1,6 +1,6 @@
-package com.ModDamage.Tags;
+package com.moddamage.tags;
 
-import com.ModDamage.ModDamage;
+import com.moddamage.ModDamage;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

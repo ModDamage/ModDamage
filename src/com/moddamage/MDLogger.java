@@ -1,4 +1,4 @@
-package com.ModDamage;
+package com.moddamage;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
 
-import com.ModDamage.Backend.ScriptLine;
+import com.moddamage.backend.ScriptLine;
 
 public class MDLogger {
 	public static enum DebugSetting

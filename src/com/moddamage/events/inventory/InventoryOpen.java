@@ -1,4 +1,4 @@
-package com.ModDamage.Events.Inventory;
+package com.moddamage.events.inventory;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -9,11 +9,11 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 
-import com.ModDamage.MDEvent;
-import com.ModDamage.ModDamage;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.SimpleEventInfo;
+import com.moddamage.MDEvent;
+import com.moddamage.ModDamage;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.eventinfo.SimpleEventInfo;
 
 public class InventoryOpen extends MDEvent implements Listener
 {

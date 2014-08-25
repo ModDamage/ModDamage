@@ -1,11 +1,11 @@
-package com.ModDamage.EventInfo;
+package com.moddamage.eventinfo;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.misc.Multimap;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.misc.Multimap;
 
 public class EventInfoChain extends EventInfo
 {

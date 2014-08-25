@@ -1,4 +1,4 @@
-package com.ModDamage.Matchables;
+package com.moddamage.matchables;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Skeleton.SkeletonType;
 
-import com.ModDamage.ModDamage;
+import com.moddamage.ModDamage;
 
 public enum EntityType implements Matchable<EntityType>
 {

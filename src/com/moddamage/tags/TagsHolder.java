@@ -1,4 +1,4 @@
-package com.ModDamage.Tags;
+package com.moddamage.tags;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;

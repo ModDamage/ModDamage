@@ -1,4 +1,4 @@
-package com.ModDamage.Events.Player;
+package com.moddamage.events.player;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -7,12 +7,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import com.ModDamage.MDEvent;
-import com.ModDamage.ModDamage;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Events.Init;
+import com.moddamage.MDEvent;
+import com.moddamage.ModDamage;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.eventinfo.SimpleEventInfo;
+import com.moddamage.events.Init;
 
 public class Join extends MDEvent implements Listener
 {

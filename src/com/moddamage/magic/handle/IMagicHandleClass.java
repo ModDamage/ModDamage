@@ -1,4 +1,4 @@
-package com.ModDamage.Magic.Handle;
+package com.moddamage.magic.handle;
 
 import org.bukkit.entity.Entity;
 

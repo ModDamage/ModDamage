@@ -1,4 +1,4 @@
-package com.ModDamage.Variables;
+package com.moddamage.variables;
 
 import java.util.UUID;
 
@@ -7,12 +7,12 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-import com.ModDamage.Backend.ItemHolder;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.Matchables.EntityType;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.Property.Property;
-import com.ModDamage.Parsing.Property.PropertyTransformer;
+import com.moddamage.backend.ItemHolder;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.matchables.EntityType;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.property.Property;
+import com.moddamage.parsing.property.PropertyTransformer;
 
 public class Transformers
 {

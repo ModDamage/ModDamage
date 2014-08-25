@@ -1,9 +1,9 @@
-package com.ModDamage.Properties;
+package com.moddamage.properties;
 
 import org.bukkit.OfflinePlayer;
 
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.Property.Properties;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.property.Properties;
 
 public class OfflinePlayerProps
 {

@@ -1,11 +1,11 @@
-package com.ModDamage.Expressions;
+package com.moddamage.expressions;
 
 
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.Expressions.List.EntitiesInWorld;
-import com.ModDamage.Expressions.List.ThingsTagged;
-import com.ModDamage.Parsing.IDataProvider;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.expressions.list.EntitiesInWorld;
+import com.moddamage.expressions.list.ThingsTagged;
+import com.moddamage.parsing.IDataProvider;
 
 import java.util.List;
 

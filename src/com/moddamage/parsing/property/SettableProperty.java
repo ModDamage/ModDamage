@@ -1,11 +1,11 @@
-package com.ModDamage.Parsing.Property;
+package com.moddamage.parsing.property;
 
 
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.Nullable;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Parsing.ISettableDataProvider;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.Nullable;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.parsing.ISettableDataProvider;
 
 public abstract class SettableProperty<T, S> extends Property<T, S>
 {

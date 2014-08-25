@@ -1,4 +1,4 @@
-package com.ModDamage.Routines;
+package com.moddamage.routines;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -6,18 +6,18 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.NonNull;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.Backend.ScriptLineHandler;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Routines.Nested.Command;
-import com.ModDamage.Routines.Nested.DropItem;
-import com.ModDamage.Routines.Nested.EntityItemAction;
-import com.ModDamage.Routines.Nested.Message;
-import com.ModDamage.Routines.Nested.NestedRoutine;
+import com.moddamage.LogUtil;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.NonNull;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.backend.ScriptLineHandler;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.routines.nested.Command;
+import com.moddamage.routines.nested.DropItem;
+import com.moddamage.routines.nested.EntityItemAction;
+import com.moddamage.routines.nested.Message;
+import com.moddamage.routines.nested.NestedRoutine;
 
 abstract public class Routine
 {

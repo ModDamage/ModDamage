@@ -1,10 +1,10 @@
-package com.ModDamage.Alias;
+package com.moddamage.alias;
 
 import java.util.Collection;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.Alias.Aliaser.CollectionAliaser;
-import com.ModDamage.Backend.ExternalPluginManager;
+import com.moddamage.LogUtil;
+import com.moddamage.alias.Aliaser.CollectionAliaser;
+import com.moddamage.backend.ExternalPluginManager;
 
 public class RegionAliaser extends CollectionAliaser<String> 
 {

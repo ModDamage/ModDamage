@@ -1,4 +1,4 @@
-package com.ModDamage.Conditionals;
+package com.moddamage.conditionals;
 
 import java.util.Collection;
 import java.util.regex.Matcher;
@@ -8,15 +8,15 @@ import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Utils;
-import com.ModDamage.Alias.MaterialAliaser;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataParser;
-import com.ModDamage.Parsing.IDataProvider;
+import com.moddamage.ModDamage;
+import com.moddamage.StringMatcher;
+import com.moddamage.Utils;
+import com.moddamage.alias.MaterialAliaser;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataParser;
+import com.moddamage.parsing.IDataProvider;
 
 public class EntityBlockStatus extends Conditional<Entity>
 {

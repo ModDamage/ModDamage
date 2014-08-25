@@ -1,4 +1,4 @@
-package com.ModDamage.Server;
+package com.moddamage.server;
 
 import java.io.IOException;
 import java.io.Writer;

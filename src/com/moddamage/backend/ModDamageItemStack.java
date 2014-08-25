@@ -1,4 +1,4 @@
-package com.ModDamage.Backend;
+package com.moddamage.backend;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,14 +11,14 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Alias.MaterialAliaser;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.LiteralNumber;
+import com.moddamage.LogUtil;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.StringMatcher;
+import com.moddamage.alias.MaterialAliaser;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.expressions.LiteralNumber;
 
 public class ModDamageItemStack
 {

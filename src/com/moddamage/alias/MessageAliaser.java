@@ -1,15 +1,11 @@
-package com.ModDamage.Alias;
+package com.moddamage.alias;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import com.moddamage.alias.Aliaser.CollectionAliaser;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.expressions.InterpolatedString;
+import com.moddamage.parsing.IDataProvider;
 
-import com.ModDamage.Alias.Aliaser.CollectionAliaser;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.InterpolatedString;
-import com.ModDamage.Parsing.IDataProvider;
+import java.util.*;
 
 public class MessageAliaser extends CollectionAliaser<String> 
 {

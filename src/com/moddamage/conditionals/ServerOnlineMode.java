@@ -1,16 +1,16 @@
-package com.ModDamage.Conditionals;
+package com.moddamage.conditionals;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 
-import com.ModDamage.StringMatcher;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.BaseDataParser;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
+import com.moddamage.StringMatcher;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.BaseDataParser;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
 
 public class ServerOnlineMode implements IDataProvider<Boolean>
 {

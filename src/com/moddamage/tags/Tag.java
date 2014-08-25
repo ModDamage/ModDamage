@@ -1,9 +1,9 @@
-package com.ModDamage.Tags;
+package com.moddamage.tags;
 
 
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.Parsing.IDataProvider;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.parsing.IDataProvider;
 
 public abstract class Tag<T> {
     private final IDataProvider<String> name;

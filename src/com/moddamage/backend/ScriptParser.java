@@ -1,4 +1,4 @@
-package com.ModDamage.Backend;
+package com.moddamage.backend;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.regex.Pattern;
 
-import com.ModDamage.LogUtil;
+import com.moddamage.LogUtil;
 
 public class ScriptParser
 {

@@ -1,4 +1,4 @@
-package com.ModDamage.Magic.CommandMap;
+package com.moddamage.magic.commandmap;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -9,7 +9,7 @@ import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
 
-import com.ModDamage.Magic.MagicStuff;
+import com.moddamage.magic.MagicStuff;
 
 public class CBCommandMap implements IMagicCommandMap
 {

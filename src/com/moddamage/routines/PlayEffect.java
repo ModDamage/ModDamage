@@ -1,4 +1,4 @@
-package com.ModDamage.Routines;
+package com.moddamage.routines;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -6,14 +6,14 @@ import java.util.regex.Pattern;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.LiteralNumber;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
+import com.moddamage.LogUtil;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.expressions.LiteralNumber;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
 
 public class PlayEffect extends Routine
 {

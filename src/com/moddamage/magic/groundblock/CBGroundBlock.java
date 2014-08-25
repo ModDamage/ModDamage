@@ -1,4 +1,4 @@
-package com.ModDamage.Magic.GroundBlock;
+package com.moddamage.magic.groundblock;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Arrow;
 
-import com.ModDamage.Magic.MagicStuff;
+import com.moddamage.magic.MagicStuff;
 
 public class CBGroundBlock implements IMagicGroundBlock
 {

@@ -1,7 +1,7 @@
-package com.ModDamage.Parsing.Property;
+package com.moddamage.parsing.property;
 
 
-import com.ModDamage.Parsing.DataProvider;
+import com.moddamage.parsing.DataProvider;
 
 public final class Properties {
     private Properties() {}

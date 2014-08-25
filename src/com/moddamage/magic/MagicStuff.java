@@ -1,9 +1,17 @@
-package com.ModDamage.Magic;
+package com.moddamage.magic;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Map;
-
+import com.moddamage.magic.commandmap.CBCommandMap;
+import com.moddamage.magic.commandmap.IMagicCommandMap;
+import com.moddamage.magic.commandmap.NoopCommandMap;
+import com.moddamage.magic.groundblock.CBGroundBlock;
+import com.moddamage.magic.groundblock.IMagicGroundBlock;
+import com.moddamage.magic.groundblock.NoopGroundBlock;
+import com.moddamage.magic.handle.CBHandleClass;
+import com.moddamage.magic.handle.IMagicHandleClass;
+import com.moddamage.magic.handle.NoopHandleClass;
+import com.moddamage.magic.maxdurability.CBMaxDurability;
+import com.moddamage.magic.maxdurability.IMagicMaxDurability;
+import com.moddamage.magic.maxdurability.NoopMaxDurability;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
@@ -13,18 +21,9 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
-import com.ModDamage.Magic.CommandMap.CBCommandMap;
-import com.ModDamage.Magic.CommandMap.IMagicCommandMap;
-import com.ModDamage.Magic.CommandMap.NoopCommandMap;
-import com.ModDamage.Magic.GroundBlock.CBGroundBlock;
-import com.ModDamage.Magic.GroundBlock.IMagicGroundBlock;
-import com.ModDamage.Magic.GroundBlock.NoopGroundBlock;
-import com.ModDamage.Magic.Handle.CBHandleClass;
-import com.ModDamage.Magic.Handle.IMagicHandleClass;
-import com.ModDamage.Magic.Handle.NoopHandleClass;
-import com.ModDamage.Magic.MaxDurability.CBMaxDurability;
-import com.ModDamage.Magic.MaxDurability.IMagicMaxDurability;
-import com.ModDamage.Magic.MaxDurability.NoopMaxDurability;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 public class MagicStuff
 {

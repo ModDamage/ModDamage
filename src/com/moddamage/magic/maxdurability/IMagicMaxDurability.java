@@ -1,4 +1,4 @@
-package com.ModDamage.Magic.MaxDurability;
+package com.moddamage.magic.maxdurability;
 
 import org.bukkit.inventory.ItemStack;
 

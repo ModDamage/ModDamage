@@ -1,4 +1,4 @@
-package com.ModDamage.Properties;
+package com.moddamage.properties;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.HumanEntity;
@@ -6,10 +6,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.PlayerInventory;
 
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.Property.Properties;
-import com.ModDamage.Parsing.Property.SettableProperty;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.property.Properties;
+import com.moddamage.parsing.property.SettableProperty;
 
 public class PlayerProps
 {

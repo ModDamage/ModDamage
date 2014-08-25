@@ -1,4 +1,4 @@
-package com.ModDamage.Magic.GroundBlock;
+package com.moddamage.magic.groundblock;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Arrow;

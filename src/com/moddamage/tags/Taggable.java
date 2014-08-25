@@ -1,4 +1,4 @@
-package com.ModDamage.Tags;
+package com.moddamage.tags;
 
 
 import org.bukkit.Chunk;
@@ -7,13 +7,13 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
+import com.moddamage.LogUtil;
+import com.moddamage.ModDamage;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
 
 public abstract class Taggable<T> {
     public final IDataProvider<T> inner;

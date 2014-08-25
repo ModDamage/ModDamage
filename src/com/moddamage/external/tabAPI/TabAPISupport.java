@@ -1,4 +1,4 @@
-package com.ModDamage.External.TabAPI;
+package com.moddamage.external.tabAPI;
 
 public class TabAPISupport
 {

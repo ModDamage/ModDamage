@@ -1,4 +1,4 @@
-package com.ModDamage.External.Vault;
+package com.moddamage.external.vault;
 
 public class Bank
 {

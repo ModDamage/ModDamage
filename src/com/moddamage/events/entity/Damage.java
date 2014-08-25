@@ -1,4 +1,4 @@
-package com.ModDamage.Events.Entity;
+package com.moddamage.events.entity;
 
 import java.util.logging.Level;
 
@@ -13,12 +13,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDEvent;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Matchables.DamageType;
+import com.moddamage.ModDamage;
+import com.moddamage.MDEvent;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.eventinfo.SimpleEventInfo;
+import com.moddamage.matchables.DamageType;
 
 public class Damage extends MDEvent implements Listener
 {

@@ -1,4 +1,4 @@
-package com.ModDamage.Magic.CommandMap;
+package com.moddamage.magic.commandmap;
 
 import java.util.Map;
 

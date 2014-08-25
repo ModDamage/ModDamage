@@ -1,19 +1,19 @@
-package com.ModDamage.External.mcMMO;
+package com.moddamage.external.mcMMO;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Utils;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.SettableIntegerExp;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataParser;
-import com.ModDamage.Parsing.IDataProvider;
+import com.moddamage.StringMatcher;
+import com.moddamage.Utils;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.expressions.SettableIntegerExp;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataParser;
+import com.moddamage.parsing.IDataProvider;
 import com.gmail.nossr50.api.ExperienceAPI;
 
 public class PlayerInt extends SettableIntegerExp<Player>

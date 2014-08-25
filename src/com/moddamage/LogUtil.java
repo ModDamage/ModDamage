@@ -1,9 +1,9 @@
-package com.ModDamage;
+package com.moddamage;
+
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.MDLogger.OutputPreset;
 
 import java.util.logging.Level;
-
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.MDLogger.OutputPreset;
 
 // Helper utility for Log Files.
 public class LogUtil {

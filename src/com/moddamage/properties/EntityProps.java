@@ -1,4 +1,4 @@
-package com.ModDamage.Properties;
+package com.moddamage.properties;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.AnimalTamer;
@@ -12,14 +12,14 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.material.Colorable;
 
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.Magic.MagicStuff;
-import com.ModDamage.Matchables.EntityType;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.Property.Properties;
-import com.ModDamage.Parsing.Property.Property;
-import com.ModDamage.Parsing.Property.SettableProperty;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.magic.MagicStuff;
+import com.moddamage.matchables.EntityType;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.property.Properties;
+import com.moddamage.parsing.property.Property;
+import com.moddamage.parsing.property.SettableProperty;
 
 public class EntityProps
 {

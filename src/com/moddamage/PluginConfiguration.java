@@ -1,13 +1,21 @@
-package com.ModDamage;
+package com.moddamage;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import com.moddamage.MDLogger.DebugSetting;
+import com.moddamage.MDLogger.OutputPreset;
+import com.moddamage.alias.AliasManager;
+import com.moddamage.backend.ExternalPluginManager;
+import com.moddamage.backend.ExternalPluginManager.GroupsManager;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.backend.ScriptLineHandler;
+import com.moddamage.backend.ScriptParser;
+import com.moddamage.events.Command;
+import com.moddamage.events.Repeat;
+import com.moddamage.server.MDServer;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+
+import java.io.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -16,22 +24,6 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-
-import com.ModDamage.MDLogger.DebugSetting;
-import com.ModDamage.MDLogger.OutputPreset;
-import com.ModDamage.Alias.AliasManager;
-import com.ModDamage.Backend.ExternalPluginManager;
-import com.ModDamage.Backend.ExternalPluginManager.GroupsManager;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.Backend.ScriptLineHandler;
-import com.ModDamage.Backend.ScriptParser;
-import com.ModDamage.Events.Command;
-import com.ModDamage.Events.Repeat;
-import com.ModDamage.Server.MDServer;
 
 public class PluginConfiguration implements ScriptLineHandler
 {

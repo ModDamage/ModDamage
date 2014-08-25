@@ -1,16 +1,16 @@
-package com.ModDamage.Alias;
+package com.moddamage.alias;
+
+import com.moddamage.LogUtil;
+import com.moddamage.StringMatcher;
+import com.moddamage.alias.Aliaser.CollectionAliaser;
+import com.moddamage.backend.ModDamageItemStack;
+import com.moddamage.eventinfo.EventInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import com.ModDamage.LogUtil;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Alias.Aliaser.CollectionAliaser;
-import com.ModDamage.Backend.ModDamageItemStack;
-import com.ModDamage.EventInfo.EventInfo;
 
 public class ItemAliaser extends CollectionAliaser<String> 
 {

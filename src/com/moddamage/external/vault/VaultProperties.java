@@ -1,13 +1,13 @@
-package com.ModDamage.External.Vault;
+package com.moddamage.external.vault;
 
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse.ResponseType;
 
 import org.bukkit.entity.Player;
 
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.Parsing.Property.Properties;
-import com.ModDamage.Parsing.Property.Property;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.parsing.property.Properties;
+import com.moddamage.parsing.property.Property;
 
 public class VaultProperties
 {

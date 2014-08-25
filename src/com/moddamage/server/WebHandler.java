@@ -1,4 +1,4 @@
-package com.ModDamage.Server;
+package com.moddamage.server;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 import java.util.Properties;
 import java.util.regex.Matcher;
 
-import com.ModDamage.Server.NanoHTTPD.Response;
+import com.moddamage.server.NanoHTTPD.Response;
 
 public abstract class WebHandler
 {

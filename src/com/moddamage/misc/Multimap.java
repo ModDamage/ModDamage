@@ -1,4 +1,4 @@
-package com.ModDamage.misc;
+package com.moddamage.misc;
 
 import java.util.ArrayList;
 import java.util.HashMap;

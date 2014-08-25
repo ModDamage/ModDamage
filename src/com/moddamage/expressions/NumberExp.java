@@ -1,26 +1,20 @@
-package com.ModDamage.Expressions;
+package com.moddamage.expressions;
+
+import com.moddamage.StringMatcher;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.expressions.function.BlockFunction;
+import com.moddamage.expressions.function.DistanceFunction;
+import com.moddamage.expressions.function.IntFunction;
+import com.moddamage.expressions.function.LocFunction;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.routines.Routines;
+import com.moddamage.variables.number.*;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.Function.BlockFunction;
-import com.ModDamage.Expressions.Function.DistanceFunction;
-import com.ModDamage.Expressions.Function.IntFunction;
-import com.ModDamage.Expressions.Function.LocFunction;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Routines.Routines;
-import com.ModDamage.Variables.Number.EnchantmentInt;
-import com.ModDamage.Variables.Number.ItemEnchantmentInt;
-import com.ModDamage.Variables.Number.LocalNum;
-import com.ModDamage.Variables.Number.NegativeNum;
-import com.ModDamage.Variables.Number.NumberOp;
-import com.ModDamage.Variables.Number.PotionEffectInt;
-import com.ModDamage.Variables.Number.RoutinesNum;
 
 public abstract class NumberExp<From> extends DataProvider<Number, From>
 {
@@ -96,7 +90,7 @@ public abstract class NumberExp<From> extends DataProvider<Number, From>
 		NegativeNum.register();
 		PotionEffectInt.register();
 
-		com.ModDamage.External.mcMMO.PlayerInt.register();
-		com.ModDamage.External.mcMMO.PlayerSkillInt.register();
+		com.moddamage.external.mcMMO.PlayerInt.register();
+		com.moddamage.external.mcMMO.PlayerSkillInt.register();
 	}
 }

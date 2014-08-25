@@ -1,4 +1,4 @@
-package com.ModDamage.Conditionals;
+package com.moddamage.conditionals;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -6,12 +6,12 @@ import java.util.regex.Pattern;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 
-import com.ModDamage.StringMatcher;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataParser;
-import com.ModDamage.Parsing.IDataProvider;
+import com.moddamage.StringMatcher;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataParser;
+import com.moddamage.parsing.IDataProvider;
 
 public class WorldEnvironment extends Conditional<World> 
 {

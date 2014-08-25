@@ -1,4 +1,4 @@
-package com.ModDamage.Alias;
+package com.moddamage.alias;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,10 +6,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ModDamage.Alias.Aliaser.CollectionAliaser;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
+import com.moddamage.alias.Aliaser.CollectionAliaser;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
 
 public class CommandAliaser extends CollectionAliaser<String> 
 {

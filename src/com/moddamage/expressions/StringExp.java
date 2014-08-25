@@ -1,22 +1,16 @@
-package com.ModDamage.Expressions;
+package com.moddamage.expressions;
+
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.expressions.function.*;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.variables.string.EntityAsString;
+import com.moddamage.variables.string.EntityString;
+import com.moddamage.variables.string.PlayerString;
+import com.moddamage.variables.string.WorldString;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Expressions.Function.FormatFunction;
-import com.ModDamage.Expressions.Function.IndexOfFunction;
-import com.ModDamage.Expressions.Function.LoreFunction;
-import com.ModDamage.Expressions.Function.RegexReplaceFunction;
-import com.ModDamage.Expressions.Function.ReplaceFunction;
-import com.ModDamage.Expressions.Function.SubstringFunction;
-import com.ModDamage.Expressions.Function.ToIntFunction;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Variables.String.EntityAsString;
-import com.ModDamage.Variables.String.EntityString;
-import com.ModDamage.Variables.String.PlayerString;
-import com.ModDamage.Variables.String.WorldString;
 
 public abstract class StringExp<From> extends DataProvider<String, From>
 {

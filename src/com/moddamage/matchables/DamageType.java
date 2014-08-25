@@ -1,4 +1,4 @@
-package com.ModDamage.Matchables;
+package com.moddamage.matchables;
 
 import java.util.HashMap;
 import java.util.Map;

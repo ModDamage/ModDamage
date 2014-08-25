@@ -1,13 +1,13 @@
-package com.ModDamage.EventInfo;
+package com.moddamage.eventinfo;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.Parsing.EventDataProvider;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.misc.Multimap;
+import com.moddamage.LogUtil;
+import com.moddamage.parsing.EventDataProvider;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.misc.Multimap;
 
 public abstract class EventInfo
 {

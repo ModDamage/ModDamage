@@ -1,4 +1,4 @@
-package com.ModDamage.Server;
+package com.moddamage.server;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -15,14 +15,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.json.JSONWriter;
 
-import com.ModDamage.MDEvent;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.DataProvider.ParserData;
-import com.ModDamage.Parsing.DataProvider.TransformerData;
-import com.ModDamage.Routines.Routine;
-import com.ModDamage.Routines.Routine.RoutineFactory;
-import com.ModDamage.Server.NanoHTTPD.Response;
+import com.moddamage.MDEvent;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.DataProvider.ParserData;
+import com.moddamage.parsing.DataProvider.TransformerData;
+import com.moddamage.routines.Routine;
+import com.moddamage.routines.Routine.RoutineFactory;
+import com.moddamage.server.NanoHTTPD.Response;
 
 public class APIHandlers
 {

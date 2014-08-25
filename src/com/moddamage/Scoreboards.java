@@ -1,14 +1,13 @@
-package com.ModDamage;
+package com.moddamage;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.IDataProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.scoreboard.Scoreboard;
 
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.IDataProvider;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Scoreboards
 {

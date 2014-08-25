@@ -1,15 +1,15 @@
-package com.ModDamage.Routines.Nested;
+package com.moddamage.routines.nested;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.ModDamage;
-import com.ModDamage.MDLogger.OutputPreset;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.Backend.ScriptLineHandler;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.External.mcMMO.ModifySkill;
-import com.ModDamage.Routines.Explode;
-import com.ModDamage.Routines.Routine;
-import com.ModDamage.Routines.Routines;
+import com.moddamage.LogUtil;
+import com.moddamage.ModDamage;
+import com.moddamage.MDLogger.OutputPreset;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.backend.ScriptLineHandler;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.external.mcMMO.ModifySkill;
+import com.moddamage.routines.Explode;
+import com.moddamage.routines.Routine;
+import com.moddamage.routines.Routines;
 
 public abstract class NestedRoutine extends Routine
 {

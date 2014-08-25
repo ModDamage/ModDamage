@@ -1,11 +1,11 @@
-package com.ModDamage.Magic.MaxDurability;
+package com.moddamage.magic.maxdurability;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.bukkit.inventory.ItemStack;
 
-import com.ModDamage.Magic.MagicStuff;
+import com.moddamage.magic.MagicStuff;
 
 public class CBMaxDurability implements IMagicMaxDurability
 {

@@ -1,11 +1,11 @@
-package com.ModDamage.Variables.Number;
+package com.moddamage.variables.number;
 
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Parsing.ISettableDataProvider;
-import com.ModDamage.Routines.Routines;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.parsing.ISettableDataProvider;
+import com.moddamage.routines.Routines;
 
 public class RoutinesNum implements IDataProvider<Number>
 {

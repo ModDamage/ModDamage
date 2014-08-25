@@ -1,4 +1,4 @@
-package com.ModDamage.Events.Entity;
+package com.moddamage.events.entity;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -11,12 +11,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
-import com.ModDamage.MDEvent;
-import com.ModDamage.ModDamage;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.EventInfo.SimpleEventInfo;
-import com.ModDamage.Magic.MagicStuff;
+import com.moddamage.MDEvent;
+import com.moddamage.ModDamage;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.eventinfo.SimpleEventInfo;
+import com.moddamage.magic.MagicStuff;
 
 public class ProjectileHit extends MDEvent implements Listener
 {

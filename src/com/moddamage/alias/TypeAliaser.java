@@ -1,9 +1,9 @@
-package com.ModDamage.Alias;
+package com.moddamage.alias;
+
+import com.moddamage.alias.Aliaser.CollectionAliaser;
+import com.moddamage.matchables.EntityType;
 
 import java.util.Collection;
-
-import com.ModDamage.Alias.Aliaser.CollectionAliaser;
-import com.ModDamage.Matchables.EntityType;
 
 public class TypeAliaser extends CollectionAliaser<EntityType> 
 {

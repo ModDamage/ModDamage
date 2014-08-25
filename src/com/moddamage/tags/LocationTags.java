@@ -1,4 +1,4 @@
-package com.ModDamage.Tags;
+package com.moddamage.tags;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.BlockVector;
 
-import com.ModDamage.ModDamage;
+import com.moddamage.ModDamage;
 
 public class LocationTags<T> implements ITags<T, Location> {
 

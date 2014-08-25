@@ -1,4 +1,4 @@
-package com.ModDamage.Backend;
+package com.moddamage.backend;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import com.ModDamage.Magic.MagicStuff;
+import com.moddamage.magic.MagicStuff;
 
 
 public class ItemHolder {

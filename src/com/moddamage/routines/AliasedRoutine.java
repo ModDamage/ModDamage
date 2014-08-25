@@ -1,14 +1,14 @@
-package com.ModDamage.Routines;
+package com.moddamage.routines;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.Alias.RoutineAliaser;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
+import com.moddamage.LogUtil;
+import com.moddamage.alias.RoutineAliaser;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
 
 public class AliasedRoutine extends Routine
 {

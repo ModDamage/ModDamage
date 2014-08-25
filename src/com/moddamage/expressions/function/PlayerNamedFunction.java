@@ -1,16 +1,16 @@
-package com.ModDamage.Expressions.Function;
+package com.moddamage.expressions.function;
 
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.FunctionParser;
-import com.ModDamage.Parsing.IDataProvider;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.FunctionParser;
+import com.moddamage.parsing.IDataProvider;
 
 public class PlayerNamedFunction implements IDataProvider<OfflinePlayer>
 {

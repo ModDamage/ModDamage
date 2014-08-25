@@ -1,17 +1,17 @@
-package com.ModDamage.Routines;
+package com.moddamage.routines;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.ModDamage;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.Backend.ScriptLineHandler;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Routines.Routine.IRoutineBuilder;
-import com.ModDamage.Routines.Nested.If;
+import com.moddamage.LogUtil;
+import com.moddamage.ModDamage;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.backend.ScriptLineHandler;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.routines.Routine.IRoutineBuilder;
+import com.moddamage.routines.nested.If;
 
 public class Routines
 {

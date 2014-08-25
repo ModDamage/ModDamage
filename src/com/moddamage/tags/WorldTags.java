@@ -1,4 +1,4 @@
-package com.ModDamage.Tags;
+package com.moddamage.tags;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
-import com.ModDamage.ModDamage;
+import com.moddamage.ModDamage;
 
 public class WorldTags<T> implements ITags<T, World> {
     private final Map<World, Map<String, T>> tags = new HashMap<World, Map<String, T>>();

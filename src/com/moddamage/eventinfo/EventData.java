@@ -1,6 +1,6 @@
-package com.ModDamage.EventInfo;
+package com.moddamage.eventinfo;
 
-import com.ModDamage.LogUtil;
+import com.moddamage.LogUtil;
 
 public class EventData implements Cloneable
 {

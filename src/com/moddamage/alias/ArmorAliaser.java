@@ -1,9 +1,9 @@
-package com.ModDamage.Alias;
+package com.moddamage.alias;
+
+import com.moddamage.alias.Aliaser.CollectionAliaser;
+import com.moddamage.backend.ArmorSet;
 
 import java.util.Collection;
-
-import com.ModDamage.Alias.Aliaser.CollectionAliaser;
-import com.ModDamage.Backend.ArmorSet;
 
 public class ArmorAliaser extends CollectionAliaser<ArmorSet> 
 {

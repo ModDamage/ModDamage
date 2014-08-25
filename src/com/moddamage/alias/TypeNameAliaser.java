@@ -1,15 +1,15 @@
-package com.ModDamage.Alias;
+package com.moddamage.alias;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.PluginConfiguration.LoadState;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.Backend.ScriptLineHandler;
-import com.ModDamage.Matchables.EntityType;
+import com.moddamage.LogUtil;
+import com.moddamage.PluginConfiguration.LoadState;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.backend.ScriptLineHandler;
+import com.moddamage.matchables.EntityType;
 
 public class TypeNameAliaser extends Aliaser<EntityType, List<String>> 
 {

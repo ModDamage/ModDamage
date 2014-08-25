@@ -1,4 +1,4 @@
-package com.ModDamage.External.TabAPI;
+package com.moddamage.external.tabAPI;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -6,16 +6,16 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 import org.mcsg.double0negative.tabapi.TabAPI;
 
-import com.ModDamage.LogUtil;
-import com.ModDamage.ModDamage;
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.Backend.ScriptLine;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Routines.Routine;
+import com.moddamage.LogUtil;
+import com.moddamage.ModDamage;
+import com.moddamage.StringMatcher;
+import com.moddamage.backend.BailException;
+import com.moddamage.backend.ScriptLine;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.routines.Routine;
 
 public class SetTabString extends Routine 
 {

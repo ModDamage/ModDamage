@@ -1,4 +1,4 @@
-package com.ModDamage.External.Vault;
+package com.moddamage.external.vault;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,16 +12,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-import com.ModDamage.StringMatcher;
-import com.ModDamage.Backend.BailException;
-import com.ModDamage.EventInfo.EventData;
-import com.ModDamage.EventInfo.EventInfo;
-import com.ModDamage.Parsing.BaseDataParser;
-import com.ModDamage.Parsing.DataProvider;
-import com.ModDamage.Parsing.FunctionParser;
-import com.ModDamage.Parsing.IDataProvider;
-import com.ModDamage.Parsing.Property.Properties;
-import com.ModDamage.Parsing.Property.SettableProperty;
+import com.moddamage.StringMatcher;
+import com.moddamage.backend.BailException;
+import com.moddamage.eventinfo.EventData;
+import com.moddamage.eventinfo.EventInfo;
+import com.moddamage.parsing.BaseDataParser;
+import com.moddamage.parsing.DataProvider;
+import com.moddamage.parsing.FunctionParser;
+import com.moddamage.parsing.IDataProvider;
+import com.moddamage.parsing.property.Properties;
+import com.moddamage.parsing.property.SettableProperty;
 
 public class VaultSupport
 {
