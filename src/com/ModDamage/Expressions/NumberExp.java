@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.Function.BlockFunction;
@@ -51,10 +52,10 @@ public abstract class NumberExp<From> extends DataProvider<Number, From>
      * @param info The current EventInfo
      * @return The new Number IDataProvider or null if parsing failed
      */
-    public static IDataProvider<Number> parse(StringMatcher sm, EventInfo info) {
+    public static IDataProvider<Number> parse(ScriptLine scriptLine, StringMatcher sm, EventInfo info) {
         Matcher m = sm.matchFront(InterpolatedString.interpolationStartPattern);
         if (m != null) {
-            IDataProvider<Number> numberDP = DataProvider.parse(info, Number.class, sm.spawn(), false, true, InterpolatedString.interpolationEndPattern);
+            IDataProvider<Number> numberDP = DataProvider.parse(scriptLine, info, Number.class, sm.spawn(), false, true, InterpolatedString.interpolationEndPattern);
             if (numberDP == null) return null;
             if (!sm.matchesFront(InterpolatedString.interpolationEndPattern)) return null;
             return numberDP;

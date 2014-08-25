@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
-import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -14,6 +13,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.BaseDataParser;
@@ -73,7 +73,7 @@ public class VaultSupport
 
 		DataProvider.register(Economy.class, Pattern.compile("economy", Pattern.CASE_INSENSITIVE), 
 				new BaseDataParser<Economy>() {
-					public IDataProvider<Economy> parse(EventInfo info, Matcher m, StringMatcher sm) {
+					public IDataProvider<Economy> parse(ScriptLine scriptLine, EventInfo info, Matcher m, StringMatcher sm) {
 						return sm.acceptIf(new IDataProvider<Economy>() {
 							public Economy get(EventData data) {
 								return economy;

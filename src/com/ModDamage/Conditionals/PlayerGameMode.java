@@ -1,11 +1,13 @@
 package com.ModDamage.Conditionals;
 
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.StringMatcher;
+
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
@@ -42,7 +44,7 @@ public class PlayerGameMode extends Conditional<Player>
 		DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 				{
                     try
                     {

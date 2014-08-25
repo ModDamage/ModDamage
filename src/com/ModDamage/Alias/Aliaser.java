@@ -193,7 +193,7 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 				@Override
 				public ScriptLineHandler handleLine(ScriptLine line, boolean hasChildren)
 				{
-					Collection<InfoType> subvalues = matchAlias(line.line);
+					Collection<InfoType> subvalues = matchAlias(line);
 					if (subvalues != null)
 						values.addAll(subvalues);
 					else {
@@ -278,7 +278,11 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 //		}
 		
 		//@Override
-		public Collection<InfoType> matchAlias(String key)
+		public Collection<InfoType> matchAlias(ScriptLine scriptLine) {
+			return matchAlias(scriptLine, scriptLine.line);
+		}
+		
+		public Collection<InfoType> matchAlias(ScriptLine scriptLine, String key)
 		{
 			if(hasAlias(key))
 				return getAlias(key);
@@ -296,7 +300,7 @@ abstract public class Aliaser<Type, StoredInfoClass> implements ScriptLineHandle
 				}
 			}
 			if(!failFlag && !values.isEmpty()) return values;
-			LogUtil.error("No matching " + name + " alias or value \"" + key + "\"");
+			LogUtil.error(scriptLine, "No matching " + name + " alias or value \"" + key + "\"");
 			return getDefaultValue();
 		}
 

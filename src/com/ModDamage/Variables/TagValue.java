@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.InterpolatedString;
@@ -24,9 +25,9 @@ public class TagValue<T, S> extends SettableDataProvider<T, S>
 				{
 					@Override
                     @SuppressWarnings({ "unchecked", "rawtypes" })
-					public IDataProvider<Object> parse(EventInfo info, IDataProvider<Object> objDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Object> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<Object> objDP, Matcher m, StringMatcher sm)
 					{
-                        Tag<?> tag = Tag.get(InterpolatedString.parseWord(InterpolatedString.word, sm.spawn(), info), m.group(1));
+                        Tag<?> tag = Tag.get(InterpolatedString.parseWord(scriptLine, InterpolatedString.word, sm.spawn(), info), m.group(1));
                         if (tag == null) return null;
 
                         Taggable<?> taggable = Taggable.get(objDP, info);

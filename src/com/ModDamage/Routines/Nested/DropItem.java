@@ -93,14 +93,14 @@ public class DropItem extends NestedRoutine
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
 			String name = matcher.group(1).toLowerCase();
-			IDataProvider<Location> locationDP = DataProvider.parse(info, Location.class, name);
+			IDataProvider<Location> locationDP = DataProvider.parse(scriptLine, info, Location.class, name);
 			if (locationDP == null) return null;
-			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(2), info);
+			Collection<ModDamageItemStack> items = ItemAliaser.match(scriptLine, matcher.group(2), info);
 			if(items == null || items.isEmpty()) return null;
 			
 			IDataProvider<? extends Number> quantity;
 			if (matcher.group(3) != null)
-				quantity = DataProvider.parse(info, Integer.class, matcher.group(3));
+				quantity = DataProvider.parse(scriptLine, info, Integer.class, matcher.group(3));
 			else
 				quantity = new LiteralNumber(1);
 

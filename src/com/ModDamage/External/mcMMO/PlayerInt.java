@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.SettableIntegerExp;
@@ -25,7 +26,7 @@ public class PlayerInt extends SettableIntegerExp<Player>
 				new IDataParser<Integer, Player>()
 				{
 					@Override
-					public IDataProvider<Integer> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Integer> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 					{
 						return sm.acceptIf(new PlayerInt(
 								playerDP,

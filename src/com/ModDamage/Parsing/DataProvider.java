@@ -17,6 +17,7 @@ import krum.automaton.TokenResult;
 import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.Property.Property;
@@ -107,9 +108,9 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		}
 
 		@SuppressWarnings("unchecked")
-		IDataProvider<T> parse(EventInfo info, IDataProvider<?> dp, Matcher m, StringMatcher sm)
+		IDataProvider<T> parse(ScriptLine line, EventInfo info, IDataProvider<?> dp, Matcher m, StringMatcher sm)
 		{
-			return parser.parse(info, (IDataProvider<S>) dp, m, sm);
+			return parser.parse(line, info, (IDataProvider<S>) dp, m, sm);
 		}
 		
 		public String toString() {
@@ -226,22 +227,22 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		parsers.automaton = new TokenAutomaton(a);
 	}
 
-	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> want, String s)
+	public static <T> IDataProvider<T> parse(ScriptLine line, EventInfo info, Class<T> want, String s)
 	{
-		return parse(info, want, s, true, true);
+		return parse(line, info, want, s, true, true);
 	}
 	
-	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> want, String s, boolean finish, boolean complain)
+	public static <T> IDataProvider<T> parse(ScriptLine line, EventInfo info, Class<T> want, String s, boolean finish, boolean complain)
 	{
-		return parse(info, want, new StringMatcher(s), finish, complain, null);
+		return parse(line, info, want, new StringMatcher(s), finish, complain, null);
 	}
 
-	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> want, StringMatcher sm)
+	public static <T> IDataProvider<T> parse(ScriptLine line, EventInfo info, Class<T> want, StringMatcher sm)
 	{
-		return parse(info, want, sm, false, true, null);
+		return parse(line, info, want, sm, false, true, null);
 	}
 	
-	public static <T> IDataProvider<T> parse(EventInfo info, Class<T> want, StringMatcher sm, boolean finish, boolean complain, Pattern endPattern)
+	public static <T> IDataProvider<T> parse(ScriptLine line, EventInfo info, Class<T> want, StringMatcher sm, boolean finish, boolean complain, Pattern endPattern)
 	{
 		String startString = sm.string;
 		String soFar = null;
@@ -260,7 +261,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			{
 				StringMatcher sm2 = sm.spawn();
 				sm2.matchFront(substr);
-				dp = parseHelper(info, info.get(entry.getValue(), substr), sm2.spawn());
+				dp = parseHelper(line, info, info.get(entry.getValue(), substr), sm2.spawn());
 				
 				if ((!finish || sm2.isEmpty()) && (endPattern == null || endPattern.matcher(sm2.string).lookingAt())) {
 					tdp = transform(want, dp, info, false);
@@ -276,7 +277,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			}
 		}
 		
-		IDataProvider<?> dp2 = parseHelper(info, null, sm.spawn());
+		IDataProvider<?> dp2 = parseHelper(line, info, null, sm.spawn());
 		
 
 		if ((!finish || sm.isEmpty()) && (endPattern == null || endPattern.matcher(sm.string).lookingAt())) {
@@ -307,7 +308,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 			else
 				error += " at "+provName+" \""+soFar+"\" for \""+simpleName+"\"";
 			
-			LogUtil.error(error);
+			LogUtil.error(line, error);
 		}
 		
 		return null;
@@ -367,7 +368,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 	
 
 	@SuppressWarnings("unchecked")
-	private static IDataProvider<?> parseHelper(EventInfo info, IDataProvider<?> dp, StringMatcher sm)
+	private static IDataProvider<?> parseHelper(ScriptLine line, EventInfo info, IDataProvider<?> dp, StringMatcher sm)
 	{
 		outerLoop: while (!sm.isEmpty())
 		{
@@ -394,7 +395,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 				}
 
 
-				IDataProvider<?> dp2 = tryParser(info, tryDP, sm.spawn(), parserData);
+				IDataProvider<?> dp2 = tryParser(line, info, tryDP, sm.spawn(), parserData);
 				if (dp2 != null)
 				{
 					dp = dp2;
@@ -409,7 +410,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
 		return dp;
 	}
 
-	private static IDataProvider<?> tryParser(EventInfo info, IDataProvider<?> dp, StringMatcher sm, ParserData<?, ?> parserData)
+	private static IDataProvider<?> tryParser(ScriptLine line, EventInfo info, IDataProvider<?> dp, StringMatcher sm, ParserData<?, ?> parserData)
 	{
         StringMatcher sm2 = sm.spawn();
         Matcher m2 = sm2.matchFront(parserData.pattern);
@@ -424,7 +425,7 @@ public abstract class DataProvider<T, S> implements IDataProvider<T>
         if (newDP == null && dp != null)
         	return null;
 
-        IDataProvider<?> provider = parserData.parse(info, newDP, m2, sm2.spawn());
+        IDataProvider<?> provider = parserData.parse(line, info, newDP, m2, sm2.spawn());
         if (provider != null) {
             sm2.accept();
             sm.accept();

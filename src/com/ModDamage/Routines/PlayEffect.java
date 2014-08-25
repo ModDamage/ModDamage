@@ -85,7 +85,7 @@ public class PlayEffect extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{ 
-			IDataProvider<Location> locDP = DataProvider.parse(info, Location.class, matcher.group(1));
+			IDataProvider<Location> locDP = DataProvider.parse(scriptLine, info, Location.class, matcher.group(1));
 			if (locDP == null) return null;
 			
 			EffectType effectType;
@@ -105,7 +105,7 @@ public class PlayEffect extends Routine
 				Integer ndata = effectType.dataForExtra(matcher.group(3));
 				if (ndata == null)
 				{
-					data = DataProvider.parse(info, Integer.class, matcher.group(3));
+					data = DataProvider.parse(scriptLine, info, Integer.class, matcher.group(3));
 					
 					if (data == null)
 					{
@@ -120,7 +120,7 @@ public class PlayEffect extends Routine
 			IDataProvider<Integer> radius = null;
 			if (matcher.group(4) != null)
 			{
-				radius = DataProvider.parse(info, Integer.class, matcher.group(4));
+				radius = DataProvider.parse(scriptLine, info, Integer.class, matcher.group(4));
 				if (radius == null)
 				{
 					LogUtil.error("Unable to match expression: \""+matcher.group(4)+"\"");

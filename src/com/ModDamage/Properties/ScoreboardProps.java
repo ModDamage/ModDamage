@@ -12,6 +12,7 @@ import org.bukkit.scoreboard.Team;
 import com.ModDamage.Scoreboards;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.InterpolatedString;
@@ -57,7 +58,7 @@ public class ScoreboardProps
         SettableDataProvider.register(Team.class, OfflinePlayer.class, Pattern.compile("_team", Pattern.CASE_INSENSITIVE), new IDataParser<Team, OfflinePlayer>()
 			{
 				@Override
-				public IDataProvider<Team> parse(EventInfo info, final IDataProvider<OfflinePlayer> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Team> parse(ScriptLine scriptLine, EventInfo info, final IDataProvider<OfflinePlayer> playerDP, Matcher m, StringMatcher sm)
 				{
 					final IDataProvider<Scoreboard> scoreboardDP = Scoreboards.getCurrent(info);
 					
@@ -171,11 +172,11 @@ public class ScoreboardProps
         DataProvider.register(Integer.class, OfflinePlayer.class, Pattern.compile("objectivenamed"), new IDataParser<Integer, OfflinePlayer>()
 			{
 				@Override
-				public IDataProvider<Integer> parse(EventInfo info, final IDataProvider<OfflinePlayer> playerDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Integer> parse(ScriptLine scriptLine, EventInfo info, final IDataProvider<OfflinePlayer> playerDP, Matcher m, StringMatcher sm)
 				{
 					final IDataProvider<Scoreboard> scoreboardDP = Scoreboards.getCurrent(info);
 					
-					final IDataProvider<String> nameDP = InterpolatedString.parseWord(InterpolatedString.word, sm.spawn(), info);
+					final IDataProvider<String> nameDP = InterpolatedString.parseWord(scriptLine, InterpolatedString.word, sm.spawn(), info);
 					if (nameDP == null) return null;
 
 					return new ISettableDataProvider<Integer>() {

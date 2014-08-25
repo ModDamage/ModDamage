@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventInfo;
 
 @SuppressWarnings("rawtypes")
@@ -21,14 +22,14 @@ public abstract class FunctionParser<T, S> implements IDataParser<T, S> {
 
     @SuppressWarnings("unchecked")
 	@Override
-    public IDataProvider<T> parse(EventInfo info, IDataProvider<S> startDP, Matcher m, StringMatcher sm) {
+    public IDataProvider<T> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<S> startDP, Matcher m, StringMatcher sm) {
         IDataProvider[] args = new IDataProvider[parameters.length];
 
         if (!sm.matchesFront(startParenPattern)) return null;
         for (int i = 0; i < parameters.length; i++) {
             if (i > 0 && !sm.matchesFront(commaPattern)) return null;
 
-            args[i] = DataProvider.parse(info, parameters[i], sm.spawn(), false, true, (i == parameters.length-1)? endParenPattern : commaPattern);
+            args[i] = DataProvider.parse(scriptLine, info, parameters[i], sm.spawn(), false, true, (i == parameters.length-1)? endParenPattern : commaPattern);
             if (args[i] == null) return null;
         }
         if (!sm.matchesFront(endParenPattern)) return null;

@@ -119,14 +119,14 @@ public class EntityItemAction extends NestedRoutine
 			String name = matcher.group(1).toLowerCase();
             String action = matcher.group(2).toUpperCase();
 
-			IDataProvider<HumanEntity> humanDP = DataProvider.parse(info, HumanEntity.class, name); if (humanDP == null) return null;
-			Collection<ModDamageItemStack> items = ItemAliaser.match(matcher.group(3), info);
+			IDataProvider<HumanEntity> humanDP = DataProvider.parse(scriptLine, info, HumanEntity.class, name); if (humanDP == null) return null;
+			Collection<ModDamageItemStack> items = ItemAliaser.match(scriptLine, matcher.group(3), info);
 			if(items == null || items.isEmpty()) return null;
 			
 			
 			IDataProvider<? extends Number> quantity;
 			if (matcher.group(4) != null)
-				quantity = DataProvider.parse(info, Integer.class, matcher.group(4));
+				quantity = DataProvider.parse(scriptLine, info, Integer.class, matcher.group(4));
 			else
 				quantity = new LiteralNumber(1);
 

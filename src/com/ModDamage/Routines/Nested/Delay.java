@@ -41,7 +41,7 @@ public class Delay extends NestedRoutine
 		{
 			if(!matcher.matches()) return null;
 
-			IDataProvider<Integer> numberMatch = DataProvider.parse(info, Integer.class, matcher.group(1));
+			IDataProvider<Integer> numberMatch = DataProvider.parse(scriptLine, info, Integer.class, matcher.group(1));
 			
 			LogUtil.info("Delay: \"" + numberMatch + "\"");
 			if (numberMatch == null) return null;

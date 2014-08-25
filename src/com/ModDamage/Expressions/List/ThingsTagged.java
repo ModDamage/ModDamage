@@ -16,6 +16,7 @@ import org.bukkit.entity.Entity;
 import com.ModDamage.ModDamage;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.InterpolatedString;
@@ -84,10 +85,10 @@ public class ThingsTagged extends ListExp {
     public static void register()
     {
         DataProvider.register(List.class, Pattern.compile("(players?|entit(?:y|ies)|worlds?|chunks?|loc(?:ation)?s?|blocks?) (s)?tagged ", Pattern.CASE_INSENSITIVE), new BaseDataParser<List>() {
-            public ThingsTagged parse(EventInfo info, Matcher m, StringMatcher sm) {
+            public ThingsTagged parse(ScriptLine scriptLine, EventInfo info, Matcher m, StringMatcher sm) {
                 String taggableType = m.group(1).toLowerCase();
                 String tagType = m.group(2);
-                IDataProvider<String> tagName = InterpolatedString.parseWord(InterpolatedString.word, sm.spawn(), info);
+                IDataProvider<String> tagName = InterpolatedString.parseWord(scriptLine, InterpolatedString.word, sm.spawn(), info);
                 
                 
                 boolean isString;

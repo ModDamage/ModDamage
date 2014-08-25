@@ -50,10 +50,10 @@ public class SetProperty extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			final ISettableDataProvider propertyDP = SettableDataProvider.parse(info, null, matcher.group(1));
+			final ISettableDataProvider propertyDP = SettableDataProvider.parse(scriptLine, info, null, matcher.group(1));
 			if (propertyDP == null) return null;
 			if (!propertyDP.isSettable()) {
-				LogUtil.error("Error: Variable \"" + propertyDP + "\" is read-only.");
+				LogUtil.error(scriptLine, "Error: Variable \"" + propertyDP + "\" is read-only.");
 				return null;
 			}
 
@@ -101,7 +101,7 @@ public class SetProperty extends Routine
 					};
 				else {
 					@SuppressWarnings("unchecked")
-					IDataProvider<Number> newValueDP = DataProvider.parse(info, propertyDP.provides(), value);
+					IDataProvider<Number> newValueDP = DataProvider.parse(scriptLine, info, propertyDP.provides(), value);
 					if (newValueDP == null) return null;
 					valueDP = newValueDP;
 				}

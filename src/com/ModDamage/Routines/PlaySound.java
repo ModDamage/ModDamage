@@ -20,15 +20,17 @@ public class PlaySound extends Routine
     private final IDataProvider<Player> playerDP;
 	private final IDataProvider<Location> locDP;
 	private final Sound sound;
+	private final String soundString;
 	private final IDataProvider<Integer> volumeDP;
 	private final IDataProvider<Integer> pitchDP;
 
-	protected PlaySound(ScriptLine scriptLine, IDataProvider<Player> playerDP, IDataProvider<Location> locDP, Sound sound, IDataProvider<Integer> volumeDP, IDataProvider<Integer> pitchDP)
+	protected PlaySound(ScriptLine scriptLine, IDataProvider<Player> playerDP, IDataProvider<Location> locDP, Sound sound, String soundString, IDataProvider<Integer> volumeDP, IDataProvider<Integer> pitchDP)
 	{
 		super(scriptLine);
         this.playerDP = playerDP;
 		this.locDP = locDP;
         this.sound = sound;
+        this.soundString = soundString;
         this.volumeDP = volumeDP;
         this.pitchDP = pitchDP;
 	}
@@ -42,7 +44,10 @@ public class PlaySound extends Routine
 		Integer pitch = pitchDP.get(data);
 		if (player == null || loc == null || volume == null || pitch == null) return;
 
-        player.playSound(loc, sound, volume / 100.0f,  pitch / 100.0f);
+		if (sound == null)
+			player.playSound(loc, soundString, volume / 100.0f, pitch / 100.0f);
+		else
+			player.playSound(loc, sound, volume / 100.0f,  pitch / 100.0f);
 	}
 
 	public static void register()
@@ -55,31 +60,28 @@ public class PlaySound extends Routine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-            IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, matcher.group(1));
+            IDataProvider<Player> playerDP = DataProvider.parse(scriptLine, info, Player.class, matcher.group(1));
             if (playerDP == null) return null;
             String locStr = matcher.group(3);
             if (locStr == null) locStr = matcher.group(1);
-			IDataProvider<Location> locDP = DataProvider.parse(info, Location.class, locStr);
+			IDataProvider<Location> locDP = DataProvider.parse(scriptLine, info, Location.class, locStr);
 			if (locDP == null) return null;
 			
-			Sound sound;
+			Sound sound = null;
+			String soundString = matcher.group(2);
 			try
 			{
-				sound = Sound.valueOf(matcher.group(2).toUpperCase());
+				sound = Sound.valueOf(soundString.toUpperCase());
 			}
-			catch (IllegalArgumentException e)
-			{
-				LogUtil.error("Bad sound: \""+matcher.group(2)+"\"");
-				return null;
-			}
+			catch (IllegalArgumentException e) { } // Ignore as we can send strings for sound effects.
 
 			
-			IDataProvider<Integer> volumeDP = DataProvider.parse(info, Integer.class, matcher.group(4));
-            IDataProvider<Integer> pitchDP = DataProvider.parse(info, Integer.class, matcher.group(5));
+			IDataProvider<Integer> volumeDP = DataProvider.parse(scriptLine, info, Integer.class, matcher.group(4));
+            IDataProvider<Integer> pitchDP = DataProvider.parse(scriptLine, info, Integer.class, matcher.group(5));
             if (volumeDP == null || pitchDP == null) return null;
 			
-            LogUtil.info("PlaySound: " + sound + " for:" + playerDP + " at:" + locDP + " volume:" + volumeDP + " pitch:" + pitchDP);
-			return new RoutineBuilder(new PlaySound(scriptLine, playerDP, locDP, sound, volumeDP, pitchDP));
+            LogUtil.info("PlaySound: " + ((sound != null) ? sound : soundString) + " for:" + playerDP + " at:" + locDP + " volume:" + volumeDP + " pitch:" + pitchDP);
+			return new RoutineBuilder(new PlaySound(scriptLine, playerDP, locDP, sound, soundString, volumeDP, pitchDP));
 		}
 	}
 }

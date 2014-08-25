@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
@@ -91,7 +92,7 @@ public class StringConditionals extends Conditional<String>
 		DataProvider.register(Boolean.class, String.class, pattern, new IDataParser<Boolean, String>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<String> entityDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<String> entityDP, Matcher m, StringMatcher sm)
 				{
 					StringConditional statusType = null;
 					for(StringConditional type : StringConditional.values())
@@ -101,7 +102,7 @@ public class StringConditionals extends Conditional<String>
 					
 					boolean caseInsensitive = (m.group(1) != null);
 					
-					IDataProvider<String> otherString = DataProvider.parse(info, String.class, sm);
+					IDataProvider<String> otherString = DataProvider.parse(scriptLine, info, String.class, sm);
 					
 					return new StringConditionals(entityDP, caseInsensitive, statusType, otherString);
 				}

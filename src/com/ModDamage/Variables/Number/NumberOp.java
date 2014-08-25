@@ -12,6 +12,7 @@ import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.NumberExp;
@@ -117,14 +118,14 @@ public class NumberOp extends NumberExp<Number>
 		DataProvider.register(Number.class, Number.class, Operator.operatorPattern, new IDataParser<Number, Number>()
 				{
 					@Override
-					public IDataProvider<Number> parse(EventInfo info, IDataProvider<Number> leftDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Number> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<Number> leftDP, Matcher m, StringMatcher sm)
 					{
 						Operator operator = Operator.operatorMap.get(m.group(1));
 						
-						IDataProvider<Number> rightDP = DataProvider.parse(info, Number.class, sm.spawn());
+						IDataProvider<Number> rightDP = DataProvider.parse(scriptLine, info, Number.class, sm.spawn());
 						if (rightDP == null)
 						{
-							LogUtil.error("Unable to match expression: \""+sm.string+"\"");
+							LogUtil.error(scriptLine, "Unable to match expression: \""+sm.string+"\"");
 							return null;
 						}
 						

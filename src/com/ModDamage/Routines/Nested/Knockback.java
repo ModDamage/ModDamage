@@ -72,13 +72,13 @@ public class Knockback extends NestedRoutine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			IDataProvider<Entity> entityDP = DataProvider.parse(info, Entity.class, matcher.group(1));
+			IDataProvider<Entity> entityDP = DataProvider.parse(scriptLine, info, Entity.class, matcher.group(1));
 			if (entityDP == null) return null;
 			
 			boolean explicitFrom = matcher.group(2) != null;
 			IDataProvider<Location> fromDP = null;
 			if (explicitFrom) {
-                fromDP = DataProvider.parse(info, Location.class, matcher.group(2));
+                fromDP = DataProvider.parse(scriptLine, info, Location.class, matcher.group(2));
 				if (fromDP == null)
 					return null;
 			} else {
@@ -87,7 +87,7 @@ public class Knockback extends NestedRoutine
                     fromDP = DataProvider.transform(Location.class, otherEntityDP, info, false);
 				if (fromDP == null)
 				{
-					LogUtil.error("The entity '"+entityDP+"' doesn't have a natural opposite, so you need to specify one using '"+matcher.group()+".from.{entity}'");
+					LogUtil.error(scriptLine, "The entity '"+entityDP+"' doesn't have a natural opposite, so you need to specify one using '"+matcher.group()+".from.{entity}'");
 					return null;
 				}
 			}

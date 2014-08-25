@@ -116,12 +116,12 @@ public class ModDamageItemStack
 	
 	public static final Pattern materialPattern = Pattern.compile("(\\w+)(?=[@*]|$)"); // word followed by @ * or nothing
 	
-	public static ModDamageItemStack getNewFromFront(EventInfo info, StringMatcher sm)
+	public static ModDamageItemStack getNewFromFront(ScriptLine line, EventInfo info, StringMatcher sm)
 	{
 		Matcher m = sm.matchFront(materialPattern);
 		if (m == null) return null;
 		
-		Collection<Material> materials = MaterialAliaser.match(m.group());
+		Collection<Material> materials = MaterialAliaser.match(line, m.group());
 		Material first = null;
 		
 		if (materials != null && materials.size() > 0)
@@ -129,13 +129,13 @@ public class ModDamageItemStack
 			
 		if (first == null)
 		{
-			LogUtil.error("Error: unable to match material \"" + m.group() + "\"");
+			LogUtil.error(line, "Error: unable to match material \"" + m.group() + "\"");
 			return null;
 		}
 		
 		if (materials == null || materials.size() > 1)
 		{
-			LogUtil.error("Error: matched "+(materials == null? 0:materials.size())+" materials, wanted only one: \"" + m.group() + "\"");
+			LogUtil.error(line, "Error: matched "+(materials == null? 0:materials.size())+" materials, wanted only one: \"" + m.group() + "\"");
 			return null;
 		}
 		
@@ -144,7 +144,7 @@ public class ModDamageItemStack
 		IDataProvider<Integer> data;
 		if (sm.matchesFront("@"))
 		{
-			data = DataProvider.parse(info, Integer.class, sm.spawn());
+			data = DataProvider.parse(line, info, Integer.class, sm.spawn());
 			if (data == null) return null;
 		}
 		else
@@ -154,7 +154,7 @@ public class ModDamageItemStack
 		IDataProvider<? extends Number> amount;
 		if (sm.matchesFront("*"))
 		{
-			amount = DataProvider.parse(info, Integer.class, sm.spawn());
+			amount = DataProvider.parse(line, info, Integer.class, sm.spawn());
 			if (amount == null) return null;
 		}
 		else

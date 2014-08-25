@@ -88,13 +88,13 @@ public class For extends NestedRoutine
 			
 			StringMatcher sm = new StringMatcher(matcher.group(2));
 			
-			IDataProvider<Number> fromDP = DataProvider.parse(info, Number.class, sm.spawn(), false, true, toPattern);
+			IDataProvider<Number> fromDP = DataProvider.parse(scriptLine, info, Number.class, sm.spawn(), false, true, toPattern);
 			if (fromDP == null) return null;
 			
 			if (!sm.matchesFront(toPattern))
 				return null;
 			
-			IDataProvider<Number> toDP = DataProvider.parse(info, Number.class, sm.spawn(), false, true, byPattern);
+			IDataProvider<Number> toDP = DataProvider.parse(scriptLine, info, Number.class, sm.spawn(), false, true, byPattern);
 			if (toDP == null) return null;
 			
 			if (!sm.isEmpty() && !sm.matchesFront(toPattern))
@@ -105,7 +105,7 @@ public class For extends NestedRoutine
 				byDP = new LiteralNumber(1);
 			}
 			else {
-				byDP = DataProvider.parse(info, Number.class, sm.spawn(), true, true, null);
+				byDP = DataProvider.parse(scriptLine, info, Number.class, sm.spawn(), true, true, null);
 				if (byDP == null) return null;
 			}
 			

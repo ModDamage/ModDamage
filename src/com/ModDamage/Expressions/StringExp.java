@@ -3,6 +3,7 @@ package com.ModDamage.Expressions;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.Function.FormatFunction;
 import com.ModDamage.Expressions.Function.IndexOfFunction;
@@ -47,7 +48,7 @@ public abstract class StringExp<From> extends DataProvider<String, From>
 
 
 	@SuppressWarnings("unchecked")
-	public static List<IDataProvider<String>> getStrings(Object nestedContent, EventInfo info)
+	public static List<IDataProvider<String>> getStrings(ScriptLine scriptLine, Object nestedContent, EventInfo info)
 	{
 		List<String> strings = new ArrayList<String>();
 		if (nestedContent instanceof String)
@@ -60,7 +61,7 @@ public abstract class StringExp<From> extends DataProvider<String, From>
 		List<IDataProvider<String>> istrings = new ArrayList<IDataProvider<String>>();
 		for(String string : strings)
 		{
-			istrings.add(new InterpolatedString(string, info, true));
+			istrings.add(new InterpolatedString(scriptLine, string, info, true));
 		}
 
 		return istrings;

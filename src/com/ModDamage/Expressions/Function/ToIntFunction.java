@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.BaseDataParser;
@@ -51,23 +52,23 @@ public class ToIntFunction implements IDataProvider<Integer>
 		DataProvider.register(Integer.class, Pattern.compile("(?:to|as)int(?:eger)?\\(", Pattern.CASE_INSENSITIVE), new BaseDataParser<Integer>()
 			{
 				@Override
-				public IDataProvider<Integer> parse(EventInfo info, Matcher m, StringMatcher sm)
+				public IDataProvider<Integer> parse(ScriptLine scriptLine, EventInfo info, Matcher m, StringMatcher sm)
 				{
 					IDataProvider<?> valDP;
 					
-					IDataProvider<Number> numberDP = DataProvider.parse(info, Number.class, sm.spawn(), false, false, null);
+					IDataProvider<Number> numberDP = DataProvider.parse(scriptLine, info, Number.class, sm.spawn(), false, false, null);
 					if (numberDP != null)
 						valDP = numberDP;
 					else
 					{
-						IDataProvider<String> strDP = DataProvider.parse(info, String.class, sm.spawn(), false, false, null);
+						IDataProvider<String> strDP = DataProvider.parse(scriptLine, info, String.class, sm.spawn(), false, false, null);
 						if (strDP != null)
 							valDP = strDP;
 						else
 						{
-							IDataProvider<Object> objDP = DataProvider.parse(info, null, sm.spawn());
+							IDataProvider<Object> objDP = DataProvider.parse(scriptLine, info, null, sm.spawn());
 							if (objDP != null)
-								LogUtil.error("Wanted String or Number for toint(), not " + objDP.provides().getSimpleName());
+								LogUtil.error(scriptLine, "Wanted String or Number for toint(), not " + objDP.provides().getSimpleName());
 							return null;
 						}
 					}
@@ -75,7 +76,7 @@ public class ToIntFunction implements IDataProvider<Integer>
 					Matcher endMatcher = sm.matchFront(endPattern);
 					if (endMatcher == null)
 					{
-						LogUtil.error("Missing end paren: \"" + sm.string + "\"");
+						LogUtil.error(scriptLine, "Missing end paren: \"" + sm.string + "\"");
 						return null;
 					}
 

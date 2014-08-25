@@ -12,6 +12,7 @@ import com.ModDamage.Parsing.DataProvider;
 import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.StringMatcher;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 
@@ -49,7 +50,7 @@ public class EntityHasPotionEffect extends Conditional<LivingEntity>
 		DataProvider.register(Boolean.class, LivingEntity.class, pattern, new IDataParser<Boolean, LivingEntity>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine line, EventInfo info, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
 				{
 					String[] effectTypeStrs = m.group(1).split(",");
 					PotionEffectType[] effectTypes = new PotionEffectType[effectTypeStrs.length];
@@ -59,7 +60,7 @@ public class EntityHasPotionEffect extends Conditional<LivingEntity>
 						effectTypes[i] = PotionEffectType.getByName(effectTypeStrs[i].toUpperCase());
 						if (effectTypes[i] == null)
 						{
-							LogUtil.error("Unknown potion effect type '"+effectTypeStrs[i]+"'");
+							LogUtil.error(line, "Unknown potion effect type '"+effectTypeStrs[i]+"'");
 							return null;
 						}
 					}

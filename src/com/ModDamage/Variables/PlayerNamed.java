@@ -8,6 +8,7 @@ import org.bukkit.OfflinePlayer;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.InterpolatedString;
@@ -26,9 +27,9 @@ public class PlayerNamed implements IDataProvider<OfflinePlayer>
 				new BaseDataParser<OfflinePlayer>()
 				{
 					@Override
-					public IDataProvider<OfflinePlayer> parse(EventInfo info, Matcher m, StringMatcher sm)
+					public IDataProvider<OfflinePlayer> parse(ScriptLine scriptLine, EventInfo info, Matcher m, StringMatcher sm)
 					{
-                        IDataProvider<String> name = InterpolatedString.parseWord(word, sm.spawn(), info);
+                        IDataProvider<String> name = InterpolatedString.parseWord(scriptLine, word, sm.spawn(), info);
                         if (name == null) return null;
 
                         sm.accept();

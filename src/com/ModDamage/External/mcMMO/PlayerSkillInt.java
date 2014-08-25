@@ -13,6 +13,7 @@ import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.ExternalPluginManager;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.NumberExp;
@@ -28,7 +29,7 @@ public class PlayerSkillInt extends NumberExp<Player>
 				new IDataParser<Number, Player>()
 				{
 					@Override
-					public IDataProvider<Number> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+					public IDataProvider<Number> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
 					{
 						String skillPropStr = m.group(1);
 						String skillTypeStr = m.group(2).toUpperCase();
@@ -49,7 +50,7 @@ public class PlayerSkillInt extends NumberExp<Player>
 							}
 							catch (IllegalArgumentException e) {
 								// SkillProperty.valueOf failed to find a match
-								LogUtil.error("Unknown skill property \""+skillPropStr+"\", valid values are: "+Utils.joinBy(", ", SkillProperty.values()));
+								LogUtil.error(scriptLine, "Unknown skill property \""+skillPropStr+"\", valid values are: "+Utils.joinBy(", ", SkillProperty.values()));
 								return null;
 							}
 
@@ -59,7 +60,7 @@ public class PlayerSkillInt extends NumberExp<Player>
 							}
 							catch (IllegalArgumentException e) {
 								// SkillType.valueOf failed to find a match
-								LogUtil.error("Unknown skill type \""+skillTypeStr+"\", valid values are: "+Utils.joinBy(", ", SkillType.values()));
+								LogUtil.error(scriptLine, "Unknown skill type \""+skillTypeStr+"\", valid values are: "+Utils.joinBy(", ", SkillType.values()));
 								return null;
 							}
 
@@ -70,7 +71,7 @@ public class PlayerSkillInt extends NumberExp<Player>
 						}
 						catch (NoClassDefFoundError e) {
 							if (ExternalPluginManager.getMcMMOPlugin() == null)
-								LogUtil.error("You need mcMMO to use the skill variables.");
+								LogUtil.error(scriptLine, "You need mcMMO to use the skill variables.");
 							else
 								LogUtil.error("McMMO has changed. Please notify the ModDamage developers.");
 						}

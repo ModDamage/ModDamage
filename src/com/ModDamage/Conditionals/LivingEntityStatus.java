@@ -7,6 +7,7 @@ import org.bukkit.entity.LivingEntity;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
@@ -54,7 +55,7 @@ public class LivingEntityStatus extends Conditional<LivingEntity>
 		DataProvider.register(Boolean.class, LivingEntity.class, pattern, new IDataParser<Boolean, LivingEntity>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<LivingEntity> livingDP, Matcher m, StringMatcher sm)
 				{
 					StatusType statusType = null;
 					for(StatusType type : StatusType.values())

@@ -7,6 +7,7 @@ import org.bukkit.World;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.StringExp;
@@ -59,7 +60,7 @@ public class WorldString extends StringExp<World>
 		DataProvider.register(String.class, World.class, pattern, new IDataParser<String, World>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
+				public IDataProvider<String> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
 				{
 					return new WorldString(worldDP, WorldStringProperty.valueOf(m.group(1).toUpperCase()));
 				}

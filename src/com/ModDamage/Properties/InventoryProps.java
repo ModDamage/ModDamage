@@ -13,6 +13,7 @@ import com.ModDamage.Utils;
 import com.ModDamage.Backend.BailException;
 import com.ModDamage.Backend.InventorySlot;
 import com.ModDamage.Backend.ItemHolder;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
@@ -129,7 +130,7 @@ public class InventoryProps
 
         DataProvider.register(Integer.class, InventoryView.class, Pattern.compile("_("+ Utils.joinBy("|", InventoryView.Property.values()) + ")"),
                 new IDataParser<Integer, InventoryView>() {
-                    public IDataProvider<Integer> parse(EventInfo info, IDataProvider<InventoryView> startDP, Matcher m, StringMatcher sm) {
+                    public IDataProvider<Integer> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<InventoryView> startDP, Matcher m, StringMatcher sm) {
                         final InventoryView.Property property = InventoryView.Property.valueOf(m.group(1).toUpperCase());
                         return new SettableDataProvider<Integer, InventoryView>(InventoryView.class, startDP) {
                             public Integer get(InventoryView view, EventData data) {

@@ -1,6 +1,7 @@
 package com.ModDamage.Conditionals;
 
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Expressions.InterpolatedString;
@@ -9,6 +10,7 @@ import com.ModDamage.Parsing.IDataParser;
 import com.ModDamage.Parsing.IDataProvider;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
+
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -25,9 +27,9 @@ public class PlayerNamed extends Conditional<Player>
         DataProvider.register(Boolean.class, Player.class, pattern, new IDataParser<Boolean, Player>()
         {
             @Override
-            public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
+            public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<Player> playerDP, Matcher m, StringMatcher sm)
             {
-                Collection<IDataProvider<String>> names = InterpolatedString.parseWordList(wordPattern, InterpolatedString.comma, sm, info);
+                Collection<IDataProvider<String>> names = InterpolatedString.parseWordList(scriptLine, wordPattern, InterpolatedString.comma, sm, info);
 
                 return new PlayerNamed(playerDP, names);
             }

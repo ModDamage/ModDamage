@@ -5,7 +5,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.Expressions.InterpolatedString;
+
 import org.bukkit.World;
 
 import com.ModDamage.StringMatcher;
@@ -51,9 +53,9 @@ public class WorldNamed extends Conditional<World>
 		DataProvider.register(Boolean.class, World.class, pattern, new IDataParser<Boolean, World>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
 				{
-                    Collection<IDataProvider<String>> names = InterpolatedString.parseWordList(wordPattern, InterpolatedString.comma, sm, info);
+                    Collection<IDataProvider<String>> names = InterpolatedString.parseWordList(scriptLine, wordPattern, InterpolatedString.comma, sm, info);
 
                     return new WorldNamed(worldDP, names);
 				}

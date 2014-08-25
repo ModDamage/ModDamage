@@ -50,7 +50,7 @@ public class Message extends Routine
 	
 	private abstract static class MessageTarget
 	{
-		protected static MessageTarget match(StringMatcher sm, EventInfo info)
+		protected static MessageTarget match(ScriptLine scriptLine, StringMatcher sm, EventInfo info)
 		{
 			StringMatcher sm2 = sm.spawn();
 			if (sm2.matchesFront("console") && targetEndPattern.matcher(sm2.string).lookingAt()) {
@@ -87,7 +87,7 @@ public class Message extends Routine
 			}
 			// try a world first
 			{
-				final IDataProvider<World> worldDP = DataProvider.parse(info, World.class, sm.spawn(), false, false, targetEndPattern);
+				final IDataProvider<World> worldDP = DataProvider.parse(scriptLine, info, World.class, sm.spawn(), false, false, targetEndPattern);
 				if (worldDP != null) {
 					return new MessageTarget()
 						{
@@ -109,7 +109,7 @@ public class Message extends Routine
 			}
 			// otherwise try to find a player
 			{
-				final IDataProvider<Player> playerDP = DataProvider.parse(info, Player.class, sm.spawn(), false, true, targetEndPattern);
+				final IDataProvider<Player> playerDP = DataProvider.parse(scriptLine, info, Player.class, sm.spawn(), false, true, targetEndPattern);
 				if(playerDP != null) {
 					return new MessageTarget()
 					{
@@ -148,17 +148,17 @@ public class Message extends Routine
 		{
 			StringMatcher sm = new StringMatcher(matcher.group(1));
 			
-			MessageTarget messageTarget = MessageTarget.match(sm, info);
+			MessageTarget messageTarget = MessageTarget.match(scriptLine, sm, info);
 			if(messageTarget == null)
 			{
-				LogUtil.error("Bad message target: "+matcher.group(1));
+				LogUtil.error(scriptLine, "Bad message target: "+matcher.group(1));
 				return null;
 			}
 			
 			Matcher targetEnd = sm.matchFront(targetEndPattern);
 			
 			if (targetEnd.group(1) != null) {
-				Collection<IDataProvider<String>> messages = MessageAliaser.match(targetEnd.group(1), info);
+				Collection<IDataProvider<String>> messages = MessageAliaser.match(scriptLine, targetEnd.group(1), info);
 				if (messages == null)
 				{
 //					LogUtil.error("This message form can only be used for message aliases. Please use the following instead.");
@@ -209,7 +209,7 @@ public class Message extends Routine
 		
 		public void addString(String str)
 		{
-			IDataProvider<String> msgDP = DataProvider.parse(info, String.class, str);
+			IDataProvider<String> msgDP = DataProvider.parse(scriptLine, info, String.class, str);
 			if (msgDP != null) {
 				if (msgDP instanceof LiteralString) {
 					((LiteralString) msgDP).colorize();

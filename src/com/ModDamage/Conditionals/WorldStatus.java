@@ -7,6 +7,7 @@ import org.bukkit.World;
 
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
@@ -50,7 +51,7 @@ public class WorldStatus extends Conditional<World>
 		DataProvider.register(Boolean.class, World.class, pattern, new IDataParser<Boolean, World>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<World> worldDP, Matcher m, StringMatcher sm)
 				{
 					WorldStatusType statusType = WorldStatusType.valueOf(m.group(1).toUpperCase());
 						

@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import com.ModDamage.LogUtil;
 import com.ModDamage.StringMatcher;
 import com.ModDamage.Backend.BailException;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
@@ -52,17 +53,17 @@ public class SubstringFunction extends DataProvider<String, String>
 		DataProvider.register(String.class, String.class, Pattern.compile("_(substr(?:ing))?\\("), new IDataParser<String, String>()
 			{
 				@Override
-				public IDataProvider<String> parse(EventInfo info, IDataProvider<String> stringDP, Matcher m, StringMatcher sm)
+				public IDataProvider<String> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<String> stringDP, Matcher m, StringMatcher sm)
 				{
 					@SuppressWarnings("unchecked")
 					IDataProvider<Integer>[] args = new IDataProvider[2];
 
 					for (int i = 0; i < 2; i++)
 					{
-						IDataProvider<Integer> arg = DataProvider.parse(info, Integer.class, sm.spawn());
+						IDataProvider<Integer> arg = DataProvider.parse(scriptLine, info, Integer.class, sm.spawn());
 						if (arg == null)
 						{
-							LogUtil.error("Unable to match expression: \"" + sm.string + "\"");
+							LogUtil.error(scriptLine, "Unable to match expression: \"" + sm.string + "\"");
 							return null;
 						}
 
@@ -70,7 +71,7 @@ public class SubstringFunction extends DataProvider<String, String>
 
 						if (sm.matchesFront(commaPattern) != (i != 1))
 						{
-							LogUtil.error("Wrong number of parameters for " + m.group(1) + " function: "+i);
+							LogUtil.error(scriptLine, "Wrong number of parameters for " + m.group(1) + " function: "+i);
 							return null;
 						}
 					}
@@ -79,7 +80,7 @@ public class SubstringFunction extends DataProvider<String, String>
 					Matcher endMatcher = sm.matchFront(endPattern);
 					if (endMatcher == null)
 					{
-						LogUtil.error("Missing end paren: \"" + sm.string + "\"");
+						LogUtil.error(scriptLine, "Missing end paren: \"" + sm.string + "\"");
 						return null;
 					}
 

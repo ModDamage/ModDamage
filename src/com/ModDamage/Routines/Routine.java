@@ -91,7 +91,7 @@ abstract public class Routine
 					return builder;
 			}
 		}
-		LogUtil.error(" No match found for routine \"" + line.line + "\"");
+		LogUtil.error(line, " No match found for routine \"" + line.line + "\"");
 		return null;
 	}
 

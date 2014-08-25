@@ -10,6 +10,7 @@ import com.ModDamage.StringMatcher;
 import com.ModDamage.Utils;
 import com.ModDamage.Alias.RegionAliaser;
 import com.ModDamage.Backend.ExternalPluginManager;
+import com.ModDamage.Backend.ScriptLine;
 import com.ModDamage.EventInfo.EventData;
 import com.ModDamage.EventInfo.EventInfo;
 import com.ModDamage.Parsing.DataProvider;
@@ -65,9 +66,9 @@ public class LocationRegion extends Conditional<Location>
 		DataProvider.register(Boolean.class, Location.class, pattern, new IDataParser<Boolean, Location>()
 			{
 				@Override
-				public IDataProvider<Boolean> parse(EventInfo info, IDataProvider<Location> locDP, Matcher m, StringMatcher sm)
+				public IDataProvider<Boolean> parse(ScriptLine scriptLine, EventInfo info, IDataProvider<Location> locDP, Matcher m, StringMatcher sm)
 				{
-					Collection<String> regions = RegionAliaser.match(m.group(2));
+					Collection<String> regions = RegionAliaser.match(scriptLine, m.group(2));
 					if(regions.isEmpty()) return null;
 					
 					return new LocationRegion(locDP, m.group(1) != null, regions);

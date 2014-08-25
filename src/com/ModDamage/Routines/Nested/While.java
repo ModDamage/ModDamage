@@ -43,7 +43,7 @@ public class While extends NestedRoutine
 		@Override
 		public IRoutineBuilder getNew(Matcher matcher, ScriptLine scriptLine, EventInfo info)
 		{
-			IDataProvider<Boolean> conditional = DataProvider.parse(info, Boolean.class, matcher.group(1));
+			IDataProvider<Boolean> conditional = DataProvider.parse(scriptLine, info, Boolean.class, matcher.group(1));
 			if (conditional == null) return null;
 
 			NestedRoutine.paddedLogRecord(OutputPreset.INFO, "While: " + conditional);
