@@ -1,2 +1,6 @@
 language: java
 install: ant -f build-jenkins.xml
+branches:
+    only:
+      - master
+      - develop
