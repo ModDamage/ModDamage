@@ -4,6 +4,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.CommandBlock;
 import org.bukkit.block.Sign;
 import org.bukkit.inventory.InventoryHolder;
 
@@ -93,5 +94,8 @@ public class BlockProps
 			}
 		});
 		Properties.register("inventory", InventoryHolder.class, "getInventory");
+
+		Properties.register("name", CommandBlock.class, "getName", "setName");
+		Properties.register("command", CommandBlock.class, "getCommand", "setCommand");
 	}
 }
