@@ -11,3 +11,5 @@ commons-io-2.4-src
 *.iml
 *.eml
 out/
+*.iws
+*.ipr
