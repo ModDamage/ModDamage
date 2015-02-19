@@ -41,7 +41,7 @@ public class ServerProps
 		
 		Properties.register(new Property<Integer, Server>("onlineplayers", Integer.class, Server.class) {
 			public Integer get(Server server, EventData data) {
-				return server.getOnlinePlayers().length;
+				return server.getOnlinePlayers().size();
 			}
 			
 		});

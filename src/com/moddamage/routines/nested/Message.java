@@ -76,7 +76,7 @@ public class Message extends Routine
 						@Override
 						public void sendMessages(String[] msgs, EventData data)
 						{
-							Player[] players = Bukkit.getOnlinePlayers();
+							Collection<? extends Player> players = Bukkit.getOnlinePlayers();
 							for(Player player : players)
 								for(String msg : msgs)
 									player.sendMessage(msg);

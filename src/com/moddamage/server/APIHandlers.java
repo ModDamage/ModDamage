@@ -163,7 +163,7 @@ public class APIHandlers
 			jw.endObject();
 			
 			
-			jw.key("numPlayers").value(server.getOnlinePlayers().length);
+			jw.key("numPlayers").value(server.getOnlinePlayers().size());
 			jw.key("maxPlayers").value(server.getMaxPlayers());
 			
 		
