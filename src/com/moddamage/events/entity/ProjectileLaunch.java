@@ -1,13 +1,12 @@
 package com.moddamage.events.entity;
 
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.projectiles.ProjectileSource;
 
 import com.moddamage.MDEvent;
 import com.moddamage.ModDamage;
@@ -20,10 +19,10 @@ public class ProjectileLaunch extends MDEvent implements Listener
 	public ProjectileLaunch() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Entity.class, 		"shooter", "entity",
-			Projectile.class,	"projectile",
-			World.class,		"world",
-			Boolean.class, 		"cancelled");
+			ProjectileSource.class, "shooter", "entity",
+			Projectile.class,	    "projectile",
+			World.class,		    "world",
+			Boolean.class,   		"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onProjectileLaunch(ProjectileLaunchEvent event)
@@ -31,7 +30,7 @@ public class ProjectileLaunch extends MDEvent implements Listener
 		if(!ModDamage.isEnabled) return;
 		
 		Projectile projectile = (Projectile)event.getEntity();
-		LivingEntity shooter = projectile.getShooter();
+		ProjectileSource shooter = projectile.getShooter();
 		
 		EventData data = myInfo.makeData(
 				shooter,

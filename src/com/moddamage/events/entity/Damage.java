@@ -75,11 +75,13 @@ public class Damage extends MDEvent implements Listener
 			EntityDamageByEntityEvent event_EE = (EntityDamageByEntityEvent)event;
 			Entity damager = event_EE.getDamager();
 			
-			if(damager instanceof Projectile)
+			if(damager instanceof Projectile) //TODO: Add block based attacker.
 			{
 				projectile = (Projectile)damager;
-				
-				attacker = projectile.getShooter();
+				if (((Projectile)damager).getShooter() instanceof LivingEntity)
+					attacker = (LivingEntity) projectile.getShooter();
+				else
+					attacker = null;
 			}
 			else
 			{

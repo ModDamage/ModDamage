@@ -7,6 +7,8 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.CommandBlock;
 import org.bukkit.block.Sign;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.projectiles.BlockProjectileSource;
+import org.bukkit.projectiles.ProjectileSource;
 
 import com.moddamage.backend.BailException;
 import com.moddamage.eventinfo.EventData;
@@ -94,6 +96,24 @@ public class BlockProps
 			}
 		});
 		Properties.register("inventory", InventoryHolder.class, "getInventory");
+
+		DataProvider.registerTransformer(Block.class, ProjectileSource.class, new IDataTransformer<Block, ProjectileSource>() {
+			public IDataProvider<Block> transform(final EventInfo info, final IDataProvider<ProjectileSource> dp) {
+				return new IDataProvider<Block>() {
+
+					public Block get(EventData data) throws BailException {
+						if (dp.get(data) instanceof BlockProjectileSource)
+							return ((BlockProjectileSource) dp.get(data)).getBlock();
+						return null;
+					}
+
+					public Class<? extends Block> provides() {
+						return Block.class;
+					}
+				};
+			}
+		});
+
 
 		Properties.register("name", CommandBlock.class, "getName", "setName");
 		Properties.register("command", CommandBlock.class, "getCommand", "setCommand");

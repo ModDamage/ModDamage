@@ -11,6 +11,7 @@ import org.bukkit.entity.Slime;
 import org.bukkit.entity.Tameable;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.material.Colorable;
+import org.bukkit.projectiles.ProjectileSource;
 
 import com.moddamage.backend.BailException;
 import com.moddamage.eventinfo.EventData;
@@ -78,6 +79,7 @@ public class EntityProps
         Properties.register("color", Colorable.class, "getColor", "setColor");
         
         DataProvider.registerTransformer(InventoryHolder.class, Entity.class);
+		DataProvider.registerTransformer(LivingEntity.class, ProjectileSource.class);
 
         registerRawTypes();
 	}
