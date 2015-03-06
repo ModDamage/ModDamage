@@ -441,7 +441,13 @@ public class ExternalPluginManager
 	{
 		groupsManager = GroupsManager.reload();
 		regionsManagers = RegionsManager.reload();
-		mcMMOplugin = (mcMMO) Bukkit.getPluginManager().getPlugin("mcMMO");
+		try {
+			if (Bukkit.getPluginManager().isPluginEnabled("mcMMO"))
+				mcMMOplugin = (mcMMO) Bukkit.getPluginManager().getPlugin("mcMMO");
+		} catch (NoClassDefFoundError e) {
+			LogUtil.error("MCMMO not found: Bukket reported it was enabled. ModDamage could be out of date!");
+			mcMMOplugin = null;
+		}
 		reloadModDamageRoutines();
 		
 		if (Bukkit.getServer().getPluginManager().getPlugin("Votifier") != null)// Check if loaded.
