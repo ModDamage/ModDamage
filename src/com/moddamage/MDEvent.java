@@ -150,6 +150,7 @@ public class MDEvent implements Listener
 		if (eventCategories.containsKey(category) && eventCategories.get(category) != null) 
 		{
 			List<MDEvent> oldEvents = eventCategories.get(category);
+			newEvents = new ArrayList<MDEvent>(newEvents);
 			newEvents.addAll(0, oldEvents);
 		}
 
