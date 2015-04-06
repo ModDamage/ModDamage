@@ -42,6 +42,7 @@ public class ModDamage extends JavaPlugin
 	private static final String errorString_Permissions = chatPrepend(ChatColor.RED) + "You don't have access to that command.";
 
 	private static TagManager tagger = null;
+	private boolean earlyShutdown = false;
 	
 
 	// //////////////////////// INITIALIZATION
@@ -56,6 +57,16 @@ public class ModDamage extends JavaPlugin
 	{
 		PluginCommand.setPlugin(this);
 		isEnabled = true;
+		try {
+			Class.forName("org.bukkit.projectiles.ProjectileSource");
+		} catch (ClassNotFoundException e) {
+			LogUtil.error("ProjectileSource interface missing from bukkit api. ");
+			LogUtil.error("ModDamage currently does not support versions below 1.7");
+			LogUtil.error("For safety, ModDamage has disabled itself.");
+			earlyShutdown = true;
+			this.setEnabled(false);
+			return;
+		}
 		MagicStuff.init();
 		reload(true);
 		
@@ -73,15 +84,21 @@ public class ModDamage extends JavaPlugin
 	@Override
 	public void onDisable()
 	{
-		MDServer.stopServer();
-		Command.instance.reset();
-		Repeat.instance.reset();
-		MDEvent.unregisterEvents();
-		
-		if (tagger != null) { tagger.close(); tagger = null; }
-		isEnabled = false;
-		configuration.log.setLogFile(null); //Cleanup locks.
-		configuration.printToLog(Level.INFO, "Disabled.");
+		if (!earlyShutdown) {
+			MDServer.stopServer();
+			Command.instance.reset();
+			Repeat.instance.reset();
+			MDEvent.unregisterEvents();
+
+			if (tagger != null) {
+				tagger.close();
+				tagger = null;
+			}
+			isEnabled = false;
+			configuration.log.setLogFile(null); //Cleanup locks.
+			configuration.printToLog(Level.INFO, "Disabled.");
+		}
+
 		PluginCommand.setPlugin(null); //Prevents possible memory leaks on /reload command
 	}
 
