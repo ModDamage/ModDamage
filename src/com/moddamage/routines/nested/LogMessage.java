@@ -124,7 +124,7 @@ public class LogMessage extends NestedRoutine
 			IDataProvider<String> msgDP = DataProvider.parse(info, String.class, str);
 			if (msgDP != null) {
 				messages.add(msgDP);
-				LogUtil.info(msgDP.toString().replaceAll("%", "%%"));
+				LogUtil.info(msgDP.toString());
 			}
 		}
 
