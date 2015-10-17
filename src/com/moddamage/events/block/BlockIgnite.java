@@ -21,7 +21,7 @@ public class BlockIgnite extends MDEvent implements Listener
 	static final EventInfo myInfo = new SimpleEventInfo(
 			World.class,	"world",
 			Block.class,	"block",
-			IgniteCause.class, "cauase",
+			IgniteCause.class, "cause",
 			Boolean.class,	"cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
