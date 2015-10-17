@@ -15,8 +15,8 @@ public class Init extends MDEvent
 	private Init() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Entity.class,	"entity",
-			World.class,	"world");
+			Entity.class, "entity",
+			World.class, "world");
 	
 	public static Init instance = new Init();
 	

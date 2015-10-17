@@ -23,9 +23,9 @@ public class ProjectileHit extends MDEvent implements Listener
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
 			ProjectileSource.class, "shooter", "entity",
-			Block.class, 		    "hitblock",
-			Projectile.class,	    "projectile",
-			World.class,		    "world");
+			Block.class, "hitblock",
+			Projectile.class, "projectile",
+			World.class, "world");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onProjectileHit(ProjectileHitEvent event)

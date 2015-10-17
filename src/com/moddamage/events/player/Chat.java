@@ -19,11 +19,11 @@ public class Chat extends MDEvent implements Listener
 	public Chat() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			String.class,	"message",
-			String.class,	"format",
-			Boolean.class,	"cancelled");
+			Player.class, "player",
+			World.class, "world",
+			String.class, "message",
+			String.class, "format",
+			Boolean.class, "cancelled");
 	
 	// About deprecation: MD does a lot of things that will require synchronous 
 	// behavior. The Async event would be way to much work to impliment

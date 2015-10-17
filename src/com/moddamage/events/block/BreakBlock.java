@@ -19,11 +19,11 @@ public class BreakBlock extends MDEvent implements Listener
 	public BreakBlock() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			Block.class,	"block",
-			Integer.class,	"experience", "-default",
-			Boolean.class,	"cancelled");
+			Player.class, "player",
+			World.class, "world",
+			Block.class, "block",
+			Integer.class, "experience", "-default",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onBlockBreak(BlockBreakEvent event)

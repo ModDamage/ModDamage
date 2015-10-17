@@ -18,10 +18,10 @@ public class ToggleSneak extends MDEvent implements Listener
 	public ToggleSneak() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			Boolean.class, 	"isSneaking",
-			Boolean.class,	"cancelled");
+			Player.class, "player",
+			World.class, "world",
+			Boolean.class, "isSneaking",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onToggleSneak(PlayerToggleSneakEvent event)

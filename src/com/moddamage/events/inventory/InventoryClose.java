@@ -20,10 +20,10 @@ public class InventoryClose extends MDEvent implements Listener
 	public InventoryClose() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Inventory.class,	"inv", "inventory",
+			Inventory.class, "inv", "inventory",
 			InventoryView.class, "view",
-			Player.class,		"player",
-			World.class,		"world");
+			Player.class, "player",
+			World.class, "world");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onInteract(InventoryCloseEvent event)

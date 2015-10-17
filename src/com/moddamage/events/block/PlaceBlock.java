@@ -20,13 +20,13 @@ public class PlaceBlock extends MDEvent implements Listener
 	public PlaceBlock() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			Block.class,	"block",
-			Block.class,	"againstblock",
+			Player.class, "player",
+			World.class, "world",
+			Block.class, "block",
+			Block.class, "againstblock",
 			ItemStack.class, "item",
-			Boolean.class, 	"canbuild",
-			Boolean.class,	"cancelled");
+			Boolean.class, "canbuild",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onBlockPlace(BlockPlaceEvent event)

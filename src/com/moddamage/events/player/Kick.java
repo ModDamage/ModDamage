@@ -18,11 +18,11 @@ public class Kick extends MDEvent implements Listener
 	public Kick() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			String.class,	"message",
-			String.class,	"reason",
-			World.class,	"world",
-			Boolean.class,	"cancelled");
+			Player.class, "player",
+			String.class, "message",
+			String.class, "reason",
+			World.class, "world",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onQuit(PlayerKickEvent event)

@@ -16,12 +16,12 @@ import com.moddamage.eventinfo.SimpleEventInfo;
 public class Explode extends MDEvent implements Listener
 {
 	public Explode() { super(myInfo); }
-	
+
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Entity.class,	"entity",
-			World.class,	"world",
-			Integer.class,	"yield",
-			Boolean.class,	"cancelled");
+			Entity.class, "entity",
+			World.class, "world",
+			Integer.class, "yield",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onExplode(EntityExplodeEvent event)

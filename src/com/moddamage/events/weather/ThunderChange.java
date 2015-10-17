@@ -15,9 +15,9 @@ public class ThunderChange extends MDEvent {
 	public ThunderChange() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			World.class,	"world",
-			Boolean.class,	"state",
-			Boolean.class,	"cancelled");
+			World.class, "world",
+			Boolean.class, "state",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onThunderChange(ThunderChangeEvent event)

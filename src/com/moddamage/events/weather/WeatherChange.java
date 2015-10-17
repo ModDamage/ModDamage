@@ -15,9 +15,9 @@ public class WeatherChange extends MDEvent {
 	public WeatherChange() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			World.class,	"world",
-			Boolean.class,	"state",
-			Boolean.class,	"cancelled");
+			World.class, "world",
+			Boolean.class, "state",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onWeatherChange(WeatherChangeEvent event)

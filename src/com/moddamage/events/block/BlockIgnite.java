@@ -19,10 +19,10 @@ public class BlockIgnite extends MDEvent implements Listener
 	public BlockIgnite() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			World.class,	"world",
-			Block.class,	"block",
+			World.class, "world",
+			Block.class, "block",
 			IgniteCause.class, "cause",
-			Boolean.class,	"cancelled");
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onBlockIgnite(BlockIgniteEvent event)

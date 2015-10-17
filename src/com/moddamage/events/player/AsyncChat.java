@@ -18,11 +18,11 @@ public class AsyncChat extends MDEvent implements Listener
 	public AsyncChat() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			String.class,	"message",
-			String.class,	"format",
-			Boolean.class,	"cancelled");
+			Player.class, "player",
+			World.class, "world",
+			String.class, "message",
+			String.class, "format",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onChat(AsyncPlayerChatEvent event)

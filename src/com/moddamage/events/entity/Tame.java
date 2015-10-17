@@ -19,10 +19,10 @@ public class Tame extends MDEvent implements Listener
 	public Tame() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Entity.class,	"entity",
-			Entity.class,	"tamer",
-			World.class,	"world",
-			Boolean.class,	"cancelled");
+			Entity.class, "entity",
+			Entity.class, "tamer",
+			World.class, "world",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onEntityTame(EntityTameEvent event)

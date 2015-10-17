@@ -18,9 +18,9 @@ public class BlockBurn extends MDEvent implements Listener
 	public BlockBurn() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			World.class,	"world",
-			Block.class,	"block",
-			Boolean.class,	"cancelled");
+			World.class, "world",
+			Block.class, "block",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onBlockBurn(BlockBurnEvent event)

@@ -18,8 +18,8 @@ public class Quit extends MDEvent implements Listener
 	public Quit() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world");
+			Player.class, "player",
+			World.class, "world");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onQuit(PlayerQuitEvent event)

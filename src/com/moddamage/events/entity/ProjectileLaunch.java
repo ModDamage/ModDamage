@@ -20,9 +20,9 @@ public class ProjectileLaunch extends MDEvent implements Listener
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
 			ProjectileSource.class, "shooter", "entity",
-			Projectile.class,	    "projectile",
-			World.class,		    "world",
-			Boolean.class,   		"cancelled");
+			Projectile.class, "projectile",
+			World.class, "world",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onProjectileLaunch(ProjectileLaunchEvent event)

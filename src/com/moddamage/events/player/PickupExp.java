@@ -18,9 +18,9 @@ public class PickupExp extends MDEvent implements Listener
 	public PickupExp() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			Integer.class,	"experience");
+			Player.class, "player",
+			World.class, "world",
+			Integer.class, "experience");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPickupExperience(PlayerExpChangeEvent event)

@@ -21,12 +21,12 @@ public class Teleport extends MDEvent implements Listener
 	public Teleport() { super(myInfo); }
 
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Entity.class,	"entity",
-			World.class,	"world",
-			TeleportCause.class,	"cause",
-			Location.class,	"from",
-			Location.class,	"to",
-			Boolean.class,  "cancelled");
+			Entity.class, "entity",
+			World.class, "world",
+			TeleportCause.class, "cause",
+			Location.class, "from",
+			Location.class, "to",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onTeleport(PlayerTeleportEvent event)

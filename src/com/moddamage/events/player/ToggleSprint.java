@@ -18,10 +18,10 @@ public class ToggleSprint extends MDEvent implements Listener
 	public ToggleSprint() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			Boolean.class, 	"isSprinting",
-			Boolean.class,	"cancelled");
+			Player.class, "player",
+			World.class, "world",
+			Boolean.class, "isSprinting",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onToggleSprint(PlayerToggleSprintEvent event)

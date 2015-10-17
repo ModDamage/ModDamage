@@ -25,13 +25,13 @@ public class Damage extends MDEvent implements Listener
 	public Damage() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Entity.class, 		"attacker", "-target-other",
-			Projectile.class, 	"projectile",
-			Entity.class, 		"target", "-attacker-other",
-			World.class,		"world",
-			DamageType.class, 	"damage_type", // e.g. damage_type.type.FIRE
-			Double.class, 		"damage", "-default",
-			Boolean.class,		"cancelled");
+			Entity.class, "attacker", "-target-other",
+			Projectile.class, "projectile",
+			Entity.class, "target", "-attacker-other",
+			World.class, "world",
+			DamageType.class, "damage_type", // e.g. damage_type.type.FIRE
+			Double.class, "damage", "-default",
+			Boolean.class, "cancelled");
 	
 	
 	@EventHandler(priority=EventPriority.HIGHEST)

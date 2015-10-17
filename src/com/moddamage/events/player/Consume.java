@@ -19,10 +19,10 @@ public class Consume extends MDEvent implements Listener
 	public Consume() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,		"player",
-			World.class,		"world",
-			ItemHolder.class, 	"item",
-			Boolean.class,		"cancelled");
+			Player.class, "player",
+			World.class, "world",
+			ItemHolder.class, "item",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onConsume(PlayerItemConsumeEvent event)

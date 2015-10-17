@@ -18,9 +18,9 @@ public class ChunkUnload extends MDEvent implements Listener
 	public ChunkUnload() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			World.class,	"world",
-			Chunk.class,	"chunk",
-			Boolean.class,	"cancelled");
+			World.class, "world",
+			Chunk.class, "chunk",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onChunkUnload(ChunkUnloadEvent event)

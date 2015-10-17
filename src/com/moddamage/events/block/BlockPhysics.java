@@ -19,10 +19,10 @@ public class BlockPhysics extends MDEvent implements Listener
 	public BlockPhysics() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			World.class,	"world",
-			Block.class,	"block",
-            Material.class, "changedType", "type",
-			Boolean.class,	"cancelled");
+			World.class, "world",
+			Block.class, "block",
+			Material.class, "changedType", "type",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onBlockPhysics(BlockPhysicsEvent event)

@@ -19,11 +19,11 @@ public class PickupItem extends MDEvent implements Listener
 	public PickupItem() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			Item.class,		"item",
-			Integer.class, 	"remaining",
-			Boolean.class,	"cancelled");
+			Player.class, "player",
+			World.class, "world",
+			Item.class, "item",
+			Integer.class, "remaining",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPickupItem(PlayerPickupItemEvent event)

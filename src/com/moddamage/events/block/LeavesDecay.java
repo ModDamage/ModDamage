@@ -18,9 +18,9 @@ public class LeavesDecay extends MDEvent implements Listener
 	public LeavesDecay() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			World.class,	"world",
-			Block.class,	"block",
-			Boolean.class,	"cancelled");
+			World.class, "world",
+			Block.class, "block",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onLeavesDecay(LeavesDecayEvent event)

@@ -23,7 +23,7 @@ public class Death extends MDEvent implements Listener
 	
 	static final EventInfo myInfo = Damage.myInfo.chain(new SimpleEventInfo(
 			Integer.class, "experience", "-default",
-            List.class, "drops",
+			List.class, "drops",
 			String.class, "message", "msg"));
 			
 	@EventHandler(priority=EventPriority.HIGHEST)
