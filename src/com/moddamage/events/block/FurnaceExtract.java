@@ -17,10 +17,10 @@ public class FurnaceExtract extends MDEvent {
 	public FurnaceExtract() { super(myInfo);}
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			Block.class, 	"block",
-			Integer.class,	"experience", "-default");
+			Player.class, "player",
+			World.class, "world",
+			Block.class, "block",
+			Integer.class, "experience", "-default");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onFurnaceExtractEvent(FurnaceExtractEvent event)

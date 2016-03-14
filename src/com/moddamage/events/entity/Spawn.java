@@ -23,11 +23,11 @@ public class Spawn extends MDEvent implements Listener
 	public Spawn() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Entity.class,	"entity",
-			World.class,	"world",
-			Double.class,	"health", "-default",
+			Entity.class, "entity",
+			World.class, "world",
+			Double.class, "health", "-default",
 			SpawnReason.class, "reason", "spawn_reason",
-			Boolean.class,	"cancelled");
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPlayerRespawn(PlayerRespawnEvent event)

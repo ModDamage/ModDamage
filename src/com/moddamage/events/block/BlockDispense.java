@@ -20,9 +20,9 @@ public class BlockDispense extends MDEvent {
 	static final EventInfo myInfo = new SimpleEventInfo(
 			ItemStack.class, "item",
 			Vector.class, "velocity",
-			World.class,	"world",
-			Block.class,	"block",
-			Boolean.class,	"cancelled");
+			World.class, "world",
+			Block.class, "block",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onBlockDispense(BlockDispenseEvent event)

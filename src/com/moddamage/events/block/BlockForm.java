@@ -19,12 +19,12 @@ public class BlockForm extends MDEvent implements Listener
 	public BlockForm() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			World.class,	"world",
-			Block.class,	"block",
-            Material.class, "newtype",
-            Integer.class,  "newtypeid",
-            Integer.class,  "newdata",
-			Boolean.class,	"cancelled");
+			World.class, "world",
+			Block.class, "block",
+			Material.class, "newtype",
+			Integer.class, "newtypeid",
+			Integer.class, "newdata",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onBlockForm(BlockFormEvent event)

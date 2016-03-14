@@ -20,11 +20,11 @@ public class PrepareCraft extends MDEvent implements Listener
 	public PrepareCraft() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Inventory.class,	"inv", "inventory",
+			Inventory.class, "inv", "inventory",
 			InventoryView.class, "view",
-			Player.class,		"player",
-			World.class,		"world",
-			Boolean.class,		"isRepair");
+			Player.class, "player",
+			World.class, "world",
+			Boolean.class, "isRepair");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onInteract(PrepareItemCraftEvent event)

@@ -18,10 +18,10 @@ public class ToggleFlight extends MDEvent implements Listener
 	public ToggleFlight() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			Boolean.class, 	"isFlying",
-			Boolean.class,	"cancelled");
+			Player.class, "player",
+			World.class, "world",
+			Boolean.class, "isFlying",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onToggleFlight(PlayerToggleFlightEvent event)

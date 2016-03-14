@@ -18,10 +18,10 @@ public class ItemHeld extends MDEvent implements Listener
 	public ItemHeld() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			Integer.class,	"prevslot",
-			Integer.class,	"newslot");
+			Player.class, "player",
+			World.class, "world",
+			Integer.class, "prevslot",
+			Integer.class, "newslot");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onItemHeld(PlayerItemHeldEvent event)

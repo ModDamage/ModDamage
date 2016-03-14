@@ -2,6 +2,7 @@ package com.moddamage.events.inventory;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -25,27 +26,29 @@ public class InventoryClick extends MDEvent implements Listener
 	public InventoryClick() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Inventory.class,	"inv", "inventory",
+			Inventory.class, "inv", "inventory",
 			InventoryView.class, "view",
-			ItemHolder.class,	"item", "current",
-			ItemHolder.class,	"cursor", "cursoritem",
-			
+			ItemHolder.class, "item", "current",
+			ItemHolder.class, "cursor", "cursoritem",
+
 			InventoryAction.class, "action",
-			
-			ClickType.class,	"clicktype",
-			Boolean.class,		"leftclick",
-			Boolean.class,		"rightclick",
-			Boolean.class,		"shiftclick",
-			
-			Integer.class,		"hotbarkey",
-			
-			SlotType.class,		"slottype",
-			Integer.class,		"slot",
-			Integer.class,		"rawslot",
-			
-			Player.class,		"player",
-			World.class,		"world",
-			Boolean.class,		"cancelled");
+
+			ClickType.class, "clicktype",
+			Boolean.class, "leftclick",
+			Boolean.class, "rightclick",
+			Boolean.class, "shiftclick",
+
+			Integer.class, "hotbarkey",
+
+			SlotType.class, "slottype",
+			Integer.class, "slot",
+			Integer.class, "rawslot",
+
+			Player.class, "player",
+			World.class, "world",
+
+			Result.class, "result",
+			Boolean.class, "cancelled");
 	
 	@SuppressWarnings("deprecation")
 	@EventHandler(priority=EventPriority.HIGHEST)
@@ -82,6 +85,8 @@ public class InventoryClick extends MDEvent implements Listener
 				
 				player,
 				player.getWorld(),
+
+				event.getResult(),
 				event.isCancelled()
 				);
 		
@@ -92,7 +97,8 @@ public class InventoryClick extends MDEvent implements Listener
 
 		if (cursorh.getItem() != cursor)
 			event.setCursor(cursorh.getItem());
-		
+
+		event.setResult(data.get(Result.class, data.start + data.objects.length - 2));
 		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }

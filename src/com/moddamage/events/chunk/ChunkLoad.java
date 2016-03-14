@@ -18,9 +18,9 @@ public class ChunkLoad extends MDEvent implements Listener
 	public ChunkLoad() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			World.class,	"world",
-			Chunk.class,	"chunk",
-			Boolean.class,	"isNewChunk", "isNew");
+			World.class, "world",
+			Chunk.class, "chunk",
+			Boolean.class, "isNewChunk", "isNew");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onChunkLoad(ChunkLoadEvent event)

@@ -19,12 +19,12 @@ public class Fish extends MDEvent implements Listener
 	public Fish() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			Entity.class,	"caught",
+			Player.class, "player",
+			World.class, "world",
+			Entity.class, "caught",
 			PlayerFishEvent.State.class, "state",
-			Integer.class,	"experience", "-default",
-			Boolean.class,	"cancelled");
+			Integer.class, "experience", "-default",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onFish(PlayerFishEvent event)

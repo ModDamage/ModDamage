@@ -18,8 +18,8 @@ public class ChunkPopulate extends MDEvent implements Listener
 	public ChunkPopulate() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			World.class,	"world",
-			Chunk.class,	"chunk");
+			World.class, "world",
+			Chunk.class, "chunk");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onChunkPopulate(ChunkPopulateEvent event)

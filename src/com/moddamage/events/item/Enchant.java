@@ -20,12 +20,12 @@ public class Enchant extends MDEvent implements Listener
 	public Enchant() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class, 			"player",
-			World.class,			"world",
-			ItemHolder.class, 		"item",
-			EnchantmentsRef.class,	"enchantments",
-			Integer.class,			"level",
-			Boolean.class,			"cancelled");
+			Player.class, "player",
+			World.class, "world",
+			ItemHolder.class, "item",
+			EnchantmentsRef.class, "enchantments",
+			Integer.class, "level",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onEnchantItem(EnchantItemEvent event)

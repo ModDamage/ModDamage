@@ -19,10 +19,10 @@ public class DropItem extends MDEvent implements Listener
 	public DropItem() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			Item.class,		"item",
-			Boolean.class,	"cancelled");
+			Player.class, "player",
+			World.class, "world",
+			Item.class, "item",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onDropItem(PlayerDropItemEvent event)

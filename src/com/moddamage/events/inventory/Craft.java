@@ -21,11 +21,12 @@ public class Craft extends MDEvent implements Listener
 	public Craft() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Inventory.class,	"inv", "inventory",
+			Inventory.class, "inv", "inventory",
 			InventoryView.class, "view",
-			Player.class,		"player",
-			World.class,		"world",
-			Boolean.class,		"cancelled");
+			Player.class, "player",
+			World.class, "world",
+			Result.class, "result",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onInteract(CraftItemEvent event)
@@ -39,11 +40,12 @@ public class Craft extends MDEvent implements Listener
 				event.getView(),
 				player,
 				player.getWorld(),
+				event.getResult(),
 				event.isCancelled()
 				);
 		
 		runRoutines(data);
-		
-		event.setResult(data.get(Boolean.class, data.start + data.objects.length - 1) == true? Result.DENY : Result.DEFAULT);
+		event.setResult(data.get(Result.class, data.start + data.objects.length -2));
+		event.setCancelled(data.get(Boolean.class, data.start + data.objects.length - 1));
 	}
 }

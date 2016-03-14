@@ -18,10 +18,10 @@ public class Login extends MDEvent implements Listener
 	public Login() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			String.class,	"hostname",
-			String.class,	"kickmessage",
+			Player.class, "player",
+			World.class, "world",
+			String.class, "hostname",
+			String.class, "kickmessage",
 			PlayerLoginEvent.Result.class, "result");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)

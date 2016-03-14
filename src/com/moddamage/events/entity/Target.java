@@ -18,11 +18,11 @@ public class Target extends MDEvent implements Listener
 	public Target() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Entity.class,	"entity",
-			World.class,	"world",
-			Entity.class,	"target",
+			Entity.class, "entity",
+			World.class, "world",
+			Entity.class, "target",
 			EntityTargetEvent.TargetReason.class, "reason",
-			Boolean.class,	"cancelled");
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onTarget(EntityTargetEvent event)

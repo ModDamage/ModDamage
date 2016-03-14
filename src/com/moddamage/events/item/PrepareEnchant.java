@@ -19,14 +19,14 @@ public class PrepareEnchant extends MDEvent implements Listener
 	public PrepareEnchant() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,		"player",
-			World.class,		"world",
-			ItemHolder.class, 	"item",
-			Integer.class,		"bonus",
-			Integer.class,		"level_1",
-			Integer.class,		"level_2",
-			Integer.class,		"level_3",
-			Boolean.class,		"cancelled");
+			Player.class, "player",
+			World.class, "world",
+			ItemHolder.class, "item",
+			Integer.class, "bonus",
+			Integer.class, "level_1",
+			Integer.class, "level_2",
+			Integer.class, "level_3",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPrepareItemEnchant(final PrepareItemEnchantEvent event)

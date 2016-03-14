@@ -16,9 +16,9 @@ public class LightingStrike extends MDEvent {
 	public LightingStrike() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			World.class,	"world",
-			Lightning.class,	"bolt",
-			Boolean.class,	"cancelled");
+			World.class, "world",
+			Lightning.class, "bolt",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onStrike(LightningStrikeEvent event)

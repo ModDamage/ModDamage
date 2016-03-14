@@ -22,7 +22,7 @@ public class SignChange extends MDEvent {
 			String.class, "line_4",
 			Player.class, "player",
 			Block.class, "block",
-			Boolean.class,	"cancelled");
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onSignChange(SignChangeEvent event)

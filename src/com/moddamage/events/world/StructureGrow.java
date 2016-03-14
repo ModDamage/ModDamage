@@ -20,12 +20,12 @@ public class StructureGrow extends MDEvent implements Listener
 	public StructureGrow() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			World.class,	"world",
-			Player.class,   "player",
+			World.class, "world",
+			Player.class, "player",
 			Location.class, "loc", "location",
 			TreeType.class, "species",
-			Boolean.class,  "isFromBonemeal",
-			Boolean.class,	"cancelled");
+			Boolean.class, "isFromBonemeal",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onStructureGrow(StructureGrowEvent event)

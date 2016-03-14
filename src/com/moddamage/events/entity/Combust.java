@@ -21,12 +21,12 @@ public class Combust extends MDEvent implements Listener
 	public Combust() { super(myInfo); }
 
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Entity.class,	"entity",
-			World.class,	"world",
-			Integer.class,	"duration",
-			Entity.class,	"combustor",
-			Block.class,	"block",
-			Boolean.class,  "cancelled");
+			Entity.class, "entity",
+			World.class, "world",
+			Integer.class, "duration",
+			Entity.class, "combustor",
+			Block.class, "block",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onCombust(EntityCombustEvent event)

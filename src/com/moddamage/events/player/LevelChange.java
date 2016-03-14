@@ -18,10 +18,10 @@ public class LevelChange extends MDEvent implements Listener
 	public LevelChange() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world",
-			Integer.class,	"old", "oldlevel",
-			Integer.class,	"new", "newlevel", "level");
+			Player.class, "player",
+			World.class, "world",
+			Integer.class, "old", "oldlevel",
+			Integer.class, "new", "newlevel", "level");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onPickupExperience(PlayerLevelChangeEvent event)

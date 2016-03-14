@@ -19,11 +19,11 @@ public class BlockFlow extends MDEvent implements Listener
 	public BlockFlow() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			World.class,	"world",
-			Block.class,	"block",
-			BlockFace.class,	"blockface",
-			Block.class,	"toblock",
-			Boolean.class,	"cancelled");
+			World.class, "world",
+			Block.class, "block",
+			BlockFace.class, "blockface",
+			Block.class, "toblock",
+			Boolean.class, "cancelled");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onBlockFlow(BlockFromToEvent event)

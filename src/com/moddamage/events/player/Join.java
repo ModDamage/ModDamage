@@ -19,8 +19,8 @@ public class Join extends MDEvent implements Listener
 	public Join() { super(myInfo); }
 	
 	static final EventInfo myInfo = new SimpleEventInfo(
-			Player.class,	"player",
-			World.class,	"world");
+			Player.class, "player",
+			World.class, "world");
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onJoin(PlayerJoinEvent event)
