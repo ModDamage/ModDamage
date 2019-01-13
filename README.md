@@ -18,6 +18,6 @@ The ModDamage Team
 
 * [Erich Gubler AKA KoryuObihiro](https://github.com/KoryuObihiro), creator
 
-* [Matt Peterson AKA ricochet1k](https://github.com/ricochet1k), maintaner, developer
+* [Matt Peterson AKA ricochet1k](https://github.com/ricochet1k), maintainer, developer
 
 * [Christopher Krier AKA coaster3000](https://github.com/coaster3000), contributor
